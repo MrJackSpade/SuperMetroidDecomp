@@ -995,7 +995,7 @@ internal static class LookupStream2Verification
             AssertEqual(minimumY[column], DeadTorizoGeometryDefinitions.ColumnMinimumY(column),
                 "Dead Torizo native clipping boundary");
         }
-        byte[] planar = ReadDeadTorizoRomBytes(rom, DeadTorizoArtworkDefinitions.SourceAddress, DeadTorizoArtworkDefinitions.ByteCount);
+        byte[] planar = ReadDeadTorizoRomBytes(rom, CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns,
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
@@ -1024,8 +1024,8 @@ internal static class LookupStream2Verification
                         Version = 1,
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
-            }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
-        AssertTrue(artwork.TryResolve(DeadTorizoArtworkDefinitions.SourceAddress, DeadTorizoArtworkDefinitions.ByteCount,
+            }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = CorpseSheetDefinitions.DeadTorizoSheetAddress } });
+        AssertTrue(artwork.TryResolve(CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount,
             out ReadOnlyMemory<byte> atlas), "Dead Torizo installed art resolves its corpse sheet");
         // The extraction stages the corpse as the cartridge does and rots it to picture each step (#1392).
         CorpseStaging corpseTiles = CorpseStaging.Torizo(atlas.Span);
@@ -1620,17 +1620,21 @@ internal static class LookupStream2Verification
         }
         Console.WriteLine("Pause ownership: all1024 cells plus rejected outer bounds match native label/reserve destinations, including the nine-cell Plasma overlap.");
     }
-    /// <summary>Checks Dead Torizo VRAM descriptors, terminators, and fourteen queued live-WRAM transfers.</summary>
+    /// <summary>
+    /// Checks the extraction's Dead Torizo row upload descriptors and terminators against the cartridge, and that each
+    /// main-AI call selects the corpse's rot step for the half it alternates to (#1406).
+    /// </summary>
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
-        Action<DeadTorizoEnemyState> build = enemies.DeadTorizoBehavior.BuildDeadTorizoVramTransfers;
+        Action<DeadTorizoEnemyState> show = enemies.DeadTorizoBehavior.ShowNextRotHalf;
         for (ushort phase = 0; phase < 2; phase++)
         {
-            var rows = DeadTorizoVramTransferDefinitions.ForHalf(odd: phase == 1);
-            ushort table = phase == 0 ? DeadTorizoVramTransferDefinitions.EvenTable : DeadTorizoVramTransferDefinitions.OddTable;
-            AssertEqual(7, rows.Length, "Dead Torizo six body rows plus sand strip");
+            var rows = DeadTorizoRowUploadDefinitions.ForHalf(odd: phase == 1);
+            // DeadTorizo_VRAMWriteTable_Even at $A9:D549 and DeadTorizo_VRAMWriteTable_Odd at $A9:D583.
+            ushort table = phase == 0 ? (ushort)0xd549 : (ushort)0xd583;
+            AssertEqual(7, rows.Count, "Dead Torizo six body rows plus sand strip");
             int count = 0;
             foreach (var row in rows)
             {
@@ -1638,28 +1642,22 @@ internal static class LookupStream2Verification
                 AssertEqual(ReadVerificationWord(rom, address), row.SizeInBytes, "Dead Torizo native DMA size");
                 AssertEqual(ReadVerificationWord(rom, address + 2), row.SourceBankWord, "Dead Torizo native DMA bank");
                 AssertEqual(ReadVerificationWord(rom, address + 4), row.SourceOffset, "Dead Torizo native DMA source");
-                AssertEqual(ReadVerificationWord(rom, address + 6), row.EncodedVramDestination, "Dead Torizo native DMA destination");
+                AssertEqual(ReadVerificationWord(rom, address + 6), row.DestinationWord, "Dead Torizo native DMA destination");
                 AssertEqual(rows[count++], row, "Dead Torizo enumeration order");
             }
             AssertEqual(7, count, "Dead Torizo enumeration count");
             AssertEqual((ushort)0, ReadVerificationWord(rom, 0xa90000 | table + count * 8), "Dead Torizo native terminator");
             // The cartridge's phase word before this call is phase - 1: 65535 for phase 0, whose odd low bit
             // gives way to the even half across the word's wrap, then 0 for phase 1.
-            state.UploadsOddTransferHalf = phase == 0;
-            build(state);
-            AssertEqual(phase == 1, state.UploadsOddTransferHalf, "Dead Torizo phase advancement, including across the phase word's wrap");
-            // The corpse records the rot step each uploaded row shows, where its native descriptor uploads it (#1392).
-            for (int index = 0; index < rows.Length; index++)
-            {
-                var region = new CharacterRegion(ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(rows[index].EncodedVramDestination)),
-                    rows[index].SizeInBytes);
-                AssertTrue(enemies.Presentation.RotUploads.TryShowing(region, out int step, out _) && step == 0,
-                    "Dead Torizo uploads each native row before its rot begins");
-            }
+            state.ShowsOddHalf = phase == 0;
+            show(state);
+            AssertEqual(phase == 1, state.ShowsOddHalf, "Dead Torizo phase advancement, including across the phase word's wrap");
+            // The call selects the corpse's rot step, none yet taken, for the half it shows (#1406).
+            AssertEqual((int?)0, phase == 1 ? state.OddHalfStep : state.EvenHalfStep, "Dead Torizo shows its half at the step its rot has reached");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
         }
-        Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, fourteen uploaded native rows, phase parity, enumeration and bounds pass.");
+        Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, the halves each call shows, phase parity, enumeration and bounds pass.");
     }
     /// <summary>Checks five gunship liftoff graphics transfers and their live queue behavior.</summary>
     internal static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// Dead Torizo's corpse state: its function and velocity, rot table and schedule, transfer half, contact delay and
-/// sand-heap progress. The function and velocity are values the cartridge keeps in the enemy's common record, emptied
+/// Dead Torizo's corpse state: its function and velocity, rot table and schedule, the rot step each half of its rows
+/// shows, contact delay and sand-heap progress. The function and velocity are values the cartridge keeps in the enemy's common record, emptied
 /// with it when the corpse is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DeadTorizoEnemyState
@@ -28,11 +28,18 @@ public sealed class DeadTorizoEnemyState
     public int WrapOffset { get; }
 
     /// <summary>
-    /// Whether this call's corpse uploads use the odd half: body rows 6-11 and the first sand strip. Every main-AI call
-    /// flips it before building transfers, even while the corpse is intact or finished. The cartridge increments a phase
-    /// word and selects by its low bit, which alternates identically across the word's wrap from 65535 to 0.
+    /// Whether the half of the corpse's rows shown last is the odd half: body rows 6-11 and the first sand strip. Every
+    /// main-AI call flips it before showing that half, even while the corpse is intact or finished. The cartridge
+    /// increments a phase word and selects by its low bit, which alternates identically across the word's wrap from 65535
+    /// to 0.
     /// </summary>
-    public bool UploadsOddTransferHalf { get; internal set; }
+    public bool ShowsOddHalf { get; internal set; }
+
+    /// <summary>The rot step the even half of the corpse's rows shows, or none before a main-AI call first shows it (#1406).</summary>
+    public int? EvenHalfStep { get; internal set; }
+
+    /// <summary>The rot step the odd half of the corpse's rows shows, or none before a main-AI call first shows it (#1406).</summary>
+    public int? OddHalfStep { get; internal set; }
     /// <summary>Contact-delay calls counted before rotting, 0..16: the sixteenth enters rotting and the corpse never returns to the delay. Direct shot or touch triggering bypasses it.</summary>
     public int PreRotDelayCounter { get; internal set; }
     /// <summary>Host diagnostic count of shared corpse-rotting scheduler calls since initialization, including the call that completes its final entry.</summary>

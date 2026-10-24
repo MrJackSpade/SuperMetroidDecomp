@@ -12,30 +12,47 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
 /// A rotting corpse's staged characters, rotted as the cartridge rots them (#1392): the bytes of each row it uploads after
-/// each rot step, from which its sheet pictures every step its frames can show, and the steps its rows can show together.
-/// The room keeps only the step each row showed last (<see cref="CorpseRotUploads"/>), so nothing rots pixels at run time.
+/// each rot step, from which its sheet pictures every rot its frames can show, and the rots its rows can show together. A
+/// dead monster or the dead Torizo selects the rot its frames show by its kind (#1406); Mother Brain's corpse is pictured
+/// for the step each of its rows was uploaded at (<see cref="CorpseRotUploads"/>). Nothing rots pixels at run time.
 /// </summary>
 internal sealed class CorpseRotSimulation
 {
     /// <summary>Every row's bytes after each step, by row then step; a row the corpse never uploads at a step holds none.</summary>
     private readonly Dictionary<CorpseRotRow, byte[]?[]> rowBytes;
 
+    /// <summary>Each state the corpse's uploads can leave its rows in: the step each row shows, or none for the set's characters.</summary>
     private readonly IReadOnlyList<IReadOnlyDictionary<CorpseRotRow, int?>> reachable;
 
-    private CorpseRotSimulation(string flesh, IReadOnlyList<CorpseRotRow> rows, Dictionary<CorpseRotRow, byte[]?[]> rowBytes,
-        IReadOnlyList<IReadOnlyDictionary<CorpseRotRow, int?>> reachable)
+    private CorpseRotSimulation(string flesh, RottingCorpseKind? kind, IReadOnlyList<CorpseRotRow> rows,
+        Dictionary<CorpseRotRow, byte[]?[]> rowBytes, IReadOnlyList<IReadOnlyDictionary<CorpseRotRow, int?>> reachable,
+        IReadOnlyList<CorpseRotState> states)
     {
         Flesh = flesh;
+        Kind = kind;
         Rows = rows;
         this.rowBytes = rowBytes;
         this.reachable = reachable;
+        States = states;
     }
 
-    /// <summary>The corpse whose characters rot, named for messages and checks.</summary>
+    /// <summary>The corpse whose characters rot, named for messages, checks and the manifest.</summary>
     internal string Flesh { get; }
+
+    /// <summary>The kind of corpse, whose frames select the rot they show; none for Mother Brain's corpse.</summary>
+    internal RottingCorpseKind? Kind { get; }
 
     /// <summary>The rows of characters the corpse uploads.</summary>
     internal IReadOnlyList<CorpseRotRow> Rows { get; }
+
+    /// <summary>
+    /// Each rot the frames of a corpse of a kind can show other than the graphics set's characters, once each, with the step
+    /// each row shows in it; none for Mother Brain's corpse.
+    /// </summary>
+    internal IReadOnlyList<CorpseRotState> States { get; }
+
+    /// <summary>The names of the pictures of sheet frame <paramref name="frame"/> drawn over a kind's rows: the frame itself, then each rot.</summary>
+    internal IEnumerable<string> PictureNames(string frame) => States.Select(state => state.View.PictureName(frame)).Prepend(frame);
 
     /// <summary>The bytes <paramref name="row"/> uploads after rot step <paramref name="step"/>.</summary>
     /// <exception cref="InvalidDataException">The corpse never uploads the row after that step.</exception>
@@ -64,10 +81,15 @@ internal sealed class CorpseRotSimulation
     }
 
     /// <summary>Whether <paramref name="enemy"/>'s frames show a corpse whose characters rot: a corpse's, or Mother Brain's.</summary>
-    internal static bool Rots(EnemyDefinitionId enemy) =>
-        enemy is EnemyDefinitionId.CorpseTorizo or EnemyDefinitionId.CorpseSidehopper or EnemyDefinitionId.MotherBrainHead
-            or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainTubes
-        || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy);
+    internal static bool Rots(EnemyDefinitionId enemy) => ShowsSelectedRot(enemy) || ShowsUploadedRot(enemy);
+
+    /// <summary>Whether <paramref name="enemy"/>'s frames show the rot a corpse of a kind selects: a dead monster's or the dead Torizo's.</summary>
+    internal static bool ShowsSelectedRot(EnemyDefinitionId enemy) =>
+        enemy is EnemyDefinitionId.CorpseTorizo or EnemyDefinitionId.CorpseSidehopper || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy);
+
+    /// <summary>Whether <paramref name="enemy"/>'s frames show Mother Brain's corpse as its uploaded rows leave it.</summary>
+    internal static bool ShowsUploadedRot(EnemyDefinitionId enemy) =>
+        enemy is EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainTubes;
 
     /// <summary>
     /// The rotting corpses among <paramref name="drawn"/>, each rotted from installed <paramref name="enemies"/> or
@@ -92,8 +114,8 @@ internal sealed class CorpseRotSimulation
             else if (DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
             {
                 DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianBehavior.ProfileForDeadTourianCorpse(enemy);
-                for (int variant = 0; variant < profile.Variants.Length; variant++)
-                    corpses.Add(Tourian(enemies, enemy, profile, variant));
+                for (int variant = 0; variant < profile.VariantCount; variant++)
+                    corpses.Add(Tourian(enemies, enemy, profile.Species, variant));
             }
         }
         return corpses;
@@ -103,33 +125,32 @@ internal sealed class CorpseRotSimulation
     private static CorpseRotSimulation Sidehopper(EnemyTileArtworkCatalog enemies, ushort graphicsVariant, DeadSidehopperCorpseDefinition definition)
     {
         CorpseStaging staged = CorpseStaging.Sidehopper(
-            Atlas(enemies, DeadTourianCorpseArtworkDefinitions.SourceAddress, DeadTourianCorpseArtworkDefinitions.ByteCount), graphicsVariant);
+            Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheetAddress, CorpseSheetDefinitions.DeadMonsterSheetByteCount), graphicsVariant);
         CorpseRowGeometry geometry = CorpseRowGeometry.Sidehopper(graphicsVariant, definition.WrapOffset);
         int populated = Populated(EnemyDefinitionId.CorpseSidehopper, graphicsVariant);
-        return Batch(definition.VramTransfers, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
+        return Batch(definition.Kind, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
     }
 
     /// <summary>Variant <paramref name="variant"/> of a dead Zoomer, Ripper or Skree.</summary>
-    private static CorpseRotSimulation Tourian(EnemyTileArtworkCatalog enemies, EnemyDefinitionId enemy,
-        DeadTourianBehavior.DeadTourianCorpseProfile profile, int variant)
+    private static CorpseRotSimulation Tourian(EnemyTileArtworkCatalog enemies, EnemyDefinitionId enemy, DeadTourianCorpseSpecies species, int variant)
     {
-        DeadTourianBehavior.DeadTourianCorpseVariant layout = profile.Variants[variant];
-        DeadTourianCorpseDefinition definition = DeadTourianCorpseDefinitions.For(profile.Species, variant);
+        DeadTourianCorpseVariant layout = DeadTourianCorpseStagingDefinitions.Variants(species)[variant];
+        DeadTourianCorpseDefinition definition = DeadTourianCorpseDefinitions.For(species, variant);
         CorpseStaging staged = CorpseStaging.Tourian(
-            Atlas(enemies, DeadTourianCorpseArtworkDefinitions.SourceAddress, DeadTourianCorpseArtworkDefinitions.ByteCount), layout);
-        CorpseRowGeometry geometry = CorpseRowGeometry.Tourian(profile, layout, definition.WrapOffset);
+            Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheetAddress, CorpseSheetDefinitions.DeadMonsterSheetByteCount), layout);
+        CorpseRowGeometry geometry = CorpseRowGeometry.Tourian(species, layout, definition.WrapOffset);
         int populated = Populated(enemy, checked((ushort)(variant * 2)));
-        return Batch(definition.VramTransfers, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
+        return Batch(definition.Kind, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
     }
 
     /// <summary>
-    /// A corpse that uploads all its rows after each rot step it takes, and none before the first: each population record
-    /// of it rots the one staged copy they share, so once the first to rot has finished, each further one steps it once more.
+    /// A corpse of <paramref name="kind"/> that uploads all its rows after each rot step it takes, and none before the first:
+    /// each population record of it rots the one staged copy they share, so once the first to rot has finished, each further
+    /// one steps it once more.
     /// </summary>
-    private static CorpseRotSimulation Batch(CorpseTransferTable flesh, CorpseStaging staged, CorpseRowGeometry geometry,
+    private static CorpseRotSimulation Batch(RottingCorpseKind kind, CorpseStaging staged, CorpseRowGeometry geometry,
         int rotTableOffset, int entryCount, int populated) =>
-        Batch(flesh.ToString(), [.. DeadMonsterRottingDefinitions.ForTransferTable(flesh).Select((transfer, index) =>
-                Row(index, transfer.SourceAddress, transfer.SizeInBytes, transfer.Destination))],
+        Batch(kind.Name, kind, [.. DeadMonsterRowUploadDefinitions.ForKind(kind).Select((upload, index) => Row(index, upload))],
             new EnemyStagingSurfaces().RotTable(rotTableOffset, entryCount), staged, geometry, populated, uploadsLastStep: true);
 
     /// <summary>
@@ -142,8 +163,9 @@ internal sealed class CorpseRotSimulation
             ?? throw new InvalidDataException($"Installed boss art holds no Mother Brain corpse ({MotherBrainCorpseArtworkDefinitions.FileName}).");
         if (atlas.Transfer.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
             throw new InvalidDataException($"Installed {MotherBrainCorpseArtworkDefinitions.FileName} holds {atlas.Transfer.Length} bytes, not {MotherBrainCorpseArtworkDefinitions.ByteCount}.");
-        return Batch("MotherBrain", [.. MotherBrainCorpseArtworkDefinitions.RotTransfers.Select((transfer, index) =>
-                Row(index, checked((int)transfer.SourceAddress), transfer.Size, VramDmaDestination.FromNative(checked((ushort)transfer.VramDestination))))],
+        return Batch("MotherBrain", null, [.. MotherBrainCorpseArtworkDefinitions.RotTransfers.Select((transfer, index) =>
+                new CorpseRotRow(index, checked((int)transfer.SourceAddress), transfer.Size,
+                    ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(checked((ushort)transfer.VramDestination)))))],
             new EnemyStagingSurfaces().MotherBrainRotTable, CorpseStaging.MotherBrain(atlas.Transfer.Span), CorpseRowGeometry.MotherBrain,
             populated: 1, uploadsLastStep: false);
     }
@@ -152,8 +174,8 @@ internal sealed class CorpseRotSimulation
     /// A corpse that uploads all its <paramref name="rows"/> after each rot step it takes (the last one too unless
     /// <paramref name="uploadsLastStep"/> is false), and none before the first.
     /// </summary>
-    private static CorpseRotSimulation Batch(string flesh, CorpseRotRow[] rows, CorpseRotTable table, CorpseStaging staged, CorpseRowGeometry geometry,
-        int populated, bool uploadsLastStep)
+    private static CorpseRotSimulation Batch(string flesh, RottingCorpseKind? kind, CorpseRotRow[] rows, CorpseRotTable table,
+        CorpseStaging staged, CorpseRowGeometry geometry, int populated, bool uploadsLastStep)
     {
         CorpseRottingTableProcessor.Initialize(table);
         int yLimit = table.EntryCount - 1;
@@ -171,12 +193,16 @@ internal sealed class CorpseRotSimulation
         }
         int steps = uploadsLastStep ? snapshots.Count - 1 : snapshots.Count - 2;
         var reachable = new List<IReadOnlyDictionary<CorpseRotRow, int?>> { rows.ToDictionary(row => row, _ => (int?)null) };
+        var states = new List<CorpseRotState>();
         for (int step = 1; step <= steps; step++)
         {
             int shown = step;
-            reachable.Add(rows.ToDictionary(row => row, _ => (int?)shown));
+            IReadOnlyDictionary<CorpseRotRow, int?> state = rows.ToDictionary(row => row, _ => (int?)shown);
+            reachable.Add(state);
+            if (kind is RottingCorpseKind selected)
+                states.Add(new CorpseRotState(new CorpseRotView(selected, [shown]), state));
         }
-        return new CorpseRotSimulation(flesh, rows, ByRow(rows, snapshots), reachable);
+        return new CorpseRotSimulation(flesh, kind, rows, ByRow(rows, snapshots), reachable, states);
     }
 
     /// <summary>
@@ -185,15 +211,14 @@ internal sealed class CorpseRotSimulation
     /// </summary>
     private static CorpseRotSimulation Torizo(EnemyTileArtworkCatalog enemies)
     {
-        ReadOnlySpan<byte> atlas = Atlas(enemies, DeadTorizoArtworkDefinitions.SourceAddress, DeadTorizoArtworkDefinitions.ByteCount);
+        ReadOnlySpan<byte> atlas = Atlas(enemies, CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount);
         CorpseStaging staged = CorpseStaging.Torizo(atlas);
         CorpseRowGeometry geometry = CorpseRowGeometry.Torizo;
         var halves = new Dictionary<bool, CorpseRotRow[]>();
         foreach (bool odd in new[] { false, true })
         {
-            DeadTorizoVramTransferDefinitions.PhaseRows transfers = DeadTorizoVramTransferDefinitions.ForHalf(odd);
-            halves[odd] = [.. transfers.Select((transfer, index) => Row(TorizoRowIndex(odd, index, transfers.Count), transfer.SourceAddress,
-                transfer.SizeInBytes, transfer.Destination))];
+            DeadTorizoRowUploadDefinitions.PhaseRows uploads = DeadTorizoRowUploadDefinitions.ForHalf(odd);
+            halves[odd] = [.. uploads.Select((upload, index) => Row(TorizoRowIndex(odd, index, uploads.Count), upload))];
         }
         CorpseRotRow[] rows = [.. halves[false], .. halves[true]];
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
@@ -211,18 +236,22 @@ internal sealed class CorpseRotSimulation
                 (y, operation) => staged.MoveRow(geometry, y, operation), _ => { });
             snapshots.Add([.. rows.Select(staged.Upload)]);
         }
-        return new CorpseRotSimulation(new CorpseTransferTable(CorpseRotationTable.Torizo, 0).ToString(), rows, ByRow(rows, snapshots),
-            TorizoReachable(halves, snapshots.Count - 1));
+        List<IReadOnlyDictionary<CorpseRotRow, int?>> reachable = TorizoReachable(halves, snapshots.Count - 1, out List<CorpseRotState> states);
+        return new CorpseRotSimulation(DeadTorizoCorpseDefinitions.Kind.Name, DeadTorizoCorpseDefinitions.Kind, rows, ByRow(rows, snapshots),
+            reachable, states);
     }
 
     /// <summary>
     /// The states the dead Torizo's halves can show: the odd half uploads first, one half each frame its AI runs, after rot
     /// step 0 until its rot starts, which a touch or a power bomb can do on any frame, then after one more rot step each frame
-    /// until the last.
+    /// until the last. Each also gives <paramref name="states"/> the rot it selects, once each, every one but the set's.
     /// </summary>
-    private static List<IReadOnlyDictionary<CorpseRotRow, int?>> TorizoReachable(Dictionary<bool, CorpseRotRow[]> halves, int lastStep)
+    private static List<IReadOnlyDictionary<CorpseRotRow, int?>> TorizoReachable(Dictionary<bool, CorpseRotRow[]> halves, int lastStep,
+        out List<CorpseRotState> states)
     {
-        var states = new List<IReadOnlyDictionary<CorpseRotRow, int?>>();
+        var reachable = new List<IReadOnlyDictionary<CorpseRotRow, int?>>();
+        states = [];
+        var named = new HashSet<string>(StringComparer.Ordinal);
         var seen = new HashSet<TorizoUploadState>();
         var pending = new Queue<TorizoUploadState>();
         pending.Enqueue(new TorizoUploadState(null, null, NextOdd: true, Step: 0));
@@ -230,9 +259,13 @@ internal sealed class CorpseRotSimulation
         {
             if (!seen.Add(state))
                 continue;
-            states.Add(halves[false].Select(row => new KeyValuePair<CorpseRotRow, int?>(row, state.Even))
+            IReadOnlyDictionary<CorpseRotRow, int?> shown = halves[false].Select(row => new KeyValuePair<CorpseRotRow, int?>(row, state.Even))
                 .Concat(halves[true].Select(row => new KeyValuePair<CorpseRotRow, int?>(row, state.Odd)))
-                .ToDictionary(pair => pair.Key, pair => pair.Value));
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            reachable.Add(shown);
+            var view = new CorpseRotView(DeadTorizoCorpseDefinitions.Kind, [state.Even, state.Odd]);
+            if ((state.Even is not null || state.Odd is not null) && named.Add(view.PictureName("frame")))
+                states.Add(new CorpseRotState(view, shown));
             if (state.Step == 0)
                 pending.Enqueue(state.Upload(0));
             if (state.Step < lastStep)
@@ -240,7 +273,7 @@ internal sealed class CorpseRotSimulation
             if (state.Step == lastStep)
                 pending.Enqueue(state.Upload(lastStep));
         }
-        return states;
+        return reachable;
     }
 
     /// <summary>Which of the dead Torizo's rows each step shows, and which half uploads next.</summary>
@@ -253,11 +286,11 @@ internal sealed class CorpseRotSimulation
     }
 
     /// <summary>
-    /// The row a Dead Torizo transfer uploads: a half's body rows, after the even half's six, then its sand strip, the odd
+    /// The row a Dead Torizo upload lands: a half's body rows, after the even half's six, then its sand strip, the odd
     /// half's after the even's.
     /// </summary>
-    private static int TorizoRowIndex(bool odd, int transfer, int transfers) =>
-        transfer < transfers - 1 ? transfer + (odd ? transfers - 1 : 0) : 2 * (transfers - 1) + (odd ? 1 : 0);
+    private static int TorizoRowIndex(bool odd, int upload, int uploads) =>
+        upload < uploads - 1 ? upload + (odd ? uploads - 1 : 0) : 2 * (uploads - 1) + (odd ? 1 : 0);
 
     /// <summary>How many population records of <paramref name="enemy"/> with first parameter <paramref name="parameter"/> any room state holds at most.</summary>
     private static int Populated(EnemyDefinitionId enemy, ushort parameter) =>
@@ -269,9 +302,9 @@ internal sealed class CorpseRotSimulation
         enemies.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> tiles) ? tiles.Span
             : throw new InvalidDataException($"Installed enemy tiles hold no corpse art at ${sourceAddress:X6}+{byteCount}.");
 
-    /// <summary>A row a transfer uploads.</summary>
-    private static CorpseRotRow Row(int index, int sourceAddress, int byteCount, VramDmaDestination destination) =>
-        new(index, sourceAddress, byteCount, ObjCharacterUploads.TableByte(destination));
+    /// <summary>The row <paramref name="upload"/> uploads, as the <paramref name="index"/>th of its corpse's rows.</summary>
+    private static CorpseRotRow Row(int index, CorpseRowUpload upload) =>
+        new(index, upload.SourceAddress, upload.SizeInBytes, upload.FirstTableByte);
 
     /// <summary>The snapshots, by row.</summary>
     private static Dictionary<CorpseRotRow, byte[]?[]> ByRow(CorpseRotRow[] rows, List<byte[]?[]> snapshots) =>

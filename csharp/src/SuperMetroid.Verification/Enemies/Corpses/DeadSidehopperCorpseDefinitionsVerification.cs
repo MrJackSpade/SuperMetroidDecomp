@@ -48,7 +48,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     {
         int address = 0xa90000 | configurationPointer;
         ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-        ushort[] actual = [definition.RottingTablePointer, definition.VramTransferPointer, definition.EntryCount];
+        ushort[] actual = [definition.RottingTablePointer, definition.RowUploadPointer, definition.EntryCount];
         AssertTrue(actual.SequenceEqual(ConsumedConfigurationWords.Select(Word)),
             $"dead sidehopper configuration $A9:{configurationPointer:X4}");
 
@@ -56,7 +56,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(rotationTable + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             $"dead sidehopper configuration $A9:{configurationPointer:X4} wrap offset");
-        AssertEqual((ushort)CorpseRotationTable.Sidehopper, rotationTable,
+        AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Sidehopper), rotationTable,
             $"dead sidehopper configuration $A9:{configurationPointer:X4} names the sidehopper tile-row layout production copies with");
     }
 
@@ -79,8 +79,8 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             $"dead sidehopper parameter {parameter1} graphics variant");
         CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
             state.RotTable, $"dead sidehopper parameter {parameter1}");
-        AssertEqual(expected.VramTransfers, state.Flesh,
-            $"dead sidehopper parameter {parameter1} uploads the configured VRAM transfer list");
+        AssertEqual(expected.Kind, state.Flesh,
+            $"dead sidehopper parameter {parameter1} rots the configured kind of corpse");
         AssertEqual(expected.EntryCount - 1, state.YLimit,
             $"dead sidehopper parameter {parameter1} Y limit");
         AssertEqual(expected.EntryCount - 2, state.LateMoveEntryIndex,

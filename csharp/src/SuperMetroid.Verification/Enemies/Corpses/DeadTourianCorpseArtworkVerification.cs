@@ -183,11 +183,11 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>A Zoomer, Ripper or Skree corpse variant as the extraction stages it from installed art.</summary>
     private static CorpseStaging InitializeDeadTourianCorpseArtwork(InstalledEnemyArtwork artwork, EnemyDefinitionId definition, int variant) =>
-        CorpseStaging.Tourian(Atlas(artwork), DeadTourianBehavior.ProfileForDeadTourianCorpse(definition).Variants[variant]);
+        CorpseStaging.Tourian(Atlas(artwork), DeadTourianCorpseStagingDefinitions.Variants(DeadTourianBehavior.ProfileForDeadTourianCorpse(definition).Species)[variant]);
 
     /// <summary>The installed corpse sheet, which the extraction stages every Tourian corpse from.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TryResolve(DeadTourianCorpseArtworkDefinitions.SourceAddress, DeadTourianCorpseArtworkDefinitions.ByteCount,
+        artwork.Enemies.TryResolve(CorpseSheetDefinitions.DeadMonsterSheetAddress, CorpseSheetDefinitions.DeadMonsterSheetByteCount,
             out ReadOnlyMemory<byte> tiles) ? tiles.Span
             : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png is missing or has the wrong size.");
 

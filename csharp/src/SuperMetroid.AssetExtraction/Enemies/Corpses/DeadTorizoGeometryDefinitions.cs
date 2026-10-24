@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Enemies.Artwork;
-
-namespace SuperMetroid.Core.Enemies.Corpses;
+namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
 /// Tile geometry shared by $A9:DE18-DEBF initialization and E272/E38B row motion.

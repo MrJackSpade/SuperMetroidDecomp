@@ -16,6 +16,7 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -159,27 +160,27 @@ internal static class EnemyDefinitionBoundaryVerification
         }
     }
 
-    /// <summary>Checks corpse rotation offsets, DMA descriptors, Torizo touch boxes, and sand tile sources.</summary>
+    /// <summary>Checks corpse rotation offsets, the extraction's row upload descriptors, Torizo touch boxes, and sand tile sources.</summary>
     internal static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
     {
         foreach ((ushort pointer, int count) in new VerifyCorpseMetadataDefinitionsCase[]
             { new VerifyCorpseMetadataDefinitionsCase(0xe226, 13), new VerifyCorpseMetadataDefinitionsCase(0xe240, 6), new VerifyCorpseMetadataDefinitionsCase(0xe24c, 3), new VerifyCorpseMetadataDefinitionsCase(0xe252, 3), new VerifyCorpseMetadataDefinitionsCase(0xe258, 5) })
             for (int i = 0; i < count; i++)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 2))),
-                    DeadMonsterRottingDefinitionsConstants.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
+                    Corpses.CorpseRowLayouts.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
         foreach (ushort pointer in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
         {
-            var records = DeadMonsterRottingDefinitions.ForTransferTable(pointer);
+            var records = DeadMonsterRowUploadDefinitions.ForKind(CorpseNativeAddresses.TransferTableAt(pointer));
             for (int i = 0; i < records.Length; i++)
             {
                 var record = records[i];
-                ushort[] words = [record.SizeInBytes, record.SourceBankWord, record.SourceOffset, record.EncodedVramDestination];
+                ushort[] words = [record.SizeInBytes, record.SourceBankWord, record.SourceOffset, record.DestinationWord];
                 for (int w = 0; w < words.Length; w++)
                     AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 8 + w * 2))), words[w], "corpse transfer descriptor");
             }
             AssertEqual((ushort)0, CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + records.Length * 8))), "corpse descriptor terminator");
         }
-        var boxes = DeadMonsterRottingDefinitions.TorizoTouchHitboxes;
+        var boxes = DeadTorizoTouchDefinitions.TouchHitboxes;
         AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa9d77c), boxes.Length, "dead Torizo asymmetric rectangle count");
         for (int i = 0; i < boxes.Length; i++)
         {
@@ -190,8 +191,8 @@ internal static class EnemyDefinitionBoundaryVerification
         }
         for (ushort i = 0; i < 16; i++)
         {
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d67c + i * 2)), DeadMonsterRottingDefinitions.SandDestination(i), "corpse sand destination");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d69c + i * 2)), DeadMonsterRottingDefinitions.SandSource(i), "corpse sand source");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d67c + i * 2)), CorpseStagingGeometryDefinitions.SandDestination(i), "corpse sand destination");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d69c + i * 2)), CorpseStagingGeometryDefinitions.SandSource(i), "corpse sand source");
         }
     }
 

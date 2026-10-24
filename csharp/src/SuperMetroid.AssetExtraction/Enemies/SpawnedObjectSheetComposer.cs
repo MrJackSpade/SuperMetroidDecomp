@@ -91,7 +91,9 @@ internal static class SpawnedObjectSheetComposer
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection), plan.Palette),
             frames.Where(pictures => pictures.Layers.Length > 0)
-                .ToDictionary(pictures => pictures.Name, pictures => pictures.Layers, StringComparer.Ordinal));
+                .ToDictionary(pictures => pictures.Name, pictures => pictures.Layers, StringComparer.Ordinal),
+            frames.Where(pictures => pictures.RotCorpse is not null)
+                .ToDictionary(pictures => pictures.Name, pictures => pictures.RotCorpse ?? string.Empty, StringComparer.Ordinal));
     }
 
     /// <summary>The frames a spawned-object sheet holding the objects of <paramref name="spawners"/> holds.</summary>

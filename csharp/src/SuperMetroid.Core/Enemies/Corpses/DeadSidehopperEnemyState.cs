@@ -23,8 +23,8 @@ public sealed class DeadSidehopperEnemyState
     public int GraphicsVariant { get; }
     /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
     internal CorpseRotTable RotTable { get; init; }
-    /// <summary>The corpse tile uploads submitted after every rotting call, including the call that finishes the corpse.</summary>
-    internal CorpseTransferTable Flesh { get; init; }
+    /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
+    internal RottingCorpseKind Flesh { get; init; }
     /// <summary>Sprite height less one, 39: a moved pixel row completes when its next Y reaches this boundary; also identifies the final entry.</summary>
     public int YLimit { get; }
     /// <summary>Sprite height less two, 38: this entry and the final entry use destructive moves even during the last three delay calls.</summary>

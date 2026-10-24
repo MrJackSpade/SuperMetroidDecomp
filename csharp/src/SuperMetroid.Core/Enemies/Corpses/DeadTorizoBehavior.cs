@@ -39,7 +39,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation = presentation;
     }
 
-    /// <summary>Native corpse and sand DMA records produced during the current enemy update.</summary>
     /// <summary>Single corpse state owned by enemy slot zero in the loaded room.</summary>
     internal DeadTorizoEnemyState? DeadTorizo { get; private set; }
     /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
@@ -121,7 +120,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Dead Torizo function {state.Function} is not translated.");
         }
 
-        BuildDeadTorizoVramTransfers(state);
+        ShowNextRotHalf(state);
     }
 
     /// <summary>Advances sand rows, corpse motion, and one step of the native rotting table.</summary>
@@ -159,7 +158,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool DeadTorizoCustomHitboxOverlaps(RoomEnemySlot slot, SamusState samus)
     {
         SamusKinematicsState kinematics = samus.Kinematics;
-        foreach (EnemyHitboxRectangle hitbox in DeadMonsterRottingDefinitions.TorizoTouchHitboxes)
+        foreach (EnemyHitboxRectangle hitbox in DeadTorizoTouchDefinitions.TouchHitboxes)
         {
             // The cartridge takes the magnitude of whichever signed edge faces Samus, so each edge
             // acts as a reach on its own side of the corpse origin.
@@ -242,30 +241,42 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Switches to the other half of the corpse's rows and uploads them as its rot has left them (#1392): its sheet pictures
-    /// each rot step, so the room records only the step they show.
+    /// Switches to the other half of the corpse's rows and selects the rot steps the corpse has taken as the step that half
+    /// shows (#1406). The cartridge uploads one half each main-AI call, while the corpse is intact, rotting or finished, so
+    /// the half's pictures show the step from this update on.
     /// </summary>
-    internal void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
+    internal void ShowNextRotHalf(DeadTorizoEnemyState state)
     {
-        state.UploadsOddTransferHalf = !state.UploadsOddTransferHalf;
+        state.ShowsOddHalf = !state.ShowsOddHalf;
         int step = checked((int)state.ProcessCallCount);
-        foreach (DeadTorizoVramTransferDefinition record in
-                 DeadTorizoVramTransferDefinitions.ForHalf(state.UploadsOddTransferHalf))
-            _presentation.ShowRot(record.Destination, record.SizeInBytes, step);
+        if (state.ShowsOddHalf)
+            state.OddHalfStep = step;
+        else
+            state.EvenHalfStep = step;
     }
 
+    /// <summary>The rot the dead Torizo in <paramref name="slot"/> shows: the step each half of its rows shows, even then odd (#1406).</summary>
+    internal CorpseRotView ShownDeadTorizoRot(RoomEnemySlot slot) => ShownRot(RequireDeadTorizoState(slot));
 
-    /// <summary>Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame as the encounter's own (#1392).</summary>
+    /// <summary>The rot <paramref name="state"/>'s corpse shows: the step each half of its rows shows, even then odd.</summary>
+    private static CorpseRotView ShownRot(DeadTorizoEnemyState state) =>
+        new(DeadTorizoCorpseDefinitions.Kind, [state.EvenHalfStep, state.OddHalfStep]);
+
+
+    /// <summary>
+    /// Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame as the encounter's own (#1392),
+    /// over the corpse's rows as their rot shows them.
+    /// </summary>
     internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
-        if (DeadTorizo is null)
+        if (DeadTorizo is not { } state)
             return;
 
         ushort screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
-            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), screenY), paletteBits: 0);
+            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), screenY), paletteBits: 0, rot: ShownRot(state));
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>

@@ -27,7 +27,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(rotationTable + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             "dead Torizo corpse wrap offset");
-        AssertEqual((ushort)CorpseRotationTable.Torizo, rotationTable,
+        AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Torizo), rotationTable,
             "dead Torizo configuration names the Torizo tile-row layout production copies with");
         AssertEqual((ushort)0, Word(1),
             "dead Torizo has no generic transfer list; it uploads through its alternating halves");

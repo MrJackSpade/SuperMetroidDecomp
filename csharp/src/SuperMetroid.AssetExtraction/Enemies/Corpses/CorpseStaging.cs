@@ -28,12 +28,12 @@ internal sealed class CorpseStaging
     {
         var staged = new CorpseStaging();
         for (int row = 0; row < 5; row++)
-            staged.Copy(atlas, DeadMonsterRottingDefinitions.SidehopperInitialCopy(graphicsVariant, row));
+            staged.Copy(atlas, CorpseStagingGeometryDefinitions.SidehopperInitialCopy(graphicsVariant, row));
         return staged;
     }
 
     /// <summary>A dead Zoomer's, Ripper's or Skree's staged characters for its variant <paramref name="layout"/>, copied from <paramref name="atlas"/>.</summary>
-    internal static CorpseStaging Tourian(ReadOnlySpan<byte> atlas, DeadTourianBehavior.DeadTourianCorpseVariant layout)
+    internal static CorpseStaging Tourian(ReadOnlySpan<byte> atlas, DeadTourianCorpseVariant layout)
     {
         var staged = new CorpseStaging();
         foreach (CorpseGraphicsCopy copy in Ensure.NotNull(layout).InitialGraphicsCopies)
@@ -103,8 +103,8 @@ internal sealed class CorpseStaging
     /// <summary>Copies the first bitplane word of eighteen spaced rows of sand line <paramref name="line"/> into the sand strips.</summary>
     internal void CopySandLine(ReadOnlySpan<byte> atlas, int line)
     {
-        int destination = (EnemyStagingDefinitions.DeadTorizoSandOffset + DeadMonsterRottingDefinitions.SandDestination(line)) / 2;
-        int source = DeadMonsterRottingDefinitions.SandSource(line);
+        int destination = (EnemyStagingDefinitions.DeadTorizoSandOffset + CorpseStagingGeometryDefinitions.SandDestination(line)) / 2;
+        int source = CorpseStagingGeometryDefinitions.SandSource(line);
         // Eighteen tile rows are sixteen bytes apart in both the source sheet and the strips; only their first word changes.
         for (int row = 0; row < 18; row++)
             heap.WriteWord(destination + row * 8, BinaryPrimitives.ReadUInt16LittleEndian(atlas[(source + row * 16)..]));

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -105,9 +106,11 @@ internal static class LookupSmallGameTablesVerification
             new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadSkreeProfile, DeadTourianCorpseSpecies.Skree),
         })
         {
-            for (int variant = 0; variant < profile.Variants.Length; variant++)
+            IReadOnlyList<DeadTourianCorpseVariant> variants = DeadTourianCorpseStagingDefinitions.Variants(species);
+            AssertEqual(profile.VariantCount, variants.Count, $"Dead {species} stages each of its variants");
+            for (int variant = 0; variant < variants.Count; variant++)
             {
-                var layout = profile.Variants[variant];
+                var layout = variants[variant];
                 string name = $"Dead {species} variant {variant}";
 
                 // Rot-entry copy routine: per column, LDA rotEntryYOffset / CMP #limit / BPL / LDA src,X ...

@@ -5,8 +5,12 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback,
+        IShowsCorpseRot
 {
+    /// <inheritdoc/>
+    public CorpseRotView ShownRot => species.ShownDeadTourianRot(Slot);
+
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTourianCorpse;
 

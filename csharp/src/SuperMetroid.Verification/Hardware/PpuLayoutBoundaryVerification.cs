@@ -43,9 +43,8 @@ internal static class PpuLayoutBoundaryVerification
         AssertTrue(entries.Count > 0, "production catalogs declare PPU layout cells");
         foreach (PpuLayoutRegion region in Enum.GetValues<PpuLayoutRegion>())
         {
-            // OAM is no longer production state (#1358): frontends publish sprite entries and gameplay sprite draws. Nor
-            // are the window registers (#1407): gameplay publishes the main-screen layers it shows.
-            bool retired = region is PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh or PpuLayoutRegion.Register;
+            // OAM is no longer production state (#1358): frontends publish sprite entries and gameplay sprite draws.
+            bool retired = region is PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh;
             AssertEqual(!retired, entries.Any(entry => entry.Cell.Region == region),
                 retired ? $"the catalogs name no {region} location" : $"the catalogs name at least one {region} location");
         }
@@ -75,7 +74,6 @@ internal static class PpuLayoutBoundaryVerification
                     CgramRoundTrip(entry.Cell, target, seed: 3, $"{entry.Reference} -> alias target");
                     CgramRoundTrip(target, entry.Cell, seed: 17, $"alias target -> {entry.Reference}");
                     break;
-                case PpuLayoutRegion.Register:
                 case PpuLayoutRegion.OamLow:
                 case PpuLayoutRegion.OamHigh:
                 default:

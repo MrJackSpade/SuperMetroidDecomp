@@ -98,8 +98,7 @@ internal static class PpuLayoutCatalogInventory
         left.Region == right.Region && left.Offset < right.Offset + right.Count && right.Offset < left.Offset + left.Count;
 
     /// <summary>The <c>$xxxx</c> form of a cell's first unit.</summary>
-    internal static string FormatOffset(PpuLayoutCell cell) =>
-        cell.Region == PpuLayoutRegion.Register ? $"$21{cell.Offset:X2}" : $"${cell.Offset:X4}";
+    internal static string FormatOffset(PpuLayoutCell cell) => $"${cell.Offset:X4}";
 
     /// <summary>
     /// Renders the inventory: one record per cell with its owner, name, store, offset, count,

@@ -14,7 +14,4 @@ public enum PpuLayoutRegion
 
     /// <summary>The OAM high table, two bits per object; offsets and counts are objects.</summary>
     OamHigh,
-
-    /// <summary>A B-bus PPU register or its shadow; the offset is the register number ($21xx low byte).</summary>
-    Register,
 }

@@ -2,15 +2,15 @@ namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// One named PPU layout location or bounded range (#630): a VRAM tilemap/character region, a CGRAM
-/// palette range, an OAM range or a register. Layout catalogs declare every location the port knows
+/// palette range or an OAM range. Layout catalogs declare every location the port knows
 /// as a static <see cref="PpuLayoutCell"/> with its native identity and meaning in XML documentation;
 /// rendering views bind from these descriptors, and the inventory and alias-coherence checks
 /// enumerate them.
 /// </summary>
 /// <param name="Name">The semantic identity, unique within its declaring catalog.</param>
 /// <param name="Region">The store and offset unit.</param>
-/// <param name="Offset">The first word, colour, object or register number.</param>
-/// <param name="Count">The number of units (one for a single register or colour).</param>
+/// <param name="Offset">The first word, colour or object.</param>
+/// <param name="Count">The number of units (one for a single colour).</param>
 /// <param name="Encoding">How the units encode the domain value, e.g. "BG tilemap words" or "Bgr555 palette".</param>
 /// <param name="AliasOf">The cell this one intentionally shares storage with under a different meaning, if any.</param>
 [PpuLayoutAccess]
@@ -33,7 +33,6 @@ public sealed record PpuLayoutCell(string Name, PpuLayoutRegion Region, int Offs
         PpuLayoutRegion.Vram => SnesPpuLayout.VramWordCount,
         PpuLayoutRegion.Cgram => SnesPpuLayout.CgramColorCount,
         PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh => SnesPpuLayout.OamSpriteCount,
-        PpuLayoutRegion.Register => SnesPpuLayout.PpuRegisterCount,
         _ => throw new ArgumentOutOfRangeException(nameof(region), region, "Unknown PPU layout region."),
     };
 

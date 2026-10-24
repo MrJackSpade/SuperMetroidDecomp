@@ -57,7 +57,4 @@ public static class SnesPpuLayout
     /// <summary>Number of hardware OBJ records.</summary>
     [PpuLayoutAccess]
     public const int OamSpriteCount = 128;
-
-    /// <summary>The PPU's $2100-$21FF register window.</summary>
-    public const int PpuRegisterCount = 256;
 }

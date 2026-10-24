@@ -32728,38 +32728,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Rendering.LatestRenderFrameMailbox)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/CoreAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Rendering.RenderPublicationProfile)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/CoreAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Runtime.SuperMetroidRuntime)",
       "kind": "class",
       "scope": "test",
@@ -63882,6 +63850,32 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.IInstalledSessionContent",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/IInstalledSessionContent.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.ISessionSaveStorage",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/ISessionSaveStorage.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteArtwork",
       "kind": "static class",
       "scope": "product",
@@ -70753,32 +70747,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Recording.ControllerInputRecording",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Recording/ControllerInputRecording.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Recording.ControllerInputRecordingFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Recording/ControllerInputRecordingFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.RetainedGameplayFrames",
       "kind": "class",
       "scope": "test",
@@ -70942,19 +70910,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.SuperMetroidGameOptionsIni",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGameOptionsIni.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.SuperMetroidGamePixelsAccess",
@@ -82495,19 +82450,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Input.ControllerInputRecordingVersion",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/ControllerInputRecordingVersion.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Input.ControllerInputState",
       "kind": "class",
       "scope": "product",
@@ -82840,71 +82782,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Input.GenericGamepadFaceButtonLayout",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/GenericGamepadFaceButtonLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.GenericGamepadInput",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/GenericGamepadInput.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.GenericGamepadSnapshot",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/GenericGamepadSnapshot.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.JoystickCapabilityFlags",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/JoystickCapabilityFlags.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.JoystickPositionQueryFlags",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/JoystickPositionQueryFlags.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Input.SnesButton",
       "kind": "enum",
       "scope": "product",
@@ -82945,45 +82822,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.UsbGamepadIdentifier",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/UsbGamepadIdentifier.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.WindowsGamepadCodes",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/WindowsGamepadCodes.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Input.WindowsMultimediaResult",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/WindowsMultimediaResult.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.IntegerQuantityAttribute",
@@ -83336,6 +83174,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Map.ExploredMapStorage",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Map/ExploredMapStorage.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Map.IAreaMapSource",
       "kind": "interface",
       "scope": "product",
@@ -83438,19 +83289,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Map.SaveRamLayout",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Map/SaveRamLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.MetadataShape",
@@ -84883,19 +84721,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.DisplayAspect",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/DisplayAspect.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.DisplayPacket",
       "kind": "class",
       "scope": "product",
@@ -84907,19 +84732,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.DisplayViewport",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/DisplayViewport.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rendering.ExpandedColorMathOperation",
@@ -85155,32 +84967,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.HostFrameDeadline",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/HostFrameDeadline.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.HostFrameTimingDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/HostFrameTimingDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.IntegerWindowIntersection",
       "kind": "static class",
       "scope": "product",
@@ -85192,19 +84978,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.LatestRenderFrameMailbox",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/LatestRenderFrameMailbox.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Rendering.LayeredRenderSnapshotAccess",
@@ -85566,74 +85339,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.RenderMailboxCounterView",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rendering/RenderMailboxCounterView.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.RenderMailboxMetrics",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/RenderMailboxMetrics.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.RenderPresentationGate",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/RenderPresentationGate.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.RenderPublicationProfile",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/RenderPublicationProfile.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.RenderPublicationProfile.Sample",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/RenderPublicationProfile.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.RenderScratch",
       "kind": "class",
       "scope": "product",
@@ -85645,19 +85350,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.RendererSelection",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/RendererSelection.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rendering.ResolvedObjFrame",
@@ -108994,19 +108686,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Saves.GameSaveFileStore",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Saves/GameSaveFileStore.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Saves.GameSaveJsonCodec",
       "kind": "static class",
       "scope": "product",
@@ -109018,19 +108697,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Saves.GameSaveJsonCodec.LegacySramPage",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Saves/GameSaveJsonCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Saves.GameSaveJsonDocument",
@@ -109057,19 +108723,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Saves.GameSaveLoadResult",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Saves/GameSaveLoadResult.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Saves.GameSaveSlotJsonDocument",
@@ -109163,19 +108816,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Saves.SaveRamCodec",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Saves/SaveRamCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Saves.SaveRamLayoutConstants",
       "kind": "static class",
       "scope": "test",
@@ -109192,7 +108832,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Saves.SaveRamLayoutConstants.extension(SuperMetroid.Core.Map.SaveRamLayout)",
+      "type": "SuperMetroid.Core.Saves.SaveRamLayoutConstants.extension(SuperMetroid.Diagnostics.Saves.SaveRamLayout)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -109219,6 +108859,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Saves.SaveSlotRetention",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Saves/SaveSlotRetention.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Saves.SaveSlotStore",
@@ -109562,19 +109215,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.GamepadStick",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/GamepadStick.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Spatial.HorizontalDirection",
@@ -112171,6 +111811,58 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Desktop.Input.GamepadStick",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/GamepadStick.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.GenericGamepadFaceButtonLayout",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/GenericGamepadFaceButtonLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.GenericGamepadInput",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/GenericGamepadInput.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.GenericGamepadSnapshot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/GenericGamepadSnapshot.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Desktop.Input.HostInputActivationGate",
       "kind": "class",
       "scope": "product",
@@ -112221,6 +111913,58 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.JoystickCapabilityFlags",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/JoystickCapabilityFlags.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.JoystickPositionQueryFlags",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/JoystickPositionQueryFlags.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.UsbGamepadIdentifier",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/UsbGamepadIdentifier.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.WindowsGamepadCodes",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/WindowsGamepadCodes.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Desktop.Input.WindowsGamepadInput",
@@ -112312,6 +112056,19 @@
       ],
       "partial": "generated-boundary",
       "disposition": "generated-boundary"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Input.WindowsMultimediaResult",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Input/WindowsMultimediaResult.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Desktop.Timing.FrameTimingConfiguration",
@@ -112938,6 +112695,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.DesktopVerification.Input.GenericGamepadInputTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.DesktopVerification/Input/GenericGamepadInputTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.DesktopVerification.Input.HostKeyboardInputSmokeTest",
       "kind": "static class",
       "scope": "test",
@@ -113302,6 +113072,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Diagnostics.Android.AndroidDisplayViewport",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidDisplayViewport.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Diagnostics.Android.AndroidFileImport",
       "kind": "static class",
       "scope": "product",
@@ -113313,6 +113096,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Android.AndroidFrameDeadline",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFrameDeadline.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Diagnostics.Android.AndroidFrameHandoffTrace",
@@ -113352,6 +113148,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Android.AndroidFrameTimingDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFrameTimingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Diagnostics.Android.AndroidResumeTrace",
@@ -113445,6 +113254,45 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Diagnostics.Configuration.HostOptions",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Configuration/HostOptions.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Configuration.HostOptionsIni",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Configuration/HostOptionsIni.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Configuration.RendererSelection",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Configuration/RendererSelection.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Diagnostics.DebuggerSaveStateStoreTooling",
       "kind": "static class",
       "scope": "tool",
@@ -113469,6 +113317,45 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Recording.ControllerInputRecording",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Recording/ControllerInputRecording.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Recording.ControllerInputRecordingFormat",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Recording/ControllerInputRecordingFormat.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Recording.ControllerInputRecordingVersion",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Recording/ControllerInputRecordingVersion.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerDelegateIdentity",
@@ -113716,6 +113603,110 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.GameSaveFile",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/GameSaveFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.GameSaveFileStore",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/GameSaveFileStore.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.GameSaveLoadResult",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/GameSaveLoadResult.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.LegacyGameSaveJson",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/LegacyGameSaveJson.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.LegacyGameSaveJson.LegacySramPage",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/LegacyGameSaveJson.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.SaveRamCodec",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/SaveRamCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.SaveRamLayout",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/SaveRamLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Sessions.InstalledSessionContent",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Sessions/InstalledSessionContent.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.EnsureAnalyzer.CartridgeEncoding.CartridgeEncodingClass",
@@ -116857,6 +116848,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.RenderVerification.Device.PresentationHandoffTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.RenderVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.RenderVerification/Device/PresentationHandoffTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.RenderVerification.Device.ShaderFailureTests",
       "kind": "static class",
       "scope": "test",
@@ -117966,6 +117970,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/LatestRenderFrameMailbox.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.RenderMailboxMetrics",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/RenderMailboxMetrics.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.RoomLevelLayers",
       "kind": "record struct",
       "scope": "product",
@@ -118031,6 +118061,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Rendering.Direct3D11.Presentation.DisplayAspect",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Presentation/DisplayAspect.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Presentation.DisplayViewport",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Presentation/DisplayViewport.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Rendering.Direct3D11.Presentation.DxgiPresentationStatus",
       "kind": "enum",
       "scope": "product",
@@ -118039,6 +118095,33 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Rendering.Direct3D11/Presentation/DxgiPresentationStatus.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Presentation.RenderPresentationGate",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Presentation/RenderPresentationGate.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.RenderMailboxCounterView",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.RenderVerification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Rendering.Direct3D11/RenderMailboxCounterView.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -118059,6 +118142,20 @@
     },
     {
       "type": "SuperMetroid.Rendering.Direct3D11.RenderingAccess.extension(SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.RenderVerification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Rendering.Direct3D11/RenderingAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.RenderingAccess.extension(SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -138527,6 +138624,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Frontend.ControllerRepeatDelayVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/ControllerRepeatDelayVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Frontend.Ending.Artwork.CreditsPresentationVerification",
       "kind": "static class",
       "scope": "test",
@@ -139461,19 +139571,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Frontend.GamepadInputVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/GamepadInputVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Frontend.IniEditingVerification",
@@ -145438,19 +145535,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Rendering/RenderFrameHandoffTestsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Rendering.RenderPresentationGateTestsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Rendering/RenderPresentationGateTestsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

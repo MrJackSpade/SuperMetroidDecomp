@@ -12,9 +12,11 @@ host's concerns may live in Core.
 - Core holds the typed button set, the frame input latch, the display packet, the audio frame, the session composer and
   a typed record of the option values the game reads. It holds no device type, no thread hand-off for presentation, no
   clock, no file format for configuration and no renderer name.
-- A host supplies what the session needs through narrow interfaces at the composition root. The Desktop host composes a
-  Desktop session in `SuperMetroid.Desktop`; a type used only by the Direct3D 11 backend lives in
-  `SuperMetroid.Rendering.Direct3D11`.
+- A host supplies what the session needs through narrow interfaces at the composition root: `GameSessionComposer` takes
+  the installed content (`IInstalledSessionContent`) and where the saves are kept (`ISessionSaveStorage`). The Desktop
+  host composes a Desktop session in `SuperMetroid.Desktop`; support the hosts share (options files, save files and
+  their legacy SRAM import, recordings) lives in `SuperMetroid.Diagnostics`; a type used only by the Direct3D 11 backend
+  lives in `SuperMetroid.Rendering.Direct3D11`.
 - Host timing (a deadline after each completed step, the catch-up limit, rebasing after a long stall) is the host's
   policy. The simulation advances one admitted step at a time and never reads the wall clock.
 
@@ -48,7 +50,8 @@ public readonly record struct HostFrameDeadline(double NextDeadline, double Wait
 public enum RendererSelection { Software, Direct3D11, Auto }
 
 // After: each lives with the host that uses it. The Android host's pacing is AndroidFrameDeadline in its host
-// support (SuperMetroid.Diagnostics/Android); renderer choice is the Desktop host's. Core's options record holds
+// support (SuperMetroid.Diagnostics/Android); renderer choice is in the hosts' options (SuperMetroid.Diagnostics/
+// Configuration). Core's options record holds
 // only the values the game reads, and each host reads its own file and hands Core that record.
 ```
 

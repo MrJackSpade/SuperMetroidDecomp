@@ -18,7 +18,7 @@ internal static class DownwardGatePlmProgramDefinitions
     /// <summary>How long the last lowering or raising image shows.</summary>
     private const int LastMovementFrameDuration = 24;
     /// <summary>The movement sound's native queue cap.</summary>
-    internal const byte MovementSoundMaximumQueued = 6;
+    internal static readonly SoundQueueLimit MovementSoundMaximumQueued = SoundQueueLimit.Max6;
 
     /// <summary>The trigger programs, in the order the shot-block room argument selects them.</summary>
     internal static IReadOnlyList<DownwardGateProgram> TriggerPrograms { get; } =

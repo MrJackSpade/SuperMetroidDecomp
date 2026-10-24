@@ -107,7 +107,7 @@ internal sealed class CeresRidleyGetaway
         // entry only ($A6:AABD -> QueueSfx2_Max6($4E)). Tying the request to the native
         // table index preserves the same one-shot behavior after saves/replays and pauses.
         if (tableIndex == 0)
-            _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, maximumQueued: 6);
+            _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, maximumQueued: SoundQueueLimit.Max6);
 
         // At frame $68 (byte index $D0), `$90:E119` replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her from the following frame onward.
@@ -417,7 +417,7 @@ internal sealed class CeresRidleyGetaway
             _room.Services.DrawBg1Overlay(typed.Cell, [typed.Tile.Raw]);
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
-            _audio.QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
+            _audio.QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: SoundQueueLimit.Max3);
         return completed;
     }
 

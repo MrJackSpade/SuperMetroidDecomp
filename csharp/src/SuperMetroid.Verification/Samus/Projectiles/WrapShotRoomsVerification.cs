@@ -55,7 +55,7 @@ internal static class WrapShotRoomsVerification
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
                 runtime.Plms.Step(level);
-                openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new SoundRequest(Library3Sound.DoorOpened, 6));
+                openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new SoundRequest(Library3Sound.DoorOpened, SoundQueueLimit.Max6));
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;
             }

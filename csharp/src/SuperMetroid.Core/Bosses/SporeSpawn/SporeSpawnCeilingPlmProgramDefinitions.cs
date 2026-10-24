@@ -12,7 +12,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
     /// <summary>The crumble sound, library 2.</summary>
     internal static readonly SoundEffectId CrumbleSoundId = Library2Sound.BlockCrumble;
     /// <summary>The crumble sound's native queue cap.</summary>
-    internal const byte CrumbleSoundMaximumQueued = 6;
+    internal static readonly SoundQueueLimit CrumbleSoundMaximumQueued = SoundQueueLimit.Max6;
     /// <summary>How long each image shows.</summary>
     internal const ushort FrameDuration = 4;
 

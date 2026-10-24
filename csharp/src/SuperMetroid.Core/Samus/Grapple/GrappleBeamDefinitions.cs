@@ -23,13 +23,13 @@ public static class GrappleBeamDefinitions
     public static class Sounds
     {
         /// <summary>$9B:B8AA: QueueSfx1_Max6(7), stop the old beam before pose-change refiring.</summary>
-        public static readonly SoundRequest RestartStop = new(Library1Sound.GrappleEnd, 6);
+        public static readonly SoundRequest RestartStop = new(Library1Sound.GrappleEnd, SoundQueueLimit.Max6);
         /// <summary>$9B:C51E firing tail: QueueSfx1_Max1(5), start the extending beam.</summary>
-        public static readonly SoundRequest Fire = new(Library1Sound.GrappleStart, 1);
+        public static readonly SoundRequest Fire = new(Library1Sound.GrappleStart, SoundQueueLimit.Max1);
         /// <summary>$9B:C703 accepted-contact tail: QueueSfx1_Max6(6), attached beam sound.</summary>
-        public static readonly SoundRequest Attach = new(Library1Sound.Grappling, 6);
+        public static readonly SoundRequest Attach = new(Library1Sound.Grappling, SoundQueueLimit.Max6);
         /// <summary>$9B:C856/C8C5/C9CE/CB8B: QueueSfx1_Max15(7), stop the active grapple sound.</summary>
-        public static readonly SoundRequest Stop = new(Library1Sound.GrappleEnd, 15);
+        public static readonly SoundRequest Stop = new(Library1Sound.GrappleEnd, SoundQueueLimit.Max15);
     }
     /// <summary>Native angular-physics coefficients embedded in bank-$9B behavior.</summary>
     public static class Physics

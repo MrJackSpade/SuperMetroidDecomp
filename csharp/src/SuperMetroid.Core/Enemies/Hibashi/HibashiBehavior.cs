@@ -131,7 +131,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlayHibashiEruptionSound()
     {
         // Each geyser queues its own sound; two erupting in one frame queue two.
-        _audio.QueueEnemySound(HibashiDefinitions.EruptionSoundEffect, maximumQueued: 6);
+        _audio.QueueEnemySound(HibashiDefinitions.EruptionSoundEffect, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>

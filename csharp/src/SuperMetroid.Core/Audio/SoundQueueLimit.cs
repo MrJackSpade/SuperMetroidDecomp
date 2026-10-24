@@ -13,6 +13,21 @@ public readonly record struct SoundQueueLimit
     public SoundQueueLimit(int requests) =>
         Requests = Ensure.BetweenInclusive(1, AudioQueueDefinitions.MaximumSoundOccupancy, requests);
 
+    /// <summary>At most one request queued (the original's Max1 entry points).</summary>
+    public static SoundQueueLimit Max1 { get; } = new(1);
+
+    /// <summary>At most three requests queued (the Max3 entry points).</summary>
+    public static SoundQueueLimit Max3 { get; } = new(3);
+
+    /// <summary>At most six requests queued (the Max6 entry points).</summary>
+    public static SoundQueueLimit Max6 { get; } = new(6);
+
+    /// <summary>At most nine requests queued (the Max9 entry points).</summary>
+    public static SoundQueueLimit Max9 { get; } = new(9);
+
+    /// <summary>At most fifteen requests queued (the Max15 entry points): any queue that is not full.</summary>
+    public static SoundQueueLimit Max15 { get; } = new(15);
+
     /// <summary>
     /// The unread requests at which the queue drops a new request, 1 through
     /// <see cref="AudioQueueDefinitions.MaximumSoundOccupancy"/>: a queue keeps one position empty, so fifteen admits a

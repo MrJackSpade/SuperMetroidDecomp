@@ -49,7 +49,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
                 $"production escape sound count choice {choice}, inherited {inherited}");
             if (queuesSound)
             {
-                AssertEqual(new SoundRequest(expected.SoundEffect ?? throw new InvalidOperationException("A sounding choice has a sound."), 6),
+                AssertEqual(new SoundRequest(expected.SoundEffect ?? throw new InvalidOperationException("A sounding choice has a sound."), SoundQueueLimit.Max6),
                     enemies.Audio.SoundRequests.Single(),
                     $"production escape sound choice {choice}, inherited {inherited}");
             }

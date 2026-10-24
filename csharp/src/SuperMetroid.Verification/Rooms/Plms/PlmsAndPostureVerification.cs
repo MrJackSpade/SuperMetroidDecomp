@@ -76,7 +76,7 @@ internal static void VerifyBreakableGrapplePlms()
         "timer 240 expiry draws first air frame");
     AssertEqual(1, respawningPlms.Sounds.SoundRequests.Count,
         "break transition queues one sound request");
-    AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, 6), respawningPlms.Sounds.SoundRequests[0],
+    AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, SoundQueueLimit.Max6), respawningPlms.Sounds.SoundRequests[0],
         "break transition uses library two sound $0A with maximum six");
 
     StepMany(respawningPlms,respawning, 4);
@@ -139,7 +139,7 @@ internal static void VerifyBreakableGrapplePlms()
     AssertEqual(0x0058, respawning2x2.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "CE83 synchronously installs the native air-type bomb-parent visual");
     respawning2x2Plms.Step(respawning2x2);
-    AssertEqual(new SoundRequest(Library2Sound.ContactBlockBreak, 3), respawning2x2Plms.Sounds.SoundRequests[0],
+    AssertEqual(new SoundRequest(Library2Sound.ContactBlockBreak, SoundQueueLimit.Max3), respawning2x2Plms.Sounds.SoundRequests[0],
         "collision break queues library-two sound six with native maximum three");
     AssertEqual(0x0053,
         respawning2x2.GetCollisionBlock(new(3, 3)).PackedWord.Raw,

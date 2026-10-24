@@ -1049,7 +1049,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "grapple wall jump preserves Dash momentum flag");
     AssertEqual(0, wallGrabSamus.ProjectileFlareCounter,
         "grapple wall jump clears the active projectile flare counter");
-    AssertEqual(new SoundRequest(Library1Sound.GrappleEnd, 15), wallGrabSamus.LiquidPhysics.SoundRequests.Single(),
+    AssertEqual(new SoundRequest(Library1Sound.GrappleEnd, SoundQueueLimit.Max15), wallGrabSamus.LiquidPhysics.SoundRequests.Single(),
         "grapple wall jump queues generic library-one sound seven");
     AssertEqual(0, wallGrabSamus.Grapple.RopeLength,
         "grapple wall jump removes rope state");

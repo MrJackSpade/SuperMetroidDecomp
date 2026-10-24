@@ -72,9 +72,9 @@ internal static class TorizoProjectileAnimationsVerification
     /// <summary>The library and queue limit of each sound command Torizo's lists use; its one operand byte is the sound.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, SoundCommand> SoundCommands = new()
     {
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new SoundCommand(SoundEffectLibrary.Library2, 6),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new SoundCommand(SoundEffectLibrary.Library3, 6),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new SoundCommand(SoundEffectLibrary.Library2, 1),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new SoundCommand(SoundEffectLibrary.Library2, SoundQueueLimit.Max6),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new SoundCommand(SoundEffectLibrary.Library3, SoundQueueLimit.Max6),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new SoundCommand(SoundEffectLibrary.Library2, SoundQueueLimit.Max1),
     };
 
     /// <summary>Every projectile program matches its native list.</summary>

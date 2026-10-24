@@ -142,7 +142,7 @@ public static class RoomFxRomData
         public const ushort AmbientSoundPeriod = 0x70;
 
         /// <summary>Most library-two sounds queued when lava requests an ambient sound.</summary>
-        public const byte AmbientSoundMaximumQueued = 6;
+        public static readonly SoundQueueLimit AmbientSoundMaximumQueued = SoundQueueLimit.Max6;
 
         /// <summary>
         /// <c>Lava_SoundEffects</c> ($88:B3A1): library-two sounds chosen by the low three

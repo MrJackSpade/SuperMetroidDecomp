@@ -1029,7 +1029,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             audio?.QueueSound(
                 soundEffect,
-                flashbackProjectiles.LastFrameResult.QueuedSoundMaximum);
+                flashbackProjectiles.LastFrameResult.QueuedSoundMaximum
+                    ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."));
         }
 
         // $90:E70D/$90:E71C: both the demo and locked handlers end with

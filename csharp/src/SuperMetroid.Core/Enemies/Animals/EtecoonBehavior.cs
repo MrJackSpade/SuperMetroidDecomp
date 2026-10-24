@@ -771,6 +771,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastEtecoonSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: sound == EtecoonWakeSound ? (byte)15 : (byte)6);
+            audio.QueueEnemySound(sound, maximumQueued: sound == EtecoonWakeSound ? SoundQueueLimit.Max15 : SoundQueueLimit.Max6);
     }
 }

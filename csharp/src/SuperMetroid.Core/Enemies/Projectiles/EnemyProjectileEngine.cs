@@ -1009,7 +1009,7 @@ internal sealed class EnemyProjectileEngine
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastEnemyProjectileDudSoundEffect is { } dudSound)
-            audio.QueueEnemySound(dudSound, maximumQueued: 3);
+            audio.QueueEnemySound(dudSound, maximumQueued: SoundQueueLimit.Max3);
     }
 
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>
@@ -1039,7 +1039,7 @@ internal sealed class EnemyProjectileEngine
                 ushort impactY = context.Projectile.Position.Y.Whole;
                 context.Projectile.Clear();
                 SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.SmallDustCloud);
-                _audio.QueueEnemySound(Library2Sound.CeresTileFall, maximumQueued: 6);
+                _audio.QueueEnemySound(Library2Sound.CeresTileFall, maximumQueued: SoundQueueLimit.Max6);
             }
         }, EnemyProjectilePreInstruction.CeresFallingTile);
     }

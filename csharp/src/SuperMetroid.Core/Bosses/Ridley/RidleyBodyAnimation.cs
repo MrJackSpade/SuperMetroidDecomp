@@ -64,7 +64,7 @@ internal sealed class RidleyBodyAnimation
                 return goToIfCeresAndSamusLowEnergy.Target;
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.Roar }:
                 state.Roaring = true;
-                _audio.QueueEnemySound(RidleySoundDefinitions.Roar, maximumQueued: 6);
+                _audio.QueueEnemySound(RidleySoundDefinitions.Roar, maximumQueued: SoundQueueLimit.Max6);
                 return null;
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.ClearRoaringFlag }:
                 state.Roaring = false;

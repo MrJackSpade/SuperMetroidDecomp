@@ -23,9 +23,9 @@ internal static class SoundQueueReturnVerification
             var queue = new AudioQueues();
             queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
-                queue.QueueSound(Library3Sound.CrocomireAcidDamage, 15);
+                queue.QueueSound(Library3Sound.CrocomireAcidDamage, SoundQueueLimit.Max15);
             SoundQueueAdmission actual = queue.QueueSound(
-                Library3Sound.SpeedBooster, 6, suppressed);
+                Library3Sound.SpeedBooster, SoundQueueLimit.Max6, suppressed);
             // The recorded accumulator holds the occupancy in its high byte and the request in its low byte when the
             // threshold admits the request, and the two swapped when it rejects it; the check now asserts the outcome
             // that word encodes instead of the word itself.

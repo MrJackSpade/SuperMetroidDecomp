@@ -43,7 +43,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         // Consume the request so the next frontend frame cannot replay the old flag.
         if (!selectionPublished && runtime.Hud.ConsumeSelectionSoundRequest())
         {
-            audio.QueueSound(Library1Sound.HudWeaponSelect, 6,
+            audio.QueueSound(Library1Sound.HudWeaponSelect, SoundQueueLimit.Max6,
                 soundSuppressed: runtime.Hud.SelectionSoundSuppressedThisFrame);
             selectionPublished = true;
         }
@@ -60,7 +60,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
     {
         PublishPrefix(runtime);
         return audio.QueueSound(
-            Library3Sound.SpeedBooster, 6,
+            Library3Sound.SpeedBooster, SoundQueueLimit.Max6,
             soundSuppressed: runtime.AttractDemo.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
 

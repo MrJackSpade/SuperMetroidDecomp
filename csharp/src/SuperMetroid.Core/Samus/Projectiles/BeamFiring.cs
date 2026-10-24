@@ -161,7 +161,7 @@ internal sealed class BeamFiring
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
-                    return new(null, Library1Sound.ChargingBeam, MaximumQueued: 9);
+                    return new(null, Library1Sound.ChargingBeam, MaximumQueued: SoundQueueLimit.Max9);
                 }
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
@@ -172,13 +172,13 @@ internal sealed class BeamFiring
                 _charge.FlareCounter = 0;
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
-                return new(null, comboSound, 6);
+                return new(null, comboSound, SoundQueueLimit.Max6);
             }
-            return new(null, null, 0);
+            return new(null, null, null);
         }
 
         if (_charge.FlareCounter == 0)
-            return new(null, null, 0);
+            return new(null, null, null);
 
         bool releaseCharged =
             _charge.FlareCounter >= BeamChargeDefinitions.FullyChargedCounter;
@@ -208,12 +208,12 @@ internal sealed class BeamFiring
         // tail which cancels an audible charge. Murder Beam is the observable index-15
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing.Slot is not null)
-            return new(firing.Slot, firing.Sound, MaximumQueued: 15);
+            return new(firing.Slot, firing.Sound, MaximumQueued: SoundQueueLimit.Max15);
 
         return _charge.PreviousBeamChargeCounter >=
             BeamChargeDefinitions.ChargeSoundStartCounter
-            ? new(null, Library1Sound.Silence, MaximumQueued: 15)
-            : new(null, null, 0);
+            ? new(null, Library1Sound.Silence, MaximumQueued: SoundQueueLimit.Max15)
+            : new(null, null, null);
     }
 
 

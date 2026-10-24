@@ -117,7 +117,7 @@ internal sealed class MotherBrainRainbowAndDeath
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
             // $A9:B252 queues the rot dust through QueueSound_Lib2_Max3.
             if (dust.SoundEffectQueued)
-                _audio.QueueEnemySound(dust.SoundEffect, maximumQueued: 3);
+                _audio.QueueEnemySound(dust.SoundEffect, maximumQueued: SoundQueueLimit.Max3);
         }
         if (step.MusicStopQueued) state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         if (step.EscapeMusicQueued) state.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.BossFight1), MusicQueueDelay.Shortest);
@@ -140,7 +140,7 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.Animation);
             // $A9:B346 queues the door explosion through QueueSound_Lib2_Max3.
-            _audio.QueueEnemySound(doorDust.SoundEffect, maximumQueued: 3);
+            _audio.QueueEnemySound(doorDust.SoundEffect, maximumQueued: SoundQueueLimit.Max3);
         }
         if (step.EscapeDoorPlm is { } doorPlm)
             _access.RequestMotherBrainPlm(doorPlm.Block, doorPlm.PlmEntry);

@@ -52,7 +52,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     samus,
                     session.GameplayRuntime.Clock.Counter);
                 if (reserveStep.RefillSoundRequested)
-                    session.audio.QueueSound(Library3Sound.IncrementalEnergy, 3,
+                    session.audio.QueueSound(Library3Sound.IncrementalEnergy, SoundQueueLimit.Max3,
                         soundSuppressed: session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
                 // $82:DC18-$DC24 clears the freeze and restores state eight
                 // BEFORE calling gameplay. Unfreezing after StepFrame lets
@@ -125,9 +125,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.GameplayRuntime.EscapeTimer.Clear();
             // $82:83F3-$840B: stop music and silence all three sound libraries.
             session.audio.QueueMusicDelayed8(MusicRequest.Stop);
-            session.audio.QueueSound(Library1Sound.Silence, maximumQueued: 15);
-            session.audio.QueueSound(Library2Sound.Silence, maximumQueued: 15);
-            session.audio.QueueSound(Library3Sound.Silence, maximumQueued: 15);
+            session.audio.QueueSound(Library1Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
+            session.audio.QueueSound(Library2Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
+            session.audio.QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
             session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
                 session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx, spriteSheets: session.Artwork.SpriteSheets));
@@ -168,9 +168,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // cancels all three SFX libraries, and publishes state $27. The new
             // state performs its own cartridge-backed setup on the following call.
             session.audio.QueueMusicDelayed8(MusicRequest.Stop);
-            session.audio.QueueSound(Library1Sound.Silence, maximumQueued: 15);
-            session.audio.QueueSound(Library2Sound.Silence, maximumQueued: 15);
-            session.audio.QueueSound(Library3Sound.Silence, maximumQueued: 15);
+            session.audio.QueueSound(Library1Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
+            session.audio.QueueSound(Library2Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
+            session.audio.QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
             SamusState endingSamus = session.GameplayRuntime.Player.Samus ??
                 throw new InvalidOperationException(
                     "Ending inventory calculation requires the live Samus state.");

@@ -107,9 +107,9 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.EndTimeUpPaletteFade();
         session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
         session.Runtime.EscapeTimer.ClearStatus();
-        session.audio.QueueSound(Library1Sound.Silence, maximumQueued: 15);
-        session.audio.QueueSound(Library2Sound.Silence, maximumQueued: 15);
-        session.audio.QueueSound(Library3Sound.Silence, maximumQueued: 15);
+        session.audio.QueueSound(Library1Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
+        session.audio.QueueSound(Library2Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
+        session.audio.QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
         session.display.PublishBlack();
         if (session.Runtime.System.HasEvent(EventNumber.ZebesTimebombSet))
         {

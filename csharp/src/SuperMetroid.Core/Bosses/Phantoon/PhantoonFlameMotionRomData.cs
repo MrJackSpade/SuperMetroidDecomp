@@ -14,5 +14,5 @@ internal static class PhantoonFlameMotionRomData
     /// <summary>$86:9AA0/$9AD2: sound requested when rain starts falling and when it hits terrain.</summary>
     internal static SoundEffectId RainFallSound => Library3Sound.PhantoonFlame;
     /// <summary>$86:9AA3/$9AD5 call QueueSound_Lib3_Max6.</summary>
-    internal const byte RainSoundQueueCapacity = 6;
+    internal static readonly SoundQueueLimit RainSoundQueueCapacity = SoundQueueLimit.Max6;
 }

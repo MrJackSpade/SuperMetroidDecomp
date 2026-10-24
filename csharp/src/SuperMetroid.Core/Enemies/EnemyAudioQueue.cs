@@ -64,17 +64,12 @@ internal sealed class EnemyAudioQueue
     /// Records an already-decoded cartridge queue call without assigning host-side meaning
     /// to its numeric sound ID. The bank-$80 queue remains the sole owner of arbitration.
     /// </summary>
-    internal void QueueEnemySound(SoundEffectId soundEffect, int maximumQueued)
-    {
-        if (maximumQueued == 0)
-            throw new ArgumentOutOfRangeException(nameof(maximumQueued), maximumQueued, "Queue capacity must be nonzero.");
-
+    internal void QueueEnemySound(SoundEffectId soundEffect, SoundQueueLimit maximumQueued) =>
         _soundRequests.Add(new SoundRequest(soundEffect, maximumQueued,
             SoundSuppressed: PowerBomb?.IsActive == true));
-    }
 
     /// <summary>Queues <paramref name="soundEffect"/> when an actor produced one this update.</summary>
-    internal void QueueEnemySoundIfAny(SoundEffectId? soundEffect, int maximumQueued)
+    internal void QueueEnemySoundIfAny(SoundEffectId? soundEffect, SoundQueueLimit maximumQueued)
     {
         if (soundEffect is SoundEffectId value)
             QueueEnemySound(value, maximumQueued);

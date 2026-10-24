@@ -10,5 +10,5 @@ internal static class PauseReserveTransferRomData
     /// <summary>$82:AF7A, manual reserve refill uses library-three sound $2D.</summary>
     public static readonly SoundEffectId RefillSound = Library3Sound.IncrementalEnergy;
     /// <summary>$82:AF7D calls QueueSound_Lib3_Max6.</summary>
-    public const byte MaximumQueuedSounds = 6;
+    public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
 }

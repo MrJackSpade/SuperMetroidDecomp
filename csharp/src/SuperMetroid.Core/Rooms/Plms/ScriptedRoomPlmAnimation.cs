@@ -24,10 +24,10 @@ internal sealed class ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram program)
         switch (cue)
         {
             case ScriptedRoomPlmCue.QueueSoundLibrary2Maximum3 queueSoundLibrary2Maximum3:
-                context.QueueSound(queueSoundLibrary2Maximum3.Sound, 3);
+                context.QueueSound(queueSoundLibrary2Maximum3.Sound, SoundQueueLimit.Max3);
                 return null;
             case ScriptedRoomPlmCue.QueueSoundLibrary2Maximum6 queueSoundLibrary2Maximum6:
-                context.QueueSound(queueSoundLibrary2Maximum6.Sound, 6);
+                context.QueueSound(queueSoundLibrary2Maximum6.Sound, SoundQueueLimit.Max6);
                 return null;
             case ScriptedRoomPlmCue.InstallPreInstruction installPreInstruction:
                 slot.PreInstruction = context.Plms.ScriptedHooks.PreInstruction(installPreInstruction.PreInstruction ?? throw new InvalidOperationException(

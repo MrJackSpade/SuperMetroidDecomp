@@ -122,7 +122,7 @@ internal sealed class GatePlms : IPlmFamilySource
             {
                 _pendingDownwardGateSounds.Add(_sounds.CreateSoundRequest(
                     DownwardGatePlmRomData.RejectedShotSound,
-                    MaximumQueued: 6));
+                    MaximumQueued: SoundQueueLimit.Max6));
             }
             temporary.Clear();
             return true;

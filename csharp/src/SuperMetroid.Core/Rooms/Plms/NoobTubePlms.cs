@@ -60,7 +60,7 @@ internal sealed class NoobTubePlms
                 {
                     _sounds.Queue(
                         NoobTubePlmRomData.IneffectiveShotSound,
-                        MaximumQueued: 6);
+                        MaximumQueued: SoundQueueLimit.Max6);
                 }
                 slot.LoopTimer = 0;
                 return;

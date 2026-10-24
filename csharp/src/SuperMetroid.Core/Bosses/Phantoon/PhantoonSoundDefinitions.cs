@@ -7,7 +7,7 @@ internal static class PhantoonSoundDefinitions
     internal static SoundEffectId StartingFlame => Library3Sound.PhantoonFlame;
 
     /// <summary>$A7:D4BD uses QueueSound_Lib3_Max6 after each starting-flame spawn.</summary>
-    internal const byte StartingFlameQueueCapacity = 6;
+    internal static readonly SoundQueueLimit StartingFlameQueueCapacity = SoundQueueLimit.Max6;
 
     /// <summary>$A7:CF68, SpawnCasualFlame: blue flame launch sound in library three.</summary>
     internal static SoundEffectId CasualFlame => Library3Sound.PhantoonFlame;
@@ -25,7 +25,7 @@ internal static class PhantoonSoundDefinitions
     internal static readonly SoundEffectId DeathExplosionSound = Library2Sound.FireballImpact;
 
     /// <summary>$A7:CF6B, SpawnCasualFlame: QueueSound_Lib3_Max6 request capacity.</summary>
-    internal const byte CasualFlameQueueCapacity = 6;
+    internal static readonly SoundQueueLimit CasualFlameQueueCapacity = SoundQueueLimit.Max6;
 
     /// <summary>
     /// <c>Phantoon_MaterializationSFX</c> at <c>$A7:CDED-$A7:CDF2</c>: the library-two sounds queued in a repeating

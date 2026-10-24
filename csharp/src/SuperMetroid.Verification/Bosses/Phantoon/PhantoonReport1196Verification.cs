@@ -28,7 +28,7 @@ internal static class PhantoonReport1196Verification
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued.Requests);
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         // The handshake rewrites a request each update until the driver echoes it ($82:8A55), so
         // the CPU writes it twice; the driver starts a sound only on a changed latch, so count the
         // sound starts the session publishes.

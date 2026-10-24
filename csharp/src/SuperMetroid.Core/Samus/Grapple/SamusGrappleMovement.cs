@@ -1233,7 +1233,7 @@ public static class SamusGrappleMovement
 
     /// <summary>Adds a grapple sound request to Samus's movement sound queue.</summary>
     private static void QueueGrappleSound(SamusState samus, SoundRequest request) =>
-        samus.LiquidPhysics.QueueMovementSound(request.SoundEffect, request.MaximumQueued.Requests);
+        samus.LiquidPhysics.QueueMovementSound(request.SoundEffect, request.MaximumQueued);
 
     /// <returns>
     /// The release pose when <paramref name="deferPoseChange"/> leaves it for the frame's

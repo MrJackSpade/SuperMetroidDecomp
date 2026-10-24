@@ -711,7 +711,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
         stationExplosion.Spawn(new(x, y));
         audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
-            maximumQueued: 15);
+            maximumQueued: SoundQueueLimit.Max15);
         var cinematicExplosion = new IntroDiscoverySprite(
             new(x, y),
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,

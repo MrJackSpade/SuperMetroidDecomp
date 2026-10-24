@@ -200,7 +200,7 @@ internal static class AudioVerification
 
         var sfx = new AudioQueues();
         sfx.AdvanceFrame(default); // consume reset upload/port writes
-        sfx.QueueSound(Library2Sound.DudShotOnDoor, maximumQueued: 6);
+        sfx.QueueSound(Library2Sound.DudShotOnDoor, maximumQueued: SoundQueueLimit.Max6);
         IReadOnlyList<AudioRequest> request = sfx.AdvanceFrame(default);
         AssertEqual(new AudioRequest.RequestSound(Library2Sound.DudShotOnDoor), request.Single(), "SFX request write");
         AssertEqual(
@@ -252,13 +252,13 @@ internal static class AudioVerification
             () => SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library1, 0x0100),
             "word-sized sound values outside a request byte fail loudly");
         AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(int), typeof(bool)]),
+            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(SoundQueueLimit), typeof(bool)]),
             "QueueSound accepts one indivisible sound identity");
         AssertTrue(
             !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectLibrary), typeof(int), typeof(int)]),
             "QueueSound exposes no reversible library-and-ID argument list");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => sfx.QueueSound(default, maximumQueued: 1),
+            () => sfx.QueueSound(default, maximumQueued: SoundQueueLimit.Max1),
             "default sound identity cannot silently select a queue");
         AssertEqual<SoundEffectId>(Library1Sound.MenuCursor,
             SoundEffectCommands.Decode(SoundEffectLibrary.Library1, 0x37),

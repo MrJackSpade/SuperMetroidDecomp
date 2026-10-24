@@ -320,7 +320,7 @@ internal sealed class NorfairRidleyCombat
 
         RidleyTailSegment tip = state.TailSegments[6];
         _ridleyProjectiles.SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), variant: 9);
-        _audio.QueueEnemySound(Library2Sound.Quake, maximumQueued: 6);
+        _audio.QueueEnemySound(Library2Sound.Quake, maximumQueued: SoundQueueLimit.Max6);
         _earthquake.EarthquakeType = 13;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
         SetRidleyPogoHorizontalDirection(slot, state, samus);

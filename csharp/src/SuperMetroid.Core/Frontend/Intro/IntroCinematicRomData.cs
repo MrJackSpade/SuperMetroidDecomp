@@ -166,7 +166,7 @@ public static class IntroCinematicRomData
         /// <summary>Object palette used by cinematic explosions.</summary>
         public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Palette(5);
         /// <summary>Maximum sound effects the intro queues for one library.</summary>
-        public const byte MaximumQueuedSounds = 6;
+        public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
         /// <summary>First baby Metroid cry sound.</summary>
         public static readonly SoundEffectId BabyCry1 =
             Library3Sound.BabyMetroidCry1;

@@ -588,9 +588,9 @@ internal sealed class EnemyDeathsAndDrops
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastEnemyPickupSoundEffect is { } pickupSound)
-            audio.QueueEnemySound(pickupSound, maximumQueued: 1);
+            audio.QueueEnemySound(pickupSound, maximumQueued: SoundQueueLimit.Max1);
         if (LastEnemyDeathSoundEffectLibrary2 is { } deathSound)
-            audio.QueueEnemySound(deathSound, maximumQueued: 1);
+            audio.QueueEnemySound(deathSound, maximumQueued: SoundQueueLimit.Max1);
     }
 
     /// <summary>

@@ -268,7 +268,7 @@ internal sealed class TourianUnlockBehavior
                     projectile.Clear();
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
-                    _audio.QueueEnemySound(Library2Sound.TourianStatueParticle, maximumQueued: 6);
+                    _audio.QueueEnemySound(Library2Sound.TourianStatueParticle, maximumQueued: SoundQueueLimit.Max6);
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake }:
                     _earthquake.EarthquakeType = TourianStatueRomData.ReleaseEarthquakeType;

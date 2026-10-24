@@ -31,13 +31,13 @@ public static class SamusPostDrawAudio
             !speed.SpeedBoostCounter.HasActiveStageBit)
         {
             speed.EchoSoundFlag = 0;
-            samus.LiquidPhysics.QueueMovementSound(Library3Sound.SpeedBoosterEnd, maximumQueued: 15);
+            samus.LiquidPhysics.QueueMovementSound(Library3Sound.SpeedBoosterEnd, maximumQueued: SoundQueueLimit.Max15);
         }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||
             SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             return;
 
-        samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpinJumpEnd, maximumQueued: 15);
+        samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpinJumpEnd, maximumQueued: SoundQueueLimit.Max15);
         // Resume on the NEXT post-draw pass, after the spin-stop command. The runtime
         // supplies normalized controls, so X here is the configured Shoot action.
         if (samus.ProjectileFlareCounter >= BeamChargeDefinitions.ChargeSoundStartCounter &&

@@ -23,7 +23,7 @@ public sealed class ClipAudioBackend
     internal const int ReleaseFrames = 256;
 
     /// <summary>Native stereo frames in one update.</summary>
-    private const int FramesPerUpdate = SoundAcceptanceClock.SamplesPerUpdate;
+    private const int FramesPerUpdate = SoundClockTiming.SamplesPerUpdate;
 
     /// <summary>The installed clips.</summary>
     private readonly ClipAudioCatalog catalog;

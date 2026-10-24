@@ -705,7 +705,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, HorizontalDirection direction)
     {
         LastKiHunterSoundEffect = Library2Sound.AcidSpit;
-        _audio.QueueEnemySound(Library2Sound.AcidSpit, maximumQueued: 6);
+        _audio.QueueEnemySound(Library2Sound.AcidSpit, maximumQueued: SoundQueueLimit.Max6);
         SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
         body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = WrappingCountdown.Start(KiHunterSpitWaitFrames);
     }

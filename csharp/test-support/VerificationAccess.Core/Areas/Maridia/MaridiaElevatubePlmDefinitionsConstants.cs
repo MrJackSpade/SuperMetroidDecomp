@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -29,7 +30,7 @@ internal static class MaridiaElevatubePlmDefinitionsConstants
     {
         if (address == InstructionList + 6)
         {
-            value = SoundId;
+            value = checked((byte)SoundEffectCommands.Command(SoundId));
             return true;
         }
         value = 0;

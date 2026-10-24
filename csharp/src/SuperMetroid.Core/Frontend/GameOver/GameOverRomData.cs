@@ -20,7 +20,7 @@ public static class GameOverRomData
     /// <summary>Full intensity of the four-bit SNES brightness field; native fade-in at $81:90DE enters the interactive menu at this value.</summary>
     public const int MaximumBrightness = 15;
     /// <summary>Maximum-six queue policy used by the native selection-missile sound and all three Baby cry requests.</summary>
-    public const byte MaximumQueuedSounds = 6;
+    public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
 
     /// <summary>Localized text streams and their byte destinations in BG1.</summary>
     /// <remarks>

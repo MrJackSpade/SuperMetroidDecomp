@@ -54,8 +54,8 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         AssertSequenceEqual(
             new[]
             {
-                new SoundRequest(Library2Sound.LiquidDamage, 3),
-                new SoundRequest(Library2Sound.SmallExplosion, 3),
+                new SoundRequest(Library2Sound.LiquidDamage, SoundQueueLimit.Max3),
+                new SoundRequest(Library2Sound.SmallExplosion, SoundQueueLimit.Max3),
             },
             runtime.Enemies.Audio.SoundRequests, "the rot dust and door explosion queue in library two with Max3");
         Console.WriteLine("  Escape explosion sounds: Baby Metroid's in library three, Mother Brain's dust and door in library two.");

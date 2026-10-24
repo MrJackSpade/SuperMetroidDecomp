@@ -301,10 +301,10 @@ internal sealed class MotherBrainHead
                 return null;
             // `QueueSoundX_Lib2_Max6` / `QueueSoundX_Lib3_Max6`.
             case MotherBrainHeadCue.QueueSound queueSound:
-                _audio.QueueEnemySound(queueSound.Sound, maximumQueued: 6);
+                _audio.QueueEnemySound(queueSound.Sound, maximumQueued: SoundQueueLimit.Max6);
                 return null;
             case MotherBrainHeadCue.QueueLibrary3Sound queueLibrary3Sound:
-                _audio.QueueEnemySound(queueLibrary3Sound.Sound, maximumQueued: 6);
+                _audio.QueueEnemySound(queueLibrary3Sound.Sound, maximumQueued: SoundQueueLimit.Max6);
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
                 state.NeckMovementEnabled = false;
@@ -344,11 +344,11 @@ internal sealed class MotherBrainHead
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
                 // `$A9:9DF7` skips the attack cry once the attack counter reaches eleven.
                 if (MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).Revival.BabyMetroidAttackCounter != 11)
-                    _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, maximumQueued: 6);
+                    _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, maximumQueued: SoundQueueLimit.Max6);
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
                 state.SmallPurpleBreathGenerationEnabled = false;
-                _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, maximumQueued: 6);
+                _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, maximumQueued: SoundQueueLimit.Max6);
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
                 SpawnMotherBrainRainbowChargingProjectile();
@@ -385,7 +385,7 @@ internal sealed class MotherBrainHead
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
             direction: HorizontalDirection.Right);
         if (laser is not null)
-            _audio.QueueEnemySound(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound, maximumQueued: 6);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>

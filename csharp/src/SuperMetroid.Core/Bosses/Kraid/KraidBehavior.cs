@@ -354,7 +354,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (Access.LastKraidSoundEffect is { } kraidSound)
-            audio.QueueEnemySound(kraidSound.SoundEffect, maximumQueued: 6);
+            audio.QueueEnemySound(kraidSound.SoundEffect, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

@@ -1007,7 +1007,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         observedRoarSound |= enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(Library2Sound.RidleyRoar, MaximumQueued: 6));
+            new SoundRequest(Library2Sound.RidleyRoar, MaximumQueued: SoundQueueLimit.Max6));
         battleEntryFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -1201,7 +1201,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng);
     }
     AssertTrue(enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(Library2Sound.CeresRidleyGetaway, MaximumQueued: 6)),
+            new SoundRequest(Library2Sound.CeresRidleyGetaway, MaximumQueued: SoundQueueLimit.Max6)),
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     void GetawayFrame()
     {

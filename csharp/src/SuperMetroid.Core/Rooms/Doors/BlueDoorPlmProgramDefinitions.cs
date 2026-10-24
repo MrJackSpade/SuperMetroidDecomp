@@ -14,7 +14,7 @@ internal static class BlueDoorPlmProgramDefinitions
     /// <summary>The library-3 door-closing sound.</summary>
     internal static readonly SoundEffectId CloseSound = Library3Sound.DoorClosed;
     /// <summary>The door sounds' native queue cap.</summary>
-    internal const byte SoundMaximumQueued = 6;
+    internal static readonly SoundQueueLimit SoundMaximumQueued = SoundQueueLimit.Max6;
     /// <summary>How long each opening image shows before the last.</summary>
     private const int OpeningFrameDuration = 6;
     /// <summary>How long the opened cap's cleared image shows before the PLM deletes.</summary>

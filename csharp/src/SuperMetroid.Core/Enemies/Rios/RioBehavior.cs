@@ -279,6 +279,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastRioSoundEffect, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastRioSoundEffect, maximumQueued: SoundQueueLimit.Max6);
     }
 }

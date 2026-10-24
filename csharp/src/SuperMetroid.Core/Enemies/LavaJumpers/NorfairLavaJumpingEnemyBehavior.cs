@@ -246,6 +246,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastNorfairLavaJumpingEnemySoundEffect, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastNorfairLavaJumpingEnemySoundEffect, maximumQueued: SoundQueueLimit.Max6);
     }
 }

@@ -66,6 +66,6 @@ internal sealed class DeadMonsterFrame
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: 3);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max3);
     }
 }

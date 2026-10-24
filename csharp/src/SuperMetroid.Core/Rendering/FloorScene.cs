@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rendering;
 
@@ -55,7 +54,7 @@ public sealed record FloorScene
     }
 
     /// <summary>The two CGADSUB settings the title gradient uses: subtracting from BG1 and the backdrop, or adding to them and the OBJs.</summary>
-    private static bool IsTitleGradientControl(ColorMathControlFlags control) => control is
-        (ColorMathControlFlags.Subtract | ColorMathControlFlags.Backdrop | ColorMathControlFlags.Bg1) or
-        (ColorMathControlFlags.Backdrop | ColorMathControlFlags.Obj | ColorMathControlFlags.Bg1);
+    private static bool IsTitleGradientControl(ColorBlend control) => control is
+        (ColorBlend.Subtract | ColorBlend.Backdrop | ColorBlend.Bg1) or
+        (ColorBlend.Backdrop | ColorBlend.Sprites | ColorBlend.Bg1);
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using System.Runtime.CompilerServices;

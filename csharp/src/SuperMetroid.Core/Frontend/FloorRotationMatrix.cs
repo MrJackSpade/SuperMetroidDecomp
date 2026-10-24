@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Gameplay;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The rotating, zooming perspective floor the Ceres flight and destruction scenes show each frame.</summary>

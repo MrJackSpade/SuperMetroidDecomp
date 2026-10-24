@@ -80,13 +80,13 @@ public sealed class TitleGradientPresentation
     }
 
     /// <summary>The layers <paramref name="line"/> blends with and how, as the renderers' colour-math control.</summary>
-    private static ColorMathControlFlags Blend(TitleGradientScanline line)
+    private static ColorBlend Blend(TitleGradientScanline line)
     {
-        ColorMathControlFlags blend = default;
-        if (line.BlendsFloor) blend |= ColorMathControlFlags.Bg1;
-        if (line.BlendsObjects) blend |= ColorMathControlFlags.Obj;
-        if (line.BlendsBackdrop) blend |= ColorMathControlFlags.Backdrop;
-        if (line.Subtracts) blend |= ColorMathControlFlags.Subtract;
+        ColorBlend blend = default;
+        if (line.BlendsFloor) blend |= ColorBlend.Bg1;
+        if (line.BlendsObjects) blend |= ColorBlend.Sprites;
+        if (line.BlendsBackdrop) blend |= ColorBlend.Backdrop;
+        if (line.Subtracts) blend |= ColorBlend.Subtract;
         return blend;
     }
 
@@ -97,8 +97,8 @@ public sealed class TitleGradientPresentation
     /// <exception cref="InvalidDataException"><paramref name="line"/> blends a layer or mode outside the title's four.</exception>
     public static TitleGradientScanline Author(TitleGradientLine line)
     {
-        const ColorMathControlFlags titleBlends = ColorMathControlFlags.Bg1 | ColorMathControlFlags.Obj |
-            ColorMathControlFlags.Backdrop | ColorMathControlFlags.Subtract;
+        const ColorBlend titleBlends = ColorBlend.Bg1 | ColorBlend.Sprites |
+            ColorBlend.Backdrop | ColorBlend.Subtract;
         if ((line.Control & ~titleBlends) != 0)
             throw new InvalidDataException($"Title gradient line blends {line.Control}, outside the floor, objects, backdrop and subtraction.");
         return new TitleGradientScanline
@@ -106,10 +106,10 @@ public sealed class TitleGradientPresentation
             Red = line.Red,
             Green = line.Green,
             Blue = line.Blue,
-            BlendsFloor = (line.Control & ColorMathControlFlags.Bg1) != 0,
-            BlendsObjects = (line.Control & ColorMathControlFlags.Obj) != 0,
-            BlendsBackdrop = (line.Control & ColorMathControlFlags.Backdrop) != 0,
-            Subtracts = (line.Control & ColorMathControlFlags.Subtract) != 0,
+            BlendsFloor = (line.Control & ColorBlend.Bg1) != 0,
+            BlendsObjects = (line.Control & ColorBlend.Sprites) != 0,
+            BlendsBackdrop = (line.Control & ColorBlend.Backdrop) != 0,
+            Subtracts = (line.Control & ColorBlend.Subtract) != 0,
         };
     }
 

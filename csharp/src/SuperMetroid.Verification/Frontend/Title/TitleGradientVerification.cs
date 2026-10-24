@@ -24,9 +24,9 @@ using SuperMetroid.Core.Fx.Artwork;
 internal static class TitleGradientVerification
 {
     /// <summary>The title's upper CGADSUB setting: subtract the fixed color from BG1 and the backdrop.</summary>
-    private const ColorMathControlFlags SubtractFromBackground = ColorMathControlFlags.Subtract | ColorMathControlFlags.Backdrop | ColorMathControlFlags.Bg1;
+    private const ColorBlend SubtractFromBackground = ColorBlend.Subtract | ColorBlend.Backdrop | ColorBlend.Bg1;
     /// <summary>The title's lower CGADSUB setting: add the fixed color to BG1, the backdrop and the OBJs.</summary>
-    private const ColorMathControlFlags AddToBackgroundAndObjects = ColorMathControlFlags.Backdrop | ColorMathControlFlags.Obj | ColorMathControlFlags.Bg1;
+    private const ColorBlend AddToBackgroundAndObjects = ColorBlend.Backdrop | ColorBlend.Sprites | ColorBlend.Bg1;
 
     /// <summary>Creates the production title owner with selected installed graphics, palette, and gradient overrides.</summary>
     private static TitleSequenceState CreateTitlePresentationFixture(TitleGradientPresentation? titleGradientPresentation = null,

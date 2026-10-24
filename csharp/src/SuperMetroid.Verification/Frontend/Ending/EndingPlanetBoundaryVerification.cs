@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;

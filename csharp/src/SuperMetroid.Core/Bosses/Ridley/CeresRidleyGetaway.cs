@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;

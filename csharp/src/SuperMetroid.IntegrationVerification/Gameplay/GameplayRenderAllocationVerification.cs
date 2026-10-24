@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -61,7 +60,7 @@ internal static class GameplayRenderAllocationVerification
         DisplayPacket[] packets = [
             new(identity, new FloorScene(memory, new AffineTransform(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0)), 15)),
             new(identity, new FloorScene(memory, null, 9,
-                Enumerable.Repeat(new SuperMetroid.Core.Rendering.TitleGradientLine(1, 2, 3, SuperMetroid.Core.Rendering.ColorMathControlFlags.Subtract | SuperMetroid.Core.Rendering.ColorMathControlFlags.Backdrop | SuperMetroid.Core.Rendering.ColorMathControlFlags.Bg1), 224).ToArray()), [new FadeLevel(11)]),
+                Enumerable.Repeat(new SuperMetroid.Core.Rendering.TitleGradientLine(1, 2, 3, ColorBlend.Subtract | ColorBlend.Backdrop | ColorBlend.Bg1), 224).ToArray()), [new FadeLevel(11)]),
             new(identity, new LayeredScene(memory, [], 15)),
             new(identity, new SuperMetroid.Core.Hardware.Rgba32(90, 130, 210), [new FadeLevel(7)])
         ];

@@ -673,7 +673,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
             data[offset] = (uint)lines[y].Red; data[offset + 1] = (uint)lines[y].Green;
-            data[offset + 2] = (uint)lines[y].Blue; data[offset + 3] = lines[y].Control.ToNativeByte();
+            data[offset + 2] = (uint)lines[y].Blue; data[offset + 3] = (uint)lines[y].Control;
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(titleGradientShader);

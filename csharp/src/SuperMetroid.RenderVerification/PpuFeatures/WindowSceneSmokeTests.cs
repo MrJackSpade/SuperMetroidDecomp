@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;

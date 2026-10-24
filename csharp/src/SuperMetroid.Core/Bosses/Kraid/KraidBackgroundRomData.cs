@@ -44,6 +44,14 @@ public static class KraidBackgroundRomData
     /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
     public const int StandardBg3QuarterCount = HudTileAtlasFormat.RestoreQuarterCount;
 
+    /// <summary>
+    /// Quarter <paramref name="quarter"/> of the standard BG3 characters Kraid's death restores, placed from its first
+    /// word, as the background artwork bindings place it (#1352).
+    /// </summary>
+    internal static BgCharacterUpload Bg3RestoreQuarter(int quarter, ReadOnlyMemory<byte> characters) =>
+        new(BgArtworkIdentity.Asset(StandardBg3AssetForQuarter(quarter)),
+            StandardBg3VramWord + quarter * (StandardBg3QuarterBytes / sizeof(ushort)), characters);
+
     /// <summary>The installed art of each of the four cartridge-authored restoration phases, indexed by quarter.</summary>
     private static readonly VramAssetId[] StandardBg3QuarterAssets =
     [

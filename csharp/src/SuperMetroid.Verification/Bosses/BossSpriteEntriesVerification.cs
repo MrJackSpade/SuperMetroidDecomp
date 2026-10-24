@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
@@ -85,9 +86,9 @@ internal static class BossSpriteEntriesVerification
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
         var uploads = new ObjCharacterUploads();
-        uploads.RecordUpload(BossVram.DraygonEvirTilesDma, evirTiles.Length, new EnemyTileCharacters(EnemyDefinitionId.Evir));
+        uploads.Record(DraygonIntroPresentationDefinitions.EvirUpload);
         SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, resolver);
-        int evirByte = (BossVram.DraygonEvirTilesDma.Word - GameplayVramLayout.ObjectCharacters.Offset) * 2;
+        int evirByte = DraygonIntroPresentationDefinitions.EvirUpload.FirstByte;
         AssertTrue(page.Characters.Slice(evirByte, evirTiles.Length).SequenceEqual(evirTiles.Span),
             "The page shows Evir's sheet where Draygon's opening upload lands");
         Console.WriteLine("Boss sprite entries stage 2: Draygon's Evir sheet binds Evir's installed tiles.");

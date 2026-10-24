@@ -87,7 +87,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.InstructionTimer = WrappingCountdown.Start(1);
             if (graphicsSet is not null)
             {
-                Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Vram, Colors.Gameplay.SpriteSets);
+                Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Colors.Gameplay.SpriteSets);
                 EnemyGraphicsIndexes indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
                 Actor.VramTilesIndex = indexes.TileIndex;
                 Actor.PaletteIndex = indexes.PaletteIndex;

@@ -50,17 +50,19 @@ internal sealed class EnemyGraphicsSet
     }
 
     /// <summary>The OBJ character table byte the enemy tile area begins at, $1800: VRAM byte $D800 less the table's $C000.</summary>
-    private const int EnemyTileAreaFirstByte = 0x1800;
+    internal const int EnemyTileAreaFirstByte = 0x1800;
+
+    /// <summary>The bytes of the enemy tile area: $2800, through the end of the OBJ character table.</summary>
+    private const int EnemyTileAreaByteCount = 0x2800;
 
     /// <summary>Stages selected enemy tiles and OBJ palettes in bank-$B4 record order while retaining native size arithmetic.</summary>
     internal void LoadGraphicsSet(
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyGraphicsSetDefinition graphicsSet,
-        SnesVram vram,
         ISpriteColourSets sets)
     {
         LoadedSet = graphicsSet;
-        foreach (RoomEnemyGraphicsSetEntry entry in LayOut(definitions, graphicsSet, vram))
+        foreach (RoomEnemyGraphicsSetEntry entry in LayOut(definitions, graphicsSet))
         {
             // ProcessEnemyTilesets copies one complete sixteen-color OBJ palette from the
             // enemy's selected code/data bank. Its assembly masks the entire low byte before
@@ -79,7 +81,7 @@ internal sealed class EnemyGraphicsSet
     /// </summary>
     /// <exception cref="InvalidDataException">The set has more than four entries, or an entry's tiles leave the enemy tile area.</exception>
     internal static IReadOnlyList<RoomEnemyGraphicsSetEntry> LayOut(IRoomEnemyDefinitionSource definitions,
-        RoomEnemyGraphicsSetDefinition graphicsSet, SnesVram vram)
+        RoomEnemyGraphicsSetDefinition graphicsSet)
     {
         Ensure.NotNull(definitions);
         Ensure.NotNull(graphicsSet);
@@ -106,7 +108,7 @@ internal sealed class EnemyGraphicsSet
                 ? source.StagingBlock * EnemyTileDataMasks.StagingBlockByteCount
                 : nextStagingOffset;
             int vramByteOffset = RoomEnemyRomLayout.VramByteBase + stagingOffset;
-            if (vramByteOffset < 0 || stagingOffset + byteCount > new EnemyVram(vram).EnemyTiles.ByteCount)
+            if (vramByteOffset < 0 || stagingOffset + byteCount > EnemyTileAreaByteCount)
             {
                 throw new InvalidDataException(
                     $"Enemy ${(int)definitionPointer:X4} tile DMA would leave VRAM: " +

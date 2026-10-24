@@ -131,7 +131,7 @@ internal static class RoomBlockUploads
     {
         if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
-            yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
+            yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, KraidBackgroundRomData.RoomBackgroundTileVramWord,
                 (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
                     .RoomBackgroundTiles.Characters);
         }
@@ -266,13 +266,13 @@ internal static class RoomBlockUploads
     [PpuLayoutBoundary("codec: the VRAM words a room's enemy graphics set uploads its tiles to")]
     private static IEnumerable<BgCharacterUpload> ObjectPageUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state)
     {
-        foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet, new SnesVram()))
+        foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet))
         {
             int source = entry.Definition.TileDataAddress;
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TryResolve(source, entry.TileByteCount, out ReadOnlyMemory<byte> installed) ? installed
                 : throw new InvalidDataException($"{state.Name}'s enemy tiles from ${source:X6} are not installed.");
             yield return new BgCharacterUpload(new BgArtworkIdentity($"{new TransferObjCharacters(source, entry.TileByteCount)}"),
-                EnemyVram.EnemyTilesDma(entry.StagingOffset / 2).Word, tiles);
+                (RoomEnemyRomLayout.VramByteBase + entry.StagingOffset) / sizeof(ushort), tiles);
         }
     }
 
@@ -340,7 +340,7 @@ internal static class RoomBlockUploads
         if (!state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
             yield break;
         for (int quarter = 0; quarter < HudTileAtlasFormat.RestoreQuarterCount; quarter++)
-            yield return BossVram.KraidBg3Restore(quarter, inputs.Hud.KraidRestoreQuarter(quarter));
+            yield return KraidBackgroundRomData.Bg3RestoreQuarter(quarter, inputs.Hud.KraidRestoreQuarter(quarter));
     }
 
     /// <summary>Bindings over a fresh VRAM holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>

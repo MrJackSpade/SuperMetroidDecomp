@@ -50,6 +50,7 @@ internal sealed class GameplayHudSetup
     /// own backgrounds still bind over them in the cartridge's order.
     /// </summary>
     /// <exception cref="InvalidOperationException">The HUD artwork is not installed.</exception>
+    [PpuLayoutBoundary("rendering view: the standard BG3 characters bind from the ordinary HUD base")]
     internal void ShowHudCharacters()
     {
         HudTileAtlas hud = (_artwork.MapPresentation ?? throw new InvalidOperationException(

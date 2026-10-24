@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -9,9 +8,9 @@ internal static class DraygonIntroPresentationDefinitions
 {
     /// <summary>Transfer size $0600 bytes, the Evir enemy graphics-set sheet.</summary>
     internal const int EvirTilesByteCount = 0x0600;
-    /// <summary>VRAM word $6D00 expressed as the byte address accepted by SnesVram.</summary>
-    internal const int EvirTilesVramByteAddress = 0xda00;
-    /// <summary>The opening's upload of the Evir tiles over the OBJ characters.</summary>
-    internal static RuntimeCharacterUpload EvirUpload { get; } = RuntimeCharacterUpload.To(BossVram.DraygonEvirTilesDma,
-        EvirTilesByteCount, new EnemyTileCharacters(EnemyDefinitionId.Evir));
+    /// <summary>The OBJ character table byte the Evir tiles start at, $1A00: the start of the enemy tile area plus $200.</summary>
+    private const int EvirTilesFirstByte = EnemyGraphicsSet.EnemyTileAreaFirstByte + 0x0200;
+    /// <summary>The opening's Evir tiles over the OBJ characters.</summary>
+    internal static RuntimeCharacterUpload EvirUpload { get; } = new(new EnemyTileCharacters(EnemyDefinitionId.Evir),
+        EvirTilesFirstByte, EvirTilesByteCount);
 }

@@ -701,14 +701,14 @@ internal static class FrontendRomFreeVerification
             }
             if (room.Room == RoomHeaderDefinitions.Draygon && frame == 0)
             {
-                ReadOnlySpan<byte> nativeEvir = native.GameplayRuntimeForVerification.Vram.Bytes
-                    .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
-                        DraygonIntroPresentationDefinitions.EvirTilesByteCount);
-                ReadOnlySpan<byte> installedEvir = installed.GameplayRuntimeForVerification.Vram.Bytes
-                    .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
-                        DraygonIntroPresentationDefinitions.EvirTilesByteCount);
+                RuntimeCharacterUpload evir = DraygonIntroPresentationDefinitions.EvirUpload;
+                ReadOnlySpan<byte> nativeEvir = ShownObjects(native.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
+                ReadOnlySpan<byte> installedEvir = ShownObjects(installed.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
                 AssertTrue(installedEvir.SequenceEqual(nativeEvir),
-                    "installed Draygon Evir intro upload matches native VRAM with bank-$B1 reads forbidden");
+                    "installed Draygon Evir intro characters match native with bank-$B1 reads forbidden");
+
+                static ReadOnlySpan<byte> ShownObjects(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime) =>
+                    new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.ObjCharacters, runtime.Artwork).Characters;
             }
         }
         if (awakenedGoldenTorizo is not null)

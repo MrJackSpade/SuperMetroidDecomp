@@ -1350,8 +1350,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(slot.DefinitionId),
-                new SnesVram(), new SpriteColourSets());
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(slot.DefinitionId), new SpriteColourSets());
             EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(slot.DefinitionId);
             slot.VramTilesIndex = indexes.TileIndex;
             slot.PaletteIndex = indexes.PaletteIndex;

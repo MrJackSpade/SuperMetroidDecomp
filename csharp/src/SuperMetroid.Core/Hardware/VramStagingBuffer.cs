@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Hardware;
 public sealed class VramStagingBuffer
 {
     /// <summary>The buffer's bytes in native address order.</summary>
-    internal readonly byte[] _bytes;
+    internal readonly byte[] bytes;
 
     /// <summary>Allocates a zeroed buffer of <paramref name="byteCount"/> bytes.</summary>
-    public VramStagingBuffer(int byteCount) => _bytes = new byte[Ensure.AtLeastZero(byteCount)];
+    public VramStagingBuffer(int byteCount) => bytes = new byte[Ensure.AtLeastZero(byteCount)];
 
     /// <summary>The number of bytes in the buffer.</summary>
-    public int Length => _bytes.Length;
+    public int Length => bytes.Length;
 
     /// <summary>A byte view of <paramref name="length"/> bytes starting <paramref name="start"/> bytes in.</summary>
-    internal StagingByteView ByteView(int start, int length) => new(_bytes, start, length);
+    internal StagingByteView ByteView(int start, int length) => new(bytes, start, length);
 
     /// <summary>A little-endian word view of <paramref name="count"/> words starting <paramref name="start"/> bytes in.</summary>
-    internal StagingWordView WordView(int start, int count) => new(_bytes, start, count);
+    internal StagingWordView WordView(int start, int count) => new(bytes, start, count);
 }

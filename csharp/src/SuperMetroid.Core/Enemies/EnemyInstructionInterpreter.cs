@@ -63,12 +63,13 @@ internal sealed class EnemyInstructionInterpreter
             destinationWord + words.Length > EnemyBg2FrameLayout.TilemapWordCount)
             throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
         _bossCopies.Write(destinationWord, words);
-        // A boss that owns the enemy BG2 image draws into it (#1353). Mother Brain only stages her body until her
-        // phase-two transition attaches the image (#1356), as native uploads nothing before then.
+        // A boss that owns the enemy BG2 image draws into it (#1353); every owner attaches it at initialization. Mother
+        // Brain only stages her body until her phase-two transition attaches the image (#1356), as native uploads
+        // nothing before then.
         if (_presentation.Bg2Image is { } image)
             image.Write(destinationWord, words);
         else if (!_bossCopies.StagesBody)
-            new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
+            throw new InvalidOperationException("An enemy BG2 frame was drawn before its owner attached the BG2 image it draws into.");
     }
 
     /// <summary>

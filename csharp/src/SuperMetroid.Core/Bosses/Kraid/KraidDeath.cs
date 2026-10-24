@@ -330,7 +330,7 @@ internal sealed class KraidDeath
             throw new ArgumentOutOfRangeException(nameof(quarter));
         HudTileAtlas hud = _bossArtwork.HudTileArtwork ?? throw new InvalidDataException(
             "Installed Kraid death restoration has no standard BG3 artwork.");
-        BossVram.BindKraidBg3Restore(_presentation.Backgrounds, quarter, hud.KraidRestoreQuarter(quarter).Span);
+        KraidBackgroundRomData.Bg3RestoreQuarter(quarter, hud.KraidRestoreQuarter(quarter).ToArray()).BindTo(_presentation.Backgrounds);
 
         state.RestoredBg3Quarters++;
         state.Parts[body.SlotIndex].Function = next;

@@ -26,8 +26,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class EnemySheetComposer
 {
     /// <summary>The byte of the OBJ character table the enemy tile region begins at.</summary>
-    private static readonly int EnemyRegionTableByte =
-        (EnemyVramLayout.EnemyTiles.Offset - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
+    private const int EnemyRegionTableByte = EnemyGraphicsSet.EnemyTileAreaFirstByte;
 
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
@@ -177,7 +176,7 @@ internal static class EnemySheetComposer
         var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession { TileArtwork = inputs.Enemies },
             CompiledRoomEnemyDefinitions.Instance, services: null));
         ScreenPalette cgram = RoomLoadPalettes.Colours(inputs.Palettes);
-        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SnesVram(), cgram);
+        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, cgram);
         List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.ToArray().Select(record => record.DefinitionId))

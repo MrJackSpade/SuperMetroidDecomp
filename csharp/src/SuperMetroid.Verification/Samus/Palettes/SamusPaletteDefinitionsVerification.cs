@@ -47,13 +47,13 @@ internal static class SamusPaletteDefinitionsVerification
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         TouchRange(bus, SamusPaletteDefinitions.Common.NormalSuitPointers,
             3 * sizeof(ushort), "normal suit palette pointers");
-        TouchRange(bus, SamusCartridgeTables.HurtFlashColors,
+        TouchRange(bus, SamusSourceDefinitions.HurtFlashColors.Value,
             SamusPaletteDefinitions.Common.ColorsPerObjPalette * sizeof(ushort),
             "Samus hurt-flash colors");
-        TouchRange(bus, SamusCartridgeTables.IntroHurtFlashColors,
+        TouchRange(bus, SamusSourceDefinitions.IntroHurtFlashColors.Value,
             SamusPaletteDefinitions.Common.ColorsPerObjPalette * sizeof(ushort),
             "intro Samus colors");
-        TouchRange(bus, SamusCartridgeTables.VisorColors,
+        TouchRange(bus, SamusSourceDefinitions.VisorColors.Value,
             SamusPaletteDefinitions.Visor.CycleEndByteOffset,
             "Samus visor colors");
 
@@ -84,36 +84,36 @@ internal static class SamusPaletteDefinitionsVerification
                 2 * sizeof(ushort),
             "Hyper Beam palette-FX instruction stream");
 
-        TouchRange(bus, SamusCartridgeTables.SuitPointers,
+        TouchRange(bus, SamusSourceDefinitions.SuitPointers.Value,
             3 * SamusPaletteDefinitions.Death.PaletteCount * sizeof(ushort),
             "suited death palette pointers");
-        TouchRange(bus, SamusCartridgeTables.SuitlessPointers,
+        TouchRange(bus, SamusSourceDefinitions.SuitlessPointers.Value,
             SamusPaletteDefinitions.Death.PaletteCount * sizeof(ushort),
             "suitless death palette pointers");
-        TouchRange(bus, SamusCartridgeTables.DeathExplosionTimingAndPaletteIndices,
+        TouchRange(bus, SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value,
             9 * 2, "death explosion timer/palette records");
-        TouchRange(bus, SamusCartridgeTables.DeathWhiteoutShades,
+        TouchRange(bus, SamusSourceDefinitions.DeathWhiteoutShades.Value,
             SamusPaletteDefinitions.Death.WhiteoutShadeCount * sizeof(ushort),
             "death whiteout shades");
 
         TouchRange(bus, SamusPaletteDefinitions.CrystalFlash.BeamPalettePointers,
             SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
             "Crystal Flash restored beam palettes");
-        TouchRange(bus, SamusCartridgeTables.CrystalFlashBodyRecords,
+        TouchRange(bus, SamusSourceDefinitions.CrystalFlashBodyRecords.Value,
             SamusPaletteDefinitions.CrystalFlash.BodyRecordCount *
                 SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount,
             "Crystal Flash body palette records");
-        TouchRange(bus, SamusCartridgeTables.BubblePointers,
+        TouchRange(bus, SamusSourceDefinitions.BubblePointers.Value,
             SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount * sizeof(ushort),
             "Crystal Flash bubble palette pointers");
 
-        TouchRange(bus, SamusCartridgeTables.PowerBombPreExplosionColors,
+        TouchRange(bus, SamusSourceDefinitions.PowerBombPreExplosionColors.Value,
             SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount *
-                SamusCartridgeTables.PowerBombBytesPerColor,
+                SamusSourceDefinitions.PowerBombBytesPerColor,
             "Power Bomb pre-explosion fixed colors");
-        TouchRange(bus, SamusCartridgeTables.PowerBombExplosionColors,
+        TouchRange(bus, SamusSourceDefinitions.PowerBombExplosionColors.Value,
             SamusPaletteDefinitions.PowerBomb.ExplosionColorCount *
-                SamusCartridgeTables.PowerBombBytesPerColor,
+                SamusSourceDefinitions.PowerBombBytesPerColor,
             "Power Bomb explosion fixed colors");
 
         Console.WriteLine(

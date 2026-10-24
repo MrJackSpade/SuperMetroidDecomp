@@ -1415,7 +1415,7 @@ internal static class LookupStream1Verification
         AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
         for (int pose = 0; pose < 253; pose++)
         {
-            AssertEqual(Native(pose), checked((ushort)(SamusCartridgeTables.ArmCannonDrawingData + SamusArmCannonArtworkFormat.StockPoseDescriptor(pose))), "cannon direct native pose dispatch");
+            AssertEqual(Native(pose), checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + SamusArmCannonArtworkFormat.StockPoseDescriptor(pose))), "cannon direct native pose dispatch");
             AssertEqual(Native(pose), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
             int[] descriptors = document.PoseDescriptors.ToArray();
             // Preserve an arbitrary admitted byte offset, including descriptor interiors.
@@ -1427,7 +1427,7 @@ internal static class LookupStream1Verification
             AssertEqual(1, Stored(edited).Count, "cannon exactly one independent descriptor override");
             AssertEqual(replacement, Stored(edited)[pose], "cannon stores arbitrary admitted descriptor offset");
             for (int other = 0; other < 253; other++)
-                AssertEqual(other == pose ? (ushort)(SamusCartridgeTables.ArmCannonDrawingData + replacement) : Native(other), edited.PoseDrawingData(other), "cannon isolated descriptor edit");
+                AssertEqual(other == pose ? (ushort)(SamusSourceDefinitions.ArmCannonDrawingData + replacement) : Native(other), edited.PoseDrawingData(other), "cannon isolated descriptor edit");
             AssertEqual(Identity(editedDocument), edited.ContentIdentity, "cannon edited pointer hash preserves canonical representation");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 253, 254, 255, 256, int.MaxValue })
@@ -1706,10 +1706,10 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Gravity(invalid), "stream1 invalid gravity medium");
         }
         for (int address = 0x90c254; address <= 0x90c28e; address++)
-            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldownDefinitions.ReadByte(address - SamusCartridgeTables.FiringTables), "stream1 all native cooldown bytes including padding");
-        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291 - SamusCartridgeTables.FiringTables), "stream1 bounded spacetime beam cooldown");
+            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldownDefinitions.ReadByte(address - SamusSourceDefinitions.FiringTables.Value), "stream1 all native cooldown bytes including padding");
+        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291 - SamusSourceDefinitions.FiringTables.Value), "stream1 bounded spacetime beam cooldown");
         foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid - SamusCartridgeTables.FiringTables), "stream1 invalid cooldown address");
+            AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid - SamusSourceDefinitions.FiringTables.Value), "stream1 invalid cooldown address");
     }
 
     /// <summary>Reads source bytes for the broad pose and gameplay lookup comparison.</summary>
@@ -1778,16 +1778,16 @@ internal static class LookupStream1Verification
     private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1CadenceProgramsRomByte(rom, address), LookupStream1CadenceProgramsRomByte(rom, address + 1));
-        for (int address = SamusCartridgeTables.ChargeFlarePrograms; address < 0x90c4b5; address++)
+        for (int address = SamusSourceDefinitions.ChargeFlarePrograms.Value; address < 0x90c4b5; address++)
         {
             AssertEqual(LookupStream1CadenceProgramsRomByte(rom, address),
-                ChargeFlareAnimationDefinitions.ReadByte(address - SamusCartridgeTables.ChargeFlarePrograms), "stream1 original flare cadence byte");
+                ChargeFlareAnimationDefinitions.ReadByte(address - SamusSourceDefinitions.ChargeFlarePrograms.Value), "stream1 original flare cadence byte");
             if (address < 0x90c4b4)
-                AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address - SamusCartridgeTables.ChargeFlarePrograms),
+                AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                     "stream1 original flare unaligned word");
         }
         foreach (int invalid in new[] { int.MinValue, 0x90c486, 0x90c4b5, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid - SamusCartridgeTables.ChargeFlarePrograms),
+            AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "stream1 flare byte domain");
     }
 
@@ -1799,9 +1799,9 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusCartridgeTables.FiringTables), "stream1 all native projectile motion words");
+            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitions.FiringTables.Value), "stream1 all native projectile motion words");
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid - SamusCartridgeTables.FiringTables), "stream1 exact projectile motion address domain");
+            AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid - SamusSourceDefinitions.FiringTables.Value), "stream1 exact projectile motion address domain");
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var stationary = new ProjectileInheritanceRecords();
         for (ushort combination = 0; combination < 16; combination++)
@@ -2541,7 +2541,7 @@ internal static class LookupStream1Verification
         Dictionary<ColourCell, Bgr555> Stored(SamusVisorColorCatalog value) => value.colors;
         ushort Native(int index)
         {
-            int address = SamusCartridgeTables.VisorColors + index * 2;
+            int address = SamusSourceDefinitions.VisorColors.Value + index * 2;
             return SnesLittleEndian.Word(LookupStream1VisorColorsRomByte(rom, address), LookupStream1VisorColorsRomByte(rom, address + 1));
         }
         AssertEqual(0, Stored(stock).Count, "visor stock stores no sampled fallback colors");

@@ -566,7 +566,7 @@ internal static class SamusFullBodyCycleColorsVerification
         for (int suit = 0; suit < SamusFullBodyCycleColorFormat.SuitCount; suit++)
         for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
         {
-            int address = SamusCartridgeTables.PaletteBank |
+            int address = SamusSourceDefinitions.PaletteBank.Value |
                 SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int offset = 0;
                  offset < SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort);

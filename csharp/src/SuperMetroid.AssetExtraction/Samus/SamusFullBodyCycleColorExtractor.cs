@@ -40,14 +40,14 @@ public static class SamusFullBodyCycleColorExtractor
                 {
                     ushort pointer = checked((ushort)(family switch
                     {
-                        SamusFullBodyCycleFamily.SpeedBooster => SamusCartridgeTables.SpeedBoosterCyclePalettes,
-                        SamusFullBodyCycleFamily.StoredShine => SamusCartridgeTables.StoredShineCyclePalettes,
-                        SamusFullBodyCycleFamily.ActiveShinespark => SamusCartridgeTables.ActiveShinesparkCyclePalettes,
-                        SamusFullBodyCycleFamily.ScrewAttack => SamusCartridgeTables.ScrewAttackCyclePalettes,
+                        SamusFullBodyCycleFamily.SpeedBooster => SamusSourceDefinitions.SpeedBoosterCyclePalettes,
+                        SamusFullBodyCycleFamily.StoredShine => SamusSourceDefinitions.StoredShineCyclePalettes,
+                        SamusFullBodyCycleFamily.ActiveShinespark => SamusSourceDefinitions.ActiveShinesparkCyclePalettes,
+                        SamusFullBodyCycleFamily.ScrewAttack => SamusSourceDefinitions.ScrewAttackCyclePalettes,
                         _ => throw new ArgumentOutOfRangeException(nameof(family)),
-                    } + suit * SamusCartridgeTables.CyclePaletteSuitStride + shade * SamusCartridgeTables.CyclePaletteShadeStride));
+                    } + suit * SamusSourceDefinitions.CyclePaletteSuitStride + shade * SamusSourceDefinitions.CyclePaletteShadeStride));
                     byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                        SamusCartridgeTables.PaletteBank | pointer,
+                        SamusSourceDefinitions.PaletteBank.Value | pointer,
                         SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort));
                     var colors = new PaletteRgb5[SamusFullBodyCycleColorFormat.ColorsPerPalette];
                     for (int index = 0; index < colors.Length; index++)

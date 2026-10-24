@@ -245,7 +245,7 @@ internal static class CeresEscapeHandoffVerification
     {
         WriteTestWords(
             bus,
-            SamusCartridgeTables.MovementBank |
+            SamusSourceDefinitions.MovementBank.Value |
                 (SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable +
                 0x0a * SpeedTableEntryConstants.ByteCount),
             1, 0, 1, 0, 0, 0);

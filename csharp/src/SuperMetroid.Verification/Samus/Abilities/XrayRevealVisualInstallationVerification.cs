@@ -43,8 +43,8 @@ internal static class XrayRevealVisualInstallationVerification
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
         for (int slot = 0; slot < XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2; slot++)
         {
-            ushort pointer = NativeWord(SamusCartridgeTables.ItemDrawPointers + slot * 2);
-            AssertEqual((ushort)(NativeWord(SamusCartridgeTables.XrayItemDrawBank | (pointer + 2)) & 0x0fff),
+            ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + slot * 2);
+            AssertEqual((ushort)(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2)) & 0x0fff),
                 overlays.ItemMetatile(slot), $"stock X-ray item graphics slot {slot}");
         }
         int specialRecords = 0;
@@ -53,13 +53,13 @@ internal static class XrayRevealVisualInstallationVerification
             IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomTiles(XrayRoomOverlaySources.Overlay(pointer));
             for (int index = 0; index < tiles.Count; index++)
             {
-                ushort coordinates = NativeWord(SamusCartridgeTables.XrayRoomOverlayBank | (pointer + index * 4));
-                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, SnesLittleEndian.HighByte(coordinates)), NativeWord(SamusCartridgeTables.XrayRoomOverlayBank |
+                ushort coordinates = NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value | (pointer + index * 4));
+                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, SnesLittleEndian.HighByte(coordinates)), NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value |
                         (pointer + index * 4 + 2))), tiles[index],
                     $"stock X-ray room overlay ${pointer:X4} record {index}");
                 specialRecords++;
             }
-            AssertEqual((ushort)0, NativeWord(SamusCartridgeTables.XrayRoomOverlayBank |
+            AssertEqual((ushort)0, NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value |
                 (pointer + tiles.Count * 4)), $"X-ray room overlay ${pointer:X4} terminator");
         }
 

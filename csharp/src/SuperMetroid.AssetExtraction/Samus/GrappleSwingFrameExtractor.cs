@@ -19,6 +19,6 @@ public static class GrappleSwingFrameExtractor
         {
             Version = GrappleSwingFrameDefinitions.Version,
             Frames = Enumerable.Range(0, GrappleSwingFrameDefinitions.AngleCount)
-                .Select(angle => (int)bus.ReadCartridgeByte(SamusCartridgeTables.GrappleSwingFrameByAngle + angle)).ToArray(),
+                .Select(angle => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.GrappleSwingFrameByAngle.Value + angle)).ToArray(),
         });
 }

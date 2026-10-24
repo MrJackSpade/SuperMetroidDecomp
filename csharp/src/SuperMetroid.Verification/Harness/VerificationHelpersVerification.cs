@@ -149,7 +149,7 @@ internal static class VerificationHelpersVerification
         Ensure.LengthEqual(definition, 8);
 
         bus.WriteBytes(
-            SamusCartridgeTables.PoseDefinitions + pose * SamusCartridgeTables.PoseDefinitionByteCount,
+            SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount,
             definition);
     }
 
@@ -167,7 +167,7 @@ internal static class VerificationHelpersVerification
 
         WriteTestByte(
             bus,
-            SamusCartridgeTables.PoseDefinitions + pose * SamusCartridgeTables.PoseDefinitionByteCount + byteOffset,
+            SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + byteOffset,
             value);
     }
 
@@ -184,7 +184,7 @@ internal static class VerificationHelpersVerification
     internal static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)
     {
         Ensure.NotNull(bus);
-        bus.WriteBytes(SamusCartridgeTables.PoseBank | stream, delays);
+        bus.WriteBytes(SamusSourceDefinitions.PoseBank.Value | stream, delays);
     }
 
     /// <summary>

@@ -142,7 +142,7 @@ internal static class SyntheticSamusCartridge
         {
             WriteTestWord(
                 bus,
-                SamusCartridgeTables.PaletteBank | unchecked((ushort)(pointer + color * 2)),
+                SamusSourceDefinitions.PaletteBank.Value | unchecked((ushort)(pointer + color * 2)),
                 colors[color]);
         }
     }

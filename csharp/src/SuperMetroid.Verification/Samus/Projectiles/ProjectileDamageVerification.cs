@@ -125,7 +125,7 @@ internal static class ProjectileDamageVerification
     internal static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
     {
         for (int beam = 0; beam < 12; beam++)
-            AssertEqual(readWord(SamusCartridgeTables.SpecialBeamAttackCosts + beam * 2),
+            AssertEqual(readWord(SamusSourceDefinitions.SpecialBeamAttackCosts.Value + beam * 2),
                 SamusComboMechanicsDefinitions.GetPowerBombCost(SamusBeamCombinations.FromTableIndex(beam)),
                 $"compiled combo Power Bomb cost {beam}");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -286,8 +286,8 @@ internal static class ProjectileDamageVerification
     private static MutableCartridgeReadGuard NewComboMechanicsReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= SamusCartridgeTables.SpecialBeamAttackCosts and < SamusCartridgeTables.SpecialBeamAttackCosts + 24 or
-                >= BeamComboDefinitionsConstants.OriginAngles and < BeamComboDefinitionsConstants.OriginAngles + 8 or
+        guard.Forbid(address => address >= SamusSourceDefinitions.SpecialBeamAttackCosts.Value && address < SamusSourceDefinitions.SpecialBeamAttackCosts.Value + 24 ||
+                address is >= BeamComboDefinitionsConstants.OriginAngles and < BeamComboDefinitionsConstants.OriginAngles + 8 or
                 >= BeamComboDefinitionsConstants.PositiveSine and < BeamComboDefinitionsConstants.PositiveSine + 512,
             address => $"Special beam mechanics still read compiled ROM byte ${address:X6}.");
         return guard;

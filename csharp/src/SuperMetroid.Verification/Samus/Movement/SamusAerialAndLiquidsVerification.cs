@@ -727,7 +727,7 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
 /// <summary>Writes one word of the bank-$9B Samus palette data at <paramref name="pointer"/>.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$9B Samus palette word")]
 static void SeedSamusPaletteWord(TestAddressSpace bus, ushort pointer, ushort color) =>
-    WriteTestWord(bus, SamusCartridgeTables.PaletteBank | pointer, color);
+    WriteTestWord(bus, SamusSourceDefinitions.PaletteBank.Value | pointer, color);
 
 /// <summary>
 /// Seeds the three media's standalone grapple-release speed records ($90:9F31/$9F3D/$9F49):

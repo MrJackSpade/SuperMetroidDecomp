@@ -38,12 +38,12 @@ internal static class GrappleBeamDefinitionsVerification
             GrappleBeamDefinitions.Firing.Angles,
             GrappleBeamDefinitions.Firing.DefaultOriginX,
             GrappleBeamDefinitions.Firing.DefaultOriginY,
-            SamusCartridgeTables.GrappleDefaultFlareX,
-            SamusCartridgeTables.GrappleDefaultFlareY,
+            SamusSourceDefinitions.GrappleDefaultFlareX.Value,
+            SamusSourceDefinitions.GrappleDefaultFlareY.Value,
             GrappleBeamDefinitions.Firing.RunningOriginX,
             GrappleBeamDefinitions.Firing.RunningOriginY,
-            SamusCartridgeTables.GrappleRunningFlareX,
-            SamusCartridgeTables.GrappleRunningFlareY,
+            SamusSourceDefinitions.GrappleRunningFlareX.Value,
+            SamusSourceDefinitions.GrappleRunningFlareY.Value,
         })
         {
             TouchRange(bus, directionTable,
@@ -60,7 +60,7 @@ internal static class GrappleBeamDefinitionsVerification
         TouchRange(bus, GrappleBeamDefinitions.Physics.SignedSineTable,
             256 * sizeof(ushort), "Grapple signed sine table");
 
-        TouchRange(bus, SamusCartridgeTables.GrappleSwingFrameByAngle,
+        TouchRange(bus, SamusSourceDefinitions.GrappleSwingFrameByAngle.Value,
             256, "Grapple swing-frame table");
         TouchRange(bus, GrappleBeamDefinitions.Rendering.LeftPoseOffsetsByFrame,
             GrappleBeamDefinitions.Rendering.RightPoseOffsetsByFrame -

@@ -21,7 +21,7 @@ public static class SamusVisorColorExtractor
     {
         Ensure.NotNull(bus);
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            SamusCartridgeTables.VisorColors,
+            SamusSourceDefinitions.VisorColors.Value,
             SamusVisorColorFormat.ColorCount * sizeof(ushort));
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
         for (int index = 0; index < colors.Length; index++)

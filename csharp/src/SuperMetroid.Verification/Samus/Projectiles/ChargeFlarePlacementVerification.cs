@@ -64,13 +64,13 @@ internal static class ChargeFlarePlacementVerification
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
-            int record = SamusCartridgeTables.PoseDefinitions + (int)pose * 8;
+            int record = SamusSourceDefinitions.PoseDefinitions.Value + (int)pose * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == (byte)SamusMovementType.Running;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
             var native = new OamBuffer();
-            int xTable = running ? SamusCartridgeTables.ChargeFlareRunningXOffsets : SamusCartridgeTables.ChargeFlareDefaultXOffsets;
-            int yTable = running ? SamusCartridgeTables.ChargeFlareRunningYOffsets : SamusCartridgeTables.ChargeFlareDefaultYOffsets;
+            int xTable = running ? SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value;
+            int yTable = running ? SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value;
             short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
             var world = new Position16<RoomPixels>(coordinate, coordinate);
             var point = transform is { } selectedTransform ? selectedTransform.Transform(world) : world;
@@ -149,10 +149,10 @@ internal static class ChargeFlarePlacementVerification
         /// <summary>Substitutes pose metadata and optionally rejects the native flare-origin range.</summary>
         public byte ReadByte(int address)
         {
-            int syntheticOffset = address - (SamusCartridgeTables.PoseDefinitions + 0xfd * 8);
+            int syntheticOffset = address - (SamusSourceDefinitions.PoseDefinitions.Value + 0xfd * 8);
             if ((uint)syntheticOffset < 8)
-                return syntheticOffset == 3 ? direction : CpuBusRegionRead.Read(source, SamusCartridgeTables.PoseDefinitions + (int)pose * 8 + syntheticOffset);
-            if (address == SamusCartridgeTables.PoseDefinitions + (int)pose * 8 + 3) return direction;
+                return syntheticOffset == 3 ? direction : CpuBusRegionRead.Read(source, SamusSourceDefinitions.PoseDefinitions.Value + (int)pose * 8 + syntheticOffset);
+            if (address == SamusSourceDefinitions.PoseDefinitions.Value + (int)pose * 8 + 3) return direction;
             if (forbid && address is >= 0x90c1a8 and < 0x90c210)
                 throw new InvalidDataException("Flare placement still reads origin ROM.");
             return CpuBusRegionRead.Read(source, address);

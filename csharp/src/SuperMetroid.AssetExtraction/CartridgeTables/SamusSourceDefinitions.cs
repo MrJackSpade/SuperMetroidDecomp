@@ -2,57 +2,60 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
-/// <summary>Cartridge regions whose bank-local pointers Samus and projectile codecs resolve.</summary>
-[CpuBusBoundary("catalog: Samus cartridge tables")]
-internal static class SamusCartridgeTables
+/// <summary>
+/// Where the cartridge keeps each table Samus's codecs read (#1411): the import pipeline's private knowledge of the
+/// cartridge, decoded once, as typed source addresses with their meaning named.
+/// </summary>
+[CpuBusBoundary("catalog: Samus cartridge sources")]
+internal static class SamusSourceDefinitions
 {
     /// <summary>$90:C9D9, where the arm cannon drawing window starts in bank $90: its first pose descriptor.</summary>
     internal const int ArmCannonDrawingData = 0xc9d9;
 
     /// <summary>$90:CC21, CostOfSBAsInPowerBombs: twelve word costs by beam index, the arm cannon drawing window's last bytes.</summary>
-    internal const int SpecialBeamAttackCosts = 0x90cc21;
+    internal static readonly SnesAddress SpecialBeamAttackCosts = new(0x90, 0xcc21);
 
     /// <summary>Bank <c>$91</c>, which holds the pose and projectile-driven suit-palette lists.</summary>
-    internal const int PoseBank = 0x910000;
+    internal static readonly SnesAddress PoseBank = new(0x91, 0x0000);
 
     /// <summary>Bank <c>$93</c>, which holds the projectile definitions and animation lists.</summary>
-    internal const int ProjectileDataBank = 0x930000;
+    internal static readonly SnesAddress ProjectileDataBank = new(0x93, 0x0000);
 
     /// <summary>$91:B20A, where Samus's pose delay programs start, after the pose pointer table.</summary>
-    internal const int PoseDelayPrograms = 0x91b20a;
+    internal static readonly SnesAddress PoseDelayPrograms = new(0x91, 0xb20a);
 
     /// <summary>$91:B5D1, where the running cadences start: the word naming the ordinary stream.</summary>
-    internal const int RunningCadences = 0x91b5d1;
+    internal static readonly SnesAddress RunningCadences = new(0x91, 0xb5d1);
 
     /// <summary>$90:C487, where the charge flare's delay programs start.</summary>
-    internal const int ChargeFlarePrograms = 0x90c487;
+    internal static readonly SnesAddress ChargeFlarePrograms = new(0x90, 0xc487);
 
     /// <summary>$90:C204, where the firing tables <see cref="SuperMetroid.Core.Samus.Projectiles.SamusFiringTables"/> lays out start.</summary>
-    internal const int FiringTables = 0x90c204;
+    internal static readonly SnesAddress FiringTables = new(0x90, 0xc204);
 
     /// <summary>$90:C1A8: the charge flare's DefaultX offsets, by direction.</summary>
-    internal const int ChargeFlareDefaultXOffsets = 0x90c1a8;
+    internal static readonly SnesAddress ChargeFlareDefaultXOffsets = new(0x90, 0xc1a8);
 
     /// <summary>$90:C1C2: the charge flare's DefaultY offsets, by direction.</summary>
-    internal const int ChargeFlareDefaultYOffsets = 0x90c1c2;
+    internal static readonly SnesAddress ChargeFlareDefaultYOffsets = new(0x90, 0xc1c2);
 
     /// <summary>$90:C1DC: the charge flare's RunningX offsets, by direction.</summary>
-    internal const int ChargeFlareRunningXOffsets = 0x90c1dc;
+    internal static readonly SnesAddress ChargeFlareRunningXOffsets = new(0x90, 0xc1dc);
 
     /// <summary>$90:C1F0: the charge flare's RunningY offsets, by direction.</summary>
-    internal const int ChargeFlareRunningYOffsets = 0x90c1f0;
+    internal static readonly SnesAddress ChargeFlareRunningYOffsets = new(0x90, 0xc1f0);
 
     /// <summary>$9A:D900 contains OBJ tiles $38..$3F: ice and wave trail frames.</summary>
-    internal const int ProjectileTrailIceWaveTiles = 0x9ad900;
+    internal static readonly SnesAddress ProjectileTrailIceWaveTiles = new(0x9a, 0xd900);
 
     /// <summary>$9A:DB00 contains OBJ tiles $48..$4B: missile and Super Missile trail frames.</summary>
-    internal const int ProjectileTrailMissileTiles = 0x9adb00;
+    internal static readonly SnesAddress ProjectileTrailMissileTiles = new(0x9a, 0xdb00);
 
     /// <summary>$94:B13D: immediate endpoint attributes in DrawGrappleBeamEnd_NotConnected.</summary>
-    internal const int GrappleEndpointAttributes = 0x94b13d;
+    internal static readonly SnesAddress GrappleEndpointAttributes = new(0x94, 0xb13d);
 
     /// <summary>Bank <c>$9B</c>, which owns Samus BGR555 color data.</summary>
-    internal const int PaletteBank = 0x9b0000;
+    internal static readonly SnesAddress PaletteBank = new(0x9b, 0x0000);
 
     /// <summary><c>$9B:A380</c>, the sixteen-color hurt-flash palette.</summary>
     /// <remarks>
@@ -66,7 +69,7 @@ internal static class SamusCartridgeTables
     /// exactly. The corresponding installed color payload still requires
     /// conversion; this address member grants no retention disposition.
     /// </remarks>
-    internal const int HurtFlashColors = 0x9ba380;
+    internal static readonly SnesAddress HurtFlashColors = new(0x9b, 0xa380);
 
     /// <summary><c>$9B:A3A0</c>, the sixteen-color cinematic Samus palette.</summary>
     /// <remarks>
@@ -82,7 +85,7 @@ internal static class SamusCartridgeTables
     /// Production copies indices 0..15 unchanged to Samus OBJ CGRAM
     /// 192..207 on cinematic hurt-counter calls 2, 4, and 6.
     /// </remarks>
-    internal const int IntroHurtFlashColors = 0x9ba3a0;
+    internal static readonly SnesAddress IntroHurtFlashColors = new(0x9b, 0xa3a0);
 
     /// <summary><c>$9B:A3C0</c>, six widening/cycling visor colors.</summary>
     /// <remarks>
@@ -98,7 +101,7 @@ internal static class SamusCartridgeTables
     /// outside these six words; this formula describes only the ordinary
     /// bounded offsets and does not invent adjacent values.
     /// </remarks>
-    internal const int VisorColors = 0x9ba3c0;
+    internal static readonly SnesAddress VisorColors = new(0x9b, 0xa3c0);
 
     /// <summary><c>$9B:B823</c>, nine interleaved timer/palette-index records.</summary>
     /// <remarks>
@@ -131,7 +134,7 @@ internal static class SamusCartridgeTables
     /// suited and suitless pointer lists. The selector is a byte
     /// immediately following its timer, not an aligned word read.
     /// </remarks>
-    internal const int DeathExplosionTimingAndPaletteIndices = 0x9bb823;
+    internal static readonly SnesAddress DeathExplosionTimingAndPaletteIndices = new(0x9b, 0xb823);
 
     /// <summary><c>$9B:B835</c>, 22 grayscale whiteout shades ending at white.</summary>
     /// <remarks>
@@ -148,7 +151,7 @@ internal static class SamusCartridgeTables
     /// later frames, then explicitly reads index 21 to finish
     /// at <c>$7FFF</c>; it excludes both Samus OBJ palettes.
     /// </remarks>
-    internal const int DeathWhiteoutShades = 0x9bb835;
+    internal static readonly SnesAddress DeathWhiteoutShades = new(0x9b, 0xb835);
 
     /// <summary><c>$91:DC00</c>, ten body-palette pointer/timer records.</summary>
     /// <remarks>
@@ -159,7 +162,7 @@ internal static class SamusCartridgeTables
     /// palette content can select its authored colours. The adjacent
     /// duration words are compiled separately. Investigation: #625 / #669.
     /// </remarks>
-    internal const int CrystalFlashBodyRecords = 0x91dc00;
+    internal static readonly SnesAddress CrystalFlashBodyRecords = new(0x91, 0xdc00);
 
     /// <summary><c>$88:9079</c>, sixteen RGB triplets for the pre-explosion.</summary>
     /// <remarks>
@@ -173,7 +176,7 @@ internal static class SamusCartridgeTables
     /// in order; the following <c>$88:90A9</c> bytes form another table.
     /// Target-color ownership and conversion are reviewed separately from this address. Investigation: #625 / #904.
     /// </remarks>
-    internal const int PowerBombPreExplosionColors = 0x889079;
+    internal static readonly SnesAddress PowerBombPreExplosionColors = new(0x88, 0x9079);
 
     /// <summary><c>$88:8D85</c>, radius-indexed RGB triplets for the explosion.</summary>
     /// <remarks>
@@ -191,96 +194,89 @@ internal static class SamusCartridgeTables
     /// read the three components in order. The next word at
     /// <c>$88:8DE5</c> is radius-speed data. Investigation: #625 / #905.
     /// </remarks>
-    internal const int PowerBombExplosionColors = 0x888d85;
+    internal static readonly SnesAddress PowerBombExplosionColors = new(0x88, 0x8d85);
 
     /// <summary>Each fixed-color record stores red, green, and blue bytes.</summary>
     internal const int PowerBombBytesPerColor = 3;
 
-    /// <summary>Where the cartridge keeps one of the Power Bomb's authored RGB5 sequences in bank $88.</summary>
-    internal static int PowerBombColors(SuperMetroid.Core.Samus.Artwork.PowerBombFixedColorSequence sequence) => sequence switch
-    {
-        SuperMetroid.Core.Samus.Artwork.PowerBombFixedColorSequence.PreExplosion => PowerBombPreExplosionColors,
-        SuperMetroid.Core.Samus.Artwork.PowerBombFixedColorSequence.Explosion => PowerBombExplosionColors,
-        _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
-    };
 
     /// <summary>Bank $9A, which holds the decompressed-source characters the arm cannon's cover copies.</summary>
-    internal const int CharacterDataBank = 0x9a0000;
+    internal static readonly SnesAddress CharacterDataBank = new(0x9a, 0x0000);
 
-        /// <summary>Non-running flare X origins.</summary>
-        internal const int GrappleDefaultFlareX = 0x9bc14a;
+    /// <summary>Non-running flare X origins.</summary>
+    internal static readonly SnesAddress GrappleDefaultFlareX = new(0x9b, 0xc14a);
 
-        /// <summary>Non-running flare Y origins.</summary>
-        internal const int GrappleDefaultFlareY = 0x9bc15e;
+    /// <summary>Non-running flare Y origins.</summary>
+    internal static readonly SnesAddress GrappleDefaultFlareY = new(0x9b, 0xc15e);
 
-        /// <summary>Running flare X origins.</summary>
-        internal const int GrappleRunningFlareX = 0x9bc19a;
+    /// <summary>Running flare X origins.</summary>
+    internal static readonly SnesAddress GrappleRunningFlareX = new(0x9b, 0xc19a);
 
-        /// <summary>Running flare Y origins.</summary>
-        internal const int GrappleRunningFlareY = 0x9bc1ae;
+    /// <summary>Running flare Y origins.</summary>
+    internal static readonly SnesAddress GrappleRunningFlareY = new(0x9b, 0xc1ae);
 
-        /// <summary>Animation frame selected by each high byte of swing angle.</summary>
-        internal const int GrappleSwingFrameByAngle = 0x9bc1c2;
+    /// <summary>Animation frame selected by each high byte of swing angle.</summary>
+    internal static readonly SnesAddress GrappleSwingFrameByAngle = new(0x9b, 0xc1c2);
 
-        /// <summary><c>$9B:9400</c>, ordinary Power Suit palette.</summary>
-        /// <remarks>
-        /// Issue #860 / #625: sixteen authored BGR555 words in the pinned NTSC
-        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
-        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
-        /// Power loading palette-FX program (#856) and the duplicate bank-$9B
-        /// palettes at <c>$9C20</c> and <c>$9CA0</c>. Eleven color slots are
-        /// shared with the normal Varia and Gravity palettes; slots
-        /// 0, 2, 10, 11, 12 vary by suit. These deliberately selected colors
-        /// remain a palette table rather than a computed channel sequence.
-        /// </remarks>
-        internal const int PowerSuitPalette = 0x9b9400;
+    /// <summary><c>$9B:9400</c>, ordinary Power Suit palette.</summary>
+    /// <remarks>
+    /// Issue #860 / #625: sixteen authored BGR555 words in the pinned NTSC
+    /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+    /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+    /// Power loading palette-FX program (#856) and the duplicate bank-$9B
+    /// palettes at <c>$9C20</c> and <c>$9CA0</c>. Eleven color slots are
+    /// shared with the normal Varia and Gravity palettes; slots
+    /// 0, 2, 10, 11, 12 vary by suit. These deliberately selected colors
+    /// remain a palette table rather than a computed channel sequence.
+    /// </remarks>
+    internal static readonly SnesAddress PowerSuitPalette = new(0x9b, 0x9400);
 
-        /// <summary><c>$9B:9520</c>, ordinary Varia Suit palette.</summary>
-        /// <remarks>
-        /// Issue #861 / #625: sixteen authored BGR555 words in the pinned NTSC
-        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
-        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
-        /// Varia loading palette-FX program (#857) and duplicate bank-$9B
-        /// palettes at <c>$9920</c>, <c>$9D20</c>, and <c>$9DA0</c>. Eleven
-        /// color slots are shared with normal Power and Gravity; slots
-        /// 0, 2, 10, 11, 12 vary by suit. These authored choices remain a
-        /// palette table rather than a computed channel sequence.
-        /// </remarks>
-        internal const int VariaSuitPalette = 0x9b9520;
+    /// <summary><c>$9B:9520</c>, ordinary Varia Suit palette.</summary>
+    /// <remarks>
+    /// Issue #861 / #625: sixteen authored BGR555 words in the pinned NTSC
+    /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+    /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+    /// Varia loading palette-FX program (#857) and duplicate bank-$9B
+    /// palettes at <c>$9920</c>, <c>$9D20</c>, and <c>$9DA0</c>. Eleven
+    /// color slots are shared with normal Power and Gravity; slots
+    /// 0, 2, 10, 11, 12 vary by suit. These authored choices remain a
+    /// palette table rather than a computed channel sequence.
+    /// </remarks>
+    internal static readonly SnesAddress VariaSuitPalette = new(0x9b, 0x9520);
 
-        /// <summary><c>$9B:9800</c>, ordinary Gravity Suit palette.</summary>
-        /// <remarks>
-        /// Issue #862 / #625: sixteen authored BGR555 words in the pinned NTSC
-        /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
-        /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
-        /// Gravity loading palette-FX program (#858). The nearby speed-boost
-        /// base <c>$9B:9F20</c> is not an alias: colors 0, 1, and 12 differ.
-        /// Eleven color slots are shared with normal Power and Varia; slots
-        /// 0, 2, 10, 11, 12 vary by suit. These authored choices remain a
-        /// palette table rather than a computed channel sequence.
-        /// </remarks>
-        internal const int GravitySuitPalette = 0x9b9800;
+    /// <summary><c>$9B:9800</c>, ordinary Gravity Suit palette.</summary>
+    /// <remarks>
+    /// Issue #862 / #625: sixteen authored BGR555 words in the pinned NTSC
+    /// J/U v1.0 ROM, indexed only by color 0..15 and copied unchanged to
+    /// Samus OBJ CGRAM 192..207. All sixteen match the normal row of the
+    /// Gravity loading palette-FX program (#858). The nearby speed-boost
+    /// base <c>$9B:9F20</c> is not an alias: colors 0, 1, and 12 differ.
+    /// Eleven color slots are shared with normal Power and Varia; slots
+    /// 0, 2, 10, 11, 12 vary by suit. These authored choices remain a
+    /// palette table rather than a computed channel sequence.
+    /// </remarks>
+    internal static readonly SnesAddress GravitySuitPalette = new(0x9b, 0x9800);
 
-        /// <summary><c>$90:8D28</c>, packed landing-frame vertical offsets.</summary>
-        internal const int LandingVerticalOffsets = 0x908d28;
-
-
-        /// <summary><c>$90:8D80</c>, crouch/morph transition vertical offsets.</summary>
-        internal const int PostureTransitionVerticalOffsets = 0x908d80;
+    /// <summary><c>$90:8D28</c>, packed landing-frame vertical offsets.</summary>
+    internal static readonly SnesAddress LandingVerticalOffsets = new(0x90, 0x8d28);
 
 
-        /// <summary><c>$90:8DEF</c>, drained-body vertical offsets.</summary>
-        internal const int DrainedVerticalOffsets = 0x908def;
+    /// <summary><c>$90:8D80</c>, crouch/morph transition vertical offsets.</summary>
+    internal static readonly SnesAddress PostureTransitionVerticalOffsets = new(0x90, 0x8d80);
 
 
-        /// <summary><c>$90:C791</c>, packed OBJ attributes for ten directions.</summary>
-        internal const int ArmCannonSpriteAttributes = 0x90c791;
+    /// <summary><c>$90:8DEF</c>, drained-body vertical offsets.</summary>
+    internal static readonly SnesAddress DrainedVerticalOffsets = new(0x90, 0x8def);
+
+
+    /// <summary><c>$90:C791</c>, packed OBJ attributes for ten directions.</summary>
+    internal static readonly SnesAddress ArmCannonSpriteAttributes = new(0x90, 0xc791);
 
     /// <summary>Bank $90, which holds Samus's physics constants, speed tables and effects metadata.</summary>
-    internal const int MovementBank = 0x900000;
+    internal static readonly SnesAddress MovementBank = new(0x90, 0x0000);
 
     /// <summary><c>$91:B629</c>: Samus's pose definitions, eight bytes per pose.</summary>
-    internal const int PoseDefinitions = 0x91b629;
+    internal static readonly SnesAddress PoseDefinitions = new(0x91, 0xb629);
 
     /// <summary>The bytes of one pose-definition record.</summary>
     internal const int PoseDefinitionByteCount = 8;
@@ -309,7 +305,7 @@ internal static class SamusCartridgeTables
     /// $9B:8000-$9B:93FF: Samus's death-explosion characters, in the order its spritemaps name them. The death
     /// sequence uploads them as five $400-byte pages listed at $9B:B7BF (sources) and $9B:B7C9 (destinations).
     /// </summary>
-    internal const int DeathExplosionCharacters = 0x9b8000;
+    internal static readonly SnesAddress DeathExplosionCharacters = new(0x9b, 0x8000);
     /// <summary>$9B:9B20: the Power Suit's first Speed Booster cycle shade.</summary>
     internal const ushort SpeedBoosterCyclePalettes = 0x9b20;
     /// <summary>$9B:9BA0: the Power Suit's first stored-shine cycle shade.</summary>
@@ -323,12 +319,12 @@ internal static class SamusCartridgeTables
     /// <summary>Byte distance between adjacent sixteen-color shades.</summary>
     internal const int CyclePaletteShadeStride = 0x20;
     /// <summary>$9B:A360: the first sixteen-color Hyper Beam frame; later frames descend.</summary>
-    internal const int HyperBeamPalettes = 0x9ba360;
+    internal static readonly SnesAddress HyperBeamPalettes = new(0x9b, 0xa360);
     /// <summary>Byte distance between descending Hyper Beam frames.</summary>
     internal const int HyperBeamPaletteStride = 0x20;
 
     /// <summary>$91:0000: the bank of the X-ray revealed-block tables and their commands.</summary>
-    internal const int XrayRevealTableBank = 0x910000;
+    internal static readonly SnesAddress XrayRevealTableBank = new(0x91, 0x0000);
     /// <summary>$91:D2D6 RevealedBlockTable_0: the X-ray reveal table keyed by the level word's block-type nibble.</summary>
     internal const ushort XrayRevealBlockTypeTable = 0xd2d6;
 
@@ -336,13 +332,13 @@ internal static class SamusCartridgeTables
     internal const int FirstSpritemap = 0x90ed;
 
     /// <summary>$92:808D: the spritemap pointer of each pose-half table entry.</summary>
-    internal const int SpritemapPointers = 0x92808d;
+    internal static readonly SnesAddress SpritemapPointers = new(0x92, 0x808d);
 
     /// <summary>$92:9263: each pose's first upper-half table entry.</summary>
-    internal const int SpritemapTopBases = 0x929263;
+    internal static readonly SnesAddress SpritemapTopBases = new(0x92, 0x9263);
 
     /// <summary>$92:945D: each pose's first lower-half table entry.</summary>
-    internal const int SpritemapBottomBases = 0x92945d;
+    internal static readonly SnesAddress SpritemapBottomBases = new(0x92, 0x945d);
 
     /// <summary>$92:CBEE: the first seven-byte body DMA definition record; the rest follow it.</summary>
     internal const int FirstBodyDefinition = 0xcbee;
@@ -351,31 +347,31 @@ internal static class SamusCartridgeTables
     internal const int BodyDefinitionBytes = 7;
 
     /// <summary>$92:DB48: the first four-byte body frame selector; the rest follow it.</summary>
-    internal const int BodyFrames = 0x92db48;
+    internal static readonly SnesAddress BodyFrames = new(0x92, 0xdb48);
 
     /// <summary>The bank-$92 address of the first body frame selector.</summary>
     internal const int FirstBodyFrame = 0xdb48;
 
     /// <summary>$84:839D, eight pointers to frame-zero item draw instructions.</summary>
-    internal const int ItemDrawPointers = 0x84839d;
+    internal static readonly SnesAddress ItemDrawPointers = new(0x84, 0x839d);
 
     /// <summary><c>$90:C7DF</c>, pose-indexed drawing-data pointers.</summary>
-    internal const int PoseDrawingDataPointers = 0x90c7df;
+    internal static readonly SnesAddress PoseDrawingDataPointers = new(0x90, 0xc7df);
 
     /// <summary><c>$90:C7A5</c>, direction-indexed tile-list pointers.</summary>
-    internal const int TileListPointers = 0x90c7a5;
+    internal static readonly SnesAddress TileListPointers = new(0x90, 0xc7a5);
 
     /// <summary><c>$92:D94E</c>, animation-record-list pointer for each pose.</summary>
-    internal const int AnimationDefinitionListPointers = 0x92d94e;
+    internal static readonly SnesAddress AnimationDefinitionListPointers = new(0x92, 0xd94e);
 
     /// <summary><c>$92:D91E</c>, top-definition-list pointer for each graphics set.</summary>
-    internal const int TopDefinitionListPointers = 0x92d91e;
+    internal static readonly SnesAddress TopDefinitionListPointers = new(0x92, 0xd91e);
 
     /// <summary><c>$92:D938</c>, bottom-definition-list pointer for each graphics set.</summary>
-    internal const int BottomDefinitionListPointers = 0x92d938;
+    internal static readonly SnesAddress BottomDefinitionListPointers = new(0x92, 0xd938);
 
     /// <summary>Direct OAM attribute-list pointers indexed by atmospheric-effect type.</summary>
-    internal const int AtmosphericSpriteAttributeListPointers = 0x908bff;
+    internal static readonly SnesAddress AtmosphericSpriteAttributeListPointers = new(0x90, 0x8bff);
 
     /// <summary><c>$9B:B7D3</c>, three families of ten suited palette pointers.</summary>
     /// <remarks>
@@ -439,7 +435,7 @@ internal static class SamusCartridgeTables
     /// ordinary first row at <c>$A120</c>. The uniform yellow
     /// row needs no per-color authored exceptions.
     /// </remarks>
-    internal const int SuitPointers = 0x9bb7d3;
+    internal static readonly SnesAddress SuitPointers = new(0x9b, 0xb7d3);
 
     /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>
     /// <remarks>
@@ -478,7 +474,7 @@ internal static class SamusCartridgeTables
     /// eighty-call duration before the terminal full-screen
     /// whiteout; no separate final colors are authored by suit.
     /// </remarks>
-    internal const int SuitlessPointers = 0x9bb80f;
+    internal static readonly SnesAddress SuitlessPointers = new(0x9b, 0xb80f);
 
     /// <summary><c>$91:DC28</c>, six bubble-palette pointers.</summary>
     /// <remarks>
@@ -490,19 +486,19 @@ internal static class SamusCartridgeTables
     /// installed palettes; the bubble cursor wraps at byte offset 12.
     /// Investigation: #625 / #670.
     /// </remarks>
-    internal const int BubblePointers = 0x91dc28;
+    internal static readonly SnesAddress BubblePointers = new(0x91, 0xdc28);
 
     /// <summary>Suit-indexed pointers to charged-beam palette instruction lists.</summary>
-    internal const int BeamChargePointers = 0x91d7d5;
+    internal static readonly SnesAddress BeamChargePointers = new(0x91, 0xd7d5);
 
     /// <summary>Suit-indexed pointers to pseudo-Screw palette instruction lists.</summary>
-    internal const int PseudoScrewPointers = 0x91d7ff;
+    internal static readonly SnesAddress PseudoScrewPointers = new(0x91, 0xd7ff);
 
     /// <summary>Hyper Beam shot palette pointers indexed by flash frame.</summary>
-    internal const int HyperBeamShotPointers = 0x91d829;
+    internal static readonly SnesAddress HyperBeamShotPointers = new(0x91, 0xd829);
 
     /// <summary>Beam-combination-indexed character-data pointers.</summary>
-    internal const int TilePointers = 0x90c3b1;
+    internal static readonly SnesAddress TilePointers = new(0x90, 0xc3b1);
 
     /// <summary>Beam-combination-indexed palette pointers at <c>$90:C3C9..C3E0</c>.</summary>
     /// <remarks>
@@ -521,11 +517,11 @@ internal static class SamusCartridgeTables
     /// beam colors are supplied by <see cref="SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog"/>.
     /// Investigation: #625 / #900.
     /// </remarks>
-    internal const int PalettePointers = 0x90c3c9;
+    internal static readonly SnesAddress PalettePointers = new(0x90, 0xc3c9);
 
     /// <summary>Bank $84: the bank of the item draw instruction pointers the X-ray item overlay follows.</summary>
-    internal const int XrayItemDrawBank = 0x840000;
+    internal static readonly SnesAddress XrayItemDrawBank = new(0x84, 0x0000);
 
     /// <summary>Bank $8F: the bank of the room-specific X-ray overlay records, four bytes per record.</summary>
-    internal const int XrayRoomOverlayBank = 0x8f0000;
+    internal static readonly SnesAddress XrayRoomOverlayBank = new(0x8f, 0x0000);
 }

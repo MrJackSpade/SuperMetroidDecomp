@@ -20,7 +20,7 @@ public static class ProjectileTrailExtractor
         for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
         {
             var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusCartridgeTables.MovementBank | (ProjectileTrailSources.FrameAddress(ProjectileTrailVisualDefinitions.Frames[index]) + 2)));
+                SamusSourceDefinitions.MovementBank.Value | (ProjectileTrailSources.FrameAddress(ProjectileTrailVisualDefinitions.Frames[index]) + 2)));
             frames.Add(ProjectileTrailVisualDefinitions.FrameNames[index], new()
             {
                 TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,

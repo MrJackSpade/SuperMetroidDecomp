@@ -2675,6 +2675,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.ArmCannonTileSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/ArmCannonTileSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.ArmCannonTileSources",
       "kind": "static class",
       "scope": "product",
@@ -2766,6 +2779,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.GrappleTileSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/GrappleTileSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.GrappleTileSources",
       "kind": "static class",
       "scope": "product",
@@ -2800,6 +2826,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/PauseMenuCartridgeTables.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.PowerBombColorSources",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/PowerBombColorSources.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -2844,19 +2883,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTables",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/SamusCartridgeTables.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTablesConstants",
       "kind": "static class",
       "scope": "test",
@@ -2889,7 +2915,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTablesPoseBank.extension(SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTables)",
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTablesPoseBank.extension(SuperMetroid.AssetExtraction.CartridgeTables.SamusSourceDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -2929,6 +2955,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListEntryDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/SamusProjectileListEntryDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusSourceDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/SamusSourceDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Compression.SmCompression",

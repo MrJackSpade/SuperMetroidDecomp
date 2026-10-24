@@ -34,14 +34,14 @@ internal static class SamusProjectileRomDataVerification
         Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(bus));
         foreach (int originTable in new[]
         {
-            SamusCartridgeTables.FiringTables + SamusFiringTables.DefaultXOrigins,
-            SamusCartridgeTables.FiringTables + SamusFiringTables.DefaultYOrigins,
-            SamusCartridgeTables.FiringTables + SamusFiringTables.RunningXOrigins,
-            SamusCartridgeTables.FiringTables + SamusFiringTables.RunningYOrigins,
-            SamusCartridgeTables.ChargeFlareDefaultXOffsets,
-            SamusCartridgeTables.ChargeFlareDefaultYOffsets,
-            SamusCartridgeTables.ChargeFlareRunningXOffsets,
-            SamusCartridgeTables.ChargeFlareRunningYOffsets,
+            SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.DefaultXOrigins,
+            SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.DefaultYOrigins,
+            SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.RunningXOrigins,
+            SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.RunningYOrigins,
+            SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value,
+            SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value,
+            SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value,
+            SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value,
         })
         {
             TouchRange(bus, originTable,
@@ -49,11 +49,11 @@ internal static class SamusProjectileRomDataVerification
                 $"projectile origin table ${originTable:X6}");
         }
 
-        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.UnchargedCooldowns,
+        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.UnchargedCooldowns,
             SamusFiringTables.ChargedRowOffset +
                 SamusFiringTables.CombinationCount,
             "uncharged beam cooldown rows");
-        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.AutoFireCooldowns,
+        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.AutoFireCooldowns,
             SamusFiringTables.CombinationCount, "beam auto-fire cooldowns");
         TouchRange(bus, SamusProjectileBeamTables.UnchargedSounds,
             SamusFiringTables.CombinationCount * sizeof(ushort),
@@ -61,16 +61,16 @@ internal static class SamusProjectileRomDataVerification
         TouchRange(bus, SamusProjectileBeamTables.ChargedSounds,
             SamusFiringTables.CombinationCount * sizeof(ushort),
             "charged beam sounds");
-        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.BeamXAccelerations,
+        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.BeamXAccelerations,
             SamusFiringTables.DirectionCount * sizeof(ushort),
             "beam X accelerations");
-        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.BeamYAccelerations,
+        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.BeamYAccelerations,
             SamusFiringTables.DirectionCount * sizeof(ushort),
             "beam Y accelerations");
-        TouchRange(bus, SamusCartridgeTables.TilePointers,
+        TouchRange(bus, SamusSourceDefinitions.TilePointers.Value,
             SamusFiringTables.CombinationCount * sizeof(ushort),
             "beam tile pointers");
-        TouchRange(bus, SamusCartridgeTables.PalettePointers,
+        TouchRange(bus, SamusSourceDefinitions.PalettePointers.Value,
             SamusFiringTables.CombinationCount * sizeof(ushort),
             "beam palette pointers");
 
@@ -90,7 +90,7 @@ internal static class SamusProjectileRomDataVerification
                     dataPointerTable + beam * sizeof(ushort));
                 AssertTrue(dataPointer >= 0x8000,
                     $"beam {beam} data record remains in bank $93 ROM");
-                int dataAddress = SamusCartridgeTables.ProjectileDataBank | dataPointer;
+                int dataAddress = SamusSourceDefinitions.ProjectileDataBank.Value | dataPointer;
                 TouchRange(bus, dataAddress, SamusProjectileBeamTables.DataRecordByteCount,
                     $"beam {beam} data record");
 
@@ -105,7 +105,7 @@ internal static class SamusProjectileRomDataVerification
                         $"beam {beam} direction {direction} instruction remains in bank $93 ROM");
                     TouchRange(
                         bus,
-                        SamusCartridgeTables.ProjectileDataBank | instructionPointer,
+                        SamusSourceDefinitions.ProjectileDataBank.Value | instructionPointer,
                         SamusProjectileBeamTables.InstructionRecordByteCount,
                         $"beam {beam} direction {direction} instruction record");
                 }
@@ -116,11 +116,11 @@ internal static class SamusProjectileRomDataVerification
             (SamusProjectileNonBeamTables.SuperMissileLinkDataPointers -
                 SamusProjectileNonBeamTables.DataPointers),
             "non-beam data-pointer table");
-        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.MissileAccelerations,
+        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.MissileAccelerations,
             SamusFiringTables.DirectionCount *
                 SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "missile acceleration records");
-        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.SuperMissileAccelerations,
+        TouchRange(bus, SamusSourceDefinitions.FiringTables.Value + SamusFiringTables.SuperMissileAccelerations,
             SamusFiringTables.DirectionCount *
                 SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "Super Missile acceleration records");
@@ -147,15 +147,15 @@ internal static class SamusProjectileRomDataVerification
             32 * 16, "projectile non-square slope profiles");
         TouchRange(bus, SamusProjectileRomDataCollision.SquareSlopeDefinitions,
             4, "projectile square-slope quadrants");
-        bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
+        bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
             ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftDown));
-        bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
+        bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
             ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveRightDown));
-        bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
+        bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
             ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftUp));
-        bus.ReadCartridgeByte(SamusCartridgeTables.ProjectileDataBank |
+        bus.ReadCartridgeByte(SamusSourceDefinitions.ProjectileDataBank.Value |
             (ushort)SamusProjectileInstruction.Delete);
-        bus.ReadCartridgeByte(SamusCartridgeTables.ProjectileDataBank |
+        bus.ReadCartridgeByte(SamusSourceDefinitions.ProjectileDataBank.Value |
             (ushort)SamusProjectileInstruction.GoTo);
 
         Console.WriteLine(

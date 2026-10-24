@@ -14,10 +14,10 @@ internal static class SamusArmCannonNative
     {
         /// <summary>The bank-$90 address of pose <paramref name="pose"/>'s drawing descriptor.</summary>
         internal ushort PoseDrawingData(int pose) =>
-            checked((ushort)(SamusCartridgeTables.ArmCannonDrawingData + cannon.PoseDescriptor(pose)));
+            checked((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + cannon.PoseDescriptor(pose)));
 
         /// <summary>The installed drawing byte stored at bank-$90 <paramref name="address"/>.</summary>
-        internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusCartridgeTables.ArmCannonDrawingData);
+        internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusSourceDefinitions.ArmCannonDrawingData);
 
         /// <summary>The bank-$9A source of the cover tile <paramref name="direction"/> shows at <paramref name="frame"/>, or zero for the closed cover.</summary>
         internal ushort TileSource(int direction, int frame) => cannon.CoverTileIndex(direction, frame) is { } tile

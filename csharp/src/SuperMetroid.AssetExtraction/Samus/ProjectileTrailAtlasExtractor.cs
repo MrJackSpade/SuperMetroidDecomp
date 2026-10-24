@@ -18,8 +18,8 @@ public static class ProjectileTrailAtlasExtractor
     /// <exception cref="InvalidDataException">PNG validation fails or recompilation changes either native character span.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] first = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.ProjectileTrailIceWaveTiles, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
-        byte[] second = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.ProjectileTrailMissileTiles, ProjectileTrailAtlasDefinitions.MissileByteCount);
+        byte[] first = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.ProjectileTrailIceWaveTiles.Value, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
+        byte[] second = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.ProjectileTrailMissileTiles.Value, ProjectileTrailAtlasDefinitions.MissileByteCount);
         byte[] planar = first.Concat(second).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, ProjectileTrailAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();

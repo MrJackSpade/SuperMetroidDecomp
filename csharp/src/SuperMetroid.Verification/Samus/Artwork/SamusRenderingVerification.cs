@@ -1056,7 +1056,7 @@ static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
     for (int index = 0; index <= 3; index++)
         WriteTestWord(bus, SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2, 0xe000);
-    bus.WriteBytes(SamusCartridgeTables.PostureTransitionVerticalOffsets, [
+    bus.WriteBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, [
         0xf8, 0x00, 0xf8, 0x00,
         0xfc, 0xfe, 0xfc, 0xfe,
         0x00, 0x00, 0x00, 0x00,
@@ -1081,12 +1081,12 @@ static void SeedBodyHalfRoutingTileAnimation(TestAddressSpace bus)
 /// <summary>Seeds the byte-packed <c>$90:8D28</c> landing vertical-offset table.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the landing vertical-offset table")]
 static void WriteLandingVerticalOffsets(TestAddressSpace bus, ReadOnlySpan<byte> offsets) =>
-    bus.WriteBytes(SamusCartridgeTables.LandingVerticalOffsets, offsets);
+    bus.WriteBytes(SamusSourceDefinitions.LandingVerticalOffsets.Value, offsets);
 
 /// <summary>Seeds the six <c>$9B:A3C0</c> visor room-cycle colors.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the visor room-cycle colors")]
 static void WriteVisorColors(TestAddressSpace bus, ushort[] colors) =>
-    WriteTestWords(bus, SamusCartridgeTables.VisorColors, colors);
+    WriteTestWords(bus, SamusSourceDefinitions.VisorColors.Value, colors);
 
 /// <summary>
 /// Seeds all sixteen Power/Varia/Gravity suit, hurt-flash and intro colors distinctly so a
@@ -1097,11 +1097,11 @@ static void SeedHurtFlashPalettes(TestAddressSpace bus)
 {
     for (int color = 0; color < 16; color++)
     {
-        WriteTestWord(bus, SamusCartridgeTables.PowerSuitPalette + color * 2, unchecked((ushort)(0x0100 + color)));
-        WriteTestWord(bus, SamusCartridgeTables.VariaSuitPalette + color * 2, unchecked((ushort)(0x0200 + color)));
-        WriteTestWord(bus, SamusCartridgeTables.GravitySuitPalette + color * 2, unchecked((ushort)(0x0300 + color)));
-        WriteTestWord(bus, SamusCartridgeTables.HurtFlashColors + color * 2, unchecked((ushort)(0x4000 + color)));
-        WriteTestWord(bus, SamusCartridgeTables.IntroHurtFlashColors + color * 2, unchecked((ushort)(0x5000 + color)));
+        WriteTestWord(bus, SamusSourceDefinitions.PowerSuitPalette.Value + color * 2, unchecked((ushort)(0x0100 + color)));
+        WriteTestWord(bus, SamusSourceDefinitions.VariaSuitPalette.Value + color * 2, unchecked((ushort)(0x0200 + color)));
+        WriteTestWord(bus, SamusSourceDefinitions.GravitySuitPalette.Value + color * 2, unchecked((ushort)(0x0300 + color)));
+        WriteTestWord(bus, SamusSourceDefinitions.HurtFlashColors.Value + color * 2, unchecked((ushort)(0x4000 + color)));
+        WriteTestWord(bus, SamusSourceDefinitions.IntroHurtFlashColors.Value + color * 2, unchecked((ushort)(0x5000 + color)));
     }
 }
 

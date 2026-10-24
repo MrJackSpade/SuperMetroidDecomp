@@ -15,7 +15,7 @@ internal static class SamusArmCannonCoverTransfers
         internal bool TryResolveTile(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
         {
             if (byteCount == SamusDrawingDefinitions.ArmCannon.TileByteCount
-                && SnesAddressMath.BankBase(sourceAddress) == SamusCartridgeTables.CharacterDataBank
+                && SnesAddressMath.BankBase(sourceAddress) == SamusSourceDefinitions.CharacterDataBank.Value
                 && ArmCannonTileSources.CoverTileDmaSources.IndexOf(unchecked((ushort)SnesAddressMath.OffsetInBank(sourceAddress))) is int index and >= 0)
             {
                 data = self.CoverTile(index);

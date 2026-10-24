@@ -43,7 +43,7 @@ public static class SamusDeathTileArtworkFiles
         Directory.CreateDirectory(directory);
         var planar = new byte[SamusDeathTileAtlasFormat.TotalByteCount];
         for (int index = 0; index < planar.Length; index++)
-            planar[index] = bus.ReadCartridgeByte(SamusCartridgeTables.DeathExplosionCharacters +
+            planar[index] = bus.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionCharacters.Value +
                 SamusDeathTileAtlasFormat.ExplosionByte(index));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,
             SamusDeathTileAtlasFormat.BitsPerPixel, SamusDeathTileAtlasFormat.Width / 8,

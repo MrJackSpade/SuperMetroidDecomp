@@ -63,7 +63,7 @@ internal static class ProjectileTrailNative
         internal static bool TryRead(int address, out ushort word)
         {
             word = 0;
-            if ((address & ~0xffff) != SamusCartridgeTables.MovementBank)
+            if ((address & ~0xffff) != SamusSourceDefinitions.MovementBank.Value)
                 return false;
             foreach ((ProjectileTrailProgram program, ProjectileTrailStep[] steps) in ProjectileTrailProgramDefinitions.Programs)
             for (int step = 0; step < steps.Length; step++)

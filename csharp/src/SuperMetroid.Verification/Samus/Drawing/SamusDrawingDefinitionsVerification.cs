@@ -32,9 +32,9 @@ internal static class SamusDrawingDefinitionsVerification
             poseCount * sizeof(ushort), "bottom spritemap base-index table");
         foreach (int palette in new[]
         {
-            SamusCartridgeTables.PowerSuitPalette,
-            SamusCartridgeTables.VariaSuitPalette,
-            SamusCartridgeTables.GravitySuitPalette,
+            SamusSourceDefinitions.PowerSuitPalette.Value,
+            SamusSourceDefinitions.VariaSuitPalette.Value,
+            SamusSourceDefinitions.GravitySuitPalette.Value,
         })
         {
             TouchRange(bus, palette,
@@ -42,12 +42,12 @@ internal static class SamusDrawingDefinitionsVerification
                 $"suit palette ${palette:X6}");
         }
 
-        TouchRange(bus, SamusCartridgeTables.AnimationDefinitionListPointers,
+        TouchRange(bus, SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
             poseCount * sizeof(ushort), "pose animation-definition pointers");
-        TouchRange(bus, SamusCartridgeTables.TopDefinitionListPointers,
+        TouchRange(bus, SamusSourceDefinitions.TopDefinitionListPointers.Value,
             SamusBodyFrameTableConstants.TopDefinitionSetCount * sizeof(ushort),
             "top DMA-definition pointers");
-        TouchRange(bus, SamusCartridgeTables.BottomDefinitionListPointers,
+        TouchRange(bus, SamusSourceDefinitions.BottomDefinitionListPointers.Value,
             SamusBodyFrameTableConstants.BottomDefinitionSetCount * sizeof(ushort),
             "bottom DMA-definition pointers");
 
@@ -55,7 +55,7 @@ internal static class SamusDrawingDefinitionsVerification
         // checks the indirection used by live rendering, not only the pointer table itself.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.AnimationDefinitionListPointers +
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.AnimationDefinitionListPointers.Value +
                     pose * sizeof(ushort)));
             AssertTrue(pointer >= 0x8000,
                 $"pose ${pose:X2} graphics selector remains in bank $92 ROM");
@@ -66,12 +66,12 @@ internal static class SamusDrawingDefinitionsVerification
                 $"pose ${pose:X2} frame-zero graphics selector");
         }
 
-        TouchRange(bus, SamusCartridgeTables.PoseDrawingDataPointers,
+        TouchRange(bus, SamusSourceDefinitions.PoseDrawingDataPointers.Value,
             poseCount * sizeof(ushort), "arm-cannon pose drawing pointers");
-        TouchRange(bus, SamusCartridgeTables.ArmCannonSpriteAttributes,
+        TouchRange(bus, SamusSourceDefinitions.ArmCannonSpriteAttributes.Value,
             SamusDrawingDefinitions.ArmCannon.DirectionCount * sizeof(ushort),
             "arm-cannon sprite attributes");
-        TouchRange(bus, SamusCartridgeTables.TileListPointers,
+        TouchRange(bus, SamusSourceDefinitions.TileListPointers.Value,
             SamusDrawingDefinitions.ArmCannon.DirectionCount * sizeof(ushort),
             "arm-cannon tile-list pointers");
 

@@ -28,8 +28,8 @@ internal static class SamusMovementDefinitionsVerification
 
         TouchRange(
             bus,
-            SamusCartridgeTables.PoseDefinitions,
-            poseCount * SamusCartridgeTables.PoseDefinitionByteCount,
+            SamusSourceDefinitions.PoseDefinitions.Value,
+            poseCount * SamusSourceDefinitions.PoseDefinitionByteCount,
             "pose definitions");
         TouchRange(
             bus,
@@ -52,8 +52,8 @@ internal static class SamusMovementDefinitionsVerification
                 $"pose ${pose:X2} animation list remains in bank $91 ROM");
             AssertTrue(transitionPointer >= 0x8000,
                 $"pose ${pose:X2} transition list remains in bank $91 ROM");
-            bus.ReadCartridgeByte(SamusCartridgeTables.PoseBank | animationPointer);
-            bus.ReadCartridgeByte(SamusCartridgeTables.PoseBank | transitionPointer);
+            bus.ReadCartridgeByte(SamusSourceDefinitions.PoseBank.Value | animationPointer);
+            bus.ReadCartridgeByte(SamusSourceDefinitions.PoseBank.Value | transitionPointer);
         }
 
         int movementTypeCount = (byte)SamusMovementType.Special + 1;
@@ -66,7 +66,7 @@ internal static class SamusMovementDefinitionsVerification
         {
             TouchRange(
                 bus,
-                SamusCartridgeTables.MovementBank | table,
+                SamusSourceDefinitions.MovementBank.Value | table,
                 movementTypeCount * SpeedTableEntryConstants.ByteCount,
                 $"horizontal speed table ${table:X4}");
         }

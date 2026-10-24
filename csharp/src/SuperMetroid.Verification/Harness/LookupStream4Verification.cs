@@ -2330,7 +2330,7 @@ internal static class LookupStream4Verification
             int count = PowerBombFixedColorFormat.Count(sequence);
             for (int index = 0; index < count; index++)
             {
-                int address = SamusCartridgeTables.PowerBombColors(sequence) + index * 3;
+                int address = PowerBombColorSources.Start(sequence) + index * 3;
                 var native = new Bgr555(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
                 AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
                 bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);

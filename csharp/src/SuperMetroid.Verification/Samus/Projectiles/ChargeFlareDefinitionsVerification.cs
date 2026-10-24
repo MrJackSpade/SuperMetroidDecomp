@@ -15,17 +15,17 @@ internal static class ChargeFlareDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled charge-flare cadence words and the native cadence reference")]
     internal static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
     {
-        for (int address = SamusCartridgeTables.ChargeFlarePrograms; address < 0x90c4b5; address++)
+        for (int address = SamusSourceDefinitions.ChargeFlarePrograms.Value; address < 0x90c4b5; address++)
         {
-            AssertEqual(CpuBusRegionRead.Read(bus, address), ChargeFlareAnimationDefinitions.ReadByte(address - SamusCartridgeTables.ChargeFlarePrograms),
+            AssertEqual(CpuBusRegionRead.Read(bus, address), ChargeFlareAnimationDefinitions.ReadByte(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "Compiled flare cadence byte matches cartridge");
             if (address < 0x90c4b4)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
-                    ChargeFlareAnimationDefinitions.ReadWord(address - SamusCartridgeTables.ChargeFlarePrograms), "Compiled flare cadence word matches cartridge");
+                    ChargeFlareAnimationDefinitions.ReadWord(address - SamusSourceDefinitions.ChargeFlarePrograms.Value), "Compiled flare cadence word matches cartridge");
         }
         foreach (int address in new[] { 0x908000, 0x90c486, 0x90c4b5, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => ChargeFlareAnimationDefinitions.ReadByte(address - SamusCartridgeTables.ChargeFlarePrograms),
+                () => ChargeFlareAnimationDefinitions.ReadByte(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "Unknown flare cadence address fails instead of reading arbitrary movement-bank data");
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var advance = new Action<int>(system.Animation.AdvanceFlareComponent);

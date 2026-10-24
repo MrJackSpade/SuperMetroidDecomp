@@ -11,13 +11,13 @@ internal static class XrayScopeDefinitionsPaletteConstants
     /// the three-word proof is issue #859 / #625.</remarks>
     public const int NormalSuitPointers = SamusPaletteDefinitionsCommonConstants.NormalSuitPointers;
     /// <summary>Bank expanded around a normal-suit palette pointer.</summary>
-    public const int PaletteBank = SamusCartridgeTables.PaletteBank;
+    public static readonly int PaletteBank = SamusSourceDefinitions.PaletteBank.Value;
     /// <summary>Number of colors copied when restoring the normal suit palette.</summary>
     public const int SuitColorCount = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
     /// <summary><c>$9B:A3C0</c>, X-ray visor palette words.</summary>
-    /// <remarks>Alias of <see cref="SamusCartridgeTables.VisorColors"/>;
+    /// <remarks>Alias of <see cref="SamusSourceDefinitions.VisorColors"/>;
     /// the six-word proof is issue #865 / #625.</remarks>
-    public const int VisorWords = SamusCartridgeTables.VisorColors;
+    public static readonly int VisorWords = SamusSourceDefinitions.VisorColors.Value;
 
     /// <summary>Provides X-ray palette bank, normal suit pointers, visor words, and suit color count.</summary>
     extension(XrayScopeDefinitions.Palette)

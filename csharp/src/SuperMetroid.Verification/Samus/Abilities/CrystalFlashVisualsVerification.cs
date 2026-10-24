@@ -23,12 +23,12 @@ internal static class CrystalFlashVisualsVerification
             // Independent timeline lookup: expand authored durations into a cycle
             // and index elapsed calls, rather than reading the production timers.
             int cycleLength = Enumerable.Range(0, CrystalFlash.BodyRecordCount)
-                .Sum(i => Word(SamusCartridgeTables.CrystalFlashBodyRecords + i * CrystalFlash.BodyRecordByteCount + 2));
+                .Sum(i => Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + i * CrystalFlash.BodyRecordByteCount + 2));
             int remaining = elapsed % cycleLength, record = 0;
-            while (remaining >= Word(SamusCartridgeTables.CrystalFlashBodyRecords + record * CrystalFlash.BodyRecordByteCount + 2))
-                remaining -= Word(SamusCartridgeTables.CrystalFlashBodyRecords + record++ * CrystalFlash.BodyRecordByteCount + 2);
-            int body = SamusCartridgeTables.PaletteBank | Word(SamusCartridgeTables.CrystalFlashBodyRecords + record * CrystalFlash.BodyRecordByteCount);
-            int bubble = SamusCartridgeTables.PaletteBank | Word(SamusCartridgeTables.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
+            while (remaining >= Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record * CrystalFlash.BodyRecordByteCount + 2))
+                remaining -= Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record++ * CrystalFlash.BodyRecordByteCount + 2);
+            int body = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record * CrystalFlash.BodyRecordByteCount);
+            int bubble = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.BubblePointers.Value + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
             for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
                 AssertEqual(Word(body + color * 2), packet.Paint.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
                     $"runtime Crystal Flash body palette at frame {elapsed}");

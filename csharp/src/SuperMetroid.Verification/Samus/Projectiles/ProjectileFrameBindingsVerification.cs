@@ -28,9 +28,9 @@ internal static class ProjectileFrameBindingsVerification
         var blocked = new HashSet<int>();
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
-            int address = SamusCartridgeTables.ProjectileDataBank | unchecked((ushort)(pointer + 2));
+            int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
             blocked.Add(address);
-            blocked.Add(SamusCartridgeTables.ProjectileDataBank | unchecked((ushort)(pointer + 3)));
+            blocked.Add(SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 3)));
             ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
             AssertEqual(native, stock.Resolve(pointer),
                 $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
@@ -38,7 +38,7 @@ internal static class ProjectileFrameBindingsVerification
         var guard = NewProjectileFrameBindingReadGuard(rom, blocked);
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
-            int record = SamusCartridgeTables.ProjectileDataBank | pointer;
+            int record = SamusSourceDefinitions.ProjectileDataBank.Value | pointer;
             ushort Word(int offset) => SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1));
             var nativeShot = new SamusProjectileSlot(0)
             {

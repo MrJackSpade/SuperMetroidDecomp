@@ -33,7 +33,7 @@ public static class ProjectileSpriteExtractor
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (ProjectileSpriteId id in required)
         {
-            int address = CartridgeBankWindow.At(SamusCartridgeTables.ProjectileBank, locations[id]);
+            int address = CartridgeBankWindow.At(SamusSourceDefinitions.ProjectileBank, locations[id]);
             int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id.Name} exceeds OAM capacity.");
             var parts = new SpriteVisualPart[count];

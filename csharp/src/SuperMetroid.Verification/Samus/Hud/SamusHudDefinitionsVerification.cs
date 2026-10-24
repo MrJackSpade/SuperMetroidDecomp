@@ -52,7 +52,7 @@ internal static class SamusHudDefinitionsVerification
             foreach (ushort selected in new ushort[] { 3, 4 })
             foreach (ushort turn in new ushort[] { 0, 1, ushort.MaxValue })
             {
-                if (rom.ReadCartridgeByte(SamusCartridgeTables.PoseDefinitions + pose * 8 + 1) != movement) continue;
+                if (rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != movement) continue;
                 metadataPose = samus.Pose = (SamusPoseId)pose;
                 if (locked) samus.Control.LockHandlers(); else samus.Control.Unlock();
                 samus.SelectedHudItem = HudItems.Decode(selected); setTurn(samus, turn);
@@ -69,7 +69,7 @@ internal static class SamusHudDefinitionsVerification
         foreach (ushort turn in new ushort[] { 0, 1 })
         {
             SamusPoseId pose = (SamusPoseId)poseIndex;
-            byte movement = rom.ReadCartridgeByte(SamusCartridgeTables.PoseDefinitions + (int)pose * 8 + 1);
+            byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + (int)pose * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
             samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);

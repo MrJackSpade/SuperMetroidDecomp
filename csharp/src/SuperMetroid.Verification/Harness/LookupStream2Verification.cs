@@ -1402,7 +1402,7 @@ internal static class LookupStream2Verification
             ushort cursor = start;
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusCartridgeTables.MovementBank | cursor);
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | cursor);
                 if (word == 0) break;
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
@@ -1493,7 +1493,7 @@ internal static class LookupStream2Verification
             if (ProjectileTrailDefinitions.ReadSelector(address) is { } selected)
                 AssertEqual(native, selected, "Trail selectors retain every reachable aligned native word");
             else
-                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusCartridgeTables.MovementBank | native, out _),
+                AssertTrue(!ProjectileTrailProgramDefinitions.TryRead(SamusSourceDefinitions.MovementBank.Value | native, out _),
                     "A selector word past the right table names no trail step");
         }
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
@@ -1903,7 +1903,7 @@ internal static class LookupStream2Verification
         var cgram = new SamusColourRig();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
-            ushort pointer = ReadVerificationWord(rom, SamusCartridgeTables.CrystalFlashBodyRecords + frame * 4);
+            ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.CrystalFlashBodyRecords.Value + frame * 4);
             stock.ApplyBody(cgram.Samus, frame);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             {
@@ -1936,7 +1936,7 @@ internal static class LookupStream2Verification
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
         {
-            ushort pointer = ReadVerificationWord(rom, SamusCartridgeTables.BubblePointers + frame * 2);
+            ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.BubblePointers.Value + frame * 2);
             ushort original = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
             AssertEqual(original, stock.ResolveBubble(frame, color), "Original bubble payload preserved");
             stock.ApplyBubble(cgram.Samus, frame);

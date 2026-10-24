@@ -31,10 +31,10 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
         AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalettePointer(
             0, unchecked((ushort)(frame * 2)), out ushort pointer),
             $"compiled Power stored-shine phase {frame} exists");
-        WriteTestWord(bus, SamusCartridgeTables.PaletteBank | pointer,
+        WriteTestWord(bus, SamusSourceDefinitions.PaletteBank.Value | pointer,
             unchecked((ushort)(0x1100 + frame)));
     }
-    WriteTestWord(bus, SamusCartridgeTables.PowerSuitPalette, 0x0321);
+    WriteTestWord(bus, SamusSourceDefinitions.PowerSuitPalette.Value, 0x0321);
 }
 
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>

@@ -27,9 +27,9 @@ public static class SamusChargeColorExtractor
         for (int suit = 0; suit < SamusChargeColorFormat.SuitCount; suit++)
         {
             charged[suit] = ReadSixPhaseList(
-                SamusCartridgeTables.BeamChargePointers, suit);
+                SamusSourceDefinitions.BeamChargePointers.Value, suit);
             pseudo[suit] = ReadSixPhaseList(
-                SamusCartridgeTables.PseudoScrewPointers, suit);
+                SamusSourceDefinitions.PseudoScrewPointers.Value, suit);
         }
         var hyper = new PaletteRgb5[SamusChargeColorFormat.HyperFrameCount][];
         for (int frame = 0; frame < hyper.Length; frame++)
@@ -37,7 +37,7 @@ public static class SamusChargeColorExtractor
             int tableOffset = SamusChargePaletteDefinitions.LastHyperTableByteOffset -
                 frame * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusCartridgeTables.HyperBeamShotPointers + tableOffset);
+                SamusSourceDefinitions.HyperBeamShotPointers.Value + tableOffset);
             hyper[frame] = ReadColors(pointer);
         }
         return SamusChargeColorCatalog.Write(new SamusChargeColorDocument
@@ -56,7 +56,7 @@ public static class SamusChargeColorExtractor
             for (int phase = 0; phase < phases.Length; phase++)
             {
                 ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    SamusCartridgeTables.PoseBank | (list + phase * sizeof(ushort)));
+                    SamusSourceDefinitions.PoseBank.Value | (list + phase * sizeof(ushort)));
                 phases[phase] = ReadColors(pointer);
             }
             return phases;
@@ -65,7 +65,7 @@ public static class SamusChargeColorExtractor
         PaletteRgb5[] ReadColors(ushort pointer)
         {
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                SamusCartridgeTables.PaletteBank | pointer,
+                SamusSourceDefinitions.PaletteBank.Value | pointer,
                 SamusChargeColorFormat.ColorsPerPalette * sizeof(ushort));
             var result = new PaletteRgb5[SamusChargeColorFormat.ColorsPerPalette];
             for (int index = 0; index < result.Length; index++)

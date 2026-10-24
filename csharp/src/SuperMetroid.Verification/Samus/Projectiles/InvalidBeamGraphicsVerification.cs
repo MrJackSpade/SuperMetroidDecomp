@@ -49,7 +49,7 @@ internal static class InvalidBeamGraphicsVerification
         {
             var ordinary = new SamusColourRig();
             SamusProjectileSystem.LoadBeamPalette(ordinary.Samus.Beam, (SamusBeamFlags)beam, artwork.Palettes);
-            int table = SamusCartridgeTables.PalettePointers + beam * 2;
+            int table = SamusSourceDefinitions.PalettePointers.Value + beam * 2;
             int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
                 AssertEqual((SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source + color * 2), CpuBusRegionRead.Read(bus, source + color * 2 + 1))) & 0x7fff,

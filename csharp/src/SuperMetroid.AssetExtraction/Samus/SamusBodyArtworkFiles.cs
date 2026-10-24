@@ -53,26 +53,26 @@ public static class SamusBodyArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         ushort[] topPointers = ReadPointers(bus,
-            SamusCartridgeTables.TopDefinitionListPointers,
+            SamusSourceDefinitions.TopDefinitionListPointers.Value,
             SamusBodyArtworkCatalog.TopSetCount);
         ushort[] bottomPointers = ReadPointers(bus,
-            SamusCartridgeTables.BottomDefinitionListPointers,
+            SamusSourceDefinitions.BottomDefinitionListPointers.Value,
             SamusBodyArtworkCatalog.BottomSetCount);
         ushort[] posePointers = ReadPointers(bus,
-            SamusCartridgeTables.AnimationDefinitionListPointers,
+            SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
             SamusBodyArtworkCatalog.PoseCount);
         int[] topSetStarts = [.. topPointers.Select(BodyRecord)];
         int[] bottomSetStarts = [.. bottomPointers.Select(BodyRecord)];
         int[] poseFirstFrames = [.. posePointers.Select(BodyFrame)];
         sbyte[] graphicsYOffsets = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
             .Select(pose => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusCartridgeTables.PoseDefinitions +
-                pose * SamusCartridgeTables.PoseDefinitionByteCount + 4)))
+                SamusSourceDefinitions.PoseDefinitions.Value +
+                pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4)))
             .ToArray();
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         for (int index = 0; index < frames.Length; index++)
         {
-            int address = SamusCartridgeTables.BodyFrames + index * 4;
+            int address = SamusSourceDefinitions.BodyFrames.Value + index * 4;
             frames[index] = new SamusBodyFrameSelection(bus.ReadCartridgeByte(address),
                 bus.ReadCartridgeByte(address + 1), bus.ReadCartridgeByte(address + 2), bus.ReadCartridgeByte(address + 3));
         }
@@ -82,11 +82,11 @@ public static class SamusBodyArtworkFiles
         DefinitionEntry[][] top = ExtractHalf(bus, directory, topPointers, allPointers, true, hashes);
         DefinitionEntry[][] bottom = ExtractHalf(bus, directory, bottomPointers, allPointers, false, hashes);
         ushort[] spritemapTopBases = ReadPointers(bus,
-            SamusCartridgeTables.SpritemapTopBases, SamusBodyArtworkCatalog.PoseCount);
+            SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodyArtworkCatalog.PoseCount);
         ushort[] spritemapBottomBases = ReadPointers(bus,
-            SamusCartridgeTables.SpritemapBottomBases, SamusBodyArtworkCatalog.PoseCount);
+            SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodyArtworkCatalog.PoseCount);
         ushort[] spritemapPointers = ReadPointers(bus,
-            SamusCartridgeTables.SpritemapPointers, SamusSpritemapArtworkCatalog.PointerCount);
+            SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapArtworkCatalog.PointerCount);
         // Compositions install in record order, so a composition's identity is its place among the referenced records.
         ushort[] compositions = [.. spritemapPointers.Distinct().Where(pointer => pointer != 0).Order()];
         SamusSpritemapDefinition[] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];
@@ -95,15 +95,15 @@ public static class SamusBodyArtworkFiles
         ushort[] landingYOffsets = Enumerable.Range(0,
             SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount)
             .Select(index => (ushort)bus.ReadCartridgeByte(
-                SamusCartridgeTables.LandingVerticalOffsets + index)).ToArray();
+                SamusSourceDefinitions.LandingVerticalOffsets.Value + index)).ToArray();
         sbyte[] postureYOffsets = Enumerable.Range(0,
             SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount)
             .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusCartridgeTables.PostureTransitionVerticalOffsets + index))).ToArray();
+                SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value + index))).ToArray();
         sbyte[] drainedYOffsets = Enumerable.Range(0,
             SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount)
             .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusCartridgeTables.DrainedVerticalOffsets + index))).ToArray();
+                SamusSourceDefinitions.DrainedVerticalOffsets.Value + index))).ToArray();
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
             topSetStarts, bottomSetStarts, poseFirstFrames, graphicsYOffsets,
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
@@ -182,7 +182,7 @@ public static class SamusBodyArtworkFiles
         {
             int start = pointers[set];
             int order = Array.IndexOf(sortedPointers, pointers[set]);
-            int end = order + 1 == sortedPointers.Length ? SamusCartridgeTables.FirstBodyDefinition + SamusBodyDefinitionLayout.RecordCount * SamusCartridgeTables.BodyDefinitionBytes : sortedPointers[order + 1];
+            int end = order + 1 == sortedPointers.Length ? SamusSourceDefinitions.FirstBodyDefinition + SamusBodyDefinitionLayout.RecordCount * SamusSourceDefinitions.BodyDefinitionBytes : sortedPointers[order + 1];
             if (start < SnesBusLayout.RomWindowStart || end <= start || (end - start) % 7 != 0)
                 throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
             int count = (end - start) / 7;
@@ -190,7 +190,7 @@ public static class SamusBodyArtworkFiles
             sets[set] = new DefinitionEntry[count];
             for (int position = 0; position < count; position++)
             {
-                int definitionAddress = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, start + position * 7);
+                int definitionAddress = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, start + position * 7);
                 ushort sourceOffset = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress);
                 byte sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
                 ushort firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
@@ -316,22 +316,22 @@ public static class SamusBodyArtworkFiles
 
     /// <summary>The record of the body DMA definition at bank-$92 <paramref name="pointer"/>.</summary>
     private static int BodyRecord(ushort pointer) =>
-        pointer >= SamusCartridgeTables.FirstBodyDefinition && (pointer - SamusCartridgeTables.FirstBodyDefinition) % SamusCartridgeTables.BodyDefinitionBytes == 0
-            ? (pointer - SamusCartridgeTables.FirstBodyDefinition) / SamusCartridgeTables.BodyDefinitionBytes
+        pointer >= SamusSourceDefinitions.FirstBodyDefinition && (pointer - SamusSourceDefinitions.FirstBodyDefinition) % SamusSourceDefinitions.BodyDefinitionBytes == 0
+            ? (pointer - SamusSourceDefinitions.FirstBodyDefinition) / SamusSourceDefinitions.BodyDefinitionBytes
             : throw new InvalidDataException($"Samus body definition group ${pointer:X4} is not a record.");
 
     /// <summary>The frame selector at bank-$92 <paramref name="pointer"/>.</summary>
     private static int BodyFrame(ushort pointer) =>
-        pointer >= SamusCartridgeTables.FirstBodyFrame && (pointer - SamusCartridgeTables.FirstBodyFrame) % 4 == 0
-            ? (pointer - SamusCartridgeTables.FirstBodyFrame) / 4
+        pointer >= SamusSourceDefinitions.FirstBodyFrame && (pointer - SamusSourceDefinitions.FirstBodyFrame) % 4 == 0
+            ? (pointer - SamusSourceDefinitions.FirstBodyFrame) / 4
             : throw new InvalidDataException($"Samus pose frame list ${pointer:X4} is not a frame selector.");
 
     /// <summary>Imports a bounded bank-$92 Samus map as five-byte sprite parts.</summary>
     private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
     {
-        int address = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, pointer);
+        int address = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, pointer);
         ushort count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-        if (pointer < SamusCartridgeTables.FirstSpritemap || count > 128 || pointer + 2 + count * 5 > CartridgeFormatDefinitions.BankByteCount)
+        if (pointer < SamusSourceDefinitions.FirstSpritemap || count > 128 || pointer + 2 + count * 5 > CartridgeFormatDefinitions.BankByteCount)
             throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
         var parts = new SamusSpritePart[count];
         for (int i = 0; i < count; i++)

@@ -97,8 +97,8 @@ internal static class BeamTileArtworkVerification
     internal static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {
-        int tileSource = SamusCartridgeTables.CharacterDataBank |
-            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.TilePointers + selection * 2));
+        int tileSource = SamusSourceDefinitions.CharacterDataBank.Value |
+            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.TilePointers.Value + selection * 2));
         if (vram is not null)
         {
             var bytes = new byte[BeamTileAtlasDefinitions.ByteCount];
@@ -106,8 +106,8 @@ internal static class BeamTileArtworkVerification
             vram.LoadBytes(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, bytes);
         }
         queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter)));
-        int colors = SamusCartridgeTables.MovementBank |
-            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.PalettePointers + selection * 2));
+        int colors = SamusSourceDefinitions.MovementBank.Value |
+            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PalettePointers.Value + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
             cgram.SetColor(SamusColourDefinitions.BeamFirstColour + i, Bgr555.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
     }

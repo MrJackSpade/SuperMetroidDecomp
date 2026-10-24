@@ -23,7 +23,7 @@ public static class SamusHyperBeamColorExtractor
         var frames = new PaletteRgb5[SamusHyperBeamColorFormat.FrameCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
-            int address = SamusCartridgeTables.HyperBeamPalettes - frame * SamusCartridgeTables.HyperBeamPaletteStride;
+            int address = SamusSourceDefinitions.HyperBeamPalettes.Value - frame * SamusSourceDefinitions.HyperBeamPaletteStride;
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address,
                 SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort));
             frames[frame] = new PaletteRgb5[SamusHyperBeamColorFormat.ColorsPerFrame];

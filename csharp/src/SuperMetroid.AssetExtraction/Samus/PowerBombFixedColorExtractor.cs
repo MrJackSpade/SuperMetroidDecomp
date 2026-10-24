@@ -32,12 +32,12 @@ public static class PowerBombFixedColorExtractor
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, PowerBombFixedColorSequence sequence)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            SamusCartridgeTables.PowerBombColors(sequence),
-            PowerBombFixedColorFormat.Count(sequence) * SamusCartridgeTables.PowerBombBytesPerColor);
+            PowerBombColorSources.Start(sequence),
+            PowerBombFixedColorFormat.Count(sequence) * SamusSourceDefinitions.PowerBombBytesPerColor);
         var colors = new PaletteRgb5[PowerBombFixedColorFormat.Count(sequence)];
         for (int index = 0; index < colors.Length; index++)
         {
-            int offset = index * SamusCartridgeTables.PowerBombBytesPerColor;
+            int offset = index * SamusSourceDefinitions.PowerBombBytesPerColor;
             colors[index] = new PaletteRgb5
             {
                 Red = source[offset] & SamusPaletteDefinitions.PowerBomb.ComponentMask,

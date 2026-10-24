@@ -38,8 +38,8 @@ internal static class GrappleFlarePlacementVerification
         for (int direction = 0; direction < 16; direction++)
         {
             var offset = stock.Resolve(running, direction);
-            int x = running ? SamusCartridgeTables.GrappleRunningFlareX : SamusCartridgeTables.GrappleDefaultFlareX;
-            int y = running ? SamusCartridgeTables.GrappleRunningFlareY : SamusCartridgeTables.GrappleDefaultFlareY;
+            int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
+            int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
             var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(running, direction));
@@ -55,8 +55,8 @@ internal static class GrappleFlarePlacementVerification
             .Select(pose => new
             {
                 Pose = (SamusPoseId)pose,
-                Movement = CpuBusRegionRead.Read(rom, SamusCartridgeTables.PoseDefinitions + pose * 8 + 1),
-                Direction = CpuBusRegionRead.Read(rom, SamusCartridgeTables.PoseDefinitions + pose * 8 + 3),
+                Movement = CpuBusRegionRead.Read(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1),
+                Direction = CpuBusRegionRead.Read(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3),
             })
             .Where(row => row.Direction < 10)
             .GroupBy(row => new AuthoredPose(Running:row.Movement == (byte)SamusMovementType.Running, row.Direction))

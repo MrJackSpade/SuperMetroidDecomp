@@ -30,7 +30,7 @@ public static class GrappleSpriteExtractor
         return GrappleSpriteCatalog.Write(new()
         {
             Version = GrappleSpriteDefinitions.Version,
-            Endpoint = Read(SamusCartridgeTables.GrappleEndpointAttributes),
+            Endpoint = Read(SamusSourceDefinitions.GrappleEndpointAttributes.Value),
             Segments = GrappleSpriteDefinitions.SegmentAttributeAddresses.Select(Read).ToArray(),
         });
     }

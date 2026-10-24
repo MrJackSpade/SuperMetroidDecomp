@@ -23,8 +23,8 @@ public static class SamusHurtColorExtractor
         return SamusHurtColorCatalog.Write(new SamusHurtColorDocument
         {
             Version = SamusHurtColorFormat.Version,
-            Hurt = ReadColors(bus, SamusCartridgeTables.HurtFlashColors),
-            Intro = ReadColors(bus, SamusCartridgeTables.IntroHurtFlashColors),
+            Hurt = ReadColors(bus, SamusSourceDefinitions.HurtFlashColors.Value),
+            Intro = ReadColors(bus, SamusSourceDefinitions.IntroHurtFlashColors.Value),
         });
     }
 

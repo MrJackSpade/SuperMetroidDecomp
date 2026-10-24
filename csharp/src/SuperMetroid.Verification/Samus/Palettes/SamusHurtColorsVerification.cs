@@ -34,8 +34,8 @@ internal static class SamusHurtColorsVerification
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
         {
             int address = variant == SamusHurtColorVariant.Hurt
-                ? SamusCartridgeTables.HurtFlashColors
-                : SamusCartridgeTables.IntroHurtFlashColors;
+                ? SamusSourceDefinitions.HurtFlashColors.Value
+                : SamusSourceDefinitions.IntroHurtFlashColors.Value;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
             {
                 int wordAddress = address + index * sizeof(ushort);
@@ -89,10 +89,10 @@ internal static class SamusHurtColorsVerification
                 continue;
             }
             int expectedPaletteAddress = (call & 1) != 0
-                ? SamusCartridgeTables.HurtFlashColors
+                ? SamusSourceDefinitions.HurtFlashColors.Value
                 : cinematic
-                    ? SamusCartridgeTables.IntroHurtFlashColors
-                    : SamusCartridgeTables.PowerSuitPalette;
+                    ? SamusSourceDefinitions.IntroHurtFlashColors.Value
+                    : SamusSourceDefinitions.PowerSuitPalette.Value;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual((ushort)(ReadNativeHurtCycleColor(rom, expectedPaletteAddress, index) & 0x7fff),
                     cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + index],
@@ -151,9 +151,9 @@ internal static class SamusHurtColorsVerification
 
     /// <summary>Rejects reads of native hurt and intro color tables after installed artwork binding.</summary>
     private static CartridgeReadGuard NewForbiddenHurtColorBus(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= SamusCartridgeTables.HurtFlashColors and
-                < (SamusCartridgeTables.IntroHurtFlashColors +
-                    SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort)),
+        new CartridgeReadGuard(source).Forbid(address => address >= SamusSourceDefinitions.HurtFlashColors.Value &&
+                address < SamusSourceDefinitions.IntroHurtFlashColors.Value +
+                    SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort),
             address => $"Installed hurt handler read native artwork ${address:X6}.");
 
     /// <summary>Reads one cartridge BGR555 word for a source-palette comparison.</summary>

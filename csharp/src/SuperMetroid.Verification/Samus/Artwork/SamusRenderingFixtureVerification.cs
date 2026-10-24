@@ -33,7 +33,7 @@ internal static class SamusRenderingFixtureVerification
     /// <summary>Points one pose's <c>$92:D94E</c> tile-animation list pointer at a synthetic record.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus tile-animation list pointer")]
     internal static void WriteSamusTileAnimationPointer(TestAddressSpace bus, SamusPoseId pose, ushort pointer) =>
-        WriteTestWord(bus, SamusCartridgeTables.AnimationDefinitionListPointers + (int)pose * 2, pointer);
+        WriteTestWord(bus, SamusSourceDefinitions.AnimationDefinitionListPointers.Value + (int)pose * 2, pointer);
 
     /// <summary>Seeds one pose's <c>$92:9263/$92:945D</c> top and bottom spritemap base indices.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus pose's spritemap base indices")]
@@ -66,13 +66,13 @@ internal static class SamusRenderingFixtureVerification
                 if (bus.HasSeededByte(address + index)) original[index] = unchecked((sbyte)bus.ReadByte(address + index));
             return original;
         }
-        var topPointers = OverrideWords(SamusCartridgeTables.TopDefinitionListPointers, stock.TopSetPointers.ToArray());
-        var bottomPointers = OverrideWords(SamusCartridgeTables.BottomDefinitionListPointers, stock.BottomSetPointers.ToArray());
-        var posePointers = OverrideWords(SamusCartridgeTables.AnimationDefinitionListPointers, stock.PosePointers.ToArray());
+        var topPointers = OverrideWords(SamusSourceDefinitions.TopDefinitionListPointers.Value, stock.TopSetPointers.ToArray());
+        var bottomPointers = OverrideWords(SamusSourceDefinitions.BottomDefinitionListPointers.Value, stock.BottomSetPointers.ToArray());
+        var posePointers = OverrideWords(SamusSourceDefinitions.AnimationDefinitionListPointers.Value, stock.PosePointers.ToArray());
         sbyte[] offsets = stock.GraphicsYOffsets.ToArray();
         for (int pose = 0; pose < offsets.Length; pose++)
         {
-            int address = SamusCartridgeTables.PoseDefinitions + pose * SamusCartridgeTables.PoseDefinitionByteCount + 4;
+            int address = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
             if (bus.HasSeededByte(address)) offsets[pose] = unchecked((sbyte)bus.ReadByte(address));
         }
         SamusBodyFrameSelection[] frames = stock.Frames.ToArray();
@@ -117,8 +117,8 @@ internal static class SamusRenderingFixtureVerification
             Words(SamusSpritemapArtworkCatalog.BottomBaseAddress, SamusBodyArtworkCatalog.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
         ushort[] landing = stock.LandingYOffsets.ToArray();
         for (int index = 0; index < landing.Length; index++)
-            if (bus.HasSeededByte(SamusCartridgeTables.LandingVerticalOffsets + index))
-                landing[index] = bus.ReadByte(SamusCartridgeTables.LandingVerticalOffsets + index);
-        samus.Presentation.BodyFrames.BindBodyFixture(new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusCartridgeTables.PostureTransitionVerticalOffsets, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusCartridgeTables.DrainedVerticalOffsets, stock.DrainedYOffsets.ToArray()) }));
+            if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))
+                landing[index] = bus.ReadByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index);
+        samus.Presentation.BodyFrames.BindBodyFixture(new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, stock.DrainedYOffsets.ToArray()) }));
     }
 }

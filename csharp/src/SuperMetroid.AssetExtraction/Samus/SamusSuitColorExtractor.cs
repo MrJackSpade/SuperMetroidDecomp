@@ -24,9 +24,9 @@ public static class SamusSuitColorExtractor
         return SamusSuitColorCatalog.Write(new SamusSuitColorDocument
         {
             Version = SamusSuitColorFormat.Version,
-            Power = Read(SamusCartridgeTables.PowerSuitPalette),
-            Varia = Read(SamusCartridgeTables.VariaSuitPalette),
-            Gravity = Read(SamusCartridgeTables.GravitySuitPalette),
+            Power = Read(SamusSourceDefinitions.PowerSuitPalette.Value),
+            Varia = Read(SamusSourceDefinitions.VariaSuitPalette.Value),
+            Gravity = Read(SamusSourceDefinitions.GravitySuitPalette.Value),
         });
 
         PaletteRgb5[] Read(int address)

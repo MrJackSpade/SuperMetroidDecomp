@@ -19,8 +19,8 @@ public static class ChargeFlarePlacementExtractor
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
-            int x = running ? SamusCartridgeTables.ChargeFlareRunningXOffsets : SamusCartridgeTables.ChargeFlareDefaultXOffsets;
-            int y = running ? SamusCartridgeTables.ChargeFlareRunningYOffsets : SamusCartridgeTables.ChargeFlareDefaultYOffsets;
+            int x = running ? SamusSourceDefinitions.ChargeFlareRunningXOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultXOffsets.Value;
+            int y = running ? SamusSourceDefinitions.ChargeFlareRunningYOffsets.Value : SamusSourceDefinitions.ChargeFlareDefaultYOffsets.Value;
             offsets.Add(ChargeFlarePlacementDefinitions.Key(running, direction), new()
             {
                 X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),

@@ -38,13 +38,13 @@ internal static class SamusChargeColorsVerification
         {
             ushort offset = (ushort)(SamusChargePaletteDefinitions.LastHyperTableByteOffset -
                 frame * sizeof(ushort));
-            ushort pointer = BlockWord(SamusCartridgeTables.HyperBeamShotPointers + offset);
+            ushort pointer = BlockWord(SamusSourceDefinitions.HyperBeamShotPointers.Value + offset);
             AssertTrue(SamusChargePaletteDefinitions.TryHyperShot(offset, out ushort compiledPointer),
                 "all native Hyper-shot entries are compiled");
             AssertEqual(pointer, compiledPointer, $"Hyper-shot frame {frame} pointer");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
             {
-                int address = SamusCartridgeTables.PaletteBank |
+                int address = SamusSourceDefinitions.PaletteBank.Value |
                     (pointer + color * sizeof(ushort));
                 AssertEqual(BlockWord(address), native.ResolveHyper(frame, color),
                     $"Hyper-shot frame {frame} color {color}");
@@ -185,7 +185,7 @@ internal static class SamusChargeColorsVerification
             }
             for (int suit = 0; suit < 3; suit++)
             {
-                int table = family == 0 ? SamusCartridgeTables.BeamChargePointers : SamusCartridgeTables.PseudoScrewPointers;
+                int table = family == 0 ? SamusSourceDefinitions.BeamChargePointers.Value : SamusSourceDefinitions.PseudoScrewPointers.Value;
                 ushort list = Word(table + suit * 2);
                 for (int phase = 0; phase < 6; phase++)
                 {
@@ -220,19 +220,19 @@ internal static class SamusChargeColorsVerification
             deathSuited[suit] = new ushort[10][];
             for (int palette = 0; palette < 10; palette++)
             {
-                ushort pointer = Word(SamusCartridgeTables.SuitPointers + (suit * 10 + palette) * 2);
+                ushort pointer = Word(SamusSourceDefinitions.SuitPointers.Value + (suit * 10 + palette) * 2);
                 deathSuited[suit][palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
             }
         }
         for (int palette = 0; palette < 10; palette++)
         {
-            ushort pointer = Word(SamusCartridgeTables.SuitlessPointers + palette * 2);
+            ushort pointer = Word(SamusSourceDefinitions.SuitlessPointers.Value + palette * 2);
             deathSuitless[palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
         }
         var whiteout = Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount)
-            .Select(index => Word(SamusCartridgeTables.DeathWhiteoutShades + index * 2)).ToArray();
+            .Select(index => Word(SamusSourceDefinitions.DeathWhiteoutShades.Value + index * 2)).ToArray();
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
-            .Select(index => (ushort)rom.ReadCartridgeByte(SamusCartridgeTables.DeathExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
+            .Select(index => (ushort)rom.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + 2 * index + 1)).ToArray();
         var death = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
         foreach (var inputs in new[] { death.suitedFadeInputs, death.suitlessFadeInputs })
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");

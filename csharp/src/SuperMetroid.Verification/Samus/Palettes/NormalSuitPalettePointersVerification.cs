@@ -51,7 +51,7 @@ internal static class NormalSuitPalettePointersVerification
                 "installed special palette restores normal suit without a CPU bus");
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,
-                        SamusCartridgeTables.PaletteBank | (nativePointer + color * sizeof(ushort))) & 0x7fff),
+                        SamusSourceDefinitions.PaletteBank.Value | (nativePointer + color * sizeof(ushort))) & 0x7fff),
                     installedColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                     $"normal suit CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(3, samus.SpecialSuperPaletteFlags,

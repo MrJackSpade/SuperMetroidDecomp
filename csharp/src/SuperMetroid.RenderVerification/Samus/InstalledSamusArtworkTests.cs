@@ -135,7 +135,7 @@ internal static class InstalledSamusArtworkTests
         int count = 0;
         foreach (ushort source in ArmCannonTileSources.CoverTileDmaSources)
         {
-            Check(SamusCartridgeTables.CharacterDataBank | source,
+            Check(SamusSourceDefinitions.CharacterDataBank.Value | source,
                 SamusDrawingDefinitions.ArmCannon.TileByteCount,
                 SamusDrawingDefinitionsArmCannonConstants.TileVramDestination, $"cannon {source:X4}");
             count++;

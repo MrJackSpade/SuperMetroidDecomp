@@ -11,21 +11,21 @@ internal static class SamusBodyNative
 {
     /// <summary>The bank-$92 address of body definition <paramref name="record"/>.</summary>
     internal static ushort RecordPointer(int record) =>
-        checked((ushort)(SamusCartridgeTables.FirstBodyDefinition + record * SamusCartridgeTables.BodyDefinitionBytes));
+        checked((ushort)(SamusSourceDefinitions.FirstBodyDefinition + record * SamusSourceDefinitions.BodyDefinitionBytes));
 
     /// <summary>The body definition record stored at bank-$92 <paramref name="pointer"/>.</summary>
     internal static int Record(int pointer) =>
-        (pointer & 0xffff) >= SamusCartridgeTables.FirstBodyDefinition && ((pointer & 0xffff) - SamusCartridgeTables.FirstBodyDefinition) % SamusCartridgeTables.BodyDefinitionBytes == 0
-            ? ((pointer & 0xffff) - SamusCartridgeTables.FirstBodyDefinition) / SamusCartridgeTables.BodyDefinitionBytes
+        (pointer & 0xffff) >= SamusSourceDefinitions.FirstBodyDefinition && ((pointer & 0xffff) - SamusSourceDefinitions.FirstBodyDefinition) % SamusSourceDefinitions.BodyDefinitionBytes == 0
+            ? ((pointer & 0xffff) - SamusSourceDefinitions.FirstBodyDefinition) / SamusSourceDefinitions.BodyDefinitionBytes
             : throw new InvalidDataException($"${pointer:X4} is not a Samus body definition record.");
 
     /// <summary>The bank-$92 address of frame selector <paramref name="frame"/>.</summary>
-    internal static ushort FramePointer(int frame) => checked((ushort)(SamusCartridgeTables.FirstBodyFrame + frame * 4));
+    internal static ushort FramePointer(int frame) => checked((ushort)(SamusSourceDefinitions.FirstBodyFrame + frame * 4));
 
     /// <summary>The frame selector stored at bank-$92 <paramref name="pointer"/>.</summary>
     internal static int Frame(int pointer) =>
-        (pointer & 0xffff) >= SamusCartridgeTables.FirstBodyFrame && ((pointer & 0xffff) - SamusCartridgeTables.FirstBodyFrame) % 4 == 0
-            ? ((pointer & 0xffff) - SamusCartridgeTables.FirstBodyFrame) / 4
+        (pointer & 0xffff) >= SamusSourceDefinitions.FirstBodyFrame && ((pointer & 0xffff) - SamusSourceDefinitions.FirstBodyFrame) % 4 == 0
+            ? ((pointer & 0xffff) - SamusSourceDefinitions.FirstBodyFrame) / 4
             : throw new InvalidDataException($"${pointer:X4} is not a Samus body frame selector.");
 
     /// <summary>The records stored at <paramref name="pointers"/>.</summary>
@@ -55,10 +55,10 @@ internal static class SamusBodyNative
     extension(SamusBodyArtworkCatalog)
     {
         /// <summary>$92:DB48: the SNES address of the first frame selector.</summary>
-        internal static int FirstFrameAddress => SamusCartridgeTables.BodyFrames;
+        internal static int FirstFrameAddress => SamusSourceDefinitions.BodyFrames.Value;
 
         /// <summary>The bank-$92 address of the first frame selector.</summary>
-        internal static int FirstFrameOffset => SamusCartridgeTables.FirstBodyFrame;
+        internal static int FirstFrameOffset => SamusSourceDefinitions.FirstBodyFrame;
     }
 
     /// <summary>Native views of the shown body definitions.</summary>

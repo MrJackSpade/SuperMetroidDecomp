@@ -17,8 +17,8 @@ internal static class PoseCollisionDefinitionsVerification
         var samus = new SamusState();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            ushort expected = rom.ReadCartridgeByte(SamusCartridgeTables.PoseDefinitions +
-                pose * SamusCartridgeTables.PoseDefinitionByteCount + 6);
+            ushort expected = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value +
+                pose * SamusSourceDefinitions.PoseDefinitionByteCount + 6);
             AssertEqual(expected, SamusPoseMetadata.ReadPoseYRadius((SamusPoseId)pose),
                 "Prospective collision radius matches native pose, without authored ROM reads");
             samus.Pose = (SamusPoseId)pose;

@@ -64,7 +64,7 @@ internal static class SamusHyperBeamColorsVerification
             int pointerAddress = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPointers + frame * 2;
             ushort pointer = rom.ReadCartridgeWord(pointerAddress);
             int paletteAddress = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(frame);
-            AssertEqual(paletteAddress, SamusCartridgeTables.PaletteBank | pointer,
+            AssertEqual(paletteAddress, SamusSourceDefinitions.PaletteBank.Value | pointer,
                 $"Hyper Beam frame {frame} compiled pointer");
             for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
             {

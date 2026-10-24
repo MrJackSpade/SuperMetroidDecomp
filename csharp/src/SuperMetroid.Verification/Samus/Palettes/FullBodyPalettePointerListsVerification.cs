@@ -205,7 +205,7 @@ internal static class FullBodyPalettePointerListsVerification
         for (int color = 0; color < SamusPaletteDefinitions.Common.ColorsPerObjPalette; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(rom),
-                    SamusCartridgeTables.PaletteBank | (pointer + color * sizeof(ushort))) & 0x7fff),
+                    SamusSourceDefinitions.PaletteBank.Value | (pointer + color * sizeof(ushort))) & 0x7fff),
                 actual.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                 $"{context} CGRAM color {color} matches ROM");
     }

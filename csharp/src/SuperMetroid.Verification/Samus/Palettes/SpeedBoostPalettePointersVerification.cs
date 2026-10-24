@@ -91,7 +91,7 @@ internal static class SpeedBoostPalettePointersVerification
     /// <summary>Reads one native full-body shade as the verification oracle for installed Speed Booster colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster full-body shade colors")]
     private static ushort ReadNativeSpeedBoosterShadeColor(IImportCartridgeSource rom, int nativePointer, int color) =>
-        RomDataReader.ReadWordFixedBank(rom, SamusCartridgeTables.PaletteBank | (nativePointer + color * sizeof(ushort)));
+        RomDataReader.ReadWordFixedBank(rom, SamusSourceDefinitions.PaletteBank.Value | (nativePointer + color * sizeof(ushort)));
 
     /// <summary>Runs the Speed Booster palette pointer and CGRAM checks.</summary>
     [VerificationCommand("--speed-boost-palette-pointers")]

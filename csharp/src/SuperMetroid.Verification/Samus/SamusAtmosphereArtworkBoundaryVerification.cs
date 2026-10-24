@@ -20,8 +20,8 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
     [CpuBusBoundary("exact bus test: seeds low WRAM that a null bank-$90 atmospheric pointer reads through the $90:0000 mirror")]
     private static void SeedNullAtmosphericPointerWram(SuperMetroidAddressSpace bus)
     {
-        bus.WriteByte(SamusCartridgeTables.MovementBank, 0x5a);
-        bus.WriteByte(SamusCartridgeTables.MovementBank + 1, 0x34);
+        bus.WriteByte(SamusSourceDefinitions.MovementBank.Value, 0x5a);
+        bus.WriteByte(SamusSourceDefinitions.MovementBank.Value + 1, 0x34);
     }
 
     /// <summary>Compares authored atmospheric frame attributes with cartridge words and checks missing-art rejection.</summary>
@@ -41,9 +41,9 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
             for (byte frame = 0; frame < SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount; frame++)
             {
                 ushort list = type == 1
-                    ? SamusCartridgeTables.TypeOneAtmosphericAttributes
-                    : SamusCartridgeTables.SharedAtmosphericAttributes;
-                int source = SamusCartridgeTables.MovementBank | (list + frame * sizeof(ushort));
+                    ? SamusSourceDefinitions.TypeOneAtmosphericAttributes
+                    : SamusSourceDefinitions.SharedAtmosphericAttributes;
+                int source = SamusSourceDefinitions.MovementBank.Value | (list + frame * sizeof(ushort));
                 ushort expected = importBus.ReadCartridgeWord(source);
                 var effects = new SamusAtmosphericEffectsState();
                 effects.SetSlot(0, type, frame, 2, new(128, 128));

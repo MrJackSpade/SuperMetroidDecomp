@@ -20,7 +20,7 @@ internal static class SamusProjectileProgramsVerification
     internal static void VerifySamusProjectilePrograms(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        ushort Word(int address) => cartridge.ReadCartridgeWord(SamusCartridgeTables.ProjectileDataBank | (ushort)address);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(SamusSourceDefinitions.ProjectileDataBank.Value | (ushort)address);
 
         Dictionary<ushort, SamusProjectileProgram> byEntry = Enum.GetValues<SamusProjectileProgram>()
             .ToDictionary(SamusProjectileProgramAddresses.Entry, program => program);

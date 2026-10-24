@@ -24,7 +24,7 @@ internal static class BeamSpeedRowsVerification
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusPoseId AimPose(byte direction) => (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
-            retail.ReadCartridgeByte(SamusCartridgeTables.PoseDefinitions + pose * 8 + 3) == direction);
+            retail.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction);
         var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         for (ushort combination = 0; combination < 12; combination++)
         for (byte direction = 0; direction < 10; direction++)
@@ -55,11 +55,11 @@ internal static class BeamSpeedRowsVerification
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var stationary = new ProjectileInheritanceRecords();
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusCartridgeTables.FiringTables),
+            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitions.FiringTables.Value),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
         foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d2, 0x90c37b, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => SamusProjectileMotionDefinitions.ReadWord(address - SamusCartridgeTables.FiringTables),
+                () => SamusProjectileMotionDefinitions.ReadWord(address - SamusSourceDefinitions.FiringTables.Value),
                 "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)

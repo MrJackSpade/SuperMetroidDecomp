@@ -51,7 +51,7 @@ public static class SamusDeathPaletteArtworkFiles
             suited[suit] = new ushort[SamusPaletteDefinitions.Death.PaletteCount][];
             for (int palette = 0; palette < suited[suit].Length; palette++)
             {
-                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.SuitPointers +
+                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
                     suit * SamusPaletteDefinitions.Death.PaletteCount * sizeof(ushort) +
                     palette * sizeof(ushort)));
                 suited[suit][palette] = ReadPalette(bus, pointer);
@@ -60,16 +60,16 @@ public static class SamusDeathPaletteArtworkFiles
         var suitless = new ushort[SamusPaletteDefinitions.Death.PaletteCount][];
         for (int palette = 0; palette < suitless.Length; palette++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.SuitlessPointers + palette * sizeof(ushort)));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
             suitless[palette] = ReadPalette(bus, pointer);
         }
         var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
         for (int shade = 0; shade < whiteout.Length; shade++)
-            whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.DeathWhiteoutShades + shade * sizeof(ushort)));
+            whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
         var selectors = new ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
         for (int frame = 0; frame < selectors.Length; frame++)
             selectors[frame] = bus.ReadCartridgeByte(
-                SamusCartridgeTables.DeathExplosionTimingAndPaletteIndices + frame * 2 + 1);
+                SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + frame * 2 + 1);
         var document = new ArtworkDocument(FormatVersion, suited, suitless, whiteout, selectors);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         File.WriteAllBytes(Path.Combine(directory, ArtworkFileName), bytes);
@@ -130,7 +130,7 @@ public static class SamusDeathPaletteArtworkFiles
     {
         var colors = new ushort[SamusDeathPaletteArtworkCatalog.ColorCount];
         for (int color = 0; color < colors.Length; color++)
-            colors[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.PaletteBank |
+            colors[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
                 unchecked((ushort)(pointer + color * sizeof(ushort)))));
         return colors;
     }

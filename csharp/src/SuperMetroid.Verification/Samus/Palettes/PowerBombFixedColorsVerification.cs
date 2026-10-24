@@ -36,8 +36,8 @@ internal static class PowerBombFixedColorsVerification
         {
             for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
             {
-                int address = SamusCartridgeTables.PowerBombColors(sequence) +
-                    index * SamusCartridgeTables.PowerBombBytesPerColor;
+                int address = PowerBombColorSources.Start(sequence) +
+                    index * SamusSourceDefinitions.PowerBombBytesPerColor;
                 Bgr555 color = catalog.Resolve(sequence, index);
                 byte red = (byte)color.Red;
                 byte green = (byte)color.Green;
@@ -151,9 +151,9 @@ internal static class PowerBombFixedColorsVerification
     internal static CartridgeReadGuard NewForbiddenPowerBombColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => Enum.GetValues<PowerBombFixedColorSequence>().Any(sequence =>
-                    address >= SamusCartridgeTables.PowerBombColors(sequence) &&
-                    address < SamusCartridgeTables.PowerBombColors(sequence) +
-                        PowerBombFixedColorFormat.Count(sequence) * SamusCartridgeTables.PowerBombBytesPerColor),
+                    address >= PowerBombColorSources.Start(sequence) &&
+                    address < PowerBombColorSources.Start(sequence) +
+                        PowerBombFixedColorFormat.Count(sequence) * SamusSourceDefinitions.PowerBombBytesPerColor),
                 address => $"Installed explosion read color ROM ${address:X6}.");
 
     /// <summary>Runs the Power Bomb fixed-color verification suite.</summary>

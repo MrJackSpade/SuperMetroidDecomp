@@ -21,8 +21,8 @@ public static class GrappleFlarePlacementExtractor
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
-            int x = running ? SamusCartridgeTables.GrappleRunningFlareX : SamusCartridgeTables.GrappleDefaultFlareX;
-            int y = running ? SamusCartridgeTables.GrappleRunningFlareY : SamusCartridgeTables.GrappleDefaultFlareY;
+            int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
+            int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
             offsets.Add(ChargeFlarePlacementDefinitions.Key(running, direction), new()
             {
                 X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),

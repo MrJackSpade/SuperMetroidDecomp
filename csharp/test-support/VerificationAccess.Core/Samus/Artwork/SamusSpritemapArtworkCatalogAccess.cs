@@ -16,12 +16,12 @@ internal static class SamusSpritemapArtworkCatalogAccess
     extension(SamusSpritemapArtworkCatalog)
     {
         /// <summary>$92:808D: the spritemap pointer of each pose-half table entry.</summary>
-        internal static int PointerTableAddress => SamusCartridgeTables.SpritemapPointers;
+        internal static int PointerTableAddress => SamusSourceDefinitions.SpritemapPointers.Value;
 
         /// <summary>$92:9263: each pose's first upper-half table entry.</summary>
-        internal static int TopBaseAddress => SamusCartridgeTables.SpritemapTopBases;
+        internal static int TopBaseAddress => SamusSourceDefinitions.SpritemapTopBases.Value;
 
         /// <summary>$92:945D: each pose's first lower-half table entry.</summary>
-        internal static int BottomBaseAddress => SamusCartridgeTables.SpritemapBottomBases;
+        internal static int BottomBaseAddress => SamusSourceDefinitions.SpritemapBottomBases.Value;
     }
 }

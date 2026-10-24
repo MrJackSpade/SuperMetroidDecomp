@@ -38,7 +38,7 @@ internal static class DmaArtworkBoundaryVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas, BossArtworkBinding = { HudTileArtwork = maps.HudTiles } };
         var background = new SnesVram();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(background));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));
         Action upload = new Action(enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles);
         upload();
         var expected = new SnesVram();
@@ -56,7 +56,7 @@ internal static class DmaArtworkBoundaryVerification
         Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction> restore = enemies.KraidBehavior.Death.RestoreKraidDeathBg3Quarter;
         {
             var actual = new SnesVram(); expected = new SnesVram();
-            enemies.Presentation.BindVram(BgArtworkFixtures.For(actual));
+            enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(actual));
             var state = new KraidEnemyState();
             enemies.KraidBehavior.Access.Kraid = state;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];

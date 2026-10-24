@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Verification.Bosses.Botwoon;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;

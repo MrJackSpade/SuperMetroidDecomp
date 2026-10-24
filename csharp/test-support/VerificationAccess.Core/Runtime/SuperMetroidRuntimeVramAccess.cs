@@ -1,23 +1,25 @@
+using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Runtime;
 
-/// <summary>Verification access to the VRAM gameplay shows, which the published frame no longer carries (#1403).</summary>
+/// <summary>
+/// Verification access to a VRAM image of what gameplay shows (#1403, #1406): gameplay keeps no VRAM, so each runtime's
+/// image is the test's own, which the runtime's background artwork composes over.
+/// </summary>
 internal static class SuperMetroidRuntimeVramAccess
 {
-    /// <summary>Reads gameplay's VRAM as the room shows it.</summary>
+    /// <summary>Each runtime's test-owned VRAM image.</summary>
+    private static readonly ConditionalWeakTable<SuperMetroidRuntime, SnesVram> Images = new();
+
+    /// <summary>Reads gameplay's shown characters as a VRAM image.</summary>
     extension(SuperMetroidRuntime self)
     {
-        /// <summary>
-        /// A copy of gameplay's VRAM with its background character artwork composed over it (#1350): each binding shows over
-        /// the words VRAM has not written since it was made, as the room's pictures resolve them.
-        /// </summary>
+        /// <summary>The test's VRAM image of the runtime, which nothing in gameplay writes.</summary>
+        internal SnesVram Vram => Images.GetValue(self, _ => new SnesVram());
+
+        /// <summary>A copy of the runtime's VRAM image with its background character artwork composed over it (#1350).</summary>
         [PpuLayoutBoundary("exact hardware test: reads gameplay's VRAM image with its bound background artwork")]
-        internal byte[] ComposedVram()
-        {
-            byte[] image = self.Vram.CaptureImage().ToArray();
-            self.BgArtwork.ComposeOver(image);
-            return image;
-        }
+        internal byte[] ComposedVram() => BgArtworkFixtures.Composed(self.Vram, self.BgArtwork);
     }
 }

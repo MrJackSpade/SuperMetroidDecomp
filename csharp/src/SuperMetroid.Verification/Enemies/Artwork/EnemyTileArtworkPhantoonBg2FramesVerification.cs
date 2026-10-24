@@ -234,7 +234,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // His fight attaches the BG2 image his body frames draw into.
         EnemyBg2Image image = EnemyBg2ImageFixtures.AttachBlank(enemies.Presentation);
         enemies.Drawing.Enqueue(0, 0);

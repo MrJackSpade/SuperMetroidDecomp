@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;

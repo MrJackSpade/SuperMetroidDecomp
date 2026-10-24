@@ -183,7 +183,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState();
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
         // Crocomire's initialization attaches the enemy BG2 image his words draw into (#1355).
         enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireMeltingTilemap.BlankGlyph.Raw));

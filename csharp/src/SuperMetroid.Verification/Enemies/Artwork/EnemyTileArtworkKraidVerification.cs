@@ -237,7 +237,7 @@ internal static class EnemyTileArtworkKraidVerification
             BossArtworkBinding = { HudTileArtwork = hud },
         };
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction> restore = enemies.KraidBehavior.Death.RestoreKraidDeathBg3Quarter;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new KraidEnemyState();
@@ -308,7 +308,7 @@ internal static class EnemyTileArtworkKraidVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         Action upload = enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles;
         upload();
         return BgArtworkFixtures.ComposedVram(vram);

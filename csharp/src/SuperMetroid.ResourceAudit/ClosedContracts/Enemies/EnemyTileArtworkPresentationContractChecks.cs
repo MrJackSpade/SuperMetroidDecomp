@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;

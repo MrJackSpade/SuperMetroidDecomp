@@ -29,7 +29,6 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     /// <paramref name="animated"/> says an animation that paints a tile's character selected (#1406).
     /// </summary>
     /// <exception cref="InvalidDataException">A cell over rebound artwork has no picture.</exception>
-    [PpuLayoutBoundary("codec: the BG characters a background's tiles name, from the room tileset's character base")]
     public RoomBackgroundImagePlane Resolve(BgArtworkBindings bindings, AnimatedCharacterView animated)
     {
         Ensure.NotNull(bindings);
@@ -48,7 +47,7 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
             {
                 int character = new SnesBgTilemapWord(words[tile]).CharacterIndex;
                 if (!animated.TryShowing(character, RoomBlockPictureNames.CharacterWords, out now[tile]))
-                    now[tile] = bindings.Showing(character * RoomBlockPictureNames.CharacterWords, RoomBlockPictureNames.CharacterWords);
+                    now[tile] = bindings.Showing(BgCharacterSet.Tiles, character, 1);
                 rebound |= !loaded.Contains(now[tile].Artwork);
                 changed |= now[tile] != shown[cell * RoomBlockPictureNames.Tiles + tile];
             }

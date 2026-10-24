@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core;
@@ -287,10 +288,11 @@ internal static class RoomBlockPicturesVerification
             Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
-            int characterBase = latched.Scene.HudCharacterWord;
+            BgCharacterSet layer3 = latched.Scene.Layer3Characters;
+            int characterBase = BgCharacterWords.WordOf(layer3, 0);
             var animated = new AnimatedCharacterView(RoomScopeOf(runtime).AnimatedCharacters.Bg3, RoomScopeOf(runtime).ArtworkFrames);
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope
-                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, characterBase,
+                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, layer3,
                 animated);
             for (int index = 0; index < Layer3Plane.Columns * Layer3Plane.Rows; index++)
             {
@@ -314,7 +316,7 @@ internal static class RoomBlockPicturesVerification
                     AssertTrue(sheet.Inks[at].PaletteIndex == expected && (sheet.Inks[at].Priority != 0) == word.HasPriority
                             && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32()),
                         $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {sheet.Inks[at].PaletteIndex} where its character, "
-                        + $"{runtime.BgArtwork.Showing(characterBase + word.CharacterIndex * 8, 8)}, paints {expected}");
+                        + $"{runtime.BgArtwork.Showing(layer3, word.CharacterIndex, 1)}, paints {expected}");
                 }
             }
             Console.WriteLine($"BG3 pictures: {room.Name}'s HUD and effect page painted from their pictures at base ${characterBase:X4}.");
@@ -480,7 +482,10 @@ internal static class RoomBlockPicturesVerification
         RoomBlockPictureTable table = rooms.Bg1.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
         RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession.ObjCharacters,
                 RoomScopeOf(runtime).AnimatedCharacters, latched);
-        ReadOnlySpan<byte> vram = runtime.ComposedVram();
+        // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles.
+        byte[] tiles = rooms.Characters == RoomBackgroundCharacters.ObjectCharacterPage
+            ? runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters).Characters.ToArray()
+            : runtime.ComposedVram()[(BgCharacterWords.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         ReadOnlySpan<byte> definitions = runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan();
         int pictures = 0, uploaded = 0;
         for (int definition = 0; definition < table.Definitions; definition++)
@@ -497,12 +502,11 @@ internal static class RoomBlockPicturesVerification
                 // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
                 bool animated = characters.Animated.TryShowing(word.CharacterIndex, RoomBlockPictureNames.CharacterWords, out BgArtworkShown shown);
                 if (!animated)
-                    shown = characters.Artwork.Showing(characters.CharacterBase + word.CharacterIndex * RoomBlockPictureNames.CharacterWords,
-                        RoomBlockPictureNames.CharacterWords);
+                    shown = characters.Artwork.Showing(word.CharacterIndex, 1);
                 overUpload |= animated || shown.Artwork != RoomBgArtwork.CommonRoomElements && !shown.Artwork.Name.StartsWith("tileset characters ", StringComparison.Ordinal);
                 ReadOnlySpan<byte> bytes = animated
                     ? AnimatedTileFrameArtwork.Bytes(shown.Artwork, AnimatedTiles(runtime)).Span[(shown.WordOffset * sizeof(ushort))..]
-                    : vram[((characters.CharacterBase + word.CharacterIndex * RoomBlockPictureNames.CharacterWords) * sizeof(ushort))..];
+                    : tiles.AsSpan((word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort))..);
                 for (int y = 0; y < CharacterPixels; y++)
                 {
                     int row = word.FlipVertically ? CharacterPixels - 1 - y : y;

@@ -1326,7 +1326,7 @@ internal static class LookupStream4Verification
             services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = map })
             { BossArtworkBinding = { CeresRidleyFloorColors = colors } };
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
         enemies.Room.Session.FloorQueueResidue = new SuperMetroid.Core.Hardware.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyMode7Getaway;
@@ -2471,7 +2471,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossArtworkCatalog { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SamusColourRig(); var vram=new SnesVram();
-                enemies.Presentation.BindCgram(actual.Gameplay); enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
+                enemies.Presentation.BindCgram(actual.Gameplay); enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
                 AssertEqual(true,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");

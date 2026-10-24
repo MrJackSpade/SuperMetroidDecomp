@@ -66,12 +66,15 @@ boundary on a local function or lambda has no effect.
   named plane aliases that plane (an enemy BG2 tilemap aliases `GameplayVramLayout.Bg2Tilemap`).
   CGRAM ranges are declared with `PpuMemoryLayout.Colors(name, first, count, encoding)`, which
   aliases the smallest covering row, bank or the whole CGRAM.
-- Generic views live in `SuperMetroid.Core.Hardware`: `VramRegion` (byte loads, VMDATA word
-  streams with `VramIncrement.Row/Column`, word/tilemap/byte reads, slices, queued-DMA
-  destinations), `Mode7Vram` (the interleaved map and character planes), `VramStore`,
-  `CgramPalette`/`CgramPalettes` (`Bgr555` reads and writes, CGDATA port streams, banks and rows)
-  and `VramDmaDestination` (the queue's VMADD/increment word). Their cell-binding constructors
-  are `[PpuLayoutAccess]`: only a domain view binds a cell, and callers use its properties.
+- Gameplay keeps no VRAM (#1406): background artwork binds by character set and character
+  (`BgArtworkBindings`, `BgCharacterSet`). The VRAM views are the import pipeline's, in
+  `SuperMetroid.AssetExtraction.Video`: `VramRegion` (byte loads, VMDATA word streams, word,
+  tilemap and byte reads, slices), `Mode7Vram` (the interleaved map and character planes), the
+  gameplay layouts `GameplayVramLayout` and `RoomGraphicsLayout`, `BgCharacterWords` (the codec
+  from native words to character sets) and `VramDmaDestination`. `CgramPalette`/`CgramPalettes`
+  (`Bgr555` reads and writes, CGDATA port streams, banks and rows) stay in
+  `SuperMetroid.Core.Hardware`. Their cell-binding constructors are `[PpuLayoutAccess]`: only a
+  domain view binds a cell, and callers use its properties.
 - The software rasterizers (`SnesBgTilemapRenderer`, `SnesObjRenderer`, `SnesMode7Renderer`,
   `SnesGameplayFrameRenderer`, …), the GPU dispatch and render-packet producers model BGnSC/NBA
   and OBSEL register values and the snapshot images; they are backend or codec boundaries.

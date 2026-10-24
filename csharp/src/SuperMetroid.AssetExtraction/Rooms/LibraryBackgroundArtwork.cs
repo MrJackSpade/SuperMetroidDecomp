@@ -23,7 +23,7 @@ internal sealed record LibraryBackgroundArtwork
     /// <summary>The installed room characters, which hold the Tourian statue ghost's.</summary>
     public RoomCharacterAtlasCatalog? CharacterArt { get; init; }
 
-    /// <summary>The bindings the list's characters bind into; null binds them over the replayed VRAM alone.</summary>
+    /// <summary>The bindings the list's characters bind into; null binds them into the replay's own.</summary>
     public BgArtworkBindings? Backgrounds { get; init; }
 
     /// <summary>The character artwork the runtime's load binds from, bound into <paramref name="backgrounds"/>.</summary>

@@ -372,7 +372,7 @@ internal static class RoomCharacterInstallationVerification
     private static SnesVram ShownVram(LibraryBackgroundProgram program, LibraryBackgroundArtwork artwork)
     {
         var vram = new SnesVram();
-        var bindings = new BgArtworkBindings(vram);
+        var bindings = new BgArtworkBindings();
         LibraryBackgroundReplay.Execute(vram, program,
             activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: artwork with { Backgrounds = bindings });
         byte[] image = vram.Bytes.ToArray();

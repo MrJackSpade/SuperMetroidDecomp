@@ -160,7 +160,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
 
     /// <summary>The artwork the room's own load binds: its common room elements and tileset.</summary>
     private HashSet<BgArtworkIdentity> RoomLoadArtwork() =>
-        [.. CartridgeRoomAssets.CharacterUploads(Assets.Tileset, Assets.CreCharacters, Assets.RoomCharacters).Select(upload => upload.Identity)];
+        [.. CartridgeRoomAssets.CharacterPlacements(Assets.Tileset, Assets.CreCharacters, Assets.RoomCharacters).Select(placement => placement.Identity)];
 
     /// <summary>The failure for a load that completed without building <paramref name="part"/>.</summary>
     private static InvalidOperationException Missing(string part) =>

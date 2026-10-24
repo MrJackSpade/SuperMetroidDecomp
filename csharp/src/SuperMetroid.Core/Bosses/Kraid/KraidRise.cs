@@ -137,12 +137,12 @@ internal sealed class KraidRise
         state.OwnsBg2Tilemap = true;
     }
 
-    /// <summary>Binds the fixed 4-bpp room backdrop characters at their native VRAM word (#1352).</summary>
+    /// <summary>Binds the fixed room backdrop characters among the room's tile characters (#1352, #1406).</summary>
     internal void UploadKraidRoomBackgroundTiles()
     {
         KraidBackgroundArtwork art = _bossArtwork.Artwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, KraidBackgroundRomData.RoomBackgroundTileVramWord,
+        _presentation.Backgrounds.Bind(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundRomData.RoomBackgroundFirstCharacter,
             art.RoomBackgroundTiles.Characters.Span);
     }
 

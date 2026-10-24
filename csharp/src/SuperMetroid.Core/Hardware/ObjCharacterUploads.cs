@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("rendering view: the gameplay OBJ character table's uploads")]
 public sealed class ObjCharacterUploads
 {
-    /// <summary>Bytes in the OBJ character table: 512 four-bpp characters of 32 bytes.</summary>
-    public const int TableByteCount = 512 * 32;
+    /// <summary>Bytes one four-bpp OBJ character holds.</summary>
+    public const int CharacterByteCount = 32;
+
+    /// <summary>Bytes in the OBJ character table: 512 four-bpp characters.</summary>
+    public const int TableByteCount = 512 * CharacterByteCount;
 
     /// <summary>The uploads in order; a later upload shows over an earlier one where they overlap.</summary>
     internal readonly List<ObjCharacterUpload> uploads = [];

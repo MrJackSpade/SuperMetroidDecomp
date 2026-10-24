@@ -32,21 +32,13 @@ internal sealed class GameplayDisplayState
     public GameplayNmiDisplayLatch Latched { get; internal set; } = InitialLatch;
 
     /// <summary>
-    /// BG3 character base selected by gameplay initialization or a room's library-
-    /// background command list, as a VRAM word address. Kraid temporarily selects word $2000; ordinary rooms use
-    /// word $4000. Setting a value outside VRAM throws.
+    /// The characters BG3 reads, selected by gameplay initialization or a room's library-background command list (#1406):
+    /// Kraid's room selects the copy his list makes while his body covers the standard ones.
     /// </summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    public int GameplayHudCharacterBaseWord
-    {
-        get;
-        internal set => field = Hardware.SnesPpuLayout.RequireVramWord(value);
-    } = GameplayVramLayout.HudCharacterWord;
+    public BgCharacterSet Layer3Characters { get; internal set; } = BgCharacterSet.Layer3;
 
-    /// <summary>Moves the HUD's BG3 characters to Kraid's base, as Kraid's library-background transfer does.</summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    internal void SelectKraidHudCharacterBase() =>
-        GameplayHudCharacterBaseWord = Rooms.RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
+    /// <summary>Selects the copy of the HUD's characters Kraid's library background makes, as his list's transfer does.</summary>
+    internal void SelectKraidHudCharacterBase() => Layer3Characters = BgCharacterSet.KraidLayer3;
 
     /// <summary>
     /// Door setup's direct write of the Mode 7 registers and BGMODE before the room is exposed
@@ -61,10 +53,9 @@ internal sealed class GameplayDisplayState
         };
 
     /// <summary>The latch in effect before any NMI: power-on registers and no active effects.</summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
     private static GameplayNmiDisplayLatch InitialLatch => new(
         default, default, null, null, null, null, 0,
-        new GameplayLatchedSceneRegisters(false, GameplayVramLayout.HudCharacterWord, default,
+        new GameplayLatchedSceneRegisters(false, BgCharacterSet.Layer3, default,
             LayerBlendingConfiguration.Unconfigured, null, null, 0),
         default, default, null, null);
 }

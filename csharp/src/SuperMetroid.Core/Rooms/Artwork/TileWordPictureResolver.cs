@@ -31,7 +31,7 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
     public ImmutableArray<BgTilePicture?> Resolve(ImmutableArray<ushort> tilemap, RoomCharacterSource characters)
     {
         ushort[] words = ImmutableCollectionsMarshal.AsArray(tilemap) ?? throw new ArgumentException("A default tilemap has no words.", nameof(tilemap));
-        return ResolveWords(words, words.Length, index => words[index], characters.Artwork, Bg12CharacterBase(characters), characters.Animated);
+        return ResolveWords(words, words.Length, index => words[index], Bg12Artwork(characters), characters.Animated);
     }
 
     /// <summary>The picture of each word written in <paramref name="overlay"/> over what the room's <paramref name="characters"/> show now.</summary>
@@ -39,12 +39,12 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
     public ImmutableArray<BgTilePicture?> Resolve(RoomTilemapOverlay overlay, RoomCharacterSource characters)
     {
         ImmutableArray<int> words = Ensure.NotNull(overlay).Words;
-        return ResolveWords(overlay, words.Length, index => words[index], characters.Artwork, Bg12CharacterBase(characters), characters.Animated);
+        return ResolveWords(overlay, words.Length, index => words[index], Bg12Artwork(characters), characters.Animated);
     }
 
-    /// <summary>The character base BG1 and BG2's words name <paramref name="characters"/> from.</summary>
+    /// <summary>What shows over the characters BG1 and BG2's words name: <paramref name="characters"/>'.</summary>
     /// <exception cref="InvalidOperationException">The sheet pictures another layer's words.</exception>
-    private int Bg12CharacterBase(RoomCharacterSource characters) => Sheet.Layer == TileWordLayer.Bg12 ? characters.CharacterBase
+    private IBgCharacterArtwork Bg12Artwork(RoomCharacterSource characters) => Sheet.Layer == TileWordLayer.Bg12 ? characters.Artwork
         : throw new InvalidOperationException($"{Sheet.Name} pictures no {TileWordLayer.Bg12} words.");
 
     /// <summary>
@@ -53,8 +53,7 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
     /// The layer that owns the words gives them, as the BG3 plane's do (Layer3PictureResolution). A character an animation
     /// paints shows the frame <paramref name="animated"/> says it selected (#1406); any other shows what is bound over it.
     /// </summary>
-    [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character base")]
-    internal ImmutableArray<BgTilePicture?> ResolveWords(object words, int count, Func<int, int> wordAt, IBgCharacterArtwork bindings, int characterBase,
+    internal ImmutableArray<BgTilePicture?> ResolveWords(object words, int count, Func<int, int> wordAt, IBgCharacterArtwork bindings,
         AnimatedCharacterView animated)
     {
         int characterWords = TileWordSheet.CharacterWordsOf(Sheet.Layer);
@@ -76,7 +75,7 @@ public sealed class TileWordPictureResolver(TileWordSheet sheet)
             if (!characters.TryGetValue(word.CharacterIndex, out BgArtworkShown now))
             {
                 if (!animated.TryShowing(word.CharacterIndex, characterWords, out now))
-                    now = bindings.Showing(characterBase + word.CharacterIndex * characterWords, characterWords);
+                    now = bindings.Showing(word.CharacterIndex, 1);
                 characters.Add(word.CharacterIndex, now);
             }
             if (!fresh && now == shown[index])

@@ -143,7 +143,7 @@ internal static class CrocomireSkeletonArtworkVerification
         static void SetRuntimeFields(RoomEnemySystem system,
             ISnesAddressSpace bus, SnesVram vram)
         {
-            system.Presentation.BindVram(BgArtworkFixtures.For(vram));
+            system.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         }
 
         static void ShowNextChunk(RoomEnemySystem system, CrocomireDeathState state)

@@ -28,7 +28,6 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
     /// <inheritdoc />
-    public SnesVram Vram => Backgrounds.Vram;
 
     /// <inheritdoc />
     public BgArtworkBindings Backgrounds { get; }

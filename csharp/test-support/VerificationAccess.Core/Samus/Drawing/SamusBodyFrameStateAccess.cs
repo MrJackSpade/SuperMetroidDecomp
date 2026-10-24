@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 

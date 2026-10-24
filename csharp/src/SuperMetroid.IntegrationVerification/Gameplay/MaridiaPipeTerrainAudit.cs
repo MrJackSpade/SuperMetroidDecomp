@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;

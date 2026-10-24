@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Ordinary gameplay's VRAM allocation (#630), as programmed by the room-load PPU setup
@@ -6,7 +8,7 @@ namespace SuperMetroid.Core.Hardware;
 /// effect catalogs declare their own uses of these planes as aliases of the cells here.
 /// </summary>
 [PpuLayoutBoundary("catalog: ordinary gameplay VRAM")]
-public static class GameplayVramLayout
+internal static class GameplayVramLayout
 {
     /// <summary>VMADD of <c>Bg1Tilemap</c>, for render packets and the PPU backend.</summary>
     [PpuLayoutAccess]

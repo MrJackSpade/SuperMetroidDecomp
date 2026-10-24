@@ -152,7 +152,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
-    /// <summary>Shows rebound HUD characters at the HUD's current character base from the accepted NMI.</summary>
+    /// <summary>Shows rebound HUD characters in the layer-3 characters BG3 currently reads, from the accepted NMI.</summary>
     /// <param name="backgrounds">The background artwork bindings, which show the HUD characters.</param>
     internal void PublishReboundHudArtwork(BgArtworkBindings backgrounds)
     {
@@ -162,8 +162,8 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
         // The original upload's clearing half may now lie under live BG2 words.
         // Kraid's room moves the HUD characters to his base while his BG2 tilemap
         // covers the ordinary one. A restored-state art rebind must honor the
-        // *current* character base, or the next NMI paints HUD pixels across Kraid.
-        hudTiles.ShowCharactersAgain(backgrounds, _display.GameplayHudCharacterBaseWord);
+        // *current* characters, or the next NMI paints HUD pixels across Kraid.
+        hudTiles.ShowCharactersAgain(backgrounds, _display.Layer3Characters);
         pendingHudTiles = null;
     }
     /// <summary>Matches a native DMA source and exact length to the currently installed immutable visual data.</summary>

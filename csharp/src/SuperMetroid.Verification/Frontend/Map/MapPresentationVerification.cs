@@ -267,6 +267,7 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomBackgroundTilemapArt = backgrounds;
             runtime.Artwork.RoomSkyTilemapArt = skies;
             runtime.EnemySession.TileArtwork = EnemyTiles.Enemies;
+            runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
             runtime.AreaArtwork.Artwork = EnemyTiles.Areas;
             runtime.Artwork.BeamArtwork = beamTiles;

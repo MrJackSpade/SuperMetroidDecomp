@@ -35,13 +35,6 @@ internal sealed class EnemyPresentation
     /// <summary>The sprite colour set <paramref name="slot"/>'s palette bits select (#1405).</summary>
     internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSet(SnesObjAttributeWord.FromPaletteBits(checked((ushort)slot.PaletteIndex)).PaletteIndex);
 
-    /// <summary>The room's bound VRAM; enemy artwork transfers require the room's video memory to be bound.</summary>
-    internal SnesVram Vram
-    {
-        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound VRAM; the room's video memory must be bound first.");
-        private set;
-    }
-
     /// <summary>The room's bound CGRAM; enemy palette writes require the room's video memory to be bound.</summary>
     internal GameplayColours Cgram
     {
@@ -62,13 +55,12 @@ internal sealed class EnemyPresentation
     internal ArtworkFrameSelections ArtworkFrames { get; private set; } = new();
 
     /// <summary>
-    /// Room load: binds the room's background artwork and the VRAM it composes over, which enemy artwork transfers write,
-    /// and the room's animation frames, or a fresh set no animation has selected in when <paramref name="frames"/> is null.
+    /// Room load: binds the room's background artwork and the room's animation frames, or a fresh set no animation has
+    /// selected in when <paramref name="frames"/> is null.
     /// </summary>
-    internal void BindVram(BgArtworkBindings backgrounds, ArtworkFrameSelections? frames = null)
+    internal void BindBackgrounds(BgArtworkBindings backgrounds, ArtworkFrameSelections? frames = null)
     {
         Backgrounds = Ensure.NotNull(backgrounds);
-        Vram = backgrounds.Vram;
         ArtworkFrames = frames ?? new ArtworkFrameSelections();
     }
 

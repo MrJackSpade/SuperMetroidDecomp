@@ -41,7 +41,7 @@ internal static class KraidHeadInstructionsVerification
         {
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-            enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
+            enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new KraidEnemyState { HeadProgram = record.Cursor };
@@ -87,7 +87,7 @@ internal static class KraidHeadInstructionsVerification
         enemies.KraidBehavior.Access.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
         var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
         var combat = new Action<RoomEnemySlot, KraidEnemyState, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);

@@ -31,7 +31,7 @@ internal static class KraidGrowthCommandCursorVerification
                     new Dictionary<int, KraidHeadTilemapAtlas> { [2] = head }, referenceArt.RoomBackgroundTiles) },
         };
         var state = new KraidEnemyState();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.KraidBehavior.Access.Kraid = state;
         Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
         Action<RoomEnemySlot, ushort> footMain = enemies.KraidBehavior.Limbs.RunKraidFootMain;

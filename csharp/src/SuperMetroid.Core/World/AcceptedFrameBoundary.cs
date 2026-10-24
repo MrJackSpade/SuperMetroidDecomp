@@ -173,7 +173,7 @@ internal sealed class AcceptedFrameBoundary
         var room = _room.ActiveRoom;
         return new(
             _room.ActiveDoor?.UsesCeresElevatorMode7 == true,
-            _display.GameplayHudCharacterBaseWord,
+            _display.Layer3Characters,
             // Before the first room no FX record is selected and no blending is configured.
             _room.Layer3Fx?.Type ?? RoomFxType.None,
             _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
@@ -309,9 +309,9 @@ internal sealed class AcceptedFrameBoundary
                 Sky = sky,
                 Bg2Overlay = bg2Overlay,
                 Bg1Overlay = bg1Overlay,
-                // The HUD and the room effect's page draw from the BG3 sheet's pictures at the HUD character base BG3 shows.
+                // The HUD and the room effect's page draw from the BG3 sheet's pictures over the characters BG3 reads.
                 Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
-                    _backgrounds, latched.Scene.HudCharacterWord, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
+                    _backgrounds, latched.Scene.Layer3Characters, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
             },
             XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
         };

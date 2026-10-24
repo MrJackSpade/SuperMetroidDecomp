@@ -1,5 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
-﻿using SuperMetroid.Core.Assets;
+﻿using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;

@@ -60,14 +60,17 @@ public static class LibraryBackgroundLoader
     }
 
     /// <summary>
-    /// Binds the characters one of the list's transfers brings, when it brings any: the Tourian statue ghost's, or the HUD's
-    /// that Kraid's list moves under BG1. Every other transfer moves tilemap words, which the background's image pictures,
-    /// and binds nothing. Extraction's replay of the list binds through this same decision.
+    /// Binds the characters one of the list's transfers brings, when it brings any (#1406): the HUD's, which Kraid's list
+    /// copies for layer 3 to read while his body covers the standard ones. The Tourian statue ghost's characters reach the
+    /// sprite characters, which only the statue ghost would draw, and it draws nothing, so they bind nowhere. Every other
+    /// transfer moves tilemap words, which the background's image pictures, and binds nothing. Extraction's replay of the
+    /// list binds through this same decision.
     /// </summary>
-    /// <returns>Whether the transfer brought characters, which are now bound.</returns>
+    /// <returns>Whether the transfer brought characters.</returns>
     /// <exception cref="InvalidOperationException">The transfer brings characters whose installed artwork is not bound.</exception>
-    /// <exception cref="InvalidDataException">The statue ghost's transfer does not bring all of its characters.</exception>
-    [PpuLayoutBoundary("codec: library-background character transfers' native VRAM words")]
+    /// <exception cref="InvalidDataException">
+    /// The statue ghost's transfer does not bring all of its characters, or a list other than Kraid's moves the HUD's.
+    /// </exception>
     internal static bool TryBindTransferredCharacters(LibraryBackgroundInstruction transfer, LibraryBackgroundCharacterArtwork artwork)
     {
         Ensure.NotNull(artwork);
@@ -79,14 +82,15 @@ public static class LibraryBackgroundLoader
             if (transfer.ByteCount != ghost.Length)
                 throw new InvalidDataException(
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, not its {ghost.Length}.");
-            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), transfer.FirstWord, ghost.Span);
             return true;
         }
         else if (transfer.SourceAddress == HudTileAtlasFormat.SourceAddress && transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
         {
+            if (transfer.Command != LibraryBackgroundCommand.TransferToVramForKraid)
+                throw new InvalidDataException($"A library background's {transfer.Command} moves the HUD's characters, which only Kraid's list copies.");
             HudTileAtlas hud = artwork.HudArt
                 ?? throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
-            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), transfer.FirstWord,
+            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), BgCharacterSet.KraidLayer3, 0,
                 hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]);
             return true;
         }

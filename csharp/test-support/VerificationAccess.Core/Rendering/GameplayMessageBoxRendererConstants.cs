@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hardware;
 

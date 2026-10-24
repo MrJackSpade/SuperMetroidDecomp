@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// A bounded, typed view of consecutive VRAM words (#630): a tilemap, a character block or
@@ -8,7 +11,7 @@ namespace SuperMetroid.Core.Hardware;
 /// so uploads and reads allocate nothing.
 /// </summary>
 [PpuLayoutBoundary("rendering view: a bounded VRAM word range")]
-public readonly struct VramRegion
+internal readonly struct VramRegion
 {
     /// <summary>Backend VRAM whose words are exposed through this bounded view.</summary>
     internal readonly SnesVram vram;

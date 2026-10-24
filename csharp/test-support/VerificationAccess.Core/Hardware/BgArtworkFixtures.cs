@@ -1,15 +1,16 @@
 using System.Runtime.CompilerServices;
+using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Core.Hardware;
 
-/// <summary>Background artwork bindings for tests that own a VRAM image (#1350).</summary>
+/// <summary>Background artwork bindings for tests that own a VRAM image (#1350, #1406).</summary>
 internal static class BgArtworkFixtures
 {
     /// <summary>One bindings object per test VRAM, so bindings made through it accumulate like a runtime's.</summary>
     private static readonly ConditionalWeakTable<SnesVram, BgArtworkBindings> Bindings = new();
 
     /// <summary>The bindings composed over <paramref name="vram"/>.</summary>
-    internal static BgArtworkBindings For(SnesVram vram) => Bindings.GetValue(vram, image => new BgArtworkBindings(image));
+    internal static BgArtworkBindings For(SnesVram vram) => Bindings.GetValue(vram, _ => new BgArtworkBindings());
 
     /// <summary>The image a capture shows: <paramref name="vram"/> with its bindings composed over it.</summary>
     internal static byte[] Composed(SnesVram vram) => Composed(vram, For(vram));
@@ -28,5 +29,21 @@ internal static class BgArtworkFixtures
         byte[] image = vram.Bytes.ToArray();
         bindings.ComposeOver(image);
         return image;
+    }
+
+    /// <summary>Composes bindings into the native VRAM image the cartridge would have built.</summary>
+    extension(BgArtworkBindings self)
+    {
+        /// <summary>
+        /// Writes each binding's bytes over <paramref name="image"/>, a VRAM image, from the word the cartridge keeps its
+        /// set's first bound character at, oldest first.
+        /// </summary>
+        [PpuLayoutBoundary("exact hardware test: composes bound background characters at their native VRAM words")]
+        internal void ComposeOver(Span<byte> image)
+        {
+            Ensure.LengthEqual(image, SnesVram.ByteCount);
+            foreach (BgArtworkBinding binding in self.Bound)
+                binding.Bytes.Span.CopyTo(image[(BgCharacterWords.WordOf(binding.Set, binding.FirstCharacter) * sizeof(ushort))..]);
+        }
     }
 }

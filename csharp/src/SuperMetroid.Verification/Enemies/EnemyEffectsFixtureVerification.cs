@@ -58,7 +58,7 @@ internal static class EnemyEffectsFixtureVerification
             Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
-            Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
+            Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             // The fight's initialization attaches the cleared BG2 image the melting body draws into.
             Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireBg2.CrocomireBlankBg2Tile));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;

@@ -144,7 +144,7 @@ internal sealed class SuperMetroidRuntime
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
         FloorQueueResidue = Ensure.NotNull(floorQueueResidue);
-        BgArtwork = new BgArtworkBindings(Vram);
+        BgArtwork = new BgArtworkBindings();
         EnemySession.FloorQueueResidue = FloorQueueResidue;
 
         BeamCharge = new BeamChargeState();
@@ -312,15 +312,12 @@ internal sealed class SuperMetroidRuntime
     }
 
 
-    /// <summary>PPU video RAM receiving accepted-NMI transfers.</summary>
-    public SnesVram Vram { get; } = new();
-
     /// <summary>The BG3 plane the last accepted NMI latched (#1351): the HUD and room effect as displayed.</summary>
     /// <exception cref="InvalidOperationException">No NMI has latched a room's backgrounds yet.</exception>
     public Layer3Plane AcceptedLayer3Plane =>
         Display.Latched.Layer3 ?? throw new InvalidOperationException("No accepted NMI has latched a room's BG3 plane.");
 
-    /// <summary>The background character artwork the frame shows, composed over <see cref="Vram"/> at capture (#1350).</summary>
+    /// <summary>The background character artwork the frame shows (#1350, #1406).</summary>
     public BgArtworkBindings BgArtwork { get; }
 
     /// <summary>

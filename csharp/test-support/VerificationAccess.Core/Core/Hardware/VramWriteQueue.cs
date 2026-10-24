@@ -204,7 +204,7 @@ public sealed class VramWriteQueue
             throw new InvalidOperationException($"Queued background artwork {identity.Name} has no bindings to drain into.");
         if (entry.Destination.WordIncrement != 1)
             throw new InvalidDataException($"Background artwork {identity.Name} must upload consecutive words.");
-        backgrounds.Bind(identity, entry.Destination.Word, bytes);
+        BgCharacterWords.Place(identity, entry.Destination.Word, bytes.ToArray()).BindTo(backgrounds);
     }
 
     /// <summary>

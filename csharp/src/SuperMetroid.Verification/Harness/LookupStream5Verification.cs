@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -368,7 +369,7 @@ internal static class LookupStream5Verification
             int destination = CeresDoorVisualRomData.Mode7MapCell;
             byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
             vram.LoadBytes((destination - 1) * 2, initial);
-            system.Presentation.BindVram(BgArtworkFixtures.For(vram));
+            system.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
             system.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
             var slots = (RoomEnemySlot[])system.SlotTable.Slots;
             foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
@@ -2143,7 +2144,7 @@ internal static class LookupStream5Verification
             var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
             var cgram = new SamusColourRig();
             system.Presentation.BindCgram(cgram.Gameplay);
-            system.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
+            system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Action tick = system.CeresDoorBehavior.RunCeresDoorPaletteAnimation;
             foreach (int counter in editedRow < 0 ? Enumerable.Range(0, 64) : new[] { editedRow * 8 })
             {

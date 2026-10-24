@@ -50,7 +50,7 @@ internal static class RoomBackgroundLibraryParityVerification
                 var selectedVram = new SnesVram();
                 // Installed character transfers bind their artwork instead of writing VRAM (#1350); the frame composes
                 // them over the VRAM image, which is what the native transfer left in VRAM.
-                var bindings = new BgArtworkBindings(selectedVram);
+                var bindings = new BgArtworkBindings();
                 LibraryBackgroundExecutionResult selected = LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters, Backgrounds = bindings });
                 byte[] selectedImage = selectedVram.Bytes.ToArray();
                 bindings.ComposeOver(selectedImage);

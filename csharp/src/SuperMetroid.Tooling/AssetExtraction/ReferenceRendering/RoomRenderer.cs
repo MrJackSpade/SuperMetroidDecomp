@@ -1,4 +1,5 @@
-﻿using System.Buffers.Binary;
+﻿using SuperMetroid.AssetExtraction.Video;
+using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;

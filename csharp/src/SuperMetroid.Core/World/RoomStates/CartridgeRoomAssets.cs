@@ -128,8 +128,8 @@ public sealed class CartridgeRoomAssets
     public FloorMap CreateMode7Map()
     {
         var words = new byte[FloorMap.Cells * 2];
-        CopyAt(CreCharacters, RoomGraphicsLayout.CommonRoomElementCharacters.Offset * 2);
-        CopyAt(RoomCharacters, RoomGraphicsLayout.AreaCharacters.Offset * 2);
+        CopyAt(CreCharacters, RoomTileCharacters.CommonRoomElementsFirst * BgCharacterSet.Tiles.CharacterBytes());
+        CopyAt(RoomCharacters, RoomTileCharacters.TilesetFirst * BgCharacterSet.Tiles.CharacterBytes());
         var cells = new byte[FloorMap.Cells];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = words[cell * 2];
@@ -143,31 +143,28 @@ public sealed class CartridgeRoomAssets
     }
 
     /// <summary>
-    /// The two character uploads a room of <paramref name="tileset"/> loads, in order: the common room elements, then the
-    /// tileset's characters over them (#1350).
+    /// The two character sets a room of <paramref name="tileset"/> binds as it loads, in order: the common room elements,
+    /// then the tileset's characters over them (#1350).
     /// </summary>
-    [PpuLayoutBoundary("codec: the room's character uploads' native VRAM destinations")]
-    public static IReadOnlyList<BgCharacterUpload> CharacterUploads(TilesetDefinition tileset, ReadOnlyMemory<byte> creCharacters,
+    public static IReadOnlyList<BgCharacterPlacement> CharacterPlacements(TilesetDefinition tileset, ReadOnlyMemory<byte> creCharacters,
         ReadOnlyMemory<byte> roomCharacters) =>
     [
         // Preserve $82:E783's transfer order, not merely its two destinations. Ordinary
-        // area art ends at byte $5000, but Ceres tileset $11 expands to the full $8000-byte
-        // BG character allocation. The second transfer from VRAM byte $0000 must therefore
-        // overwrite the CRE upload at $5000..$7FFF; reversing these calls produces the
-        // characteristic vertical-stripe corruption seen when CRE replaces Ceres tiles.
-        new(RoomBgArtwork.CommonRoomElements, RoomGraphicsLayout.CommonRoomElementCharacters.Offset, creCharacters),
-        new(RoomBgArtwork.Tileset(tileset.Characters), RoomGraphicsLayout.AreaCharacters.Offset, roomCharacters),
+        // area art ends before the common room elements' characters, but Ceres tileset $11 holds all
+        // 1024 tile characters. The tileset must therefore bind over the common room elements;
+        // reversing these produces the vertical-stripe corruption seen when CRE replaces Ceres tiles.
+        new(RoomBgArtwork.CommonRoomElements, BgCharacterSet.Tiles, RoomTileCharacters.CommonRoomElementsFirst, creCharacters),
+        new(RoomBgArtwork.Tileset(tileset.Characters), BgCharacterSet.Tiles, RoomTileCharacters.TilesetFirst, roomCharacters),
     ];
 
     /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>
-    [PpuLayoutBoundary("codec: the room's character uploads' native VRAM destinations")]
     public void LoadGraphics(BgArtworkBindings backgrounds, BackgroundColourSets colours)
     {
         Ensure.NotNull(backgrounds);
         Ensure.NotNull(colours);
 
-        foreach (BgCharacterUpload upload in CharacterUploads(Tileset, CreCharacters, RoomCharacters))
-            upload.BindTo(backgrounds);
+        foreach (BgCharacterPlacement placement in CharacterPlacements(Tileset, CreCharacters, RoomCharacters))
+            placement.BindTo(backgrounds);
         if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
         {
             throw new InvalidDataException(

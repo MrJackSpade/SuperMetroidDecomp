@@ -38,9 +38,6 @@ public static class KraidBackgroundRomData
     /// <summary>The bytes of one of the four standard-BG3 character quarters Kraid's death restores.</summary>
     public const ushort StandardBg3QuarterBytes = HudTileAtlasFormat.RestoreQuarterBytes;
 
-    /// <summary>First VRAM word restored by <c>$A7:C777</c>.</summary>
-    public const ushort StandardBg3VramWord = 0x4000;
-
     /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
     public const int StandardBg3QuarterCount = HudTileAtlasFormat.RestoreQuarterCount;
 
@@ -48,9 +45,9 @@ public static class KraidBackgroundRomData
     /// Quarter <paramref name="quarter"/> of the standard BG3 characters Kraid's death restores, placed from its first
     /// word, as the background artwork bindings place it (#1352).
     /// </summary>
-    internal static BgCharacterUpload Bg3RestoreQuarter(int quarter, ReadOnlyMemory<byte> characters) =>
-        new(BgArtworkIdentity.Asset(StandardBg3AssetForQuarter(quarter)),
-            StandardBg3VramWord + quarter * (StandardBg3QuarterBytes / sizeof(ushort)), characters);
+    internal static BgCharacterPlacement Bg3RestoreQuarter(int quarter, ReadOnlyMemory<byte> characters) =>
+        new(BgArtworkIdentity.Asset(StandardBg3AssetForQuarter(quarter)), BgCharacterSet.Layer3,
+            quarter * (StandardBg3QuarterBytes / BgCharacterSet.Layer3.CharacterBytes()), characters);
 
     /// <summary>The installed art of each of the four cartridge-authored restoration phases, indexed by quarter.</summary>
     private static readonly VramAssetId[] StandardBg3QuarterAssets =
@@ -71,8 +68,8 @@ public static class KraidBackgroundRomData
     /// <summary>Byte count of the Kraid room-background character upload.</summary>
     public const ushort RoomBackgroundTileBytes = 0x0200;
 
-    /// <summary>VRAM word destination computed by $A7:ADCC-$ADD6 for BG1 base zero.</summary>
-    public const ushort RoomBackgroundTileVramWord = 0x3f00;
+    /// <summary>The first of the room's tile characters the backdrop binds over, as <c>$A7:ADCC-$ADD6</c> places it.</summary>
+    public const int RoomBackgroundFirstCharacter = 0x3f0;
 
     /// <summary>Priority flag cleared while composing Kraid's initial BG2 surface.</summary>
     public const ushort PriorityBit = 0x2000;

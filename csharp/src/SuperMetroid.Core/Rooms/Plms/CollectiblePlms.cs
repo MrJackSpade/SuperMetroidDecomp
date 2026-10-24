@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal sealed class CollectiblePlms : IPlmFamilySource
 {
     /// <summary>Words in one collectible character slot: two 16x16 frames of four characters.</summary>
-    private const int CollectibleSlotWordCount = 128;
 
     /// <summary>Registers the Collectible family's step.</summary>
     public void RegisterPlmFamilies(PlmFamilyTable table)
@@ -294,7 +293,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
 
         // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
-        SlotUpload(suppliedGraphic is null ? RoomBgArtwork.Collectible(kind) : RoomBgArtwork.SuppliedCollectible(kind), graphicsSlot, graphics)
+        SlotCharacters(suppliedGraphic is null ? RoomBgArtwork.Collectible(kind) : RoomBgArtwork.SuppliedCollectible(kind), graphicsSlot, graphics)
             .BindTo(backgrounds);
 
         int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * SlotDefinitionWords;
@@ -311,9 +310,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     internal const int GraphicsSlots = 4;
 
     /// <summary>Binds <paramref name="graphics"/>, a collectible's two frames, over the characters of slot <paramref name="graphicsSlot"/> (#1350).</summary>
-    [PpuLayoutBoundary("codec: the collectible character slots' native VRAM words")]
-    internal static BgCharacterUpload SlotUpload(BgArtworkIdentity identity, int graphicsSlot, ReadOnlyMemory<byte> graphics) =>
-        new(identity, RoomGraphicsLayout.CollectibleCharacters.Offset + graphicsSlot * CollectibleSlotWordCount, graphics);
+    internal static BgCharacterPlacement SlotCharacters(BgArtworkIdentity identity, int graphicsSlot, ReadOnlyMemory<byte> graphics) =>
+        new(identity, BgCharacterSet.Tiles, RoomTileCharacters.CollectiblesFirst + graphicsSlot * RoomTileCharacters.CollectibleSlotCharacters, graphics);
 
     /// <summary>
     /// The block definition words a collectible writes for slot <paramref name="graphicsSlot"/>: each of its eight

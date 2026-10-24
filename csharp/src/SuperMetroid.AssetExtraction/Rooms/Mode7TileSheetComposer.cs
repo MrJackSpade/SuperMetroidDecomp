@@ -21,13 +21,15 @@ internal static class Mode7TileSheetComposer
 {
     /// <summary>Composes <paramref name="tileset"/>'s tiles over <paramref name="content"/>, the room as it has loaded.</summary>
     /// <exception cref="InvalidDataException">The installed palettes are invalid.</exception>
-    [PpuLayoutBoundary("codec: Mode 7 characters' pixels in the high bytes of the first VRAM words")]
+    [PpuLayoutBoundary("codec: Mode 7 characters' pixels in the high bytes of the room tile characters' words")]
     internal static ComposedMode7Tiles Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, BgArtworkBindings content)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(content);
-        var vram = new byte[SnesVram.ByteCount];
-        content.ComposeOver(vram);
+        // The room tile characters' bytes as their bindings leave them, a later binding over an earlier.
+        var tiles = new byte[BgCharacterSet.Tiles.CharacterCount() * BgCharacterSet.Tiles.CharacterBytes()];
+        foreach (BgArtworkBinding binding in content.Bound.Where(binding => binding.Set == BgCharacterSet.Tiles))
+            binding.Bytes.Span.CopyTo(tiles.AsSpan(binding.FirstCharacter * BgCharacterSet.Tiles.CharacterBytes()));
         Bgr555[] background = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
@@ -45,13 +47,13 @@ internal static class Mode7TileSheetComposer
         for (int tile = 0; tile < Mode7TileSheet.Tiles; tile++)
         {
             // A tile whose characters nothing binds is not pictured; the map may not name it.
-            if (!content.TryShowing(tile * Mode7TileSheet.TileWords, Mode7TileSheet.TileWords, out BgArtworkShown bound))
+            if (!content.TryShowing(BgCharacterSet.Tiles, tile * Mode7TileSheet.TileCharacters, Mode7TileSheet.TileCharacters, out BgArtworkShown bound))
                 continue;
             shown[tile] = bound;
             Position16<ImagePixels> corner = Mode7TileSheet.Corner(tile);
             for (int pixel = 0; pixel < Mode7TileSheet.TileWords; pixel++)
             {
-                byte index = vram[(tile * Mode7TileSheet.TileWords + pixel) * 2 + 1];
+                byte index = tiles[(tile * Mode7TileSheet.TileWords + pixel) * 2 + 1];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
                     coloured |= SpritePaletteRowSet.Rows[index / 16];
                 canvas.PaintIndex(corner.X + pixel % Mode7TileSheet.TilePixels, corner.Y + pixel / Mode7TileSheet.TilePixels, index, colours);

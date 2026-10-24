@@ -25,6 +25,9 @@ public sealed class Mode7TileSheet
     /// <summary>VRAM words one tile's characters occupy, whose high bytes are its pixels.</summary>
     public const int TileWords = TilePixels * TilePixels;
 
+    /// <summary>The room tile characters whose bytes one Mode 7 tile's pixels share.</summary>
+    public const int TileCharacters = 4;
+
     /// <summary>Checks the picture holds every tile and is background-coloured, and that each tile records what it shows over.</summary>
     /// <exception cref="InvalidDataException">The picture is not every tile's size or colours, or a tile's artwork is missing.</exception>
     public Mode7TileSheet(TilesetDefinition tileset, SpriteSheet sheet, IReadOnlyList<BgArtworkShown?> shown)
@@ -65,14 +68,13 @@ public sealed class Mode7TileSheet
     /// characters as they were pictured over.
     /// </summary>
     /// <exception cref="InvalidDataException">A named tile is not pictured, or its characters show other artwork.</exception>
-    [PpuLayoutBoundary("codec: Mode 7 characters, each 64 VRAM words from the start of VRAM")]
     public void AssertShownBy(BgArtworkBindings bindings, IEnumerable<byte> tiles)
     {
         Ensure.NotNull(bindings);
         foreach (byte tile in Ensure.NotNull(tiles))
         {
             BgArtworkShown pictured = Shown[tile] ?? throw new InvalidDataException($"The Mode 7 map names tile {tile}, whose characters {Name} does not picture.");
-            BgArtworkShown now = bindings.Showing(tile * TileWords, TileWords);
+            BgArtworkShown now = bindings.Showing(BgCharacterSet.Tiles, tile * TileCharacters, TileCharacters);
             if (now != pictured)
                 throw new InvalidDataException($"Mode 7 tile {tile} shows {now.Artwork.Name} at {now.WordOffset}, not the {pictured.Artwork.Name} {Name} pictures.");
         }

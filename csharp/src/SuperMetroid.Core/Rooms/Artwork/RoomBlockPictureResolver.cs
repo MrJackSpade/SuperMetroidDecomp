@@ -85,8 +85,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
                 int character = new SnesBgTilemapWord(tiles[tile]).CharacterIndex;
                 // A character an animation paints shows the frame it selected (#1406); any other shows what is bound over it.
                 if (!characters.Animated.TryShowing(character, RoomBlockPictureNames.CharacterWords, out now[tile]))
-                    now[tile] = characters.Artwork.Showing(characters.CharacterBase + character * RoomBlockPictureNames.CharacterWords,
-                        RoomBlockPictureNames.CharacterWords);
+                    now[tile] = characters.Artwork.Showing(character, 1);
                 changed |= now[tile] != shown[index * RoomBlockPictureNames.Tiles + tile];
             }
             if (!changed)

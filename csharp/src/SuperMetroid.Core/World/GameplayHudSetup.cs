@@ -39,23 +39,22 @@ internal sealed class GameplayHudSetup
         _backgrounds = dependencies.Backgrounds;
     }
 
-    /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    internal void SelectGameplayHudCharacterBase() => _display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
+    /// <summary>Selects the standard layer-3 characters, as gameplay PPU initialization does.</summary>
+    internal void SelectGameplayHudCharacterBase() => _display.Layer3Characters = BgCharacterSet.Layer3;
 
     /// <summary>
-    /// Shows the standard BG3 characters at the ordinary HUD base, followed by their clearing half (#1406): a game has them
-    /// there whenever it enters a room through a door, as only Kraid's room writes over them and his death restores them
-    /// before any of its doors opens. Every caller publishes the forced-blank uploads before a room loads, so the room's
-    /// own backgrounds still bind over them in the cartridge's order.
+    /// Shows the standard BG3 characters over the standard layer-3 characters (#1406): a game has them there whenever it
+    /// enters a room through a door, as only Kraid's room covers them and his death restores them before any of its doors
+    /// opens. Every caller publishes the forced-blank uploads before a room loads, so the room's own backgrounds still bind
+    /// over them in the cartridge's order.
     /// </summary>
     /// <exception cref="InvalidOperationException">The HUD artwork is not installed.</exception>
-    [PpuLayoutBoundary("rendering view: the standard BG3 characters bind from the ordinary HUD base")]
     internal void ShowHudCharacters()
     {
         HudTileAtlas hud = (_artwork.MapPresentation ?? throw new InvalidOperationException(
             "Showing the HUD's characters requires installed HUD artwork.")).HudTiles;
-        _backgrounds.Bind(BgArtworkIdentity.Asset(VramAssetId.StandardHudTiles), GameplayVramLayout.HudCharacterUpload.Offset, hud.Bytes.Span);
+        _backgrounds.Bind(BgArtworkIdentity.Asset(VramAssetId.StandardHudTiles), BgCharacterSet.Layer3, 0,
+            hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]);
     }
 
     /// <summary>

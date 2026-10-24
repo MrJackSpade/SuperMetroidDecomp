@@ -74,13 +74,10 @@ internal static class CrocomireMeltDissolve
     }
 
     /// <summary>
-    /// The first background character word the cartridge uploads <paramref name="band"/>'s characters to: the first
-    /// character of the band's row of the melt image, counted from the character base BG1 and BG2 read a room's
-    /// characters from.
+    /// The first of the room's tile characters <paramref name="band"/>'s characters show over: the first character of the
+    /// band's row of the melt image.
     /// </summary>
-    internal static int BandFirstWord(int band) =>
-        RoomCharacterSource.CharacterBaseOf(RoomBackgroundCharacters.Tileset)
-        + band * CrocomireMeltingDefinitions.BandRowCharacters * TileWordSheet.CharacterWordsOf(TileWordLayer.Bg12);
+    internal static int BandFirstCharacter(int band) => band * CrocomireMeltingDefinitions.BandRowCharacters;
 
     /// <summary>The bytes of the characters <paramref name="band"/> shows in an assembled melt <paramref name="image"/>.</summary>
     internal static ReadOnlyMemory<byte> BandCharacters(byte[] image, int band) =>

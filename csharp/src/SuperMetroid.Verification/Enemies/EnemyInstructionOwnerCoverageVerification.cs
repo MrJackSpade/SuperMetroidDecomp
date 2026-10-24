@@ -60,7 +60,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             foreach (RoomEnemyPopulationRecord population in records)
             {
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-                enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
+                enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
                 enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
                 enemies.VerificationServices().NextRandom = () => 0;
                 enemies.VerificationServices().ReadRandom = () => 0;

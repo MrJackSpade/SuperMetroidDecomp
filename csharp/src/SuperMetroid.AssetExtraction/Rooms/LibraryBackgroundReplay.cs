@@ -34,7 +34,7 @@ internal static class LibraryBackgroundReplay
         if (enemyBg2Staging.Length > LibraryBackgroundRomData.EnemyBg2StagingByteCount)
             throw new ArgumentOutOfRangeException(nameof(enemyBg2Staging), enemyBg2Staging.Length, "The enemy BG2 staging is 4 KiB.");
         var staging = new Staging(enemyBg2Staging);
-        LibraryBackgroundCharacterArtwork characters = artwork.CharactersOver(artwork.Backgrounds ?? new BgArtworkBindings(vram));
+        LibraryBackgroundCharacterArtwork characters = artwork.CharactersOver(artwork.Backgrounds ?? new BgArtworkBindings());
         bool selectsKraidHudCharacters = false;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {

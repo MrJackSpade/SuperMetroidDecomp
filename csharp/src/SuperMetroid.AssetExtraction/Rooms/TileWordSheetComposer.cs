@@ -25,6 +25,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World.RoomStates;
@@ -54,17 +55,19 @@ internal static class TileWordSheetComposer
         Ensure.NotNull(uploads);
         List<(string Name, BodyPart Part)> parts = [.. Ensure.NotNull(writers).Order()
             .SelectMany(writer => Parts(inputs, writer).Select(part => ($"{writer}.{part.Name}", part.Part)))];
-        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, uploads.Uploads, [uploads.WordCharacterBase], uploads.WordUploads);
+        // Words over the OBJ character table show only what its load and encounters place there, never the tileset's.
+        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content,
+            uploads.WordCharacters == RoomBackgroundCharacters.ObjectCharacterPage ? [] : uploads.Uploads, [BgCharacterSet.Tiles], uploads.WordUploads);
     }
 
     /// <summary>
     /// Composes the sheet of the BG3 words a room of <paramref name="tileset"/> shows: the HUD, its minimap's map tiles and
-    /// the pages of the room effects its rooms run, over the HUD's and effects' characters at each HUD character base, and
+    /// the pages of the room effects its rooms run, over the HUD's and effects' characters in each set BG3 reads, and
     /// over each of <paramref name="bg3Uploads"/>, what any room binds over BG3's characters.
     /// </summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
     internal static ComposedTileWordSheet ComposeBg3(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
-        IReadOnlyList<BgCharacterUpload> bg3Uploads)
+        IReadOnlyList<BgCharacterPlacement> bg3Uploads)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
@@ -76,23 +79,22 @@ internal static class TileWordSheetComposer
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             [RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],
-            [uploads.Bg3ContentBase, .. uploads.Bg3CharacterBases.Where(characterBase => characterBase != uploads.Bg3ContentBase).Order()], []);
+            [uploads.Bg3ContentSet, .. uploads.Bg3CharacterSets.Where(set => set != uploads.Bg3ContentSet).Order()], []);
     }
 
     /// <summary>
     /// Composes <paramref name="layer"/>'s sheet of <paramref name="parts"/> over <paramref name="content"/>, which binds
-    /// <paramref name="bound"/> beyond the room's load, each word's character read at the first of <paramref name="bases"/>,
-    /// and each word pictured again over each of <paramref name="options"/> covering its character at any of them.
+    /// <paramref name="bound"/> beyond the room's load, each word's character read in the first of <paramref name="sets"/>,
+    /// and each word pictured again over each of <paramref name="options"/> covering its character in any of them.
     /// </summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
-    [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character bases")]
     private static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, TileWordLayer layer,
-        List<(string Name, BodyPart Part)> parts, BgArtworkBindings content, IReadOnlyList<BgCharacterUpload> options, int[] bases,
-        IReadOnlyList<BgCharacterUpload> bound)
+        List<(string Name, BodyPart Part)> parts, BgArtworkBindings content, IReadOnlyList<BgCharacterPlacement> options, BgCharacterSet[] sets,
+        IReadOnlyList<BgCharacterPlacement> bound)
     {
         Ensure.NotNull(content);
         int characterWords = TileWordSheet.CharacterWordsOf(layer);
-        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Characters,
+        IReadOnlyList<BgCharacterPlacement> load = CartridgeRoomAssets.CharacterPlacements(tileset, inputs.Characters.Cre.Characters,
             inputs.Characters.Get(tileset.Characters).Characters);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(options).Concat(bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
@@ -113,9 +115,9 @@ internal static class TileWordSheetComposer
             }
             foreach (((int y, int x), ushort word) in written)
             {
-                int first = CharacterWord(bases[0], word, characterWords);
-                if (!content.TryShowing(first, characterWords, out BgArtworkShown shown))
-                    throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
+                int character = new SnesBgTilemapWord(word).CharacterIndex;
+                if (!content.TryShowing(sets[0], character, 1, out BgArtworkShown shown))
+                    throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {name} reads {sets[0]} character {character}, which its room loads nothing over.");
                 placed.Add((top, word, shown, x, y));
                 if (pictured.Add((word, shown)))
                     tiles.Add(new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), name, Corner(x, y)));
@@ -126,11 +128,12 @@ internal static class TileWordSheetComposer
         var rebound = new List<(ushort Word, BgArtworkShown Shown)>();
         foreach (ushort word in placed.Select(tile => tile.Word).Distinct())
         {
-            foreach (int first in bases.Select(characterBase => CharacterWord(characterBase, word, characterWords)))
+            int character = new SnesBgTilemapWord(word).CharacterIndex;
+            foreach (BgCharacterSet set in sets)
             {
-                foreach (BgCharacterUpload upload in options.Where(upload => RoomBlockSheetComposer.Covers(upload, first, characterWords)))
+                foreach (BgCharacterPlacement placement in options.Where(placement => placement.Covers(set, character)))
                 {
-                    var shown = new BgArtworkShown(upload.Identity, first - upload.FirstWord);
+                    BgArtworkShown shown = placement.ShownAt(character);
                     if (pictured.Add((word, shown)))
                         rebound.Add((word, shown));
                 }

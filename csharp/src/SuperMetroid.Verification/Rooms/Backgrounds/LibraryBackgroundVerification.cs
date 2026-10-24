@@ -197,7 +197,7 @@ private static (SnesVram Shown, LibraryBackgroundExecutionResult Result) ReplayS
     LibraryBackgroundArtwork artwork)
 {
     var vram = new SnesVram();
-    var bindings = new BgArtworkBindings(vram);
+    var bindings = new BgArtworkBindings();
     LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program, FixtureRoomHeaders.UnmatchedDoor,
         artwork with { Backgrounds = bindings });
     byte[] image = vram.Bytes.ToArray();

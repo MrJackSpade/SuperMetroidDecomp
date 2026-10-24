@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Builds the 512-character OBJ page a nine-bit OBJ character number indexes. Characters past the supplied sheet are

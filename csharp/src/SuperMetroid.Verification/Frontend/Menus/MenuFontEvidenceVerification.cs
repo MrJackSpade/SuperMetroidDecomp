@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 

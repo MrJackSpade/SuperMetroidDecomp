@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Twelve trail tiles in one indexed sheet, compiled into two noncontiguous VRAM transfers.</summary>
 public sealed class ProjectileTrailAtlas : IVramAssetProvider

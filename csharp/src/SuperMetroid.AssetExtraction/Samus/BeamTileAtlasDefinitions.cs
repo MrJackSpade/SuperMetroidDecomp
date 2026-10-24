@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Projectiles;
 
-
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Native $90:AC8D beam-character upload geometry, separate from projectile mechanics.</summary>
 public static class BeamTileAtlasDefinitions
@@ -14,7 +14,7 @@ public static class BeamTileAtlasDefinitions
     /// <summary>Native $90:AC8D upload length, $0100 bytes: eight four-bit planar characters at 32 bytes each.</summary>
     public const int ByteCount = 256;
     /// <summary>$90:C3B1 contains twelve legal beam-combination pointers before palette data.</summary>
-    public const int SelectionCount = 12;
+    public const int SelectionCount = BeamPaletteDefinitions.SelectionCount;
     /// <summary>Twelve ordinary sheets plus the bounded Chainsaw and SpaceTime adjacent-table uploads.</summary>
     public const int ArtworkCount = SelectionCount + 2;
     /// <summary>Maps the complete artwork-catalog ordinal to its independently editable beam identity: ordinary selections $00..$0B, then bounded Chainsaw $0D and SpaceTime $0E.</summary>

@@ -94,7 +94,7 @@ public static class ProjectilePresentationFiles
         ProjectileFile stockHyperBeamFxColors = Stock(HyperBeamFxColorFormat.FileName, manifest.HyperBeamFxColorsSha256);
         _ = stockHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load);
         ProjectileFile stockTrails = Stock(ProjectileTrailVisualDefinitions.FileName, manifest.TrailSha256);
-        _ = stockTrails.Compile(stream => ProjectileTrailCatalog.Load(stream));
+        _ = stockTrails.Compile(ProjectileTrailCatalog.Load);
         ProjectileFile stockTrailTiles = Stock(ProjectileTrailAtlasDefinitions.FileName, manifest.TrailTilesSha256);
         _ = stockTrailTiles.Compile(ProjectileTrailAtlas.Load);
         ProjectileFile stockFlarePlacement = Stock(ChargeFlarePlacementDefinitions.FileName, manifest.FlarePlacementSha256);
@@ -130,7 +130,8 @@ public static class ProjectilePresentationFiles
             BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
                 .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
                 selectedPalettes.Compile(BeamPaletteCatalog.Load), selectedHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load)),
-            selectedTrails.Compile(stream => ProjectileTrailCatalog.Load(stream, selectedTrailTiles.Compile(ProjectileTrailAtlas.Load))),
+            selectedTrails.Compile(ProjectileTrailCatalog.Load),
+            selectedTrailTiles.Compile(ProjectileTrailAtlas.Load),
             selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),
             selectedFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load),
             selectedGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, selectedGrappleSprites.Compile(GrappleSpriteCatalog.Load),

@@ -8,7 +8,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;

@@ -1,8 +1,12 @@
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Indexed Grapple artwork resolved at NMI, without embedding PNG data in pending state.</summary>
+/// <summary>The installed grapple characters, with the grapple sprite, flare and swing catalogs; the grapple sheet is composed from them.</summary>
 public sealed class GrappleTileAtlas : IVramAssetProvider
 {
     /// <summary>$9A:8220-829F/8A20-8A9F: eight reviewed drawn electric-stroke masks (64 binary rows)

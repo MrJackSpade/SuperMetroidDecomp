@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reviewed Grapple stroke artwork and calculated spark/transpose rules; independent supplied pixels are preserved. Collision, timing and angle-sector policies are excluded.</summary>
 internal static class GrappleBeamTilePatterns

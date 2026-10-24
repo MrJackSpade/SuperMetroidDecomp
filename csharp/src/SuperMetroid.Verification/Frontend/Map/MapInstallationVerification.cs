@@ -4,7 +4,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;

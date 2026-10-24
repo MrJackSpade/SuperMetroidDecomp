@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Artwork;
@@ -238,7 +237,7 @@ public static class SamusBodyArtworkFiles
             stockDirectory, overrideDirectory);
         SamusArmCannonArtworkCatalog armCannon = SamusArmCannonArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
     }
 
     /// <summary>Re-encodes selected PNG sets into native planar bytes and rejects painted padding tiles.</summary>

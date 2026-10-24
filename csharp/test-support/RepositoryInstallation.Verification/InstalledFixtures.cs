@@ -114,7 +114,8 @@ internal static class InstalledFixtures
     internal static void BindProjectileArtwork(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
     {
         runtime.Artwork.StandardObjectArt = StandardObjects;
-        runtime.Artwork.BeamArtwork = Projectiles.BeamTiles;
+        runtime.Artwork.BeamPalettes = Projectiles.BeamTiles.Palettes;
+        runtime.Artwork.HyperBeamFxColors = Projectiles.BeamTiles.HyperBeamFxColors;
         runtime.Artwork.TrailArtwork = Projectiles.Trails;
         runtime.Artwork.SpriteSheets = SpriteSheets;
     }
@@ -162,10 +163,10 @@ internal static class InstalledFixtures
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
+        BeamPaletteCatalog? beamPalettes = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,
-            characterArtwork ?? IntroArtwork, beamArtwork ?? Projectiles.BeamTiles, samusBodyArtwork ?? SamusBody)
+            characterArtwork ?? IntroArtwork, beamPalettes ?? Projectiles.BeamTiles.Palettes, samusBodyArtwork ?? SamusBody)
         {
             Random = new CartridgeRandom(),
             ProjectileCompositions = Projectiles.Catalog,

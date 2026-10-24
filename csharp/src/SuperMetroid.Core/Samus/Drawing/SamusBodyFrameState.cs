@@ -30,13 +30,6 @@ public sealed class SamusBodyFrameState
     /// <summary>Rebind the installed sheets.</summary>
     public void BindSheets(InstalledSpriteSheets? value) => Sheets = value;
 
-    /// <summary>The installed standard sprite page; never part of save state.</summary>
-    [field: NonSerialized]
-    public SpriteArtwork? StandardObjects { get; private set; }
-
-    /// <summary>Rebind the installed standard sprite page.</summary>
-    public void BindStandardObjects(SpriteArtwork? value) => StandardObjects = value;
-
     /// <summary>
     /// The definition records whose pictures the body shows: the top half the latest selection named, and the bottom
     /// half the latest selection that named one chose, or null for a half no selection has named yet.

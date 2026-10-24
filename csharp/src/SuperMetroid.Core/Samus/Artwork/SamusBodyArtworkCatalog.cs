@@ -65,8 +65,8 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Editable fatal-damage suit, suitless, and whiteout colors.</summary>
     public SamusDeathPaletteArtworkCatalog DeathPalettes { get; }
 
-    /// <summary>Editable tile characters uploaded during the five death-explosion phases.</summary>
-    public SamusDeathTileAtlas DeathTiles { get; }
+    /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
+    public string DeathTilesContentIdentity { get; }
 
     /// <summary>Editable pose placement and cover characters for the independent arm-cannon OBJ.</summary>
     public SamusArmCannonArtworkCatalog ArmCannon { get; }
@@ -85,7 +85,7 @@ public sealed class SamusBodyArtworkCatalog
         Ensure.NotNull(parts.Spritemaps);
         Ensure.NotNull(parts.Atmosphere);
         Ensure.NotNull(parts.DeathPalettes);
-        Ensure.NotNull(parts.DeathTiles);
+        Ensure.NotNull(parts.DeathTilesContentIdentity);
         Ensure.NotNull(parts.ArmCannon);
         Ensure.NotNull(parts.LandingYOffsets);
         Ensure.NotNull(parts.PostureYOffsets);
@@ -132,7 +132,7 @@ public sealed class SamusBodyArtworkCatalog
         Spritemaps = parts.Spritemaps;
         Atmosphere = parts.Atmosphere;
         DeathPalettes = parts.DeathPalettes;
-        DeathTiles = parts.DeathTiles;
+        DeathTilesContentIdentity = parts.DeathTilesContentIdentity;
         ArmCannon = parts.ArmCannon.WithBodyGeometry(this);
         this.top = CloneAndValidate(parts.TopSetStarts, parts.Top);
         this.bottom = CloneAndValidate(parts.BottomSetStarts, parts.Bottom);
@@ -428,7 +428,7 @@ public sealed class SamusBodyArtworkCatalog
         content.Append("spritemaps", Convert.FromHexString(Spritemaps.ContentIdentity));
         content.Append("atmosphere", Convert.FromHexString(Atmosphere.ContentIdentity));
         content.Append("death palettes", Convert.FromHexString(DeathPalettes.ContentIdentity));
-        content.Append("death tiles", Convert.FromHexString(DeathTiles.ContentIdentity));
+        content.Append("death tiles", Convert.FromHexString(DeathTilesContentIdentity));
         content.Append("arm cannon", Convert.FromHexString(ArmCannon.ContentIdentity));
     });
 }

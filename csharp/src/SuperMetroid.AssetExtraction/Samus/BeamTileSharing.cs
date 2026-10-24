@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>How much of another beam sheet a beam tile atlas shares.</summary>
 public enum BeamTileSharing

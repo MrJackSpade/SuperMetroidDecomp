@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The installed death-explosion atlas: the explosion's 160 characters as five 32-character pages, each four

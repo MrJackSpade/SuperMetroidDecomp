@@ -204,7 +204,8 @@ internal static class FrontendRomFreeVerification
                 RoomPlmCollectibleVisuals = assetRoomPlmCollectibleVisuals,
                 RoomPlmDynamicCollectibleArt = assetRoomPlmDynamicCollectibleArt,
                 XrayRevealVisuals = assetXrayRevealVisuals,
-                BeamArtwork = projectiles.BeamTiles,
+                BeamPalettes = projectiles.BeamTiles.Palettes,
+                HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,
             });
             // An already-finished intro is deliberately not rebound for the
             // isolated gameplay-room census: its restored DMA side effect
@@ -226,13 +227,15 @@ internal static class FrontendRomFreeVerification
                 RoomBackgroundTilemapArt = backgrounds,
                 RoomSkyTilemapArt = sky,
                 RoomPlmSamusEaterVisuals = samusEaterVisuals,
-                BeamArtwork = projectiles.BeamTiles,
+                BeamPalettes = projectiles.BeamTiles.Palettes,
+                HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,
                 ProjectileCompositions = projectiles.Catalog,
                 ProjectileFrameBindings = projectiles.FrameBindings,
                 TrailArtwork = projectiles.Trails,
                 ChargeFlarePlacement = projectiles.FlarePlacement,
                 ChargeFlareCompositions = projectiles.FlareCompositions,
-                GrappleArtwork = projectiles.GrappleTiles,
+                GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
+                GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,
             });
         };
     }

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -9,9 +8,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamPaletteArtworkVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailArtworkVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -35,7 +32,6 @@ internal static class BeamTileArtworkVerification
         var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
         var catalog = BeamTileCatalog.Load(files, palettes);
         Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(bus));
-        Suite(nameof(VerifyRuntimeBeamArtwork), () => VerifyRuntimeBeamArtwork(files, catalog));
         AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
@@ -66,14 +62,14 @@ internal static class BeamTileArtworkVerification
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
             // The page the selection binds shows the native beam characters at their DMA destination.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, catalog,
-                InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+                InstalledFixtures.Projectiles.TrailTiles);
             AssertTrue(pages.For((SamusBeamFlags)selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
                     BeamTileAtlasDefinitions.ByteCount).SequenceEqual(native.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
                 "The bound projectile page shows the native beam characters");
             AssertTrue(new CgramPalettes(actualPalette).ImageEquals(new CgramPalettes(expectedPalette)), "PNG selection leaves beam palette behavior unchanged");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
             var editedPages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, BeamTileCatalog.Load(replacements),
-                InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+                InstalledFixtures.Projectiles.TrailTiles);
             AssertTrue(editedPages.For((SamusBeamFlags)selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
                     BeamTileAtlasDefinitions.ByteCount).SequenceEqual(extracted.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
                 "The bound page shows the edited PNG");
@@ -111,42 +107,6 @@ internal static class BeamTileArtworkVerification
             CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PalettePointers.Value + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
             cgram.SetColor(SamusColourDefinitions.BeamFirstColour + i, Bgr555.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
-    }
-    /// <summary>Checks accepted NMI publication of edited PNG bytes and host artwork rebinding after a runtime restore.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyRuntimeBeamArtwork(Dictionary<string, byte[]> files, BeamTileCatalog stock)
-    {
-        var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), new(64, 8));
-        image.Pixels[0] ^= 1;
-        using var png = new MemoryStream();
-        IndexedPng.Write(png, new(64, 8), image.Pixels, image.Colours);
-        var changed = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(0)] = png.ToArray() };
-        var edited = BeamTileCatalog.Load(changed, stock.Palettes);
-        var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        byte[] previous = runtime.Vram.Bytes.ToArray();
-        runtime.Artwork.BeamArtwork = edited;
-        AssertTrue(previous.SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG is a page binding, not a VRAM write");
-        int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
-        AssertTrue(BoundBeamCharacters(runtime, 0).SequenceEqual(edited.Resolve(BeamTileCatalog.AssetFor(0)).Span),
-            "The bound page shows the current PNG");
-        using var saved = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
-        saved.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
-        AssertTrue(restored.Artwork.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
-        BindRetailRuntimeFixture(restored);
-        restored.Artwork.BeamArtwork = stock;
-        AssertTrue(BoundBeamCharacters(restored, 1).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave)).Span),
-            "Restored runtime binds the equipped selection through its current provider");
-        Console.WriteLine("Runtime beam PNG: VRAM untouched by rebind, bound page follows current PNG and restored provider pass.");
-
-        ReadOnlySpan<byte> BoundBeamCharacters(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, ushort equippedBeams) =>
-            (target.Artwork.ProjectileObjects ?? throw new InvalidOperationException("The runtime has no projectile page."))
-                .For((SamusBeamFlags)equippedBeams).Characters.Slice(first, BeamTileAtlasDefinitions.ByteCount);
     }
 
     /// <summary>Runs beam artwork and runtime transfer checks with the retail cartridge oracle.</summary>

@@ -284,7 +284,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="audio">Optional cartridge audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
     /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
-    /// <param name="beamArtwork">Optional installed beam graphics used by gameplay flashbacks.</param>
+    /// <param name="beamPalettes">Optional installed beam palettes used by gameplay flashbacks.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting (native <c>AltText</c>).</param>
     public IntroCinematicState(
@@ -292,7 +292,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamTileCatalog? beamArtwork = null,
+        BeamPaletteCatalog? beamPalettes = null,
         SamusBodyArtworkCatalog? samusBodyArtwork = null,
         bool japaneseText = false)
     {
@@ -329,7 +329,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
         // replaces it; the flashback projectile pages bind the beam's characters.
-        SamusProjectileSystem.LoadBeamPalette(palette.SpriteRow(SamusColourDefinitions.BeamInkRow), equippedBeams: 0, beamArtwork?.Palettes);
+        SamusProjectileSystem.LoadBeamPalette(palette.SpriteRow(SamusColourDefinitions.BeamInkRow), equippedBeams: 0, beamPalettes);
         characterArtwork.Palette.LoadTo(palette);
 
         // The PPU loads above are invisible: the intro stays in forced blank until its fade.

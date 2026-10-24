@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -3073,7 +3074,7 @@ internal static class LookupStream3Verification
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
+                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new CartridgeRandom() };
             byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
             AssertTrue(intro.ShownVram().AsSpan(
@@ -3285,7 +3286,7 @@ internal static class LookupStream3Verification
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
+                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new CartridgeRandom() };
             AssertTrue(intro.ShownVram().AsSpan(
                 (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads all four calculated background pages");
@@ -3422,7 +3423,7 @@ BranchesToSharedBody:true),
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
+                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes) { Random = new CartridgeRandom() };
             AssertTrue(intro.ShownVram().AsSpan(
                 (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads calculated portrait map");

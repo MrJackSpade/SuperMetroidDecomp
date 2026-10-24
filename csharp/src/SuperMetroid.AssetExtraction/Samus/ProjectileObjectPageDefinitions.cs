@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Where the beam and trail characters sit on the OBJ page their uploads place them in.</summary>
 internal static class ProjectileObjectPageDefinitions

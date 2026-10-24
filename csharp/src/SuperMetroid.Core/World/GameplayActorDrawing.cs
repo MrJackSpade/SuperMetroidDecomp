@@ -157,7 +157,7 @@ internal sealed class GameplayActorDrawing
                 _player.Samus.CrystalFlash.UpdatePalette(
                     _player.Colours,
                     _player.Samus,
-                    _artwork.BeamArtwork?.Palettes,
+                    _artwork.BeamPalettes,
                     _artwork.MapPresentation?.CrystalFlashColors);
             }
             // Handler eight changes only visor color four while active; `$FFFF` teardown

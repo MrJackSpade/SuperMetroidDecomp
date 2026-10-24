@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.LookupDynamicCollectibleStockVerification;

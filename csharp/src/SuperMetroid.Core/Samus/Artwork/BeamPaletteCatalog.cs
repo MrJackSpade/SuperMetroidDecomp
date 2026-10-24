@@ -47,9 +47,9 @@ public sealed class BeamPaletteCatalog
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid beam palette JSON.", error); }
         if (document.Version != BeamPaletteDefinitions.Version || document.Palettes is null ||
-            document.Palettes.Count != BeamTileAtlasDefinitions.SelectionCount)
+            document.Palettes.Count != BeamPaletteDefinitions.SelectionCount)
             throw new InvalidDataException("Beam palettes require version 1 and all twelve selections.");
-        var compiled = new Bgr555[BeamTileAtlasDefinitions.SelectionCount][];
+        var compiled = new Bgr555[BeamPaletteDefinitions.SelectionCount][];
         for (int selection = 0; selection < compiled.Length; selection++)
         {
             if (!document.Palettes.TryGetValue(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||

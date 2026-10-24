@@ -1,6 +1,7 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable four-bit characters of Samus's suit explosion as she dies, from which its pre-coloured sheet is composed.</summary>
 /// <remarks>The remaining 151 source tiles retain only the reviewed selected anatomical,

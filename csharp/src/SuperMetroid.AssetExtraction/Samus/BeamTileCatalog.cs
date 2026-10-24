@@ -1,9 +1,12 @@
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Projectiles;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Immutable beam sheets resolved at NMI; pending state stores identities, never PNG bytes.</summary>
+/// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
 public sealed class BeamTileCatalog : IVramAssetProvider
 {
     /// <summary>Selected 256-byte beam atlases, with native aliases sharing matching tile pixels.</summary>

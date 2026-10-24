@@ -1,7 +1,7 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
@@ -126,7 +126,7 @@ internal static class SamusContentIdentityVerification
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(
             new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument)),
             Png(cannonWidth, 8, edit == "cannon-tiles"));
-        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Top = Half(topStarts.Length, "top-characters"), Bottom = Half(bottomStarts.Length, "bottom-characters"), Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained });
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Top = Half(topStarts.Length, "top-characters"), Bottom = Half(bottomStarts.Length, "bottom-characters"), Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained });
 
         static MemoryStream Png(int width, int height, bool changed)
         {

@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;

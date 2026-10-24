@@ -177,8 +177,11 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Timed projectile frame sprite choices.</summary>
     public ProjectileFrameBindingCatalog? ProjectileFrameBindings { get; init; }
 
-    /// <summary>Beam tiles.</summary>
-    public BeamTileCatalog? BeamArtwork { get; init; }
+    /// <summary>The beam palettes, by beam combination.</summary>
+    public BeamPaletteCatalog? BeamPalettes { get; init; }
+
+    /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
+    public HyperBeamFxColorCatalog? HyperBeamFxColors { get; init; }
 
     /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
     public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }
@@ -207,6 +210,9 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Charge-flare sprite compositions.</summary>
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; init; }
 
-    /// <summary>Grapple beam tiles.</summary>
-    public GrappleTileAtlas? GrappleArtwork { get; init; }
+    /// <summary>The grapple flare's standing and running offsets.</summary>
+    public ChargeFlarePlacementCatalog? GrappleFlarePlacement { get; init; }
+
+    /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
+    public GrappleSwingFrameCatalog? GrappleSwingFrames { get; init; }
 }

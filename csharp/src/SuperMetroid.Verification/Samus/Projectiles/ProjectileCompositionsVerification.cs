@@ -387,7 +387,7 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
         var pngEdited = installation.LoadProjectiles();
         AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
-        AssertTrue(!(pngEdited.Trails.Tiles ?? throw new InvalidOperationException("Verification requires pngEdited.Trails.Tiles.")).IceAndWave.Span.SequenceEqual((trailEdited.Trails.Tiles ?? throw new InvalidOperationException("Verification requires trailEdited.Trails.Tiles.")).IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
+        AssertTrue(!pngEdited.TrailTiles.IceAndWave.Span.SequenceEqual(trailEdited.TrailTiles.IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
         File.WriteAllText(trailPngStock, "broken PNG");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Trail PNG override cannot hide broken stock");
         File.Move(trailPngStock, trailPngStock + ".invalid");

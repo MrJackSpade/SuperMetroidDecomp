@@ -10,7 +10,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
 
-/// <summary>Checks gameplay color math and X-ray source selection against software and D3D11 pixels.</summary>
+/// <summary>Checks gameplay color math and X-ray source selection against the WARP reference and D3D11 pixels.</summary>
 internal static class XrayGameplayTests
 {
     /// <summary>Exercises window reveal, OBJ palette exemptions, subscreen math, old packet decoding, and patterned frames.</summary>

@@ -23,7 +23,7 @@ internal static class HostAudioAcknowledgementTests
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        var options = new HostOptions { AudioEnabled = false, Renderer = RendererSelection.Software };
+        var options = new HostOptions { AudioEnabled = false };
         using var form = new Form { ClientSize = new(900, 760), ShowInTaskbar = false };
         using var control = DesktopAccess.CreateGameControl(rom, options);
         form.Controls.Add(control);

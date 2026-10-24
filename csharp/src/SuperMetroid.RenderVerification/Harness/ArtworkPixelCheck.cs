@@ -12,7 +12,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
 {
     /// <summary>Gives each stock or edited render packet a fresh frame identity.</summary>
     private long sequence;
-    /// <summary>Counts backend readbacks compared with the software pixel oracle.</summary>
+    /// <summary>Counts backend readbacks compared with the WARP reference's pixels.</summary>
     internal int Comparisons { get; private set; }
     /// <summary>Counts visible pixels changed by the indexed artwork substitution.</summary>
     internal long ChangedPixels { get; private set; }
@@ -49,7 +49,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
                 [new ObjRenderLayer()], 15));
     }
 
-    /// <summary>Reads a GPU frame and compares its pixels with the software renderer's expected output.</summary>
+    /// <summary>Reads a GPU frame and compares its pixels with the WARP reference's.</summary>
     private void Compare(DisplayPacket frame, Rgba32[] expected, string context)
     {
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {context}");

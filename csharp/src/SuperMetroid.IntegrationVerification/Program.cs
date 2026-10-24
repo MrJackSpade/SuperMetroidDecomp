@@ -36,8 +36,6 @@ internal static class Program
                 return InstallationOverrideLifecycleVerification.Run(Path.GetFullPath("Super Metroid.smc"));
             if (args is ["--rom-decompression"])
                 return RomDecompressionVerification.Run();
-            if (args is ["--render-allocation"])
-                return GameplayRenderAllocationVerification.Run();
             if (args.Length != 0)
                 throw new ArgumentException($"Unknown integration check {string.Join(' ', args)}.");
             // Every repository check, in turn; the first failure stops the run.
@@ -49,7 +47,6 @@ internal static class Program
                 () => AssetImportVerification.Run(Path.GetFullPath("Super Metroid.smc")),
                 () => InstallationOverrideLifecycleVerification.Run(Path.GetFullPath("Super Metroid.smc")),
                 RomDecompressionVerification.Run,
-                GameplayRenderAllocationVerification.Run,
             })
             {
                 int exit = check();

@@ -20,11 +20,11 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.WindowsConsole;
 
 /// <summary>
-/// Direct3D 11 renderer verification against the software renderer.
+/// Direct3D 11 renderer verification against the WARP reference device.
 /// </summary>
 internal static class Program
 {
-    /// <summary>Dispatches focused D3D11/software parity checks and reports failures through the console process boundary.</summary>
+    /// <summary>Dispatches focused D3D11 graphics-device/WARP parity checks and reports failures through the console process boundary.</summary>
     private static void Main(string[] args)
     {
         try
@@ -137,7 +137,7 @@ internal static class Program
                             $"{kind}: minimap blink frame {sequence}");
                         return pixels;
                     });
-                    Console.WriteLine($"{kind}: {sequence} full frames match software and preserve visible minimap flashing.");
+                    Console.WriteLine($"{kind}: {sequence} full frames match the WARP reference and preserve visible minimap flashing.");
                 }
                 return;
             }

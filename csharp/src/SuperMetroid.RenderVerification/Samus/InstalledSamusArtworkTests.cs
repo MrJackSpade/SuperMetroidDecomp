@@ -22,7 +22,7 @@ using SuperMetroid.Core;
 /// </summary>
 internal static class InstalledSamusArtworkTests
 {
-    /// <summary>Checks edited Samus body, cannon, and death art through software and GPU rendering without a cartridge.</summary>
+    /// <summary>Checks edited Samus body, cannon, and death art through WARP and GPU rendering without a cartridge.</summary>
     internal static void Run(InstalledSamusArtworkFixture fixture,
         D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -33,7 +33,7 @@ internal static class InstalledSamusArtworkTests
         Require(check.ChangedPixels > 0, "The artwork acceptance run changed no visible pixels.");
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {fixture.EditedPngCount} actual PNG overrides; " +
             $"{transfers} body definitions, {poses} pose draws, {queued} cannon uploads; " +
-            $"{check.Comparisons} exact software/GPU comparisons, {check.ChangedPixels} recolored pixels.");
+            $"{check.Comparisons} exact WARP/GPU comparisons, {check.ChangedPixels} recolored pixels.");
     }
 
     /// <summary>Draws each Samus pose with stock and edited art and checks OAM, physical state, and visible pixels.</summary>

@@ -10,7 +10,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
-/// <summary>Checks waterfall subscreen priority and subtraction against software and GPU rendering.</summary>
+/// <summary>Checks waterfall subscreen priority and subtraction against the WARP reference and GPU rendering.</summary>
 internal static class WaterfallTests
 {
     /// <summary>Uses native TM=$11, TS=$06, CGADSUB=$B1 and distinct colors to expose priority and color-math errors.</summary>

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Harness;
@@ -25,13 +24,12 @@ internal static void VerifyStrictFailureBoundaries()
         () => duplicateBindings.RequireRetailPermutation(),
         "duplicate persisted controller binding is rejected");
 
-    Rgba32[] pixel = [new Rgba32(255, 255, 255, 255)];
     AssertThrows<ArgumentOutOfRangeException>(
-        () => MasterBrightnessFilter.Apply(pixel, -1),
-        "negative master brightness is rejected");
+        () => _ = new FadeLevel(-1),
+        "negative fade brightness is rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => MasterBrightnessFilter.Apply(pixel, 16),
-        "master brightness above INIDISP range is rejected");
+        () => _ = new FadeLevel(FadeLevel.Full + 1),
+        "fade brightness above full is rejected");
 
     AssertTrue(RoomPlmSystem.IsSupportedRoomPopulationHeader(
             PlmHeaderId.YellowDoorFacingLeft),

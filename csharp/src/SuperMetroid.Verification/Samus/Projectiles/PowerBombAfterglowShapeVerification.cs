@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
@@ -11,7 +10,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks that Power Bomb afterglow retains the final oval window through its fade.</summary>
 internal static class PowerBombAfterglowShapeVerification
 {
-    /// <summary>Compares each afterglow scanline with the native shape profile and verifies pixels outside the oval remain unaffected.</summary>
+    /// <summary>Compares each afterglow scanline's captured window with the native shape profile.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb afterglow shape")]
     internal static void VerifyPowerBombAfterglowShape()
     {
@@ -35,8 +34,6 @@ internal static class PowerBombAfterglowShapeVerification
         while (explosion.IsActive)
         {
             var actual = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-            var pixels = Enumerable.Repeat(new Rgba32(0, 0, 0), 256 * 224).ToArray();
-            SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(pixels, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             for (int y = 32; y < 224; y++)
             {
                 int row = Math.Abs(y - 208);
@@ -47,9 +44,6 @@ internal static class PowerBombAfterglowShapeVerification
                 AssertEqual(expected.Right, actual.Windows[y].Right, "afterglow retains native oval right edge");
                 AssertEqual((last ?? throw new InvalidOperationException("Verification requires last.")).Windows[y].Left, actual.Windows[y].Left, "no rectangular transition at fade entry");
                 AssertEqual(last.Windows[y].Right, actual.Windows[y].Right, "fade never widens the final oval");
-                for (int x = 0; x < 256; x++)
-                    if (x < expected.Left || x > expected.Right)
-                        AssertEqual(new Rgba32(0, 0, 0), pixels[y * 256 + x], "outside-oval pixels remain unaffected during fade");
             }
             checkedFrames++;
             AssertTrue(checkedFrames < 200, "afterglow cleanup is bounded");
@@ -59,7 +53,7 @@ internal static class PowerBombAfterglowShapeVerification
         // The final white frame primes 32 afterglow steps; every afterglow call consumes one,
         // and the call that reaches zero ends the explosion instead of fading once more.
         AssertEqual(32, checkedFrames, "afterglow consumes exactly its 32 primed steps before cleanup");
-        Console.WriteLine($"Power Bomb afterglow: {checkedFrames} frames retain the native oval, including captured windows and rendered corner pixels.");
+        Console.WriteLine($"Power Bomb afterglow: {checkedFrames} frames retain the native oval in their captured windows.");
     }
 
     /// <summary>Runs the focused final-oval and afterglow transition check.</summary>

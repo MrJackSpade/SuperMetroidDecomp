@@ -479,28 +479,22 @@ internal static void VerifySamusXray()
 
     // `$88:88B8/$88DC` puts this standing-right fixture's origin at screen (103,184).
     // `$91:C5FF` advances `$03FE` once per scanline and publishes the high byte, making
-    // X=142 the inclusive upper/lower boundary ten lines away. `$88:817B` keeps the cone
-    // bright and applies add-seven-then-half color math everywhere outside it.
-    var xrayFrame = new Rgba32[DisplayScreen.Width * DisplayScreen.Height];
-    Array.Fill(xrayFrame, new Rgba32(248, 248, 248, 255));
-    SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(
-        xrayFrame,
-        bus,
-        standing.Xray,
-        standing,
-        layer1: new Position16<RoomPixels>(0, 0));
-    AssertEqual(248, xrayFrame[184 * 256 + 255].R,
+    // X=142 the inclusive upper/lower boundary ten lines away. The cone stays bright and
+    // color math darkens everything outside it.
+    XrayWindowLine[] xrayWindow = GameplayEffectCapture.CaptureXrayWindowLines(
+        SamusXrayDisplaySnapshot.Capture(standing, null) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
+        new Position16<RoomPixels>(0, 0));
+    bool InsideXray(int x, int y) => x >= xrayWindow[y].Left && x <= xrayWindow[y].Right;
+    AssertTrue(InsideXray(255, 184),
         "X-ray horizontal center remains inside window");
-    AssertEqual(156, xrayFrame[184 * 256].R,
-        "X-ray opposite half-plane receives outside half color math");
-    AssertEqual(248, xrayFrame[174 * 256 + 142].R,
+    AssertTrue(!InsideXray(0, 184),
+        "X-ray opposite half-plane is outside the window");
+    AssertTrue(InsideXray(142, 174),
         "X-ray upper tangent boundary is inclusive after 8.8 truncation");
-    AssertEqual(156, xrayFrame[174 * 256 + 141].R,
+    AssertTrue(!InsideXray(141, 174),
         "X-ray pixel beyond upper tangent boundary is outside");
-    AssertEqual(248, xrayFrame[194 * 256 + 142].R,
+    AssertTrue(InsideXray(142, 194),
         "X-ray lower tangent boundary mirrors upper boundary");
-    AssertEqual(248, xrayFrame[0].R,
-        "X-ray gameplay window never modifies the IRQ-owned HUD band");
 
     AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
         "full beam enters visor cycle");

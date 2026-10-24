@@ -34,7 +34,6 @@ internal static class RomlessDesktopStartupTest
                 new HostOptions
                 {
                     AudioEnabled = false,
-                    Renderer = RendererSelection.Software,
                 });
             var memory = host.addressSpace ?? throw new InvalidOperationException("Host has no address space.");
             if (MetadataShape.DeclaresProperty(memory.GetType(), "Rom"))
@@ -85,7 +84,6 @@ internal static class RomlessDesktopStartupTest
                 new HostOptions
                 {
                     AudioEnabled = false,
-                    Renderer = RendererSelection.Software,
                 },
                 replay: recordedReset);
             for (int frame = 0; frame < 6; frame++)

@@ -24,16 +24,12 @@ internal static class Program
     /// </summary>
     private static readonly DesktopCheck[] defaultChecks =
     [
-        new DesktopCheck("software-capture", () => Verify(RendererSelection.Software)),
-        new DesktopCheck("direct3d11-capture", () => Verify(RendererSelection.Direct3D11)),
-        new DesktopCheck("auto-capture", () => Verify(RendererSelection.Auto)),
-        new DesktopCheck("software-form-close", () => VerifyFormClose(RendererSelection.Software, duringStartup: false)),
-        new DesktopCheck("direct3d11-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false)),
-        new DesktopCheck("direct3d11-startup-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true)),
+        new DesktopCheck("direct3d11-capture", Verify),
+        new DesktopCheck("direct3d11-form-close", () => VerifyFormClose(duringStartup: false)),
+        new DesktopCheck("direct3d11-startup-form-close", () => VerifyFormClose(duringStartup: true)),
         new DesktopCheck("close-during-load", () => VerifyCloseDuringLoad(restart: false)),
         new DesktopCheck("close-during-load-restart", () => VerifyCloseDuringLoad(restart: true)),
-        new DesktopCheck("auto-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Auto)),
-        new DesktopCheck("direct3d11-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Direct3D11)),
+        new DesktopCheck("direct3d11-startup-failure", VerifyRendererStartupFailure),
         new DesktopCheck("host-audio-acknowledgements", () => HostAudioAcknowledgementTests.Verify()),
     ];
 
@@ -72,7 +68,7 @@ internal static class Program
         if (args.Length == 0)
         {
             DesktopCheckProcesses.RunAll(defaultChecks.Select(check => check.Name));
-            Console.WriteLine("Desktop capture: software/GPU stepping, resize, paused state restore, generation reset and asynchronous shutdown passed.");
+            Console.WriteLine("Desktop capture: Direct3D 11 stepping, resize, paused state restore, generation reset and asynchronous shutdown passed.");
             return;
         }
         if (!Application.SetHighDpiMode(HighDpiMode.PerMonitorV2))

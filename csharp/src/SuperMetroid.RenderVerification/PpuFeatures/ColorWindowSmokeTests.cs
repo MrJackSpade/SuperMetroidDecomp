@@ -7,7 +7,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
 
-/// <summary>Compares Direct3D and software output for color windows, subscreen math, and message masks.</summary>
+/// <summary>Compares Direct3D on the graphics device and the WARP reference for color windows, subscreen math, and message masks.</summary>
 internal static class ColorWindowSmokeTests
 {
     /// <summary>Exercises exact pixel comparisons across scanline windows and representative BG and message geometry.</summary>

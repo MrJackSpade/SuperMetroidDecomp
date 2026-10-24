@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using static SuperMetroid.Verification.Samus.Abilities.XrayWindowGeometryVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -27,7 +26,6 @@ internal static class XrayInputVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXrayInput()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -66,7 +64,6 @@ internal static class XrayInputVerification
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
-            VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
         }
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
         var horizontal = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -84,10 +81,7 @@ internal static class XrayInputVerification
 
         }
         for (int frame = 0; frame < 240; frame++)
-        {
             runtime.StepFrame((runtime.Options.ControllerBindings.Dash | (frame < 80 ? SnesButton.Up : SnesButton.Down)));
-            VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
-        }
         var captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var reveal = captured.LayersOf<GameplayColorMathRenderLayer>().Single();
         AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");

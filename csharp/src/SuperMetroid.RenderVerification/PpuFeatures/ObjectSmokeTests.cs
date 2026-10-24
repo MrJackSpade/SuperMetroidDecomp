@@ -6,7 +6,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Compares software and Direct3D OBJ rendering across sprite sizes, counts, priorities, and overlap.</summary>
+/// <summary>Compares the WARP reference and the graphics device's Direct3D OBJ rendering across sprite sizes, counts, priorities, and overlap.</summary>
 internal static class ObjectSmokeTests
 {
     /// <summary>Renders seeded OAM and VRAM samples plus a transparent overlapping-sprite case on the given device.</summary>

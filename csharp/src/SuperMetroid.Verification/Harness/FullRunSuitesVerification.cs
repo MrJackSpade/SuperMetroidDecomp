@@ -391,7 +391,6 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayRoomDisplayVerificati
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupStageDomainVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayTilemapVerification;
-using static SuperMetroid.Verification.Samus.Abilities.XrayWindowGeometryVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrappleReleaseVerification;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeFadeVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactVerification;
@@ -406,9 +405,9 @@ internal static class FullRunSuitesVerification
     internal sealed record RegisteredSuite(string Name, Action Body);
 
     /// <summary>
-    /// The portable render contract (<c>--render-contract</c>): every snapshot, codec, publication,
-    /// scene-capture and software parity check. It deliberately excludes unrelated gameplay audits,
-    /// and never loads the Windows desktop or a graphics backend.
+    /// The portable render contract (<c>--render-contract</c>): every snapshot, codec, publication
+    /// and scene-capture check, whose pixels are drawn on the WARP device. It deliberately excludes
+    /// unrelated gameplay audits, and never loads the Windows desktop.
     /// </summary>
     internal static RegisteredSuite[] RenderContractSuites() =>
     [
@@ -588,7 +587,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyXrayGameState), () => VerifyXrayGameState()),
         new(nameof(VerifySpeedBoosterStageFiveResidue), () => VerifySpeedBoosterStageFiveResidue()),
         new(nameof(VerifyDraygonPrebattleXray), () => VerifyDraygonPrebattleXray()),
-        new(nameof(VerifyXrayWindowGeometry), () => VerifyXrayWindowGeometry()),
         new(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers()),
         new(nameof(VerifyFirefleaFx), () => VerifyFirefleaFx()),
         new(nameof(VerifyBombJumpWallContact), () => VerifyBombJumpWallContact()),

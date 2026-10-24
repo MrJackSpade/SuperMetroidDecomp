@@ -8,7 +8,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 /// <summary>Checks bounded GPU timestamp capture and the rolling render timing window.</summary>
 internal static class GpuTimingTests
 {
-    /// <summary>Checks FIFO timestamps and frame identity while comparing the timed render with software output.</summary>
+    /// <summary>Checks FIFO timestamps and frame identity while comparing the timed render with the WARP reference.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, DisplayPacket frame)
     {
         VerifyTimingWindow();

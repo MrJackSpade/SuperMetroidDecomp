@@ -2610,6 +2610,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.NativeWordIdentities\u003CTIdentity\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/NativeWordIdentities.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Cartridge.PooledFileBytes",
       "kind": "class",
       "scope": "product",
@@ -2660,6 +2673,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.ArmCannonTileSources",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/ArmCannonTileSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.ArmCannonTileSources.TileSourceSequence",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/ArmCannonTileSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.CartridgeBankWindow",
@@ -2864,6 +2903,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusIdentityWords",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/SamusIdentityWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListEntries",
@@ -100764,7 +100816,7 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkFormat.ArmCannonDrawing",
-      "kind": "enum",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -100773,24 +100825,11 @@
         "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonArtworkFormat.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkFormat.TileOrientation",
       "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonArtworkFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkFormat.TileSourceSequence",
-      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -103198,6 +103237,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Grapple.SamusGrappleConnectionNative",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Grapple/SamusGrappleConnectionNative.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Grapple.SamusGrappleHudInput",

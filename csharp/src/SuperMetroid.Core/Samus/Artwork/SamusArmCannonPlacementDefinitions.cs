@@ -30,10 +30,10 @@ internal static class SamusArmCannonPlacementDefinitions
 
     /// <summary>Finds a pose's extreme body-sprite tip and applies its authored cannon join for a drawing-coordinate byte.</summary>
     /// <remarks>Returns false for unowned coordinates or missing editable body artwork, leaving the installed value intact.</remarks>
-    internal static bool TryCoordinate(SamusBodyArtworkCatalog body, ushort address, out byte value)
+    internal static bool TryCoordinate(SamusBodyArtworkCatalog body, int position, out byte value)
     {
         value = 0;
-        if (!TryOwner(address, out SamusPoseId pose, out int phase, out bool yComponent)) return false;
+        if (!TryOwner(position, out SamusPoseId pose, out int phase, out bool yComponent)) return false;
         int sourcePhase = phase;
         int direction;
         int joinX = 0, joinY = 0;
@@ -384,24 +384,24 @@ internal static class SamusArmCannonPlacementDefinitions
     }
 
     /// <summary>Locates the semantic pose, animation phase, and X/Y component owning a native cannon descriptor byte.</summary>
-    private static bool TryOwner(ushort address, out SamusPoseId pose, out int phase, out bool yComponent)
+    private static bool TryOwner(int position, out SamusPoseId pose, out int phase, out bool yComponent)
     {
         pose = 0; phase = 0; yComponent = false;
-        if (address < SamusArmCannonArtworkFormat.DrawingDataStart ||
-            address >= SamusArmCannonArtworkFormat.AdjacentCostStart ||
-            SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out _)) return false;
+        if (position < 0 ||
+            position >= SamusArmCannonArtworkFormat.AdjacentCostStart ||
+            SamusArmCannonArtworkFormat.TryStockDrawingByte(position, out _)) return false;
         int start = -1;
         // Resolve allocation identity through the existing semantic pose dispatch.
-        // No second descriptor-address or pose-selection table is introduced.
+        // No second descriptor-position or pose-selection table is introduced.
         for (int candidate = 0; candidate < SamusBodyArtworkCatalog.PoseCount; candidate++)
         {
-            int pointer = SamusArmCannonArtworkFormat.StockPoseDrawingData(candidate);
-            if (pointer > address || pointer <= start) continue;
+            int pointer = SamusArmCannonArtworkFormat.StockPoseDescriptor(candidate);
+            if (pointer > position || pointer <= start) continue;
             start = pointer;
             pose = (SamusPoseId)candidate;
         }
-        if (start < 0 || !SamusArmCannonArtworkFormat.TryStockDrawingByte((ushort)start, out byte selector)) return false;
-        int relative = address - start - ((selector & 128) != 0 ? 4 : 2);
+        if (start < 0 || !SamusArmCannonArtworkFormat.TryStockDrawingByte(start, out byte selector)) return false;
+        int relative = position - start - ((selector & 128) != 0 ? 4 : 2);
         if (relative < 0) return false;
         phase = relative / 2;
         yComponent = (relative & 1) != 0;

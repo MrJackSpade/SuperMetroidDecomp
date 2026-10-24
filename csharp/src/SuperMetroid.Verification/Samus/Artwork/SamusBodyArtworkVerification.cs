@@ -377,7 +377,7 @@ internal static class SamusBodyArtworkVerification
         byte armSelector = stock.ArmCannon.ReadDrawingByteAt(armPosePointer);
         ushort armXAddress = unchecked((ushort)(armPosePointer +
             ((armSelector & 0x80) != 0 ? 4 : 2)));
-        int armXIndex = armXAddress - SamusArmCannonArtworkFormat.DrawingDataStart;
+        int armXIndex = armXAddress - SamusCartridgeTables.ArmCannonDrawingData;
         int stockArmX = armDocument.Required("drawingData").Required(armXIndex).GetValue<int>();
         armDocument.Required("drawingData")[armXIndex] = unchecked((byte)(stockArmX + 1));
         File.WriteAllText(armJsonOverride, armDocument.ToJsonString());
@@ -600,8 +600,8 @@ internal static class SamusBodyArtworkVerification
         }
         for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)
             AssertEqual(bus.ReadCartridgeByte(SamusCartridgeTables.MovementBank |
-                    (SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
-                armCannon.ReadDrawingByteAt((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + offset)),
+                    (SamusCartridgeTables.ArmCannonDrawingData + offset)),
+                armCannon.ReadDrawingByteAt((ushort)(SamusCartridgeTables.ArmCannonDrawingData + offset)),
                 $"arm-cannon drawing byte {offset:X3}");
         for (int direction = 0; direction < SamusDrawingDefinitions.ArmCannon.DirectionCount; direction++)
         {

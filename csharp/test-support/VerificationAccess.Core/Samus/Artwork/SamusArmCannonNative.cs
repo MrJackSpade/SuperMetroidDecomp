@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -13,14 +14,14 @@ internal static class SamusArmCannonNative
     {
         /// <summary>The bank-$90 address of pose <paramref name="pose"/>'s drawing descriptor.</summary>
         internal ushort PoseDrawingData(int pose) =>
-            checked((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + cannon.PoseDescriptor(pose)));
+            checked((ushort)(SamusCartridgeTables.ArmCannonDrawingData + cannon.PoseDescriptor(pose)));
 
         /// <summary>The installed drawing byte stored at bank-$90 <paramref name="address"/>.</summary>
-        internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusArmCannonArtworkFormat.DrawingDataStart);
+        internal byte ReadDrawingByteAt(int address) => cannon.ReadDrawingByte(address - SamusCartridgeTables.ArmCannonDrawingData);
 
         /// <summary>The bank-$9A source of the cover tile <paramref name="direction"/> shows at <paramref name="frame"/>, or zero for the closed cover.</summary>
         internal ushort TileSource(int direction, int frame) => cannon.CoverTileIndex(direction, frame) is { } tile
-            ? SamusArmCannonArtworkFormat.CoverTileDmaSources[tile]
+            ? ArmCannonTileSources.CoverTileDmaSources[tile]
             : (ushort)0;
     }
 
@@ -28,11 +29,11 @@ internal static class SamusArmCannonNative
     extension(SamusArmCannonArtworkFormat)
     {
         /// <summary>The bank-$9A source of each installed cover tile.</summary>
-        internal static SamusArmCannonArtworkFormat.TileSourceSequence TileSourcePointers => SamusArmCannonArtworkFormat.CoverTileDmaSources;
+        internal static ArmCannonTileSources.TileSourceSequence TileSourcePointers => ArmCannonTileSources.CoverTileDmaSources;
 
         /// <summary>The bank-$9A source of the stock cover tile <paramref name="direction"/> shows at <paramref name="frame"/>, or zero for the closed cover.</summary>
         internal static ushort StockTileSource(SamusProjectileDirection direction, int frame) => frame == 0
             ? (ushort)0
-            : SamusArmCannonArtworkFormat.CoverTileDmaSources[SamusArmCannonArtworkFormat.StockCoverTile(direction, frame)];
+            : ArmCannonTileSources.CoverTileDmaSources[SamusArmCannonArtworkFormat.StockCoverTile(direction, frame)];
     }
 }

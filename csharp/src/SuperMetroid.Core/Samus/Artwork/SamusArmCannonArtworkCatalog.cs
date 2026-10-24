@@ -39,20 +39,19 @@ public sealed class SamusArmCannonArtworkCatalog
                 this.poseDescriptors.Add(pose, poseDescriptors[pose]);
         for (int index = 0; index < drawingData.Length; index++)
         {
-            ushort address = (ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + index);
-            bool derived = SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte calculated);
-            if (!derived && SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source))
+            bool derived = SamusArmCannonArtworkFormat.TryStockDrawingByte(index, out byte calculated);
+            if (!derived && SamusArmCannonArtworkFormat.TryStockCoordinateSource(index, out int source))
             {
-                calculated = drawingData[source - SamusArmCannonArtworkFormat.DrawingDataStart];
+                calculated = drawingData[source];
                 derived = true;
             }
-            if (!derived && SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out source))
+            if (!derived && SamusArmCannonArtworkFormat.TryStockReflectedXSource(index, out source))
             {
-                calculated = SamusArmCannonArtworkFormat.ReflectCoverX(drawingData[source - SamusArmCannonArtworkFormat.DrawingDataStart]);
+                calculated = SamusArmCannonArtworkFormat.ReflectCoverX(drawingData[source]);
                 derived = true;
             }
             if (!derived && bodyGeometry is not null)
-                derived = SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, address, out calculated);
+                derived = SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, index, out calculated);
             if (!derived || drawingData[index] != calculated) this.drawingData.Add(index, drawingData[index]);
         }
         for (int direction = 0; direction < attributes.Length; direction++)
@@ -164,13 +163,12 @@ public sealed class SamusArmCannonArtworkCatalog
             throw new InvalidDataException(
                 $"Arm-cannon drawing byte {offset} is not installed.");
         if (drawingData.TryGetValue(offset, out byte supplied)) return supplied;
-        ushort address = (ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + offset);
-        if (SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte calculated)) return calculated;
-        if (SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source))
-            return ReadDrawingByte(source - SamusArmCannonArtworkFormat.DrawingDataStart);
-        if (SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out source))
-            return SamusArmCannonArtworkFormat.ReflectCoverX(ReadDrawingByte(source - SamusArmCannonArtworkFormat.DrawingDataStart));
-        if (bodyGeometry is not null && SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, address, out byte coordinate))
+        if (SamusArmCannonArtworkFormat.TryStockDrawingByte(offset, out byte calculated)) return calculated;
+        if (SamusArmCannonArtworkFormat.TryStockCoordinateSource(offset, out int source))
+            return ReadDrawingByte(source);
+        if (SamusArmCannonArtworkFormat.TryStockReflectedXSource(offset, out source))
+            return SamusArmCannonArtworkFormat.ReflectCoverX(ReadDrawingByte(source));
+        if (bodyGeometry is not null && SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, offset, out byte coordinate))
             return coordinate;
         throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
@@ -1055,7 +1056,7 @@ internal static class RidleyFullMovieVerification
                         .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
                     AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)
-                        AssertEqual(SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(cannon.TileSource),
+                        AssertEqual(ArmCannonTileSources.CoverTileDmaSources.IndexOf(cannon.TileSource),
                             SheetFrameSources.CharacterDraw((ImageSpriteDraw)covers[0]).Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }

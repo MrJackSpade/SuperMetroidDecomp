@@ -6,6 +6,9 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTables
 {
+    /// <summary>$90:C9D9, where the arm cannon drawing window starts in bank $90: its first pose descriptor.</summary>
+    internal const int ArmCannonDrawingData = 0xc9d9;
+
     /// <summary>$90:CC21, CostOfSBAsInPowerBombs: twelve word costs by beam index, the arm cannon drawing window's last bytes.</summary>
     internal const int SpecialBeamAttackCosts = 0x90cc21;
 

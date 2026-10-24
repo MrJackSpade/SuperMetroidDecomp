@@ -1415,7 +1415,7 @@ internal static class LookupStream1Verification
         AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
         for (int pose = 0; pose < 253; pose++)
         {
-            AssertEqual(Native(pose), SamusArmCannonArtworkFormat.StockPoseDrawingData(pose), "cannon direct native pose dispatch");
+            AssertEqual(Native(pose), checked((ushort)(SamusCartridgeTables.ArmCannonDrawingData + SamusArmCannonArtworkFormat.StockPoseDescriptor(pose))), "cannon direct native pose dispatch");
             AssertEqual(Native(pose), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
             int[] descriptors = document.PoseDescriptors.ToArray();
             // Preserve an arbitrary admitted byte offset, including descriptor interiors.
@@ -1427,13 +1427,13 @@ internal static class LookupStream1Verification
             AssertEqual(1, Stored(edited).Count, "cannon exactly one independent descriptor override");
             AssertEqual(replacement, Stored(edited)[pose], "cannon stores arbitrary admitted descriptor offset");
             for (int other = 0; other < 253; other++)
-                AssertEqual(other == pose ? (ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + replacement) : Native(other), edited.PoseDrawingData(other), "cannon isolated descriptor edit");
+                AssertEqual(other == pose ? (ushort)(SamusCartridgeTables.ArmCannonDrawingData + replacement) : Native(other), edited.PoseDrawingData(other), "cannon isolated descriptor edit");
             AssertEqual(Identity(editedDocument), edited.ContentIdentity, "cannon edited pointer hash preserves canonical representation");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 253, 254, 255, 256, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.PoseDrawingData(invalid), "cannon installed pose domain preserved including FD-FF");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusArmCannonArtworkFormat.StockPoseDrawingData(invalid), "cannon calculated pose domain rejects aliases");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusArmCannonArtworkFormat.StockPoseDescriptor(invalid), "cannon calculated pose domain rejects aliases");
         }
         Console.WriteLine("Cannon poses:253 direct native defaults, zero stock overrides,253 independent arbitrary pointer edits/hashes and exact FD-FF rejection pass.");
     }
@@ -2328,23 +2328,23 @@ internal static class LookupStream1Verification
         {
             ushort address = (ushort)(start + index);
             byte expected = LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | address);
-            bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte value);
+            bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address - start, out byte value);
             AssertEqual(headers.Contains(address), calculated, "cannon only original controls/cost aliases are calculated");
             if (calculated) AssertEqual(expected, value, "cannon direct original header/cost calculation");
-            bool alias = SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source);
+            bool alias = SamusArmCannonArtworkFormat.TryStockCoordinateSource(address - start, out int source);
             AssertEqual(aliases.ContainsKey(address), alias, "cannon direct native constant-origin domain");
             if (alias)
             {
-                AssertEqual((ushort)aliases[address], source, "cannon direct original first-pair source");
-                AssertTrue(source < address, "cannon coordinate aliases strictly decrease");
+                AssertEqual(aliases[address] - start, source, "cannon direct original first-pair source");
+                AssertTrue(source < address - start, "cannon coordinate aliases strictly decrease");
             }
-            bool reflection = SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out ushort reflectedSource);
+            bool reflection = SamusArmCannonArtworkFormat.TryStockReflectedXSource(address - start, out int reflectedSource);
             AssertEqual(reflections.ContainsKey(address), reflection, "cannon native reflected-origin domain");
             if (reflection)
             {
-                AssertEqual((ushort)reflections[address], reflectedSource, "cannon original opposite-facing source");
-                AssertTrue(reflectedSource < address && !calculated && !alias, "cannon reflection is an acyclic independent source relation");
-                AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | reflectedSource)), "cannon reflected native default");
+                AssertEqual(reflections[address] - start, reflectedSource, "cannon original opposite-facing source");
+                AssertTrue(reflectedSource < address - start && !calculated && !alias, "cannon reflection is an acyclic independent source relation");
+                AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(LookupStream1CannonDrawingControlsRomByte(rom, 0x900000 | (start + reflectedSource))), "cannon reflected native default");
             }
             AssertEqual(!calculated && !alias && !reflection, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
             AssertEqual(expected, stock.ReadDrawingByteAt(address), "cannon complete installed byte window");
@@ -2855,11 +2855,11 @@ internal static class LookupStream1Verification
         {
             ushort address = (ushort)(0xc9d9 + index);
             byte expected = LookupStream1CannonPlacementRomByte(rom, 0x900000 | address);
-            if (!SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out _) &&
-                !SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out _) &&
-                !SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out _))
+            if (!SamusArmCannonArtworkFormat.TryStockDrawingByte(index, out _) &&
+                !SamusArmCannonArtworkFormat.TryStockCoordinateSource(index, out _) &&
+                !SamusArmCannonArtworkFormat.TryStockReflectedXSource(index, out _))
             {
-                AssertTrue(SamusArmCannonPlacementDefinitions.TryCoordinate(body, address, out byte direct), "Every independent coordinate has a direct body/default source");
+                AssertTrue(SamusArmCannonPlacementDefinitions.TryCoordinate(body, index, out byte direct), "Every independent coordinate has a direct body/default source");
                 AssertEqual(expected, direct, $"Direct native cannon attachment {address:X4}");
                 basis++;
             }

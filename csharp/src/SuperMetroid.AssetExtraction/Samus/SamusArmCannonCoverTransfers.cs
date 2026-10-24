@@ -16,7 +16,7 @@ internal static class SamusArmCannonCoverTransfers
         {
             if (byteCount == SamusDrawingDefinitions.ArmCannon.TileByteCount
                 && SnesAddressMath.BankBase(sourceAddress) == SamusCartridgeTables.CharacterDataBank
-                && SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(unchecked((ushort)SnesAddressMath.OffsetInBank(sourceAddress))) is int index and >= 0)
+                && ArmCannonTileSources.CoverTileDmaSources.IndexOf(unchecked((ushort)SnesAddressMath.OffsetInBank(sourceAddress))) is int index and >= 0)
             {
                 data = self.CoverTile(index);
                 return true;

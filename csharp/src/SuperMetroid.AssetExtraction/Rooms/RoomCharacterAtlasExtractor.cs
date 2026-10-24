@@ -40,7 +40,7 @@ public static class RoomCharacterAtlasExtractor
             byte[] planar = compressed
                 ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress)
                 : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
-                    RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
+                    LibraryBackgroundRomData.TourianStatueGhostByteCount);
             int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(planar.Length);
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,
                 RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);

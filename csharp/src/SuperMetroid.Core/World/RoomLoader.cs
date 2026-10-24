@@ -59,8 +59,6 @@ internal sealed class RoomLoader
 
     /// <summary>The session's installed area artwork, which each room's area actors read.</summary>
     private readonly AreaArtworkBinding _areaArtwork;
-    /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
-    private readonly Bg2TilemapStaging _bg2TilemapStaging;
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Installs escape-specific room behavior when entering the relevant room.</summary>
@@ -97,8 +95,6 @@ internal sealed class RoomLoader
     private readonly Bank80SystemState _system;
     /// <summary>Applies tester inventory overrides after saved state is restored.</summary>
     private readonly TesterTools _tester;
-    /// <summary>Receives the initial tile and sprite graphics uploads.</summary>
-    private readonly SnesVram _vram;
     /// <summary>The background character artwork the room binds (#1350).</summary>
     private readonly BgArtworkBindings _backgrounds;
     /// <summary>Queues VRAM writes that must occur at the next display boundary.</summary>
@@ -117,7 +113,6 @@ internal sealed class RoomLoader
         _enemySession = dependencies.EnemySession;
         _bossArtwork = dependencies.BossArtwork;
         _areaArtwork = dependencies.AreaArtwork;
-        _bg2TilemapStaging = dependencies.Bg2TilemapStaging;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _escapeEffects = dependencies.EscapeEffects;
         _gameTime = dependencies.GameTime;
@@ -135,7 +130,6 @@ internal sealed class RoomLoader
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
         _tester = dependencies.Tester;
-        _vram = dependencies.Vram;
         _backgrounds = dependencies.Backgrounds;
         _vramWrites = dependencies.VramWrites;
 
@@ -935,14 +929,13 @@ internal sealed class RoomLoader
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
         scope.PaletteFx = roomPaletteFx;
 
-        // A room state's library-background program runs through bank $82's command interpreter.
-        // Rooms whose layer-2 scroll mode is fixed/odd rely on this list as their only BG2 source;
-        // it must run before the initial BG1 fill so a door cannot expose the previous
-        // room's tilemap. Ceres $DF8D, for example, decompresses the Tourian statue hall to
-        // $7E:4000 and copies it to both VRAM $4800 and $4C00.
+        // A room state's library background is the room's BG2 picture: the scope selects its image by name and entry door,
+        // and the load binds the characters it brings, at the point bank $82's interpreter ran its list, before enemies
+        // and PLMs bind over them.
         if (room.State.Background is { } background)
         {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemySession.Staging), _vram, background, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt, Backgrounds = _backgrounds });
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.BindCharacters(background, door,
+                new LibraryBackgroundCharacterArtwork { Backgrounds = _backgrounds, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
             if (backgroundResult.SelectsKraidHudCharacters)
                 _display.SelectKraidHudCharacterBase();
         }

@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -290,7 +289,7 @@ internal static class BossRoomPlmProgramsVerification
         }
     }
 
-    /// <summary>The Bomb Torizo hand's programs equal its native list, the debris transfer naming the installed page.</summary>
+    /// <summary>The Bomb Torizo hand's programs equal its native list.</summary>
     internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandPlmProgramDefinitions.Programs, BombTorizoHandEntries,
@@ -302,7 +301,7 @@ internal static class BossRoomPlmProgramsVerification
         Console.WriteLine($"  Bomb Torizo hand programs: {steps} typed steps match bank $84.");
     }
 
-    /// <summary>The hand's wake, debris transfer, fragment and music instructions with their operands.</summary>
+    /// <summary>The hand's wake, fragment and music instructions with their operands.</summary>
     private static bool BombTorizoHandCueAt(IImportCartridgeSource cartridge, ushort cursor, out BombTorizoHandCue cue, out int length)
     {
         ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
@@ -312,14 +311,6 @@ internal static class BossRoomPlmProgramsVerification
                 AssertEqual(BombTorizoHandPlmProgramDefinitionsConstants.WakeIfSamusHasBombsPreInstruction, Word(2), "hand bomb wake");
                 cue = new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake);
                 length = 4;
-                return true;
-            case RoomPlmInstruction.CopyFromRamToVram:
-                AssertEqual(TorizoInstructionTileRomData.ChozoDebrisByteCount, (int)Word(2), "hand debris size");
-                AssertEqual(TorizoInstructionTileRomData.ChozoDebrisSource,
-                    (int)new SnesAddress(ReadOperandByte(cartridge, cursor + 6), Word(4)), "hand debris source");
-                AssertEqual(GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset).Encoded, Word(7), "hand debris destination");
-                cue = new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles);
-                length = 9;
                 return true;
             case RoomPlmInstruction.SpawnTorizoStatueBreaking:
                 AssertEqual(0, Word(2) % sizeof(ushort), "hand fragment operand is a two-byte table offset");
@@ -331,6 +322,7 @@ internal static class BossRoomPlmProgramsVerification
                 length = 2;
                 return true;
             case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.CopyFromRamToVram:
             case RoomPlmInstruction.Sleep:
             case RoomPlmInstruction.Delete:
             case RoomPlmInstruction.ClearPreInstruction:

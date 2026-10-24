@@ -65,28 +65,6 @@ public sealed class RoomBackgroundImage
     /// <summary>The installed name of the sky <paramref name="variant"/>'s rows in a room of <paramref name="tileset"/>.</summary>
     public static string SkyNameOf(ScrollingSkyChunkTable variant, TilesetDefinition tileset) => $"Sky{variant}.{RoomBlockSheet.NameOf(tileset)}";
 
-    /// <summary>Checks BG2's tilemap pages show the words a library background's image pictures.</summary>
-    /// <exception cref="InvalidDataException">
-    /// Artwork bound since shows over a word, or VRAM no longer holds the image's words.
-    /// </exception>
-    [PpuLayoutBoundary("codec: the BG2 tilemap pages a library background loads")]
-    public void AssertLoadedIntoBg2(BgArtworkBindings bindings)
-    {
-        Ensure.NotNull(bindings);
-        if (TilemapWords.Length != Words)
-            throw new InvalidOperationException($"Room background {Name} does not picture BG2's two pages.");
-        for (int word = 0; word < Words; word++)
-        {
-            // Artwork bound over the tilemap since the background loaded shows there instead of its words.
-            if (bindings.ShowsOver(GameplayVramLayout.Bg2TilemapWord + word, out BgArtworkIdentity over))
-                throw new InvalidDataException($"{over.Name} is bound over BG2's tilemap word {word}, which room background {Name} pictures.");
-            ushort shownWord = bindings.Vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word);
-            if (shownWord != TilemapWords[word])
-                throw new InvalidDataException(
-                    $"BG2's tilemap word {word} holds ${shownWord:X4}, not the ${TilemapWords[word]:X4} room background {Name} pictures.");
-        }
-    }
-
     /// <summary>Checks <paramref name="words"/> are the words the image pictures, as a sky's rows must be.</summary>
     /// <exception cref="InvalidDataException">The words differ.</exception>
     public void AssertPictures(ReadOnlySpan<ushort> words)

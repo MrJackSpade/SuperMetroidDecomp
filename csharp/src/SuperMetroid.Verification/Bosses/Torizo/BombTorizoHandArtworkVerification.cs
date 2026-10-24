@@ -3,20 +3,17 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVerification;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Bomb Torizo hand debris art from extraction through queued VRAM transfer.</summary>
+/// <summary>Checks Bomb Torizo hand debris art from extraction through installed overrides.</summary>
 internal static class BombTorizoHandArtworkVerification
 {
-    /// <summary>Confirm #1162's exact PLM-to-installed-art-to-NMI handoff, not a room sweep.</summary>
+    /// <summary>Confirms the installed debris page matches the cartridge and its overrides edit exactly their pixels.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo hand artwork")]
     internal static void VerifyBombTorizoHandArtwork()
     {
@@ -33,10 +30,9 @@ internal static class BombTorizoHandArtworkVerification
             for (int index = 0; index < bytes.Length; index++)
                 AssertEqual(importer.ReadCartridgeByte(page.SourceAddress + index), bytes.Span[index],
                     $"imported debris tile byte {index:X4} matches the pinned cartridge");
-            VerifyBombTorizoHandPlm(stock);
             VerifyBombTorizoDebrisOverride(directory, stock, page);
-            Console.WriteLine("Bomb Torizo hand artwork: 1,024 native tile bytes, exact production PLM/NMI DMA, " +
-                "PNG override rebinding and missing-page rejection pass.");
+            Console.WriteLine("Bomb Torizo hand artwork: 1,024 native tile bytes, PNG override editing and missing-page " +
+                "rejection pass.");
         }
         finally
         {
@@ -44,8 +40,7 @@ internal static class BombTorizoHandArtworkVerification
         }
     }
 
-    /// <summary>Checks a PNG override reaches an already queued DMA request and preserves other tile bytes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>Checks a PNG override changes exactly its edited planar pixel of the installed debris page.</summary>
     private static void VerifyBombTorizoDebrisOverride(string directory,
         InstalledEnemyArtwork stock, TileSheetDefinition page)
     {
@@ -62,29 +57,13 @@ internal static class BombTorizoHandArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         }
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
-        runtime.EnemySession.TileArtwork = stock.Enemies;
-        runtime.BossArtwork.Artwork = stock.Bosses;
-        runtime.AreaArtwork.Artwork = stock.Areas;
-        // Already-pending native-address descriptors must use the rebound current
-        // PNG, not stale byte blobs captured with the original simulation graph.
-        var queue = new VramWriteQueue();
-        queue.Enqueue(checked((ushort)page.ByteCount), page.SourceAddress,
-            GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset));
-        runtime.EnemySession.TileArtwork = edited.Enemies;
-        runtime.BossArtwork.Artwork = edited.Bosses;
-        runtime.AreaArtwork.Artwork = edited.Areas;
-        queue.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
         AssertTrue(new EnemyTileTransfers(stock).TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> original),
             "stock debris page remains installed");
-        AssertEqual((byte)(original.Span[0] ^ 0x80),
-            runtime.Vram.ReadByte(GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset).Encoded * 2),
-            "edited debris PNG changes the queued planar pixel");
+        AssertTrue(new EnemyTileTransfers(edited).TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> changed),
+            "edited debris page is installed");
+        AssertEqual((byte)(original.Span[0] ^ 0x80), changed.Span[0], "edited debris PNG changes its planar pixel");
         for (int offset = 1; offset < page.ByteCount; offset++)
-            AssertEqual(original.Span[offset], runtime.Vram.ReadByte(
-                GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset).Encoded * 2 + offset),
-                $"edited debris PNG preserves other byte {offset:X4}");
+            AssertEqual(original.Span[offset], changed.Span[offset], $"edited debris PNG preserves other byte {offset:X4}");
         File.Delete(pngPath);
         AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFiles.Load(directory, null),
             "a missing required debris page is rejected at installation loading, not during play");

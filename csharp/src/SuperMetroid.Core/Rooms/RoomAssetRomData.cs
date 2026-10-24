@@ -11,14 +11,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public static class RoomAssetRomData
 {
-    /// <summary>One fixed WRAM fill followed by a DMA to a VRAM word destination.</summary>
-    public readonly record struct TilemapTransfer(
-        int WorkRamSourceAddress,
-        ushort WorkRamDestination,
-        ushort ByteCount,
-        ushort FillValue,
-        ushort VramDestinationWord);
-
     /// <summary>Native nine-byte graphics-set records and their shared CRE inputs.</summary>
     public static class Tilesets
     {
@@ -49,24 +41,7 @@ public static class RoomAssetRomData
         {
             /// <summary><c>$87:AD64</c>, the 48 raw 4-bpp ghost characters named <c>kTileData_TourianEntranceStatueGhost</c>.</summary>
             public const int SourceAddress = 0x87ad64;
-
-            /// <summary>48 complete 4-bpp characters uploaded by the native library-background command.</summary>
-            public const ushort TransferByteCount = 0x0600;
         }
-
-        /// <summary>Lowest full 24-bit SNES ROM address for command-source classification.</summary>
-        public const int RomSourceAddressFloor = 0x800000;
-
-        /// <summary>Unused native clear-FX command's fill and transfer definition.</summary>
-        public static readonly TilemapTransfer ClearFx =
-            new(0x7e4000, 0x4000, 0x0f00, 0x184e, 0x5880);
-
-        /// <summary>Ordinary clear-BG2 command's fill and primary transfer definition.</summary>
-        public static readonly TilemapTransfer ClearBg2 =
-            new(0x7e4000, 0x4000, 0x1000, 0x0338, 0x4800);
-
-        /// <summary>Kraid's additional destination for the already-filled BG2 buffer.</summary>
-        public const ushort KraidBg2VramDestinationWord = 0x4000;
 
         /// <summary>
         /// HUD BG3 character base selected by command eight's BG34NBA=$02 write while

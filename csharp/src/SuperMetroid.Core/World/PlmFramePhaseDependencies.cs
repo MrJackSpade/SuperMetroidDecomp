@@ -44,8 +44,4 @@ internal sealed record PlmFramePhaseDependencies
     /// <summary>Suit pickup.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 
-
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
-
 }

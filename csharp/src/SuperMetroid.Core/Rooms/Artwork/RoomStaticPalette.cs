@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>The 128 base BG colors selected by one room graphics-set palette source.</summary>
 public sealed class RoomStaticPalette
 {
-    /// <summary>Validated little-endian BGR555 transfer, owned independently of the JSON authoring data.</summary>
+    /// <summary>Validated little-endian BGR555 colours, owned independently of the JSON authoring data.</summary>
     private readonly byte[] nativeBytes;
 
-    /// <summary>Wraps the validated CGRAM transfer assembled by <see cref="Load"/>.</summary>
+    /// <summary>Wraps the validated colours assembled by <see cref="Load"/>.</summary>
     private RoomStaticPalette(byte[] nativeBytes) => this.nativeBytes = nativeBytes;
 
-    /// <summary>Exact native-size CGRAM transfer after discarding the unused high color bit.</summary>
-    public ReadOnlyMemory<byte> Transfer => nativeBytes;
+    /// <summary>The 128 colours packed as little-endian BGR555 words, two bytes each, after discarding the unused high bit.</summary>
+    public ReadOnlyMemory<byte> PackedColours => nativeBytes;
 
     /// <summary>
     /// Loads one room graphics-set palette from a JSON document containing exactly 128 RGB5 colors.

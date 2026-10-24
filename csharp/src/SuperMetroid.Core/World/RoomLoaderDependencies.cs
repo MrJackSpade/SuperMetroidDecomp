@@ -50,9 +50,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The session's installed area artwork, which each room's area actors read.</summary>
     public required AreaArtworkBinding AreaArtwork { get; init; }
 
-    /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
-    public required Bg2TilemapStaging Bg2TilemapStaging { get; init; }
-
     /// <summary>Enemy room effects.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 
@@ -109,9 +106,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Tester.</summary>
     public required TesterTools Tester { get; init; }
 
-
-    /// <summary>Vram.</summary>
-    public required SnesVram Vram { get; init; }
 
     /// <summary>The background character artwork the room binds (#1350).</summary>
     public required BgArtworkBindings Backgrounds { get; init; }

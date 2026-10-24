@@ -44,7 +44,7 @@ internal static class RoomMetatilesVerification
             byte[] native = RomDataReader.Decompress(bus, source);
             RoomMetatileAtlas atlas = RoomMetatileAtlas.Load(
                 new MemoryStream(files[name], writable: false), native.Length);
-            AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
+            AssertTrue(atlas.BlockDefinitions.Span.SequenceEqual(native),
                 $"metatile source ${source:X6} roundtrips every tile reference, palette, priority and flip");
         }
         var bySource = new Dictionary<int, RoomMetatileAtlas>();
@@ -84,7 +84,7 @@ internal static class RoomMetatilesVerification
             RoomCollisionType.SolidBlock);
         byte[] bts = [0x46];
         var originalLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), cre);
-        var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), modified.Transfer.Span);
+        var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), modified.BlockDefinitions.Span);
         AssertTrue(originalLevel.ForegroundEntries.Span.SequenceEqual(modifiedLevel.ForegroundEntries.Span) &&
             originalLevel.BehaviorBytes.AsSpan().SequenceEqual(modifiedLevel.BehaviorBytes.AsSpan()),
             "visual metatile edit leaves room collision nibble and BTS unchanged");

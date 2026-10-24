@@ -34,8 +34,6 @@ internal sealed class PlmFramePhase
     private readonly ActiveRoomState _room;
     /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Queues PLM tile transfers and collected-beam character uploads.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
 
     /// <summary>Binds the shared PLM handler to live runtime state and its presentation effects.</summary>
@@ -50,7 +48,6 @@ internal sealed class PlmFramePhase
         _player = dependencies.Player;
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
-        _vramWrites = dependencies.VramWrites;
 
     }
     /// <summary>
@@ -101,14 +98,6 @@ internal sealed class PlmFramePhase
 
         plms.Step(_room.LevelData, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = bombProjectiles.PowerBombExplosion.Status });
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms, room.Enemies);
-
-        foreach (PlmVramWriteRequest request in plms.BombTorizoHand.VramWriteRequests)
-        {
-            _vramWrites.EnqueueBackground(
-                checked((ushort)request.SizeInBytes),
-                request.SourceAddress,
-                request.Destination);
-        }
     }
 
     /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>

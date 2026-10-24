@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms;
@@ -21,16 +20,11 @@ internal sealed class BombTorizoHandPlms
         _samus = samus;
         _slotTable = slotTable;
     }
-    /// <summary>VRAM transfers queued by the hand's copy-from-RAM instruction for this frame.</summary>
-    private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
     /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
     /// <summary>Delayed track-selection commands queued by the hand program for this frame.</summary>
     private readonly List<DelayedMusicRequest> _musicRequests = [];
-
-    /// <summary>Raw seven-byte VRAM queue entries emitted during the latest PLM pass.</summary>
-    public IReadOnlyList<PlmVramWriteRequest> VramWriteRequests => _vramWriteRequests;
 
     /// <summary>Bank-$86 statue fragments emitted during the latest PLM pass.</summary>
     public IReadOnlyList<BombTorizoStatueProjectileRequest>
@@ -64,10 +58,9 @@ internal sealed class BombTorizoHandPlms
         _bombTorizoHandRoomWidth = level.Size.X;
     }
 
-    /// <summary>Discards the previous PLM pass's VRAM, fragment, and music requests before the next pass.</summary>
+    /// <summary>Discards the previous PLM pass's fragment and music requests before the next pass.</summary>
     internal void BeginBombTorizoHandFrame()
     {
-        _vramWriteRequests.Clear();
         _bombTorizoStatueProjectileRequests.Clear();
         _musicRequests.Clear();
     }
@@ -88,13 +81,6 @@ internal sealed class BombTorizoHandPlms
         slot.WakePastSleep();
         slot.PreInstruction = PlmPreInstructions.Inert;
     }
-    /// <summary><c>$84:87E5</c>: copies the Chozo debris tiles to VRAM before the hand crumbles.</summary>
-    internal void CopyDebrisTiles() =>
-        _vramWriteRequests.Add(new PlmVramWriteRequest(
-            checked(TorizoInstructionTileRomData.ChozoDebrisByteCount),
-            TorizoInstructionTileRomData.ChozoDebrisSource,
-            GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset)));
-
     /// <summary><c>$84:D357</c>: spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
     internal void SpawnFragment(PlmSlot slot, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(

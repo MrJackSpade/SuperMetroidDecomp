@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -8,6 +9,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -31,13 +33,14 @@ internal static class MotherBrainTankBackgroundVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         var expectedVram = new SnesVram();
-        LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), expectedVram, LibraryBackgroundProgramDefinitions.Get(0xe48a), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
+        LibraryBackgroundReplay.Execute(expectedVram, LibraryBackgroundProgramDefinitions.Get(0xe48a), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
-        const int bg2ByteAddress = 0x9000;
-        AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
-            expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),
-            "Mother Brain initialization must preserve both pages of the actual pipe-room background");
+        // The room shows its library background as the image of the pages its list builds (#1406), whatever Mother
+        // Brain's initialization stages for her own BG2.
+        ushort[] pipePages = [.. Enumerable.Range(0, RoomBackgroundImage.Words)
+            .Select(word => expectedVram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
+        AssertTrue(RoomShowsPipeBackground(), "Mother Brain's room shows both pages of the actual pipe-room background");
         for (int index = 0; index < 0x800; index++)
             AssertEqual((ushort)0x0338, ReadStaged(index), "Initializer prepares all enemy BG2 staging words");
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
@@ -48,9 +51,7 @@ internal static class MotherBrainTankBackgroundVerification
         EnemyBg2Image image = runtime.Enemies.Presentation.RequireBg2Image();
         AssertTrue(image.Publish().Words[..0x400].All(word => word == 0x0338),
             "Phase-two setup attaches the staged first page as Mother Brain's BG2 image");
-        AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
-            expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),
-            "Phase-two setup leaves the room's BG2 VRAM as loaded");
+        AssertTrue(RoomShowsPipeBackground(), "Phase-two setup leaves the room's library background as loaded");
         var artwork = runtime.Enemies.BossArtwork;
         AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
@@ -66,12 +67,12 @@ internal static class MotherBrainTankBackgroundVerification
         }
         AssertTrue(image.Publish().Words.SequenceEqual(expectedImage),
             "The crouched body frame draws exactly its authored BG2 words into the image");
-        AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
-            expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),
-            "The body frame leaves the room's BG2 VRAM as loaded");
+        AssertTrue(RoomShowsPipeBackground(), "The body frame leaves the room's library background as loaded");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
         ushort ReadStaged(int index) => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[index];
+        bool RoomShowsPipeBackground() => (runtime.Room.Scope?.BackgroundImage
+            ?? throw new InvalidOperationException("Mother Brain's room selects no library background image.")).Image.TilemapWords.SequenceEqual(pipePages);
     }
 
     /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>

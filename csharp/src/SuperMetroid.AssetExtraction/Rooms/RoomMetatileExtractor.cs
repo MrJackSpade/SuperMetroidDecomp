@@ -53,7 +53,7 @@ public static class RoomMetatileExtractor
             byte[] serialized = json.ToArray();
             RoomMetatileAtlas compiled = RoomMetatileAtlas.Load(
                 new MemoryStream(serialized, writable: false), native.Length);
-            if (!compiled.Transfer.Span.SequenceEqual(native))
+            if (!compiled.BlockDefinitions.Span.SequenceEqual(native))
                 throw new InvalidDataException(
                     $"Room metatile JSON {name} changed source ${source:X6} block bytes.");
             files.Add(name, serialized);

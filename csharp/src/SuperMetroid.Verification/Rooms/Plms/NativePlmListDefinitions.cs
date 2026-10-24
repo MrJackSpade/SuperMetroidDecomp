@@ -217,8 +217,11 @@ internal static class NativePlmListDefinitions
                     case RoomPlmInstruction.GotoIfDoorBitSet:
                     case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
                     case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-                    case RoomPlmInstruction.GotoIfSamusNear:
                     case RoomPlmInstruction.CopyFromRamToVram:
+                        // A character load the typed programs picture instead (#1406): no step, no time.
+                        cursor = unchecked((ushort)(cursor + CopyFromRamToVramLength));
+                        continue;
+                    case RoomPlmInstruction.GotoIfSamusNear:
                     case RoomPlmInstruction.GotoIfAreaBossBitSet:
                     case RoomPlmInstruction.GotoIfEventSet:
                     case RoomPlmInstruction.SetEvent:
@@ -288,6 +291,9 @@ internal static class NativePlmListDefinitions
                 return steps.Count;
             }
         }
+
+        /// <summary>The bytes of a copy-from-RAM-to-VRAM instruction: its word, size, long source and destination.</summary>
+        private const int CopyFromRamToVramLength = 9;
 
         /// <summary>The native word at a bank-$84 offset.</summary>
         private ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);

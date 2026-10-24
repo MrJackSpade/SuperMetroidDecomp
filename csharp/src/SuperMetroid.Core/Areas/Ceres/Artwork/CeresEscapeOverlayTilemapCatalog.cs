@@ -15,7 +15,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
         {
             content.Append("source", page.SourceAddress);
-            content.Append("transfer", Transfer(page));
+            content.Append("transfer", PageBytes(page));
         }
     });
 
@@ -25,7 +25,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
     private CeresEscapeOverlayTilemapCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
 
     /// <summary>Expands one page's calculated and edited words into the contiguous little-endian DMA payload.</summary>
-    private byte[] Transfer(CeresEscapeOverlayTilemapDefinition page)
+    private byte[] PageBytes(CeresEscapeOverlayTilemapDefinition page)
     {
         // Ephemeral contiguous DMA/hash output, not a retained lookup definition.
         var bytes = new byte[page.WordCount * sizeof(ushort)];
@@ -60,7 +60,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
             if (page.SourceAddress == sourceAddress && page.WordCount * 2 == byteCount)
             {
-                data = Transfer(page);
+                data = PageBytes(page);
                 return true;
             }
         data = default;

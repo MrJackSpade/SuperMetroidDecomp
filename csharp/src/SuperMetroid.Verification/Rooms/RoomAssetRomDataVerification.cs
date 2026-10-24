@@ -185,7 +185,7 @@ internal static class RoomAssetRomDataVerification
             RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(new MemoryStream(png), native.Length);
             if (name == RoomCharacterAtlasFormat.CreFileName) compiledCre = atlas;
             else compiledBySource.Add(sourceAddress, atlas);
-            AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
+            AssertTrue(atlas.Characters.Span.SequenceEqual(native),
                 $"room atlas {name} preserves every native character byte");
             var vram = new SnesVram();
             atlas.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram));
@@ -254,7 +254,7 @@ internal static class RoomAssetRomDataVerification
         using var changedPng = new MemoryStream();
         IndexedPng.Write(changedPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Colours);
         AssertTrue(!RoomCharacterAtlas.Load(new MemoryStream(changedPng.ToArray()), partialNative.Length)
-                .Transfer.Span.SequenceEqual(partialNative),
+                .Characters.Span.SequenceEqual(partialNative),
             "painting a room PNG changes the compiled runtime character bytes");
         int firstPaddingTile = tileCount;
         edited = (byte[])decoded.Pixels.Clone();

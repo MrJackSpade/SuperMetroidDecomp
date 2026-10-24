@@ -14,7 +14,7 @@ internal sealed record MotherBrainSpecialSpriteCharacters(int Sheet, int Page, i
         MotherBrainSpecialSpriteSheetDefinition sheet = MotherBrainSpecialSpriteArtworkDefinitions.All[Sheet];
         MotherBrainSpecialSpriteArtworkCatalog artwork = InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.MotherBrainSpecialSprites ??
             throw new InvalidDataException($"Installed enemy artwork is missing {sheet.FileName}.");
-        return artwork.Get(sheet.SourceAddress).Transfer.Slice(Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, ByteCount);
+        return artwork.Get(sheet.SourceAddress).Characters.Slice(Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, ByteCount);
     }
 
     /// <summary>Names the source for diagnostics.</summary>

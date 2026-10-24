@@ -14,7 +14,7 @@ public sealed class TorizoInstructionVramArtwork
         {
             content.Append("pages", pages.Length);
             foreach (RoomCharacterAtlas page in pages)
-                content.Append("tiles", page.Transfer.Span);
+                content.Append("tiles", page.Characters.Span);
         });
 
     /// <summary>Validated selected character transfers in tile-sheet definition order.</summary>
@@ -28,7 +28,7 @@ public sealed class TorizoInstructionVramArtwork
             throw new InvalidDataException("Torizo instruction artwork requires every tile page.");
         for (int index = 0; index < pages.Length; index++)
         {
-            if (pages[index] is null || pages[index].Transfer.Length !=
+            if (pages[index] is null || pages[index].Characters.Length !=
                 TorizoInstructionVramArtworkDefinitions.All[index].ByteCount)
                 throw new InvalidDataException(
                     $"Torizo instruction tile page {index} has the wrong size.");
@@ -48,7 +48,7 @@ public sealed class TorizoInstructionVramArtwork
             if (offset < 0 || byteCount <= 0 ||
                 offset > page.ByteCount - byteCount)
                 continue;
-            characters = pages[index].Transfer.Slice(offset, byteCount);
+            characters = pages[index].Characters.Slice(offset, byteCount);
             return true;
         }
         characters = default;

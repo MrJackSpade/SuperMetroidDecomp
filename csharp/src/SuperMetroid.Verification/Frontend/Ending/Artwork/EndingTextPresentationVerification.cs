@@ -30,7 +30,7 @@ internal static class EndingTextPresentationVerification
         byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
             EndingCreditsRomData.Rendering.FloorBytes);
-        AssertTrue(font.Transfer.Span.SequenceEqual(
+        AssertTrue(font.Characters.Span.SequenceEqual(
             nativeFont.AsSpan(0, EndingFontAtlasFormat.ByteCount)),
             "installed ending-font PNG compiles to exact native planar bytes");
         ISnesAddressSpace installedBus = NewEndingTextReadGuard(nativeBus);
@@ -109,7 +109,7 @@ internal static class EndingTextPresentationVerification
             editableFont.Pixels, editableFont.Colours);
         editedFontPng.Position = 0;
         EndingFontAtlas editedFont = EndingFontAtlas.Load(editedFontPng);
-        AssertTrue(!editedFont.Transfer.Span.SequenceEqual(font.Transfer.Span),
+        AssertTrue(!editedFont.Characters.Span.SequenceEqual(font.Characters.Span),
             "ending-font PNG edit changes compiled VRAM bytes");
         Console.WriteLine($"Ending text: exact producer/copyright panels and {comparedFrames} native typewriter frames match with bank-$8C text reads forbidden; edits, restore and validation pass.");
         Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes; an indexed-pixel edit changes installed VRAM content.");
@@ -176,8 +176,8 @@ internal static class EndingTextPresentationVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(!edited.EndingFont.Transfer.Span.SequenceEqual(
-            stockCatalog.EndingFont.Transfer.Span),
+        AssertTrue(!edited.EndingFont.Characters.Span.SequenceEqual(
+            stockCatalog.EndingFont.Characters.Span),
             "ending-font override changes installed VRAM bytes");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "ending-font override changes catalog content identity");

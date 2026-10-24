@@ -30,7 +30,7 @@ internal static class IndexedTilePageExtractor
         byte[] png = output.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(png, writable: false), byteCount);
-        if (!roundtrip.Transfer.Span.SequenceEqual(native))
+        if (!roundtrip.Characters.Span.SequenceEqual(native))
             throw new InvalidDataException(
                 $"{identity} changed native tile bytes during PNG extraction.");
         return png;

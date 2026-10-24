@@ -60,7 +60,7 @@ internal static class MessageBoxSheetComposer
         int width = GameplayMessageRomData.Layout.TilemapWidth;
         int rows = messages.Values.Sum(words => words.Length / width);
         var canvas = new RoomTileCanvas(width * RoomTileCanvas.CharacterPixels, rows * RoomTileCanvas.CharacterPixels);
-        ReadOnlySpan<byte> characters = inputs.Hud.Transfer.Span;
+        ReadOnlySpan<byte> characters = inputs.Hud.Bytes.Span;
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         int top = 0;
         foreach ((string name, ImmutableArray<ushort> words) in messages)

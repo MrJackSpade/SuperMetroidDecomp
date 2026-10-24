@@ -89,7 +89,7 @@ internal static class RoomTilesetSources
     /// <summary>The installed content identity of the selected character sheets.</summary>
     internal static string CharacterIdentity(RoomCharacterAtlasCatalog catalog) => SelectedPresentationHash.FromTransfers(
         nameof(RoomCharacterAtlasCatalog), catalog.Sheets.ToDictionary(pair => Characters[pair.Key], pair => pair.Value),
-        atlas => atlas.Transfer, catalog.Cre.Transfer);
+        atlas => atlas.Characters, catalog.Cre.Characters);
 
     /// <summary>The installed content identity of the selected block tables.</summary>
     internal static string BlockIdentity(RoomMetatileCatalog catalog) => SelectedPresentationHash.FromTransfers(

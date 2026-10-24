@@ -80,7 +80,7 @@ internal static class RoomCharacterInstallationVerification
             CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, edited);
             AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 "installed PNG override changes the real room-loader output");
-            AssertTrue(stock.GetAt(source).Transfer.Span.SequenceEqual(native.RoomCharacters),
+            AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(native.RoomCharacters),
                 "room override does not mutate stock artwork already loaded");
 
             int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
@@ -88,7 +88,7 @@ internal static class RoomCharacterInstallationVerification
             string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
             byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 ghostSource, LibraryBackgroundRomData.TourianStatueGhostByteCount);
-            AssertTrue(stock.GetAt(ghostSource).Transfer.Span.SequenceEqual(nativeGhost),
+            AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
                 "installed statue-ghost PNG preserves every native character byte");
             LibraryBackgroundSource ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(entry => entry.SourceAddress == ghostSource);
@@ -295,8 +295,8 @@ internal static class RoomCharacterInstallationVerification
                 "room-character stock sheet is restored by repair");
             AssertTrue(File.Exists(ghostOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomCharacterDirectory, ghostName)) &&
-                repaired.LoadRoomCharacters().GetAt(ghostSource).Transfer.Span.SequenceEqual(
-                    editedGhost.GetAt(ghostSource).Transfer.Span),
+                repaired.LoadRoomCharacters().GetAt(ghostSource).Characters.Span.SequenceEqual(
+                    editedGhost.GetAt(ghostSource).Characters.Span),
                 "statue-ghost stock sheet is repaired without losing the user edit");
             AssertTrue(File.Exists(paletteOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomPaletteDirectory, paletteName)),

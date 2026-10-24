@@ -28,9 +28,9 @@ public sealed class IntroCinematicArtworkCatalog
         {
             RoomBackgroundTilemapAtlas page = parts.BackgroundPages[index]
                 ?? throw new InvalidDataException($"Opening BG page {index} is missing.");
-            if (page.Transfer.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+            if (page.Bytes.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Opening BG page {index} must contain one 32x32 tilemap.");
-            page.Transfer.Span.CopyTo(pages.AsSpan(index * IntroCinematicArtworkFormat.BackgroundPageByteCount,
+            page.Bytes.Span.CopyTo(pages.AsSpan(index * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                 IntroCinematicArtworkFormat.BackgroundPageByteCount));
         }
         if (!pages.SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
@@ -56,9 +56,9 @@ public sealed class IntroCinematicArtworkCatalog
 
         static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
         {
-            if (page is null || page.Transfer.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
+            if (page is null || page.Bytes.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Opening cinematic {name} tilemap must contain one 32x32 page.");
-            return page.Transfer;
+            return page.Bytes;
         }
     }
 
@@ -113,8 +113,8 @@ public sealed class IntroCinematicArtworkCatalog
             if (field is null)
             {
                 var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);
-                field = ObjCharacterPage.With(id, ObjCharacterPage.Create(id, IntroObjectCharacters.Transfer.Span),
-                    CinematicObjectCharacters.Transfer.Span, SuperMetroid.Core.Samus.Artwork.ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
+                field = ObjCharacterPage.With(id, ObjCharacterPage.Create(id, IntroObjectCharacters.Characters.Span),
+                    CinematicObjectCharacters.Characters.Span, SuperMetroid.Core.Samus.Artwork.ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
             }
             return field;
         }
@@ -123,9 +123,9 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>Identity of the entire selected opening bundle, including its owned Ceres flight/reveal art.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroCinematicArtworkCatalog), content =>
     {
-        content.Append("background-characters", BackgroundCharacters.Transfer.Span);
-        content.Append("intro-characters", IntroObjectCharacters.Transfer.Span);
-        content.Append("cinematic-characters", CinematicObjectCharacters.Transfer.Span);
+        content.Append("background-characters", BackgroundCharacters.Characters.Span);
+        content.Append("intro-characters", IntroObjectCharacters.Characters.Span);
+        content.Append("cinematic-characters", CinematicObjectCharacters.Characters.Span);
         content.Append("background-pages", BackgroundPages.Span);
         content.Append("portrait-map", PortraitTilemap.Span);
         content.Append("narration-map", InitialNarrationTilemap.Span);

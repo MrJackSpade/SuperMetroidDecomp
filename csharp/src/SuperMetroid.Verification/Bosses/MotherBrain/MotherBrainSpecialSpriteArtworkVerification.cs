@@ -48,7 +48,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         {
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 sheet.SourceAddress, sheet.ByteCount);
-            AssertTrue(installed.Get(sheet.SourceAddress).Transfer.Span.SequenceEqual(native),
+            AssertTrue(installed.Get(sheet.SourceAddress).Characters.Span.SequenceEqual(native),
                 $"installed {sheet.FileName} preserves native characters");
             SnesVram installedVram = ShowMotherBrainSpecialPages(stock,
                 sheet);
@@ -94,8 +94,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 $"{sheet.FileName} edit leaves neighboring bytes unchanged");
             RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
                 .Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainSpecialSprites.")).Get(sheet.SourceAddress);
-            AssertTrue(reloaded.Transfer.Span.SequenceEqual(
-                    (edited.Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.SourceAddress).Transfer.Span),
+            AssertTrue(reloaded.Characters.Span.SequenceEqual(
+                    (edited.Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.SourceAddress).Characters.Span),
                 $"{sheet.FileName} override survives catalog reload");
 
             File.WriteAllBytes(overridePath, [0]);
@@ -210,7 +210,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         {
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, page));
             byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePages.SourceAddressOf(pages[page]), EscapeTimerTilePages.ByteCountOf(pages[page]));
-            AssertTrue(ObjVram().Bytes.Slice(EscapeTimerTilePages.DestinationWordOf(pages[page]) * 2, native.Length)
+            AssertTrue(ObjVram().Bytes.Slice(EscapeNativePageWords.Of(EscapeTimerTilePages.FirstCharacterOf(pages[page])) * 2, native.Length)
                 .SequenceEqual(native),
                 "installed Mother Brain timer page matches cartridge without visual ROM reads");
         }

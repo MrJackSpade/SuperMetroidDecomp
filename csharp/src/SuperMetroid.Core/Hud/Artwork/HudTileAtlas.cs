@@ -7,18 +7,18 @@ namespace SuperMetroid.Core.Hud.Artwork;
 public sealed class HudTileAtlas
 {
     /// <summary>Contiguous HUD characters followed by the zero-filled half that clears BG2's words.</summary>
-    internal readonly byte[] transfer;
+    internal readonly byte[] bytes;
     /// <summary>Retains the HUD characters and their cleared half.</summary>
-    internal HudTileAtlas(byte[] transfer) => this.transfer = transfer;
+    internal HudTileAtlas(byte[] bytes) => this.bytes = bytes;
     /// <summary>The HUD characters and their cleared half, which restoration slices divide.</summary>
-    internal ReadOnlyMemory<byte> Transfer => transfer;
+    internal ReadOnlyMemory<byte> Bytes => bytes;
 
     /// <summary>One native 0x400-byte death-restoration slice of the shared BG3 characters.</summary>
     public ReadOnlyMemory<byte> KraidRestoreQuarter(int index)
     {
         if ((uint)index >= HudTileAtlasFormat.RestoreQuarterCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return transfer.AsMemory(
+        return bytes.AsMemory(
             index * HudTileAtlasFormat.RestoreQuarterBytes,
             HudTileAtlasFormat.RestoreQuarterBytes);
     }
@@ -33,7 +33,7 @@ public sealed class HudTileAtlas
     public void ShowCharactersAgain(BgArtworkBindings backgrounds, int characterBase)
     {
         Ensure.NotNull(backgrounds);
-        ReadOnlySpan<byte> characters = transfer.AsSpan(0, HudTileAtlasFormat.CharacterByteCount);
+        ReadOnlySpan<byte> characters = bytes.AsSpan(0, HudTileAtlasFormat.CharacterByteCount);
         BgArtworkShown shown = backgrounds.Showing(characterBase, characters.Length / sizeof(ushort));
         if (shown.WordOffset != 0)
             throw new InvalidDataException($"{shown.Artwork.Name} shows the HUD characters from word {shown.WordOffset} of its artwork, not its first.");
@@ -49,8 +49,8 @@ public sealed class HudTileAtlas
     {
         var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 2);
-        var transfer = new byte[HudTileAtlasFormat.TransferByteCount];
-        planar.CopyTo(transfer, 0);
-        return new(transfer);
+        var bytes = new byte[HudTileAtlasFormat.TransferByteCount];
+        planar.CopyTo(bytes, 0);
+        return new(bytes);
     }
 }

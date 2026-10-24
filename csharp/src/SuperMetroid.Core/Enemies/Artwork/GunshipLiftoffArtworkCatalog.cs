@@ -11,7 +11,7 @@ public sealed class GunshipLiftoffArtworkCatalog
         {
             content.Append("frames", frames.Length);
             foreach (RoomCharacterAtlas frame in frames)
-                content.Append("tiles", frame.Transfer.Span);
+                content.Append("tiles", frame.Characters.Span);
         });
 
     /// <summary>Owned five-frame character atlases indexed by the fixed takeoff transfer order.</summary>
@@ -23,7 +23,7 @@ public sealed class GunshipLiftoffArtworkCatalog
         Ensure.NotNull(frames);
         if (frames.Length != GunshipLiftoffTransferDefinitions.Frames.Length ||
             frames.Any(frame => frame is null ||
-                frame.Transfer.Length != GunshipLiftoffTransferDefinitions.ByteCount))
+                frame.Characters.Length != GunshipLiftoffTransferDefinitions.ByteCount))
             throw new InvalidDataException("Gunship takeoff requires five complete character frames.");
         this.frames = frames.ToArray();
     }
@@ -36,7 +36,7 @@ public sealed class GunshipLiftoffArtworkCatalog
             GunshipLiftoffTransferDefinitions.Frames[index].Asset != asset)
             throw new ArgumentOutOfRangeException(nameof(asset), asset,
                 "Not a gunship takeoff transfer.");
-        return frames[index].Transfer;
+        return frames[index].Characters;
     }
 
     /// <summary>Rebinds an older pending cartridge-source upload after debugger restore.</summary>
@@ -50,7 +50,7 @@ public sealed class GunshipLiftoffArtworkCatalog
                 throw new InvalidDataException(
                     $"Gunship takeoff upload ${sourceAddress:X6} requires " +
                     $"${GunshipLiftoffTransferDefinitions.ByteCount:X} bytes, not ${byteCount:X}.");
-            data = frames[index].Transfer;
+            data = frames[index].Characters;
             return true;
         }
         data = default;

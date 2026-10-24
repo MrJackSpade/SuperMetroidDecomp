@@ -92,8 +92,8 @@ internal static class TileWordSheetComposer
     {
         Ensure.NotNull(content);
         int characterWords = TileWordSheet.CharacterWordsOf(layer);
-        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
-            inputs.Characters.Get(tileset.Characters).Transfer);
+        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Characters,
+            inputs.Characters.Get(tileset.Characters).Characters);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs)).Concat(options).Concat(bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
@@ -198,8 +198,7 @@ internal static class TileWordSheetComposer
         switch (writer)
         {
             case TileWordWriter.ZebesEscapeText:
-                yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase,
-                    GameplayVramLayout.Bg2TilemapWord));
+                yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase));
                 break;
             case TileWordWriter.CeresEscapeText:
                 foreach ((string, BodyPart) part in CeresWarningParts(inputs))
@@ -273,8 +272,7 @@ internal static class TileWordSheetComposer
                 OverlayWords(overlays, transfer.SourceAddress, transfer.ByteCount)));
         }
         yield return ("Subtitle", new BodyPart([.. subtitle]));
-        yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase,
-            GameplayVramLayout.Bg1TilemapWord));
+        yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase));
     }
 
     /// <summary>The words of the installed Ceres warning tilemap the getaway writes from <paramref name="sourceAddress"/>.</summary>
@@ -289,22 +287,18 @@ internal static class TileWordSheetComposer
         return words;
     }
 
-    /// <summary>
-    /// The text <paramref name="program"/> types from <paramref name="tileBase"/>, each glyph at the word of the tilemap at
-    /// <paramref name="tilemapWord"/> the typewriter writes it to.
-    /// </summary>
-    [PpuLayoutBoundary("codec: escape typewriter programs' native BG1 and BG2 tilemap destinations")]
-    private static BodyPart Typed(EscapeTypewriterProgram program, ushort tileBase, int tilemapWord)
+    /// <summary>The text <paramref name="program"/> types from <paramref name="tileBase"/>, each glyph at the overlay cell it is typed over.</summary>
+    private static BodyPart Typed(EscapeTypewriterProgram program, ushort tileBase)
     {
         var runs = new List<BodyRun>();
         foreach (EscapeTypewriterLine line in program.Lines)
         {
-            int destination = line.Destination;
+            int cell = line.Cell;
             foreach (char character in line.Text)
             {
                 if (EscapeTypewriterState.GlyphOf((byte)character, new SnesBgTilemapWord(tileBase)) is { } glyph)
-                    runs.AddRange(Runs(destination - tilemapWord, [glyph.Raw]));
-                destination = EscapeTypewriterState.NextDestination(destination);
+                    runs.AddRange(Runs(cell, [glyph.Raw]));
+                cell++;
             }
         }
         return new BodyPart([.. runs]);

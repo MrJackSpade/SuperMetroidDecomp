@@ -18,7 +18,7 @@ internal static class IntroScreenMemory
         IntroCinematicState.RequireFont(font);
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
-        intro.BackgroundCharacters.Load(artwork.BackgroundCharacters.Transfer.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes]);
+        intro.BackgroundCharacters.Load(artwork.BackgroundCharacters.Characters.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes]);
         intro.FontOne.Load(font);
         if (japaneseGlyphsBlanked)
         {
@@ -32,8 +32,8 @@ internal static class IntroScreenMemory
             intro.JapaneseBlankCharacters.Load(blanked);
         }
         intro.BackgroundPages.Load(artwork.BackgroundPages.Span[..IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes]);
-        intro.IntroObjectCharacters.Load(artwork.IntroObjectCharacters.Transfer.Span);
-        intro.CinematicObjectCharacters.Load(artwork.CinematicObjectCharacters.Transfer.Span[..IntroCinematicRomData.Transfers.ObjectCharacterBytes]);
+        intro.IntroObjectCharacters.Load(artwork.IntroObjectCharacters.Characters.Span);
+        intro.CinematicObjectCharacters.Load(artwork.CinematicObjectCharacters.Characters.Span[..IntroCinematicRomData.Transfers.ObjectCharacterBytes]);
         return vram.CaptureImage();
     }
 
@@ -44,7 +44,7 @@ internal static class IntroScreenMemory
             "Opening cinematic rendering requires installed artwork.");
         IntroFontAtlas font = intro.IntroFont ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires the installed font atlas.");
-        return Compose(Characters(artwork, font.Transfer.Span, intro.JapaneseGlyphsBlanked), intro.tilemaps);
+        return Compose(Characters(artwork, font.Characters.Span, intro.JapaneseGlyphsBlanked), intro.tilemaps);
     }
 
     /// <summary>The memory image of <paramref name="characters"/> with <paramref name="tilemaps"/> over them.</summary>

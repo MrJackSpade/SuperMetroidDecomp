@@ -62,12 +62,12 @@ public sealed class EndingPaletteCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
     {
         content.Append("palette-count", 7);
-        content.Append("palette", escape.Transfer.Span);
-        content.Append("palette", postCredits.Transfer.Span);
-        content.Append("palette", credits.Transfer.Span);
-        content.Append("palette", explosion.Transfer.Span);
-        content.Append("palette", finalGunship.Transfer.Span);
-        content.Append("palette", logoInitial.Transfer.Span);
-        content.Append("palette", logoCrossfade.Transfer.Span);
+        content.Append("palette", escape.Bytes.Span);
+        content.Append("palette", postCredits.Bytes.Span);
+        content.Append("palette", credits.Bytes.Span);
+        content.Append("palette", explosion.Bytes.Span);
+        content.Append("palette", finalGunship.Bytes.Span);
+        content.Append("palette", logoInitial.Bytes.Span);
+        content.Append("palette", logoCrossfade.Bytes.Span);
     });
 }

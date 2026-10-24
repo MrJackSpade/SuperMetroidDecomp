@@ -41,7 +41,7 @@ public sealed class EndingFloorArtworkCatalog
         content.Append("characters", escapeB.Characters.Span);
         content.Append("map", planetExplosion.Map.Span);
         content.Append("characters", planetExplosion.Characters.Span);
-        content.Append("reward-icon", RewardIcon.Transfer.Span);
+        content.Append("reward-icon", RewardIcon.Bytes.Span);
     });
 
     /// <summary>Gets the map and character lanes for the selected native ending backdrop.</summary>

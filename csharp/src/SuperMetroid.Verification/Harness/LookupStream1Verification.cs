@@ -1408,7 +1408,7 @@ internal static class LookupStream1Verification
             hash.AppendWords("attributes", value.SpriteAttributes.Select(item => (ushort)item).ToArray());
             foreach (int[] direction in value.CoverTiles)
                 foreach (int tile in direction) hash.Append("cover tile", tile);
-            hash.Append("characters", tiles.Transfer.Span);
+            hash.Append("characters", tiles.Characters.Span);
         });
         AssertEqual(253, SamusBodyArtworkCatalog.PoseCount, "cannon original 506-byte pointer extent");
         AssertEqual(0, Stored(stock).Count, "cannon pose stock stores no copied pointer overrides");
@@ -2450,22 +2450,24 @@ internal static class LookupStream1Verification
             AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
             for (int index = 0; index < original.Length; index++)
             {
-                var expected = new EscapeTypewriterLine((ushort)original[index].Destination, original[index].Text);
+                var expected = new EscapeTypewriterLine(original[index].Cell, original[index].Text);
                 AssertEqual(expected, EscapeTypewriterDefinitions.Line(id, index), "escape text direct original placement and wording");
                 AssertEqual(expected, program.Lines[index], "escape text installed line");
                 var editedLines = original.ToArray();
-                editedLines[index] = original[index] with { Text = "TEST!", Destination = original[index].Destination + 7 };
+                editedLines[index] = original[index] with { Text = "TEST!", Cell = original[index].Cell + 7 };
                 var programs = new Dictionary<string, EscapeTypewriterProgramDocument>(document.Programs)
                 { [id.ToString()] = new() { Lines = editedLines } };
                 var edited = Load(document with { Programs = programs });
                 AssertEqual(1, Stored(edited.Get(id)), "escape text single supplied line exception");
                 for (int other = 0; other < original.Length; other++)
-                    AssertEqual(other == index ? new EscapeTypewriterLine((ushort)editedLines[index].Destination, "TEST!")
+                    AssertEqual(other == index ? new EscapeTypewriterLine(editedLines[index].Cell, "TEST!")
                         : program.Lines[other], edited.Get(id).Lines[other], "escape text independent line edit");
             }
             // Independently interpret original control words and characters; the production
             // side receives only the installed calculated view and no cartridge reader.
             ushort tileBase = id == EscapeTypewriterProgramId.Ceres ? (ushort)0x3582 : (ushort)0x2610;
+            // The program's words are VRAM tilemap words; the port types at cells of the overlay over that tilemap.
+            int tilemapWord = id == EscapeTypewriterProgramId.Ceres ? GameplayVramLayout.Bg1TilemapWord : GameplayVramLayout.Bg2TilemapWord;
             var actual = new EscapeTypewriterState(program, tileBase);
             var actualVram = new SnesVram(); var expectedVram = new SnesVram();
             int cursor = EscapeTypewriterDefinitions.SourceAddress(id), glyphs = 0;
@@ -2488,7 +2490,7 @@ internal static class LookupStream1Verification
                         if (character != ' ')
                         {
                             int glyph = character == '!' ? '[' : character;
-                            expectedVram.ExecuteWordTransfer([(ushort)(tileBase + glyph - 'A')], destination, 1);
+                            expectedVram.ExecuteWordTransfer([(ushort)(tileBase + glyph - 'A')], checked((ushort)(destination - tilemapWord)), 1);
                             click = ++glyphs % 2 == 0;
                         }
                         destination++;
@@ -2496,7 +2498,7 @@ internal static class LookupStream1Verification
                     }
                 }
                 AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
-                AssertEqual(destination, actual.Destination, "escape text native destination");
+                AssertEqual(destination - tilemapWord, actual.Cell, "escape text native cell");
                 AssertEqual(delay, actual.Delay, "escape text native delay");
                 AssertEqual(timer, actual.DelayTimer.RawValue, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
@@ -2505,12 +2507,12 @@ internal static class LookupStream1Verification
                 totalFrames++;
             }
             AssertTrue(done, "escape text native program terminates");
-            var extraLines = original.Append(new EscapeTypewriterLineDocument { Destination = 0x6000, Text = "EXTRA!" }).ToArray();
+            var extraLines = original.Append(new EscapeTypewriterLineDocument { Cell = 0x400, Text = "EXTRA!" }).ToArray();
             var extraPrograms = new Dictionary<string, EscapeTypewriterProgramDocument>(document.Programs)
             { [id.ToString()] = new() { Lines = extraLines } };
             var extra = Load(document with { Programs = extraPrograms }).Get(id);
             AssertEqual(original.Length + 1, extra.Lines.Count, "escape text accepts independently added line");
-            AssertEqual(new EscapeTypewriterLine(0x6000, "EXTRA!"), extra.Lines[^1], "escape text preserves added content");
+            AssertEqual(new EscapeTypewriterLine(0x400, "EXTRA!"), extra.Lines[^1], "escape text preserves added content");
             AssertEqual(1, Stored(extra), "escape text stores only added line");
             extraPrograms[id.ToString()] = new() { Lines = original.Take(1).ToArray() };
             AssertEqual(1, Load(document with { Programs = extraPrograms }).Get(id).Lines.Count, "escape text preserves shortened document");

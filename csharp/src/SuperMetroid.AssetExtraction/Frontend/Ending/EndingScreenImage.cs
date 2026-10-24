@@ -38,20 +38,20 @@ internal static class EndingScreenImage
                 ReplayFlyawayChunk(vram, upload.Key, artwork);
                 break;
             case EndingUploadKind.EscapeClouds:
-                ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Transfer.Span[..EndingCreditsRomData.Rendering.FloorBytes]);
+                ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Characters.Span[..EndingCreditsRomData.Rendering.FloorBytes]);
                 break;
             case EndingUploadKind.ExplosionObjects:
-                ending.ExplosionObjects.Load(Objects(artwork).Explosion.Transfer.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes]);
+                ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes]);
                 break;
             case EndingUploadKind.ObjectFragment:
                 var fragment = (EndingObjectFragmentId)upload.Key;
-                ending.ObjectFragment(fragment).Load(Objects(artwork).Fragment(fragment).Transfer.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes]);
+                ending.ObjectFragment(fragment).Load(Objects(artwork).Fragment(fragment).Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes]);
                 break;
             case EndingUploadKind.EndingFont:
-                ending.EndingFont.Load(Font(artwork).Transfer.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
+                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
                 break;
             case EndingUploadKind.CreditsFont:
-                ending.CreditsFont.Load(Font(artwork).Transfer.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
+                ending.CreditsFont.Load(Font(artwork).Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
                 break;
             case EndingUploadKind.CreditsCharacterArt:
                 ReplayCreditsCharacterArt(ending, artwork);
@@ -69,7 +69,7 @@ internal static class EndingScreenImage
                 // The queued transfer writes both VRAM ports with increment-after-high; the bytes are already interleaved.
                 int source = EndingRewardGraphicsUploadDefinitions.SourceWord(upload.Key);
                 vram.LoadBytes(EndingRewardGraphicsUploadDefinitions.DestinationWord(upload.Key) * sizeof(ushort),
-                    Mode7(artwork).RewardIcon.Transfer.Span.Slice(source - EndingRewardGraphicsUploadDefinitions.SourceBase,
+                    Mode7(artwork).RewardIcon.Bytes.Span.Slice(source - EndingRewardGraphicsUploadDefinitions.SourceBase,
                         EndingRewardGraphicsUploadDefinitions.ChunkBytes));
                 break;
             case EndingUploadKind.PostShotTransfer:
@@ -105,15 +105,15 @@ internal static class EndingScreenImage
     private static void ReplayCreditsCharacterArt(EndingVram ending, EndingScreenArtwork artwork)
     {
         EndingObjectArtworkCatalog objects = Objects(artwork);
-        ReadOnlySpan<byte> waiting = objects.WaitingSamus.Transfer.Span;
+        ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
         ending.WaitingCharacters.Load(waiting[..EndingCreditsRomData.Rendering.WaitingCharacterBytes]);
-        ending.PostCreditsObjects.Load(objects.ShootingScreen.Transfer.Span[..EndingCreditsRomData.Rendering.ShootingCharacterBytes]);
-        ending.WaitingTilemap.Load(objects.WaitingTilemap.Transfer.Span[..EndingCreditsRomData.Rendering.WaitingTilemapBytes]);
+        ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingCreditsRomData.Rendering.ShootingCharacterBytes]);
+        ending.WaitingTilemap.Load(objects.WaitingTilemap.Bytes.Span[..EndingCreditsRomData.Rendering.WaitingTilemapBytes]);
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
-        ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Transfer.Span : waiting;
+        ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
         ending.RewardCharacters.Load(reward[..EndingCreditsRomData.Rendering.FloorBytes]);
-        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Transfer.Span[..EndingCreditsRomData.Rendering.PostCreditsFragmentABytes]);
-        ending.PostCreditsFragmentB.Load(objects.PostCreditsFragmentB.Transfer.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes]);
+        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingCreditsRomData.Rendering.PostCreditsFragmentABytes]);
+        ending.PostCreditsFragmentB.Load(objects.PostCreditsFragmentB.Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes]);
     }
 
     /// <summary>One post-shot subtitle, logo-tile or logo-map transfer at its native word.</summary>
@@ -123,10 +123,10 @@ internal static class EndingScreenImage
         int length = transfer.Length;
         ReadOnlySpan<byte> bytes = transfer.Source switch
         {
-            EndingPostShotUploadSource.Subtitle => Font(artwork).Transfer.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset, length),
-            EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Transfer.Span.Slice(
+            EndingPostShotUploadSource.Subtitle => Font(artwork).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset, length),
+            EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Characters.Span.Slice(
                 transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource, length),
-            EndingPostShotUploadSource.LogoMap => Objects(artwork).PostShotLogoMap.Transfer.Span[..length],
+            EndingPostShotUploadSource.LogoMap => Objects(artwork).PostShotLogoMap.Bytes.Span[..length],
             _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
         };
         vram.LoadBytes(transfer.DestinationWord * sizeof(ushort), bytes);

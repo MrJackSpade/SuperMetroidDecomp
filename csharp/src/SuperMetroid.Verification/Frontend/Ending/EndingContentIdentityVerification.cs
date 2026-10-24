@@ -79,7 +79,7 @@ internal static class EndingContentIdentityVerification
                 content.Append("map", scene.Map.Span);
                 content.Append("characters", scene.Characters.Span);
             }
-            content.Append("reward-icon", reward.Transfer.Span);
+            content.Append("reward-icon", reward.Bytes.Span);
         });
         AssertEqual(originalHash, catalog.ContentIdentity, "ending Mode7 original hash ordering");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })

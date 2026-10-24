@@ -49,7 +49,7 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
 
     /// <summary>Resolves a supported typed beam-tile identity to its immutable 256-byte planar transfer.</summary>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
-        sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(SelectionFor(asset))].Transfer;
+        sheets[BeamTileAtlasDefinitions.ArtworkOrdinal(SelectionFor(asset))].Characters;
 
     /// <summary>Resolves restored native beam uploads through installed artwork, without ROM DMA.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)

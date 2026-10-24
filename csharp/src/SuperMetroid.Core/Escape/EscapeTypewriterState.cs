@@ -1,12 +1,11 @@
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>Byte-oriented $A6:C2A7 text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
-    /// <summary>How many word addresses the destination counts through before it returns to zero.</summary>
-    private const int DestinationPeriod = 65536;
     /// <summary>Complete tilemap word for A, including attributes applied to each written glyph.</summary>
     private readonly SnesBgTilemapWord tileBase;
     /// <summary>Rebound host text excluded from serialized interpreter state.</summary>
@@ -34,15 +33,15 @@ public sealed class EscapeTypewriterState
     }
 
     /// <summary>
-    /// VRAM word address of the next tilemap cell, 0 through 65535: reset at each line's first character and advanced
-    /// for both written glyphs and spaces, returning to zero after 65535 as the cartridge's word does.
+    /// The overlay cell the next character is typed over: reset at each line's first character and advanced for both
+    /// written glyphs and spaces (#1406).
     /// </summary>
-    public int Destination { get; private set; }
+    public int Cell { get; private set; }
     /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-call character delay once the program starts.</summary>
     public int Delay { get; private set; }
     /// <summary>Calls still to skip before interpreting another character; a call that decrements it to zero still performs no character work.</summary>
     public WrappingCountdown DelayTimer { get; private set; }
-    /// <summary>Total non-space glyphs transferred to VRAM; spaces advance the destination but do not increment this count.</summary>
+    /// <summary>Total non-space glyphs typed; spaces advance the cell but do not increment this count.</summary>
     public int GlyphsWritten { get; private set; }
     /// <summary>True after an eligible interpretation call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
     public bool Completed { get; private set; }
@@ -109,7 +108,7 @@ public sealed class EscapeTypewriterState
                 continue;
             }
             if (ProgramCharacterIndex == 0)
-                Destination = line.Destination;
+                Cell = line.Cell;
             byte character = (byte)line.Text[ProgramCharacterIndex++];
             glyph = TypeCharacter(character);
             return false;
@@ -117,22 +116,21 @@ public sealed class EscapeTypewriterState
         return Completed = true;
     }
 
-    /// <summary>Whether a line of <paramref name="length"/> glyphs written from <paramref name="destination"/> stays inside VRAM.</summary>
-    [PpuLayoutBoundary("codec: escape typewriter programs' native VRAM destinations")]
-    internal static bool LineFitsInVram(int destination, int length) =>
-        destination >= 0 && destination + length <= SnesVram.WordCount;
+    /// <summary>Whether a line of <paramref name="length"/> glyphs typed from <paramref name="cell"/> stays inside the overlay.</summary>
+    internal static bool LineFitsOverlay(int cell, int length) =>
+        cell >= 0 && cell + length <= RoomTilemapOverlay.WordCount;
 
-    /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the tilemap destination.</summary>
+    /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the cell.</summary>
     private EscapeTypewriterGlyph? TypeCharacter(byte character)
     {
         EscapeTypewriterGlyph? glyph = null;
         if (GlyphOf(character, tileBase) is { } tile)
         {
-            glyph = new(Destination, tile);
+            glyph = new(Cell, tile);
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }
-        Destination = NextDestination(Destination);
+        Cell++;
         return glyph;
     }
 
@@ -144,8 +142,4 @@ public sealed class EscapeTypewriterState
         if (character == (byte)'!') character = EscapeTypewriterRomData.ExclamationGlyph;
         return new SnesBgTilemapWord(unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterRomData.FirstLetter)));
     }
-
-    /// <summary>The tilemap destination typed after <paramref name="destination"/>.</summary>
-    internal static int NextDestination(int destination) => (destination + 1) % DestinationPeriod;
-
 }

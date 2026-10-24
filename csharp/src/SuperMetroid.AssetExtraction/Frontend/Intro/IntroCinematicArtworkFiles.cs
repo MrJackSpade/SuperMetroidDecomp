@@ -111,7 +111,7 @@ public static class IntroCinematicArtworkFiles
             byte[] encoded = png.ToArray();
             RoomCharacterAtlas roundTrip = RoomCharacterAtlas.Load(
                 new MemoryStream(encoded, writable: false), expectedByteCount);
-            if (!roundTrip.Transfer.Span.SequenceEqual(planar))
+            if (!roundTrip.Characters.Span.SequenceEqual(planar))
                 throw new InvalidDataException($"Intro PNG {name} did not round-trip its cartridge tiles.");
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);

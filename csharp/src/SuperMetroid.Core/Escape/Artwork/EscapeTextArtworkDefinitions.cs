@@ -16,12 +16,14 @@ public static class EscapeTextArtworkDefinitions
     public const int PageCount = 5;
     /// <summary>Sixteen SNES 4bpp tiles occupy each full $200-byte transfer page.</summary>
     public const int PageBytes = 0x200;
-    /// <summary>$A6:C4D9 places the first text page at OBJ VRAM word $7820.</summary>
-    public const int FirstDestinationWord = 0x7820;
+    /// <summary>$A6:C4D9 places the first text page at OBJ character $182.</summary>
+    public const int FirstCharacter = 0x182;
     /// <summary>$A6:C4CB/$C4D2 copies two pages of timer-number characters before the text.</summary>
     public const int TimerPageCount = 2;
-    /// <summary>$A6:C4CB starts the two timer-number pages at OBJ VRAM word $7E00.</summary>
-    public const int TimerFirstDestinationWord = 0x7e00;
+    /// <summary>$A6:C4CB starts the two timer-number pages at OBJ character $1E0.</summary>
+    public const int TimerFirstCharacter = 0x1e0;
+    /// <summary>The bytes one four-bit OBJ character holds.</summary>
+    private const int CharacterBytes = 32;
 
     /// <summary>Five source pages from the native $A6:C4CB-$C4FC transfer list.</summary>
     public static uint PageSource(int page) => (uint)page < PageCount
@@ -31,7 +33,7 @@ public static class EscapeTextArtworkDefinitions
     public static ushort PageByteCount(int page) => (uint)page < PageCount
         ? (ushort)Math.Min(PageBytes, ByteCount - page * PageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
 
-    /// <summary>OBJ VRAM word destinations from the same native transfer list.</summary>
-    public static ushort PageDestination(int page) => (uint)page < PageCount
-        ? (ushort)(FirstDestinationWord + page * PageBytes / 2) : throw new ArgumentOutOfRangeException(nameof(page));
+    /// <summary>The OBJ character text page <paramref name="page"/> begins at, from the same native transfer list.</summary>
+    public static int PageFirstCharacter(int page) => (uint)page < PageCount
+        ? FirstCharacter + page * PageBytes / CharacterBytes : throw new ArgumentOutOfRangeException(nameof(page));
 }

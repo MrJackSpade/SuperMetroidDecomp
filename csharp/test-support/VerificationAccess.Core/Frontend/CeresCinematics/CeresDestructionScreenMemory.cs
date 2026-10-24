@@ -38,7 +38,7 @@ internal static class CeresDestructionScreenMemory
                     break;
                 case CeresDestructionUpload.ZebesReveal:
                     mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.MapHalfBytes, CeresDestructionRomData.Transfers.MapHalfBytes));
-                    ceres.ZebesTilemap.Load(artwork.CeresDestruction.ZebesMap.Transfer.Span[..CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes]);
+                    ceres.ZebesTilemap.Load(artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes]);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(uploads), upload, "Undefined Ceres destruction upload.");

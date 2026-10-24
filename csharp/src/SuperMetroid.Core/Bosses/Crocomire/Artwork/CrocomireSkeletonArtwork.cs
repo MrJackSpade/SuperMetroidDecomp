@@ -8,7 +8,7 @@ public sealed class CrocomireSkeletonArtwork
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-skeleton-v1",
-        content => content.Append("tiles", atlas.Transfer.Span));
+        content => content.Append("tiles", atlas.Characters.Span));
 
     /// <summary>Owned 4-bpp characters from which the six death-sequence uploads are sliced.</summary>
     private readonly RoomCharacterAtlas atlas;
@@ -30,7 +30,7 @@ public sealed class CrocomireSkeletonArtwork
         if (!CrocomireSkeletonTransferDefinitions.TryGet(index, out _))
             throw new InvalidDataException(
                 "Crocomire skeleton's terminal entry has no character upload.");
-        return atlas.Transfer.Slice(index *
+        return atlas.Characters.Slice(index *
             CrocomireSkeletonTransferDefinitions.ChunkByteCount,
             CrocomireSkeletonTransferDefinitions.ChunkByteCount);
     }

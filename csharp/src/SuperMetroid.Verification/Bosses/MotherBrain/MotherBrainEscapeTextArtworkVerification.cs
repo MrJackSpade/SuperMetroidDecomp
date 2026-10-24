@@ -28,7 +28,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         byte[] native = RomDataReader.ReadFixedBank(rom,
             EscapeTextArtworkDefinitions.SourceAddress,
             EscapeTextArtworkDefinitions.ByteCount);
-        AssertTrue(artwork.Transfer.Span.SequenceEqual(native),
+        AssertTrue(artwork.Characters.Span.SequenceEqual(native),
             "installed Mother Brain escape-text PNG preserves native characters");
 
         SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock);
@@ -47,7 +47,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
             int sourceOffset = checked((int)EscapeTextArtworkDefinitions.PageSource(page) -
                 EscapeTextArtworkDefinitions.SourceAddress);
             int destinationOffset =
-                EscapeTextArtworkDefinitions.PageDestination(page) * 2;
+                EscapeNativePageWords.Of(EscapeTextArtworkDefinitions.PageFirstCharacter(page)) * 2;
             int byteCount = EscapeTextArtworkDefinitions.PageByteCount(page);
             AssertTrue(installedVram.Bytes.Slice(destinationOffset, byteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset, byteCount)),
@@ -72,7 +72,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited);
-        int firstDestination = EscapeTextArtworkDefinitions.PageDestination(0) * 2;
+        int firstDestination = EscapeNativePageWords.Of(EscapeTextArtworkDefinitions.PageFirstCharacter(0)) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
             editedVram.ReadByte(firstDestination),
             "Mother Brain escape-text PNG pixel edit changes live sprite VRAM");
@@ -83,7 +83,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
             "Mother Brain escape-text edit leaves neighboring source bytes unchanged");
         RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainEscapeText."));
-        AssertTrue(reloaded.Transfer.Span.SequenceEqual((edited.Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires edited.MotherBrainEscapeText.")).Transfer.Span),
+        AssertTrue(reloaded.Characters.Span.SequenceEqual((edited.Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires edited.MotherBrainEscapeText.")).Characters.Span),
             "Mother Brain escape-text override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);

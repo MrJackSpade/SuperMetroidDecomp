@@ -73,7 +73,7 @@ internal sealed class EndingArtwork
     internal void LoadEscapeCloudCharacters()
     {
         byte[] clouds = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Escape clouds require installed object artwork.")).Clouds.Transfer.ToArray();
+            "Escape clouds require installed object artwork.")).Clouds.Characters.ToArray();
         EndingStage.RequireMinimum(clouds, EndingCreditsRomData.Rendering.FloorBytes, "escape cloud characters");
         screen.Record(EndingUploadKind.EscapeClouds, 0);
     }
@@ -82,7 +82,7 @@ internal sealed class EndingArtwork
     internal void LoadEndingObjectCharacters()
     {
         byte[] main = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Ending objects require installed artwork.")).Explosion.Transfer.ToArray();
+            "Ending objects require installed artwork.")).Explosion.Characters.ToArray();
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
         EndingStage.RequireMinimum(main, EndingCreditsRomData.Rendering.ExplosionObjectBytes,
             "ending OBJ characters");
@@ -91,7 +91,7 @@ internal sealed class EndingArtwork
         LoadObjectFragment(EndingObjectFragmentId.Segment74);
         LoadObjectFragment(EndingObjectFragmentId.Segment78);
         LoadObjectFragment(EndingObjectFragmentId.Segment7C);
-        ReadOnlyMemory<byte> font = _stage.ResolveEndingFont().Transfer;
+        ReadOnlyMemory<byte> font = _stage.ResolveEndingFont().Characters;
         EndingStage.RequireMinimum(font, EndingCreditsRomData.Rendering.ObjectFragmentLimit,
             "ending font characters");
         screen.Record(EndingUploadKind.EndingFont, 0);
@@ -101,7 +101,7 @@ internal sealed class EndingArtwork
     private void LoadObjectFragment(EndingObjectFragmentId fragmentId)
     {
         byte[] fragment = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Ending object fragments require installed artwork.")).Fragment(fragmentId).Transfer.ToArray();
+            "Ending object fragments require installed artwork.")).Fragment(fragmentId).Characters.ToArray();
         EndingStage.RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
             "ending OBJ fragment");
         screen.Record(EndingUploadKind.ObjectFragment, (int)fragmentId);
@@ -114,7 +114,7 @@ internal sealed class EndingArtwork
             return;
 
         _stage.LoadStaticPalette(EndingPaletteId.Credits, screen.Palette.Background);
-        ReadOnlyMemory<byte> font = _stage.ResolveEndingFont().Transfer;
+        ReadOnlyMemory<byte> font = _stage.ResolveEndingFont().Characters;
         EndingStage.RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");
 
@@ -140,13 +140,13 @@ internal sealed class EndingArtwork
     {
         EndingObjectArtworkCatalog artwork = _stage.ObjectArtwork ?? throw new InvalidOperationException(
             "Post-credits scenes require installed object artwork.");
-        byte[] waiting = artwork.WaitingSamus.Transfer.ToArray();
-        byte[] shooting = artwork.ShootingScreen.Transfer.ToArray();
-        byte[] waitingMap = artwork.WaitingTilemap.Transfer.ToArray();
-        byte[] fragmentA = artwork.PostCreditsFragmentA.Transfer.ToArray();
-        byte[] fragmentB = artwork.PostCreditsFragmentB.Transfer.ToArray();
+        byte[] waiting = artwork.WaitingSamus.Characters.ToArray();
+        byte[] shooting = artwork.ShootingScreen.Characters.ToArray();
+        byte[] waitingMap = artwork.WaitingTilemap.Bytes.ToArray();
+        byte[] fragmentA = artwork.PostCreditsFragmentA.Characters.ToArray();
+        byte[] fragmentB = artwork.PostCreditsFragmentB.Characters.ToArray();
         byte[] result = _stage.EndingReward == EndingReward.Suitless
-            ? artwork.SuitlessSamus.Transfer.ToArray()
+            ? artwork.SuitlessSamus.Characters.ToArray()
             : waiting;
         EndingStage.RequireMinimum(waiting, EndingCreditsRomData.Rendering.FloorBytes,
             "waiting-Samus characters");

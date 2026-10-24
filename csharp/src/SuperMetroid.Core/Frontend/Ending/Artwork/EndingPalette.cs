@@ -18,9 +18,9 @@ public sealed class EndingPalette
     /// <summary>Retains the verified logo interpolation instead of a duplicate 512-color table.</summary>
     private EndingPalette(EndingLogoPaletteFade logoFade) => this.logoFade = logoFade;
 
-    /// <summary>Transfer/export view. A computed fade is materialized only for this
+    /// <summary>Byte/export view. A computed fade is materialized only for this
     /// request, never stored as a generated lookup cache; gameplay calls Color directly.</summary>
-    public ReadOnlyMemory<byte> Transfer
+    public ReadOnlyMemory<byte> Bytes
     {
         get
         {

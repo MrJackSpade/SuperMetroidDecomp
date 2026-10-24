@@ -7,7 +7,7 @@ public static class EscapeTypewriterDefinitions
     internal const ushort CeresTileBase = 0x3582;
 
     /// <summary>The supported editable escape-typewriter JSON schema version.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// <summary>The embedded editable escape-warning program asset file name.</summary>
     public const string FileName = "escape-typewriter.json";
@@ -38,10 +38,6 @@ public static class EscapeTypewriterDefinitions
     private const int CeresLineCount = 3;
     /// <summary>$A6:C4A0..C4C9: reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
     private const int ZebesLineCount = 2;
-    /// <summary>$A6:C456, TypewriterText_CeresEscapeTimer: BG1 tilemap VRAM identity.</summary>
-    private const int CeresTilemapBase = 0x5000;
-    /// <summary>$A6:C4A2, TypewriterText_ZebesEscapeTimer: BG2 tilemap VRAM identity.</summary>
-    private const int ZebesTilemapBase = 0x4800;
 
     /// <summary>Ceres uses three warning lines while Zebes uses two.</summary>
     internal static int LineCount(EscapeTypewriterProgramId id) => id switch
@@ -52,7 +48,7 @@ public static class EscapeTypewriterDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
-    /// <summary>Builds one selected warning line and its BG tilemap destination from reviewed wording and line spacing.</summary>
+    /// <summary>Builds one selected warning line and its first overlay cell from reviewed wording and line spacing.</summary>
     internal static EscapeTypewriterLine Line(EscapeTypewriterProgramId id, int index)
     {
         if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
@@ -65,8 +61,7 @@ public static class EscapeTypewriterDefinitions
             (EscapeTypewriterProgramId.Zebes, 1) => ZebesEscapeWarning,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        int tilemap = id == EscapeTypewriterProgramId.Ceres ? CeresTilemapBase : ZebesTilemapBase;
-        return new((ushort)(tilemap + (FirstRow + index * LineRowStep) * MaximumLineLength + FirstColumn), text);
+        return new((FirstRow + index * LineRowStep) * MaximumLineLength + FirstColumn, text);
     }
 
 }

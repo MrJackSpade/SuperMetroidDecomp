@@ -152,7 +152,7 @@ internal static class RoomBlockUploads
         {
             yield return new BgCharacterUpload(KraidBehavior.KraidRoomBackgroundIdentity, BossVramLayout.KraidRoomBackgroundTiles.Offset,
                 (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
-                    .RoomBackgroundTiles.Transfer);
+                    .RoomBackgroundTiles.Characters);
         }
     }
 
@@ -190,9 +190,9 @@ internal static class RoomBlockUploads
                 continue;
             // The library binds the Tourian statue ghost's characters and the HUD's (Kraid's room moves them under BG1).
             ReadOnlyMemory<byte> characters = transfer.SourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress
-                ? inputs.Characters.Get(RoomCharacterSet.TourianStatueGhost).Transfer
+                ? inputs.Characters.Get(RoomCharacterSet.TourianStatueGhost).Characters
                 : transfer.SourceAddress == HudTileAtlasFormat.SourceAddress && transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount
-                    ? inputs.Hud.Transfer[..HudTileAtlasFormat.CharacterByteCount]
+                    ? inputs.Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]
                     : throw new InvalidDataException(
                         $"{state.Name}'s library background transfers ${transfer.SourceAddress:X6} over the block characters, which no installed character artwork names.");
             yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination, characters);
@@ -276,7 +276,7 @@ internal static class RoomBlockUploads
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
     internal static BgCharacterUpload HudCharacters(RoomBlockSheetInputs inputs) =>
-        new(BgArtworkIdentity.Asset(VramAssetId.StandardHudTiles), GameplayVramLayout.HudCharacterUpload.Offset, Ensure.NotNull(inputs).Hud.Transfer);
+        new(BgArtworkIdentity.Asset(VramAssetId.StandardHudTiles), GameplayVramLayout.HudCharacterUpload.Offset, Ensure.NotNull(inputs).Hud.Bytes);
 
     /// <summary>The room effects whose BG3 pages <paramref name="state"/>'s rooms show, and the characters each animates on BG3.</summary>
     private static IEnumerable<RoomFxType> EffectsIn(CartridgeRoomState state) =>
@@ -314,7 +314,7 @@ internal static class RoomBlockUploads
                 || inputs.Skies.TryResolve(transfer.SourceAddress, transfer.ByteCount, out _))
                 continue;
             ReadOnlyMemory<byte> characters = transfer.SourceAddress == HudTileAtlasFormat.SourceAddress
-                ? inputs.Hud.Transfer[..transfer.ByteCount]
+                ? inputs.Hud.Bytes[..transfer.ByteCount]
                 : throw new InvalidDataException(
                     $"{state.Name}'s library background transfers ${transfer.SourceAddress:X6} over BG3's characters, which no installed character artwork names.");
             yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination, characters);
@@ -335,8 +335,8 @@ internal static class RoomBlockUploads
     {
         var content = new BgArtworkBindings(new SnesVram());
         HudCharacters(inputs).BindTo(content);
-        foreach (BgCharacterUpload upload in CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
-            inputs.Characters.Get(tileset.Characters).Transfer))
+        foreach (BgCharacterUpload upload in CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Characters,
+            inputs.Characters.Get(tileset.Characters).Characters))
             upload.BindTo(content);
         return content;
     }

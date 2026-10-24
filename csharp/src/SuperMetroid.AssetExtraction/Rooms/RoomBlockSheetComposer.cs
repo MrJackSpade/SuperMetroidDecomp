@@ -79,8 +79,8 @@ internal static class RoomBlockSheetComposer
     private static ComposedRoomBackground ComposeBackground(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
         RoomBlockUploads.TilesetUploads uploads, RoomBlockUploads.RoomBackgroundMap background)
     {
-        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
-            inputs.Characters.Get(tileset.Characters).Transfer);
+        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Characters,
+            inputs.Characters.Get(tileset.Characters).Characters);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(upload => upload.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
@@ -116,8 +116,8 @@ internal static class RoomBlockSheetComposer
     private static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
     {
         byte[] definitions = CartridgeRoomAssets.BlockDefinitions(inputs.Metatiles, tileset, uploads.Ceres);
-        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
-            inputs.Characters.Get(tileset.Characters).Transfer);
+        IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Characters,
+            inputs.Characters.Get(tileset.Characters).Characters);
         var loaded = new BgArtworkBindings(new SnesVram());
         foreach (BgCharacterUpload upload in load)
             upload.BindTo(loaded);

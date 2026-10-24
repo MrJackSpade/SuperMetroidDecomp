@@ -447,7 +447,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private static void RequireRewardIcon(EndingRewardIconArtwork? artwork)
     {
         if ((artwork ?? throw new InvalidOperationException(
-            "Ending reward requires installed icon artwork.")).Transfer.Length < EndingRewardGraphicsUploadDefinitions.SourceBytes)
+            "Ending reward requires installed icon artwork.")).Bytes.Length < EndingRewardGraphicsUploadDefinitions.SourceBytes)
             throw new InvalidDataException("Post-credits icon graphics do not fill the native WRAM upload range.");
     }
 

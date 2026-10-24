@@ -36,7 +36,7 @@ internal static class RoomSkyTilemapsVerification
             json[page] = RoomBackgroundTilemapExtractor.Encode(native);
             pages[page] = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(json[page], writable: false), native.Length);
-            AssertTrue(pages[page].Transfer.Span.SequenceEqual(native),
+            AssertTrue(pages[page].Bytes.Span.SequenceEqual(native),
                 $"scrolling-sky page {page} roundtrips every native BG word");
         }
         var stock = new RoomSkyTilemapCatalog(pages);

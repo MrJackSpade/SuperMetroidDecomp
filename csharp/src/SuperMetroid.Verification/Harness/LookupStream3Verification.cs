@@ -1421,7 +1421,7 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageDestination(invalid), "stream 3 text page destination bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageFirstCharacter(invalid), "stream 3 text page destination bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
@@ -3195,19 +3195,19 @@ internal static class LookupStream3Verification
         byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        AssertTrue(stock.Transfer.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
-        AssertTrue(stock.suppliedTransfer is null, "native font retains no planar output array");
+        AssertTrue(stock.Characters.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
+        AssertTrue(stock.suppliedCharacters is null, "native font retains no planar output array");
         for (int index = 0; index < native.Length; index++)
         {
             byte[] edit = native.ToArray();
             edit[index] ^= 0xff;
             var selected = new IntroFontAtlas(edit.ToArray());
-            AssertTrue(selected.Transfer.Span.SequenceEqual(edit), "independent font planar-byte edit survives");
+            AssertTrue(selected.Characters.Span.SequenceEqual(edit), "independent font planar-byte edit survives");
         }
-        AssertTrue(stock.Transfer.Span.SequenceEqual(native), "edited glyphs do not cross-couple stock or aliases");
-        byte[] output = stock.Transfer.ToArray();
+        AssertTrue(stock.Characters.Span.SequenceEqual(native), "edited glyphs do not cross-couple stock or aliases");
+        byte[] output = stock.Characters.ToArray();
         output[0] ^= 1;
-        AssertTrue(stock.Transfer.Span.SequenceEqual(native), "font output is freshly calculated");
+        AssertTrue(stock.Characters.Span.SequenceEqual(native), "font output is freshly calculated");
         int additions = 0, removals = 0;
         for (int tile = 0; tile < 144; tile++)
         {

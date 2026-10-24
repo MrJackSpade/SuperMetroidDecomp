@@ -43,7 +43,7 @@ internal static class CeresDestructionScenery
         var words = new ushort[CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes / sizeof(ushort)];
         if (!uploads.Contains(CeresDestructionUpload.ZebesReveal))
             return words;
-        ReadOnlySpan<byte> bytes = artwork.CeresDestruction.ZebesMap.Transfer.Span[..CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes];
+        ReadOnlySpan<byte> bytes = artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes];
         for (int word = 0; word < words.Length; word++)
             words[word] = SnesLittleEndian.Word(bytes[word * 2], bytes[word * 2 + 1]);
         return words;

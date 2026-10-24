@@ -18,13 +18,13 @@ public static class EscapeTimerTileAtlasFormat
 
     /// <summary>First native upload size, $0200 bytes, containing characters 0..15 from source $B0:C000.</summary>
     public const ushort FirstByteCount = 16 * 32;
-    /// <summary>First upload's VRAM word destination $7E00, equivalent to byte $FC00 and native timer OBJ character $1E0.</summary>
-    public const ushort FirstDestinationWord = EscapeTextArtworkDefinitions.TimerFirstDestinationWord;
+    /// <summary>The first page's first OBJ character, $1E0.</summary>
+    public const int FirstCharacter = EscapeTextArtworkDefinitions.TimerFirstCharacter;
 
     /// <summary>Second native upload size, $0120 bytes, containing the remaining characters 16..24 from source $B0:C200.</summary>
     public const ushort SecondByteCount = 9 * 32;
-    /// <summary>Second upload's VRAM word destination $7F00, equivalent to byte $FE00 and native timer OBJ character $1F0.</summary>
-    public const ushort SecondDestinationWord = FirstDestinationWord + FirstByteCount / 2;
+    /// <summary>The second page's first OBJ character, $1F0, after the first page's sixteen.</summary>
+    public const int SecondCharacter = FirstCharacter + FirstByteCount / 32;
 
     /// <summary>Complete planar strip size, $0320 bytes, preserving the native sixteen-character and nine-character transfer boundary.</summary>
     public const int TotalByteCount = FirstByteCount + SecondByteCount;

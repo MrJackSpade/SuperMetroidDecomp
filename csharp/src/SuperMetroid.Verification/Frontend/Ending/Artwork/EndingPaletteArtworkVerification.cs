@@ -96,7 +96,7 @@ internal static class EndingPaletteArtworkVerification
                 remaindersSeen |= 1 << (channel * (palette == 0 ? step : 15 - step) % 15);
         }
         AssertEqual(0x7fff, remaindersSeen, "original data exercises every quantization remainder");
-        AssertTrue(loaded.Transfer.Span.SequenceEqual(original), "computed fade preserves complete exported bytes");
+        AssertTrue(loaded.Bytes.Span.SequenceEqual(original), "computed fade preserves complete exported bytes");
         var cgram = new ScreenPalette();
         for (int step = 0; step < 16; step++)
         {
@@ -119,7 +119,7 @@ internal static class EndingPaletteArtworkVerification
             AssertEqual((ushort)(color.Red | color.Green << 5 | color.Blue << 10), custom.Color(index),
                 "independent edited fade samples survive unchanged");
         }
-        AssertTrue(EndingLogoPaletteFade.TryCreate(custom.Transfer.Span) is null, "nonlinear edits remain caller-owned content");
+        AssertTrue(EndingLogoPaletteFade.TryCreate(custom.Bytes.Span) is null, "nonlinear edits remain caller-owned content");
         foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
@@ -214,7 +214,7 @@ internal static class EndingPaletteArtworkVerification
         string originalIdentity = SelectedPresentationHash.Create(nameof(EndingPaletteCatalog), content =>
         {
             content.Append("palette-count", supplied.Length);
-            foreach (EndingPalette palette in supplied) content.Append("palette", palette.Transfer.Span);
+            foreach (EndingPalette palette in supplied) content.Append("palette", palette.Bytes.Span);
         });
         AssertEqual(originalIdentity, catalog.ContentIdentity, "ending palette identity preserves original role order");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
@@ -233,7 +233,7 @@ internal static class EndingPaletteArtworkVerification
         {
             byte[] native = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus, id,
                 EndingPaletteDefinitions.ColorCount(id));
-            AssertTrue(stock[id].Transfer.Span.SequenceEqual(native),
+            AssertTrue(stock[id].Bytes.Span.SequenceEqual(native),
                 $"installed ending {id} palette preserves every cartridge color byte");
         }
 
@@ -335,8 +335,8 @@ internal static class EndingPaletteArtworkVerification
             using (var output = File.Create(overridePath))
                 EndingPalette.Write(output, id, document);
             EndingPaletteCatalog edited = installation.LoadEndingPalettes();
-            ReadOnlySpan<byte> original = stock[id].Transfer.Span;
-            ReadOnlySpan<byte> changed = edited[id].Transfer.Span;
+            ReadOnlySpan<byte> original = stock[id].Bytes.Span;
+            ReadOnlySpan<byte> changed = edited[id].Bytes.Span;
             int byteOffset = changedColor * sizeof(ushort);
             AssertTrue(!original.SequenceEqual(changed) &&
                     original[..byteOffset].SequenceEqual(changed[..byteOffset]) &&
@@ -408,7 +408,7 @@ internal static class EndingPaletteArtworkVerification
         };
         using (var output = File.Create(invalidPath))
             EndingPalette.Write(output, EndingPaletteId.Escape, persistent);
-        byte[] selected = installation.LoadEndingPalettes()[EndingPaletteId.Escape].Transfer.ToArray();
+        byte[] selected = installation.LoadEndingPalettes()[EndingPaletteId.Escape].Bytes.ToArray();
         string stockCreditsPath = Path.Combine(installation.EndingPaletteDirectory,
             EndingPaletteDefinitions.FileName(EndingPaletteId.Credits));
         File.WriteAllBytes(stockCreditsPath, [0]);
@@ -416,10 +416,10 @@ internal static class EndingPaletteArtworkVerification
             "valid override cannot conceal a corrupt stock ending palette");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ending palettes vanished during stock repair.");
-        AssertTrue(repaired.LoadEndingPalettes()[EndingPaletteId.Escape].Transfer.Span
+        AssertTrue(repaired.LoadEndingPalettes()[EndingPaletteId.Escape].Bytes.Span
                 .SequenceEqual(selected) &&
-            repaired.LoadEndingPalettes()[EndingPaletteId.Credits].Transfer.Span
-                .SequenceEqual(stock[EndingPaletteId.Credits].Transfer.Span),
+            repaired.LoadEndingPalettes()[EndingPaletteId.Credits].Bytes.Span
+                .SequenceEqual(stock[EndingPaletteId.Credits].Bytes.Span),
             "stock palette repair preserves the external override and restores native credits colors");
         File.Delete(invalidPath);
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,

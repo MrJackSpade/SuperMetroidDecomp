@@ -35,7 +35,7 @@ internal static class TilemapJsonContractsVerification
             RoomBackgroundTilemapAtlas.Write(output, document, native.Length);
             string json = Encoding.UTF8.GetString(output.ToArray());
             void Load(string text) => AssertTrue(RoomBackgroundTilemapAtlas.Load(
-                TilemapContractStream(text), native.Length).Transfer.Span.SequenceEqual(native),
+                TilemapContractStream(text), native.Length).Bytes.Span.SequenceEqual(native),
                 "room map preserves every tile/palette/priority/flip bit and page order");
             Load(json);
             Load(TilemapContractHistoricalCasing(json));

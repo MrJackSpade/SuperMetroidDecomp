@@ -79,7 +79,7 @@ public static class EndingMode7ArtworkFiles
         byte[] reward = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
             EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
-        if (reward.Length < EndingRewardIconArtworkFormat.TransferBytes)
+        if (reward.Length < EndingRewardIconArtworkFormat.ByteCount)
             throw new InvalidDataException("Reward icon source is shorter than its sixteen native DMAs.");
         var rewardMap = new int[EndingRewardIconArtworkFormat.MapBytes];
         var rewardCharacters = new byte[EndingRewardIconArtworkFormat.MapBytes];
@@ -106,8 +106,8 @@ public static class EndingMode7ArtworkFiles
         EndingRewardIconArtwork compiledReward = EndingRewardIconArtwork.Load(
             new MemoryStream(rewardMapFile, writable: false),
             new MemoryStream(rewardCharacterFile, writable: false));
-        if (!compiledReward.Transfer.Span.SequenceEqual(reward.AsSpan(0,
-                EndingRewardIconArtworkFormat.TransferBytes)))
+        if (!compiledReward.Bytes.Span.SequenceEqual(reward.AsSpan(0,
+                EndingRewardIconArtworkFormat.ByteCount)))
             throw new InvalidDataException("Reward icon PNG/JSON changed native interleaved DMA bytes.");
         Write(EndingRewardIconArtworkFormat.MapFileName, rewardMapFile);
         Write(EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);

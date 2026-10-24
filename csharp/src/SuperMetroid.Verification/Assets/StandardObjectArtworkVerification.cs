@@ -21,10 +21,10 @@ internal static class StandardObjectArtworkVerification
     /// <summary>The bytes the OBJ character table shows over the standard sheet's span, as the session records them.</summary>
     private static ReadOnlySpan<byte> ShownStandardObjects(SuperMetroidRuntime runtime)
     {
-        ObjCharacterUpload shown = runtime.EnemySession.ObjCharacters.LastOver(0, StandardObjectArtworkFormat.TransferByteCount)
+        ObjCharacterUpload shown = runtime.EnemySession.ObjCharacters.LastOver(0, StandardObjectArtworkFormat.ByteCount)
             ?? throw new InvalidOperationException("Nothing is shown over the standard OBJ characters.");
         AssertEqual(0, shown.FirstByte, "the standard OBJ characters start the table");
-        AssertEqual(StandardObjectArtworkFormat.TransferByteCount, shown.ByteCount, "the whole standard sheet is shown");
+        AssertEqual(StandardObjectArtworkFormat.ByteCount, shown.ByteCount, "the whole standard sheet is shown");
         return shown.Source.Resolve(runtime.Artwork).Span;
     }
 
@@ -44,21 +44,21 @@ internal static class StandardObjectArtworkVerification
             string paletteDirectory = Path.Combine(directory, "palettes");
             GameplayBasePaletteFiles.Extract(native, paletteDirectory, SupportedCartridge.Sha256);
             GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Load(paletteDirectory, null);
-            for (int offset = 0; offset < StandardObjectArtworkFormat.TransferByteCount; offset++)
+            for (int offset = 0; offset < StandardObjectArtworkFormat.ByteCount; offset++)
                 AssertEqual(native.ReadCartridgeByte(NativeStandardObjects + offset),
-                    baseline.Transfer.Span[offset], $"standard OBJ native byte {offset:X4}");
+                    baseline.Characters.Span[offset], $"standard OBJ native byte {offset:X4}");
 
             var guard = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             runtime.Artwork.StandardObjectArt = baseline;
             runtime.HudSetup.ShowStandardObjectCharacters();
-            AssertTrue(ShownStandardObjects(runtime).SequenceEqual(baseline.Transfer.Span),
+            AssertTrue(ShownStandardObjects(runtime).SequenceEqual(baseline.Characters.Span),
                 "gameplay setup selects the installed OBJ bytes without reading ROM");
 
             string stockPath = Path.Combine(stock, StandardObjectArtworkFormat.FileName);
             byte[] originalPng = File.ReadAllBytes(stockPath);
-            int tiles = StandardObjectArtworkFormat.TransferByteCount /
+            int tiles = StandardObjectArtworkFormat.ByteCount /
                 RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
             int rows = (tiles + columns - 1) / columns;
@@ -70,24 +70,24 @@ internal static class StandardObjectArtworkVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
-            AssertTrue(!edited.Transfer.Span.SequenceEqual(baseline.Transfer.Span),
+            AssertTrue(!edited.Characters.Span.SequenceEqual(baseline.Characters.Span),
                 "selected indexed PNG changes the native standard OBJ transfer");
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             editedRuntime.Artwork.StandardObjectArt = edited;
             editedRuntime.HudSetup.ShowStandardObjectCharacters();
-            AssertTrue(ShownStandardObjects(editedRuntime).SequenceEqual(edited.Transfer.Span),
+            AssertTrue(ShownStandardObjects(editedRuntime).SequenceEqual(edited.Characters.Span),
                 "edited OBJ tile is what gameplay setup selects over the OBJ characters");
             StandardObjectArtworkFiles.Extract(native, stock, SupportedCartridge.Sha256);
-            AssertTrue(StandardObjectArtworkFiles.Load(stock, overrides).Transfer.Span
-                .SequenceEqual(edited.Transfer.Span),
+            AssertTrue(StandardObjectArtworkFiles.Load(stock, overrides).Characters.Span
+                .SequenceEqual(edited.Characters.Span),
                 "stock re-extraction preserves the selected external OBJ override");
 
             File.WriteAllText(overridePath, "not an indexed PNG");
             AssertThrows<InvalidDataException>(() => StandardObjectArtworkFiles.Load(stock, overrides),
                 "invalid OBJ override does not silently fall back");
             File.Delete(overridePath);
-            AssertTrue(StandardObjectArtworkFiles.Load(stock, overrides).Transfer.Span
-                .SequenceEqual(baseline.Transfer.Span),
+            AssertTrue(StandardObjectArtworkFiles.Load(stock, overrides).Characters.Span
+                .SequenceEqual(baseline.Characters.Span),
                 "removing override restores stock standard OBJ transfer");
             File.WriteAllText(stockPath, "damaged stock");
             AssertThrows<InvalidDataException>(() => StandardObjectArtworkFiles.Load(stock, overrides),

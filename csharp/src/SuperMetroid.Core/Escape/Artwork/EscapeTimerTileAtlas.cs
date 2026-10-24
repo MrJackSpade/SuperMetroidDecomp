@@ -34,7 +34,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
             if (EscapeTimerGlyphDefinitions.SourcePixel(index) == index && !IsFill(index) &&
                 pixels[index] != EscapeTimerGlyphDefinitions.Outline(index, IsFill))
                 pixelOverrides.Add(index, pixels[index]);
-        Artwork = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.EscapeTimerTiles), Transfer());
+        Artwork = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.EscapeTimerTiles), Characters());
     }
 
     /// <summary>The 25 timer characters as owned sprite artwork, in transfer order: character 0 is OBJ character $1E0.</summary>
@@ -62,7 +62,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     }
 
     /// <summary>Rebuilds all 25 timer characters in native four-bit planar DMA order.</summary>
-    internal byte[] Transfer() => SnesPlanarTileEncoder.Encode(
+    internal byte[] Characters() => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height).Select(Pixel).ToArray(),
         new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height), EscapeTimerTileAtlasFormat.BitsPerPixel);
 
@@ -82,7 +82,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     /// <summary>Resolves one native page without combining or retiming its original transfer record.</summary>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {
-        byte[] transfer = Transfer();
+        byte[] transfer = Characters();
         return asset switch
         {
             VramAssetId.EscapeTimerFirstTiles => transfer.AsMemory(0, EscapeTimerTileAtlasFormat.FirstByteCount),

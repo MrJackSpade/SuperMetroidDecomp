@@ -53,7 +53,7 @@ internal static class BeamTileArtworkVerification
             AssertEqual((byte)(native.Bytes[firstByte] ^ 0x80), extracted.Bytes[firstByte], "Edited pixel changes the correct tile plane bit");
             for (int index = 0; index < native.Bytes.Length; index++)
                 if (index != firstByte) AssertEqual(native.Bytes[index], extracted.Bytes[index], "Beam edit cannot change neighboring VRAM or other pixels");
-            AssertEqual(BeamTileAtlasDefinitions.ByteCount, edited.Transfer.Length, "Edited upload retains native DMA size");
+            AssertEqual(BeamTileAtlasDefinitions.ByteCount, edited.Characters.Length, "Edited upload retains native DMA size");
             var actualPalette = new SamusColourRig(); var expectedPalette = new SnesCgram();
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);

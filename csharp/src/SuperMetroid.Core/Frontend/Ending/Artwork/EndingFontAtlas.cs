@@ -20,7 +20,7 @@ public sealed class EndingFontAtlas
                 || supplied[pixel] != calculated) pixels[pixel] = supplied[pixel];
     }
     /// <summary>Materializes a new $1400-byte SNES 4-bpp transfer containing all 160 selected font/subtitle tiles in atlas order, without retaining a packed-transfer cache.</summary>
-    public ReadOnlyMemory<byte> Transfer => SnesPlanarTileEncoder.Encode(
+    public ReadOnlyMemory<byte> Characters => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EndingFontAtlasFormat.Width * EndingFontAtlasFormat.Height)
             .Select(Pixel).ToArray(),
         new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height), EndingFontAtlasFormat.BitsPerPixel);

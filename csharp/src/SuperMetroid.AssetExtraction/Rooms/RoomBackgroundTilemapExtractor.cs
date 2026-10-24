@@ -69,7 +69,7 @@ public static class RoomBackgroundTilemapExtractor
         byte[] serialized = json.ToArray();
         RoomBackgroundTilemapAtlas roundtrip = RoomBackgroundTilemapAtlas.Load(
             new MemoryStream(serialized, writable: false), native.Length);
-        if (!roundtrip.Transfer.Span.SequenceEqual(native))
+        if (!roundtrip.Bytes.Span.SequenceEqual(native))
             throw new InvalidDataException("Room background tilemap JSON changed native tile words.");
         return serialized;
     }

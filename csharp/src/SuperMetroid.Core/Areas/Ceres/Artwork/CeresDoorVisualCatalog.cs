@@ -11,7 +11,7 @@ public sealed class CeresDoorVisualCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
         {
-            content.Append("tiles", tiles.Transfer.Span);
+            content.Append("tiles", tiles.Characters.Span);
             Span<Bgr555> normalColors = stackalloc Bgr555[CeresDoorVisualRomData.SetupColorCount];
             for (int color = 0; color < normalColors.Length; color++) normalColors[color] = normal.ColorAt(color);
             content.AppendColors("normal", normalColors);

@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public sealed class EndingRewardIconArtwork
 {
     /// <summary>Retains the interleaved full-map and character transfer for reward landing.</summary>
-    private EndingRewardIconArtwork(byte[] transfer) => Transfer = transfer;
+    private EndingRewardIconArtwork(byte[] transfer) => Bytes = transfer;
 
     /// <summary>The $8000-byte low-map/high-character word stream consumed by the sixteen $0800-byte uploads at native $8B:F682.</summary>
-    public ReadOnlyMemory<byte> Transfer { get; }
+    public ReadOnlyMemory<byte> Bytes { get; }
 
     /// <summary>Compiles the full 128x128 tilemap and the 256-tile character atlas into the native interleaved post-credits beam/icon stream.</summary>
     /// <param name="mapJson">Version-1 JSON containing 16384 row-ordered tile indices, each in the range 0..255.</param>
@@ -44,7 +44,7 @@ public sealed class EndingRewardIconArtwork
             throw new InvalidDataException("Reward icon characters require a 256-color indexed PNG.");
         byte[] characters = SnesMode7TileEncoder.Encode(image.Pixels,
             image.Size);
-        var transfer = new byte[EndingRewardIconArtworkFormat.TransferBytes];
+        var transfer = new byte[EndingRewardIconArtworkFormat.ByteCount];
         for (int index = 0; index < EndingRewardIconArtworkFormat.MapBytes; index++)
         {
             transfer[index * 2] = checked((byte)map.Tiles[index]);

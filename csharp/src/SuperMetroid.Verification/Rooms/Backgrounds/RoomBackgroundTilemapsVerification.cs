@@ -33,7 +33,7 @@ internal static class RoomBackgroundTilemapsVerification
             RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(files[RoomBackgroundTilemapFormat.SourceFileName(source)],
                     writable: false), native.Length);
-            AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
+            AssertTrue(atlas.Bytes.Span.SequenceEqual(native),
                 $"background tilemap ${source:X6} preserves all native tile words");
         }
 
@@ -66,8 +66,8 @@ internal static class RoomBackgroundTilemapsVerification
         RoomBackgroundTilemapAtlas modified = RoomBackgroundTilemapAtlas.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)),
             original.Length);
-        AssertTrue(!modified.Transfer.Span[..2].SequenceEqual(original.AsSpan(0, 2)) &&
-            modified.Transfer.Span[2..].SequenceEqual(original.AsSpan(2)),
+        AssertTrue(!modified.Bytes.Span[..2].SequenceEqual(original.AsSpan(0, 2)) &&
+            modified.Bytes.Span[2..].SequenceEqual(original.AsSpan(2)),
             "editing one background tile reference changes only its native BG word");
         compiled[ceresSource] = modified;
         var editedVram = new SnesVram();

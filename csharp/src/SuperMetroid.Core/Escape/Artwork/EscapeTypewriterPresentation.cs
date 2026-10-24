@@ -91,12 +91,12 @@ public sealed class EscapeTypewriterPresentation
                     ?? throw new InvalidDataException($"Escape typewriter program {id} line {index} is null.");
                 if (string.IsNullOrEmpty(line.Text) || line.Text.Length > EscapeTypewriterDefinitions.MaximumLineLength ||
                     line.Text.Any(static character => character is not (' ' or '!' or >= 'A' and <= 'Z')) ||
-                    !EscapeTypewriterState.LineFitsInVram(line.Destination, line.Text.Length))
+                    !EscapeTypewriterState.LineFitsOverlay(line.Cell, line.Text.Length))
                 {
                     throw new InvalidDataException(
-                        $"Escape typewriter program {id} line {index} has invalid text or VRAM placement.");
+                        $"Escape typewriter program {id} line {index} has invalid text or placement.");
                 }
-                var supplied = new EscapeTypewriterLine(unchecked((ushort)line.Destination), line.Text);
+                var supplied = new EscapeTypewriterLine(line.Cell, line.Text);
                 if (index >= EscapeTypewriterDefinitions.LineCount(id) || supplied != EscapeTypewriterDefinitions.Line(id, index))
                     differences.Add(index, supplied);
             }

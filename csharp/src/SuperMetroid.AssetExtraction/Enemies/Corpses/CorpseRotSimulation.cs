@@ -161,12 +161,12 @@ internal sealed class CorpseRotSimulation
     {
         RoomCharacterAtlas atlas = bosses.MotherBrainCorpse
             ?? throw new InvalidDataException($"Installed boss art holds no Mother Brain corpse ({MotherBrainCorpseArtworkDefinitions.FileName}).");
-        if (atlas.Transfer.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
-            throw new InvalidDataException($"Installed {MotherBrainCorpseArtworkDefinitions.FileName} holds {atlas.Transfer.Length} bytes, not {MotherBrainCorpseArtworkDefinitions.ByteCount}.");
+        if (atlas.Characters.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
+            throw new InvalidDataException($"Installed {MotherBrainCorpseArtworkDefinitions.FileName} holds {atlas.Characters.Length} bytes, not {MotherBrainCorpseArtworkDefinitions.ByteCount}.");
         return Batch("MotherBrain", null, [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
                 new CorpseRotRow(row.Row, EnemyStagingDefinitions.RottingHeapNativeAddress + row.RottingOffset, row.ByteCount,
                     MotherBrainCharacterUploads.RotRegion(row).FirstByte))],
-            new EnemyStagingSurfaces().MotherBrainRotTable, CorpseStaging.MotherBrain(atlas.Transfer.Span), CorpseRowGeometry.MotherBrain,
+            new EnemyStagingSurfaces().MotherBrainRotTable, CorpseStaging.MotherBrain(atlas.Characters.Span), CorpseRowGeometry.MotherBrain,
             populated: 1, uploadsLastStep: false);
     }
 

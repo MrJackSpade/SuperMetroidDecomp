@@ -20,7 +20,7 @@ internal static class ProjectileTrailAtlasVerification
         Suite(nameof(VerifyTrailAtlasBinding), () => VerifyTrailAtlasBinding(bus, png));
         // The bound projectile page places the trail characters where the standard upload holds them.
         SpriteArtwork standard = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
-            InstalledFixtures.StandardObjects.Transfer.Span);
+            InstalledFixtures.StandardObjects.Characters.Span);
         byte[] native = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, atlas).For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters.ToArray();
         int iceWaveByte = ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount;
         int missileByte = ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount;

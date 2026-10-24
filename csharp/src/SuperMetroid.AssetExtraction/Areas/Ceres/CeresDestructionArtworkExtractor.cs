@@ -140,9 +140,9 @@ internal static class CeresDestructionArtworkExtractor
             new MemoryStream(destructionActorsFile, writable: false));
         if (!compiled.CeresMaps.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
                 CeresDestructionArtworkFormat.MapByteCount)) ||
-            !compiled.ZebesMap.Transfer.Span.SequenceEqual(zebesMap.AsSpan(0,
+            !compiled.ZebesMap.Bytes.Span.SequenceEqual(zebesMap.AsSpan(0,
                 CeresDestructionArtworkFormat.ZebesMapByteCount)) ||
-            !compiled.ZebesCharacters.Transfer.Span.SequenceEqual(zebesCharacters))
+            !compiled.ZebesCharacters.Characters.Span.SequenceEqual(zebesCharacters))
             throw new InvalidDataException("Ceres destruction PNG/JSON export changed native bytes.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {

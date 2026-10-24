@@ -116,7 +116,7 @@ public sealed class CartridgeRoomAssets
             header,
             levelData,
             scrolls,
-            new RoomTilesetArtwork(tileset, characterArt.Cre.Transfer.ToArray(), characterArt.Get(tileset.Characters).Transfer.ToArray(),
+            new RoomTilesetArtwork(tileset, characterArt.Cre.Characters.ToArray(), characterArt.Get(tileset.Characters).Characters.ToArray(),
                 paletteArt.Get(tileset.Palette).PackedColours.ToArray(), catalogs.BlockSheets));
     }
 

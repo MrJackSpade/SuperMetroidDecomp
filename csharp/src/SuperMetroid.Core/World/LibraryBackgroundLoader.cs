@@ -75,7 +75,7 @@ public static class LibraryBackgroundLoader
         {
             RoomCharacterAtlasCatalog characters = artwork.CharacterArt
                 ?? throw new InvalidOperationException("The Tourian statue ghost's library characters have no installed character artwork.");
-            ReadOnlyMemory<byte> ghost = characters.Get(RoomCharacterSet.TourianStatueGhost).Transfer;
+            ReadOnlyMemory<byte> ghost = characters.Get(RoomCharacterSet.TourianStatueGhost).Characters;
             if (transfer.ByteCount != ghost.Length)
                 throw new InvalidDataException(
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, not its {ghost.Length}.");
@@ -87,7 +87,7 @@ public static class LibraryBackgroundLoader
             HudTileAtlas hud = artwork.HudArt
                 ?? throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
             artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination,
-                hud.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount]);
+                hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]);
             return true;
         }
         return false;

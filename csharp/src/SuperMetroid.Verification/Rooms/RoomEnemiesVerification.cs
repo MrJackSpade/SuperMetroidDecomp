@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Bosses.MotherBrain;
@@ -1384,15 +1385,15 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(EscapeTypewriterRomData.Delay);
+    Word(EscapeTypewriterExtractor.DelayCommand);
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
-    Word(EscapeTypewriterRomData.Destination);
+    Word((ushort)EscapeTypewriterCommand.LineStart);
     Word(0x4905);
     Text("TIME BOMB SET!");
-    Word(EscapeTypewriterRomData.Destination);
+    Word((ushort)EscapeTypewriterCommand.LineStart);
     Word(0x4945);
     Text("ESCAPE IMMEDIATELY!");
-    Word(EscapeTypewriterRomData.End);
+    Word((ushort)EscapeTypewriterCommand.End);
 }
 
 /// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>
@@ -1678,11 +1679,11 @@ static void SeedCeresRidleyRoomEntryCartridge(
     WriteTestWord(bus, 0xa6c4cb, EscapeTimerTileAtlasFormat.FirstByteCount);
     WriteTestWord(bus, 0xa6c4cd, 0xc000);
     WriteTestByte(bus, 0xa6c4cf, 0xb0);
-    WriteTestWord(bus, 0xa6c4d0, EscapeTimerTileAtlasFormat.FirstDestinationWord);
+    WriteTestWord(bus, 0xa6c4d0, EscapeNativePageWords.TimerFirst);
     WriteTestWord(bus, 0xa6c4d2, EscapeTimerTileAtlasFormat.SecondByteCount);
     WriteTestWord(bus, 0xa6c4d4, 0xc200);
     WriteTestByte(bus, 0xa6c4d6, 0xb0);
-    WriteTestWord(bus, 0xa6c4d7, EscapeTimerTileAtlasFormat.SecondDestinationWord);
+    WriteTestWord(bus, 0xa6c4d7, EscapeNativePageWords.TimerSecond);
     WriteTestWord(bus, 0xa6c4d9, 0);
     WriteTestWord(bus, 0xa6c4fe, 2);
     WriteTestWord(bus, 0xa6c500, 0x9204);

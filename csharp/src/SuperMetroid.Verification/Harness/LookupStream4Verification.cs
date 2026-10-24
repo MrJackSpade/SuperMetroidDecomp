@@ -360,8 +360,8 @@ internal static class LookupStream4Verification
         var footprint = atlas.glyphFootprint;
         AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
         AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
-        AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "all5120 original ending font bytes match");
-        AssertTrue(native.SequenceEqual(EndingFontAtlas.FromPlanarBytes(native).Transfer.Span), "legacy native import uses same calculated representation");
+        AssertTrue(native.SequenceEqual(atlas.Characters.Span), "all5120 original ending font bytes match");
+        AssertTrue(native.SequenceEqual(EndingFontAtlas.FromPlanarBytes(native).Characters.Span), "legacy native import uses same calculated representation");
         AssertEqual((ushort)0x4F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.ResultSmall), "native small text space selects blank tile4F");
         AssertEqual((ushort)0x7F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.CopyrightLarge), "native large text space selects blank tile7F");
         var largeDeviations = new HashSet<LargeDeviation>
@@ -407,9 +407,9 @@ internal static class LookupStream4Verification
             int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
             byte[] expected = native.ToArray();
             expected[tile * 32 + y % 8 * 2] ^= (byte)(1 << (7 - x % 8));
-            AssertTrue(expected.SequenceEqual(changed.Transfer.Span), "independent space/source edit changes exactly its native bitplane bit");
-            AssertTrue(expected.SequenceEqual(EndingFontAtlas.FromPlanarBytes(expected).Transfer.Span), "edited legacy import preserves the same native bit");
-            AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "font edit leaves stock immutable");
+            AssertTrue(expected.SequenceEqual(changed.Characters.Span), "independent space/source edit changes exactly its native bitplane bit");
+            AssertTrue(expected.SequenceEqual(EndingFontAtlas.FromPlanarBytes(expected).Characters.Span), "edited legacy import preserves the same native bit");
+            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "font edit leaves stock immutable");
         }
         foreach (int pixel in new[] { -1, 10240, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => EndingFontAtlasFormat.IsSpacePixel(pixel), "font pixel bounds");
@@ -3161,7 +3161,7 @@ internal static class LookupStream4Verification
                 if (shared)
                     AssertEqual(ReadPixel(native, pixel), ReadPixel(sharedNative, pixel), "Shared tile relationship matches both independent original ROM sheets");
             }
-            AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "Calculated DMA view matches all256 original bytes per beam selection");
+            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Calculated DMA view matches all256 original bytes per beam selection");
             var directVram = new SnesVram();
             atlas.LoadTo(directVram);
             AssertTrue(native.SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
@@ -3180,7 +3180,7 @@ internal static class LookupStream4Verification
                 int y = editedPixel / 64;
                 int x = editedPixel % 8;
                 expected[tile * 32 + y * 2] ^= (byte)(1 << (7 - x));
-                AssertTrue(expected.SequenceEqual(edited.Transfer.Span), "Editing basis, transpose, rotation or transparent sites changes only the supplied native pixel bit");
+                AssertTrue(expected.SequenceEqual(edited.Characters.Span), "Editing basis, transpose, rotation or transparent sites changes only the supplied native pixel bit");
                 var editedFiles = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = changed };
                 var editedCatalog = BeamTileCatalog.Load(editedFiles, palettes);
                 VerifyQueued(editedCatalog, selection, expected);
@@ -3188,7 +3188,7 @@ internal static class LookupStream4Verification
                     if (other != selection)
                         AssertTrue(catalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span.SequenceEqual(editedCatalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span),
                             "Shared native beam shapes remain independently editable per installed selection");
-                AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "Pixel edits do not mutate original calculated atlas");
+                AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Pixel edits do not mutate original calculated atlas");
             }
         }
         AssertEqual(1093, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");

@@ -13,7 +13,7 @@ public static class TourianStatueTileStripDefinitions
     public const int SourceEnd = 0x879964;
 
     /// <summary>The strip's length in bytes.</summary>
-    public const int TransferByteCount = SourceEnd - FirstSource;
+    public const int ByteCount = SourceEnd - FirstSource;
 
     /// <summary>The statues whose pictures are windows of the strip.</summary>
     public static IReadOnlyList<AnimatedTileObject> Statues { get; } =

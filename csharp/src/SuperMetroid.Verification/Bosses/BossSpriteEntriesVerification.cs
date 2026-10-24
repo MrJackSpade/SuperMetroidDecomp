@@ -152,7 +152,7 @@ internal static class BossSpriteEntriesVerification
             uploads.Uploads.Single().FirstByte, "The corpse page shows from its sprite character");
         var resolver = new EnemyTileTransfers(artwork);
         AssertTrue((artwork.Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("The installation has no Mother Brain corpse tiles."))
-                .Transfer.Span.Slice(checked((int)MotherBrainCorpseArtworkDefinitions.PageSource(1)) - MotherBrainCorpseArtworkDefinitions.SourceAddress, corpseBytes)
+                .Characters.Span.Slice(checked((int)MotherBrainCorpseArtworkDefinitions.PageSource(1)) - MotherBrainCorpseArtworkDefinitions.SourceAddress, corpseBytes)
                 .SequenceEqual(new MotherBrainCorpseCharacters(1).Resolve(resolver).Span),
             "The corpse page resolves to the installed corpse tiles");
 

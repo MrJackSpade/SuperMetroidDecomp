@@ -43,14 +43,12 @@ internal static class MotherBrainCharacterUploads
     }
 
     /// <summary>The escape timer's digit page <paramref name="page"/>, as its installed asset.</summary>
-    [PpuLayoutBoundary("codec: the escape timer pages' native VRAM destinations")]
     private static RuntimeCharacterUpload EscapeTimer(EscapeTimerTilePage page) =>
-        RuntimeCharacterUpload.To(VramDmaDestination.FromNative(EscapeTimerTilePages.DestinationWordOf(page)),
-            EscapeTimerTilePages.ByteCountOf(page), new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page)));
+        new(new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page)), EscapeTimerTilePages.FirstCharacterOf(page) * CharacterBytes,
+            EscapeTimerTilePages.ByteCountOf(page));
 
     /// <summary>The escape message's letter page <paramref name="page"/>.</summary>
-    [PpuLayoutBoundary("codec: the escape text pages' native VRAM destinations")]
     private static RuntimeCharacterUpload EscapeText(int page) =>
-        RuntimeCharacterUpload.To(VramDmaDestination.FromNative(EscapeTextArtworkDefinitions.PageDestination(page)),
-            EscapeTextArtworkDefinitions.PageByteCount(page), new MotherBrainEscapeTextCharacters(page));
+        new(new MotherBrainEscapeTextCharacters(page), EscapeTextArtworkDefinitions.PageFirstCharacter(page) * CharacterBytes,
+            EscapeTextArtworkDefinitions.PageByteCount(page));
 }

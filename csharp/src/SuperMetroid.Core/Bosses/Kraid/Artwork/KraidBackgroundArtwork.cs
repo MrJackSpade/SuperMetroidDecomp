@@ -12,9 +12,9 @@ public sealed class KraidBackgroundArtwork
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-background-v2", content =>
         {
-            content.Append("upper", Upper.Transfer.Span);
-            content.Append("lower", Lower.Transfer.Span);
-            content.Append("background-tiles", RoomBackgroundTiles.Transfer.Span);
+            content.Append("upper", Upper.Bytes.Span);
+            content.Append("lower", Lower.Bytes.Span);
+            content.Append("background-tiles", RoomBackgroundTiles.Characters.Span);
             foreach ((int mouthStage, KraidHeadTilemapAtlas head) in heads.OrderBy(pair => pair.Key))
             {
                 content.Append("head-mouth-stage", mouthStage);

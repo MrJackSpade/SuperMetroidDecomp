@@ -36,11 +36,11 @@ internal static class EnemyTileArtworkKraidVerification
     {
         KraidBackgroundArtwork art = stock.Bosses.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid maps.");
-        AssertTrue(art.Upper.Transfer.Span.SequenceEqual(RomDataReader.Decompress(
+        AssertTrue(art.Upper.Bytes.Span.SequenceEqual(RomDataReader.Decompress(
                 rom, KraidBackgroundRomData.UpperTilemap,
                 KraidBackgroundRomData.DecompressedTilemapBytes)),
             "installed Kraid upper BG2 tile references preserve source words");
-        AssertTrue(art.Lower.Transfer.Span.SequenceEqual(RomDataReader.Decompress(
+        AssertTrue(art.Lower.Bytes.Span.SequenceEqual(RomDataReader.Decompress(
                 rom, KraidBackgroundRomData.LowerTilemap,
                 KraidBackgroundRomData.DecompressedTilemapBytes)),
             "installed Kraid lower BG2 tile references preserve source words");
@@ -174,7 +174,7 @@ internal static class EnemyTileArtworkKraidVerification
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidBackgroundRomData.StandardBg3TilesAddress,
             HudTileAtlasFormat.CharacterByteCount);
-        AssertTrue(stock.HudTiles.Transfer.Span[..native.Length].SequenceEqual(native),
+        AssertTrue(stock.HudTiles.Bytes.Span[..native.Length].SequenceEqual(native),
             "shared installed HUD PNG preserves all Kraid BG3 restoration source bytes");
 
         var baselineQueued = new SnesVram();
@@ -305,7 +305,7 @@ internal static class EnemyTileArtworkKraidVerification
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidBackgroundRomData.RoomBackgroundTileAddress,
             KraidBackgroundRomData.RoomBackgroundTileBytes);
-        AssertTrue((stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).RoomBackgroundTiles.Transfer.Span.SequenceEqual(native),
+        AssertTrue((stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).RoomBackgroundTiles.Characters.Span.SequenceEqual(native),
             "installed Kraid room-background PNG preserves native planar characters");
         var baseline = new SnesVram();
         baseline.LoadBytes(KraidBackgroundRomData.RoomBackgroundTileVramWord * 2, native);

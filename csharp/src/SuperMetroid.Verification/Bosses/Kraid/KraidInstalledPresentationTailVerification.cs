@@ -32,7 +32,7 @@ internal static class KraidInstalledPresentationTailVerification
         ushort[] working = KraidBodyFixtures.WorkingMap(new BossArtworkCatalog { KraidBackground = art });
         for (int word = 0; word < KraidBackgroundRomData.WorkingTilemapWords; word++)
         {
-            ReadOnlySpan<byte> source = word < KraidBackgroundRomData.VisiblePageWords ? upper.Transfer.Span : lower.Transfer.Span;
+            ReadOnlySpan<byte> source = word < KraidBackgroundRomData.VisiblePageWords ? upper.Bytes.Span : lower.Bytes.Span;
             int sourceWord = word < KraidBackgroundRomData.VisiblePageWords || word >= KraidBackgroundRomData.PreservedLowerTailFirstWord
                 ? word : word - KraidBackgroundRomData.WorkingLowerHalfWord;
             ushort expected = BinaryPrimitives.ReadUInt16LittleEndian(source[(sourceWord * 2)..]);

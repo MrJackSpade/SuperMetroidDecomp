@@ -89,7 +89,7 @@ public sealed class SamusArmCannonArtworkCatalog
         for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
             for (int frame = 1; frame <= OpeningFrames; frame++)
                 content.Append("cover tile", OpeningTile(direction, frame));
-        content.Append("characters", this.tiles.Transfer.Span);
+        content.Append("characters", this.tiles.Characters.Span);
     });
 
     /// <summary>Validated JSON placement tables before their separately loaded tile PNG is attached.</summary>
@@ -204,7 +204,7 @@ public sealed class SamusArmCannonArtworkCatalog
         int index = CoverTileIndex(direction, frame) ??
             throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
         return coverTiles.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
-            tiles.Transfer.Span.Slice(key * SamusRenderingRomData.ArmCannon.TileUploadByteCount, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
+            tiles.Characters.Span.Slice(key * SamusRenderingRomData.ArmCannon.TileUploadByteCount, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
     }
 
     /// <summary>Cover characters already built, by installed tile index.</summary>
@@ -221,7 +221,7 @@ public sealed class SamusArmCannonArtworkCatalog
                 SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf(
                     unchecked((ushort)source)) is int index and >= 0)
             {
-                data = tiles.Transfer.Slice(index * byteCount, byteCount);
+                data = tiles.Characters.Slice(index * byteCount, byteCount);
                 return true;
             }
         }

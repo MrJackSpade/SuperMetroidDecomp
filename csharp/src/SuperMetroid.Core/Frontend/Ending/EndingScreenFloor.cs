@@ -35,7 +35,7 @@ internal static class EndingScreenFloor
                 case EndingUploadKind.RewardChunk:
                     // Each reward chunk interleaves the cells it lays out with its tiles' pixels, a cell before each pixel.
                     int source = EndingRewardGraphicsUploadDefinitions.SourceWord(upload.Key) - EndingRewardGraphicsUploadDefinitions.SourceBase;
-                    ReadOnlySpan<byte> chunk = Floor(floor).RewardIcon.Transfer.Span.Slice(source, EndingRewardGraphicsUploadDefinitions.ChunkBytes);
+                    ReadOnlySpan<byte> chunk = Floor(floor).RewardIcon.Bytes.Span.Slice(source, EndingRewardGraphicsUploadDefinitions.ChunkBytes);
                     int first = upload.Key * (EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort));
                     for (int cell = 0; cell < chunk.Length / sizeof(ushort); cell++)
                         cells[first + cell] = chunk[cell * sizeof(ushort)];

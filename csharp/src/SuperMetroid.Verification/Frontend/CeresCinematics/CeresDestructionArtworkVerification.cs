@@ -36,10 +36,10 @@ internal static class CeresDestructionArtworkVerification
         byte[] nativeZebesMap = RomDataReader.Decompress(bus,
             CeresDestructionRomData.Assets.ZebesTilemap,
             maximumOutputBytes: CeresDestructionRomData.Transfers.CompressedTilemapLimit);
-        AssertTrue(stock.CeresDestruction.ZebesMap.Transfer.Span.SequenceEqual(
+        AssertTrue(stock.CeresDestruction.ZebesMap.Bytes.Span.SequenceEqual(
                 nativeZebesMap.AsSpan(0, CeresDestructionArtworkFormat.ZebesMapByteCount)),
             "installed Zebes reveal JSON preserves every transferred BG word");
-        AssertTrue(stock.CeresDestruction.ZebesCharacters.Transfer.Span.SequenceEqual(
+        AssertTrue(stock.CeresDestruction.ZebesCharacters.Characters.Span.SequenceEqual(
                 RomDataReader.Decompress(bus,
                     CeresDestructionRomData.Assets.ZebesCharacters,
                     maximumOutputBytes: CeresDestructionArtworkFormat.ZebesCharacterByteCount)),
@@ -328,8 +328,8 @@ internal static class CeresDestructionArtworkVerification
             RoomBackgroundTilemapAtlas.Write(output, zebesMap,
                 CeresDestructionArtworkFormat.ZebesMapByteCount);
         IntroCinematicArtworkCatalog editedZebesMap = installation.LoadIntroCinematicArt();
-        AssertTrue(!editedZebesMap.CeresDestruction.ZebesMap.Transfer.Span.SequenceEqual(
-                stock.CeresDestruction.ZebesMap.Transfer.Span),
+        AssertTrue(!editedZebesMap.CeresDestruction.ZebesMap.Bytes.Span.SequenceEqual(
+                stock.CeresDestruction.ZebesMap.Bytes.Span),
             "independent Zebes tilemap JSON edit compiles into its native transfer");
         File.Delete(zebesMapOverride);
 

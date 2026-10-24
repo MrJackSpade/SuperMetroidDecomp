@@ -243,7 +243,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         {
             field = value;
             StandardObjects = value is null ? null
-                : ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects), value.Transfer.Span);
+                : ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects), value.Characters.Span);
             _player.Samus?.Presentation.BodyFrames.BindStandardObjects(StandardObjects);
             BindProjectileObjects();
         }
@@ -378,7 +378,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Dispatches a typed VRAM asset to its bound gunship, Grapple, trail, HUD, or beam catalog.</summary>
     internal ReadOnlyMemory<byte> ResolveVramAsset(VramAssetId asset) =>
         asset == VramAssetId.StandardObjectTiles
-            ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Transfer
+            ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Characters
             : asset is VramAssetId.GunshipLiftoffFirstTiles or
             VramAssetId.GunshipLiftoffSecondTiles or
             VramAssetId.GunshipLiftoffThirdTiles or

@@ -88,7 +88,7 @@ internal static class Layer3PlaneVerification
     internal static void VerifyTypewriterGlyphs()
     {
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres,
-            [new EscapeTypewriterLine(0x5105, "AB C!")]);
+            [new EscapeTypewriterLine(0x105, "AB C!")]);
         var text = new EscapeTypewriterState(program, EscapeTypewriterRomData.ZebesTileBase);
         var typed = new List<EscapeTypewriterGlyph>();
         bool completed = false;
@@ -102,12 +102,12 @@ internal static class Layer3PlaneVerification
             AssertEqual(typed.Count, text.GlyphsWritten, $"step {steps} reports every glyph it has typed");
         }
         AssertEqual(4, typed.Count, "the space types no glyph");
-        int[] destinations = [0x5105, 0x5106, 0x5108, 0x5109];
+        int[] cells = [0x105, 0x106, 0x108, 0x109];
         ushort[] tiles = [EscapeTypewriterRomData.ZebesTileBase, (EscapeTypewriterRomData.ZebesTileBase + 1),
             (EscapeTypewriterRomData.ZebesTileBase + 2), (EscapeTypewriterRomData.ZebesTileBase + 26)];
         for (int index = 0; index < typed.Count; index++)
         {
-            AssertEqual(destinations[index], typed[index].Destination, $"glyph {index} lands at its program destination");
+            AssertEqual(cells[index], typed[index].Cell, $"glyph {index} lands at its program's cell");
             AssertEqual(tiles[index], typed[index].Tile.Raw, $"glyph {index} tile");
         }
         Console.WriteLine($"  BG3 plane: the typewriter typed {typed.Count} glyphs over {steps} steps at their destinations.");

@@ -142,7 +142,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public void BindIntroFont(IntroFontAtlas? value)
     {
         if (value is not null)
-            RequireFont(value.Transfer.Span);
+            RequireFont(value.Characters.Span);
         IntroFont = value;
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
@@ -307,18 +307,18 @@ public sealed class IntroCinematicState : IFrontendScreen
         characterArtwork.Palette.LoadTo(palette);
         palette.Colors.CopyTo(introColours);
 
-        RequireMinimum(characterArtwork.BackgroundCharacters.Transfer.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
+        RequireMinimum(characterArtwork.BackgroundCharacters.Characters.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");
-        RequireMinimum(introFont.Transfer.Length, IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
+        RequireMinimum(introFont.Characters.Length, IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
         RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicRomData.Transfers.SamusHeadTilemapBytes,
             "Samus-head BG2 tilemap");
         RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes,
             "intro BG1 page tilemaps");
-        RequireMinimum(characterArtwork.CinematicObjectCharacters.Transfer.Length, IntroCinematicRomData.Transfers.ObjectCharacterBytes,
+        RequireMinimum(characterArtwork.CinematicObjectCharacters.Characters.Length, IntroCinematicRomData.Transfers.ObjectCharacterBytes,
             "intro OBJ characters");
         RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicRomData.Transfers.NarrationTilemapBytes,
             "first narration BG3 tilemap");
-        RequireFont(introFont.Transfer.Span);
+        RequireFont(introFont.Characters.Span);
 
         // `$8B:A469-$A529` upload the characters, font, background pages and OBJ sheets the intro binds,
         // and the portrait and first narration card it keeps as its own tilemaps.

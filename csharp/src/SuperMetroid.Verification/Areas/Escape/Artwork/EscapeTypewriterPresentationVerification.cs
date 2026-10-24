@@ -56,7 +56,7 @@ internal static class EscapeTypewriterPresentationVerification
         editedState.StepInto(editedVram);
         editedState.StepInto(editedVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
-            editedVram.ReadWord(0x4906), "edited UTF-8 escape text reaches live VRAM");
+            editedVram.ReadWord(0x106), "edited UTF-8 escape text reaches live VRAM");
 
         var rebound = new EscapeTypewriterState(
             presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
@@ -65,7 +65,7 @@ internal static class EscapeTypewriterPresentationVerification
         rebound.BindProgram(edited.Get(EscapeTypewriterProgramId.Zebes));
         rebound.StepInto(reboundVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
-            reboundVram.ReadWord(0x4906), "active escape typewriter accepts current replacement content");
+            reboundVram.ReadWord(0x106), "active escape typewriter accepts current replacement content");
 
         var saved = new EscapeTypewriterState(
             presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
@@ -84,7 +84,7 @@ internal static class EscapeTypewriterPresentationVerification
         restored.BindProgram(presentation.Get(EscapeTypewriterProgramId.Zebes));
         restored.StepInto(savedVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'I' - 'A'),
-            savedVram.ReadWord(0x4906), "restored escape text resumes at its saved character");
+            savedVram.ReadWord(0x106), "restored escape text resumes at its saved character");
 
         byte[] malformed = Encoding.UTF8.GetBytes(
             editedDocument.ToJsonString(ArtworkJson.Options).Replace("TEST!", "test!"));
@@ -123,7 +123,7 @@ internal static class EscapeTypewriterPresentationVerification
         state.StepInto(vram);
         state.StepInto(vram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
-            vram.ReadWord(0x4906), "catalog override changes installed escape text");
+            vram.ReadWord(0x106), "catalog override changes installed escape text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "escape text override changes catalog content identity");
 

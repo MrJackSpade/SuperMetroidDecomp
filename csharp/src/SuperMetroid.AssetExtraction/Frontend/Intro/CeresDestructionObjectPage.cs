@@ -22,10 +22,10 @@ internal static class CeresDestructionObjectPage
                 case CeresDestructionUpload.CeresScene:
                     artwork.CeresFlight.ObjectCharacters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes].CopyTo(page);
                     // The final C11B DMA overwrites the first $1A00 OBJ bytes with the standard cinematic sheet at $9A:D200.
-                    artwork.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes].CopyTo(page);
+                    artwork.IntroObjectCharacters.Characters.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes].CopyTo(page);
                     break;
                 case CeresDestructionUpload.ZebesReveal:
-                    artwork.CeresDestruction.ZebesCharacters.Transfer.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes].CopyTo(page);
+                    artwork.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes].CopyTo(page);
                     break;
                 case CeresDestructionUpload.FinalExplosionMaps:
                     break;

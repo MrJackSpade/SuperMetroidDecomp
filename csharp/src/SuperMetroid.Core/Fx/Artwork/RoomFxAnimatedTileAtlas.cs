@@ -5,19 +5,19 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>Editable two-bit characters for simple room-FX and Wrecked Ship treadmill frames.</summary>
 public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
 {
-    /// <summary>Concatenated edited tile bytes in the native segment transfer order.</summary>
-    internal readonly byte[] transfer;
+    /// <summary>Concatenated edited tile bytes in the native segment order.</summary>
+    internal readonly byte[] characters;
 
-    /// <summary>Accepts the compiled transfer strip only when its length matches the ordered frame and statue segments.</summary>
-    internal RoomFxAnimatedTileAtlas(byte[] transfer)
+    /// <summary>Accepts the compiled character strip only when its length matches the ordered frame and statue segments.</summary>
+    internal RoomFxAnimatedTileAtlas(byte[] characters)
     {
-        this.transfer = transfer;
+        this.characters = characters;
         int offset = 0;
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
             offset += segment.ByteCount;
-        if (offset != transfer.Length)
+        if (offset != characters.Length)
             throw new InvalidDataException(
-                $"Room-FX artwork has {transfer.Length} bytes, expected {offset}.");
+                $"Room-FX artwork has {characters.Length} bytes, expected {offset}.");
     }
 
     /// <summary>Compiles indexed pixels back into their ordered native 2-bpp DMA frames.</summary>
@@ -53,7 +53,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
                         legacy.Size, RoomFxAnimatedTileAtlasFormat.BitsPerPixel);
                     var combined = new byte[RoomFxAnimatedTileAtlasFormat.TotalByteCount];
                     legacyPlanar.CopyTo(combined, 0);
-                    stockForLegacyOverride.transfer.AsSpan(legacyPlanar.Length).CopyTo(
+                    stockForLegacyOverride.characters.AsSpan(legacyPlanar.Length).CopyTo(
                         combined.AsSpan(legacyPlanar.Length));
                     return new(combined);
                 }
@@ -62,7 +62,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
         }
     }
 
-    /// <summary>Returns one complete native frame, rejecting altered transfer geometry.</summary>
+    /// <summary>Returns one complete native frame, rejecting altered frame geometry.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
         int frameOffset = 0;
@@ -73,7 +73,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
                 if (byteCount != segment.ByteCount)
                     throw new InvalidDataException(
                         $"Room-FX artwork source ${sourceAddress:X6} requires {segment.ByteCount} bytes, not {byteCount}.");
-                data = transfer.AsMemory(frameOffset, byteCount);
+                data = characters.AsMemory(frameOffset, byteCount);
                 return true;
             }
             frameOffset += segment.ByteCount;
@@ -90,7 +90,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
                     $"Tourian statue art ${sourceAddress:X6} requires {windowByteCount} bytes, not {byteCount}.");
             int offset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
                 sourceAddress - TourianStatueTileStripDefinitions.FirstSource;
-            data = transfer.AsMemory(offset, byteCount);
+            data = characters.AsMemory(offset, byteCount);
             return true;
         }
         data = default;

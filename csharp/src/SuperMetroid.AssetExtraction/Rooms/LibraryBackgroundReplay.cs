@@ -44,7 +44,7 @@ internal static class LibraryBackgroundReplay
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
                     staging.WriteDecompressed(instruction.Destination, (artwork.TilemapArt ?? throw new InvalidOperationException(
-                        "Library-background decompression requires installed tilemaps.")).Get(instruction.SourceAddress).Transfer.Span,
+                        "Library-background decompression requires installed tilemaps.")).Get(instruction.SourceAddress).Bytes.Span,
                         instruction.SourceAddress);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:

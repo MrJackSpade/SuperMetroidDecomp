@@ -15,7 +15,7 @@ public sealed class RoomCharacterAtlas
     private RoomCharacterAtlas(byte[] planar) => this.planar = planar;
 
     /// <summary>Read-only view of the compiled, row-major 8x8 SNES 4-bpp characters, excluding unused PNG cells.</summary>
-    public ReadOnlyMemory<byte> Transfer => planar;
+    public ReadOnlyMemory<byte> Characters => planar;
 
     /// <summary>Identity of selected decoded pixels; PNG metadata and display padding do not participate.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomCharacterAtlas),

@@ -214,10 +214,10 @@ internal static class SuperMetroidRuntimeAccess
             {
                 self.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
                     EscapeTimerTileRomData.FirstSourceAddress,
-                    VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
+                    VramDmaDestination.FromNative(EscapeNativePageWords.TimerFirst));
                 self.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
                     EscapeTimerTileRomData.SecondSourceAddress,
-                    VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.SecondDestinationWord));
+                    VramDmaDestination.FromNative(EscapeNativePageWords.TimerSecond));
             }
             else
                 self.Artwork.MapPresentation.EscapeTimerTiles.QueueTo(self.VramWrites);

@@ -28,15 +28,15 @@ public static class StandardObjectArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), Source,
-            StandardObjectArtworkFormat.TransferByteCount);
+            StandardObjectArtworkFormat.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] selected = png.ToArray();
         RoomCharacterAtlas loaded = RoomCharacterAtlas.Load(
-            new MemoryStream(selected, writable: false), StandardObjectArtworkFormat.TransferByteCount);
-        if (!loaded.Transfer.Span.SequenceEqual(native))
+            new MemoryStream(selected, writable: false), StandardObjectArtworkFormat.ByteCount);
+        if (!loaded.Characters.Span.SequenceEqual(native))
             throw new InvalidDataException("Standard OBJ PNG changed native tile bytes during extraction.");
         File.WriteAllBytes(Path.Combine(directory, StandardObjectArtworkFormat.FileName), selected);
         File.WriteAllBytes(Path.Combine(directory, StandardObjectArtworkFormat.ManifestFileName),
@@ -74,7 +74,7 @@ public static class StandardObjectArtworkFiles
             StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Stock standard OBJ PNG {stockPath} failed its manifest hash.");
         _ = RoomCharacterAtlas.Load(new MemoryStream(stock, writable: false),
-            StandardObjectArtworkFormat.TransferByteCount);
+            StandardObjectArtworkFormat.ByteCount);
         string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
             StandardObjectArtworkFormat.FileName);
         byte[] selected = overridePath is not null && File.Exists(overridePath)
@@ -82,7 +82,7 @@ public static class StandardObjectArtworkFiles
         try
         {
             return RoomCharacterAtlas.Load(new MemoryStream(selected, writable: false),
-                StandardObjectArtworkFormat.TransferByteCount);
+                StandardObjectArtworkFormat.ByteCount);
         }
         catch (InvalidDataException error)
         {

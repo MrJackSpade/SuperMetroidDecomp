@@ -19,14 +19,14 @@ public sealed class EnemyTileArtworkCatalog
             foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet) in sheets.OrderBy(pair => pair.Key))
             {
                 content.Append("definition", (ushort)definition);
-                content.Append("tiles", sheet.Transfer.Span);
+                content.Append("tiles", sheet.Characters.Span);
                 content.AppendIdentity("palette", palettes[definition].ContentIdentity);
             }
             foreach (var pair in byDmaSource.OrderBy(pair => pair.Key.Source).ThenBy(pair => pair.Key.ByteCount))
             {
                 content.Append("dma-source", pair.Key.Source);
                 content.Append("dma-length", pair.Key.ByteCount);
-                content.Append("dma-tiles", pair.Value.Transfer.Span);
+                content.Append("dma-tiles", pair.Value.Characters.Span);
             }
             content.AppendIdentity("Spritemaps", Spritemaps?.ContentIdentity);
             content.AppendIdentity("ExtendedFrames", ExtendedFrames?.ContentIdentity);
@@ -78,7 +78,7 @@ public sealed class EnemyTileArtworkCatalog
     {
         if (byDmaSource.TryGetValue(new EnemyDmaSourceKey(sourceAddress, byteCount), out RoomCharacterAtlas? atlas))
         {
-            data = atlas.Transfer;
+            data = atlas.Characters;
             return true;
         }
         data = default;
@@ -128,10 +128,10 @@ public sealed class EnemyTileArtworkCatalog
                 if (!this.sheets.TryGetValue(definition, out RoomCharacterAtlas? atlas))
                     throw new InvalidDataException(
                         $"Enemy {definition} DMA source has no installed sheet.");
-                var key = new EnemyDmaSourceKey(sourceAddress, atlas.Transfer.Length);
+                var key = new EnemyDmaSourceKey(sourceAddress, atlas.Characters.Length);
                 if (byDmaSource.TryGetValue(key, out RoomCharacterAtlas? existing))
                 {
-                    if (!existing.Transfer.Span.SequenceEqual(atlas.Transfer.Span))
+                    if (!existing.Characters.Span.SequenceEqual(atlas.Characters.Span))
                         throw new InvalidDataException(
                             $"Enemy DMA source ${sourceAddress:X6} has conflicting installed sheets.");
                 }
@@ -160,7 +160,7 @@ public sealed class EnemyTileArtworkCatalog
             throw new InvalidDataException("Installed enemy artwork must contain every required sheet and palette.");
         foreach (EnemyTileSourceDefinition definition in EnemyTileSourceDefinitions.All)
             if (!sheets.TryGetValue(definition.DefinitionId, out RoomCharacterAtlas? sheet) || sheet is null ||
-                sheet.Transfer.Length != definition.ByteCount ||
+                sheet.Characters.Length != definition.ByteCount ||
                 !palettes.TryGetValue(definition.DefinitionId, out EnemyPaletteSheet? palette) || palette is null)
                 throw new InvalidDataException(
                     $"Installed enemy ${(int)definition.DefinitionId:X4} lacks its complete tile sheet or palette.");

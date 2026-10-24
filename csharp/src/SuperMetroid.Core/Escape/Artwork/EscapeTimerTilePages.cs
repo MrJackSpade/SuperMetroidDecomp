@@ -22,11 +22,11 @@ public static class EscapeTimerTilePages
         _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
     };
 
-    /// <summary>The page's native VRAM word destination.</summary>
-    public static ushort DestinationWordOf(EscapeTimerTilePage page) => page switch
+    /// <summary>The OBJ character the page begins at.</summary>
+    public static int FirstCharacterOf(EscapeTimerTilePage page) => page switch
     {
-        EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstDestinationWord,
-        EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondDestinationWord,
+        EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstCharacter,
+        EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondCharacter,
         _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
     };
 
@@ -63,6 +63,11 @@ public static class EscapeTimerTilePages
     }
 
     /// <summary>Identifies the page a complete native transfer record uploads.</summary>
+    [PpuLayoutBoundary("codec: matches a native transfer record's VRAM destination to the page's first OBJ character")]
     public static bool TryMatch(int sourceAddress, int byteCount, ushort destinationWord, out EscapeTimerTilePage page) =>
-        TryMatch(sourceAddress, byteCount, out page) && DestinationWordOf(page) == destinationWord;
+        TryMatch(sourceAddress, byteCount, out page) &&
+        ObjCharacterUploads.TableByte(VramDmaDestination.FromNative(destinationWord)) == FirstCharacterOf(page) * CharacterBytes;
+
+    /// <summary>The bytes one four-bit OBJ character holds.</summary>
+    private const int CharacterBytes = 32;
 }

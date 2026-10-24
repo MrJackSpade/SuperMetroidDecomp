@@ -110,7 +110,7 @@ internal static class LookupStream5Verification
             var second = art.second;
             string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
             {
-                content.Append("first", first.Transfer.Span); content.Append("second", second.Transfer.Span);
+                content.Append("first", first.Characters.Span); content.Append("second", second.Characters.Span);
                 content.AppendWords("first-map", native[0]); content.AppendWords("second-map", native[1]);
             });
             AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");

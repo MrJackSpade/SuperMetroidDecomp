@@ -32,7 +32,7 @@ public static class CeresDoorVisualFiles
         byte[] tilePng = image.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(tilePng, writable: false), planar.Length);
-        if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+        if (!roundtrip.Characters.Span.SequenceEqual(planar))
             throw new InvalidDataException("Ceres-door PNG changed the native tile DMA.");
 
         byte[] paletteJson = CeresDoorVisualCatalog.Write(new CeresDoorVisualDocument

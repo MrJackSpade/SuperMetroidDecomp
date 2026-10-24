@@ -62,15 +62,15 @@ internal static class IntroCinematicArtworkVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(
+            AssertTrue(stock.BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "installed intro BG PNG preserves every native tile byte");
-            AssertTrue(stock.IntroObjectCharacters.Transfer.Span.SequenceEqual(
+            AssertTrue(stock.IntroObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
-            AssertTrue(stock.CinematicObjectCharacters.Transfer.Span.SequenceEqual(
+            AssertTrue(stock.CinematicObjectCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.ObjectCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount)),
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");
@@ -363,13 +363,13 @@ internal static class IntroCinematicArtworkVerification
                 byte[] expected = nativeVram.ToArray();
                 // $8B:A395 copies the fixed OBJ sheet before the compressed sheet;
                 // the final $400 bytes of the first transfer are deliberately overwritten.
-                edited.BackgroundCharacters.Transfer.Span.CopyTo(expected.AsSpan(
+                edited.BackgroundCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundCharacters.Offset * 2)));
                 edited.BackgroundPages.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
-                edited.IntroObjectCharacters.Transfer.Span.CopyTo(expected.AsSpan(
+                edited.IntroObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.IntroObjectCharacters.Offset * 2)));
-                edited.CinematicObjectCharacters.Transfer.Span.CopyTo(expected.AsSpan(
+                edited.CinematicObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.CinematicObjectCharacters.Offset * 2)));
                 // The final beam DMA wins over the $C600-$C6FF portion of the fixed
                 // OBJ sheet, including in a freshly constructed cinematic state.
@@ -533,20 +533,20 @@ internal static class IntroCinematicArtworkVerification
                 "an override cannot hide corrupt stock cinematic artwork");
             GameInstallation repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed intro content disappeared during repair.");
-            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Transfer.Span.SequenceEqual(
-                    selected.BackgroundCharacters.Transfer.Span),
+            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
+                    selected.BackgroundCharacters.Characters.Span),
                 "stock repair preserves the external cinematic PNG override");
             File.Delete(backgroundStockPath);
             AssertThrows<FileNotFoundException>(() => repaired.LoadIntroCinematicArt(),
                 "an override cannot hide missing stock cinematic artwork");
             repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed intro content disappeared during missing-file repair.");
-            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Transfer.Span.SequenceEqual(
-                    selected.BackgroundCharacters.Transfer.Span),
+            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
+                    selected.BackgroundCharacters.Characters.Span),
                 "missing-stock repair also preserves the external cinematic PNG override");
             File.Delete(backgroundOverridePath);
-            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Transfer.Span.SequenceEqual(
-                    stock.BackgroundCharacters.Transfer.Span),
+            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
+                    stock.BackgroundCharacters.Characters.Span),
                 "removing an override restores exact cartridge opening artwork");
             string pageStockPath = Path.Combine(installation.IntroCinematicDirectory,
                 IntroCinematicArtworkFormat.BackgroundPageFileName(0));

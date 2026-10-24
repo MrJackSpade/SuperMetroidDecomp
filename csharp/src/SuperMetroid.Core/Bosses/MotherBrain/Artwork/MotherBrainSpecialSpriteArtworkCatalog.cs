@@ -8,7 +8,7 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromTransfers(
-        "enemy-mother-brain-special-v1", sheets, atlas => atlas.Transfer);
+        "enemy-mother-brain-special-v1", sheets, atlas => atlas.Characters);
 
     /// <summary>Validated full-source-address lookup for the four installed OBJ transfer sheets.</summary>
     private readonly Dictionary<int, RoomCharacterAtlas> sheets;
@@ -25,7 +25,7 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
         if (this.sheets.Count != MotherBrainSpecialSpriteArtworkDefinitions.All.Count ||
             MotherBrainSpecialSpriteArtworkDefinitions.All.Any(definition =>
                 !this.sheets.TryGetValue(definition.SourceAddress, out RoomCharacterAtlas? artwork) ||
-                artwork is null || artwork.Transfer.Length != definition.ByteCount))
+                artwork is null || artwork.Characters.Length != definition.ByteCount))
             throw new InvalidDataException(
                 "Mother Brain special artwork requires all four nonnull native source sheets with complete transfer pages.");
     }

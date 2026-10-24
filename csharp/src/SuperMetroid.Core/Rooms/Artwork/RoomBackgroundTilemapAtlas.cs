@@ -9,16 +9,16 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomBackgroundTilemapAtlas
 {
     /// <summary>Owned little-endian BG tile words in native page and row order.</summary>
-    private readonly byte[] transfer;
-    /// <summary>Retains a validated one- or two-page native transfer independent of JSON arrays.</summary>
-    internal RoomBackgroundTilemapAtlas(byte[] transfer) => this.transfer = transfer;
+    private readonly byte[] bytes;
+    /// <summary>Retains a validated one- or two-page native tilemap independent of JSON arrays.</summary>
+    internal RoomBackgroundTilemapAtlas(byte[] bytes) => this.bytes = bytes;
 
     /// <summary>Owned compiled tilemap bytes: complete little-endian SNES BG words in page order, with row-major cells inside each 32-by-32 page.</summary>
-    public ReadOnlyMemory<byte> Transfer => transfer;
+    public ReadOnlyMemory<byte> Bytes => bytes;
 
     /// <summary>Compiles an editable tile-reference document into one or two native BG tilemap pages.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
-    /// <param name="expectedByteCount">Required compiled transfer length: $0800 for one page or $1000 for two.</param>
+    /// <param name="expectedByteCount">Required compiled byte length: $0800 for one page or $1000 for two.</param>
     /// <returns>An atlas owning newly encoded words, with each cell's character index, palette, priority, and flips preserved.</returns>
     /// <remarks>Page order is retained without inferring horizontal or vertical placement; the consuming background/PPU configuration determines that layout. Parsing accepts property-name casing differences but rejects unknown and duplicate properties.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -65,7 +65,7 @@ public sealed class RoomBackgroundTilemapAtlas
         return new RoomBackgroundTilemapAtlas(bytes);
     }
 
-    /// <summary>Serializes a tilemap document, validating the serialized form against its required native transfer size before writing to the destination.</summary>
+    /// <summary>Serializes a tilemap document, validating the serialized form against its required native size before writing to the destination.</summary>
     /// <param name="json">Caller-owned writable destination stream, written at its current position without being disposed.</param>
     /// <param name="document">The ordered one- or two-page editable map definition.</param>
     /// <param name="expectedByteCount">Required compiled length, $0800 or $1000 bytes.</param>

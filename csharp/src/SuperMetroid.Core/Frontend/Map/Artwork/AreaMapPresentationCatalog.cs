@@ -208,7 +208,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
     /// <exception cref="InvalidDataException">The requested identity is not supported by this provider.</exception>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
     {
-        VramAssetId.StandardHudTiles => HudTiles.Transfer,
+        VramAssetId.StandardHudTiles => HudTiles.Bytes,
         VramAssetId.KraidBg3RestoreQuarter0 => HudTiles.KraidRestoreQuarter(0),
         VramAssetId.KraidBg3RestoreQuarter1 => HudTiles.KraidRestoreQuarter(1),
         VramAssetId.KraidBg3RestoreQuarter2 => HudTiles.KraidRestoreQuarter(2),

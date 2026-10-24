@@ -26,8 +26,8 @@ internal static class KraidBodyTilemap
     internal static ushort[] ComposeWorkingMap(KraidBackgroundArtwork art)
     {
         Ensure.NotNull(art);
-        ReadOnlySpan<byte> upper = art.Upper.Transfer.Span;
-        ReadOnlySpan<byte> lower = art.Lower.Transfer.Span;
+        ReadOnlySpan<byte> upper = art.Upper.Bytes.Span;
+        ReadOnlySpan<byte> lower = art.Lower.Bytes.Span;
         if (upper.Length != KraidBackgroundRomData.DecompressedTilemapBytes ||
             lower.Length != KraidBackgroundRomData.DecompressedTilemapBytes)
         {

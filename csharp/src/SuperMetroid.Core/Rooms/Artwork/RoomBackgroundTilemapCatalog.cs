@@ -28,7 +28,7 @@ public sealed class RoomBackgroundTilemapCatalog
 
     /// <summary>SHA-256 of every selected library-background page in stable source order.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromTransfers(
-        nameof(RoomBackgroundTilemapCatalog), this.bySource, atlas => atlas.Transfer);
+        nameof(RoomBackgroundTilemapCatalog), this.bySource, atlas => atlas.Bytes);
 
     /// <summary>Resolves installed, already compiled tilemap words for a library-background decompression command; performs no cartridge read or decompression.</summary>
     /// <param name="sourceAddress">Full 24-bit native compressed-source identity selected by the command, independent of its destination and transfer size.</param>

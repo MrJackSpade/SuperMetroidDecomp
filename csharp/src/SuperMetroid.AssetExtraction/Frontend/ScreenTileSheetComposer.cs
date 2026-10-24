@@ -35,33 +35,33 @@ internal static class ScreenTileSheetComposer
         AreaMapPresentationCatalog maps = sources.Maps;
         return sheet switch
         {
-            SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Transfer.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes],
+            SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes],
                 BgBitDepth.FourBpp, IntroColours(sources.Intro)),
-            SpriteSheetId.IntroFontTiles => Compose(maps.IntroFont.Transfer.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
+            SpriteSheetId.IntroFontTiles => Compose(maps.IntroFont.Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
             SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
-            SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes],
+            SpriteSheetId.CeresIntroObjectTiles => Compose(sources.Intro.IntroObjectCharacters.Characters.Span[..CeresDestructionRomData.Transfers.SharedObjectCharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Transfer.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes],
+            SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.EndingCreditsFontTiles => Compose(maps.EndingFont.Transfer.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+            SpriteSheetId.EndingCreditsFontTiles => Compose(maps.EndingFont.Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Credits)),
-            SpriteSheetId.EndingTextFontTiles => Compose(maps.EndingFont.Transfer.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+            SpriteSheetId.EndingTextFontTiles => Compose(maps.EndingFont.Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingSubtitleTiles => Compose(maps.EndingFont.Transfer.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
+            SpriteSheetId.EndingSubtitleTiles => Compose(maps.EndingFont.Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
                 EndingPostShotUploadDefinitions.SubtitleLength), BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Transfer.Span, BgBitDepth.FourBpp,
+            SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Characters.Span, BgBitDepth.FourBpp,
                 EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingWaitingTiles => Compose(sources.EndingObjects.WaitingSamus.Transfer.Span[..EndingCreditsRomData.Rendering.WaitingCharacterBytes],
+            SpriteSheetId.EndingWaitingTiles => Compose(sources.EndingObjects.WaitingSamus.Characters.Span[..EndingCreditsRomData.Rendering.WaitingCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingWavySamusTiles => Compose(sources.EndingObjects.PostCreditsFragmentA.Transfer.Span[..EndingCreditsRomData.Rendering.PostCreditsFragmentABytes],
+            SpriteSheetId.EndingWavySamusTiles => Compose(sources.EndingObjects.PostCreditsFragmentA.Characters.Span[..EndingCreditsRomData.Rendering.PostCreditsFragmentABytes],
                 BgBitDepth.TwoBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Transfer.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes],
+            SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Characters.Span[..EndingCreditsRomData.Rendering.ExplosionObjectBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Explosion)),
             SpriteSheetId.MenuForegroundTiles => Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.MenuMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.FileSelect),
             SpriteSheetId.PauseMapTiles => Compose(maps.Tiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
             SpriteSheetId.PauseInterfaceTiles => Compose(maps.PauseTiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
-            SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], BgBitDepth.TwoBpp,
+            SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount], BgBitDepth.TwoBpp,
                 maps.Palettes.Pause),
             _ when AreaOf(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet) is { } area =>
                 Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(area)),
@@ -144,7 +144,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
-        ComposeMode7Pixels(HighBytes(mode7.RewardIcon.Transfer.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
+        ComposeMode7Pixels(HighBytes(mode7.RewardIcon.Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
 
     /// <summary>The sheet of Mode 7 characters whose pixels <paramref name="pixels"/> holds, one colour index each, coloured from <paramref name="palette"/>.</summary>
     /// <exception cref="InvalidDataException">The pixels are not whole characters.</exception>

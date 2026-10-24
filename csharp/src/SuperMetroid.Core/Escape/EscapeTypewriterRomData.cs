@@ -5,12 +5,6 @@ public static class EscapeTypewriterRomData
 {
     /// <summary>$A9:B2E3 glyph base passed to the shared typewriter.</summary>
     public const ushort ZebesTileBase = 0x2610;
-    /// <summary>$A6:C2B7 zero word ends the text stream.</summary>
-    public const ushort End = 0;
-    /// <summary>$A6:C2D6 word one sets the following word as character delay.</summary>
-    public const ushort Delay = 1;
-    /// <summary>$A6:C2E8 word thirteen sets the following word as VRAM destination.</summary>
-    public const ushort Destination = 13;
     /// <summary>$A6:C31D ASCII uppercase base subtracted when calculating a glyph tile.</summary>
     public const byte FirstLetter = 65;
     /// <summary>$A6:C310 exclamation mark is remapped to the glyph after Z.</summary>

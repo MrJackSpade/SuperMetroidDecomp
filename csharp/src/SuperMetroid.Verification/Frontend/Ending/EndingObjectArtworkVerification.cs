@@ -143,7 +143,7 @@ internal static class EndingObjectArtworkVerification
         byte[] nativeWaitingMap = RomDataReader.Decompress(bus,
             EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
             EndingCreditsRomData.Rendering.ObjectFragmentLimit);
-        AssertTrue(stock.WaitingTilemap.Transfer.Span.SequenceEqual(
+        AssertTrue(stock.WaitingTilemap.Bytes.Span.SequenceEqual(
                 nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
             "installed waiting-Samus map preserves all native BG2 tile words");
         AssertSheet(stock.PostCreditsFragmentA,
@@ -160,7 +160,7 @@ internal static class EndingObjectArtworkVerification
         byte[] nativeLogoMap = RomDataReader.Decompress(bus,
             EndingPostShotDefinitions.LogoMap,
             EndingCreditsRomData.Rendering.DecompressionLimit);
-        AssertTrue(stock.PostShotLogoMap.Transfer.Span.SequenceEqual(
+        AssertTrue(stock.PostShotLogoMap.Bytes.Span.SequenceEqual(
                 nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
             "installed post-shot logo map preserves all native BG2 tile words");
 
@@ -404,7 +404,7 @@ internal static class EndingObjectArtworkVerification
         using (var output = File.Create(invalidPath))
             IndexedPng.Write(output, new(persistentClouds.Size.X, persistentClouds.Size.Y),
                 persistentClouds.Pixels, persistentClouds.Colours);
-        byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Transfer.ToArray();
+        byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Characters.ToArray();
         string stockExplosion = Path.Combine(installation.EndingObjectDirectory,
             EndingObjectArtworkFormat.ExplosionFileName);
         File.WriteAllBytes(stockExplosion, [0]);
@@ -414,9 +414,9 @@ internal static class EndingObjectArtworkVerification
             "valid ending OBJ overrides cannot hide corrupt stock art or sprite JSON");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ending OBJ content vanished during stock repair.");
-        AssertTrue(repaired.LoadEndingObjectArt().Clouds.Transfer.Span.SequenceEqual(editedClouds) &&
-                repaired.LoadEndingObjectArt().Explosion.Transfer.Span.SequenceEqual(
-                    stock.Explosion.Transfer.Span),
+        AssertTrue(repaired.LoadEndingObjectArt().Clouds.Characters.Span.SequenceEqual(editedClouds) &&
+                repaired.LoadEndingObjectArt().Explosion.Characters.Span.SequenceEqual(
+                    stock.Explosion.Characters.Span),
             "stock OBJ repair restores native pixels and preserves the player's cloud override");
         var preservedCloudOam = ScreenSpritesFixtures.Blank();
         preservedCloudOam.BeginFrame();
@@ -439,7 +439,7 @@ internal static class EndingObjectArtworkVerification
         {
             byte[] native = RomDataReader.Decompress(bus, source,
                 EndingCreditsRomData.Rendering.DecompressionLimit);
-            AssertTrue(sheet.Transfer.Span.SequenceEqual(native.AsSpan(0, bytes)),
+            AssertTrue(sheet.Characters.Span.SequenceEqual(native.AsSpan(0, bytes)),
                 $"installed ending {name} PNG preserves every native OBJ byte");
         }
     }

@@ -41,11 +41,11 @@ public sealed class EndingObjectArtworkCatalog
             !HasRequiredLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
             !HasRequiredLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
             !HasRequiredLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
-            !HasRequiredLength(WaitingTilemap.Transfer, EndingObjectTransfer.WaitingTilemap) ||
+            !HasRequiredLength(WaitingTilemap.Bytes, EndingObjectTransfer.WaitingTilemap) ||
             !HasRequiredLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
             !HasRequiredLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
             !HasRequiredLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
-            !HasRequiredLength(PostShotLogoMap.Transfer, EndingObjectTransfer.PostShotLogoMap) ||
+            !HasRequiredLength(PostShotLogoMap.Bytes, EndingObjectTransfer.PostShotLogoMap) ||
             parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             parts.Fragments.Any(fragment => fragment is null ||
                 !HasRequiredLength(fragment, EndingObjectTransfer.ExplosionFragment)))
@@ -55,7 +55,7 @@ public sealed class EndingObjectArtworkCatalog
 
     /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>
     private static bool HasRequiredLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>
-        HasRequiredLength(atlas.Transfer, transfer);
+        HasRequiredLength(atlas.Characters, transfer);
 
     /// <summary>Checks raw transfer bytes against the exact length of their ending-artwork role.</summary>
     private static bool HasRequiredLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
@@ -95,19 +95,19 @@ public sealed class EndingObjectArtworkCatalog
     /// <summary>Identity of every selected ending/credits character, map and ordered OAM composition.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingObjectArtworkCatalog), content =>
     {
-        content.Append("clouds", Clouds.Transfer.Span);
-        content.Append("explosion", Explosion.Transfer.Span);
-        content.Append("waiting-samus", WaitingSamus.Transfer.Span);
-        content.Append("shooting-screen", ShootingScreen.Transfer.Span);
-        content.Append("suitless-samus", SuitlessSamus.Transfer.Span);
-        content.Append("waiting-map", WaitingTilemap.Transfer.Span);
-        content.Append("post-credits-fragment-a", PostCreditsFragmentA.Transfer.Span);
-        content.Append("post-credits-fragment-b", PostCreditsFragmentB.Transfer.Span);
-        content.Append("logo-characters", PostShotLogoTiles.Transfer.Span);
-        content.Append("logo-map", PostShotLogoMap.Transfer.Span);
+        content.Append("clouds", Clouds.Characters.Span);
+        content.Append("explosion", Explosion.Characters.Span);
+        content.Append("waiting-samus", WaitingSamus.Characters.Span);
+        content.Append("shooting-screen", ShootingScreen.Characters.Span);
+        content.Append("suitless-samus", SuitlessSamus.Characters.Span);
+        content.Append("waiting-map", WaitingTilemap.Bytes.Span);
+        content.Append("post-credits-fragment-a", PostCreditsFragmentA.Characters.Span);
+        content.Append("post-credits-fragment-b", PostCreditsFragmentB.Characters.Span);
+        content.Append("logo-characters", PostShotLogoTiles.Characters.Span);
+        content.Append("logo-map", PostShotLogoMap.Bytes.Span);
         content.Append("fragment-count", fragments.Length);
         foreach (RoomCharacterAtlas fragment in fragments)
-            content.Append("fragment", fragment.Transfer.Span);
+            content.Append("fragment", fragment.Characters.Span);
         content.Append("cloud-sprites", Convert.FromHexString(CloudSprites.ContentIdentity));
         content.Append("explosion-sprites", Convert.FromHexString(ExplosionSprites.ContentIdentity));
         content.Append("completion-text-sprites", Convert.FromHexString(CompletionTextSprites.ContentIdentity));

@@ -15,8 +15,8 @@ public sealed class CrocomireMeltingArtwork
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
         {
-            content.Append("first", first.Transfer.Span);
-            content.Append("second", second.Transfer.Span);
+            content.Append("first", first.Characters.Span);
+            content.Append("second", second.Characters.Span);
             content.AppendWords("first-map", firstTilemap.Words());
             content.AppendWords("second-map", secondTilemap.Words());
         });
@@ -62,8 +62,8 @@ public sealed class CrocomireMeltingArtwork
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not a melt image.</exception>
     internal ReadOnlyMemory<byte> Characters(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.First => first.Transfer,
-        CrocomireMeltingIllustration.Second => second.Transfer,
+        CrocomireMeltingIllustration.First => first.Characters,
+        CrocomireMeltingIllustration.Second => second.Characters,
         _ => throw new ArgumentOutOfRangeException(nameof(illustration), illustration, $"Undefined {nameof(CrocomireMeltingIllustration)}."),
     };
 
@@ -148,7 +148,7 @@ public sealed class CrocomireMeltingArtwork
     /// <summary>Rejects nonzero PNG data outside the bytes the cartridge assembles <paramref name="illustration"/>'s image from.</summary>
     private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingIllustration illustration)
     {
-        ReadOnlySpan<byte> bytes = atlas.Transfer.Span;
+        ReadOnlySpan<byte> bytes = atlas.Characters.Span;
         if (bytes[UsedByteCount(illustration)..].IndexOfAnyExcept((byte)0) >= 0)
             throw new InvalidDataException(
                 $"Crocomire {illustration} melt PNG contains pixels outside the image the melt assembles.");

@@ -11,9 +11,12 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 [CpuBusBoundary("codec: ROM escape typewriter text streams → escape typewriter text and placement")]
 public static class EscapeTypewriterExtractor
 {
+    /// <summary>$A6:C2D6: the control word that sets the character delay from the word that follows.</summary>
+    internal const ushort DelayCommand = 1;
+
     /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the two warning programs.</param>
-    /// <returns>New UTF-8 JSON bytes containing ordered lines of supported text and starting VRAM word addresses, not pixel or byte coordinates.</returns>
+    /// <returns>New UTF-8 JSON bytes containing ordered lines of supported text and the overlay cell each starts at.</returns>
     /// <remarks>The native character-delay header is checked, while typewriter timing, glyph artwork, and audio behavior remain compiled.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A program has an unexpected header or command, unsupported characters, excessive lines, or invalid text placement.</exception>
@@ -47,7 +50,7 @@ public static class EscapeTypewriterExtractor
             EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         };
-        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != EscapeTypewriterRomData.Delay ||
+        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != DelayCommand ||
             CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2)) != EscapeTypewriterDefinitions.CharacterDelayFrames)
         {
             throw new InvalidDataException($"Escape typewriter program {id} has an unexpected delay header.");
@@ -63,7 +66,7 @@ public static class EscapeTypewriterExtractor
             {
                 case EscapeTypewriterCommand.End:
                     return lines.ToArray();
-                case EscapeTypewriterCommand.Destination:
+                case EscapeTypewriterCommand.LineStart:
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(EscapeTypewriterCommand)} {command}.");
@@ -81,8 +84,20 @@ public static class EscapeTypewriterExtractor
                         $"Escape typewriter program {id} has unsupported byte ${(byte)character:X2} at ${cursor - 1:X6}.");
                 characters.Add(character);
             }
-            lines.Add(new() { Destination = destination, Text = new(characters.ToArray()) });
+            lines.Add(new() { Cell = destination - TilemapWordOf(id), Text = new(characters.ToArray()) });
         }
         throw new InvalidDataException($"Escape typewriter program {id} exceeded sixteen lines.");
     }
+
+    /// <summary>
+    /// The VRAM word of the tilemap <paramref name="id"/>'s program types over: the Ceres warning types over BG1, the Zebes
+    /// warning over BG2.
+    /// </summary>
+    private static int TilemapWordOf(EscapeTypewriterProgramId id) => id switch
+    {
+        EscapeTypewriterProgramId.Ceres => GameplayVramLayout.Bg1TilemapWord,
+        EscapeTypewriterProgramId.Zebes => GameplayVramLayout.Bg2TilemapWord,
+        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
+        _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
+    };
 }

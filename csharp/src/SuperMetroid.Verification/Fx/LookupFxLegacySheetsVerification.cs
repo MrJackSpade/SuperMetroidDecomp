@@ -16,7 +16,7 @@ internal static class LookupFxLegacySheetsVerification
         {
             using var input = Sheet(width, 2);
             var loaded = RoomFxAnimatedTileAtlas.Load(input, stock);
-            var transfer = loaded.transfer;
+            var transfer = loaded.characters;
             AssertEqual(3616, transfer.Length, "Legacy import produces full original sheet geometry");
             for (int index = 0; index < transfer.Length; index++)
             {

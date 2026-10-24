@@ -39,7 +39,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
         Require(rejected, "a required sheet with incomplete transfer pages must fail at construction");
         var catalog = new MotherBrainSpecialSpriteArtworkCatalog(sheets);
         sheets.Remove(first);
-        Require(catalog.Get(first).Transfer.Length ==
+        Require(catalog.Get(first).Characters.Length ==
             MotherBrainSpecialSpriteArtworkDefinitions.Legs.ByteCount, "catalog keys must be independent of the input dictionary");
 
         var trees = MotherBrainSheetsClosedContractDefinitions.All.SelectMany(contract => contract.Sources)

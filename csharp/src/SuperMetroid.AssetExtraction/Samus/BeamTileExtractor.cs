@@ -31,7 +31,7 @@ public static class BeamTileExtractor
             IndexedPng.Write(stream, size, pixels, SnesGraphics.DiagnosticPalette(16));
             byte[] png = stream.ToArray();
             var verified = BeamTileAtlas.Load(new MemoryStream(png), selection);
-            if (!verified.Transfer.Span.SequenceEqual(planar))
+            if (!verified.Characters.Span.SequenceEqual(planar))
                 throw new InvalidDataException("Beam PNG roundtrip changed native tile bytes.");
             files.Add(BeamTileAtlasDefinitions.FileName(selection), png);
         }

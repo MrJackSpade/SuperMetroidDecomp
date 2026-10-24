@@ -28,9 +28,9 @@ public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
         {
             RoomBackgroundTilemapAtlas atlas = selectedPages[index]
                 ?? throw new InvalidDataException($"Scrolling sky page {index} is missing.");
-            if (atlas.Transfer.Length != RoomSkyTilemapFormat.PageByteCount)
+            if (atlas.Bytes.Length != RoomSkyTilemapFormat.PageByteCount)
                 throw new InvalidDataException($"Scrolling sky page {index} has the wrong length.");
-            atlas.Transfer.Span.CopyTo(pages.AsSpan(index * RoomSkyTilemapFormat.PageByteCount));
+            atlas.Bytes.Span.CopyTo(pages.AsSpan(index * RoomSkyTilemapFormat.PageByteCount));
         }
     }
 

@@ -44,7 +44,7 @@ internal static class MotherBrainCorpseArtworkVerification
             throw new InvalidDataException("Extracted Mother Brain corpse PNG was not bound.");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = ReadNativeMotherBrainCorpseArtwork(rom);
-        AssertTrue(artwork.Transfer.Span.SequenceEqual(native),
+        AssertTrue(artwork.Characters.Span.SequenceEqual(native),
             "installed Mother Brain corpse PNG preserves all native source bytes");
 
         // Only the oracle/import above receives cartridge bytes. Production transfers and
@@ -82,7 +82,7 @@ internal static class MotherBrainCorpseArtworkVerification
         // The runtime builds only the rot table; the extraction stages the corpse frame the table rots (#1392).
         new MotherBrainCorpseRottingState().Initialize(installedStaging);
         AssertMotherBrainRotTableParity(nativeStaging, installedStaging);
-        CorpseStaging installedCorpse = CorpseStaging.MotherBrain(artwork.Transfer.Span);
+        CorpseStaging installedCorpse = CorpseStaging.MotherBrain(artwork.Characters.Span);
         AssertMotherBrainCorpseStagingParity(nativeStaging, installedCorpse);
 
         // The phase-three state machine owns a separate corpse processor. Verify
@@ -115,7 +115,7 @@ internal static class MotherBrainCorpseArtworkVerification
             "Mother Brain corpse PNG edit changes live sprite VRAM");
         byte[] installedTiles = StagedCorpseRows(installedCorpse);
         byte[] editedTiles = StagedCorpseRows(CorpseStaging.MotherBrain((edited.Bosses.MotherBrainCorpse
-            ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")).Transfer.Span));
+            ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")).Characters.Span));
         AssertEqual((byte)(installedTiles[0] ^ 0x80),
             editedTiles[0],
             "Mother Brain corpse PNG pixel edit changes the corpse staging");
@@ -125,7 +125,7 @@ internal static class MotherBrainCorpseArtworkVerification
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
         RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainCorpse."));
-        AssertEqual(editedTiles[0], StagedCorpseRows(CorpseStaging.MotherBrain(reloaded.Transfer.Span))[0],
+        AssertEqual(editedTiles[0], StagedCorpseRows(CorpseStaging.MotherBrain(reloaded.Characters.Span))[0],
             "Mother Brain corpse override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);

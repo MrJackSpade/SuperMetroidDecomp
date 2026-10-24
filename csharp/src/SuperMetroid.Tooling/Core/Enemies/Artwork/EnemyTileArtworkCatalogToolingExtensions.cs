@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
@@ -14,10 +14,10 @@ internal static class EnemyTileArtworkCatalogToolingExtensions
         {
             if (!self.sheets.TryGetValue(definitionPointer, out RoomCharacterAtlas? atlas))
                 throw new InvalidDataException($"Enemy ${(int)definitionPointer:X4} has no installed tile sheet.");
-            if (atlas.Transfer.Length != byteCount)
+            if (atlas.Characters.Length != byteCount)
                 throw new InvalidDataException(
-                    $"Enemy ${(int)definitionPointer:X4} requires {byteCount} tile bytes, installed sheet has {atlas.Transfer.Length}.");
-            destination.Load(atlas.Transfer.Span, byteOffset);
+                    $"Enemy ${(int)definitionPointer:X4} requires {byteCount} tile bytes, installed sheet has {atlas.Characters.Length}.");
+            destination.Load(atlas.Characters.Span, byteOffset);
         }
     }
 }

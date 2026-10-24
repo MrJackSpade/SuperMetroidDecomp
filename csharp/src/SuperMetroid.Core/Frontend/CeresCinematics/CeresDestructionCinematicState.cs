@@ -501,9 +501,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
             "Zebes reveal requires installed cinematic artwork.");
-        RequireMinimum(content.CeresDestruction.ZebesMap.Transfer.Length, CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes,
+        RequireMinimum(content.CeresDestruction.ZebesMap.Bytes.Length, CeresDestructionRomData.Transfers.ZebesTilemapMinimumBytes,
             "Zebes reveal tilemap");
-        RequireMinimum(content.CeresDestruction.ZebesCharacters.Transfer.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
+        RequireMinimum(content.CeresDestruction.ZebesCharacters.Characters.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
             "Zebes reveal characters");
 
         // C699 starts in Mode 1. It also stages the rear-gunship low-byte map at VRAM

@@ -90,7 +90,7 @@ public static class EnemyTileArtworkFiles
                 byte[] encoded = png.ToArray();
                 RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
                     new MemoryStream(encoded, writable: false), byteCount);
-                if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+                if (!roundtrip.Characters.Span.SequenceEqual(planar))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} tile PNG changed native pixels.");
 
                 File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.FileName(definitionPointer)), encoded);
@@ -230,7 +230,7 @@ public static class EnemyTileArtworkFiles
             byte[] png = image.ToArray();
             RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
                 new MemoryStream(png, writable: false), planar.Length);
-            if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+            if (!roundtrip.Characters.Span.SequenceEqual(planar))
                 throw new InvalidDataException(
                     $"Gunship takeoff frame {index} changed native pixels during extraction.");
             File.WriteAllBytes(Path.Combine(directory,
@@ -253,7 +253,7 @@ public static class EnemyTileArtworkFiles
         RoomCharacterAtlas corpseRoundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(corpsePng, writable: false),
             MotherBrainCorpseArtworkDefinitions.ByteCount);
-        if (!corpseRoundtrip.Transfer.Span.SequenceEqual(corpsePlanar))
+        if (!corpseRoundtrip.Characters.Span.SequenceEqual(corpsePlanar))
             throw new InvalidDataException("Mother Brain corpse PNG changed native pixels during extraction.");
         File.WriteAllBytes(Path.Combine(directory, MotherBrainCorpseArtworkDefinitions.FileName),
             corpsePng);
@@ -272,7 +272,7 @@ public static class EnemyTileArtworkFiles
         RoomCharacterAtlas escapeTextRoundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(escapeTextPng, writable: false),
             EscapeTextArtworkDefinitions.ByteCount);
-        if (!escapeTextRoundtrip.Transfer.Span.SequenceEqual(escapeTextPlanar))
+        if (!escapeTextRoundtrip.Characters.Span.SequenceEqual(escapeTextPlanar))
             throw new InvalidDataException(
                 "Mother Brain escape-text PNG changed native pixels during extraction.");
         File.WriteAllBytes(Path.Combine(directory,
@@ -1226,7 +1226,7 @@ public static class EnemyTileArtworkFiles
         byte[] encoded = png.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(encoded, writable: false), encodedByteCount);
-        if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+        if (!roundtrip.Characters.Span.SequenceEqual(planar))
             throw new InvalidDataException(
                 $"Crocomire {illustration} melt PNG changed native graphics bytes.");
         return encoded;
@@ -1256,7 +1256,7 @@ public static class EnemyTileArtworkFiles
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(encoded, writable: false),
             KraidBackgroundRomData.RoomBackgroundTileBytes);
-        if (!roundtrip.Transfer.Span.SequenceEqual(planar))
+        if (!roundtrip.Characters.Span.SequenceEqual(planar))
             throw new InvalidDataException("Kraid room-background PNG changed native tile bytes.");
         return encoded;
     }
@@ -1275,7 +1275,7 @@ public static class EnemyTileArtworkFiles
         byte[] png = output.ToArray();
         RoomCharacterAtlas roundtrip = RoomCharacterAtlas.Load(
             new MemoryStream(png, writable: false), sheet.ByteCount);
-        if (!roundtrip.Transfer.Span.SequenceEqual(native))
+        if (!roundtrip.Characters.Span.SequenceEqual(native))
             throw new InvalidDataException(
                 $"Mother Brain {sheet.FileName} PNG changed native pixels during extraction.");
         return png;

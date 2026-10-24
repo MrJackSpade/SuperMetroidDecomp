@@ -11,6 +11,6 @@ internal static class BeamTileAtlasAccess
         /// <summary>Writes the atlas transfer bytes at the beam tile base word.</summary>
         [PpuLayoutBoundary("codec: beam tile transfer at its native VRAM word")]
         internal void LoadTo(SnesVram vram) =>
-            vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, self.Transfer.Span);
+            vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, self.Characters.Span);
     }
 }

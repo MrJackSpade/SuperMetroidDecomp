@@ -185,7 +185,7 @@ public static class EndingObjectArtworkFiles
             byte[] file = png.ToArray();
             RoomCharacterAtlas compiled = RoomCharacterAtlas.Load(
                 new MemoryStream(file, writable: false), count);
-            if (!compiled.Transfer.Span.SequenceEqual(native))
+            if (!compiled.Characters.Span.SequenceEqual(native))
                 throw new InvalidDataException($"Ending OBJ PNG {name} changed native character bytes.");
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))
@@ -203,7 +203,7 @@ public static class EndingObjectArtworkFiles
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
             RoomBackgroundTilemapAtlas compiled = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(json, writable: false), count);
-            if (!compiled.Transfer.Span.SequenceEqual(native))
+            if (!compiled.Bytes.Span.SequenceEqual(native))
                 throw new InvalidDataException($"Ending map JSON {name} changed native BG2 words.");
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))

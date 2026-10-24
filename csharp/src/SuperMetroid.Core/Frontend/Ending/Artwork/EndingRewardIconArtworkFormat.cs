@@ -14,5 +14,5 @@ public static class EndingRewardIconArtworkFormat
     /// <summary>$4000 low-lane map bytes, one eight-bit tile index per entry of the 128x128 map.</summary>
     public const int MapBytes = MapWidth * MapHeight;
     /// <summary>$8000 bytes after interleaving the map and character lanes, covering sixteen native $0800-byte DMA chunks.</summary>
-    public const int TransferBytes = MapBytes * 2;
+    public const int ByteCount = MapBytes * 2;
 }

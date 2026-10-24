@@ -57,7 +57,7 @@ internal sealed class GameplayHudSetup
     /// here (#1406). Setup selects them while the screen is blank, before any room loads its enemies' characters.
     /// </summary>
     internal void ShowStandardObjectCharacters() =>
-        _enemySession.ObjCharacters.Record(0, StandardObjectArtworkFormat.TransferByteCount,
+        _enemySession.ObjCharacters.Record(0, StandardObjectArtworkFormat.ByteCount,
             new AssetObjCharacters(VramAssetId.StandardObjectTiles));
 
     /// <summary>

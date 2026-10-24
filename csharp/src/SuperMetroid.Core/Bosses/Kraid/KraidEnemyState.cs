@@ -106,8 +106,8 @@ public sealed class KraidEnemyState
     public bool BackgroundTilemapsPrepared { get; internal set; }
 
     /// <summary>
-    /// True while Kraid's map is the renderer's BG2: his 64x64 body map from his room's load (native BG2SC=$43), and
-    /// after his death the blank map at $4800 for the rest of the visit (#1427).
+    /// True while Kraid's plane is the room's second background layer: his two-by-two-screen body plane from his room's
+    /// load, and after his death the blank plane for the rest of the visit (#1427).
     /// </summary>
     public bool OwnsBg2Tilemap { get; internal set; }
 

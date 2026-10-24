@@ -80,9 +80,6 @@ public static class KraidBackgroundRomData
     /// <summary>First word of the 32-word blank row at WRAM $7E:2FC0.</summary>
     public const int BlankRowWorkingWord = 0x07e0;
 
-    /// <summary>Native visible BG2 width selected by BG2SC size bits $03.</summary>
-    public const int TilemapWidthInTiles = 64;
-
-    /// <summary>Native visible BG2 height selected by BG2SC size bits $03.</summary>
-    public const int TilemapHeightInTiles = 64;
+    /// <summary>The size of the background plane Kraid's body shows on: two screens wide and two screens tall.</summary>
+    public static Extent16<TilemapCells> BodyPlaneSize { get; } = new(64, 64);
 }

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
@@ -210,7 +211,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
             if (found)
-                AssertEqual(EnemyAiCodePointers.BankA5.DraygonShot,
+                AssertEqual(EnemyAiCodePointers.BankA5.DraygonShot.Offset,
                     (ushort)(arguments[^1] ?? throw new InvalidOperationException("Verification requires arguments[^1].")),
                     $"Draygon frame {pointer:X4} selected shot callback");
         }

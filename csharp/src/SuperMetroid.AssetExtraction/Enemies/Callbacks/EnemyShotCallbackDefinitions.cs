@@ -1,38 +1,39 @@
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.AssetExtraction.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
 /// <summary>Shot/bomb callback identities, not interchangeable with multibox header shortcuts.</summary>
 internal static class EnemyShotCallbackDefinitions
 {
     /// <summary>$A2:804C, bank-local RTL used by headers and common hitboxes.</summary>
-    public const int BankA2NoOp = 0xa2804c;
+    public static readonly SnesAddress BankA2NoOp = new(0xa2, 0x804c);
     /// <summary>$A3:804C, bank-local RTL including respawn-placeholder shot AI.</summary>
-    public const int BankA3NoOp = 0xa3804c;
+    public static readonly SnesAddress BankA3NoOp = new(0xa3, 0x804c);
     /// <summary>$A5:804C, bank-local RTL used by boss components.</summary>
-    public const int BankA5NoOp = 0xa5804c;
+    public static readonly SnesAddress BankA5NoOp = new(0xa5, 0x804c);
     /// <summary>$A6:804C, bank-local RTL used by headers and common hitboxes.</summary>
-    public const int BankA6NoOp = 0xa6804c;
+    public static readonly SnesAddress BankA6NoOp = new(0xa6, 0x804c);
     /// <summary>$A6:F920, RTL_A6F920, Ceres door shot callback.</summary>
-    public const int CeresDoorNoOp = 0xa6f920;
+    public static readonly SnesAddress CeresDoorNoOp = new(0xa6, 0xf920);
     /// <summary>$A7:804C, bank-local RTL used by headers and common hitboxes.</summary>
-    public const int BankA7NoOp = 0xa7804c;
+    public static readonly SnesAddress BankA7NoOp = new(0xa7, 0x804c);
     /// <summary>$A7:94B5, RTL_A794B5, Kraid private header/lint/foot callback; does not skip multibox scanning.</summary>
-    public const int KraidPrivateNoOp = 0xa794b5;
+    public static readonly SnesAddress KraidPrivateNoOp = new(0xa7, 0x94b5);
     /// <summary>$A8:804C, bank-local RTL including Ki-Hunter wings.</summary>
-    public const int BankA8NoOp = 0xa8804c;
+    public static readonly SnesAddress BankA8NoOp = new(0xa8, 0x804c);
     /// <summary>$A9:804C, bank-local RTL including Mother Brain tubes.</summary>
-    public const int BankA9NoOp = 0xa9804c;
+    public static readonly SnesAddress BankA9NoOp = new(0xa9, 0x804c);
     /// <summary>$AA:804C, bank-local RTL including Noob Tube cracks.</summary>
-    public const int BankAANoOp = 0xaa804c;
+    public static readonly SnesAddress BankAANoOp = new(0xaa, 0x804c);
     /// <summary>$AA:E7DC, RTL_AAE7DC, Chozo statue shot callback.</summary>
-    public const int ChozoNoOp = 0xaae7dc;
+    public static readonly SnesAddress ChozoNoOp = new(0xaa, 0xe7dc);
     /// <summary>$B3:804C, bank-local RTL including escape animals.</summary>
-    public const int BankB3NoOp = 0xb3804c;
+    public static readonly SnesAddress BankB3NoOp = new(0xb3, 0x804c);
 
-    /// <summary>Classifies the inventoried header and extended-hitbox shot entry points.</summary>
-    public static bool IsLiteralNoOp(byte bank, ushort pointer) => (((int)new SnesAddress(bank, pointer))) is
-        BankA2NoOp or BankA3NoOp or BankA5NoOp or BankA6NoOp or CeresDoorNoOp or
-        BankA7NoOp or KraidPrivateNoOp or BankA8NoOp or BankA9NoOp or BankAANoOp or
-        ChozoNoOp or BankB3NoOp;
+    /// <summary>The twelve literal-RTL shot callbacks in the inventoried header and extended-hitbox entry points.</summary>
+    public static readonly IReadOnlySet<SnesAddress> LiteralNoOps = new HashSet<SnesAddress>
+    {
+        BankA2NoOp, BankA3NoOp, BankA5NoOp, BankA6NoOp, CeresDoorNoOp, BankA7NoOp, KraidPrivateNoOp, BankA8NoOp,
+        BankA9NoOp, BankAANoOp, ChozoNoOp, BankB3NoOp,
+    };
 }

@@ -3,11 +3,11 @@
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// PPU register values that were made visible together by one accepted gameplay NMI.
+/// The camera's layer scrolls and the room shake one accepted gameplay frame shows together.
 /// </summary>
 /// <param name="Layer1Position">The camera/layer-one position the frame's actors were drawn against.</param>
-/// <param name="Bg1Scroll">The latched BG1HOFS/BG1VOFS mirrors.</param>
-/// <param name="Bg2Scroll">The latched BG2HOFS/BG2VOFS mirrors.</param>
+/// <param name="Bg1Scroll">Layer 1's scroll.</param>
+/// <param name="Bg2Scroll">Layer 2's scroll.</param>
 /// <param name="RoomShake">The room shake displayed with this frame.</param>
 public readonly record struct GameplayPpuRenderSnapshot(
     Position16<RoomPixels> Layer1Position,

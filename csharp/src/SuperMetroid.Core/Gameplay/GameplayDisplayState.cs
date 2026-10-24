@@ -4,8 +4,8 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// What the gameplay display currently shows: Samus's Mode 7 transforms, the displayed PPU, layer-3 FX and Morph
-/// Ball eye beam snapshots, the HUD character base, and the default layer blending.
+/// What the gameplay display currently shows: the elevator shaft's transform, the latched scene, the HUD's characters
+/// and the default layer blending.
 /// </summary>
 internal sealed class GameplayDisplayState
 {
@@ -25,11 +25,11 @@ internal sealed class GameplayDisplayState
     public SamusMode7Transform? ActiveSamusMode7Transform { get; set; }
 
     /// <summary>
-    /// Everything the most recent accepted (or forced-blank) NMI made PPU-visible. A lag NMI
-    /// leaves it unchanged. Door setup that writes registers before a room becomes visible
-    /// updates it through <see cref="PublishDoorMode7"/>.
+    /// The scene the most recent accepted (or forced-blank) frame shows. A lag frame leaves it unchanged. Door setup
+    /// that shows the elevator shaft's floor before the room becomes visible updates it through
+    /// <see cref="PublishDoorElevatorFloor"/>.
     /// </summary>
-    public GameplayNmiDisplayLatch Latched { get; internal set; } = InitialLatch;
+    public GameplayDisplayLatch Latched { get; internal set; } = InitialLatch;
 
     /// <summary>
     /// The characters BG3 reads, selected by gameplay initialization or a room's library-background command list (#1406):
@@ -41,21 +41,23 @@ internal sealed class GameplayDisplayState
     internal void SelectKraidHudCharacterBase() => Layer3Characters = BgCharacterSet.KraidLayer3;
 
     /// <summary>
-    /// Door setup's direct write of the Mode 7 registers and BGMODE before the room is exposed
-    /// (<c>$8F:E4E0</c>, or <c>$8F:E513</c> clearing them). Later room-main changes reach the
-    /// display only through the NMI latch.
+    /// Door setup shows the elevator shaft's floor before the room is exposed (<c>$8F:E4E0</c>), or removes it
+    /// (<c>$8F:E513</c>), scrolled with the latched layer-1 scroll. A getaway floor already latched stays, as it takes
+    /// precedence over the shaft's. Later room-main changes reach the display only through the frame latch.
     /// </summary>
-    internal void PublishDoorMode7(SamusMode7Transform? transform) =>
+    /// <param name="transform">The shaft's transform, or null to remove the floor.</param>
+    internal void PublishDoorElevatorFloor(SamusMode7Transform? transform) =>
         Latched = Latched with
         {
-            SamusMode7Transform = transform,
-            Scene = Latched.Scene with { CeresElevatorMode7 = transform is not null },
+            PerspectiveFloor = Latched.PerspectiveFloor is { ShowsLayer2Below: true } getaway ? getaway
+                : transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, Latched.Ppu.Bg1Scroll)
+                : null,
         };
 
-    /// <summary>The latch in effect before any NMI: power-on registers and no active effects.</summary>
-    private static GameplayNmiDisplayLatch InitialLatch => new(
+    /// <summary>The latch in effect before any accepted frame: nothing scrolled, no floor and no active effects.</summary>
+    private static GameplayDisplayLatch InitialLatch => new(
         default, default, null, null, null, null, 0,
-        new GameplayLatchedSceneRegisters(false, BgCharacterSet.Layer3, default,
+        new GameplayLatchedScene(BgCharacterSet.Layer3, default,
             LayerBlendingConfiguration.Unconfigured, null, null, 0),
         default, default, null, null);
 }

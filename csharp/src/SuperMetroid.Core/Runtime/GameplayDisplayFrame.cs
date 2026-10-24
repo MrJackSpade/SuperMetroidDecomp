@@ -12,6 +12,6 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="FrameEnd">IRQ- and HDMA-read inputs sampled at publication.</param>
 /// <param name="Paint">The colours and displayed sprites at publication (#1403).</param>
 public sealed record GameplayDisplayFrame(
-    GameplayNmiDisplayLatch Latched,
+    GameplayDisplayLatch Latched,
     GameplayFrameEndDisplayInputs FrameEnd,
     FramePaint Paint);

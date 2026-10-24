@@ -2,6 +2,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -49,9 +50,10 @@ internal static class CeresRidleyBodyPublicationVerification
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertTrue(previousAngle is not { } previous || ridley.FloorAngle != previous, "the getaway turns Ridley between the two frames");
             previousAngle = ridley.FloorAngle;
-            CeresRidleyMode7Snapshot transform = runtime.Display.Latched.Bosses.CeresRidleyMode7
-                ?? throw new InvalidOperationException("Ridley's getaway publishes his Mode 7 transform.");
-            AssertEqual(CeresRidleyMode7Snapshot.Capture(ridley), transform, $"angle {ridley.FloorAngle} publishes Ridley's transform");
+            PerspectiveFloor floor = runtime.Display.Latched.PerspectiveFloor
+                ?? throw new InvalidOperationException("Ridley's getaway publishes his floor.");
+            AssertEqual(CeresPerspectiveFloors.RidleyGetaway(CeresRidleyMode7Snapshot.Capture(ridley)
+                ?? throw new InvalidOperationException("Ridley flies his getaway.")), floor, $"angle {ridley.FloorAngle} publishes Ridley's floor");
             AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");
             foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(wings))

@@ -1,12 +1,10 @@
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -23,9 +21,9 @@ public static class GameplayDisplayCapture
     public static LayeredScene Capture(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
-        GameplayNmiDisplayLatch latched = frame.Latched;
+        GameplayDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        LayeredScene basis = latched.ShowsMode7 ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
+        LayeredScene basis = latched.ShowsPerspectiveFloor ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
         bool doorOwnsDisplay = live.DoorTransitionMainScreenLayers is not null;
@@ -82,13 +80,13 @@ public static class GameplayDisplayCapture
     public static LayeredScene CaptureOrdinaryBase(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
-        GameplayNmiDisplayLatch latched = frame.Latched;
+        GameplayDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        if (latched.ShowsMode7)
+        if (latched.ShowsPerspectiveFloor)
             throw new InvalidOperationException("Ordinary base capture cannot represent a Mode-7 scene.");
 
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
-        GameplayLatchedSceneRegisters scene = latched.Scene;
+        GameplayLatchedScene scene = latched.Scene;
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = ppu.RoomShake;
         Position16<RoomPixels> bg1Scroll = ppu.Bg1Scroll + shake.Bg1;
@@ -156,14 +154,8 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>The BG3 plane the accepted NMI displays (#1348).</summary>
-    private static Layer3Cells Bg3(GameplayNmiDisplayLatch latched) => (latched.Rooms
+    private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
-
-    /// <summary>The Mode 7 registers Ceres Ridley's latched shadows program, before room shake.</summary>
-    internal static AffineTransform CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(
-        unchecked(ridley.MatrixA), unchecked(ridley.MatrixB),
-        unchecked(ridley.MatrixC), unchecked(ridley.MatrixD),
-        ridley.Center.AsSignedRegister(), ridley.Offset);
 
     /// <summary>The sky's HDMA BG2HOFS per gameplay line with the latched room shake added, or null without one.</summary>
     internal static ushort[]? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake)
@@ -175,7 +167,7 @@ public static class GameplayDisplayCapture
         return lines;
     }
 
-    /// <summary>The rainbow beam's live window description drawn in the NMI-latched COLDATA color.</summary>
+    /// <summary>The rainbow beam's live window description drawn in the colour the accepted frame latched.</summary>
     internal static MotherBrainRainbowBeamRenderSnapshot? RainbowBeam(GameplayDisplayFrame frame)
     {
         MotherBrainRainbowBeamRenderSnapshot? beam = frame.FrameEnd.RainbowBeam;
@@ -226,40 +218,28 @@ public static class GameplayDisplayCapture
         return new(ordinary, closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = fixedColor });
     }
 
-    /// <summary>Captures the Ceres shaft or Ridley Mode-7 matrix and HUD, adding the Mode-1 floor band during Ridley's getaway.</summary>
+    /// <summary>Captures the latched perspective floor and the HUD, adding the layer-2 band below the floor during Ridley's getaway.</summary>
     [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
     private static LayeredScene CaptureMode7Base(GameplayDisplayFrame frame)
     {
-        GameplayNmiDisplayLatch latched = frame.Latched;
+        GameplayDisplayLatch latched = frame.Latched;
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
         RoomShakeFrameResult shake = ppu.RoomShake;
-        AffineTransform registers;
-        Mode1FloorBand? floor = null;
-        if (latched.Bosses.CeresRidleyMode7 is { } ridley)
+        PerspectiveFloor perspective = latched.PerspectiveFloor
+            ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
+        // Room shake moves the floor with layer 1, wrapping as a sixteen-bit scroll.
+        AffineTransform transform = perspective.Transform with
         {
-            AffineTransform getaway = CeresRidleyRegisters(ridley);
-            registers = getaway with
-            {
-                Scroll = new Offset16<Mode7Pixels>(
-                    unchecked((short)(getaway.Scroll.X + shake.Bg1.X)),
-                    unchecked((short)(getaway.Scroll.Y + shake.Bg1.Y))),
-            };
-            floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, ppu.Bg2Scroll + shake.Bg2,
+            Scroll = new Offset16<Mode7Pixels>(
+                unchecked((short)(perspective.Transform.Scroll.X + shake.Bg1.X)),
+                unchecked((short)(perspective.Transform.Scroll.Y + shake.Bg1.Y))),
+        };
+        Mode1FloorBand? floor = perspective.ShowsLayer2Below
+            ? new(GameplayRenderDefinitions.CeresFloorFirstScanline, ppu.Bg2Scroll + shake.Bg2,
                 new Extent16<TilemapCells>(64, 32),
-                latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."));
-        }
-        else
-        {
-            SamusMode7Transform m = latched.SamusMode7Transform
-                ?? throw new InvalidOperationException("The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
-            registers = new(unchecked(m.MatrixA), unchecked(m.MatrixB),
-                unchecked(m.MatrixC), unchecked(m.MatrixA),
-                m.Center.AsMode7Register(),
-                new Offset16<Mode7Pixels>(
-                    unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1.X)),
-                    unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1.Y))));
-        }
-        var layer = new Mode7GameplayRenderLayer(registers, Bg3(latched), (latched.Rooms?.Mode7
+                latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
+            : null;
+        var layer = new Mode7GameplayRenderLayer(transform, Bg3(latched), (latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), SnesPpuLayout.GameplayHudHeightPixels, floor);
         return new(frame.Paint, new RenderLayer[] { layer }, SnesPpuLayout.MaximumMasterBrightness);
     }
@@ -291,8 +271,8 @@ public static class GameplayDisplayCapture
         bool settingUp = xray.SetupStage != XraySetupStage.Complete;
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
-        GameplayNmiDisplayLatch latched = frame.Latched;
-        GameplayLatchedSceneRegisters scene = latched.Scene;
+        GameplayDisplayLatch latched = frame.Latched;
+        GameplayLatchedScene scene = latched.Scene;
         RoomHeaderDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
         var ppu = latched.Ppu;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);

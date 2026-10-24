@@ -1,5 +1,5 @@
 ﻿using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Gameplay;
@@ -11,12 +11,11 @@ internal static class GameplayDisplayStateAccess
     extension(GameplayDisplayState self)
     {
         /// <summary>
-        /// Ceres Mode 7 matrix made PPU-visible by the most recent accepted NMI. This is the
-        /// register-phase companion to <see cref="SuperMetroidRuntime.DisplayedSprites"/>: software rendering must use
-        /// both displayed values together rather than mixing current main-loop shadow words
-        /// with the preceding NMI's sprites.
+        /// The Ceres perspective floor the most recent accepted frame shows. It is latched with
+        /// <see cref="SuperMetroidRuntime.DisplayedSprites"/>: rendering uses both together rather than mixing the
+        /// main loop's current transform with the preceding frame's sprites.
         /// </summary>
-        public SamusMode7Transform? DisplayedSamusMode7Transform => self.Latched.SamusMode7Transform;
+        public PerspectiveFloor? DisplayedPerspectiveFloor => self.Latched.PerspectiveFloor;
         /// <summary>
         /// Ordinary BG scroll registers and room-shake deltas published by the most recent
         /// accepted NMI. These belong to the same PPU-visible frame as <see cref="SuperMetroidRuntime.DisplayedSprites"/>.

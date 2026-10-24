@@ -284,7 +284,7 @@ internal static class RoomBlockPicturesVerification
         {
             SuperMetroidRuntime runtime = LoadRoom(room, stocked);
             runtime.StepFrame(0);
-            GameplayNmiDisplayLatch latched = runtime.Display.Latched;
+            GameplayDisplayLatch latched = runtime.Display.Latched;
             Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();

@@ -48,7 +48,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private GameOptionsPage page = GameOptionsPage.Primary;
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
-    /// <summary>Current INIDISP level for page fades and final exits.</summary>
+    /// <summary>Screen brightness level, 0 (black) through 15, that the page fades and final exits step.</summary>
     private int brightness;
     /// <summary>BG1 scroll used to expose the lower controller rows.</summary>
     private int bg1VerticalScroll;

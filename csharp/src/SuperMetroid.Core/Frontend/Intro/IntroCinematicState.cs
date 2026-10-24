@@ -271,11 +271,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <see cref="FrameCounterWord"/> as their frame-counter word.
     /// </summary>
     private int elapsedUpdates;
-    /// <summary>$51: the INIDISP byte the cinematic fades; the intro starts in forced blank.</summary>
-    private int inidisp = ScreenFade.ForcedBlank;
-    /// <summary>The INIDISP brightness and forced-blank word the cinematic publishes.</summary>
-    internal int Inidisp { get => inidisp; set => inidisp = value; }
-    /// <summary>Controls master INIDISP fades at cinematic entry and exit.</summary>
+    /// <summary>How bright the narration screen is; the intro starts blanked and fades each narration page in and out.</summary>
+    private ScreenBrightness brightness = ScreenBrightness.Blanked;
+    /// <summary>How bright the narration screen the cinematic publishes is.</summary>
+    internal ScreenBrightness Brightness { get => brightness; set => brightness = value; }
+    /// <summary>Times the narration's screen fades at cinematic entry, between pages and at exit.</summary>
     private readonly ScreenFade fade = new();
     /// <summary>Fallback music-queue delay when no cartridge audio state is installed.</summary>
     private int timer = 8;
@@ -386,7 +386,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.FadeInFirstNarration:
-                if (fade.AdvanceSlowFadeIn(ref inidisp))
+                if (fade.AdvanceSlowFadeIn(ref brightness))
                 {
                     Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
                     timer = 60;
@@ -438,7 +438,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
             case IntroCinematicPhase.FadeOutFirstNarration:
                 // $8B:A663 installs $8B:A66F, which sets up page one in the next dispatch.
-                if (fade.AdvanceSlowFadeOut(ref inidisp))
+                if (fade.AdvanceSlowFadeOut(ref brightness))
                     Phase = IntroCinematicPhase.SetupPageOne;
                 break;
 
@@ -459,7 +459,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.FadeInPageOne:
-                if (fade.AdvanceSlowFadeIn(ref inidisp))
+                if (fade.AdvanceSlowFadeIn(ref brightness))
                     Phase = IntroCinematicPhase.PageOneText;
                 break;
 
@@ -564,14 +564,14 @@ public sealed class IntroCinematicState : IFrontendScreen
 
             case IntroCinematicPhase.IntroFadeOut:
                 // $8B:B72F fades through HandleFadingOut and finishes once forced blank is set.
-                fade.FadeOut(ref inidisp);
-                if (ScreenFade.IsForcedBlank(Inidisp))
+                fade.FadeOut(ref brightness);
+                if (brightness.IsBlanked)
                 {
                     NarrationFinished = true;
                     // $8B:BCA0 immediately replaces the narration PPU setup with the
                     // Ceres Mode 7 scene. Give that scene its own VRAM, CGRAM, and
                     // brightness owner: the narration has just deliberately reached
-                    // INIDISP zero, while $8B:BDE4 restores full brightness only after
+                    // a blanked screen, while $8B:BDE4 restores full brightness only after
                     // the fourteen-frame delayed music command has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio
                         ?? throw new InvalidOperationException("The Ceres flight waits on the cartridge music queue."),
@@ -1443,7 +1443,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two PPU setups.
             return new(new FramePaint(palette.Colors, sprites.Draws),
-                new RenderLayer[] { new TileViewportRenderLayer(NarrationCells(), 0, false, null) }, ScreenFade.Displayed(Inidisp));
+                new RenderLayer[] { new TileViewportRenderLayer(NarrationCells(), 0, false, null) }, Brightness.Level);
         }
         else
         {
@@ -1459,7 +1459,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             new ObjPriorityRenderLayer(0), text, new ObjPriorityRenderLayer(1), room,
             new ObjPriorityRenderLayer(2), room with { Priority = true },
             new ObjPriorityRenderLayer(3), text with { Priority = true },
-        }, ScreenFade.Displayed(Inidisp));
+        }, Brightness.Level);
     }
 
     /// <summary>Rejects a font atlas that is not the installed font's size.</summary>

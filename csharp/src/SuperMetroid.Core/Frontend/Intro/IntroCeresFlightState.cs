@@ -403,7 +403,7 @@ internal sealed class IntroCeresFlightState
     private void StepFadeOut()
     {
         // `$C0A2` seeds both fade words with one. `$8B:C0C5` calls HandleFadingOut, which
-        // therefore removes one INIDISP level every other frame and ends at forced blank.
+        // therefore removes one brightness level every other frame and ends with the screen blanked.
         if (fadeDelay-- > 0)
             return;
         fadeDelay = 1;

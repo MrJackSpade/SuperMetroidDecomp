@@ -51,8 +51,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private int helmetAnimationTimer;
     /// <summary>Selected helmet turn frame retained through the options fade.</summary>
     internal int HelmetAnimationFrame { get; private set; }
-    /// <summary>$51 INIDISP byte: forced-blank bit plus brightness nibble.</summary>
-    private int brightness;
+    /// <summary>How bright the file-select screen is; it starts blanked and fades in and out between pages.</summary>
+    private ScreenBrightness brightness;
     /// <summary>Advances the native brightness timing for entry and submenu transitions.</summary>
     private readonly ScreenFade screenFade = new();
     /// <summary>Installed page identifier rebuilt after save data or debugger bindings change.</summary>
@@ -81,7 +81,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         // Host-side loading above is atomic, but the native dispatches are not: indices
         // zero and two each wait for an NMI inside their dispatch before returning.
         Phase = FileSelectPhase.EnterBlankScreen;
-        brightness = ScreenFade.ForcedBlank;
+        brightness = ScreenBrightness.Blanked;
     }
 
     /// <summary>Native main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
@@ -127,9 +127,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             case FileSelectPhase.EnterBlankScreen:
                 // $81:944E: finish any fade-out, then SetForceBlankAndWaitForNMI.
                 screenFade.FadeOut(ref brightness);
-                if ((brightness & ScreenFade.FullyLit) != 0)
+                if (brightness.Level != 0)
                     break;
-                brightness = ScreenFade.ForcedBlank;
+                brightness = ScreenBrightness.Blanked;
                 Phase = FileSelectPhase.EnterBlankScreenAfterFrameWait;
                 break;
 
@@ -145,7 +145,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             case FileSelectPhase.InitializeMain:
                 // $81:9ED6 sets both fade words to one, then ClearForceBlankAndWaitForNMI.
                 screenFade.SetTiming(1, 1);
-                brightness &= ~ScreenFade.ForcedBlank;
+                brightness = brightness.Unblanked();
                 Phase = FileSelectPhase.InitializeMainAfterFrameWait;
                 break;
 
@@ -156,7 +156,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             case FileSelectPhase.FadeIn:
                 // $81:A058 index three.
                 screenFade.FadeIn(ref brightness);
-                if (brightness == ScreenFade.FullyLit)
+                if (brightness == ScreenBrightness.FullyLit)
                     Phase = FileSelectPhase.Main;
                 break;
 
@@ -191,13 +191,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
             case FileSelectPhase.FadeOutToOptions:
                 screenFade.FadeOut(ref brightness);
-                if (ScreenFade.IsForcedBlank(brightness))
+                if (brightness.IsBlanked)
                     NewGameRequested = true;
                 break;
 
             case FileSelectPhase.FadeOutToTitle:
                 screenFade.FadeOut(ref brightness);
-                if (ScreenFade.IsForcedBlank(brightness))
+                if (brightness.IsBlanked)
                     TitleRequested = true;
                 break;
             default:
@@ -209,7 +209,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        return MenuRenderSnapshotCapture.Capture(screen, 0, ScreenFade.Displayed(brightness));
+        return MenuRenderSnapshotCapture.Capture(screen, 0, checked((byte)brightness.Level));
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>
@@ -377,7 +377,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (Phase is FileSelectPhase.FadeOutToDataManagement or FileSelectPhase.FadeOutToMain)
         {
             screenFade.FadeOut(ref brightness);
-            if (!ScreenFade.IsForcedBlank(brightness))
+            if (!brightness.IsBlanked)
                 return;
 
             if (Phase == FileSelectPhase.FadeOutToDataManagement)
@@ -396,7 +396,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
 
         screenFade.FadeIn(ref brightness);
-        if (brightness == ScreenFade.FullyLit)
+        if (brightness == ScreenBrightness.FullyLit)
             Phase = phaseAfterFadeIn;
     }
 

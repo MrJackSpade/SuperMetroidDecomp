@@ -8,7 +8,7 @@ internal static class TitleSequenceStateAccess
     /// <summary>Reads title display and demo-timer state for focused frontend verification.</summary>
     extension(TitleSequenceState self)
     {
-        /// <summary>Current INIDISP brightness nibble; zero is black and fifteen is full.</summary>
+        /// <summary>Current screen brightness level; zero is black and fifteen is full.</summary>
         internal byte Brightness => (byte)self.Brightness;
 
         /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>

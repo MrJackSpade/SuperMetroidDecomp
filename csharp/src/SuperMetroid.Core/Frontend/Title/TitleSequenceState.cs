@@ -229,7 +229,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // `$8B:9A48` admits B, Start, or A during every pre-title cinematic function. The
         // original performs a fast fade-out, reconstructs the final title objects, then a
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
-        // their INIDISP values are observable in native traces.
+        // their brightness levels are observable in native traces.
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceRomData.Timing.ConfirmButtons);
         if (confirmPressed && Phase < TitleSequencePhase.TitleScreenFadeIn)

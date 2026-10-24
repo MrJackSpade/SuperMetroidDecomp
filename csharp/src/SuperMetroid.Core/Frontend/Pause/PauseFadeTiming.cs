@@ -9,6 +9,6 @@ internal static class PauseFadeTiming
     /// </summary>
     public const int CounterReload = 1;
 
-    /// <summary>INIDISP's fully lit four-bit brightness value.</summary>
+    /// <summary>The fully lit screen brightness level, the top of the 0 (black) through 15 range.</summary>
     public const byte FullyLit = 15;
 }

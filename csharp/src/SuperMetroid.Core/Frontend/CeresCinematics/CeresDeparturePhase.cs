@@ -7,7 +7,7 @@ public enum CeresDeparturePhase
     Inactive,
     /// <summary>GameState_20_MadeItToCeresElevator: gameplay continues, then the 60-call hold decrements after each update before entering state $21.</summary>
     HoldingOnElevator,
-    /// <summary>GameState_21_BlackoutFromCeres: gameplay continues, then one INIDISP brightness step fades the screen per call with the native fade-delay words zero.</summary>
+    /// <summary>GameState_21_BlackoutFromCeres: gameplay continues, then one brightness step fades the screen per call with the native fade-delay words zero.</summary>
     FadingToBlack,
     /// <summary>Forced blank has been reached; the outer game owner may save the Ceres departure checkpoint and enter the destruction cinematic, without restarting this timer.</summary>
     Complete,

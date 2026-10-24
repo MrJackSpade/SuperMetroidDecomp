@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 

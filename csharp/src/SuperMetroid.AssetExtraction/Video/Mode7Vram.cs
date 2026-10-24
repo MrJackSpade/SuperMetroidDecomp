@@ -1,11 +1,13 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Typed view of Mode 7's interleaved map and character planes (#630): map cells and character
 /// pixels are addressed by their index in their own plane; the low/high-byte ports stay here.
 /// </summary>
 [PpuLayoutBoundary("rendering view: Mode 7 VRAM planes")]
-public readonly struct Mode7Vram(SnesVram vram)
+internal readonly struct Mode7Vram(SnesVram vram)
 {
     /// <summary>Writes map cells starting at cell <paramref name="cell"/> (row-major, 128 per row) through the low-byte port.</summary>
     public void LoadMap(ReadOnlySpan<byte> tileNumbers, int cell = 0)

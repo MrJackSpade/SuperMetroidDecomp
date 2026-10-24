@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>The floor-map fills verification's native memory images replay (#1404); the game builds its floor cells itself.</summary>

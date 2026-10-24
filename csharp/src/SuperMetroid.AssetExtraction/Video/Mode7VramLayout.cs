@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Mode 7's fixed VRAM planes (#630). Mode 7 interleaves its 128x128 tile map and its 256 8-bpp
@@ -6,7 +8,7 @@ namespace SuperMetroid.Core.Hardware;
 /// character pixel. The two planes therefore share storage under different meanings.
 /// </summary>
 [PpuLayoutBoundary("catalog: Mode 7 VRAM planes")]
-public static class Mode7VramLayout
+internal static class Mode7VramLayout
 {
     /// <summary>Words in each interleaved Mode 7 plane: 128x128 map cells, or 256 characters of 64 pixels.</summary>
     public const int PlaneWordCount = 0x4000;

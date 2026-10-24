@@ -69,17 +69,16 @@ public static class CeresDestructionRomData
         public const int ZebesTilemapMinimumBytes = 0x0800;
     }
 
-    /// <summary>Mode 7 centers and Mode 1 layer configuration for the two scenes.</summary>
+    /// <summary>Perspective-floor centres and layer configuration for the two scenes.</summary>
     public static class Rendering
     {
-        /// <summary>M7X center used by the Ceres explosion composition before its fade-out.</summary>
-        public const short CeresCenterX = 52;
-        /// <summary>M7Y center used by the Ceres explosion composition before its fade-out.</summary>
-        public const short CeresCenterY = 48;
-        /// <summary>M7X center used by the following Zebes approach composition.</summary>
-        public const short ZebesCenterX = 56;
-        /// <summary>M7Y center used by the following Zebes approach composition.</summary>
-        public const short ZebesCenterY = 24;
+        /// <summary>
+        /// The floor point, in floor pixels, the Ceres explosion's floor turns about before its fade-out; the station's
+        /// explosions are also placed relative to it.
+        /// </summary>
+        public static Offset16<Mode7Pixels> CeresFloorCenter => new(52, 48);
+        /// <summary>The floor point, in floor pixels, the following Zebes approach's floor turns about.</summary>
+        public static Offset16<Mode7Pixels> ZebesFloorCenter => new(56, 24);
         /// <summary>Mask that wraps cinematic world X coordinates to nine bits.</summary>
         public const ushort WorldXMask = 0x01ff;
     }

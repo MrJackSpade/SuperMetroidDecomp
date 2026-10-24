@@ -56,7 +56,7 @@ internal readonly struct EndingVram(SnesVram vram)
     internal static ushort TextTilemapWord(EndingTextTilemap tilemap) => tilemap switch
     {
         EndingTextTilemap.ResultPanel => EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
-        EndingTextTilemap.FinalText => EndingPostShotDefinitions.FinalTextTilemapWord,
+        EndingTextTilemap.FinalText => EndingVramLayout.FinalTextTilemapWord,
         _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined ending text tilemap."),
     };
 }

@@ -120,8 +120,8 @@ internal static class TitleSequenceRomDataVerification
             WriteRomWord(rom, (int)FrontendSourceDefinitions.FixedColorPointers + index * 2, 0xbc7d);
         WriteRomWord(rom, 0x8cbc7d, 0xe07f);
         WriteRomWord(rom, 0x8cbc7f, 0xe07f);
-        WriteRomWord(rom, TitleGradientRomData.ControlTable, 0xa17a);
-        WriteRomWord(rom, TitleGradientRomData.ControlTable + 2, 0x317f);
+        WriteRomWord(rom, FrontendSourceDefinitions.TitleGradientBlendTable, 0xa17a);
+        WriteRomWord(rom, FrontendSourceDefinitions.TitleGradientBlendTable + 2, 0x317f);
         WriteRepeatedCompressedStream(
             rom,
             TitleSequenceRomData.Assets.FloorCharactersAddress,

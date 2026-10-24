@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -53,8 +52,11 @@ internal static class EndingVramLayout
     public static readonly PpuLayoutCell PostCreditsFragmentB = Vram(nameof(PostCreditsFragmentB), 0x2400, 0x0400, "4-bpp characters");
 
     /// <summary>VMADD $5000-$53FF: the lower post-shot screen <c>$8B:E504</c> copies the staging map into before the logo.</summary>
-    public static readonly PpuLayoutCell PostShotLowerTilemap = Vram(nameof(PostShotLowerTilemap), EndingPostShotDefinitions.FinalLowerTilemapWord,
+    public static readonly PpuLayoutCell PostShotLowerTilemap = Vram(nameof(PostShotLowerTilemap), 0x5000,
         0x0400, "BG tilemap words (32x32)");
+
+    /// <summary>VRAM word $4C00: the upper screen of the 32x64 final-text map <c>$8B:E48A</c> shows, which <c>$8B:E504</c> continues at $5000.</summary>
+    public const ushort FinalTextTilemapWord = 0x4c00;
 
     /// <summary>Declares a native VRAM word interval against the full store for ending-scene overlap checks.</summary>
     private static PpuLayoutCell Vram(string name, int word, int count, string encoding) =>

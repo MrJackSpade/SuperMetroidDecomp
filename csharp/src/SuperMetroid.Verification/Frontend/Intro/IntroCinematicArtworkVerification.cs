@@ -308,7 +308,7 @@ internal static class IntroCinematicArtworkVerification
             foreach (IntroCinematicState scene in new[] { stockDividerVisual, editedDividerVisual })
             {
                 scene.SetupFirstIllustratedPage();
-                scene.Inidisp = ScreenFade.FullyLit;
+                scene.Brightness = ScreenBrightness.FullyLit;
             }
             AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
                 "visual divider override leaves page phase unchanged");
@@ -443,10 +443,10 @@ internal static class IntroCinematicArtworkVerification
                         stockScene.Step(0);
                         editedScene.Step(0);
                     }
-                    // The full game owns INIDISP during this synthetic setup; force
+                    // The full game owns the screen brightness during this synthetic setup; force
                     // the already-composed layer to visible brightness for this probe.
-                    stockScene.Inidisp = ScreenFade.FullyLit;
-                    editedScene.Inidisp = ScreenFade.FullyLit;
+                    stockScene.Brightness = ScreenBrightness.FullyLit;
+                    editedScene.Brightness = ScreenBrightness.FullyLit;
                     AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockScene.CaptureTranslatedRenderSnapshot())
                             .SequenceEqual(RenderForComparison(
                                 editedScene.CaptureTranslatedRenderSnapshot())),

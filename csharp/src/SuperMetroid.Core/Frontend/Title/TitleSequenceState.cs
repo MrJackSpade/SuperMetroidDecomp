@@ -102,7 +102,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal int BabyFrame { get; private set; }
     /// <summary>Frames left before the next Baby Metroid character page transfer.</summary>
     private int babyFrameTimer;
-    /// <summary>Tracks the TM bit that exposes Mode 7 BG1 behind title objects.</summary>
+    /// <summary>Whether the title shows its perspective floor behind the title objects.</summary>
     private bool floorBackgroundEnabled;
     /// <summary>Enables the installed scanline gradient during the final title stages.</summary>
     private bool gradientEnabled;
@@ -229,7 +229,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // `$8B:9A48` admits B, Start, or A during every pre-title cinematic function. The
         // original performs a fast fade-out, reconstructs the final title objects, then a
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
-        // their INIDISP values are observable in native traces.
+        // their brightness levels are observable in native traces.
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceRomData.Timing.ConfirmButtons);
         if (confirmPressed && Phase < TitleSequencePhase.TitleScreenFadeIn)
@@ -462,26 +462,26 @@ public sealed class TitleSequenceState : IFrontendScreen
             {
                 case TitleSequenceInstruction.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
-                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
+                    floorBackgroundEnabled = true; // `$8B:9CE3-$9CE5` shows the floor beside the objects.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneZero);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene1:
                     Phase = TitleSequencePhase.SceneOnePan;
-                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
+                    floorBackgroundEnabled = true; // `$8B:9D5D-$9D61` shows the floor beside the objects.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneOne);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene2:
                     Phase = TitleSequencePhase.SceneTwoPan;
-                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
+                    floorBackgroundEnabled = true; // `$8B:9DD6-$9DDA` shows the floor beside the objects.
                     ApplyScene(TitleSequenceRomData.Scenes.SceneTwo);
                     return;
 
                 case TitleSequenceInstruction.TriggerScene3:
                     Phase = TitleSequencePhase.SceneThreeZoom;
                     gradientEnabled = true;
-                    floorBackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
+                    floorBackgroundEnabled = true; // `$8B:9E58-$9E5C` shows the floor beside the objects.
                     PhaseTimer = 0;
                     ApplyScene(TitleSequenceRomData.Scenes.SceneThree);
                     return;
@@ -508,10 +508,10 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveObjectPalette = definition.CharacterOffset;
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
 
-        // Initial PPU setup and each of the first three completed pan functions select
-        // TM=$10 before the next text actor becomes visible. Keeping an explicit register
-        // bit also matters when Start skips during a pan: the fade-out preserves whichever
-        // TM value was live rather than inferring visibility from the host phase name.
+        // Initial setup and each of the first three completed pan functions hide the floor,
+        // showing objects alone, before the next text actor becomes visible. Keeping the
+        // visibility explicit also matters when Start skips during a pan: the fade-out keeps
+        // whichever visibility was live rather than inferring it from the host phase name.
         floorBackgroundEnabled = false;
     }
 

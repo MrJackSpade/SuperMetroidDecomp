@@ -15,26 +15,26 @@ internal static class ScreenFadeVerification
     {
         var fade = new ScreenFade();
         fade.SetTiming(2, 0);
-        int inidisp = 0;
-        fade.FadeIn(ref inidisp);
-        AssertEqual(1, inidisp, "a cleared counter wraps negative on its first dispatch and steps brightness");
+        ScreenBrightness brightness = ScreenBrightness.Lit(0);
+        fade.FadeIn(ref brightness);
+        AssertEqual(ScreenBrightness.Lit(1), brightness, "a cleared counter wraps negative on its first dispatch and steps brightness");
         AssertEqual(WrappingCountdown.FromRaw(2), fade.Counter, "the stepping dispatch reloads the counter from the delay");
-        fade.FadeIn(ref inidisp);
-        fade.FadeIn(ref inidisp);
-        AssertEqual(1, inidisp, "a delay of two consumes the next two dispatches");
+        fade.FadeIn(ref brightness);
+        fade.FadeIn(ref brightness);
+        AssertEqual(ScreenBrightness.Lit(1), brightness, "a delay of two consumes the next two dispatches");
         AssertEqual(WrappingCountdown.FromRaw(0), fade.Counter, "the consumed dispatches count the word down to zero");
-        fade.FadeIn(ref inidisp);
-        AssertEqual(2, inidisp, "the dispatch after zero wraps negative and steps brightness");
+        fade.FadeIn(ref brightness);
+        AssertEqual(ScreenBrightness.Lit(2), brightness, "the dispatch after zero wraps negative and steps brightness");
 
         fade.SetTiming(1, ushort.MaxValue);
-        inidisp = ScreenFade.FullyLit;
-        fade.FadeOut(ref inidisp);
-        AssertEqual(ScreenFade.FullyLit - 1, inidisp, "a counter left at $FFFF decrements to a negative word and steps");
+        brightness = ScreenBrightness.FullyLit;
+        fade.FadeOut(ref brightness);
+        AssertEqual(ScreenBrightness.Lit(ScreenBrightness.FullLevel - 1), brightness, "a counter left at $FFFF decrements to a negative word and steps");
 
         fade.SetTiming(1, 0x8000);
-        inidisp = ScreenFade.FullyLit;
-        fade.FadeOut(ref inidisp);
-        AssertEqual(ScreenFade.FullyLit, inidisp, "a counter at $8000 decrements to a non-negative word and only counts down");
+        brightness = ScreenBrightness.FullyLit;
+        fade.FadeOut(ref brightness);
+        AssertEqual(ScreenBrightness.FullyLit, brightness, "a counter at $8000 decrements to a non-negative word and only counts down");
         AssertEqual(WrappingCountdown.FromRaw(0x7fff), fade.Counter, "the word counter keeps the wrapped word exactly");
     }
 
@@ -43,20 +43,20 @@ internal static class ScreenFadeVerification
     {
         var fade = new ScreenFade();
         fade.SetTiming(0x0300, 0x1202);
-        int inidisp = 0;
-        AssertTrue(!fade.AdvanceSlowFadeIn(ref inidisp), "the slow fade-in has not reached full brightness");
-        AssertEqual(1, inidisp, "a zero low byte wraps negative on its first dispatch and steps brightness");
+        ScreenBrightness brightness = ScreenBrightness.Lit(0);
+        AssertTrue(!fade.AdvanceSlowFadeIn(ref brightness), "the slow fade-in has not reached full brightness");
+        AssertEqual(ScreenBrightness.Lit(1), brightness, "a zero low byte wraps negative on its first dispatch and steps brightness");
         AssertEqual(WrappingCountdown.FromRaw(0x0302), fade.Delay, "the reload copies the counter's low byte under the delay's high byte");
-        fade.AdvanceSlowFadeIn(ref inidisp);
-        AssertEqual(1, inidisp, "a positive decremented low byte only counts down");
+        fade.AdvanceSlowFadeIn(ref brightness);
+        AssertEqual(ScreenBrightness.Lit(1), brightness, "a positive decremented low byte only counts down");
         AssertEqual(WrappingCountdown.FromRaw(0x0301), fade.Delay, "the low-byte decrement leaves the high byte unchanged");
-        fade.AdvanceSlowFadeIn(ref inidisp);
-        AssertEqual(2, inidisp, "the low byte reaching zero steps brightness");
+        fade.AdvanceSlowFadeIn(ref brightness);
+        AssertEqual(ScreenBrightness.Lit(2), brightness, "the low byte reaching zero steps brightness");
 
         fade.SetTiming(0x0500, 0x0700);
-        inidisp = 1;
-        AssertTrue(fade.AdvanceSlowFadeOut(ref inidisp), "the slow fade-out reports completion when it writes forced blank");
-        AssertEqual(ScreenFade.ForcedBlank, inidisp, "the last slow fade-out step writes forced blank");
+        brightness = ScreenBrightness.Lit(1);
+        AssertTrue(fade.AdvanceSlowFadeOut(ref brightness), "the slow fade-out reports completion when it blanks the screen");
+        AssertEqual(ScreenBrightness.Blanked, brightness, "the last slow fade-out step blanks the screen");
         AssertEqual(WrappingCountdown.FromRaw(0x0500), fade.Delay, "completion clears only the delay's low byte");
         AssertEqual(WrappingCountdown.FromRaw(0x0700), fade.Counter, "completion clears only the counter's low byte");
     }

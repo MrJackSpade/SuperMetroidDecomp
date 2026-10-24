@@ -445,7 +445,7 @@ internal static class TitleGradientVerification
             $"production avoided {cartridgeReads.Count} cartridge source bytes.");
     }
 
-    /// <summary>Mutates extracted gradient JSON to check schema, line structure, control bytes, and native-address rejection.</summary>
+    /// <summary>Mutates extracted gradient JSON to check schema, line structure, blend fields, and native-address rejection.</summary>
     private static void VerifyTitleGradientValidation(byte[] extracted)
     {
         TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
@@ -472,16 +472,25 @@ internal static class TitleGradientVerification
         TitleGradientScanline line = first.Lines[0];
         first.Lines[0] = line with { Red = 32 };
         Reject("title gradient rejects non-RGB5 color");
-        first.Lines[0] = line with { ColorMathControl = 256 };
-        Reject("title gradient rejects non-byte color math control");
         first.Lines[0] = line;
 
-        string unknownField = System.Text.Encoding.UTF8.GetString(extracted)
-            .Replace("\"version\": 1", "\"version\": 1,\n  \"nativeAddress\": 9192685", StringComparison.Ordinal);
-        AssertThrows<InvalidDataException>(
+        string extractedText = System.Text.Encoding.UTF8.GetString(extracted);
+        void RejectText(string text, string description) => AssertThrows<InvalidDataException>(
             () => TitleGradientPresentation.Load(new MemoryStream(
-                System.Text.Encoding.UTF8.GetBytes(unknownField), writable: false)),
+                System.Text.Encoding.UTF8.GetBytes(text), writable: false)),
+            description);
+        string versionField = $"\"version\": {TitleGradientFormat.Version}";
+        AssertTrue(extractedText.Contains(versionField, StringComparison.Ordinal), "extracted title gradient states its schema version");
+        RejectText(extractedText.Replace(versionField, versionField + ",\n  \"nativeAddress\": 9192685", StringComparison.Ordinal),
             "title gradient rejects native-address escape hatch");
+        // A line's blend is named layers and a direction; the revision-1 control byte is not accepted beside or instead of them.
+        AssertTrue(extractedText.Contains("\"blendsFloor\": ", StringComparison.Ordinal), "extracted title gradient names each line's blended layers");
+        RejectText(extractedText.Replace("\"blendsFloor\": ", "\"colorMathControl\": 161,\n        \"blendsFloor\": ", StringComparison.Ordinal),
+            "title gradient rejects a color-math control byte");
+        string withoutDirection = System.Text.RegularExpressions.Regex.Replace(
+            extractedText, ",\\s*\"subtracts\": (true|false)", string.Empty);
+        AssertTrue(withoutDirection != extractedText, "extracted title gradient states each line's blend direction");
+        RejectText(withoutDirection, "title gradient rejects a line without its blend direction");
     }
 
     /// <summary>Steps the installed title through Start's skip fade and captures the first visible gradient and Mode 7 zoom.</summary>

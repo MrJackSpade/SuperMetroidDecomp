@@ -49,9 +49,8 @@ internal sealed class IntroCeresFlightState
     /// <summary>Five station and asteroid sprites created when the camera switches to rear view.</summary>
     internal IntroDiscoverySprite[] RearViewActors { get; private set; } = [];
     /// <summary>
-    /// The intensity of the rear-view flash's fixed color, from zero to 31: set to 31 when the rear view starts and
-    /// lowered by one per update, stopping at zero. The native COLDATA writes select red, green and blue separately
-    /// but always give them this same intensity.
+    /// The intensity of the rear-view flash's white, from zero to 31: set to 31 when the rear view starts and lowered
+    /// by one per update, stopping at zero. The flash is grey: red, green and blue always share this intensity.
     /// </summary>
     private int flashIntensity;
     /// <summary>Next caption glyph to add to the title tilemap.</summary>
@@ -218,10 +217,8 @@ internal sealed class IntroCeresFlightState
         }
         else
         {
-            var (a, b, c, d) = FloorRotationMatrix.Calculate(angle, zoom);
-            layers.Add(new Mode7RenderLayer(new(a, b, c, d,
-                new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
-                background.Whole.AsSignedRegister()),
+            layers.Add(new Mode7RenderLayer(FloorRotationMatrix.Transform(angle, zoom,
+                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedRegister()),
                 AffineFloor.Of(FloorMap(), floorTiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
             layers.Add(new ObjPriorityRenderLayer(1));
         }
@@ -403,7 +400,7 @@ internal sealed class IntroCeresFlightState
     private void StepFadeOut()
     {
         // `$C0A2` seeds both fade words with one. `$8B:C0C5` calls HandleFadingOut, which
-        // therefore removes one INIDISP level every other frame and ends at forced blank.
+        // therefore removes one brightness level every other frame and ends with the screen blanked.
         if (fadeDelay-- > 0)
             return;
         fadeDelay = 1;

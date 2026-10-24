@@ -75,7 +75,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausingDarkening"/>.</summary>
     internal void DispatchPausingDarkening(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // State $0C continues running ordinary gameplay while INIDISP darkens.
+        // State $0C continues running ordinary gameplay while the screen darkens.
         // This matters for moving enemies/projectiles and is why pause cannot be
         // represented as a desktop-only frozen bitmap.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
@@ -96,7 +96,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Unpausing"/>.</summary>
     internal void DispatchUnpausing(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // `$82:93A4` runs the whole state-eight routine behind the INIDISP fade, so
+        // `$82:93A4` runs the whole state-eight routine behind the screen fade, so
         // its out-of-health, pause, door and other publications all apply here.
         RunMainGameplayState(controllerInput, gameplayAudio);
         if (session.StepScreenFadeIn() == PauseFadeTiming.FullyLit)
@@ -117,7 +117,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (ceresReachedForcedBlank)
         {
             // GameState_33 saves the live area-six/station-zero slot only after
-            // INIDISP reaches forced blank. This is the durable post-Ridley Ceres
+            // the screen is blanked. This is the durable post-Ridley Ceres
             // checkpoint the retail loader later replaces with Zebes arrival.
             AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
             session.RaiseSaveRamChanged();

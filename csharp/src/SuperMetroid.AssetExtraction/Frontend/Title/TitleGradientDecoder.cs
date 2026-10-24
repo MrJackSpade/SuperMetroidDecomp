@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 
@@ -17,10 +16,10 @@ public static class TitleGradientDecoder
     public static TitleGradientLine[] Decode(IImportCartridgeSource cartridge, ushort zoom)
     {
         int pointer = (int)FrontendSourceDefinitions.FixedColorPointers.AddWithinBank((zoom >> 4) % 16 * sizeof(ushort));
-        int table = TitleGradientRomData.FixedColorBank |
+        int table = FrontendSourceDefinitions.TitleGradientColorBank |
             cartridge.ReadCartridgeWord(pointer);
         byte[] fixedWrites = Expand(cartridge, table);
-        byte[] control = Expand(cartridge, TitleGradientRomData.ControlTable);
+        byte[] control = Expand(cartridge, FrontendSourceDefinitions.TitleGradientBlendTable);
         var result = new TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
         byte red = 0, green = 0, blue = 0;
         for (int line = 0; line < result.Length; line++)

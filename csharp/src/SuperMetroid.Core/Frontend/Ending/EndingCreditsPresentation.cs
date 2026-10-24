@@ -134,8 +134,8 @@ internal static class EndingCreditsPresentation
 
     /// <summary>Mode 7 rotation center, shared by atmospheric scenes and changed for flyaway.</summary>
     private static Offset16<Mode7Pixels> CurrentFloorCenter(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.PlanetEscapeFast
-        ? new(EndingCreditsRomData.Rendering.AtmosphericFloorCenter, EndingCreditsRomData.Rendering.AtmosphericFloorCenter)
-        : new(EndingCreditsRomData.Rendering.FloorCenterX, EndingCreditsRomData.Rendering.FloorCenterY);
+        ? EndingCreditsRomData.Rendering.AtmosphericFloorCenter
+        : EndingCreditsRomData.Rendering.FloorCenter;
 
     /// <summary>Whether the phase displays post-credit BG; the armored reward uses OBJ alone.</summary>
     private static bool PostCreditsBackgroundEnabled(EndingCreditsState ending) => ending.Stage.Phase != EndingCreditsPhase.PostCreditsBlank

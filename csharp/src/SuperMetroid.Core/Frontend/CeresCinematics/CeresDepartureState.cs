@@ -70,7 +70,7 @@ public sealed class CeresDepartureState
             throw new InvalidOperationException("Ceres departure fade is not active.");
 
         // Room main explicitly sets both fade words to zero. HandleFadeOut therefore
-        // changes INIDISP on every call. Brightness one becomes hardware forced blank
+        // steps brightness on every call. Brightness one becomes a blanked screen
         // rather than a representable brightness zero, which is exposed here as Complete.
         if (Brightness > 1)
         {

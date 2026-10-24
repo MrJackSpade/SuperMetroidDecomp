@@ -3,11 +3,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Bank-$8B post-shot transition identities and native staging layout.</summary>
 internal static class EndingPostShotDefinitions
 {
-    /// <summary>E48A selects BG1SC=$4E, with its upper tilemap at VRAM word $4C00.</summary>
-    public const ushort FinalTextTilemapWord = 0x4c00;
-    /// <summary>E504 copies the text staging map into the second screen at word $5000.</summary>
-    public const ushort FinalLowerTilemapWord = 0x5000;
-    /// <summary>BG1SC=$4E selects a 32-column, 64-row map.</summary>
+    /// <summary>The final text background plane E48A shows is 32 cells wide and this many cells tall: two screens stacked.</summary>
     public const int FinalTextMapHeight = 64;
     /// <summary>E48A clears the copyright's first staging-map row at word 384.</summary>
     public const int ClearedCopyrightStart = 384;

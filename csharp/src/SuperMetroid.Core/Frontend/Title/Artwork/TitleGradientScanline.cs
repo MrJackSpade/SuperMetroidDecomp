@@ -1,14 +1,23 @@
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
-/// <summary>One scanline's effective fixed RGB5 color after native COLDATA writes, plus the CGADSUB byte governing its color arithmetic.</summary>
+/// <summary>
+/// One scanline of the title's gradient: the colour the line blends in, which title layers it blends with, and
+/// whether it is added to them or subtracted from them.
+/// </summary>
 public sealed record TitleGradientScanline
 {
-    /// <summary>Fixed-color red intensity from 0 through 31, not an eight-bit display-channel value.</summary>
+    /// <summary>The line colour's red intensity from 0 through 31, not an eight-bit display-channel value.</summary>
     public required int Red { get; init; }
-    /// <summary>Fixed-color green intensity from 0 through 31, not an eight-bit display-channel value.</summary>
+    /// <summary>The line colour's green intensity from 0 through 31, not an eight-bit display-channel value.</summary>
     public required int Green { get; init; }
-    /// <summary>Fixed-color blue intensity from 0 through 31, not an eight-bit display-channel value.</summary>
+    /// <summary>The line colour's blue intensity from 0 through 31, not an eight-bit display-channel value.</summary>
     public required int Blue { get; init; }
-    /// <summary>Raw CGADSUB value from 0 through 255. The title renderer uses bit 0 for BG1/backdrop, bit 4 for OBJ palettes 4..7 and bit 7 for subtraction; native $88:EB95 supplies $A1/$31 runs.</summary>
-    public required int ColorMathControl { get; init; }
+    /// <summary>Whether the line's colour blends with the title's perspective floor.</summary>
+    public required bool BlendsFloor { get; init; }
+    /// <summary>Whether the line's colour blends with the title objects drawn in palettes four through seven.</summary>
+    public required bool BlendsObjects { get; init; }
+    /// <summary>Whether the line's colour blends with the backdrop behind the floor and objects.</summary>
+    public required bool BlendsBackdrop { get; init; }
+    /// <summary>Whether the line's colour is subtracted from the layers it blends with rather than added to them.</summary>
+    public required bool Subtracts { get; init; }
 }

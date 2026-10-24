@@ -161,7 +161,7 @@ public static class TitleSequenceRomData
     /// <summary>Frame counts, brightness rates, and accepted skip buttons.</summary>
     public static class Timing
     {
-        /// <summary>Maximum native INIDISP brightness level, used to clamp fades and scale rendered colors.</summary>
+        /// <summary>The fully lit screen brightness level, used to clamp fades and scale rendered colors.</summary>
         public const int MaximumBrightness = 15;
         /// <summary>Brightness-level change per update for both the fast skip fade-out and immediate-title fade-in.</summary>
         public const int SkipFadeBrightnessStep = 2;

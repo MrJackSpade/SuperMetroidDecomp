@@ -91,12 +91,10 @@ public static class EndingCreditsRomData
     /// <summary>Ending VRAM transfer extents, byte and word destinations, tilemap geometry, and palette color-index ranges.</summary>
     public static class Rendering
     {
-        /// <summary>Ending bank-$8B Mode-7 projection center X, in physical map pixels.</summary>
-        public const short FloorCenterX = 56;
-        /// <summary>Ending bank-$8B Mode-7 projection center Y, in physical map pixels.</summary>
-        public const short FloorCenterY = 24;
-        /// <summary>$8B:D4xx/$D8xx atmospheric/explosion setup writes M7X and M7Y to $0080.</summary>
-        public const short AtmosphericFloorCenter = 128;
+        /// <summary>The floor point, in floor pixels, the flyaway's perspective floor turns about.</summary>
+        public static Offset16<Mode7Pixels> FloorCenter => new(56, 24);
+        /// <summary>The floor point, in floor pixels, the atmospheric and explosion scenes' floor turns about ($8B:D4xx/$D8xx setup).</summary>
+        public static Offset16<Mode7Pixels> AtmosphericFloorCenter => new(128, 128);
         /// <summary>Ending OBSEL=$02 selects the escape/explosion OBJ character base.</summary>
         public const byte EscapeObjectSelection = 2;
         /// <summary>$8B:8293 initializes OBSEL=$A3 for the atmospheric cloud scenes.</summary>

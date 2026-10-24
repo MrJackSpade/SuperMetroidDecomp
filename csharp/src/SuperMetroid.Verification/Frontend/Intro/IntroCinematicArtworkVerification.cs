@@ -865,17 +865,21 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             (state.CurrentFlashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
         }
-        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
-        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
+        Rgba32[] stockPixels = IntroShownPixels(stockState);
+        Rgba32[] editedPixels = IntroShownPixels(editedState);
         AssertTrue(!editedPixels.SequenceEqual(stockPixels),
             "intro Mother Brain palette override changes visible production scene pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
+        AssertTrue(IntroShownPixels(stockState).SequenceEqual(editedPixels),
             "restored intro Mother Brain scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro Mother Brain rendering avoids all three native spritemap records");
         File.Delete(overridePath);
     }
+
+    /// <summary>The pixels the intro shows: its production scene drawn by the game's renderer.</summary>
+    internal static Rgba32[] IntroShownPixels(IntroCinematicState state) =>
+        DisplayRendering.Render(state.CaptureTranslatedRenderSnapshot());
 
     /// <summary>Checks explosion sprite compositions and rejects missing named override frames.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
@@ -947,12 +951,12 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             state.FlashbackMotherBrainExplosions = explosions;
         }
-        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
-        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
+        Rgba32[] stockPixels = IntroShownPixels(stockState);
+        Rgba32[] editedPixels = IntroShownPixels(editedState);
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro explosion art override changes visible production flashback pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
+        AssertTrue(IntroShownPixels(stockState).SequenceEqual(editedPixels),
             "restored intro explosion scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro explosion render avoids all twelve native compositions");

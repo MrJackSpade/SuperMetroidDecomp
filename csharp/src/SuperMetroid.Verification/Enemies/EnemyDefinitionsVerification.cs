@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -173,12 +174,12 @@ internal static class EnemyDefinitionsVerification
             ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             Word(34), Word(36), Word(38),
             EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
-            EnemyInteractionCallbacks.Body(Word(40), EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(bank, Word(40))),
+            EnemyInteractionCallbacks.Body(Word(40), EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, Word(40))),
             Word(42), Word(44), Word(46),
             EnemyInteractionCallbacks.TryDecode(bank, Word(48)),
-            EnemyInteractionCallbacks.Body(Word(48), EnemyTouchCallbackDefinitions.IsLiteralNoOp(bank, Word(48))),
+            EnemyInteractionCallbacks.Body(Word(48), EnemyInteractionCallbacks.IsLiteralNoOpTouch(bank, Word(48))),
             EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
-            EnemyInteractionCallbacks.Body(Word(50), EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, Word(50))),
+            EnemyInteractionCallbacks.Body(Word(50), EnemyInteractionCallbacks.IsLiteralNoOpShot(bank, Word(50))),
             EnemyInteractionCallbacks.NoOpCallbackBody(bank),
             Word(54) | Byte(56) << 16, Byte(57), EnemyHeaderTables.DropChances(Word(58)), EnemyHeaderTables.Vulnerability(Word(60)));
     }

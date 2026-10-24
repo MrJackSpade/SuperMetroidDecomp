@@ -1,34 +1,38 @@
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.AssetExtraction.Enemies;
+namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
-/// <summary>Native Power Bomb callback classifications, distinct from zero/common and private handlers.</summary>
+/// <summary>Native Power Bomb callbacks that are a literal long return, distinct from zero/common and private handlers.</summary>
 internal static class EnemyPowerBombCallbackDefinitions
 {
     /// <summary>$A2:804C, RTL_A2804C: ship pieces and growing shutter.</summary>
-    public const int ShipAndShutterNoOp = 0xa2804c;
+    public static readonly SnesAddress ShipAndShutterNoOp = new(0xa2, 0x804c);
     /// <summary>$A3:804C, RTL_A3804C: elevator.</summary>
-    public const int ElevatorNoOp = 0xa3804c;
+    public static readonly SnesAddress ElevatorNoOp = new(0xa3, 0x804c);
     /// <summary>$A5:804C, bank-local common RTL: Draygon eye, tail and arms.</summary>
-    public const int DraygonPartsNoOp = 0xa5804c;
+    public static readonly SnesAddress DraygonPartsNoOp = new(0xa5, 0x804c);
     /// <summary>$A5:EDF2, Spore Spawn Power Bomb callback: literal RTL.</summary>
-    public const int SporeSpawnNoOp = 0xa5edf2;
+    public static readonly SnesAddress SporeSpawnNoOp = new(0xa5, 0xedf2);
     /// <summary>$A6:804C, bank-local common RTL: Ridley explosion actor.</summary>
-    public const int RidleyExplosionNoOp = 0xa6804c;
+    public static readonly SnesAddress RidleyExplosionNoOp = new(0xa6, 0x804c);
     /// <summary>$A7:DD9A, Phantoon Power Bomb callback: literal RTL.</summary>
-    public const int PhantoonNoOp = 0xa7dd9a;
+    public static readonly SnesAddress PhantoonNoOp = new(0xa7, 0xdd9a);
     /// <summary>$A7:804C, bank-local common RTL: Phantoon parts, Etecoon and Dachora.</summary>
-    public const int PhantoonPartsAndAnimalsNoOp = 0xa7804c;
+    public static readonly SnesAddress PhantoonPartsAndAnimalsNoOp = new(0xa7, 0x804c);
     /// <summary>$A8:804C, bank-local common RTL: Evir projectile and Ki-Hunter wings.</summary>
-    public const int EvirAndWingsNoOp = 0xa8804c;
+    public static readonly SnesAddress EvirAndWingsNoOp = new(0xa8, 0x804c);
     /// <summary>$AA:804C, bank-local common RTL: Tourian statue and ghost.</summary>
-    public const int TourianStatuesNoOp = 0xaa804c;
+    public static readonly SnesAddress TourianStatuesNoOp = new(0xaa, 0x804c);
     /// <summary>$B3:804C, bank-local common RTL: escape animals.</summary>
-    public const int EscapeAnimalsNoOp = 0xb3804c;
+    public static readonly SnesAddress EscapeAnimalsNoOp = new(0xb3, 0x804c);
 
-    /// <summary>Zero selects common damage, not a no-op. Other private callbacks retain their dispatcher checks.</summary>
-    public static bool IsLiteralNoOp(byte bank, ushort pointer) => (((int)new SnesAddress(bank, pointer))) is
-        ShipAndShutterNoOp or ElevatorNoOp or DraygonPartsNoOp or SporeSpawnNoOp or
-        RidleyExplosionNoOp or PhantoonNoOp or PhantoonPartsAndAnimalsNoOp or
-        EvirAndWingsNoOp or TourianStatuesNoOp or EscapeAnimalsNoOp;
+    /// <summary>
+    /// The ten literal-RTL Power Bomb callbacks in the pinned retail header inventory. Zero selects common damage, not a
+    /// no-op, and other private callbacks keep their dispatcher checks.
+    /// </summary>
+    public static readonly IReadOnlySet<SnesAddress> LiteralNoOps = new HashSet<SnesAddress>
+    {
+        ShipAndShutterNoOp, ElevatorNoOp, DraygonPartsNoOp, SporeSpawnNoOp, RidleyExplosionNoOp, PhantoonNoOp,
+        PhantoonPartsAndAnimalsNoOp, EvirAndWingsNoOp, TourianStatuesNoOp, EscapeAnimalsNoOp,
+    };
 }

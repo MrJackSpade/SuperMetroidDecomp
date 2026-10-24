@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -42,14 +43,14 @@ public static class RoomEnemyDefinitionImporter
             Unused26: Word(38),
             PowerBombReaction: EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
             PowerBombReactionBody: EnemyInteractionCallbacks.Body(Word(40),
-                EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(bank, Word(40))),
+                EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, Word(40))),
             VariantIndex: Word(42),
             Unused2C: Word(44),
             Unused2E: Word(46),
             Touch: EnemyInteractionCallbacks.TryDecode(bank, Word(48)),
-            TouchBody: EnemyInteractionCallbacks.Body(Word(48), EnemyTouchCallbackDefinitions.IsLiteralNoOp(bank, Word(48))),
+            TouchBody: EnemyInteractionCallbacks.Body(Word(48), EnemyInteractionCallbacks.IsLiteralNoOpTouch(bank, Word(48))),
             Shot: EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
-            ShotBody: EnemyInteractionCallbacks.Body(Word(50), EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, Word(50))),
+            ShotBody: EnemyInteractionCallbacks.Body(Word(50), EnemyInteractionCallbacks.IsLiteralNoOpShot(bank, Word(50))),
             NoOpCallbackBody: EnemyInteractionCallbacks.NoOpCallbackBody(bank),
             TileDataAddress: RomDataReader.ReadLongFixedBank(cartridge, HeaderAddress(pointer, 54)),
             Layer: Byte(57),
@@ -73,12 +74,15 @@ public static class RoomEnemyDefinitionImporter
     /// <summary>Header offset of the palette word.</summary>
     private const int PaletteOffset = 2;
 
+    /// <summary>The long address of the byte <paramref name="offset"/> bytes into the bank-$A0 header at <paramref name="pointer"/>.</summary>
     private static int HeaderAddress(EnemyDefinitionId pointer, int offset) =>
         RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset));
 
+    /// <summary>Reads the little-endian header word <paramref name="offset"/> bytes into the header at <paramref name="pointer"/>.</summary>
     private static ushort ReadWord(IImportCartridgeSource cartridge, EnemyDefinitionId pointer, int offset) =>
         RomDataReader.ReadWordFixedBank(cartridge, HeaderAddress(pointer, offset));
 
+    /// <summary>Reads the header byte <paramref name="offset"/> bytes into the header at <paramref name="pointer"/>.</summary>
     private static byte ReadByte(IImportCartridgeSource cartridge, EnemyDefinitionId pointer, int offset) =>
         cartridge.ReadCartridgeByte(HeaderAddress(pointer, offset));
 }

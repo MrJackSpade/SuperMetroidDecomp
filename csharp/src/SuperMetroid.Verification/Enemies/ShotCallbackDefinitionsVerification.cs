@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Verification.Samus.Projectiles;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Hardware;
@@ -89,7 +90,7 @@ internal static class ShotCallbackDefinitionsVerification
                 classifyShot((byte)bank, (ushort)pointer),
                 "bank-qualified shot identity");
             AssertEqual(expectedTouchNoOps.Contains(address),
-                EnemyTouchCallbackDefinitions.IsLiteralNoOp((byte)bank, (ushort)pointer),
+                EnemyInteractionCallbacks.IsLiteralNoOpTouch((byte)bank, (ushort)pointer),
                 "bank-qualified touch identity");
         }
         var shortcut = new Func<ushort, bool>(pointer =>
@@ -120,7 +121,7 @@ internal static class ShotCallbackDefinitionsVerification
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
                 Touch = EnemyInteractionCallbacks.TryDecode(touchBank, touchWord),
-                TouchBody = EnemyInteractionCallbacks.Body(touchWord, EnemyTouchCallbackDefinitions.IsLiteralNoOp(touchBank, touchWord)),
+                TouchBody = EnemyInteractionCallbacks.Body(touchWord, EnemyInteractionCallbacks.IsLiteralNoOpTouch(touchBank, touchWord)),
             });
             var samus = new SamusState
             {
@@ -147,7 +148,7 @@ internal static class ShotCallbackDefinitionsVerification
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
                 Shot = EnemyInteractionCallbacks.TryDecode(shotBank, shotWord),
-                ShotBody = EnemyInteractionCallbacks.Body(shotWord, EnemyShotCallbackDefinitions.IsLiteralNoOp(shotBank, shotWord)),
+                ShotBody = EnemyInteractionCallbacks.Body(shotWord, EnemyInteractionCallbacks.IsLiteralNoOpShot(shotBank, shotWord)),
                 NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(shotBank),
             });
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);

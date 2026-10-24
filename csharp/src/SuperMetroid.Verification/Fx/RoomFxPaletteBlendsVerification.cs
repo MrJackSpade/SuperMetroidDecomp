@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -119,13 +120,13 @@ internal static class RoomFxPaletteBlendsVerification
             "edited escape tint removes the stock red channel");
         AssertEqual(stockLine, GameplayEffectCapture.CaptureCeresHaze(false).Windows[120],
             "cosmetic override does not mutate stock presentation");
-        Rgba32[] pixels = Enumerable.Repeat(new Rgba32(0, 0, 0, 255),
-            DisplayScreen.Width * DisplayScreen.Height).ToArray();
-        SnesGameplayFrameRendererConstants.ApplyCeresHaze(pixels, false, colors: edited);
+        // The edited haze over a black screen, as the display renderer draws it.
+        Rgba32[] pixels = DisplayRendering.Render(new LayeredScene(new FramePaint(new Bgr555[SnesPpuLayout.CgramColorCount], []),
+            new RenderLayer[] { GameplayEffectCapture.CaptureCeresHaze(false, colors: edited) }, FadeLevel.Full));
         AssertEqual(editedLine.Green, pixels[120 * DisplayScreen.Width].G,
-            "software renderer consumes the same edited Ceres tint as captured PPU rendering");
+            "the display renderer draws the same edited Ceres tint the capture holds");
         AssertEqual((byte)0, pixels[120 * DisplayScreen.Width].B,
-            "software renderer does not retain the stock blue channel");
+            "the display renderer does not retain the stock blue channel");
         AssertEqual(0, GameplayEffectCapture.CaptureCeresHaze(
             false, intensity: 0, colors: edited).Windows[120].Green,
             "cosmetic color cannot change the native fade-out duration");

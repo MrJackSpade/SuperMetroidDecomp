@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -55,8 +56,9 @@ internal static class LookupCeresHazeRampVerification
             {
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
                 var captured = GameplayEffectCapture.CaptureCeresHaze(dead, counter);
-                var software = new Rgba32[256 * 224];
-                SnesGameplayFrameRendererConstants.ApplyCeresHaze(software, dead, counter);
+                // The haze over a black screen, as the display renderer draws it.
+                Rgba32[] drawn = DisplayRendering.Render(new LayeredScene(new FramePaint(new Bgr555[SnesPpuLayout.CgramColorCount], []),
+                    new RenderLayer[] { captured }, FadeLevel.Full));
                 for (int y = 0; y < original.Length; y++)
                 {
                     var actual = CeresHazeRenderDefinitions.ResolveComponents(y, counter, dead, null);
@@ -70,8 +72,8 @@ internal static class LookupCeresHazeRampVerification
                     AssertEqual(Expand(blue), captured.Windows[y].Blue, "Captured blue preserves native ramp/HUD mask");
                     for (int x = 0; x < 256; x++)
                     {
-                        var pixel = software[y * 256 + x];
-                        AssertEqual(new VerifyCeresHazeNativeRampCase(Expand(red), Expand(green), Expand(blue)), new VerifyCeresHazeNativeRampCase(pixel.R, pixel.G, pixel.B), "Software projection preserves native row across width");
+                        var pixel = drawn[y * 256 + x];
+                        AssertEqual(new VerifyCeresHazeNativeRampCase(Expand(red), Expand(green), Expand(blue)), new VerifyCeresHazeNativeRampCase(pixel.R, pixel.G, pixel.B), "The drawn haze preserves native row across width");
                     }
                 }
             }

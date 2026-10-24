@@ -43,24 +43,18 @@ internal static class RoomArtworkRenderParityVerification
             SuperMetroidRuntime installed = LoadRoom(installedArt: true);
             if (useRealLandingDoor)
             {
-                var sourceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+                // The door-selected sky page reaches the frame as the sky's picture (#1406); the frames compared below
+                // show it, so here the room only has to have entered through the landing door with its sky running.
                 ushort landingDoor = LandingSiteRomData.LandingCutsceneDoorPointer;
-                LibraryBackgroundInstruction skyTransfer = LibraryBackgroundProgramDefinitions.GetDoorTransfer(
-                    unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), landingDoor);
-                byte[] sky = RomDataReader.ReadFixedBank(sourceBus,
-                    skyTransfer.SourceAddress, skyTransfer.ByteCount);
-                AssertTrue(native.Room.ActiveDoor?.Pointer == landingDoor &&
-                    native.Room.ScrollingSky is not null &&
-                    native.Vram.Bytes.Slice(skyTransfer.FirstWord * 2, sky.Length)
-                        .SequenceEqual(sky),
-                    "Landing Site frame contains its real door-selected sky page");
+                AssertTrue(native.Room.ActiveDoor?.Pointer == landingDoor && native.Room.ScrollingSky is not null,
+                    "Landing Site enters through its real landing door with its scrolling sky");
             }
             else
                 AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.RoomCharacters.Length >
                     RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
-            AssertTrue(native.Vram.ImageEquals(installed.Vram),
-                $"{name} installed artwork preserves the complete displayed VRAM");
+            AssertTrue(native.ComposedVram().AsSpan().SequenceEqual(installed.ComposedVram()),
+                $"{name} installed artwork binds the same background characters");
             Rgba32[] nativeFrame = FrontendScenePixelsAccess.Pixels(native.PublishDisplayFrame());
             Rgba32[] installedFrame = FrontendScenePixelsAccess.Pixels(installed.PublishDisplayFrame());
             AssertTrue(nativeFrame.Length == installedFrame.Length &&

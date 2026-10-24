@@ -64,7 +64,7 @@ public sealed class SamusHyperBeamColorCatalog
                     if (frames[frame][color] != expected) shadeInputs.Add(index, new(frames[frame][color], expected));
                     continue;
                 }
-                colors.Add(new ColourCell(0, index), frames[frame][color]);
+                colors.Add(new ColourCell(frame, color), frames[frame][color]);
                 continue;
             }
             if (source == index && frame == 7 && color != 0 &&
@@ -75,7 +75,7 @@ public sealed class SamusHyperBeamColorCatalog
                 {
                     if (frames[frame][color] != expected) intermediateInputs.Add(index, new(frames[frame][color], expected));
                 }
-                else colors.Add(new ColourCell(0, index), frames[frame][color]);
+                else colors.Add(new ColourCell(frame, color), frames[frame][color]);
                 continue;
             }
             if (frame == 2 && color is 3 or 11 or 13)
@@ -84,7 +84,7 @@ public sealed class SamusHyperBeamColorCatalog
                 if (color == 13) expected = SamusHyperBeamColorFormat.CyanTransitionMiddle(frames[1][13], frames[3][13]);
                 else if (!SamusHyperBeamColorFormat.TryCyanTransitionShadow(frames[2][13], color, out expected))
                 {
-                    colors.Add(new ColourCell(0, index), frames[frame][color]);
+                    colors.Add(new ColourCell(frame, color), frames[frame][color]);
                     continue;
                 }
                 if (frames[frame][color] != expected) intermediateInputs.Add(index, new(frames[frame][color], expected));
@@ -116,7 +116,7 @@ public sealed class SamusHyperBeamColorCatalog
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
                 continue;
             }
-            colors.Add(new ColourCell(0, index), frames[frame][color]);
+            colors.Add(new ColourCell(frame, color), frames[frame][color]);
         }
     }
 

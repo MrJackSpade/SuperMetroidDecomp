@@ -177,12 +177,8 @@ public static class GameOptionsPresentationDefinitions
         }
         return SnesBgTilemapWord.Create(tile, 0, false, flips).Raw;
     }
-    /// <summary>$82:F639 controller label destinations: three tile rows per action.</summary>
-    internal static Position16<TilemapCells> ControllerAnchor(int action)
-    {
-        int word = GameOptionsRomData.ControllerLabels.Destination(action) / sizeof(ushort);
-        return new(checked((ushort)(word % GameOptionsRomData.MenuTilemapWidth)), checked((ushort)(word / GameOptionsRomData.MenuTilemapWidth)));
-    }
+    /// <summary>$82:F639 controller label boxes: three tile rows per action.</summary>
+    internal static Position16<TilemapCells> ControllerAnchor(int action) => GameOptionsRomData.ControllerLabels.Anchor(action);
 
     /// <summary>$82:F307/F31B/F33F selection missile rows, including controller scroll displacement.</summary>
     internal static Position16<OamPixels> CursorAnchor(GameOptionsPage page, int row)

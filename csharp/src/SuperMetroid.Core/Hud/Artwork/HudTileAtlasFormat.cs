@@ -2,7 +2,7 @@ using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
-/// <summary>Installed HUD atlas identity and standard transfer geometry.</summary>
+/// <summary>Installed HUD atlas identity and geometry.</summary>
 public static class HudTileAtlasFormat
 {
     /// <summary>Installation-relative indexed PNG filename for standard HUD/minimap characters, separate from the 4-bpp map atlas.</summary>
@@ -13,8 +13,8 @@ public static class HudTileAtlasFormat
     public const int RestoreQuarterCount = 4;
     /// <summary>Bytes in one restore quarter of the standard BG3 characters.</summary>
     public const ushort RestoreQuarterBytes = CharacterByteCount / RestoreQuarterCount;
-    /// <summary>$2000-byte native upload: the character data plus the equal-sized all-zero BG2 tilemap-clearing region.</summary>
+    /// <summary>$2000 bytes: the character data plus the equal-sized all-zero half that clears BG2's words.</summary>
     public const ushort TransferByteCount = CharacterByteCount * 2;
-    /// <summary>$9A:B200, Tiles_Standard_BG3; the installed transfer supplies these characters and the following Clear BG2 tilemap region rather than rereading cartridge bytes.</summary>
+    /// <summary>$9A:B200, Tiles_Standard_BG3, where Kraid's library background reads the HUD's characters from.</summary>
     public const int SourceAddress = MapTileAtlasRomData.HudCharacterData;
 }

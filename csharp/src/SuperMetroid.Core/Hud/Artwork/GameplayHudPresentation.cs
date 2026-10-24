@@ -10,7 +10,7 @@ public sealed class GameplayHudPresentation
 {
     /// <summary>Edited template cells keyed by their 32-by-3 tilemap index.</summary>
     internal readonly Dictionary<int, ushort> templateOverrides;
-    /// <summary>Edited cells in the separately transferred immutable top row.</summary>
+    /// <summary>Edited cells in the separately supplied immutable top row.</summary>
     internal readonly Dictionary<int, ushort> topRowOverrides;
     /// <summary>Edited decimal glyph words used by the health field.</summary>
     internal readonly Dictionary<int, ushort> healthDigits;
@@ -78,21 +78,6 @@ public sealed class GameplayHudPresentation
         return row;
     }
 
-    /// <summary>Native-order BG3 top-row bytes supplied at the existing queued DMA boundary.</summary>
-    public ReadOnlyMemory<byte> TopRowTransfer
-    {
-        get
-        {
-            ushort[] row = TopRow();
-            byte[] transfer = new byte[GameplayHudDefinitions.TopRowByteCount];
-            for (int column = 0; column < row.Length; column++)
-            {
-                transfer[column * 2] = (byte)row[column];
-                transfer[column * 2 + 1] = SnesLittleEndian.HighByte(row[column]);
-            }
-            return transfer;
-        }
-    }
     /// <summary>Gets the tilemap word used to clear mutable HUD cells.</summary>
     public SnesBgTilemapWord Blank { get; }
     /// <summary>Gets the tilemap word for a filled energy tank.</summary>

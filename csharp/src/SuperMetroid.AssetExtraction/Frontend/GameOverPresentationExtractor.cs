@@ -97,7 +97,8 @@ public static class GameOverPresentationExtractor
 
         void LoadText(GameOverTextStream stream)
         {
-            int destinationByteOffset = stream.DestinationByteOffset;
+            // The cartridge's load immediates name each element's first cell as a byte offset into the page's rows.
+            int destinationByteOffset = (stream.Origin.Y * GameOverRomData.TilemapWidth + stream.Origin.X) * sizeof(ushort);
             int initialColumn = destinationByteOffset;
             int sourceAddress = GameOverRomData.TextBank | GameOverTextSources.Pointer(stream.Element);
             while (true)

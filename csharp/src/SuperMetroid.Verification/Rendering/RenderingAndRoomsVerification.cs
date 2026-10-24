@@ -255,15 +255,10 @@ internal static void VerifyHudStateAndBg3Rendering()
     AssertEqual(0x2c1f, hud.Tiles[59],
         "right-page sparse map keeps the western cell blank");
 
-    var queue = new VramWriteQueue();
+    AssertEqual(HudState.MutableTileCount, hud.MutableRows.Length, "the HUD's three mutable rows");
+    AssertEqual(0x2c0f, hud.MutableRows[0], "the HUD's first mutable cell is the blank word the latched BG3 plane shows");
+
     var vram = new SnesVram();
-    hud.QueueUpload(queue);
-    AssertEqual(HudState.MutableByteCount, queue.Entries[0].SizeInBytes, "HUD queue transfer size");
-    AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue keeps the native $7E:C608 source on its record");
-    AssertEqual(HudState.VramDestination, queue.Entries[0].Destination.Encoded, "HUD queue VRAM destination");
-    queue.DrainTo(vram, null, null, BgArtworkFixtures.For(vram));
-    AssertEqual(0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
-    AssertEqual(0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
 
     // Isolate the BG3 renderer at a harmless tilemap base. Entry tile 2 / palette 1 points
     // at a tile whose upper-left plane-0 bit is set; CGRAM 5 is maximum green.

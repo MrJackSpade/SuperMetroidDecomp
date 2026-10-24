@@ -39,8 +39,6 @@ public static class FileSelectMapRomData
     public const int RoomFrameHeaderWords = 800;
     /// <summary>$81:A7CA copies control-footer words 1..160 into frame words 800..959.</summary>
     public const int RoomFrameFooterWords = 160;
-    /// <summary>$82:9628 writes the selected area name starting at frame word 170.</summary>
-    public const int RoomLabelDestinationWord = 170;
     /// <summary>$82:9628 copies twelve area-label tile words.</summary>
     public const int RoomLabelWords = 12;
     /// <summary>$82:965F, twelve-word area label pointers in bank $82.</summary>

@@ -67,12 +67,4 @@ internal sealed class GameplayDisplayState
         new GameplayLatchedSceneRegisters(false, GameplayVramLayout.HudCharacterWord, default,
             LayerBlendingConfiguration.Unconfigured, null, null, 0),
         default, default, null, null);
-
-    /// <summary>The BG3 character region at the base BG34NBA currently selects (Kraid's room moves it to word $2000).</summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    internal VramRegion HudCharactersAtCurrentBase(SnesVram vram)
-    {
-        VramRegion ordinary = new GameplayVram(vram).HudCharacters;
-        return new VramStore(vram).All.Slice(GameplayHudCharacterBaseWord, ordinary.WordCount);
-    }
 }

@@ -1469,7 +1469,7 @@ internal static class LookupStream4Verification
                 AssertEqual(expected,tiles[index],"Independent template cell and all untouched neighbors");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8098cb+index*2),GameplayHudDefinitions.TemplateWord(index),"Exact native template word");
             }
-            AssertTrue(selected.TopRowTransfer.Span.SequenceEqual(stock.TopRowTransfer.Span),"Template edits leave immutable top row independent");
+            AssertTrue(selected.TopRow().SequenceEqual(stock.TopRow()),"Template edits leave immutable top row independent");
             if(edit is -1 or 390 or 570)
             {
                 var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug);
@@ -1500,16 +1500,14 @@ internal static class LookupStream4Verification
             using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Top row exact serialized content identity");
-            ReadOnlyMemory<byte> transfer=selected.TopRowTransfer;
-            AssertEqual(64,transfer.Length,"Existing native top-row DMA extent");
+            ushort[] row=selected.TopRow();
+            AssertEqual(32,row.Length,"Top row covers every HUD column");
             for(int column=0;column<32;column++)
             {
                 var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
-                AssertEqual(expected, SnesLittleEndian.Word(transfer.Span[column * 2], transfer.Span[column * 2 + 1]), "Every supplied top-row cell survives output packing");
+                AssertEqual(expected, row[column], "Every supplied top-row cell survives into the shown row");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),GameplayHudDefinitions.TopRowWord(column),"Native calculated top-row word");
             }
-            var vram=new SnesVram();vram.LoadBytes(0xb000,transfer.Span);
-            for(int index=0;index<64;index++)AssertEqual(transfer.Span[index],vram.Bytes[0xb000+index],"Existing top-row upload byte contract");
             ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.SequenceEqual(original),"Top-row edits leave mutable template independent");
         }
         foreach(int invalid in new[]{-1,32,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.TopRowWord(invalid),"Top-row column domain");
@@ -1521,7 +1519,7 @@ internal static class LookupStream4Verification
             for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
         }
 
-        Console.WriteLine("HUD top row:32native words/zero overrides,192independent edits/hash/193DMA outputs/template independence/bounds pass; native border source exported.");
+        Console.WriteLine("HUD top row:32native words/zero overrides,192independent edits/hash/193shown rows/template independence/bounds pass; native border source exported.");
     }
     /// <summary>Checks the complete auto-reserve HUD display assembled from its component cells.</summary>
     internal static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)

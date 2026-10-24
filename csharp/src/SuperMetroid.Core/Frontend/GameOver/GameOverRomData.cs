@@ -29,9 +29,8 @@ public static class GameOverRomData
     /// J/U v1.0 ROM and bank_81.asm match all ten immediates. The source words
     /// occupy $92DC..9303, $9304..9333, $9334..934B, $934C..939F, and
     /// $93A0..93E7; each has one final $FFFF, and streams 0, 3, and 4 contain
-    /// a $FFFE next-line command. Destinations $0156, $038A, $0414, $04CE,
-    /// and $05CE encode screen columns/rows (11,5), (5,14), (10,16),
-    /// (7,19), and (7,23) as 2*x+64*y. The loader and asset extractor both
+    /// a $FFFE next-line command. The elements start at screen columns/rows (11,5), (5,14), (10,16),
+    /// (7,19), and (7,23). The loader and asset extractor both
     /// walk these five bounded command streams. Named screen-element cases select
     /// the resource and destination directly, without persistent record storage.
     /// This is element selection, not a numerical curve or fitted stream-length rule.
@@ -44,11 +43,11 @@ public static class GameOverRomData
         /// <summary>Selects one native text element; unsupported selectors retain span-style rejection.</summary>
         public static GameOverTextStream Get(GameOverTextElement element) => element switch
         {
-            GameOverTextElement.Title => new(element, 0x0156, "GAME OVER"),
-            GameOverTextElement.Objective => new(element, 0x038a, "FIND THE METROID LARVA"),
-            GameOverTextElement.Prompt => new(element, 0x0414, "TRY AGAIN"),
-            GameOverTextElement.ReturnToGame => new(element, 0x04ce, "YES - RETURN TO GAME"),
-            GameOverTextElement.ReturnToTitle => new(element, 0x05ce, "NO - GO TO TITLE"),
+            GameOverTextElement.Title => new(element, new(11, 5), "GAME OVER"),
+            GameOverTextElement.Objective => new(element, new(5, 14), "FIND THE METROID LARVA"),
+            GameOverTextElement.Prompt => new(element, new(10, 16), "TRY AGAIN"),
+            GameOverTextElement.ReturnToGame => new(element, new(7, 19), "YES - RETURN TO GAME"),
+            GameOverTextElement.ReturnToTitle => new(element, new(7, 23), "NO - GO TO TITLE"),
             _ => throw new ArgumentOutOfRangeException(nameof(element)),
         };
 

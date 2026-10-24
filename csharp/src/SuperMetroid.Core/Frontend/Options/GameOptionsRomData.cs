@@ -154,27 +154,23 @@ public static class GameOptionsRomData
         }
     }
 
-    /// <summary>Controller-label source pointers and destination boxes from $82:F639.</summary>
+    /// <summary>Controller-label source pointers and label boxes from $82:F639.</summary>
     public static class ControllerLabels
     {
         /// <summary>Tile columns in each native controller-button label record; together with its two rows this occupies twelve bytes.</summary>
         public const int WidthInTiles = 3;
         /// <summary>Tile rows copied for each controller-button label, with source rows packed and destination rows separated by the page's $40-byte stride.</summary>
         public const int HeightInTiles = 2;
-        /// <summary>BG1 byte destination for each controller-action label, row 0..6.</summary>
+        /// <summary>The page cell of each controller-action label's upper-left tile, row 0..6.</summary>
         /// <remarks>
-        /// Independently reviewed and converted for #1165: GameOptionsMenu_TilemapOffsets at $82:F639 contains
-        /// seven little-endian words exactly $016E+$00C0*i for action row i=0..6.
-        /// Pinned NTSC J/U v1.0 ROM and bank_82.asm match all seven. Native uses
-        /// twice the row index to read the word; managed label drawing and asset
-        /// extraction use the same seven-row domain. The $C0-byte step places each
-        /// 3x2 label box three 32-word tilemap rows below the previous one.
-        /// The adjacent source-pointer region has its own rule. Invalid indices throw ArgumentOutOfRangeException.
+        /// GameOptionsMenu_TilemapOffsets at $82:F639 places action row i=0..6 at column 23 of tile row 5+3*i: each
+        /// 3x2 label box three tilemap rows below the previous one. Managed label drawing and asset extraction use
+        /// the same seven-row domain. Invalid indices throw ArgumentOutOfRangeException.
         /// </remarks>
-        public static ushort Destination(int action)
+        public static Position16<TilemapCells> Anchor(int action)
         {
             if ((uint)action >= Rows.ControllerActionCount) throw new ArgumentOutOfRangeException(nameof(action));
-            return (ushort)(0x16e + MenuTilemapWidth * sizeof(ushort) * 3 * action);
+            return new(23, checked((ushort)(5 + 3 * action)));
         }
         /// <summary>Bank-$82 source pointer for each assignable controller-button label.</summary>
         /// <remarks>

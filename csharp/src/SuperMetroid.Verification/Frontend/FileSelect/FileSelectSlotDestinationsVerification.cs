@@ -38,7 +38,7 @@ internal static class FileSelectSlotDestinationsVerification
         void VerifyField(bool dataPage, FileSelectSlotField field, int[] instructions)
         {
             Func<int, FileSelectSlotField, int> destination = dataPage
-                ? FileSelectLayout.DataSlotDestination : FileSelectLayout.MainSlotDestination;
+                ? FileSelectNativeLayout.DataSlotDestination : FileSelectNativeLayout.MainSlotDestination;
             for (int slot = 0; slot < 3; slot++)
             {
                 int instruction = instructions[slot];

@@ -50,8 +50,7 @@ public static class GameOptionsPresentationExtractor
         }
 
         Position16<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsRomData.Rows.ControllerActionCount)
-            .Select(GameOptionsRomData.ControllerLabels.Destination)
-            .Select(ByteOffsetPoint)
+            .Select(GameOptionsRomData.ControllerLabels.Anchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
             Enumerable.Range(0, GameOptionsRomData.LanguagePaletteRegionCount)
@@ -169,14 +168,6 @@ public static class GameOptionsPresentationExtractor
         for (int index = 0; index < result.Length; index++)
             result[index] = new(x, rowY(index));
         return result;
-    }
-
-    /// <summary>Converts a BG tilemap byte offset to its column and row in the options page.</summary>
-    private static Position16<TilemapCells> ByteOffsetPoint(ushort byteOffset)
-    {
-        int cell = byteOffset / sizeof(ushort);
-        return new(checked((ushort)(cell % GameOptionsRomData.MenuTilemapWidth)),
-            checked((ushort)(cell / GameOptionsRomData.MenuTilemapWidth)));
     }
 
     /// <summary>Expands a native byte span into consecutive tile-cell indices.</summary>

@@ -16,15 +16,10 @@ public sealed class HudState
 {
     /// <summary>Number of eight-pixel BG3 cells per HUD row, matching the native 32-word tilemap stride.</summary>
     public const int WidthInTiles = 32;
-    /// <summary>Number of mutable HUD rows uploaded each gameplay update, excluding the preceding static row.</summary>
+    /// <summary>Number of mutable HUD rows the gameplay update rewrites, excluding the preceding static row.</summary>
     public const int MutableRowCount = 3;
     /// <summary>Ninety-six mutable BG3 tile words, stored row-major across the three 32-cell HUD rows.</summary>
     public const int MutableTileCount = WidthInTiles * MutableRowCount;
-    /// <summary>$00C0 bytes in the little-endian mutable HUD upload, two bytes for each of the ninety-six tile words.</summary>
-    public const int MutableByteCount = MutableTileCount * 2;
-    /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
-    [PpuLayoutBoundary("rendering view: the HUD's mutable BG3 rows, one row below the BG3 tilemap base")]
-    public static ushort VramDestination => GameplayVramLayout.HudTilemapWord + WidthInTiles;
 
     /// <summary>Three mutable BG3 HUD rows in native row-major tilemap order.</summary>
     internal readonly ushort[] Tiles = new ushort[MutableTileCount];
@@ -150,9 +145,10 @@ public sealed class HudState
 
     /// <summary>
     /// Replays the mutable counter portion of <c>$80:9B44</c> from live Samus state. The
-    /// three-row HUD upload runs every gameplay frame; initialization is not the sole owner
-    /// of the energy digits. Keeping this update beside <see cref="QueueUpload"/> prevents
-    /// enemy damage from changing physics state while the visible HUD remains frozen at 99.
+    /// three rows are rewritten every gameplay frame and the next accepted frame shows them;
+    /// initialization is not the sole owner of the energy digits. Updating them on every
+    /// gameplay pass prevents enemy damage from changing physics state while the visible
+    /// HUD remains frozen at 99.
     /// </summary>
     [IndependentFlag("Time freeze and sound suppression are separate runtime states supplied by the frame.")]
     public void UpdateGameplayCounters(
@@ -303,18 +299,6 @@ public sealed class HudState
             int center = presentation?.MinimapCellIndex(centerCell) ?? NativeMinimapCellIndex(centerCell);
             Tiles[center] = (ushort)new MapTileWord(Tiles[center]).WithLocationBlink();
         }
-    }
-
-    /// <summary>
-    /// Appends the seven-byte VRAM queue entry constructed at <c>$80:9CC3-$80:9CE9</c>. It reads these
-    /// rows when the queue drains, as the cartridge's NMI DMA reads them at <c>$7E:C608</c>.
-    /// </summary>
-    public void QueueUpload(VramWriteQueue queue)
-    {
-        Ensure.NotNull(queue);
-        if (!IsInitialized)
-            throw new InvalidOperationException("Initialize the HUD before queueing its tilemap.");
-        queue.EnqueueWords(MutableByteCount, GameplayHudDefinitions.MutableTilemapNativeAddress, Tiles, HudVram.HudMutableRowsDma);
     }
 
     /// <summary>Updates energy digits and tanks through the installed HUD artwork.</summary>

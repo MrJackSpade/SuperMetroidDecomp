@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.FileSelect;
+namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>Distinct fields in each native file-select save-slot panel.</summary>
 internal enum FileSelectSlotField

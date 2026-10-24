@@ -15,7 +15,7 @@ internal static class GameOverTextLookupsVerification
 
     /// <summary>Checks destination offsets in the five $A2 load instructions.</summary>
     internal static void VerifyGameOverTextDestinations(ISnesAddressSpace rom) =>
-        Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => stream.DestinationByteOffset, "destination"));
+        Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => (stream.Origin.Y * GameOverRomData.TilemapWidth + stream.Origin.X) * sizeof(ushort), "destination"));
 
     /// <summary>Compares selector and enumeration order with retail immediates and rejects invalid selectors.</summary>
     private static void VerifyGameOverTextField(ISnesAddressSpace rom, int fieldOffset,

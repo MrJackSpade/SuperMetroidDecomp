@@ -15,6 +15,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 [CpuBusBoundary("codec: ROM world map layers and room-map frames → map screen resources")]
 public static class MapScreenExtractor
 {
+    /// <summary>The frame word $82:9628 writes the selected area name from.</summary>
+    private const int RoomLabelFirstWord = 170;
+
     /// <summary>Builds the thirteen final world-map/room-frame tilemap pages and exports their shared foreground/background character atlases.</summary>
     /// <param name="bus">Import-capable cartridge source for bank-$81/$82 menu layers, room-frame header/footer/labels, and bank-$8E planar characters.</param>
     /// <returns>A new filename-keyed dictionary of owned buffers: versioned map-screen JSON, a 128-by-344 four-bit foreground PNG, and a 128-by-48 two-bit background PNG.</returns>
@@ -37,7 +40,7 @@ public static class MapScreenExtractor
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomFrameFooter + 2, FileSelectMapRomData.RoomFrameFooterWords * 2).CopyTo(frame, FileSelectMapRomData.RoomFrameHeaderWords * 2);
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.AreaLabelPointerTable + index * 2);
             for (int word = 0; word < FileSelectMapRomData.RoomLabelWords; word++)
-                BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((FileSelectMapRomData.RoomLabelDestinationWord + word) * 2),
+                BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((RoomLabelFirstWord + word) * 2),
                     (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (label + word * 2)) & FileSelectMapRomData.RoomLabelMask));
             Add(MapScreenDefinitions.RoomFrame(area), frame, MapTileAtlasFormat.TileColumns);
         }

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -96,10 +97,9 @@ internal static class ReserveAutoFrontendVerification
         samus.HealthWarning.Update(99, audio);
         samus.Health = 0; samus.ReserveEnergy = 33;
         // Seed the display at the pre-transfer health. Each subsequent gameplay
-        // pass queues its HUD update for the next accepted NMI, including while
+        // pass updates the HUD for the next accepted NMI to latch, including while
         // automatic recovery freezes movement. Inspect presentation, not just HP.
         runtime.Hud.UpdateGameplayCounters(samus);
-        runtime.Hud.QueueUpload(runtime.VramWrites);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, Rgba32[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
@@ -127,7 +127,7 @@ internal static class ReserveAutoFrontendVerification
             var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot);
             foreach ((int index, int digit) in new[] { new VerifyReserveAutoFrontendCase(70, frame / 10), new VerifyReserveAutoFrontendCase(71, frame % 10) })
             {
-                AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.Vram.ReadWord(HudState.VramDestination + index),
+                AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.AcceptedLayer3Plane.Words[Layer3Plane.Columns + index],
                     "automatic refill digit becomes visible on the following accepted NMI");
             }
             var onesPixels = Enumerable.Range(24, 8).SelectMany(y =>
@@ -150,7 +150,7 @@ internal static class ReserveAutoFrontendVerification
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "presentation sequence returns to gameplay");
         foreach ((int index, int offset) in new[] { new VerifyReserveAutoFrontendCase(8, 0), new VerifyReserveAutoFrontendCase(9, 2), new VerifyReserveAutoFrontendCase(40, 4), new VerifyReserveAutoFrontendCase(41, 6), new VerifyReserveAutoFrontendCase(72, 8), new VerifyReserveAutoFrontendCase(73, 10) })
         {
-            AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.Vram.ReadWord(HudState.VramDestination + index),
+            AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.AcceptedLayer3Plane.Words[Layer3Plane.Columns + index],
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
         samus.HealthWarning.Update(30, audio);

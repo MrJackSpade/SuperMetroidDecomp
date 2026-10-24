@@ -156,8 +156,8 @@ internal sealed class SuperMetroidRuntime
         Freeze = new GameplayTimeFreeze(Player);
         Tester = new TesterTools(Cgram, Player, System);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Cgram, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze, VramWrites = VramWrites };
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player, Vram = Vram, VramWrites = VramWrites });
-        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Room = Room, Hud = Hud, Player = Player, VramWrites = VramWrites});
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player, VramWrites = VramWrites });
+        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room, VramWrites = VramWrites });
         GameplayWindows = new GameplayWindowRegisters(Room);
         Bg2TilemapStaging = new Bg2TilemapStaging();
         Xray = new XrayReveal(BackgroundScroll, Room, System, Bg2TilemapStaging);
@@ -173,7 +173,7 @@ internal sealed class SuperMetroidRuntime
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, Backgrounds = BgArtwork, VramWrites = VramWrites});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
-        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System, VramWrites = VramWrites});
+        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Cgram = Cgram, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup, VramWrites = VramWrites});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System, VramWrites = VramWrites});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Cgram = Cgram, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System });
@@ -751,7 +751,7 @@ internal sealed class SuperMetroidRuntime
         RunEscapeTimerHandler(frameTail);
         Sprites.FinalizeFrame();
 
-        QueueHudUpload(infiniteAmmoGuard);
+        UpdateHud(infiniteAmmoGuard);
         RunRoomMains(policy);
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the
@@ -927,12 +927,11 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Rebuilds the HUD counters and appends the HUD upload ($80:9B44).</summary>
-    private void QueueHudUpload(HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+    /// <summary>Rebuilds the HUD counters ($80:9B44); the next accepted frame shows the rows as it latches them.</summary>
+    private void UpdateHud(HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
-        // $80:9B44 appends the mutable three-row HUD upload during main-thread logic; it
-        // becomes visible when the next accepted NMI drains this queue. The first frame's
-        // initialization upload has already been consumed earlier in this StepFrame call.
+        // $80:9B44 rewrites the mutable three HUD rows during main-thread logic; they become visible at the next
+        // accepted NMI, which latches them for the BG3 plane (AcceptedFrameBoundary.CaptureLayer3Plane).
         if (Hud.IsInitialized)
         {
             // The loan exists only so cartridge firing logic does not observe zero and
@@ -940,7 +939,7 @@ internal sealed class SuperMetroidRuntime
             // live counters into HUD tile words; publishing first made the on-screen
             // minimum read two even though Snapshot later restored the actor to one.
             infiniteAmmoGuard.Complete(Player.Samus);
-            // `$80:9B44` rebuilds live energy/ammo words before appending the HUD transfer.
+            // `$80:9B44` rebuilds live energy/ammo words every gameplay frame.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next accepted NMI.
             // Native PLM_Handler has not returned while a pickup message is open.
@@ -948,7 +947,6 @@ internal sealed class SuperMetroidRuntime
             if (Player.Samus is not null && !Room.LoadedScope.Plms.CollectiblePlms.HasPendingCollectibleMessage)
                 Hud.UpdateGameplayCounters(Player.Samus, Freeze.TimeIsFrozen,
                     soundSuppressed: Room.LoadedScope.BombProjectiles.PowerBombExplosion.IsActive);
-            Hud.QueueUpload(VramWrites);
         }
     }
 

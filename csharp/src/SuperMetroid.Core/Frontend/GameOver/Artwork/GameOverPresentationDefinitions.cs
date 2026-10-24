@@ -59,9 +59,8 @@ public static class GameOverPresentationDefinitions
         {
             var element = (GameOverTextElement)index;
             GameOverTextStream stream = GameOverRomData.Text.Get(element);
-            int origin = stream.DestinationByteOffset / sizeof(ushort);
-            int column = cell % GameOverRomData.TilemapWidth - origin % GameOverRomData.TilemapWidth;
-            int row = cell / GameOverRomData.TilemapWidth - origin / GameOverRomData.TilemapWidth;
+            int column = cell % GameOverRomData.TilemapWidth - stream.Origin.X;
+            int row = cell / GameOverRomData.TilemapWidth - stream.Origin.Y;
             if (column < 0 || row is < 0 or > 1) continue;
             switch (element)
             {

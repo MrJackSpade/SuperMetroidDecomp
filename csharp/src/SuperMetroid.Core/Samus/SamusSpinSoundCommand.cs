@@ -12,14 +12,14 @@ internal static class SamusSpinSoundCommand
         var movement = SamusPoseMetadata.ReadMovementType(samus);
         if (movement == SamusMovementType.WallJumping)
             return samus.AnimationFrame >= SamusSpinSoundFrames.ScrewAttack
-                ? SoundEffectLibrary1Sounds.ScrewAttack
+                ? Library1Sound.ScrewAttack
                 : samus.AnimationFrame >= SamusSpinSoundFrames.SpaceJump
-                    ? SoundEffectLibrary1Sounds.SpaceJump : SoundEffectLibrary1Sounds.SpinJump;
+                    ? Library1Sound.SpaceJump : Library1Sound.SpinJump;
         if (movement != SamusMovementType.SpinJumping)
             return null;
         return samus.Pose is SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose
-            ? SoundEffectLibrary1Sounds.ScrewAttack
+            ? Library1Sound.ScrewAttack
             : SamusPoseMetadata.IsSpaceJumpPose(samus.Pose)
-                ? SoundEffectLibrary1Sounds.SpaceJump : SoundEffectLibrary1Sounds.SpinJump;
+                ? Library1Sound.SpaceJump : Library1Sound.SpinJump;
     }
 }

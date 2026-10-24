@@ -55,7 +55,7 @@ public static class SamusHurtFlashPalette
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseId.KnockbackLeftPose))
         {
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 53), maximumQueued: 6);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SamusDamaged, maximumQueued: 6);
         }
 
         // Only calls one through six write colors. Odd calls select the fixed hurt palette;
@@ -121,7 +121,7 @@ public static class SamusHurtFlashPalette
         bool queued = (controllerInput & SnesButton.X) != 0;
         if (queued)
         {
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ResumeChargingBeam, maximumQueued: 9);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, maximumQueued: 9);
         }
 
         samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.Clear;
@@ -141,9 +141,9 @@ public static class SamusHurtFlashPalette
             if (SamusSpinSoundCommand.Select(samus) is { } sound)
             {
                 samus.LiquidPhysics.QueueMovementSound(sound, maximumQueued: 9);
-                return sound == SoundEffectLibrary1Sounds.ScrewAttack
+                return sound == Library1Sound.ScrewAttack
                     ? SamusHurtFlashRecoveryAction.ScrewAttackSound
-                    : sound == SoundEffectLibrary1Sounds.SpaceJump
+                    : sound == Library1Sound.SpaceJump
                         ? SamusHurtFlashRecoveryAction.SpaceJumpSound
                         : SamusHurtFlashRecoveryAction.SpinJumpSound;
             }
@@ -170,7 +170,7 @@ public static class SamusHurtFlashPalette
         if (!grappleSoundActive)
             return SamusHurtFlashRecoveryAction.None;
 
-        samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 6), maximumQueued: 9);
+        samus.LiquidPhysics.QueueMovementSound(Library1Sound.Grappling, maximumQueued: 9);
         return SamusHurtFlashRecoveryAction.GrappleSound;
     }
 

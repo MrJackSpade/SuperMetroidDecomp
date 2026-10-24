@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Runtime;
 public sealed class RuntimeFrameAudio : ISamusFrameAudio
 {
     /// <summary>Captures only the audio callbacks admitted by a named frame scenario.</summary>
-    private RuntimeFrameAudio(Func<ushort>? queueEchoSound, Action? checkLowHealth)
+    private RuntimeFrameAudio(Func<SoundQueueAdmission>? queueEchoSound, Action? checkLowHealth)
     {
         QueueEchoSound = queueEchoSound;
         CheckLowHealth = checkLowHealth;
@@ -21,25 +21,25 @@ public sealed class RuntimeFrameAudio : ISamusFrameAudio
     public static RuntimeFrameAudio Deferred { get; } = new(null, null);
 
     /// <summary>
-    /// Gameplay with an attached queue: the echo is queued synchronously, its accumulator selecting
+    /// Gameplay with an attached queue: the echo is queued synchronously, what the queue did with it selecting
     /// the reset tables, and the admitted low-health check runs after Samus's periodic damage.
     /// </summary>
-    public static RuntimeFrameAudio Gameplay(Func<ushort> queueEchoSound, Action checkLowHealth) =>
+    public static RuntimeFrameAudio Gameplay(Func<SoundQueueAdmission> queueEchoSound, Action checkLowHealth) =>
         new(Ensure.NotNull(queueEchoSound),
             Ensure.NotNull(checkLowHealth));
 
     /// <summary>Attract playback: the echo is queued synchronously and no low-health check runs.</summary>
-    public static RuntimeFrameAudio EchoOnly(Func<ushort> queueEchoSound) =>
+    public static RuntimeFrameAudio EchoOnly(Func<SoundQueueAdmission> queueEchoSound) =>
         new(Ensure.NotNull(queueEchoSound), null);
 
-    /// <summary>The synchronous echo call, returning its accumulator; none publishes the echo after the frame.</summary>
-    internal Func<ushort>? QueueEchoSound { get; }
+    /// <summary>The synchronous echo call, returning what the queue did with it; none publishes the echo after the frame.</summary>
+    internal Func<SoundQueueAdmission>? QueueEchoSound { get; }
 
     /// <summary>The admitted low-health check; none when this scenario makes no check.</summary>
     internal Action? CheckLowHealth { get; }
 
     /// <inheritdoc/>
-    Func<ushort>? ISamusFrameAudio.QueueEchoSound => QueueEchoSound;
+    Func<SoundQueueAdmission>? ISamusFrameAudio.QueueEchoSound => QueueEchoSound;
 
     /// <inheritdoc/>
     Action? ISamusFrameAudio.CheckLowHealth => CheckLowHealth;

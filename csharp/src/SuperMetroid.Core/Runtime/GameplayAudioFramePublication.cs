@@ -23,14 +23,14 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (roomSounds < room.Count)
         {
             var request = room[roomSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         }
         var palette = runtime.Room.LoadedScope.PaletteFx.SoundRequests;
         while (paletteSounds < palette.Count)
         {
             var request = palette[paletteSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         }
         var music = runtime.Room.LoadedScope.PaletteFx.MusicRequests;
@@ -45,7 +45,7 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         // Consume the request so the next frontend frame cannot replay the old flag.
         if (!selectionPublished && runtime.Hud.ConsumeSelectionSoundRequest())
         {
-            audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.HudWeaponSelect, 6,
+            audio.QueueSound(Library1Sound.HudWeaponSelect, 6,
                 soundSuppressed: runtime.Hud.SelectionSoundSuppressedThisFrame);
             selectionPublished = true;
         }
@@ -53,17 +53,17 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (liquidSounds < liquid.Count)
         {
             var request = liquid[liquidSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         }
     }
 
-    /// <summary>Executes the native Max6 sound call, preserving its accumulator result.</summary>
-    public ushort QueueEcho(SuperMetroidRuntime runtime)
+    /// <summary>Executes the native Max6 sound call, returning what the queue did with the echo.</summary>
+    public SoundQueueAdmission QueueEcho(SuperMetroidRuntime runtime)
     {
         PublishPrefix(runtime);
-        return audio.QueueSoundAndGetAccumulator(
-            SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6,
+        return audio.QueueSound(
+            Library3Sound.SpeedBooster, 6,
             soundSuppressed: runtime.AttractDemo.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
 

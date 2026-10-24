@@ -321,7 +321,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         // SolidVerticalCollision_WallJumpTriggered queues library-three sound five with a
         // six-entry threshold after clearing the base-speed words and before pose setup.
-        samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary3Sounds.WallJump, maximumQueued: 6);
+        samus.LiquidPhysics.QueueMovementSound(Library3Sound.Landing, maximumQueued: 6);
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);
@@ -753,17 +753,17 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
         {
             if (start != SpinPoseStart.SkipFirstFrame)
-                samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ScrewAttack, maximumQueued: 6);
+                samus.LiquidPhysics.QueueMovementSound(Library1Sound.ScrewAttack, maximumQueued: 6);
             return facingLeft ? SamusPoseId.ScrewAttackLeftPose : SamusPoseId.ScrewAttackRightPose;
         }
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump))
         {
             // Unlike ordinary/Screw Attack spins, native also queues this on reversal.
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.SpaceJump, maximumQueued: 6);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpaceJump, maximumQueued: 6);
             return facingLeft ? SamusPoseId.SpaceJumpLeftPose : SamusPoseId.SpaceJumpRightPose;
         }
         if (start != SpinPoseStart.SkipFirstFrame && !samus.LiquidPhysics.CinematicFunctionActive)
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.SpinJump, maximumQueued: 6);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpinJump, maximumQueued: 6);
         return genericPose;
     }
 

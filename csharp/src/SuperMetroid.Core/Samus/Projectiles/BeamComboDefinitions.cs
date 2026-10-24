@@ -14,10 +14,10 @@ public static class BeamComboDefinitions
     public const int WaveSpeedLimit = 2048;
     /// <summary>ProjPreInstr_WaveSba ($90:DA08) per-frame acceleration, in signed 8.8 units.</summary>
     public const int WaveAcceleration = 64;
-    /// <summary>$90:DA17 library-one Wave particle removal request.</summary>
-    public const ushort WaveRemovalSound = 0x29;
-    /// <summary>ProjPreInstr_WaveSba ($90:DA08) library-one oscillator pulse request.</summary>
-    public const ushort WavePulseSound = 0x28;
+    /// <summary>$90:DA17: the sound of a Wave particle's removal.</summary>
+    public static readonly SoundEffectId WaveRemovalSound = Library1Sound.WaveSpecialAttackEnd;
+    /// <summary>ProjPreInstr_WaveSba ($90:DA08): the sound of the oscillator's pulse.</summary>
+    public static readonly SoundEffectId WavePulseSound = Library1Sound.WaveSpecialAttack;
     /// <summary>FireSBA's charged, non-interacting projectile type tag.</summary>
     public const ushort ProjectileTag = SamusProjectileTypeWord.LiveMarker | SamusProjectileTypeWord.ChargedBeamMarker;
     /// <summary>FireSpazerSBA's auxiliary trail projectile type.</summary>

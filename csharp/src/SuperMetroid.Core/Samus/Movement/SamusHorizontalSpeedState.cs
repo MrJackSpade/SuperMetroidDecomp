@@ -277,7 +277,7 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="animationFrame">Current animation frame, reset to zero only when this call consumes the command.</param>
     /// <param name="animationFrameTimer">Zero when the command is not consumed; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="queueEchoSound">
-    /// Synchronous native sound call, returning its accumulator after queue mutation.
+    /// Synchronous native sound call, returning what the queue did with the echo.
     /// Supplying it reproduces the cartridge's queue-dependent table selection and
     /// replaces deferred sound publication. Null retains the legacy deferred path;
     /// standalone callers can omit it when no cartridge audio queue is attached.
@@ -289,7 +289,7 @@ public sealed class SamusHorizontalSpeedState
         int animationFrameBuffer,
         ref ushort animationFrame,
         out ushort animationFrameTimer,
-        Func<ushort>? queueEchoSound = null)
+        Func<SoundQueueAdmission>? queueEchoSound = null)
     {
         animationFrameTimer = 0;
         const SnesButton dashButton = SnesButton.B;
@@ -306,6 +306,7 @@ public sealed class SamusHorizontalSpeedState
             return false;
 
         int tableSelection = SpeedBoostCounter.RawValue;
+        byte? echoSelection = null;
         if (!SpeedBoostCounter.HasActiveStageBit)
         {
             // Without the fourth-stage bit the counter is below 64512, so one more stage
@@ -319,16 +320,16 @@ public sealed class SamusHorizontalSpeedState
                     EchoSoundRequested = true;
                 else
                 {
-                    // The cartridge does not preserve A across its sound call.
-                    // Its high byte selects BOTH reset tables, independently of
-                    // the stage word already stored above. Do not clamp this
-                    // index: queue occupancy five reads adjacent native data.
-                    tableSelection = queueEchoSound();
+                    // The cartridge does not preserve A across its sound call: what the
+                    // call leaves there selects BOTH reset tables, independently of the
+                    // stage word already stored above. Do not clamp this selection:
+                    // queue occupancy five reads adjacent native data.
+                    echoSelection = SamusRunningCadenceDefinitions.EchoQueueSelection(queueEchoSound());
                 }
             }
         }
 
-        byte stage = SnesLittleEndian.HighByte(tableSelection);
+        byte stage = echoSelection ?? SnesLittleEndian.HighByte(tableSelection);
         ushort nextCadence = SamusRunningCadenceDefinitions.ReadResetWord(stage);
         SpeedBoostCounter = SpeedBoostCounter.WithCadenceWord(nextCadence);
 

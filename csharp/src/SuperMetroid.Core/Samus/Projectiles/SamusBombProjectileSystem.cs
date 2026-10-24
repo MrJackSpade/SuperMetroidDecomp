@@ -167,7 +167,7 @@ public sealed class SamusBombProjectileSystem
             if (beamChargeConsumed)
             {
                 soundRequests.Add(new SoundRequest(
-                    SoundEffectLibrary1Sounds.CancelAll,
+                    Library1Sound.Silence,
                     MaximumQueued: 9,
                     SoundSuppressed: PowerBombExplosion.IsActive));
             }
@@ -205,7 +205,7 @@ public sealed class SamusBombProjectileSystem
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
                 soundRequests.Add(new SoundRequest(
-                    SoundEffectLibrary2Sounds.BombExplosion,
+                    Library2Sound.BombExplosion,
                     MaximumQueued: 6,
                     SoundSuppressed: PowerBombExplosion.IsActive));
             }
@@ -216,7 +216,7 @@ public sealed class SamusBombProjectileSystem
                 // allocating the two HDMA objects. Publish it from the same frame that
                 // Spawn installs the semantic bank-$88 owner.
                 soundRequests.Add(new SoundRequest(
-                    SoundEffectLibrary1Sounds.PowerBombExplosion,
+                    Library1Sound.PowerBombExplosion,
                     MaximumQueued: 15,
                     SoundSuppressed: soundSuppressedBeforePreInstruction));
             }
@@ -329,7 +329,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
         if (samus.ProjectileFlareCounter >= ChargeSoundFlareThreshold)
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ResumeChargingBeam, maximumQueued: 9);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, maximumQueued: 9);
     }
 
     /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>

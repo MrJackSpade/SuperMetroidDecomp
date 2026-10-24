@@ -40,10 +40,23 @@ internal static class SamusRunningCadenceDefinitions
     /// <summary>Each native running cadence stream has ten frames followed by the $FF loop instruction.</summary>
     private const int StreamLength = 11;
     /// <summary>
-    /// The maximum high-byte selector the real Max6 echo queue can return: admitted
-    /// occupancy zero through five, or rejected sound ID three.
+    /// The maximum selector the real Max6 echo queue can return: admitted
+    /// occupancy zero through five, or the rejected selection.
     /// </summary>
     internal const byte MaximumSoundQueueSelection = 5;
+
+    /// <summary>
+    /// The selection a rejected echo leaves: the cartridge's queue call returns the rejected request itself where
+    /// an admitted call returns the occupancy, and the Speed Booster echo is library three's third request.
+    /// </summary>
+    private const byte RejectedEchoSelection = 3;
+
+    /// <summary>
+    /// The cadence and reset selection the Speed Booster echo's queue call leaves (<c>$90:85A6</c>): the occupancy
+    /// the call saw when admitted, or <see cref="RejectedEchoSelection"/> when the queue already held six requests.
+    /// </summary>
+    internal static byte EchoQueueSelection(SoundQueueAdmission admission) =>
+        admission.IsAdmitted ? checked((byte)admission.Occupancy) : RejectedEchoSelection;
 
     /// <summary>
     /// Resolves the speed-stage cadence selected by `$90:853E`. Selection five is the

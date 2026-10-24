@@ -10,10 +10,10 @@ public sealed class SamusHealthWarningState
     private const int MaximumQueuedSounds = 6;
 
     /// <summary>The library-three sound that starts the critical-energy warning.</summary>
-    private static readonly SoundEffectId Start = new(SoundEffectLibrary.Library3, 2);
+    private static readonly SoundEffectId Start = Library3Sound.LowHealthBeep;
 
     /// <summary>The library-three sound that stops the critical-energy warning.</summary>
-    private static readonly SoundEffectId Stop = new(SoundEffectLibrary.Library3, 1);
+    private static readonly SoundEffectId Stop = Library3Sound.Silence;
 
     /// <summary>The latch, not confirmation that a sound voice actually started.</summary>
     public bool IsActive { get; private set; }
@@ -32,7 +32,7 @@ public sealed class SamusHealthWarningState
         // Power Bomb can suppress the sound while retaining this transition, and a
         // later call at unchanged health must not invent a retry of the lost request.
         if (!critical) IsActive = false;
-        audio.QueueSoundAndGetAccumulator(critical ? Start : Stop, MaximumQueuedSounds, soundSuppressed);
+        audio.QueueSound(critical ? Start : Stop, MaximumQueuedSounds, soundSuppressed);
         if (critical) IsActive = true;
     }
 }

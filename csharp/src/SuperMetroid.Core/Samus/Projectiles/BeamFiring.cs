@@ -161,10 +161,10 @@ internal sealed class BeamFiring
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
-                    return new(null, SoundEffectLibrary1Sounds.ChargeBeamStart, MaximumQueued: 9);
+                    return new(null, Library1Sound.ChargingBeam, MaximumQueued: 9);
                 }
             }
-            else if (_combos.TryActivateCombo(samus, sharedProjectiles, out ushort comboSound))
+            else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
             {
                 // Native tries FireSBA only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
@@ -172,7 +172,7 @@ internal sealed class BeamFiring
                 _charge.FlareCounter = 0;
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
-                return new(null, LibraryOneRequest(comboSound), 6);
+                return new(null, comboSound, 6);
             }
             return new(null, null, 0);
         }
@@ -212,16 +212,10 @@ internal sealed class BeamFiring
 
         return _charge.PreviousBeamChargeCounter >=
             BeamChargeDefinitions.ChargeSoundStartCounter
-            ? new(null, SoundEffectLibrary1Sounds.CancelAll, MaximumQueued: 15)
+            ? new(null, Library1Sound.Silence, MaximumQueued: 15)
             : new(null, null, 0);
     }
 
-    /// <summary>
-    /// The library-one sound a firing table or combo request names. The cartridge's zero request queues nothing, so
-    /// it becomes no sound.
-    /// </summary>
-    private static SoundEffectId? LibraryOneRequest(ushort request) =>
-        request == 0 ? null : SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, request);
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
     internal BeamShot TryFireBeam(
@@ -307,7 +301,7 @@ internal sealed class BeamFiring
                 : SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTableDefinitions.AutoFireCooldowns + beamType.TableIndex);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
-        SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType));
+        SoundEffectId? sound = SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType);
         if (charged)
             _charge.ChargedShotGlowTimer = WrappingCountdown.Start(4);
 
@@ -405,8 +399,8 @@ internal sealed class BeamFiring
         _charge.StartHyperBeamFlare();
         _charge.FlareCounter = 1 << 15;
 
-        SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(
-            charged: true, hyperBeamType));
+        SoundEffectId? sound = SamusProjectileSoundRoutingDefinitions.Resolve(
+            charged: true, hyperBeamType);
         return new BeamShot(slotIndex, sound);
     }
 
@@ -494,9 +488,9 @@ internal sealed class BeamFiring
         }
         else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
             samus.SelectedHudItem = HudItem.Beam;
-        return new BeamShot(slotIndex, LibraryOneRequest(isSuperMissile
+        return new BeamShot(slotIndex, isSuperMissile
             ? SamusProjectileSoundRoutingDefinitions.SuperMissileRequest
-            : SamusProjectileSoundRoutingDefinitions.MissileRequest));
+            : SamusProjectileSoundRoutingDefinitions.MissileRequest);
     }
 
     /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>

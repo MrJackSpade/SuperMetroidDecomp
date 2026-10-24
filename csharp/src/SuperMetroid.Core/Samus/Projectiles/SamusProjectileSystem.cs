@@ -431,7 +431,7 @@ public sealed class SamusProjectileSystem
                 SamusProjectilePreInstruction.SpazerCombo or SamusProjectilePreInstruction.SpazerComboFalling or
                 SamusProjectilePreInstruction.PlasmaCombo)
             {
-                ushort comboSound = 0;
+                SoundEffectId? comboSound = null;
                 if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward)
                     comboSound = Combos.StepIceCombo(samus, slot, sharedProjectiles, layer1);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
@@ -440,9 +440,9 @@ public sealed class SamusProjectileSystem
                     Combos.StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
                 else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, layer1.Y);
                 projectileDeleted |= !slot.IsActive;
-                if (comboSound != 0)
+                if (comboSound is SoundEffectId sound)
                     (comboSounds ??= []).Add(new SoundRequest(
-                        SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, comboSound), 6,
+                        sound, 6,
                         SoundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive));
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)

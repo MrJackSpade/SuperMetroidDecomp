@@ -278,8 +278,6 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Combines gameplay BG2, captured BG3, windows, and HDMA layer enables for X-Ray color math.</summary>
     private unsafe void DispatchGameplayColorMath(LayeredScene scene, GameplayColorMathRenderLayer layer)
     {
-        if (layer.Gameplay.View.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)
-            throw new NotSupportedException("Combining captured hardware windows with GPU gameplay color math is not translated.");
         var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayGameplay;
@@ -288,11 +286,11 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[4] = unchecked((ushort)(r.Bg1Scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
         data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
-        data[9] = (uint)layer.ColorMath;
-        data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
+        data[9] = (uint)layer.Blend.Layers;
+        data[10] = (uint)layer.Blend.FixedColor.Red; data[11] = (uint)layer.Blend.FixedColor.Green; data[12] = (uint)layer.Blend.FixedColor.Blue;
         // BG1 is always the room's; BG2 is what the room publishes for it (#1403).
         data[14] = D3D11RoomSources.Bg2Of(layer.Gameplay.Rooms);
-        data[22] = layer.AddSubscreen ? 1u : 0u;
+        data[22] = layer.Blend.BlendsWithSubscreen ? 1u : 0u;
         data[26] = 224;
         data[27] = (uint)r.Bg2Mosaic.Size;
         // Subscreen descriptor: none, captured BG3, or gameplay BG2 registers.
@@ -317,7 +315,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
                 ? r.MainScreenLayers : layer.Gameplay.MainScreenLayersByLine[line];
             // Draygon's TM HDMA still suppresses repeated BG2 art while X-Ray owns color math.
-            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~SnesMainScreenLayers.Bg2;
+            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~ScreenLayers.Bg2;
             data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
             if (layer.Subscreen is { } bg3)
                 data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
@@ -377,7 +375,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // Preserve the Mode-1 priority ladder. Resolving OAM before these passes
         // prevents a hidden higher-index sprite from reappearing at another rank.
         int first = SnesPpuLayout.GameplayHudHeightPixels, end;
-        SnesMainScreenLayers activeLayers;
+        ScreenLayers activeLayers;
         while (first < SnesPpuLayout.ScreenHeightPixels)
         {
             activeLayers = layer.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
@@ -389,25 +387,25 @@ public sealed class D3D11FrameRenderer : IDisposable
             Objects(2); Background2(true); Background1(true); Objects(3);
             first = end;
         }
-        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg3 });
+        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels });
 
         void Objects(uint priority)
         {
-            if ((activeLayers & SnesMainScreenLayers.Obj) != 0)
-                DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)first, EndScanline = (uint)end, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Obj });
+            if ((activeLayers & ScreenLayers.Sprites) != 0)
+                DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background1(bool high)
         {
-            if ((activeLayers & SnesMainScreenLayers.Bg1) != 0)
-                DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg1, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg1 });
+            if ((activeLayers & ScreenLayers.Bg1) != 0)
+                DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg1, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background2(bool high)
         {
-            if ((activeLayers & SnesMainScreenLayers.Bg2) != 0) DispatchGameplayBg2(layer, high, first, end);
+            if ((activeLayers & ScreenLayers.Bg2) != 0) DispatchGameplayBg2(layer, high, first, end);
         }
     }
 
-    /// <summary>Draws one BG2 priority band with HDMA scroll, mosaic, and window masking.</summary>
+    /// <summary>Draws one BG2 priority band with HDMA scroll and mosaic.</summary>
     private unsafe void DispatchGameplayBg2(OrdinaryGameplayRenderLayer layer, bool high, int first, int end)
     {
         var r = layer.View;
@@ -419,7 +417,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
         // Header word 27 is the BG4 gameplay mosaic width (zero elsewhere).
         data[27] = (uint)r.Bg2Mosaic.Size;
-        SetWindowConstants(data, r.Windows, r.MainScreenWindowMask, SnesWindowTarget.Bg2);
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)
         {
             int line = y - SnesPpuLayout.GameplayHudHeightPixels;
@@ -630,7 +627,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
         data[14] = (uint)tile.RoomSource | tile.ScreenTable << 16;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
-        SetWindowConstants(data, tile.Windows, tile.WindowMask, tile.WindowTarget);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -736,29 +732,5 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShaderResource(3, roomLevels.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
-    }
-
-    /// <summary>Packs the selected BG or OBJ window logic, edges, and enable bit when active.</summary>
-    private static void SetWindowConstants(Span<uint> data, SnesWindowRegisters windows,
-        SnesMainScreenLayers enabled, SnesWindowTarget target)
-    {
-        int index = (int)target;
-        if (index > (int)SnesWindowTarget.Obj)
-            throw new ArgumentOutOfRangeException(nameof(target));
-        if ((enabled & (SnesMainScreenLayers)(1 << index)) == 0) return;
-        SnesWindowSelectionPair selection = target switch
-        {
-            SnesWindowTarget.Bg1 or SnesWindowTarget.Bg2 => windows.Window12Selection,
-            SnesWindowTarget.Bg3 or SnesWindowTarget.Bg4 => windows.Window34Selection,
-            SnesWindowTarget.Obj or SnesWindowTarget.ColorMath => windows.ObjectColorSelection,
-            var undefined => throw new InvalidOperationException($"Undefined {nameof(SnesWindowTarget)} {undefined}."),
-        };
-        data[D3D11ShaderLayout.WindowSelectionWord] = (uint)selection.Layer((index & 1) != 0);
-        data[D3D11ShaderLayout.WindowLogicWord] = (uint)(target == SnesWindowTarget.Obj
-            ? windows.ObjectColorLogic : windows.BackgroundLogic >> (index * 2)) & 3;
-        data[D3D11ShaderLayout.WindowEdgesWord] = D3D11ConstantPacking.Bytes(
-            checked((byte)windows.FirstLeft), checked((byte)windows.FirstRight), checked((byte)windows.SecondLeft),
-            checked((byte)windows.SecondRight));
-        data[D3D11ShaderLayout.WindowEnabledWord] = 1;
     }
 }

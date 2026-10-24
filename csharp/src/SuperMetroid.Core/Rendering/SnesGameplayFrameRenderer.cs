@@ -36,13 +36,6 @@ public static class SnesGameplayFrameRenderer
     {
         Ensure.NotNull(layer);
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
-        OrdinaryGameplayView registers = layer.View;
-        Span<SnesMainScreenLayers> windowMasks = stackalloc SnesMainScreenLayers[Width];
-        if (registers.MainScreenWindowMask == SnesMainScreenLayers.None)
-            windowMasks.Clear();
-        else
-            for (int x = 0; x < Width; x++)
-                windowMasks[x] = registers.Windows.MaskedLayers(x, registers.MainScreenWindowMask);
         // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
         // by TM and the relevant back-to-front ladder is OBJ0, OBJ1, BG2-low, BG1-low,
         // OBJ2, BG2-high, BG1-high, OBJ3. Samus's body entries use OBJ2, so cartridge-
@@ -58,7 +51,7 @@ public static class SnesGameplayFrameRenderer
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
             SnesObjRenderer.RenderResolved(DrawColours.ResolveAll(sprites.Draws, cgram.Colors), new ObjRasterTargets(objectPixels, objectPriorities));
-            CompositeOrdinaryGameplayViewport(output, cgram, objectPixels, objectPriorities, layer, windowMasks);
+            CompositeOrdinaryGameplayViewport(output, cgram, objectPixels, objectPriorities, layer);
         }
         finally
         {
@@ -69,16 +62,6 @@ public static class SnesGameplayFrameRenderer
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
         DrawHud(output, cgram, layer.Rooms.ShownBg3);
-        if ((registers.MainScreenWindowMask & SnesMainScreenLayers.Bg3) != 0)
-        {
-            // The modeled HUD IRQ admits only BG3. A masked HUD pixel therefore
-            // exposes backdrop, not the gameplay planes disabled on these scanlines.
-            Rgba32 backdrop = cgram.GetRgba(0);
-            for (int x = 0; x < Width; x++)
-                if ((windowMasks[x] & SnesMainScreenLayers.Bg3) != 0)
-                    for (int y = 0; y < HudHeight; y++)
-                        output[y * Width + x] = backdrop;
-        }
         return output;
     }
 
@@ -90,8 +73,7 @@ public static class SnesGameplayFrameRenderer
         IPaletteColors cgram,
         ReadOnlySpan<Rgba32> objectPixels,
         ReadOnlySpan<byte> objectPriorities,
-        OrdinaryGameplayRenderLayer layer,
-        ReadOnlySpan<SnesMainScreenLayers> windowMasks)
+        OrdinaryGameplayRenderLayer layer)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -105,11 +87,11 @@ public static class SnesGameplayFrameRenderer
         OrdinaryGameplayView registers = layer.View;
         Position16<RoomPixels> bg1Scroll = registers.Bg1Scroll;
         Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
-        SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;
+        ScreenLayers mainScreenLayers = registers.MainScreenLayers;
         int bg2FirstScanline = registers.Bg2FirstScanline;
         int bg2EndScanline = registers.Bg2EndScanline;
         BackgroundMosaicSampling bg2Mosaic = registers.Bg2Mosaic;
-        ReadOnlySpan<SnesMainScreenLayers> mainScreenLayersByLine = layer.MainScreenLayersByLine;
+        ReadOnlySpan<ScreenLayers> mainScreenLayersByLine = layer.MainScreenLayersByLine;
 
         // Resolve the complete Mode-1 ladder in a single destination scan. The previous
         // implementation walked the 256x192 viewport eight times (four BG insertions and
@@ -131,11 +113,11 @@ public static class SnesGameplayFrameRenderer
         var pictures = new BgPicturePixels(cgram);
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
-            SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
+            ScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
                 : mainScreenLayersByLine[screenY - HudHeight];
-            bool bg1Enabled = (activeLayers & SnesMainScreenLayers.Bg1) != 0;
-            bool bg2LayerEnabled = (activeLayers & SnesMainScreenLayers.Bg2) != 0;
-            bool objEnabled = (activeLayers & SnesMainScreenLayers.Obj) != 0;
+            bool bg1Enabled = (activeLayers & ScreenLayers.Bg1) != 0;
+            bool bg2LayerEnabled = (activeLayers & ScreenLayers.Bg2) != 0;
+            bool objEnabled = (activeLayers & ScreenLayers.Sprites) != 0;
             bool bg2Enabled = bg2LayerEnabled && screenY >= bg2FirstScanline && screenY < bg2EndScanline;
             // Output rows are zero-based, while Mode-1 BG sampling starts on
             // physical scanline one. OBJ's preceding-line evaluation is separate.
@@ -151,7 +133,7 @@ public static class SnesGameplayFrameRenderer
                 Rgba32 winner = output[destination];
                 int winnerRank = 0;
 
-                if (bg2Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg2) == 0 &&
+                if (bg2Enabled &&
                     bg2.TrySample(new Position16<BgPlanePixels>(
                         unchecked((ushort)bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll)), bg2ScrolledY), out BgSample bg2Sample) &&
                     pictures.TryDecode(bg2Sample, palette, ColorZero.Transparent, out Rgba32 bg2Color, out bool bg2High))
@@ -160,7 +142,7 @@ public static class SnesGameplayFrameRenderer
                     winnerRank = bg2High ? 6 : 3;
                 }
 
-                if (bg1Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg1) == 0 &&
+                if (bg1Enabled &&
                     bg1.TrySample(new Position16<BgPlanePixels>(
                         unchecked((ushort)(bg1Scroll.X + screenX)), bg1ScrolledY), out BgSample bg1Sample) &&
                     pictures.TryDecode(bg1Sample, palette, ColorZero.Transparent, out Rgba32 bg1Color, out bool bg1High))
@@ -174,7 +156,7 @@ public static class SnesGameplayFrameRenderer
                 }
 
                 byte objPriority = objectPriorities[destination];
-                if (objEnabled && (windowMasks[screenX] & SnesMainScreenLayers.Obj) == 0 &&
+                if (objEnabled &&
                     objPriority != SnesObjRenderer.TransparentPriority)
                 {
                     int objRank = objPriority switch
@@ -484,7 +466,7 @@ public static class SnesGameplayFrameRenderer
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
         var windows = new XrayWindowLine[Height];
         Array.Fill(windows, new XrayWindowLine(255, 0));
-        return new(gameplay, windows, false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
+        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
@@ -544,7 +526,7 @@ public static class SnesGameplayFrameRenderer
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
         var emptyWindows = new XrayWindowLine[Height];
         Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, new ColorMathRegisters { ColorMath = (SnesColorMathControl)RoomFxRomData.Spores.ColorMathSources, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
+        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = RoomFxRomData.Spores.BlendedLayers, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
     }
 
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>

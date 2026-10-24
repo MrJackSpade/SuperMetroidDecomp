@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -137,12 +138,12 @@ internal sealed class AcceptedFrameBoundary
         if (Displays?.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
-        GameplayLatchedSceneRegisters scene = CaptureSceneRegisters();
+        GameplayLatchedScene scene = CaptureScene();
         ImmutableArray<ushort>? reveal = CaptureXrayRevealTilemap(scene);
-        _display.Latched = new GameplayNmiDisplayLatch(
+        _display.Latched = new GameplayDisplayLatch(
             ppu,
             _screenLayers.Displayed,
-            _display.ActiveSamusMode7Transform,
+            CapturePerspectiveFloor(ppu.Bg1Scroll),
             roomLayer3Fx,
             CaptureMorphBallEyeBeamForDisplay(),
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
@@ -164,36 +165,42 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// Room-level register shadows uploaded by <c>$80:91EE</c>: BGMODE (Ceres elevator Mode 7), BG34NBA,
-    /// the layer-blending selectors behind TM/TS/CGWSEL/CGADSUB (<c>$88:8000</c>), and the sky's
-    /// BG2SC and BG2VOFS mirror (<c>$88:AFB2</c>).
+    /// The room's part of the scene: the characters layer 3 reads, the room's blending (<c>$88:8000</c>), and the
+    /// sky's layer-2 map and vertical scroll (<c>$88:AFB2</c>).
     /// </summary>
-    private GameplayLatchedSceneRegisters CaptureSceneRegisters()
+    private GameplayLatchedScene CaptureScene()
     {
         var room = _room.ActiveRoom;
         return new(
-            _room.ActiveDoor?.UsesCeresElevatorMode7 == true,
             _display.Layer3Characters,
             // Before the first room no FX record is selected and no blending is configured.
             _room.Layer3Fx?.Type ?? RoomFxType.None,
             _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
-            ScrollingSkyRegisterSnapshot.Capture(_room.ScrollingSky),
+            LatchedScrollingSky.Capture(_room.ScrollingSky),
             room?.Definition,
             // Before the first room no boss is loaded.
             _room.Enemies?.RoomStatus.BossId ?? 0);
     }
 
     /// <summary>
-    /// Boss BG register shadows: Ceres Ridley's M7A..M7Y (written by room main <c>$A6:AAAF</c>,
-    /// uploaded with BGMODE's fake Mode 7 HDMA byte by <c>$80:91EE</c>), Kraid's body on BG2 (#1352), Crocomire's
-    /// BG2SC/BG2HOFS/BG2VOFS, and Mother Brain's BG2SC and TM BG2 bit.
+    /// The Ceres perspective floor this frame shows: the floor Ceres Ridley's getaway flies over while he flies it (his
+    /// room main <c>$A6:AAAF</c> computes it), otherwise the elevator shaft's while the shaft has its transform. The
+    /// shaft's transform exists exactly while the room was entered through the shaft's door.
+    /// </summary>
+    /// <param name="layer1Scroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>
+    private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> layer1Scroll) =>
+        CeresRidleyMode7Snapshot.Capture(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
+        : _display.ActiveSamusMode7Transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, layer1Scroll)
+        : null;
+
+    /// <summary>
+    /// The bodies bosses draw as layer 2: Kraid's body (#1352), the enemy layer-2 image, Draygon's and Mother Brain's
+    /// placements, and Crocomire's scroll.
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
-        CeresRidleyMode7Snapshot? ridley = CeresRidleyMode7Snapshot.Capture(Displays?.CeresRidley);
         var motherBrain = Displays?.MotherBrain;
         return new(
-            ridley,
             Displays?.KraidBody,
             Displays?.EnemyBg2,
             Displays?.Draygon is { } draygon
@@ -237,12 +244,12 @@ internal sealed class AcceptedFrameBoundary
     /// unchanged while the planes draw from the object character page, where X-ray is never used.
     /// </summary>
     /// <exception cref="InvalidOperationException">X-ray reveals a room whose planes draw from the object character page.</exception>
-    private GameplayNmiDisplayLatch WithBlockPictures(GameplayNmiDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<ushort>? reveal)
+    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<ushort>? reveal)
     {
         // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
         // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
-        if (latched.ShowsMode7 && scope.FloorMap is { } mode7)
+        if (latched.ShowsPerspectiveFloor && scope.FloorMap is { } mode7)
             mode7.Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
@@ -351,7 +358,7 @@ internal sealed class AcceptedFrameBoundary
     /// The reveal tilemap the X-ray setup calls queue for VRAM upload. It is copied while X-ray
     /// is active; otherwise the displayed BG2 tilemap is the room's own.
     /// </summary>
-    private ImmutableArray<ushort>? CaptureXrayRevealTilemap(GameplayLatchedSceneRegisters scene) =>
+    private ImmutableArray<ushort>? CaptureXrayRevealTilemap(GameplayLatchedScene scene) =>
         // Where X-ray preserves the backgrounds ($91:D143) its setup copies no blocks: the words are another room's.
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.BossId)
             ? ImmutableArray.Create(_xray.RevealTilemap.ToArray())

@@ -15,14 +15,6 @@ internal static class D3D11ShaderLayout
     internal const int DispatchTileEdge = 8;
     /// <summary>Per-scanline shader parameters begin after the fixed dispatch header.</summary>
     internal const int ScanlineParametersWordOffset = 32;
-    /// <summary>Shader header slot selecting the two SNES window masks.</summary>
-    internal const int WindowSelectionWord = 28;
-    /// <summary>Shader header slot carrying the selected window combination operation.</summary>
-    internal const int WindowLogicWord = 29;
-    /// <summary>Shader header slot packing the horizontal edges of both windows.</summary>
-    internal const int WindowEdgesWord = 30;
-    /// <summary>Shader header slot indicating that window clipping applies to this dispatch.</summary>
-    internal const int WindowEnabledWord = 31;
     /// <summary>The word after the scanline parameters: a subscreen's main coverage layer's character tile table (#1392).</summary>
     internal const int CoverageTableWord = ScanlineParametersWordOffset + 224 * 4;
     /// <summary>Embedded compute shader for solid color and brightness passes.</summary>

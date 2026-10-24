@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class GameplayScreenLayers
 {
     /// <summary>The layers an ordinary room shows: both backgrounds and the sprites.</summary>
-    private const SnesMainScreenLayers OrdinaryLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
+    private const ScreenLayers OrdinaryLayers = ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites;
 
     /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
@@ -22,11 +22,11 @@ internal sealed class GameplayScreenLayers
 
     /// <summary>The layers the main loop chose for the next accepted frame.</summary>
     [field: NonSerialized]
-    internal SnesMainScreenLayers Chosen { get; private set; } = OrdinaryLayers;
+    internal ScreenLayers Chosen { get; private set; } = OrdinaryLayers;
 
     /// <summary>The layers the most recent accepted frame shows.</summary>
     [field: NonSerialized]
-    public SnesMainScreenLayers Displayed { get; private set; }
+    public ScreenLayers Displayed { get; private set; }
 
     /// <summary>
     /// Chooses the layers before projectile callbacks run: a door transition's own layers, BG1 and the sprites alone
@@ -35,10 +35,10 @@ internal sealed class GameplayScreenLayers
     internal void Choose(RoomScope room)
     {
         Chosen = _room.DoorTransitionMainScreenLayers ??
-            (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj |
+            (ScreenLayers.Bg1 | ScreenLayers.Sprites |
                 (room.Enemies.DisplaySources.MotherBrain?.DeathBg2Hidden == true
-                    ? SnesMainScreenLayers.None
-                    : SnesMainScreenLayers.Bg2));
+                    ? ScreenLayers.None
+                    : ScreenLayers.Bg2));
         if (_room.DoorTransitionMainScreenLayers is null &&
             room.Layer3Fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
         {

@@ -19,13 +19,13 @@ internal static class MotherBrainAscentCaptureVerification
         var captured = Layer();
         AssertEqual(192, captured.MainScreenLayersByLine.Length, "Capture owns each gameplay scanline");
         for (int y = 32; y < 224; y++)
-            AssertEqual((SnesMainScreenLayers)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05),
+            AssertEqual((ScreenLayers)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05),
                 captured.MainScreenLayersByLine[y - 32], $"Native $88:E73D main-screen value at line {y}");
         state.Body.Position = state.Body.Position.WithWholeY(0xbd);
         runtime.Enemies.MotherBrainBehavior.Ascent.RaiseMotherBrain(state);
         AssertTrue(!state.RisingHdmaActive, "Production ascent completion removes HDMA");
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "Completed ascent restores uniform main-screen selection");
-        AssertEqual((SnesMainScreenLayers)5, captured.MainScreenLayersByLine[191], "Captured frame retains its own mask after the state changes");
+        AssertEqual((ScreenLayers)5, captured.MainScreenLayersByLine[191], "Captured frame retains its own mask after the state changes");
         Console.WriteLine("Mother Brain ascent capture: actual room, production start/end and all native scanline masks passed.");
         return 0;
         OrdinaryGameplayRenderLayer Layer() => (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];

@@ -80,8 +80,11 @@ public static class RoomFxRomData
     {
         /// <summary>$88:DA73 adds $FFC0 to BG3's signed 8.8 Y accumulator.</summary>
         public const ushort VerticalVelocity = 0x0040;
-        /// <summary>$88:80AB writes CGADSUB=$32: BG2, OBJ palettes 4-7 and backdrop, not BG1.</summary>
-        public const byte ColorMathSources = 0x32;
+        /// <summary>
+        /// The spores add to the background, the sprites drawn in blending palettes and the backdrop; the foreground
+        /// does not blend ($88:80AB).
+        /// </summary>
+        public const ColorBlend BlendedLayers = ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop;
     }
 
     /// <summary>Bank-$88 water-surface HDMA constants at <c>$88:C3FF-$C644</c>.</summary>

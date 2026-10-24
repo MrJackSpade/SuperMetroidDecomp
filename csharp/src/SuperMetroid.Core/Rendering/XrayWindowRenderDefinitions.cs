@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Native X-ray eye position and fixed-point raster units.</summary>
 public static class XrayWindowRenderDefinitions
 {
-    /// <summary>$88:8709-$8716 sets each COLDATA component to seven for revealable rooms.</summary>
+    /// <summary>The intensity, in every channel, of the grey fixed colour X-ray blends a revealable room with ($88:8709-$8716).</summary>
     public const int FixedColorComponent = 7;
     /// <summary>$88:88B8-$88F3 places the eye three pixels toward Samus's facing direction.</summary>
     public const int EyeHorizontalOffset = 3;

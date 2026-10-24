@@ -533,8 +533,8 @@ internal static void VerifyFrameRuntime()
     AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
     AssertEqual(SnesButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
-    AssertEqual(firstMode7, runtime.Display.DisplayedSamusMode7Transform,
-        "accepted NMI publishes Mode 7 shadow registers");
+    AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayPpu.Bg1Scroll),
+        runtime.Display.DisplayedPerspectiveFloor, "the accepted frame shows the shaft's transform");
 
     var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, -0x0020, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.Display.ActiveSamusMode7Transform = secondMode7;
@@ -543,8 +543,8 @@ internal static void VerifyFrameRuntime()
     AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");
     AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
         "complete gameplay passes publish distinct audio generations");
-    AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
-        "following accepted NMI publishes the changed Mode 7 matrix");
+    AssertEqual(CeresPerspectiveFloors.ElevatorShaft(secondMode7, runtime.Display.DisplayedGameplayPpu.Bg1Scroll),
+        runtime.Display.DisplayedPerspectiveFloor, "the following accepted frame shows the changed transform");
 
     // Door/pause frontend coroutines accept NMIs without running the gameplay owner list.
     // They must not make the frontend consume the preceding enemy/PLM audio publication

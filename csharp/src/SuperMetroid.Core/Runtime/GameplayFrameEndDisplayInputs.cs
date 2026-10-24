@@ -14,12 +14,12 @@ namespace SuperMetroid.Core.Runtime;
 /// at publication after the main loop: IRQ-handler register writes and HDMA tables in WRAM.
 /// Arrays are owned copies; simulation cannot change them after publication.
 /// </summary>
-/// <param name="DoorTransitionMainScreenLayers">TM the door-transition IRQ handlers (<c>$80:96F1</c> and peers) write below the HUD, or null outside a door transition.</param>
+/// <param name="DoorTransitionMainScreenLayers">The layers a door transition shows below the HUD, or null outside a door transition.</param>
 /// <param name="ScrollingSky">The scrolling sky's rows and parallax bands, when the room spawned the sky's band HDMA object.</param>
 /// <param name="CrocomireMeltingScrolls">Crocomire's melting BG2VOFS HDMA table, while its channel is active.</param>
 /// <param name="MotherBrainRisingHdmaActive">Whether Mother Brain's ascent HDMA owns the gameplay layers.</param>
 /// <param name="RainbowBeam">Rainbow-beam window description; its fixed color comes from the NMI latch.</param>
-/// <param name="CeresHaze">Ceres haze per-line COLDATA gradient, when the room spawned one.</param>
+/// <param name="CeresHaze">The Ceres haze's per-line fixed-colour gradient, when the room spawned one.</param>
 /// <param name="RoomFxPaletteBlends">Installed presentation colors for the haze gradient.</param>
 /// <param name="PowerBomb">Power-bomb window table inputs; its fixed color comes from the NMI latch.</param>
 /// <param name="MessageBox">Bank-$85 message overlay, which runs its own display loop.</param>
@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="TourianStatuesEnabled">Whether the Tourian statue BG2VOFS HDMA object is running.</param>
 [IndependentFlag("independent display facts of the frame end")]
 public sealed record GameplayFrameEndDisplayInputs(
-    SnesMainScreenLayers? DoorTransitionMainScreenLayers,
+    ScreenLayers? DoorTransitionMainScreenLayers,
     ScrollingSkyLayer? ScrollingSky,
     ImmutableArray<ushort>? CrocomireMeltingScrolls,
     bool MotherBrainRisingHdmaActive,

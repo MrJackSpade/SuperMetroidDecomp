@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Shared">The room's fixed colour, which Fireflea darkness and X-ray blending use.</param>
 /// <param name="PowerBomb">The power-bomb explosion's colour.</param>
 /// <param name="SuitPickup">The suit pickup light beam's colour.</param>
-/// <param name="RainbowBeam">Mother Brain's rainbow-beam fixed color, or null when no Mother Brain exists.</param>
+/// <param name="RainbowBeam">Mother Brain's rainbow beam's colour, or null when no Mother Brain exists.</param>
 public readonly record struct GameplayLatchedFixedColors(
     Bgr555 Shared,
     Bgr555 PowerBomb,

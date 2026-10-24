@@ -221,7 +221,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         {
             LayeredScene areaScene = Area();
             Bgr555[] palette = areaScene.Paint.Colors.ToArray(); palette[0] = Bgr555.Black;
-            var black = new LayeredScene(new FramePaint(palette, []), [], SnesPpuLayout.MaximumMasterBrightness);
+            var black = new LayeredScene(new FramePaint(palette, []), [], FadeLevel.Full);
             return entry.Phase == FileSelectMapEntryPhase.Revealing
                 ? Insert(black, areaScene, entry.Left, entry.Top, entry.Right + 1, entry.Bottom) : black;
         }

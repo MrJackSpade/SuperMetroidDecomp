@@ -1,0 +1,27 @@
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Samus.Drawing;
+
+namespace SuperMetroid.Core.Gameplay;
+
+/// <summary>The perspective floors Ceres shows, made from the transforms its rooms compute during the main loop (#1407).</summary>
+internal static class CeresPerspectiveFloors
+{
+    /// <summary>
+    /// The elevator shaft's floor: the shaft's transform, whose two diagonal terms are both its first coefficient,
+    /// turning about the shaft's centre and scrolled with layer 1.
+    /// </summary>
+    /// <param name="shaft">The transform the shaft's room main last computed.</param>
+    /// <param name="layer1Scroll">Layer 1's scroll in the frame that shows the floor.</param>
+    internal static PerspectiveFloor ElevatorShaft(SamusMode7Transform shaft, Position16<RoomPixels> layer1Scroll) => new(
+        new AffineTransform(shaft.MatrixA, shaft.MatrixB, shaft.MatrixC, shaft.MatrixA, shaft.Center.AsMode7Register(),
+            new Offset16<Mode7Pixels>(unchecked((short)layer1Scroll.X), unchecked((short)layer1Scroll.Y))),
+        ShowsLayer2Below: false);
+
+    /// <summary>The floor Ceres Ridley's getaway flies over, with the room's layer 2 below it.</summary>
+    /// <param name="ridley">The getaway's transform as its room main last wrote it.</param>
+    internal static PerspectiveFloor RidleyGetaway(CeresRidleyMode7Snapshot ridley) => new(
+        new AffineTransform(ridley.MatrixA, ridley.MatrixB, ridley.MatrixC, ridley.MatrixD, ridley.Center.AsSignedRegister(),
+            ridley.Offset),
+        ShowsLayer2Below: true);
+}

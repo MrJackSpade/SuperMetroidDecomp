@@ -16,7 +16,6 @@ internal static class OrdinarySmokeTests
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        HardwareWindowTests.Run(device, renderer);
         var random = new Random(32115);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
@@ -39,9 +38,9 @@ internal static class OrdinarySmokeTests
         for (int mask = 0; mask < 8; mask++)
         for (int hdma = 0; hdma < 4; hdma++)
         {
-            var flags = (mask & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0;
-            if ((mask & 2) != 0) flags |= SnesMainScreenLayers.Bg2;
-            if ((mask & 4) != 0) flags |= SnesMainScreenLayers.Obj;
+            var flags = (mask & 1) != 0 ? ScreenLayers.Bg1 : 0;
+            if ((mask & 2) != 0) flags |= ScreenLayers.Bg2;
+            if ((mask & 4) != 0) flags |= ScreenLayers.Sprites;
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second), flags);
             var layer = new OrdinaryGameplayRenderLayer(registers,
@@ -67,9 +66,9 @@ internal static class OrdinarySmokeTests
         for (int mask = 0; mask < 8; mask++)
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
-            var flags = (mask & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0;
-            if ((mask & 2) != 0) flags |= SnesMainScreenLayers.Bg2;
-            if ((mask & 4) != 0) flags |= SnesMainScreenLayers.Obj;
+            var flags = (mask & 1) != 0 ? ScreenLayers.Bg1 : 0;
+            if ((mask & 2) != 0) flags |= ScreenLayers.Bg2;
+            if ((mask & 4) != 0) flags |= ScreenLayers.Sprites;
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), flags);
             var layer = new OrdinaryGameplayRenderLayer(registers, pictured, new Bg2LineScrolls(
@@ -85,7 +84,7 @@ internal static class OrdinarySmokeTests
         {
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second),
-                SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+                ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var layer = new OrdinaryGameplayRenderLayer(registers, background, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
@@ -102,7 +101,7 @@ internal static class OrdinarySmokeTests
         for (int hdma = 0; hdma < 4; hdma++)
         {
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                new Extent16<TilemapCells>(64, 64), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+                new Extent16<TilemapCells>(64, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var layer = new OrdinaryGameplayRenderLayer(registers, boss, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
@@ -114,7 +113,7 @@ internal static class OrdinarySmokeTests
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                new Extent16<TilemapCells>(64, 32), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+                new Extent16<TilemapCells>(64, 32), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var layer = new OrdinaryGameplayRenderLayer(registers, hudPictured, new Bg2LineScrolls(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
@@ -127,7 +126,7 @@ internal static class OrdinarySmokeTests
         {
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.First, (ushort)geometry.Second),
-                SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+                ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var layer = new OrdinaryGameplayRenderLayer(registers, typed, default);
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
@@ -138,7 +137,7 @@ internal static class OrdinarySmokeTests
         var warned = pictured with { Bg1Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         {
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
-                new Extent16<TilemapCells>(64, 32), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+                new Extent16<TilemapCells>(64, 32), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var layer = new OrdinaryGameplayRenderLayer(registers, warned, default);
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),

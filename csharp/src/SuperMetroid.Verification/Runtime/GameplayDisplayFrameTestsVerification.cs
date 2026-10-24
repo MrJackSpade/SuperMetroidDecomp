@@ -64,7 +64,7 @@ internal static class GameplayDisplayFrameTestsVerification
 
         // Mutate frame-end sources, NMI-latched sources and PPU memory after publication.
         GameplayFrameEndDisplayInputs frameEnd = frame.FrameEnd;
-        GameplayNmiDisplayLatch latched = frame.Latched;
+        GameplayDisplayLatch latched = frame.Latched;
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(new(128, 120));
@@ -112,7 +112,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
             registers.MainScreenLayers == before.MainScreenLayers, "Mother Brain BG2SC and TM BG2 bit");
         AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(32, 32) &&
-            registers.MainScreenLayers == (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj), "Mother Brain BG2SC and TM BG2 bit");
+            registers.MainScreenLayers == (ScreenLayers.Bg1 | ScreenLayers.Sprites), "Mother Brain BG2SC and TM BG2 bit");
         AssertEqual(motherBrain.RainbowBeamHdma.Color, runtime.PublishDisplayFrame().Latched.FixedColors.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
         runtime.Enemies.MotherBrainEncounter.MotherBrain = null;
@@ -163,13 +163,13 @@ internal static class GameplayDisplayFrameTestsVerification
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(9, darkness.FixedRed, "Fireflea COLDATA publishes with its blend selector");
+        AssertEqual(9, darkness.Blend.FixedColor.Red, "Fireflea's fixed colour publishes with its blend");
         fixedColor.Color = fixedColor.Color.WithRed(4);
-        AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
-            "a main-loop COLDATA write waits for the next accepted NMI");
+        AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+            "a fixed colour chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
-            "the next accepted NMI publishes the COLDATA write");
+        AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
+            "the next accepted frame publishes the chosen fixed colour");
         runtime.RoomLayer3Fx.Type = originalFx;
         fixedColor.Color = Bgr555.Black;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -207,18 +207,18 @@ internal static class GameplayDisplayFrameTestsVerification
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "the accepted NMI publishes suit COLDATA");
     }
 
-    /// <summary>Door setup publishes BGMODE with its Mode 7 matrix; room setup BG12NBA and Ridley's matrix follow the NMI.</summary>
+    /// <summary>Door setup shows the shaft's floor with its transform; room setup's characters and Ridley's floor follow the accepted frame.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyCeresModeTiming(SuperMetroidRuntime runtime)
     {
-        GameplayNmiDisplayLatch shaft = runtime.PublishDisplayFrame().Latched;
-        AssertTrue(shaft.Scene.CeresElevatorMode7 && shaft.SamusMode7Transform is not null,
-            "door setup $8F:E4E0 publishes BGMODE with its Mode 7 matrix");
+        GameplayDisplayLatch shaft = runtime.PublishDisplayFrame().Latched;
+        AssertTrue(shaft.PerspectiveFloor is { ShowsLayer2Below: false },
+            "door setup $8F:E4E0 shows the elevator shaft's floor");
 
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
-        GameplayNmiDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
-        AssertTrue(!arena.Scene.CeresElevatorMode7 && arena.SamusMode7Transform is null,
-            "door setup $8F:E513 clears BGMODE with its Mode 7 matrix");
+        GameplayDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
+        AssertTrue(arena.PerspectiveFloor is null,
+            "door setup $8F:E513 removes the elevator shaft's floor");
         AssertTrue(arena.Rooms?.Characters != RoomBackgroundCharacters.ObjectCharacterPage, "room setup BG12NBA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(RoomBackgroundCharacters.ObjectCharacterPage, runtime.PublishDisplayFrame().Latched.Rooms?.Characters,

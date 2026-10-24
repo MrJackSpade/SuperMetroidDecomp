@@ -21,10 +21,9 @@ internal sealed class ActiveRoomState
 {
 
     /// <summary>
-    /// Main-screen layers selected below the HUD by the active door IRQ, or null while
-    /// ordinary gameplay IRQ commands own <c>TM ($212C)</c>.
+    /// The layers the active door transition shows below the HUD, or null while gameplay chooses them.
     /// </summary>
-    internal SnesMainScreenLayers? DoorTransitionMainScreenLayers { get; set; }
+    internal ScreenLayers? DoorTransitionMainScreenLayers { get; set; }
 
     /// <summary>The source room's BG1 screen during a door's opening scroll, or null (#1346).</summary>
     internal RoomDoorBackground? DoorSourceBackground { get; set; }

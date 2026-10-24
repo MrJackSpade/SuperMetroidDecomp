@@ -28,8 +28,8 @@ internal sealed class DoorTransitionRunner
     private readonly GameplayDisplayState _display;
     /// <summary>Runs the enemy main phase while Samus gameplay is suspended.</summary>
     private readonly EnemyFramePhase _enemyPhase;
-    /// <summary>Advances HDMA pre-instructions during the main-loop door prologue.</summary>
-    private readonly HdmaObjectPhase _hdmaPhase;
+    /// <summary>Advances the per-line effects during the main-loop door prologue.</summary>
+    private readonly PerLineEffectPhase _perLineEffects;
     /// <summary>Provides native frame counters to enemy projectile processing.</summary>
     private readonly FrameClock _clock;
     /// <summary>Runs NMI on each sound-wait dispatch before the door state handler.</summary>
@@ -50,7 +50,7 @@ internal sealed class DoorTransitionRunner
         _backgroundScroll = dependencies.BackgroundScroll;
         _display = dependencies.Display;
         _enemyPhase = dependencies.EnemyPhase;
-        _hdmaPhase = dependencies.HdmaPhase;
+        _perLineEffects = dependencies.PerLineEffects;
         _clock = dependencies.Clock;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
@@ -104,7 +104,7 @@ internal sealed class DoorTransitionRunner
                 // than relying on the destination loader's defensive state reset: this is
                 // the cartridge routine that owns the transition back to normal rendering.
                 _display.ActiveSamusMode7Transform = null;
-                _display.PublishDoorMode7(null);
+                _display.PublishDoorElevatorFloor(null);
                 ceresElevatorShaft.Deactivate();
                 return;
 
@@ -265,7 +265,7 @@ internal sealed class DoorTransitionRunner
     {
         plms.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion.Activity);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
-        AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, plms, room);
+        AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, plms, room);
     }
 
     /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>
@@ -305,12 +305,12 @@ internal sealed class DoorTransitionRunner
             _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _clock.Counter8, bombProjectiles, _backgroundScroll, _clock.Counter);
     }
 
-    /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>
-    internal void AdvanceNonGameplayMainLoopRandom(HdmaObjectProcessing hdmaObjects, RoomPlmSystem plms, RoomScope room)
+    /// <summary>The per-line effect and random-number prologue of an outer dispatch without a gameplay frame.</summary>
+    internal void AdvanceNonGameplayMainLoopRandom(PerLineEffectProcessing perLineEffects, RoomPlmSystem plms, RoomScope room)
     {
-        if (hdmaObjects == HdmaObjectProcessing.Run)
+        if (perLineEffects == PerLineEffectProcessing.Run)
         {
-            _hdmaPhase.AdvanceHdmaObjectPreInstructions(plms, room);
+            _perLineEffects.Advance(plms, room);
             if (_player.Samus is not null && room.Layer3Fx.MovesLiquidInHdmaPass)
                 _player.Samus.LiquidPhysics.ConfigureFor(room.Layer3Fx);
         }

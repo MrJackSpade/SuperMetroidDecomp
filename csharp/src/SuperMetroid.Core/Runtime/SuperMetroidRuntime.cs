@@ -38,8 +38,8 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 internal sealed class SuperMetroidRuntime
 {
-    /// <summary>The <see cref="HdmaObjectPhase"/> owner of this SuperMetroidRuntime.</summary>
-    internal HdmaObjectPhase HdmaPhase { get; }
+    /// <summary>The per-line effect phase each frame runs before its random number is drawn.</summary>
+    internal PerLineEffectPhase PerLineEffects { get; }
 
     /// <summary>The <see cref="GameplayTimeFreeze"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayTimeFreeze Freeze { get; }
@@ -160,8 +160,8 @@ internal sealed class SuperMetroidRuntime
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
-        HdmaPhase = new HdmaObjectPhase(Freeze, System);
-        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
+        PerLineEffects = new PerLineEffectPhase(Freeze, System);
+        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, PerLineEffects = PerLineEffects, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Backgrounds = BgArtwork});
@@ -381,7 +381,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public bool PowerBombExplosionSuppressesSounds => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
-    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room's layer-3 FX.</summary>
+    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's layer-3 FX.</summary>
     public RoomFxSession RoomFx { get; } = new();
 
 
@@ -464,7 +464,7 @@ internal sealed class SuperMetroidRuntime
         if (MessageBox.IsActive)
             return StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
         BeginAcceptedGameplayFrame(controller1Input, frameRequest);
-        RunHdmaObjects();
+        RunPerLineEffects();
         AdvanceMainLoopRandom();
         RunPreDispatchEffects();
         var context = new GameplayFrameContext(SampleSamusCameraPoint());
@@ -510,13 +510,13 @@ internal sealed class SuperMetroidRuntime
         ScreenLayers.Choose(Room.LoadedScope);
     }
 
-    /// <summary>Runs the bank-$88 HDMA-object pre-instructions and the power-bomb HDMA before the main loop's RNG call.</summary>
-    private void RunHdmaObjects()
+    /// <summary>Runs the per-line effect phase and the power bomb's shape step before the main loop draws its random number.</summary>
+    private void RunPerLineEffects()
     {
-        // HDMA owns shared RNG mutations before the main loop advances it. A
-        // message-box NMI wait does not execute that outer-loop HDMA pass.
+        // The per-line effects read the random number before the main loop draws the next one. A
+        // message box's wait does not run them.
         if (Room.Camera is not null && !MessageBox.IsActive)
-            HdmaPhase.AdvanceHdmaObjectPreInstructions(Room.LoadedScope.Plms, Room.LoadedScope);
+            PerLineEffects.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
 
         // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
@@ -1099,9 +1099,9 @@ internal sealed class SuperMetroidRuntime
         MessageBox.Step(controller1Input);
         if (MessageBox.LastFrameAudio.RunsHdmaObjects)
         {
-            // Restore_PPU's $88:84B9 runs the HDMA objects, including their RNG mutations.
+            // The message box's restoring frames ($88:84B9 in Restore_PPU) run the per-line effects too.
             if (Room.Camera is not null)
-                HdmaPhase.AdvanceHdmaObjectPreInstructions(Room.LoadedScope.Plms, Room.LoadedScope);
+                PerLineEffects.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
             if (Player.Samus is { } hdmaSamus)
                 Room.LoadedScope.BombProjectiles.AdvancePowerBombHdma(hdmaSamus, Controller1.Current, DispatchGameState);
         }

@@ -1,12 +1,10 @@
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -16,10 +14,6 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Resolution of one published gameplay display frame into owned PPU composition inputs.</summary>
 public static class GameplayDisplayCapture
 {
-    /// <summary>The TM and TMW bits that admit a layer: the four backgrounds and OBJ.</summary>
-    private const SnesMainScreenLayers TmLayerBits = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Bg3 |
-        SnesMainScreenLayers.Bg4 | SnesMainScreenLayers.Obj;
-
     /// <summary>
     /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
@@ -27,9 +21,9 @@ public static class GameplayDisplayCapture
     public static LayeredScene Capture(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
-        GameplayNmiDisplayLatch latched = frame.Latched;
+        GameplayDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        LayeredScene basis = latched.ShowsMode7 ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
+        LayeredScene basis = latched.ShowsPerspectiveFloor ? CaptureMode7Base(frame) : CaptureOrdinaryBase(frame);
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
         bool doorOwnsDisplay = live.DoorTransitionMainScreenLayers is not null;
@@ -86,13 +80,13 @@ public static class GameplayDisplayCapture
     public static LayeredScene CaptureOrdinaryBase(GameplayDisplayFrame frame)
     {
         Ensure.NotNull(frame);
-        GameplayNmiDisplayLatch latched = frame.Latched;
+        GameplayDisplayLatch latched = frame.Latched;
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
-        if (latched.ShowsMode7)
+        if (latched.ShowsPerspectiveFloor)
             throw new InvalidOperationException("Ordinary base capture cannot represent a Mode-7 scene.");
 
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
-        GameplayLatchedSceneRegisters scene = latched.Scene;
+        GameplayLatchedScene scene = latched.Scene;
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = ppu.RoomShake;
         Position16<RoomPixels> bg1Scroll = ppu.Bg1Scroll + shake.Bg1;
@@ -105,7 +99,7 @@ public static class GameplayDisplayCapture
             // register. Type 13 also gives the statue OBJ zero quake displacement.
             bg2Scroll = bg2Scroll.WithY(unchecked((ushort)(ppu.Layer1Position.Y + latched.TourianStatueVerticalOffset)));
         RoomLayer3FxRenderSnapshot? fx = latched.RoomLayer3Fx;
-        ScrollingSkyRegisterSnapshot? sky = scene.ScrollingSky;
+        LatchedScrollingSky? sky = scene.ScrollingSky;
         ushort[]? skyX = SkyHorizontalScrolls(live, shake);
 
         ushort[]? waterX = fx is { } water
@@ -119,20 +113,20 @@ public static class GameplayDisplayCapture
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
-        SnesMainScreenLayers displayedMainScreen = latched.MainScreen & TmLayerBits;
+        ScreenLayers displayedMainScreen = latched.MainScreen;
         var registers = new OrdinaryGameplayView(bg1Scroll,
             new Position16<Bg2Pixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
                 kraidBody is { } kraidY ? Add(kraidY.Scroll.Y, shake.Bg2.Y)
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
-                : sky is { } skyRegisters ? Add(skyRegisters.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
+                : sky is { } latchedSky ? Add(latchedSky.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBody is { } kraidMap ? kraidMap.Tilemap.Size
                 : bosses.MotherBrainBody is { Scroll: not null } ? new Extent16<TilemapCells>(32, 32)
-                : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
+                : sky?.ShowsBands != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
-                    ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
+                    ? ScreenLayers.Bg1 | ScreenLayers.Sprites
                     : displayedMainScreen),
             bg2Lines.First, bg2Lines.End,
             Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
@@ -156,18 +150,12 @@ public static class GameplayDisplayCapture
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainRisingHdmaActive
                 ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
         return new(frame.Paint, new RenderLayer[] { layer },
-            SnesPpuLayout.MaximumMasterBrightness);
+            FadeLevel.Full);
     }
 
     /// <summary>The BG3 plane the accepted NMI displays (#1348).</summary>
-    private static Layer3Cells Bg3(GameplayNmiDisplayLatch latched) => (latched.Rooms
+    private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
-
-    /// <summary>The Mode 7 registers Ceres Ridley's latched shadows program, before room shake.</summary>
-    internal static AffineTransform CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(
-        unchecked(ridley.MatrixA), unchecked(ridley.MatrixB),
-        unchecked(ridley.MatrixC), unchecked(ridley.MatrixD),
-        ridley.Center.AsSignedRegister(), ridley.Offset);
 
     /// <summary>The sky's HDMA BG2HOFS per gameplay line with the latched room shake added, or null without one.</summary>
     internal static ushort[]? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake)
@@ -179,7 +167,7 @@ public static class GameplayDisplayCapture
         return lines;
     }
 
-    /// <summary>The rainbow beam's live window description drawn in the NMI-latched COLDATA color.</summary>
+    /// <summary>The rainbow beam's live window description drawn in the colour the accepted frame latched.</summary>
     internal static MotherBrainRainbowBeamRenderSnapshot? RainbowBeam(GameplayDisplayFrame frame)
     {
         MotherBrainRainbowBeamRenderSnapshot? beam = frame.FrameEnd.RainbowBeam;
@@ -224,48 +212,36 @@ public static class GameplayDisplayCapture
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new InvalidOperationException("Fireflea darkness requires ordinary Mode-1 gameplay.");
         // The source-aware operation is shared with X-ray, but an empty window means
-        // every pixel is eligible. Native CGADSUB enables only BG2 and the backdrop:
+        // every pixel is eligible. Only the background and the backdrop blend:
         // foreground and Samus must not be tinted by a whole-frame darkening overlay.
         var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray();
-        return new(ordinary, closed, revealBlocks: false, math: new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = fixedColor.Red, FixedGreen = fixedColor.Green, FixedBlue = fixedColor.Blue });
+        return new(ordinary, closed, revealBlocks: false, blend: new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = fixedColor });
     }
 
-    /// <summary>Captures the Ceres shaft or Ridley Mode-7 matrix and HUD, adding the Mode-1 floor band during Ridley's getaway.</summary>
+    /// <summary>Captures the latched perspective floor and the HUD, adding the layer-2 band below the floor during Ridley's getaway.</summary>
     [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
     private static LayeredScene CaptureMode7Base(GameplayDisplayFrame frame)
     {
-        GameplayNmiDisplayLatch latched = frame.Latched;
+        GameplayDisplayLatch latched = frame.Latched;
         GameplayPpuRenderSnapshot ppu = latched.Ppu;
         RoomShakeFrameResult shake = ppu.RoomShake;
-        AffineTransform registers;
-        Mode1FloorBand? floor = null;
-        if (latched.Bosses.CeresRidleyMode7 is { } ridley)
+        PerspectiveFloor perspective = latched.PerspectiveFloor
+            ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
+        // Room shake moves the floor with layer 1, wrapping as a sixteen-bit scroll.
+        AffineTransform transform = perspective.Transform with
         {
-            AffineTransform getaway = CeresRidleyRegisters(ridley);
-            registers = getaway with
-            {
-                Scroll = new Offset16<Mode7Pixels>(
-                    unchecked((short)(getaway.Scroll.X + shake.Bg1.X)),
-                    unchecked((short)(getaway.Scroll.Y + shake.Bg1.Y))),
-            };
-            floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, ppu.Bg2Scroll + shake.Bg2,
+            Scroll = new Offset16<Mode7Pixels>(
+                unchecked((short)(perspective.Transform.Scroll.X + shake.Bg1.X)),
+                unchecked((short)(perspective.Transform.Scroll.Y + shake.Bg1.Y))),
+        };
+        Mode1FloorBand? floor = perspective.ShowsLayer2Below
+            ? new(GameplayRenderDefinitions.CeresFloorFirstScanline, ppu.Bg2Scroll + shake.Bg2,
                 new Extent16<TilemapCells>(64, 32),
-                latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."));
-        }
-        else
-        {
-            SamusMode7Transform m = latched.SamusMode7Transform
-                ?? throw new InvalidOperationException("The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
-            registers = new(unchecked(m.MatrixA), unchecked(m.MatrixB),
-                unchecked(m.MatrixC), unchecked(m.MatrixA),
-                m.Center.AsMode7Register(),
-                new Offset16<Mode7Pixels>(
-                    unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1.X)),
-                    unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1.Y))));
-        }
-        var layer = new Mode7GameplayRenderLayer(registers, Bg3(latched), (latched.Rooms?.Mode7
+                latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
+            : null;
+        var layer = new Mode7GameplayRenderLayer(transform, Bg3(latched), (latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), SnesPpuLayout.GameplayHudHeightPixels, floor);
-        return new(frame.Paint, new RenderLayer[] { layer }, SnesPpuLayout.MaximumMasterBrightness);
+        return new(frame.Paint, new RenderLayer[] { layer }, FadeLevel.Full);
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
@@ -277,12 +253,12 @@ public static class GameplayDisplayCapture
             return ordinary;
         var gameplay = new OrdinaryGameplayRenderLayer(ordinary.View with
         {
-            MainScreenLayers = ordinary.View.MainScreenLayers & ~SnesMainScreenLayers.Bg2,
+            MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Bg2,
         }, ordinary.Rooms, ordinary.Bg2LineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // IRQ band; below it BG2 adds to eligible main sources, never occluding BG1.
-        return new GameplayColorMathRenderLayer(gameplay, Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: true);
+        return new GameplayColorMathRenderLayer(gameplay, Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, subscreenUsesBg2: true);
     }
 
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
@@ -295,8 +271,8 @@ public static class GameplayDisplayCapture
         bool settingUp = xray.SetupStage != XraySetupStage.Complete;
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
-        GameplayNmiDisplayLatch latched = frame.Latched;
-        GameplayLatchedSceneRegisters scene = latched.Scene;
+        GameplayDisplayLatch latched = frame.Latched;
+        GameplayLatchedScene scene = latched.Scene;
         RoomHeaderDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
         var ppu = latched.Ppu;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);
@@ -316,8 +292,8 @@ public static class GameplayDisplayCapture
         registers = registers with
         {
             MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
-                ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
-                : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
+                ? ScreenLayers.Bg1 | ScreenLayers.Sprites
+                : ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites,
         };
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.
@@ -343,7 +319,7 @@ public static class GameplayDisplayCapture
         // its liquid plane is currently offscreen/disabled and supplies no pixels.
         bool subtract = scene.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
-        var control = XrayRoomDisplayRules.ColorMath(mode, subtract);
+        ColorBlend control = XrayRoomDisplayRules.Blend(mode, subtract);
         Bgr555 fixedColor = latched.FixedColors.Shared;
         int red = fixedColor.Red, green = fixedColor.Green, blue = fixedColor.Blue;
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
@@ -361,7 +337,7 @@ public static class GameplayDisplayCapture
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
             : SnesGameplayFrameRenderer.CaptureXrayWindowLines(xray, ppu.Layer1Position);
-        var layer = new GameplayColorMathRenderLayer(gameplay, lines, reveal, new ColorMathRegisters { ColorMath = control, AddSubscreen = mode != XrayRoomBlendMode.Fireflea, FixedRed = red, FixedGreen = green, FixedBlue = blue }, sub);
+        var layer = new GameplayColorMathRenderLayer(gameplay, lines, reveal, new SceneBlend { Layers = control, BlendsWithSubscreen = mode != XrayRoomBlendMode.Fireflea, FixedColor = new Bgr555(red, green, blue) }, sub);
         return new(paint, new RenderLayer[] { layer }, basis.Brightness);
     }
 }

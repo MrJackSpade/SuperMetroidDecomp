@@ -83,8 +83,7 @@ internal sealed class RoomLoader
     private readonly BeamChargeState _beamCharge;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>The shared window-register cache each room's Chainsaw callback writes.</summary>
-    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork each room's layer-3 FX reads.</summary>
+    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's layer-3 FX reads.</summary>
     private readonly RoomFxSession _roomFx;
     /// <summary>The palette-FX handler state each room's palette FX reads.</summary>
     private readonly PaletteFxSessionState _paletteFxSession;
@@ -430,8 +429,8 @@ internal sealed class RoomLoader
 
         bool suppressBg1 = sourceIsolated || destinationIsolated;
         _room.DoorTransitionMainScreenLayers = suppressBg1
-            ? SnesMainScreenLayers.Obj
-            : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
+            ? ScreenLayers.Sprites
+            : ScreenLayers.Bg1 | ScreenLayers.Sprites;
     }
 
     /// <summary>Returns main-screen ownership to the room's ordinary gameplay IRQ.</summary>
@@ -831,7 +830,7 @@ internal sealed class RoomLoader
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is
         // exposed. Initialize the displayed copy as well; subsequent room-main changes
         // reach it only through RunNmi, matching the normal shadow-register path.
-        _display.PublishDoorMode7(initialMode7Transform);
+        _display.PublishDoorElevatorFloor(initialMode7Transform);
         scope.LevelData = assets.LevelData;
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);

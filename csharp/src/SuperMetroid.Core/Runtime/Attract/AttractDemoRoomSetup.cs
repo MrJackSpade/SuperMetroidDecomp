@@ -7,7 +7,7 @@ public enum AttractDemoRoomSetup : ushort
     ChargeBeamScroll = 0x891a,
     /// <summary>$82:8924, nullsub_291: RTS.</summary>
     NoOp = 0x8924,
-    /// <summary>$82:8925, DemoRoom_SetBG2TilemapBase: Landing Site BG2SC=$4A.</summary>
+    /// <summary>$82:8925, DemoRoom_SetBG2TilemapBase: the Landing Site shows its scrolling sky's tall layer-2 map.</summary>
     LandingSiteSky = 0x8925,
     /// <summary>$82:892B, DemoRoom_SetKraidFunctionTimer: body variable F becomes sixty.</summary>
     KraidTimer = 0x892b,

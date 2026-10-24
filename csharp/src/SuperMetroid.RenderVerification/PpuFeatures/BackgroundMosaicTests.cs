@@ -41,11 +41,11 @@ internal static class BackgroundMosaicTests
         foreach (int mode in Enumerable.Range(0, 4))
         {
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                SnesMainScreenLayers.Obj | (mode == 2 ? SnesMainScreenLayers.None : SnesMainScreenLayers.Bg2) |
-                    (mode == 3 ? SnesMainScreenLayers.Bg1 : SnesMainScreenLayers.None),
+                ScreenLayers.Sprites | (mode == 2 ? ScreenLayers.None : ScreenLayers.Bg2) |
+                    (mode == 3 ? ScreenLayers.Bg1 : ScreenLayers.None),
                 Bg2Mosaic: new(size));
             var ordinary = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2LineScrolls(horizontal, vertical));
-            RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = mode == 2 ? SnesColorMathControl.Backdrop : SnesColorMathControl.None, AddSubscreen = mode == 2, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: mode == 2);
+            RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithSubscreen = mode == 2, FixedColor = Bgr555.Black }, subscreenUsesBg2: mode == 2);
             var scene = new LayeredScene(memory, [layer], 15);
             var packet = new DisplayPacket(new(++cases, 1, 0), scene);
             var actual = SoftwareLayeredSnapshotRenderer.Render(scene);

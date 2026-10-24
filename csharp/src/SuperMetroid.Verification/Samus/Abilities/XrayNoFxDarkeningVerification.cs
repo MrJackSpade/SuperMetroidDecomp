@@ -70,7 +70,7 @@ internal static class XrayNoFxDarkeningVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var firefleaMath = (GameplayColorMathRenderLayer)fireflea.Layers[0];
-        AssertTrue(!firefleaMath.AddSubscreen && firefleaMath.Subscreen is null,
+        AssertTrue(!firefleaMath.Blend.BlendsWithSubscreen && firefleaMath.Subscreen is null,
             "Fireflea retains fixed-color subtraction without a BG3 operand");
         var darkPixels = SoftwareLayeredSnapshotRenderer.Render(fireflea);
         AssertEqual(new Rgba32(140, 107, 74, 255), darkPixels[80 * 256 + 64],

@@ -11,15 +11,19 @@ public static class XrayRoomDisplayRules
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
     public static Bgr555 ActiveBackdrop => new(3, 3, 3);
 
-    /// <summary>CGADSUB assignments from $88:817B, $88:81A4 and $88:81DB, preserving the room's subtraction bit.</summary>
-    public static SnesColorMathControl ColorMath(XrayRoomBlendMode mode, bool subtract)
+    /// <summary>
+    /// How X-ray blends the room ($88:817B, $88:81A4 and $88:81DB): a reveal room and Fireflea's room blend both
+    /// backgrounds, the sprites and the backdrop, an excluded room the foreground and the backdrop; Fireflea's room
+    /// always subtracts unhalved, the others halve and keep the room's own subtraction.
+    /// </summary>
+    public static ColorBlend Blend(XrayRoomBlendMode mode, bool subtract)
     {
         if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode));
-        var sources = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop;
+        var sources = ColorBlend.Bg1 | ColorBlend.Backdrop;
         if (mode is XrayRoomBlendMode.RevealBlocks or XrayRoomBlendMode.Fireflea)
-            sources |= SnesColorMathControl.Bg2 | SnesColorMathControl.Obj;
-        if (mode == XrayRoomBlendMode.Fireflea) return sources | SnesColorMathControl.Subtract;
-        return sources | SnesColorMathControl.Half | (subtract ? SnesColorMathControl.Subtract : 0);
+            sources |= ColorBlend.Bg2 | ColorBlend.Sprites;
+        if (mode == XrayRoomBlendMode.Fireflea) return sources | ColorBlend.Subtract;
+        return sources | ColorBlend.Half | (subtract ? ColorBlend.Subtract : 0);
     }
 
     /// <summary>Preserves the native Fireflea precedence over the ordinary room/boss exclusions.</summary>

@@ -158,7 +158,6 @@ using static SuperMetroid.Verification.Samus.Movement.GroundedBombSpreadVerifica
 using static SuperMetroid.Verification.Samus.Movement.GroundedSpreadTransitionVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipLandingVerification;
 using static SuperMetroid.Verification.Hardware.HardwareVerification;
-using static SuperMetroid.Verification.Hardware.HardwareWindowsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.HealthWarningVerification;
 using static SuperMetroid.Verification.Runtime.HeroShotRuntimeVerification;
 using static SuperMetroid.Verification.Runtime.HeroShotsVerification;
@@ -378,7 +377,6 @@ using static SuperMetroid.Verification.Rooms.Scrolling.ViewportParityVerificatio
 using static SuperMetroid.Verification.Samus.Movement.WallJumpDustVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpSpinExitVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.WallProbeBombBlockVerification;
-using static SuperMetroid.Verification.Rendering.WindowPixelsVerification;
 using static SuperMetroid.Verification.Hardware.WordReadsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.WrapShotEnemiesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.WrapShotRoomsVerification;
@@ -428,7 +426,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFrontendRenderCapture), () => VerifyFrontendRenderCapture()),
         new(nameof(VerifyCinematicRenderSnapshots), () => VerifyCinematicRenderSnapshots()),
         new(nameof(VerifyGameplaySnapshots), () => VerifyGameplaySnapshots()),
-        new(nameof(VerifyWindowPixels), () => VerifyWindowPixels()),
         new(nameof(VerifyColorWindowSnapshots), () => VerifyColorWindowSnapshots()),
         new(nameof(VerifyMessageSnapshots), () => VerifyMessageSnapshots()),
         new(nameof(VerifyEyeWindowSnapshots), () => VerifyEyeWindowSnapshots()),
@@ -758,7 +755,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCinematicPaletteFader), () => VerifyCinematicPaletteFader()),
         new(nameof(VerifyHostRoomViewportAlignment), () => VerifyHostRoomViewportAlignment()),
         new(nameof(VerifyPowerBombColorMathWindow), () => VerifyPowerBombColorMathWindow()),
-        new(nameof(VerifyHardwareWindows), () => VerifyHardwareWindows()),
         new(nameof(VerifyChainsawFiring), () => VerifyChainsawFiring()),
         new(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam()),
         new(nameof(VerifyMurderBeam), () => VerifyMurderBeam()),

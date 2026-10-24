@@ -57,9 +57,9 @@ internal static class RetailRidleyEscapeTests
                     var expected = FrontendScenePixelsAccess.Pixels(frame);
                     var scene = GameplayDisplayCapture.Capture(frame)
                         ?? throw new InvalidOperationException("Ridley escape omitted capture.");
-                    // The Mode 7 shadows reach the screen at the NMI after the main loop that wrote them (#1307),
-                    // so the published frame, not the live getaway, decides whether this picture is Mode 7.
-                    if (frame.Latched.Bosses.CeresRidleyMode7 is not null && scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null })
+                    // The getaway's floor reaches the screen at the accepted frame after the main loop that computed it
+                    // (#1307), so the published frame, not the live getaway, decides whether this picture shows it.
+                    if (frame.Latched.PerspectiveFloor is { ShowsLayer2Below: true } && scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null })
                         throw new InvalidOperationException("Native Mode-7 escape omitted its preserved floor layer.");
                     var packet = new DisplayPacket(new(++samples, 1, (ushort)tick), scene);
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

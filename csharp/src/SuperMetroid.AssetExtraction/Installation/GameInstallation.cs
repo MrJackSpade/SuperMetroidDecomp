@@ -16,6 +16,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -62,7 +63,7 @@ public sealed record GameInstallation(string Root)
     public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
     /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays, with the persistent clip override when one exists.</summary>
     /// <exception cref="InvalidDataException">The stock clips or the override are invalid.</exception>
-    public ClipAudioCatalog LoadAudioClips() => ClipAudioCatalog.Load(AudioDirectory, AudioOverrideDirectory);
+    public ClipAudioCatalog LoadAudioClips() => ClipAudioOverrides.Load(AudioDirectory, AudioOverrideDirectory);
     /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     /// <summary>Stock starting CGRAM and room-entry sprite palettes under the replaceable content tree.</summary>

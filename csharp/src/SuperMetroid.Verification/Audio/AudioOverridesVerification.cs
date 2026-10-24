@@ -67,7 +67,10 @@ internal static class AudioOverridesVerification
             tone[sample] = unchecked((short)(sample * 37 % 20000 - 10000));
         string tonePath = Path.Combine(rootScratch.Root, "tone.wav");
         PcmWaveFile.WriteStereoPcm16(tonePath, ClipSampleRate(stock), tone);
-        string songId = ClipAudioOverrides.MusicId(AudioBank.GreenBrinstar, ReplacedTrack);
+        string songId = ClipAudioOverrides.MusicId(MusicDataSet.GreenBrinstar, ReplacedTrack);
+        // #1410: the data set is named in the game, but an override names a song by its music-data index, so the
+        // override manifests players already have keep naming the same song.
+        AssertEqual("music-0f-track-03", songId, "a song's override identity keeps the data index existing overrides use");
         AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
 
         ClipAudioCatalog selected = installation.LoadAudioClips();

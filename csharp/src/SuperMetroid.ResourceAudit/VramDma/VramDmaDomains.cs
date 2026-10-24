@@ -6,7 +6,6 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -62,9 +61,6 @@ internal static class VramDmaDomains
             case "arm":
                 return Native(SamusArmCannonArtworkFormat.CoverTileDmaSources.Select(pointer =>
                     new NativeTransfer(SamusRenderingRomData.Banks.CharacterData | pointer, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
-            case "death":
-                return Native(SamusSpecialSequenceRomData.Death.TileSegments.Select(segment =>
-                    new NativeTransfer(segment.SourceAddress, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)));
             case "beam":
                 return Typed(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(selection =>
                     new AssetTransfer(BeamTileCatalog.AssetFor(selection), BeamTileAtlasDefinitions.ByteCount)));

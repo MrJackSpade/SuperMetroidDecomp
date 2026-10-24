@@ -120,9 +120,9 @@ public sealed class SamusDeathSequenceState
     }
 
     /// <summary>
-    /// Executes one game-state `$16/$17/$18` call. Palette writes target the same CGRAM slots as native. The
-    /// five death-character uploads that natively precede the explosion are not needed: its draws bind the
-    /// complete death characters.
+    /// Executes one game-state `$16/$17/$18` call. Palette writes target the same colours as native. The explosion
+    /// is shown by selecting its frame (<see cref="ExplosionFrame"/>) on the call the cartridge drew it; the five
+    /// character uploads that natively precede it have no counterpart, because each frame is a pre-coloured picture.
     /// </summary>
     public SamusDeathSequenceStepResult Step(
         SamusState samus,

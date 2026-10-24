@@ -61,13 +61,14 @@ internal static class SamusBodyNative
         internal static int FirstFrameOffset => SamusCartridgeTables.FirstBodyFrame;
     }
 
-    /// <summary>Native views of the selected transfers.</summary>
-    extension(SamusTileTransferState transfer)
+    /// <summary>Native views of the shown body definitions.</summary>
+    extension(SamusBodyFrameState frames)
     {
-        /// <summary>The SNES address of the selected top-half DMA definition record.</summary>
-        internal int TopDefinitionAddress => 0x920000 | RecordPointer(transfer.TopDefinitionRecord);
+        /// <summary>The SNES address of the shown top-half definition record.</summary>
+        internal int TopDefinitionAddress => 0x920000 | RecordPointer(frames.Shown.Top ??
+            throw new InvalidOperationException("No top-half definition is shown."));
 
-        /// <summary>The SNES address of the selected bottom-half DMA definition record.</summary>
-        internal int BottomDefinitionAddress => 0x920000 | RecordPointer(transfer.BottomDefinitionRecord);
+        /// <summary>The SNES address of the shown bottom-half definition record, or null before any frame named one.</summary>
+        internal int? BottomDefinitionAddress => frames.Shown.Bottom is int bottom ? 0x920000 | RecordPointer(bottom) : null;
     }
 }

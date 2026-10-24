@@ -84,7 +84,7 @@ internal sealed class DeathSequenceRunner
 
     /// <summary>
     /// Runs one isolated bank-$9B death-animation frame for game states <c>$16-$18</c>.
-    /// The resulting OAM and queued graphics become visible through the ordinary accepted-
+    /// The selected pose or explosion frame becomes visible through the ordinary accepted-
     /// NMI pipeline, while every state-eight actor remains stopped as on the cartridge.
     /// </summary>
     public SamusDeathSequenceStepResult StepDeathSequenceFrame(SnesButton controllerInput)
@@ -108,7 +108,7 @@ internal sealed class DeathSequenceRunner
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {
-            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.TileTransfers.Sheets);
+            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.BodyFrames.Sheets);
         }
         _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;

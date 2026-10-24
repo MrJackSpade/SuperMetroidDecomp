@@ -142,8 +142,8 @@ internal static class InstalledFixtures
         samus.VisorPalette.PresentationColors = Maps.SamusVisorColors;
         samus.Xray.PresentationColors = Maps.SamusVisorColors;
         samus.Drained.PresentationColors = Maps.SamusHyperBeamColors;
-        samus.Presentation.TileTransfers.BindArtwork(SamusBody);
-        samus.Presentation.TileTransfers.BindSheets(SpriteSheets);
+        samus.Presentation.BodyFrames.BindArtwork(SamusBody);
+        samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
         samus.ArmCannon.Artwork = SamusBody.ArmCannon;
         samus.Grapple.FlarePlacement = Projectiles.GrappleTiles.FlarePlacement;
         samus.Grapple.SwingFrames = Projectiles.GrappleTiles.SwingFrames;

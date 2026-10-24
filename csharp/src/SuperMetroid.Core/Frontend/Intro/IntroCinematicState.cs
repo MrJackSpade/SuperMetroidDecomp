@@ -57,7 +57,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         spriteSheets = sheets;
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
-        CurrentFlashbackSamus?.Presentation.TileTransfers.BindSheets(spriteSheets);
+        CurrentFlashbackSamus?.Presentation.BodyFrames.BindSheets(spriteSheets);
         CurrentCeresFlight?.BindSheets(sheets);
         SceneTiles = null;
         NarrationTiles = null;
@@ -125,8 +125,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     public void BindSamusBodyArtwork(SamusBodyArtworkCatalog? value)
     {
         samusBodyArtwork = value;
-        CurrentFlashbackSamus?.Presentation.TileTransfers.BindArtwork(value);
-        CurrentBabyDiscovery?.Samus.Presentation.TileTransfers.BindArtwork(value);
+        CurrentFlashbackSamus?.Presentation.BodyFrames.BindArtwork(value);
+        CurrentBabyDiscovery?.Samus.Presentation.BodyFrames.BindArtwork(value);
     }
     /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
     [field: NonSerialized]     public IntroNarrationPresentation? NarrationPresentation
@@ -697,8 +697,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Shared Samus handlers read the nonzero cinematic-function word to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
-        CurrentFlashbackSamus.Presentation.TileTransfers.BindArtwork(samusBodyArtwork);
-        CurrentFlashbackSamus.Presentation.TileTransfers.BindSheets(spriteSheets);
+        CurrentFlashbackSamus.Presentation.BodyFrames.BindArtwork(samusBodyArtwork);
+        CurrentFlashbackSamus.Presentation.BodyFrames.BindSheets(spriteSheets);
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
         SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();

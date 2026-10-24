@@ -37,8 +37,8 @@ internal sealed class SamusPresentation
     /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
     public Position16<ScreenPixels> SpritemapPosition { get; internal set; }
 
-    /// <summary>The exact pending bank-$92 definitions consumed by accepted NMI.</summary>
-    public SamusTileTransferState TileTransfers { get; } = new();
+    /// <summary>Which body definitions the body shows, and the installed artwork they are drawn from.</summary>
+    public SamusBodyFrameState BodyFrames { get; } = new();
 
     /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
@@ -80,7 +80,7 @@ internal sealed class SamusPresentation
     /// before a visible normal-gameplay Samus can be constructed.
     /// </summary>
     public void PrimeGraphics(SamusState samus) =>
-        TileTransfers.SelectForPoseFrame(samus.Pose, samus.AnimationFrame);
+        BodyFrames.Select(samus.Pose, samus.AnimationFrame);
 
     /// <summary>
     /// Seeds the animation frame timer as <c>Set_Samus_AnimationFrame_if_PoseChanged</c>
@@ -499,7 +499,7 @@ internal sealed class SamusPresentation
             // Native branches around every position/index/OAM write, then still falls
             // through to `$92:8000`. Preserve the previous visible spritemap indices for
             // echo drawing while selecting this frame's tile definitions for the next NMI.
-            TileTransfers.SelectForPoseFrame(samus.Pose, samus.AnimationFrame);
+            BodyFrames.Select(samus.Pose, samus.AnimationFrame);
             return false;
         }
 
@@ -539,7 +539,7 @@ internal sealed class SamusPresentation
             // drawn origin takes back the leaked high byte (#1397).
             int landingOffsetIndex = (samus.Pose - SamusPoseId.NormalLandingRightPose) * 4 +
                 samus.AnimationFrame;
-            if (TileTransfers.Artwork is not { } landingArt ||
+            if (BodyFrames.Artwork is not { } landingArt ||
                 !landingArt.TryLandingYOffset(landingOffsetIndex, out ushort landingOffset))
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
             spritemapY = unchecked((ushort)(
@@ -556,7 +556,7 @@ internal sealed class SamusPresentation
             // valid-but-unused zero records `$39/$3A/$3F/$40`. An out-of-range
             // selection rejects; neighboring cartridge bytes are not a runtime fallback.
             int postureIndex = (samus.Pose - SamusPoseId.CrouchingTransitionRightPose) * 2 + samus.AnimationFrame;
-            if (TileTransfers.Artwork is not { } postureArt ||
+            if (BodyFrames.Artwork is not { } postureArt ||
                 !postureArt.TryPostureYOffset(postureIndex, out sbyte transitionOffset))
                 throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
             spritemapY = unchecked((ushort)(renderY + transitionOffset - layer1.Y));
@@ -567,7 +567,7 @@ internal sealed class SamusPresentation
             // animation byte index. Several indices intentionally name command operands,
             // because the external controller can publish those literal indices for a
             // visible frame. The installed 32-byte table preserves that odd layout.
-            if (TileTransfers.Artwork is not { } drainedArt ||
+            if (BodyFrames.Artwork is not { } drainedArt ||
                 !drainedArt.TryDrainedYOffset(samus.AnimationFrame, out sbyte drainedOffset))
                 throw new InvalidDataException($"Samus drained offset {samus.AnimationFrame} lacks installed art.");
             spritemapY = unchecked((ushort)(renderY + drainedOffset - layer1.Y));
@@ -586,14 +586,14 @@ internal sealed class SamusPresentation
         SpritemapPosition = new(spritemapX, spritemapY);
         Position16<ScreenPixels> drawOrigin = new(spritemapX, unchecked((ushort)(spritemapY + hiddenOamYHighByte)));
 
-        var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
+        var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");
         ushort topBase = spritemaps.TopBase(samus.Pose);
         TopSpritemapIndex = unchecked((ushort)(topBase + samus.AnimationFrame));
         // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
         // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
-        TileTransfers.SelectForPoseFrame(samus.Pose, samus.AnimationFrame);
-        ShownRecords = TileTransfers.SelectedRecords;
+        BodyFrames.Select(samus.Pose, samus.AnimationFrame);
+        ShownRecords = BodyFrames.Shown;
         sprites.AddSamusBody(TopSpritemapIndex, drawOrigin, spritemaps, BodySheets, ShownRecords, new SpriteSource(SpriteSourceKind.Samus, 0));
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
@@ -799,7 +799,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>The installed sheets the body draws from.</summary>
-    private InstalledSpriteSheets BodySheets => TileTransfers.Sheets ?? throw new InvalidOperationException(
+    private InstalledSpriteSheets BodySheets => BodyFrames.Sheets ?? throw new InvalidOperationException(
         "Samus rendering requires the installed sprite sheets.");
 
     /// <summary>Draws a populated echo slot with current Samus spritemaps after native Y clipping.</summary>
@@ -821,7 +821,7 @@ internal sealed class SamusPresentation
         if (screenY is < 0 or >= 248)
             return;
 
-        var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
+        var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus speed-booster echo requires installed spritemap artwork.");
         ushort screenX = unchecked((ushort)(echo.X - layer1.X));
         var origin = new Position16<ScreenPixels>(screenX, unchecked((ushort)screenY));

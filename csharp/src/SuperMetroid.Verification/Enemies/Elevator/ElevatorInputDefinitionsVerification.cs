@@ -41,7 +41,7 @@ internal static class ElevatorInputDefinitionsVerification
             slot.SetSpawnParameter1(direction);
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState();
-            samus.Presentation.TileTransfers.BindBodyFixture(bodyArtwork);
+            samus.Presentation.BodyFrames.BindBodyFixture(bodyArtwork);
             initialize(slot, samus);
             ElevatorEnemyState elevator = enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].");
             AssertEqual(tableByteOffset, elevator.DirectionTableByteOffset,

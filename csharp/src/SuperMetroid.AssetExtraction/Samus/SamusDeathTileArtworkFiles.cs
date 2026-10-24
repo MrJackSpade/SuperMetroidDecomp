@@ -5,17 +5,17 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Exports the five native death graphics transfers into one indexed PNG.</summary>
-[CpuBusBoundary("codec: ROM Samus death graphics transfers → death tile PNG")]
+/// <summary>Exports Samus's death-explosion characters into one indexed PNG.</summary>
+[CpuBusBoundary("codec: ROM Samus death-explosion characters → death tile PNG")]
 public static class SamusDeathTileArtworkFiles
 {
-    /// <summary>Current provenance manifest revision for the five death-tile transfers.</summary>
+    /// <summary>Current provenance manifest revision for the death-explosion characters.</summary>
     private const int FormatVersion = 1;
     /// <summary>Reads strict camel-case manifest JSON and rejects unknown fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -27,14 +27,14 @@ public static class SamusDeathTileArtworkFiles
         WriteIndented = true,
     };
 
-    /// <summary>Exports the five $0400-byte death-explosion character transfers as a 64-by-160 indexed PNG and validates the written stock installation.</summary>
-    /// <param name="bus">Cartridge source for bank-$9B pages $8400, $8800, $8C00, $9000, and $8000 in native queue order.</param>
+    /// <summary>Exports the five 32-character death-explosion pages as a 64-by-160 indexed PNG and validates the written stock installation.</summary>
+    /// <param name="bus">Cartridge source for the bank-$9B explosion characters, written in the atlas's page order.</param>
     /// <param name="directory">Artwork directory, created if absent; existing PNG and companion manifest are overwritten.</param>
     /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim; post-write loading requires the supported cartridge hash.</param>
     /// <remarks>Pixel indices represent four-bit OBJ pens, not runtime colors. Writes are separate, with no rollback if later file/stock validation fails; animation timing and OAM placement are not exported.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Transfer coverage, provenance, or generated indexed artwork is incompatible.</exception>
+    /// <exception cref="InvalidDataException">Provenance or generated indexed artwork is incompatible.</exception>
     /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -42,13 +42,9 @@ public static class SamusDeathTileArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         var planar = new byte[SamusDeathTileAtlasFormat.TotalByteCount];
-        var segments = SamusSpecialSequenceRomData.Death.TileSegments;
-        if (segments.Length != SamusDeathTileAtlasFormat.SegmentCount)
-            throw new InvalidDataException("Samus death atlas does not cover every native tile transfer.");
-        for (int segment = 0; segment < segments.Length; segment++)
-            for (int offset = 0; offset < SamusSpecialSequenceRomData.Death.TileSegmentByteCount; offset++)
-                planar[segment * SamusSpecialSequenceRomData.Death.TileSegmentByteCount + offset] =
-                    bus.ReadCartridgeByte(segments[segment].SourceAddress + offset);
+        for (int index = 0; index < planar.Length; index++)
+            planar[index] = bus.ReadCartridgeByte(SamusCartridgeTables.DeathExplosionCharacters +
+                SamusDeathTileAtlasFormat.ExplosionByte(index));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,
             SamusDeathTileAtlasFormat.BitsPerPixel, SamusDeathTileAtlasFormat.Width / 8,
             out Extent16<ImagePixels> size);
@@ -66,7 +62,7 @@ public static class SamusDeathTileArtworkFiles
     /// <summary>Checks stock death-explosion provenance, hash, and PNG admission before selecting an optional replacement atlas.</summary>
     /// <param name="stockDirectory">Artwork directory containing the required death-explosion PNG and version-one manifest.</param>
     /// <param name="overrideDirectory">Optional artwork directory; null or an absent replacement PNG selects validated stock.</param>
-    /// <returns>A ROM-independent atlas for all five fixed transfers, retaining selected character pixels without changing destinations, palettes, or sequence timing.</returns>
+    /// <returns>A ROM-independent atlas of the explosion characters, retaining selected character pixels without changing palettes or sequence timing.</returns>
     /// <remarks>Overrides need no manifest but must decode as the same 64-by-160 four-bit character sheet. Required stock is validated even when replaced.</remarks>
     /// <exception cref="InvalidDataException">Manifest provenance/version, stock hash, or selected PNG dimensions/indices are invalid; admission errors include the source filename.</exception>
     /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>

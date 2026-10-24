@@ -11,20 +11,11 @@ namespace SuperMetroid.Verification.Samus.Drawing;
 internal static class SamusRenderingRomDataVerification
 {
     /// <summary>
-    /// Validates complete pose-indexed rendering tables and every fixed suit/cannon/DMA
+    /// Validates complete pose-indexed rendering tables and every fixed suit/cannon
     /// range against the private retail ROM when it is available.
     /// </summary>
     internal static void VerifySamusRenderingRomData()
     {
-        AssertTrue(
-            SamusRenderingRomData.TileTransfers.TopDestinations.First <
-                SamusRenderingRomData.TileTransfers.TopDestinations.Second,
-            "Samus top-half DMA destinations retain native ordering");
-        AssertTrue(
-            SamusRenderingRomData.TileTransfers.BottomDestinations.First <
-                SamusRenderingRomData.TileTransfers.BottomDestinations.Second,
-            "Samus bottom-half DMA destinations retain native ordering");
-
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
         {
@@ -54,10 +45,10 @@ internal static class SamusRenderingRomDataVerification
         TouchRange(bus, SamusCartridgeTables.AnimationDefinitionListPointers,
             poseCount * sizeof(ushort), "pose animation-definition pointers");
         TouchRange(bus, SamusCartridgeTables.TopDefinitionListPointers,
-            SamusRenderingRomData.TileTransfers.TopDefinitionSetCount * sizeof(ushort),
+            SamusBodyFrameTableConstants.TopDefinitionSetCount * sizeof(ushort),
             "top DMA-definition pointers");
         TouchRange(bus, SamusCartridgeTables.BottomDefinitionListPointers,
-            SamusRenderingRomData.TileTransfers.BottomDefinitionSetCount * sizeof(ushort),
+            SamusBodyFrameTableConstants.BottomDefinitionSetCount * sizeof(ushort),
             "bottom DMA-definition pointers");
 
         // Every pose must lead to a complete four-byte selector record in bank $92. This
@@ -71,7 +62,7 @@ internal static class SamusRenderingRomDataVerification
             TouchRange(
                 bus,
                 SamusRenderingRomDataBanksConstants.GraphicsDefinitions | pointer,
-                SamusRenderingRomData.TileTransfers.AnimationRecordByteCount,
+                SamusBodyFrameTableConstants.AnimationRecordByteCount,
                 $"pose ${pose:X2} frame-zero graphics selector");
         }
 

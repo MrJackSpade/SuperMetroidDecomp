@@ -74,7 +74,7 @@ internal static class SamusBodySheetFixtures
     }
 
     /// <summary>Binds a fixture's body artwork and the sheets it draws from.</summary>
-    extension(SamusTileTransferState transfers)
+    extension(SamusBodyFrameState transfers)
     {
         /// <summary>Binds <paramref name="body"/> and the sheets composed from it.</summary>
         internal void BindBodyFixture(SamusBodyArtworkCatalog body)
@@ -90,10 +90,10 @@ internal static class SamusBodySheetFixtures
         /// <summary>Binds <paramref name="cannon"/> over Samus's bound body, and the sheets they draw from.</summary>
         internal void BindArmCannonFixture(SamusArmCannonArtworkCatalog cannon)
         {
-            SamusBodyArtworkCatalog body = samus.Presentation.TileTransfers.Artwork
+            SamusBodyArtworkCatalog body = samus.Presentation.BodyFrames.Artwork
                 ?? throw new InvalidOperationException("An arm-cannon fixture binds over a bound body.");
             samus.ArmCannon.Artwork = cannon;
-            samus.Presentation.TileTransfers.BindSheets(For(body, cannon));
+            samus.Presentation.BodyFrames.BindSheets(For(body, cannon));
         }
     }
 

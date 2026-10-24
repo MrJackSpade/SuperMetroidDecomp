@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>Immutable cartridge tables and fixed VRAM layouts used to draw Samus.</summary>
+/// <summary>Immutable cartridge tables used to draw Samus.</summary>
 /// <remarks>
-/// This catalog owns rendering data only. Animation state, the currently selected DMA
-/// definition, OAM positions, and frame counters remain on their runtime state objects.
+/// This catalog owns rendering data only. Animation state, the shown body definitions,
+/// sprite positions, and frame counters remain on their runtime state objects.
 /// </remarks>
 public static class SamusRenderingRomData
 {
@@ -74,25 +74,6 @@ public static class SamusRenderingRomData
         public const int DrainedVerticalOffsets = 0x908def;
         /// <summary>Native contiguous drained-body visual offset interval.</summary>
         public const int DrainedVerticalOffsetByteCount = 32;
-    }
-
-    /// <summary>Seven-byte body-character DMA definitions and their fixed destinations.</summary>
-    public static class TileTransfers
-    {
-
-
-
-        /// <summary>Bottom-set sentinel meaning that a frame does not upload lower-body art.</summary>
-        public const byte NoBottomTransferSet = 0xff;
-
-        /// <summary>VRAM word destinations for the two pieces of one body-half upload.</summary>
-        public readonly record struct SplitVramDestinations(ushort First, ushort Second);
-
-        /// <summary>Fixed destinations used by the top-half definition.</summary>
-        public static readonly SplitVramDestinations TopDestinations = new(0x6000, 0x6100);
-
-        /// <summary>Fixed destinations used by the bottom-half definition.</summary>
-        public static readonly SplitVramDestinations BottomDestinations = new(0x6080, 0x6180);
     }
 
     /// <summary>Arm-cannon cover state, OAM, character-list, and DMA definitions.</summary>

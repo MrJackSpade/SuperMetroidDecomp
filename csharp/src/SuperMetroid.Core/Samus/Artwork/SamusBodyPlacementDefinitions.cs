@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -431,21 +432,19 @@ internal static class SamusBodyPlacementDefinitions
         catch (InvalidDataException) { return false; }
     }
 
-    /// <summary>Reconstructs selected top/bottom tile uploads and finds the lowest opaque sprite pixel; declines incomplete or unsupported artwork.</summary>
+    /// <summary>Lays out the frame's selected top and bottom definitions as body characters and finds the lowest opaque sprite pixel; declines incomplete or unsupported artwork.</summary>
     private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, SamusPoseId pose, ushort frame,
         bool drawBottom, out int bottom)
     {
-        int windowBytes = 2 * (SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.TileTransfers.BottomDestinations.Second -
-            SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.TileTransfers.TopDestinations.First) + SamusBodyArtworkCatalog.BytesPerDefinitionSlot;
+        // The window reaches one whole definition past the start of the last half row a definition's part fills.
+        int windowBytes = BodyPartByteOffset(upper: false, secondPart: true) + SamusBodyArtworkCatalog.BytesPerDefinitionSlot;
         Span<byte> pixels = stackalloc byte[windowBytes];
         Span<bool> defined = stackalloc bool[windowBytes];
         pixels.Clear(); defined.Clear();
         SamusBodyFrameSelection selected = art.Frame(pose, frame);
-        Upload(art.GetDefinition(true, selected.TopSet, selected.TopPosition),
-            SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.TileTransfers.TopDestinations, pixels, defined);
-        if (selected.BottomSet != SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
-            Upload(art.GetDefinition(false, selected.BottomSet, selected.BottomPosition),
-                SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.TileTransfers.BottomDestinations, pixels, defined);
+        Lay(art.GetDefinition(true, selected.TopSet, selected.TopPosition), upper: true, pixels, defined);
+        if (selected.NamesBottom)
+            Lay(art.GetDefinition(false, selected.BottomSet, selected.BottomPosition), upper: false, pixels, defined);
         bottom = int.MinValue;
         for (int half = 0; half < (drawBottom ? 2 : 1); half++)
         {
@@ -479,21 +478,27 @@ internal static class SamusBodyPlacementDefinitions
         }
         return bottom != int.MinValue;
 
-        // Copy both planar tile-transfer segments into split VRAM positions and mark
+        // Copy both planar parts of a definition to the body characters they fill and mark
         // their bytes available for opacity sampling in this local calculation.
-        static void Upload(SamusBodyTileDefinition definition,
-            SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.TileTransfers.SplitVramDestinations destination,
-            Span<byte> data, Span<bool> coverage)
+        static void Lay(SamusBodyTileDefinition definition, bool upper, Span<byte> data, Span<bool> coverage)
         {
             ReadOnlySpan<byte> source = definition.Planar.Span;
-            int firstByte = SuperMetroid.Core.Samus.Drawing.SamusRenderingRomData.TileTransfers.TopDestinations.First * 2;
-            int first = destination.First * 2 - firstByte, second = destination.Second * 2 - firstByte;
+            int first = BodyPartByteOffset(upper, secondPart: false), second = BodyPartByteOffset(upper, secondPart: true);
             source[..definition.FirstSize].CopyTo(data[first..]);
             coverage.Slice(first, definition.FirstSize).Fill(true);
             source[definition.FirstSize..].CopyTo(data[second..]);
             coverage.Slice(second, definition.SecondSize).Fill(true);
         }
     }
+    /// <summary>
+    /// The byte at which a definition's part starts among the body's characters, as
+    /// <see cref="SamusBodyArtworkCatalog.BodyArtwork"/> lays them out: the first part fills a half row, the top's from
+    /// character 0 and the bottom's from the middle of the row, and the second part the half row one full row below.
+    /// </summary>
+    private static int BodyPartByteOffset(bool upper, bool secondPart) =>
+        ((upper ? 0 : SpriteArtwork.CharactersPerRow / 2) + (secondPart ? SpriteArtwork.CharactersPerRow : 0)) *
+        SpriteArtwork.CharacterByteCount;
+
     /// <summary>Transition left-facing copies use their right-facing row; source defaults derive from selected support geometry.</summary>
     internal static int PostureSourceIndex(int index)
     {

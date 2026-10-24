@@ -127,7 +127,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static sbyte ReadGraphicsYOffset(SamusState samus)
     {
-        return (samus.Presentation.TileTransfers.Artwork ?? throw new InvalidOperationException(
+        return (samus.Presentation.BodyFrames.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork."))
             .GraphicsYOffset(samus.Pose);
     }

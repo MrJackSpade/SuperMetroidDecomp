@@ -41,7 +41,7 @@ internal static void VerifySamusRenderingSlice()
         AnimationFrame = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
-    samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
+    samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     var cgram = new SamusColourRig();
     var vram = new SnesVram();
     var oamFrame = new SpriteFrameBuffer();
@@ -55,16 +55,14 @@ internal static void VerifySamusRenderingSlice()
 
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.PrimeGraphics(samus);
-    AssertEqual(0x92d0b0, samus.Presentation.TileTransfers.TopDefinitionAddress, "pose 1 frame 0 top tile definition");
-    AssertEqual(0x92d1c8, samus.Presentation.TileTransfers.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
-    AssertTrue(samus.Presentation.TileTransfers.TopTransferEnabled, "Samus top tile DMA flag");
-    AssertTrue(samus.Presentation.TileTransfers.BottomTransferEnabled, "Samus bottom tile DMA flag");
+    AssertEqual(0x92d0b0, samus.Presentation.BodyFrames.TopDefinitionAddress, "pose 1 frame 0 top tile definition");
+    AssertEqual((int?)0x92d1c8, samus.Presentation.BodyFrames.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
 
-    samus.Presentation.TileTransfers.TransferToVram(vram);
-    AssertEqual(0x10, vram.ReadByte(0xc000), "Samus top part 1 reaches VRAM word $6000");
-    AssertEqual(0x20, vram.ReadByte(0xc200), "Samus top part 2 reaches VRAM word $6100");
-    AssertEqual(0x30, vram.ReadByte(0xc100), "Samus bottom part 1 reaches VRAM word $6080");
-    AssertEqual(0x40, vram.ReadByte(0xc300), "Samus bottom part 2 reaches VRAM word $6180");
+    samus.Presentation.BodyFrames.LoadShownInto(vram);
+    AssertEqual(0x10, vram.ReadByte(0xc000), "Samus top part 1 is the shown body's character 0");
+    AssertEqual(0x20, vram.ReadByte(0xc200), "Samus top part 2 is the shown body's character 16");
+    AssertEqual(0x30, vram.ReadByte(0xc100), "Samus bottom part 1 is the shown body's character 8");
+    AssertEqual(0x40, vram.ReadByte(0xc300), "Samus bottom part 2 is the shown body's character 24");
 
     SamusPresentation.InitializeAnimation(samus);
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "pose 1 initial animation delay");
@@ -246,7 +244,7 @@ internal static void VerifySamusRenderingSlice()
     samus.EquippedItems = (SamusEquipmentFlags)0x0001;
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
-    int? bottomBeforeSuited = samus.Presentation.TileTransfers.SelectedRecords.Bottom;
+    int? bottomBeforeSuited = samus.Presentation.BodyFrames.Shown.Bottom;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0));
@@ -254,7 +252,7 @@ internal static void VerifySamusRenderingSlice()
     // The suited forward frame selects bottom set $FF: no bottom transfer. Its body draws keep showing the bottom
     // record the previous frame selected, as retained VRAM did natively.
     AssertTrue(bottomBeforeSuited is not null, "the frame before the suited pose selected a bottom record");
-    AssertEqual(bottomBeforeSuited, samus.Presentation.TileTransfers.SelectedRecords.Bottom,
+    AssertEqual(bottomBeforeSuited, samus.Presentation.BodyFrames.Shown.Bottom,
         "a frame with no bottom transfer keeps the earlier bottom record");
     SpriteDraw[] suitedBody = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertTrue(suitedBody.Length > 0 && suitedBody.Zip([samus.Presentation.TopSpritemapIndex, samus.Presentation.BottomSpritemapIndex])
@@ -269,17 +267,17 @@ internal static void VerifySamusRenderingSlice()
     // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
     samus.InvincibilityTimer = WrappingCountdown.Start(1);
     samus.KnockbackTimer = WrappingCountdown.Start(0);
-    samus.Presentation.TileTransfers.ClearTransferFlags();
+    SamusBodyRecords shownBeforeHidden = samus.Presentation.BodyFrames.Shown;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0, oam.LastFinalizedSpriteCount,
         "odd invincibility frame suppresses complete Samus body");
-    AssertTrue(samus.Presentation.TileTransfers.TopTransferEnabled,
-        "hidden invincibility frame still selects top graphics DMA");
-    AssertTrue(!samus.Presentation.TileTransfers.BottomTransferEnabled,
-        "hidden suited-forward frame preserves its bank-$92 bottom-set FF sentinel");
+    AssertTrue(samus.Presentation.BodyFrames.Shown.Top is not null,
+        "hidden invincibility frame still selects its top picture");
+    AssertEqual(shownBeforeHidden.Bottom, samus.Presentation.BodyFrames.Shown.Bottom,
+        "hidden suited-forward frame names no bottom half and keeps the bottom picture already shown");
 
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -498,13 +496,13 @@ internal static void VerifySamusRenderingSlice()
 /// </summary>
 private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, int index)
 {
-    SamusSpritemapArtworkCatalog spritemaps = samus.Presentation.TileTransfers.Artwork?.Spritemaps
+    SamusSpritemapArtworkCatalog spritemaps = samus.Presentation.BodyFrames.Artwork?.Spritemaps
         ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
-    InstalledSpriteSheets sheets = samus.Presentation.TileTransfers.Sheets
+    InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets
         ?? throw new InvalidOperationException("Verification requires bound Samus sprite sheets.");
     if (!spritemaps.TryGetComposition(index, out SamusSpritemapId composition) || !spritemaps.TryGetFrame(index, out SpriteFrame? frame))
         throw new InvalidOperationException($"Body spritemap {index:X4} is not installed.");
-    SamusBodyRecords records = samus.Presentation.TileTransfers.SelectedRecords;
+    SamusBodyRecords records = samus.Presentation.BodyFrames.Shown;
     SamusBodyFrameKey key = SamusBodySheetDefinitions.Key(composition, frame, records.Top, records.Bottom);
     return draw is ImageSpriteDraw { Mirror: SpriteMirror.None } image &&
         ReferenceEquals(sheets.Get(SamusBodySheetDefinitions.Sheet(key)).Frame(key.Name), image.Image);
@@ -543,8 +541,8 @@ internal static void VerifySamusArmCannon()
         SelectedHudItem = HudItem.Beam,
     };
 
-    samus.Presentation.TileTransfers.BindBodyFixture(InstalledFixtures.SamusBody);
-    samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
+    samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
+    samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     samus.BindArmCannonFixture(artwork);
 
     // The HUD producer requires two identical samples. Merely changing selection sets the

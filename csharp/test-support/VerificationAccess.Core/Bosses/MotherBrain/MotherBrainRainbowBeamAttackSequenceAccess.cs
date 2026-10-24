@@ -17,7 +17,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         internal void StartFinishOffSequence()
         {
             self.RainbowAttack.RequestWalkForwardReallySlow(unchecked((ushort)(self.State.Body.Position.X + 0x0010)));
-            self.State.BabyMetroidTileTransferIndex = 0;
+            self.State.BabyMetroidPagesShown = 0;
             self.State.BabyMetroidSpawned = false;
             self.State.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOff;
         }

@@ -111,7 +111,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey && step.PaletteRequested)
             LoadMotherBrainDeathCorpseFade(sequence.State.GreyTransitionCounter - 1);
-        foreach (MotherBrainCorpseRotUpload upload in step.CorpseRottingVramTransfers) _motherBrainEncounter.ShowMotherBrainCorpseRot(upload);
+        if (step.CorpseRotStepShown is int rotStep) _motherBrainEncounter.ShowCorpseRotStep(rotStep);
         foreach (var dust in step.CorpseDustRequests)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
@@ -122,7 +122,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.MusicStopQueued) state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
         if (step.EscapeMusicQueued) state.RequestMusic(MusicCommand.LoadData(MotherBrainDeathRomData.EscapeMusicData), MusicCommandDelay.EightFrames);
         if (step.EscapeMusicTrackQueued) state.RequestMusic(MusicCommand.SelectTrack(MotherBrainDeathRomData.EscapeMusicTrack), MusicCommandDelay.EightFrames);
-        foreach (var transfer in step.EscapeSequenceTileTransfers) _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
+        foreach (MotherBrainSpritePage page in step.EscapeSequencePages) _motherBrainEncounter.ShowSpritePage(page);
         if (step.EscapeTypewriterSetupRequested)
         {
             state.EnableUnpauseHook = sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled;
@@ -412,8 +412,8 @@ internal sealed class MotherBrainRainbowAndDeath
             }
         }
 
-        if (current.SpriteTileTransfer is { } transfer)
-            _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
+        if (current.SpritePage is { } page)
+            _motherBrainEncounter.ShowSpritePage(page);
         if (current.BabySpawnRequested)
             _roomActors.SpawnBabyMetroid(state);
         if (current.Explosion is { } explosion)

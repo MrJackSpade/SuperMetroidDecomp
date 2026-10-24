@@ -33,7 +33,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             BodyStumbleRequested: false, LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
             DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
-            BabyPaletteTransfer: null, AttackTileTransfer: null, BackgroundPaletteTransfer: null);
+            BabyFadeShade: null, AttackPage: null, RecoveryLightsFrame: null);
 
         runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects((state), step);
         AssertEqual((SoundEffectId?)MotherBrainSoundDefinitions.Explosion, state.LastSoundEffectLibrary3, "the explosion queues library-three $13");
@@ -43,7 +43,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         // queue through QueueSound_Lib2_Max3.
         var death = default(MotherBrainRainbowBeamAttackStepResult) with
         {
-            DeathExplosions = [], CorpseRottingVramTransfers = [], EscapeSequenceTileTransfers = [],
+            DeathExplosions = [], EscapeSequencePages = [],
             EscapePaletteFxRequests = [], EscapeDoorParticleSpawns = [],
             CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust)],
             EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, SoundEffectLibrary2Sounds.SmallExplosion),

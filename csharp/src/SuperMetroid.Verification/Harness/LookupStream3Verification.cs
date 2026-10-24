@@ -63,7 +63,6 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Escape;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -1062,20 +1061,13 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainVisualDefinitionsConstants.Frame(invalid), "stream 3 visual root bounds");
         MotherBrainSpecialSpriteSheetDefinition[] expectedSheets =
         [
-            new("mother-brain-leg-tiles.png", 0xb79000, 8, 0x7400),
-            new("mother-brain-baby-tiles.png", 0xb18800, 4, 0x7c00),
-            new("mother-brain-attack-tiles.png", 0xb7a000, 4, 0x7c00),
-            new("mother-brain-exploded-door-tiles.png", 0xabf400, 2, 0x7000),
+            new("mother-brain-leg-tiles.png", 0xb79000, 8, 320),
+            new("mother-brain-baby-tiles.png", 0xb18800, 4, 448),
+            new("mother-brain-attack-tiles.png", 0xb7a000, 4, 448),
+            new("mother-brain-exploded-door-tiles.png", 0xabf400, 2, 256),
         ];
         AssertTrue(expectedSheets.SequenceEqual(MotherBrainSpecialSpriteArtworkDefinitions.All),
             "stream 3 named special sheet order and every field");
-        foreach (var sheet in expectedSheets)
-            foreach (int source in new[] { sheet.SourceAddress, sheet.SourceAddress + sheet.ByteCount - 1 })
-            {
-                AssertTrue(MotherBrainSpecialSpriteArtworkDefinitions.TryForSource((uint)source, out var found),
-                    "stream 3 special sheet boundary lookup");
-                AssertEqual(sheet, found, "stream 3 special sheet source owner");
-            }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainSpecialSpriteArtworkDefinitions.All[invalid],
                 "stream 3 special sheet original index exception");
@@ -1387,13 +1379,17 @@ internal static class LookupStream3Verification
         }
     }
 
-    /// <summary>Checks escape-timer and exploded-door tile transfers against native records and sequence cursors.</summary>
+    /// <summary>
+    /// Checks the pages the escape sequence and the exploded door show against the cartridge's lists: each production
+    /// selection, in list order, shows the record's bytes where the record places them, and each list's cursor advances once
+    /// per call and refuses a call past its last page.
+    /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for escape geometry")]
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        Func<MotherBrainSpriteTileTransferRequest> timer = sequence.ThirdPhaseDeath.CreateNextEscapeTimerTileTransfer;
-        Func<MotherBrainSpriteTileTransferRequest> door = sequence.ThirdPhaseDeath.CreateNextExplodedDoorTileTransfer;
+        Func<MotherBrainSpritePage> timer = sequence.ThirdPhaseDeath.NextEscapePage;
+        Func<MotherBrainSpritePage> door = sequence.ThirdPhaseDeath.NextExplodedDoorPage;
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
@@ -1402,33 +1398,34 @@ internal static class LookupStream3Verification
             for (int index = 0; index < count; index++)
             {
                 int address = start + index * 7;
-                var expected = new MotherBrainSpriteTileTransferRequest((ushort)index, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                    (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong((address + 2))), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 5)));
-                var calculated = timerList ? EscapeTextArtworkDefinitions.Transfer(index)
-                    : MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
-                AssertEqual(expected, calculated, "stream 3 native escape graphics record");
-                AssertEqual(expected, method(),
-                    "stream 3 production escape transfer selection");
-                AssertEqual((ushort)(index + 1), timerList ? sequence.ThirdPhaseDeath.EscapeTimerTileTransferIndex : sequence.ThirdPhaseDeath.ExplodedDoorTileTransferIndex,
+                int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayout.ObjectCharacters.Offset) * 2;
+                RuntimeCharacterUpload shown = MotherBrainCharacterUploads.Of(method());
+                AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 production escape page shows where the native record places it");
+                AssertEqual(nativeSize, shown.ByteCount, "stream 3 production escape page shows the native record's bytes");
+                AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapePagesShown : sequence.ThirdPhaseDeath.ExplodedDoorPagesShown,
                     "stream 3 production escape cursor advances once");
             }
             try
             {
                 method();
-                throw new InvalidDataException("Completed escape transfer list unexpectedly produced another entry.");
+                throw new InvalidDataException("Completed escape page list unexpectedly produced another page.");
             }
             catch (InvalidOperationException) { }
         }
+        for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
+            AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (EscapeTextArtworkDefinitions.TimerPageCount + page) * 7 + 2),
+                EscapeTextArtworkDefinitions.PageSource(page), "stream 3 escape text page source");
+        AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa9902f + 2),
+            (uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.SourceAddress, "stream 3 exploded door source");
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageDestination(invalid), "stream 3 text page destination bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
         }
-        foreach (int invalid in new[] { -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, invalid), "stream 3 door page bounds");
         using var temporary = new TestScratchDirectory("map-catalog");
         SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
         Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
@@ -1442,20 +1439,25 @@ internal static class LookupStream3Verification
         for (int row = 0; row < 8; row++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitionsConstants.TileRowOffset(row),
                 "stream 3 corpse native tile row offset");
-        var transfers = MotherBrainCorpseArtworkDefinitions.RotTransfers;
-        AssertEqual(6, transfers.Count, "stream 3 corpse transfer count");
-        var enumerated = transfers.ToArray();
+        IReadOnlyList<MotherBrainCorpseRotRow> rotRows = MotherBrainCorpseArtworkDefinitions.RotRows;
+        AssertEqual(6, rotRows.Count, "stream 3 corpse rot row count");
         for (int row = 0; row < 6; row++)
         {
             int entry = 0xa9e1f4 + row * 8;
-            var expected = new MotherBrainSpriteTileTransferRequest((ushort)row, CartridgeImportSource.Require(rom).ReadCartridgeWord(entry),
-                (uint)(int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6));
-            AssertEqual(expected, transfers[row], "stream 3 native corpse rot transfer");
-            AssertEqual(expected, enumerated[row], "stream 3 corpse transfer enumeration order");
+            MotherBrainCorpseRotRow rotRow = rotRows[row];
+            AssertEqual(row, rotRow.Row, "stream 3 corpse rot rows in row order");
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), rotRow.ByteCount, "stream 3 native corpse rot row bytes");
+            int nativeStaging = (int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
+            AssertEqual(nativeStaging, EnemyStagingDefinitions.RottingHeapNativeAddress + rotRow.RottingOffset, "stream 3 native corpse rot row source");
+            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
+                MotherBrainCharacterUploads.RotRegion(rotRow).FirstByte, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
-            AssertEqual(source, MotherBrainCorpseArtworkDefinitions.VramPageSource(row), "stream 3 corpse source page");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5), MotherBrainCorpseArtworkDefinitions.VramPageDestination(row), "stream 3 corpse destination page");
+            AssertEqual(source, MotherBrainCorpseArtworkDefinitions.PageSource(row), "stream 3 corpse source page");
+            RuntimeCharacterUpload page = MotherBrainCharacterUploads.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row));
+            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
+                page.FirstByte, "stream 3 corpse page placement");
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");
         }
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)
@@ -1505,7 +1507,7 @@ internal static class LookupStream3Verification
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
             {
                 int first = row * MotherBrainCorpseArtworkDefinitions.RowBytes;
-                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, MotherBrainCorpseArtworkDefinitions.StagingAddress + first,
+                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, EnemyStagingDefinitions.RottingHeapNativeAddress + first,
                     MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
                 for (int offset = 0; offset < staged.Length; offset++)
                     AssertEqual(expectedTiles[first + offset], staged[offset], "stream 3 corpse row geometry");
@@ -1513,9 +1515,8 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageSource(invalid), "stream 3 corpse source bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageDestination(invalid), "stream 3 corpse destination bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[invalid], "stream 3 corpse transfer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageSource(invalid), "stream 3 corpse source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(invalid), "stream 3 corpse page character bounds");
         }
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }

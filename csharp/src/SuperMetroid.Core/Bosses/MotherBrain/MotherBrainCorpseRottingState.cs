@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -11,9 +10,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <remarks>
 /// The retail routine treats every visible pixel row as a four-byte table entry, delays the rows by different amounts,
-/// and moves 4bpp bitplane rows through a work-memory buffer that six transfers upload after each step. The extraction
-/// plays those moves and pictures every step (#1392); this keeps the table, whose finished rows raise dust, and the
-/// steps taken, which name the pictures.
+/// and moves the corpse's pixel rows down, showing every row after each step but the last. The extraction plays those
+/// moves and pictures every step (#1392); this keeps the table, whose finished rows raise dust, and the steps taken,
+/// which select the pictures shown (#1406).
 /// </remarks>
 public sealed class MotherBrainCorpseRottingState
 {
@@ -78,21 +77,20 @@ public sealed class MotherBrainCorpseRottingState
                     SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust));
             });
 
-        // The final entry returns carry clear before the enemy-specific VRAM transfer
-        // callback, whereas every still-active call queues the complete six-record list.
+        // The final entry returns carry clear before the corpse's rows are shown again, so the
+        // last step is never shown; every still-active call shows all six rows as it left them.
         if (!stillRotting)
         {
             return new MotherBrainCorpseRottingStepResult(
                 StillRotting: false,
-                VramTransfers: [],
+                ShownRotStep: null,
                 DustRequests: dustRequests);
         }
 
-        // Carry set from `$DBDF` reaches `$B1DD`, which queues all six records every time.
-        int step = checked((int)ProcessCallCount);
+        // Carry set from `$DBDF` reaches `$B1DD`, which shows every row each time.
         return new MotherBrainCorpseRottingStepResult(
             StillRotting: true,
-            [.. MotherBrainCorpseArtworkDefinitions.RotTransfers.Select(transfer => new MotherBrainCorpseRotUpload(transfer, step))],
+            ShownRotStep: checked((int)ProcessCallCount),
             DustRequests: dustRequests);
     }
 }

@@ -69,7 +69,7 @@ internal static class MotherBrainRoomFlashAudit
         AddColors(MotherBrainRoomColorRomData.InitialTubeProjectileSource, MotherBrainRoomColorRomData.InitialColors);
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsFrames; index++)
             AddColors(MotherBrainRoomColorRomData.RecoveryLightsSource(index),
-                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2);
+                MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2);
         return source;
     }
 }

@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -14,7 +13,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks that replacement effect artwork changes pixels without changing Crocomire or Mother Brain timing.</summary>
 internal static class EnemyEffectIsolationVerification
@@ -115,8 +114,8 @@ internal static class EnemyEffectIsolationVerification
             AssertEqual(call < 118, expected.StillRotting, "exact corpse lifetime");
             AssertEqual(expected.StillRotting, actual.StillRotting, "corpse lifetime independent of pixels");
             AssertAnimationValues(baselineRot, editedRot, "corpse counters at call " + call);
-            AssertEqual(call < 118 ? 6 : 0, expected.VramTransfers.Count, "six uploads on each active call, none on completion");
-            AssertTrue(expected.VramTransfers.SequenceEqual(actual.VramTransfers), "same corpse upload schedule");
+            AssertEqual<int?>(call < 118 ? call : null, expected.ShownRotStep, "every active call shows the step just taken, completion shows none");
+            AssertEqual<int?>(expected.ShownRotStep, actual.ShownRotStep, "same corpse showing schedule");
             AssertTrue(expected.DustRequests.SequenceEqual(actual.DustRequests), "same completion dust and audio");
             // Rows finished by this call, in table order: `$DBDF` marks a completed row
             // `$FFFF`, except the final row, which completes as the call returns carry clear.
@@ -139,19 +138,18 @@ internal static class EnemyEffectIsolationVerification
             for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
                 AssertEqual(MotherBrainCorpseRottingState.ReadEntry(baseline, index),
                     MotherBrainCorpseRottingState.ReadEntry(edited, index), "every corpse row's Y/delay is independent of artwork");
-            // Each row the corpse uploads shows the step it was uploaded after (#1392).
-            foreach (MotherBrainCorpseRotUpload upload in expected.VramTransfers)
+            // Every corpse row shows the step the call took (#1392, #1406).
+            if (expected.ShownRotStep is int step)
             {
-                AssertEqual(call, upload.Step, "each upload shows the step just taken");
-                baselineEnemies.MotherBrainEncounter.ShowMotherBrainCorpseRot(upload);
-                var region = new CharacterRegion((upload.Transfer.VramDestination - GameplayVramLayout.ObjectCharacters.Offset) * 2, upload.Transfer.Size);
-                AssertTrue(baselineEnemies.Presentation.RotUploads.TryShowing(region, out int shown, out _) && shown == call,
-                    "the encounter records the step each corpse row shows");
+                baselineEnemies.MotherBrainEncounter.ShowCorpseRotStep(step);
+                foreach (MotherBrainCorpseRotRow row in MotherBrainCorpseArtworkDefinitions.RotRows)
+                    AssertTrue(baselineEnemies.Presentation.RotUploads.TryShowing(MotherBrainCharacterUploads.RotRegion(row), out int shown, out _) && shown == call,
+                        "the encounter records the step each corpse row shows");
             }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
         AssertEqual(118u, baselineRot.ProcessCallCount, "fixed corpse completion clock");
-        Console.WriteLine("  Mother Brain corpse: 118 exact calls, 48 row completions, 702 recorded row uploads, dust/audio timing unchanged.");
+        Console.WriteLine("  Mother Brain corpse: 118 exact calls, 48 row completions, 117 rot steps shown on every row, dust/audio timing unchanged.");
     }
 
     /// <summary>Runs the Crocomire melt and Mother Brain corpse artwork isolation checks.</summary>

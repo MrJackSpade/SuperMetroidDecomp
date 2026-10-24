@@ -9,7 +9,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -94,7 +94,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
             "  Mother Brain escape text art: five guarded OBJ pages, cartridge parity, visible edit, reload and invalid override pass.");
     }
 
-    /// <summary>Applies all five escape-text transfer requests through the production Mother Brain path.</summary>
+    /// <summary>Shows all five escape-text pages through the production Mother Brain path.</summary>
     private static SnesVram TransferMotherBrainEscapeTextPages(
         InstalledEnemyArtwork artwork)
     {
@@ -102,14 +102,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
             new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
-        {
-            var request = new MotherBrainSpriteTileTransferRequest(
-                (ushort)(page + 2),
-                EscapeTextArtworkDefinitions.PageByteCount(page),
-                EscapeTextArtworkDefinitions.PageSource(page),
-                EscapeTextArtworkDefinitions.PageDestination(page));
-            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
-        }
+            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeText, page));
         return ObjVram();
     }
 

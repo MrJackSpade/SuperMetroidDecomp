@@ -9,9 +9,6 @@ public static class BabyMetroidCutsceneColorRomData
     /// <summary>$AD:E90C, first displayed fourteen-color fade-to-black image.</summary>
     public const int FirstFadeSource = 0xade90c;
 
-    /// <summary>Byte destination $01E2: sprite palette seven, starting at color one.</summary>
-    public const int DestinationByteIndex = 0x01e2;
-
     /// <summary>Fifteen packed RGB5 words in the initial $A9:94D4 image, filling OBJ palette seven colors 1..15 while retaining its transparent color zero.</summary>
     public const int InitialColorCount = 15;
     /// <summary>$A9:CDA6's fourteen-word transfer length, filling OBJ palette seven colors 1..14; the initial black color fifteen is not rewritten by the fade.</summary>

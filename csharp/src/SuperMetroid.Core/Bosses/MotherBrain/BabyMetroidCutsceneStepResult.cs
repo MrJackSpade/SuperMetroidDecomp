@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -12,9 +12,9 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     IReadOnlyList<BabyMetroidReleaseDustRequest> ReleaseDustClouds,
     bool AmbientCrySoundQueued,
     DustExplosionRequest? DeathExplosion,
-    BabyMetroidPaletteTransferRequest? BabyPaletteTransfer,
-    MotherBrainSpriteTileTransferRequest? AttackTileTransfer,
-    MotherBrainBackgroundPaletteTransferRequest? BackgroundPaletteTransfer)
+    int? BabyFadeShade,
+    MotherBrainSpritePage? AttackPage,
+    int? RecoveryLightsFrame)
 {
     /// <summary>The one-call fatal-impact edge at $A9:CBF2-CC3D, before the ongoing shake phase.</summary>
     public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&

@@ -242,55 +242,31 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             state.LastSoundEffectLibrary3 = explosion.SoundEffect;
         }
 
-        if (step.BabyPaletteTransfer is { } palette)
-            LoadBabyMetroidCutsceneFadePalette(palette);
+        if (step.BabyFadeShade is int shade)
+            LoadBabyMetroidCutsceneFadePalette(shade);
 
-        if (step.AttackTileTransfer is { } attackTiles)
-            _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(attackTiles);
+        if (step.AttackPage is { } attackPage)
+            _motherBrainEncounter.ShowSpritePage(attackPage);
 
-        if (step.BackgroundPaletteTransfer is { } roomPalette)
-            LoadMotherBrainRecoveryLights(roomPalette);
+        if (step.RecoveryLightsFrame is int lightsFrame)
+            LoadMotherBrainRecoveryLights(lightsFrame);
     }
 
-    /// <summary>Requires the native two-destination recovery-light transfer layout before applying installed room colors.</summary>
-    internal void LoadMotherBrainRecoveryLights(
-        MotherBrainBackgroundPaletteTransferRequest request)
-    {
-        if (request.PaletteIndex >= MotherBrainRoomColorRomData.RecoveryLightsFrames ||
-            request.SourceAddress != (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(
-                request.PaletteIndex) ||
-            request.FirstDestinationColorIndex !=
-                MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort) ||
-            request.SecondDestinationColorIndex !=
-                MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort) ||
-            request.ColorsPerDestination !=
-                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination)
-            throw new InvalidDataException(
-                $"Mother Brain recovery-light request {request.PaletteIndex} has a non-native transfer layout.");
-
+    /// <summary>Shows room-light recovery frame <paramref name="frame"/> (0..6) from the installed room colours.</summary>
+    /// <exception cref="InvalidDataException">The frame is not one of the seven authored images.</exception>
+    internal void LoadMotherBrainRecoveryLights(int frame) =>
         (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain recovery requires installed room colors."))
-            .ApplyRecoveryLights(_presentation.Cgram, request.PaletteIndex);
-    }
+            .ApplyRecoveryLights(_presentation.Cgram, frame);
 
-    /// <summary>Requires the native fade source, destination, and color count before copying installed Baby shades to CGRAM.</summary>
-    internal void LoadBabyMetroidCutsceneFadePalette(
-        BabyMetroidPaletteTransferRequest palette)
+    /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>
+    internal void LoadBabyMetroidCutsceneFadePalette(int shade)
     {
-        int expectedSource = BabyMetroidCutsceneColorRomData.FadeSource(
-            palette.PaletteIndex);
-        if (palette.SourceAddress != expectedSource ||
-            palette.DestinationColorIndex !=
-                BabyMetroidCutsceneColorRomData.DestinationByteIndex ||
-            palette.ColorCount != BabyMetroidCutsceneColorRomData.FadeColorCount)
-            throw new InvalidDataException(
-                $"Cutscene Baby fade {palette.PaletteIndex} has a non-native transfer layout.");
-
         var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid fade requires installed colors.");
-        for (int color = 0; color < palette.ColorCount; color++)
-            _presentation.BossColours().BabyMetroidCutscene.Write(color,
-                colors.FadeColor(palette.PaletteIndex, color));
+        for (int color = 0; color < BabyMetroidCutsceneColorRomData.FadeColorCount; color++)
+            _presentation.BossColours().BabyMetroidCutscene.Write(color, colors.FadeColor(shade, color));
     }
 
     /// <summary>Ports BabyMetroidCutscene's main AI.</summary>

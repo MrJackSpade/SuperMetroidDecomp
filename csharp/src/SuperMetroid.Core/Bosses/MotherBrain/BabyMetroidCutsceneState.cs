@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -128,8 +127,8 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public int DeathExplosionPatternIndex { get; private set; }
 
-    /// <summary>Zero-based index of the next `$A9:8FC7` attack-tile DMA record.</summary>
-    public int AttackTileTransferIndex { get; private set; }
+    /// <summary>How many attack pages the cutscene has shown again (<c>$A9:8FC7</c>), which is also the next to show.</summary>
+    public int AttackPagesShown { get; private set; }
 
     /// <summary>Palette-table argument used while restoring the phase-three room lights, 0 through 8.</summary>
     public int RoomLightsTransitionCounter { get; private set; }
@@ -191,7 +190,7 @@ public sealed class BabyMetroidCutsceneState
         FadeToBlackPaletteIndex = 0;
         DeathExplosionTimer = WrappingCountdown.Start(0);
         DeathExplosionPatternIndex = 0;
-        AttackTileTransferIndex = 0;
+        AttackPagesShown = 0;
         RoomLightsTransitionCounter = 0;
         SamusRainbowPaletteAnimationCounter = 0;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
@@ -235,9 +234,9 @@ public sealed class BabyMetroidCutsceneState
         bool ambientCrySoundQueued = false;
         bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
-        BabyMetroidPaletteTransferRequest? babyPaletteTransfer = null;
-        MotherBrainSpriteTileTransferRequest? attackTileTransfer = null;
-        MotherBrainBackgroundPaletteTransferRequest? backgroundPaletteTransfer = null;
+        int? babyFadeShade = null;
+        MotherBrainSpritePage? attackPage = null;
+        int? recoveryLightsFrame = null;
 
         // EnemyCollisionHandling ($A0:903E) runs touch AI before main AI, against the Baby's
         // position from the previous frame. `$CF03` is active only during `$CA66`; broad
@@ -656,7 +655,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.DeathSequence:
                 StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
                 AccelerateDownwardsForDeath();
-                if (StepFadeToBlack(ref babyPaletteTransfer))
+                if (StepFadeToBlack(ref babyFadeShade))
                 {
                     // Completion does not write palette index seven. It hides the actor,
                     // installs `$CCC0`, and waits through `$80..0` before the first DMA.
@@ -679,22 +678,14 @@ public sealed class BabyMetroidCutsceneState
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
-                    int transferIndex = AttackTileTransferIndex;
-                    MotherBrainSpecialSpriteSheetDefinition attack =
-                        MotherBrainSpecialSpriteArtworkDefinitions.Attack;
-                    if ((uint)transferIndex >= (uint)attack.PageCount)
-                        throw new InvalidOperationException("Mother Brain attack-tile transfer list is already complete.");
+                    int attackPages = MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Attack);
+                    if (AttackPagesShown >= attackPages)
+                        throw new InvalidOperationException("Every Mother Brain attack page has already shown again.");
 
-                    attackTileTransfer = new MotherBrainSpriteTileTransferRequest(
-                        EntryIndex: AttackTileTransferIndex,
-                        Size: MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
-                        SourceAddress: unchecked((uint)(attack.SourceAddress +
-                            transferIndex * MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
-                        VramDestination: unchecked((ushort)(attack.FirstDestinationWord +
-                            transferIndex * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride)));
-                    AttackTileTransferIndex++;
+                    attackPage = MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Attack, AttackPagesShown);
+                    AttackPagesShown++;
 
-                    if (AttackTileTransferIndex == attack.PageCount)
+                    if (AttackPagesShown == attackPages)
                     {
                         // ProcessSpriteTilesTransfers observes the zero terminator after
                         // publishing entry four. Native falls straight into `$CCDE`, so the
@@ -724,12 +715,7 @@ public sealed class BabyMetroidCutsceneState
                 RoomLightsTransitionCounter++;
                 if (paletteIndex < 7)
                 {
-                    backgroundPaletteTransfer = new MotherBrainBackgroundPaletteTransferRequest(
-                        PaletteIndex: paletteIndex,
-                        SourceAddress: unchecked((uint)(MotherBrainBabyMetroidDefinitions.RoomLightsPaletteSource - paletteIndex * MotherBrainBabyMetroidDefinitions.RoomLightsPaletteBytes)),
-                        FirstDestinationColorIndex: 98,
-                        SecondDestinationColorIndex: 162,
-                        ColorsPerDestination: 14);
+                    recoveryLightsFrame = paletteIndex;
                     break;
                 }
 
@@ -771,9 +757,9 @@ public sealed class BabyMetroidCutsceneState
             releaseDustClouds.ToArray(),
             ambientCrySoundQueued,
             deathExplosion,
-            babyPaletteTransfer,
-            attackTileTransfer,
-            backgroundPaletteTransfer);
+            babyFadeShade,
+            attackPage,
+            recoveryLightsFrame);
     }
 
     /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision handler at $86:C381–C3A8: a living Baby gets a $0010 flash timer and health subtraction saturated at zero.</summary>
@@ -840,8 +826,8 @@ public sealed class BabyMetroidCutsceneState
             new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 2))));
     }
 
-    /// <summary>Advances the Baby's black-fade palette every nine calls after its center reaches Y=$80.</summary>
-    private bool StepFadeToBlack(ref BabyMetroidPaletteTransferRequest? paletteTransfer)
+    /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=$80, selecting the shade it shows.</summary>
+    private bool StepFadeToBlack(ref int? fadeShade)
     {
         // No timer changes occur until the actor's centre reaches Y `$80`.
         if (unchecked((short)(Position.Y.Whole - 128)) < 0)
@@ -857,11 +843,7 @@ public sealed class BabyMetroidCutsceneState
             return true;
 
         FadeToBlackPaletteIndex = nextIndex;
-        paletteTransfer = new BabyMetroidPaletteTransferRequest(
-            PaletteIndex: nextIndex,
-            SourceAddress: unchecked((uint)BabyMetroidCutsceneColorRomData.FadeSource(nextIndex)),
-            DestinationColorIndex: BabyMetroidCutsceneColorRomData.DestinationByteIndex,
-            ColorCount: BabyMetroidCutsceneColorRomData.FadeColorCount);
+        fadeShade = nextIndex;
         return false;
     }
 

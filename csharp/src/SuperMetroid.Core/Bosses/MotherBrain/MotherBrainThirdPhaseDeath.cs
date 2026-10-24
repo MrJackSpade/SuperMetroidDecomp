@@ -4,8 +4,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -76,14 +74,21 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public bool EnemyBg2TilemapClearRequested { get; private set; }
 
-    /// <summary>Index of the next of six `$A9:9003` corpse sprite-tile DMA records.</summary>
-    public int CorpseTileTransferIndex { get; private set; }
+    /// <summary>How many of the six corpse pages have shown (<c>$A9:9003</c>), which is also the next to show.</summary>
+    public int CorpsePagesShown { get; private set; }
 
-    /// <summary>Index of the next NTSC escape-timer tile record at <c>$A6:C4CB</c>.</summary>
-    public int EscapeTimerTileTransferIndex { get; private set; }
+    /// <summary>
+    /// How many pages of the escape sequence's list have shown (<c>$A6:C4CB</c>): the two escape-timer digit pages, then
+    /// the five escape-message pages.
+    /// </summary>
+    public int EscapePagesShown { get; private set; }
 
-    /// <summary>Index of the next exploded-door tile record at <c>$A9:902F</c>.</summary>
-    public int ExplodedDoorTileTransferIndex { get; private set; }
+    /// <summary>How many of the two exploded-door pages have shown (<c>$A9:902F</c>).</summary>
+    public int ExplodedDoorPagesShown { get; private set; }
+
+    /// <summary>The pages the escape sequence shows one per call: the escape timer's digits, then the escape message.</summary>
+    public static int EscapePageCount =>
+        MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.EscapeTimer) + MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.EscapeText);
 
     /// <summary>Unpause-hook enable word cleared when the escape typewriter is installed.</summary>
     public bool MotherBrainUnpauseHookEnabled { get; internal set; } = true;
@@ -100,44 +105,40 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public void InitializeCorpseRotting() => CorpseRotting.Initialize(CorpseStaging);
 
-    /// <summary>Publishes the next corpse VRAM page from the authored source and destination rows.</summary>
-    private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()
+    /// <summary>Selects the next corpse page, rejecting calls after the last has shown.</summary>
+    private MotherBrainSpritePage NextCorpsePage()
     {
-        int index = CorpseTileTransferIndex;
-        if ((uint)index >= MotherBrainCorpseArtworkDefinitions.RowCount)
-            throw new InvalidOperationException("Mother Brain corpse tile transfer list is already complete.");
+        int index = CorpsePagesShown;
+        if (index >= MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Corpse))
+            throw new InvalidOperationException("Every Mother Brain corpse page has already shown.");
 
-        var request = new MotherBrainSpriteTileTransferRequest(
-            EntryIndex: (ushort)index,
-            Size: MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
-            SourceAddress: MotherBrainCorpseArtworkDefinitions.VramPageSource(index),
-            VramDestination: MotherBrainCorpseArtworkDefinitions.VramPageDestination(index));
-        CorpseTileTransferIndex++;
-        return request;
+        CorpsePagesShown++;
+        return MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, index);
     }
 
-    /// <summary>Consumes the next escape-timer text tile transfer in its fixed artwork order.</summary>
-    internal MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
+    /// <summary>Selects the next page of the escape sequence: a timer digit page, then a message page.</summary>
+    internal MotherBrainSpritePage NextEscapePage()
     {
-        int index = EscapeTimerTileTransferIndex;
-        if ((uint)index >= EscapeTextArtworkDefinitions.TransferCount)
-            throw new InvalidOperationException("Escape-timer sprite-tile transfer list is already complete.");
+        int index = EscapePagesShown;
+        if (index >= EscapePageCount)
+            throw new InvalidOperationException("Every escape sequence page has already shown.");
 
-        MotherBrainSpriteTileTransferRequest request = EscapeTextArtworkDefinitions.Transfer(index);
-        EscapeTimerTileTransferIndex++;
-        return request;
+        EscapePagesShown++;
+        int timerPages = MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.EscapeTimer);
+        return index < timerPages
+            ? MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, index)
+            : MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeText, index - timerPages);
     }
 
-    /// <summary>Consumes the next exploded-door sprite page until that artwork list is exhausted.</summary>
-    internal MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
+    /// <summary>Selects the next exploded-door page, rejecting calls after the last has shown.</summary>
+    internal MotherBrainSpritePage NextExplodedDoorPage()
     {
-        int index = ExplodedDoorTileTransferIndex;
-        if ((uint)index >= (uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount)
-            throw new InvalidOperationException("Exploded-door sprite-tile transfer list is already complete.");
+        int index = ExplodedDoorPagesShown;
+        if (index >= MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.ExplodedDoor))
+            throw new InvalidOperationException("Every exploded-door page has already shown.");
 
-        MotherBrainSpriteTileTransferRequest request = MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
-        ExplodedDoorTileTransferIndex++;
-        return request;
+        ExplodedDoorPagesShown++;
+        return MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, index);
     }
 
     /// <summary>
@@ -426,7 +427,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.EarthquakeType = 2;
             _state.EarthquakeTimer = WrappingCountdown.Start(20);
             _state.BrainPosition = _state.BrainPosition.WithY(196);
-            CorpseTileTransferIndex = 0;
+            CorpsePagesShown = 0;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles;
             _state.FunctionTimer = WrappingCountdown.Start(256);
         }
@@ -445,8 +446,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         // ProcessSpriteTilesTransfers handles one record per call and notices the
         // following zero terminator on the sixth call, just like the Baby tile list.
-        requests.SpriteTileTransfer = CreateNextCorpseTileTransfer();
-        if (CorpseTileTransferIndex == MotherBrainCorpseArtworkDefinitions.RowCount)
+        requests.SpritePage = NextCorpsePage();
+        if (CorpsePagesShown == MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Corpse))
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey;
             _state.FunctionTimer = WrappingCountdown.Start(32);
@@ -531,7 +532,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.BrainPosition,
             frame.RandomNumberSeed,
             frame.MainEnemyExecutionCounter);
-        requests.CorpseRottingVramTransfers.AddRange(corpseRotting.VramTransfers);
+        requests.CorpseRotStepShown = corpseRotting.ShownRotStep ?? requests.CorpseRotStepShown;
         requests.CorpseDustRequests.AddRange(corpseRotting.DustRequests);
         if (corpseRotting.StillRotting)
             return false;
@@ -575,8 +576,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathLoadEscapeTimerTiles(MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.EscapeSequenceTileTransfers.Add(CreateNextEscapeTimerTileTransfer());
-        if (EscapeTimerTileTransferIndex == EscapeTextArtworkDefinitions.TransferCount)
+        requests.EscapeSequencePages.Add(NextEscapePage());
+        if (EscapePagesShown == EscapePageCount)
         {
             // Carry set after entry six clears the shared list cursor, installs
             // `$B26D`, and falls through far enough to emit exploded-door entry zero
@@ -593,8 +594,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathStartEscape(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.EscapeSequenceTileTransfers.Add(CreateNextExplodedDoorTileTransfer());
-        if (ExplodedDoorTileTransferIndex != MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount)
+        requests.EscapeSequencePages.Add(NextExplodedDoorPage());
+        if (ExplodedDoorPagesShown != MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.ExplodedDoor))
             return false;
 
         // The second door record observes the zero terminator and performs the full

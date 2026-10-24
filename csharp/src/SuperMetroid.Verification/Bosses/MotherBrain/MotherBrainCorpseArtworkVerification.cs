@@ -14,7 +14,6 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Escape;
 
 /// <summary>Checks Mother Brain corpse PNG import, VRAM transfers, and rotting buffer setup against native graphics.</summary>
 internal static class MotherBrainCorpseArtworkVerification
@@ -53,15 +52,14 @@ internal static class MotherBrainCorpseArtworkVerification
         byte[] stockCharacters = TransferMotherBrainCorpsePages(stock);
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
-            int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(page) -
+            int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.PageSource(page) -
                 MotherBrainCorpseArtworkDefinitions.SourceAddress);
-            int destinationOffset =
-                (MotherBrainCorpseArtworkDefinitions.VramPageDestination(page) - GameplayVramLayout.ObjectCharacters.Offset) * 2;
-            AssertTrue(stockCharacters.AsSpan(destinationOffset,
-                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)
+            int shownOffset = MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(page) * RoomCharacterAtlasFormat.BytesPerTile;
+            AssertTrue(stockCharacters.AsSpan(shownOffset,
+                    MotherBrainCorpseArtworkDefinitions.PageByteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset,
-                    MotherBrainCorpseArtworkDefinitions.VramPageByteCount)),
-                $"installed Mother Brain corpse OBJ page {page} matches the native transfer");
+                    MotherBrainCorpseArtworkDefinitions.PageByteCount)),
+                $"installed Mother Brain corpse page {page} shows the native page's characters");
         }
 
         var nativeStaging = new EnemyStagingSurfaces();
@@ -110,7 +108,7 @@ internal static class MotherBrainCorpseArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         byte[] editedCharacters = TransferMotherBrainCorpsePages(edited);
-        int editedVramOffset = (MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) - GameplayVramLayout.ObjectCharacters.Offset) * 2 +
+        int editedVramOffset = MotherBrainCorpseArtworkDefinitions.PageFirstCharacter(0) * RoomCharacterAtlasFormat.BytesPerTile +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
         AssertEqual((byte)(stockCharacters[editedVramOffset] ^ 0x80),
             editedCharacters[editedVramOffset],
@@ -138,20 +136,13 @@ internal static class MotherBrainCorpseArtworkVerification
         Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging, edit/reload and invalid override pass.");
     }
 
-    /// <summary>Routes all corpse page requests through the production encounter into cartridge-free VRAM.</summary>
+    /// <summary>Shows every corpse page through the production encounter and returns the sprite characters they show.</summary>
     private static byte[] TransferMotherBrainCorpsePages(
         InstalledEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
-        {
-            var request = new MotherBrainSpriteTileTransferRequest(
-                (ushort)page,
-                MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
-                MotherBrainCorpseArtworkDefinitions.VramPageSource(page),
-                MotherBrainCorpseArtworkDefinitions.VramPageDestination(page));
-            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
-        }
+            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page));
         return new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(artwork))
             .Characters[..ObjCharacterUploads.TableByteCount].ToArray();
     }
@@ -159,7 +150,7 @@ internal static class MotherBrainCorpseArtworkVerification
     /// <summary>The six staged rows of the corpse frame, as the extraction stages them, in heap order.</summary>
     private static byte[] StagedCorpseRows(CorpseStaging staged) =>
         [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount).SelectMany(row => staged.Upload(new CorpseRotRow(row,
-            MotherBrainCorpseArtworkDefinitions.StagingAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
+            EnemyStagingDefinitions.RottingHeapNativeAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
             MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0)))];
 
     /// <summary>Compares the extraction's staged corpse rows with an independent native copy.</summary>
@@ -168,7 +159,7 @@ internal static class MotherBrainCorpseArtworkVerification
         StagingByteView expectedTiles = expected.MotherBrainCorpseTiles;
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
-            byte[] staged = actual.Upload(new CorpseRotRow(row, MotherBrainCorpseArtworkDefinitions.StagingAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
+            byte[] staged = actual.Upload(new CorpseRotRow(row, EnemyStagingDefinitions.RottingHeapNativeAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
                 MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
             for (int offset = 0; offset < staged.Length; offset++)
                 AssertEqual(expectedTiles[row * MotherBrainCorpseArtworkDefinitions.RowBytes + offset], staged[offset],

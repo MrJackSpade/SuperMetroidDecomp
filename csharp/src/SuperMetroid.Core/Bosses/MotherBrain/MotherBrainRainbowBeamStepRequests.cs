@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -30,8 +30,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the body was asked to change posture.</summary>
     internal bool BodyPostureRequested { get; set; }
 
-    /// <summary>The sprite tile transfer requested, if any.</summary>
-    internal MotherBrainSpriteTileTransferRequest? SpriteTileTransfer { get; set; }
+    /// <summary>The page the call shows the sprites, if any.</summary>
+    internal MotherBrainSpritePage? SpritePage { get; set; }
 
     /// <summary>Whether the Baby Metroid's spawn was requested.</summary>
     internal bool BabySpawnRequested { get; set; }
@@ -42,8 +42,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The death explosions requested.</summary>
     internal List<MotherBrainDeathExplosionRequest> DeathExplosions { get; } = new(capacity: 4);
 
-    /// <summary>The corpse-rotting uploads requested, each with the rot step it shows.</summary>
-    internal List<MotherBrainCorpseRotUpload> CorpseRottingVramTransfers { get; } = new(capacity: 6);
+    /// <summary>The rot step the call shows every corpse row at, if it shows them.</summary>
+    internal int? CorpseRotStepShown { get; set; }
 
     /// <summary>The corpse dust requested.</summary>
     internal List<MotherBrainCorpseDustRequest> CorpseDustRequests { get; } = new(capacity: 1);
@@ -54,8 +54,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the escape music was queued.</summary>
     internal bool EscapeMusicQueued { get; set; }
 
-    /// <summary>The escape sequence's tile transfers requested.</summary>
-    internal List<MotherBrainSpriteTileTransferRequest> EscapeSequenceTileTransfers { get; } = new(capacity: 2);
+    /// <summary>The escape sequence's pages the call shows the sprites, in order.</summary>
+    internal List<MotherBrainSpritePage> EscapeSequencePages { get; } = new(capacity: 2);
 
     /// <summary>Whether the exploded door's palette was requested.</summary>
     internal bool ExplodedDoorPaletteRequested { get; set; }
@@ -100,9 +100,9 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     internal MotherBrainRainbowBeamAttackStepResult ToResult(
         MotherBrainBodyFunction? phaseBefore, MotherBrainBodyFunction? phaseAfter, bool headInstructionListRequested) =>
         new(phaseBefore, phaseAfter, Movement, SoundQueued, PaletteRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
-            headInstructionListRequested, BodyPostureRequested, SpriteTileTransfer, BabySpawnRequested, FinalBeamSoundQueued,
-            DeathExplosions, CorpseRottingVramTransfers, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
-            EscapeSequenceTileTransfers, ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
+            headInstructionListRequested, BodyPostureRequested, SpritePage, BabySpawnRequested, FinalBeamSoundQueued,
+            DeathExplosions, CorpseRotStepShown, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
+            EscapeSequencePages, ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
             EscapeDoorPlm, EarthquakeTimerRefreshed);

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -16,15 +16,15 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool BodyWalkRequested,
     bool HeadInstructionListRequested,
     bool BodyPostureRequested,
-    MotherBrainSpriteTileTransferRequest? SpriteTileTransfer,
+    MotherBrainSpritePage? SpritePage,
     bool BabySpawnRequested,
     bool FinalBeamSoundQueued,
     IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions,
-    IReadOnlyList<MotherBrainCorpseRotUpload> CorpseRottingVramTransfers,
+    int? CorpseRotStepShown,
     IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
     bool MusicStopQueued,
     bool EscapeMusicQueued,
-    IReadOnlyList<MotherBrainSpriteTileTransferRequest> EscapeSequenceTileTransfers,
+    IReadOnlyList<MotherBrainSpritePage> EscapeSequencePages,
     bool ExplodedDoorPaletteRequested,
     bool EscapeMusicTrackQueued,
     IReadOnlyList<PaletteFxObject> EscapePaletteFxRequests,

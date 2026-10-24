@@ -92,8 +92,8 @@ internal static class MotherBrainRoomColorsVerification
         (document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[0] = Change(document.InitialGlassShard[0]);
         (document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[0] = Change(document.InitialTubeProjectile[0]);
         (document.RecoveryLights ?? throw new InvalidOperationException("Verification requires document.RecoveryLights."))[0][0] = Change(document.RecoveryLights[0][0]);
-        document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination] =
-            Change(document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination]);
+        document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsSliceColors] =
+            Change(document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsSliceColors]);
         using (var file = File.Create(replacement))
             MotherBrainRoomColorPresentation.Write(file, document);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
@@ -202,21 +202,19 @@ internal static class MotherBrainRoomColorsVerification
         var runtime = CreateEnemy(installedCgram, installed);
         for (ushort frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
         {
-            var request = RecoveryRequest(frame);
-            native.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
-            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
+            native.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
+            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Mother Brain recovery-light frame {frame} matches full native CGRAM");
         }
-        var invalid = RecoveryRequest(0) with { SourceAddress = 0 };
         try
         {
-            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(invalid);
-            throw new InvalidOperationException("Malformed Mother Brain recovery-light source was accepted.");
+            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(MotherBrainRoomColorRomData.RecoveryLightsFrames);
+            throw new InvalidOperationException("A Mother Brain recovery-light frame past the seventh was accepted.");
         }
         catch (InvalidDataException)
         {
-            // Reject malformed requests before touching installed colors or the bus.
+            // A frame past the authored images is refused before touching installed colors.
         }
     }
 
@@ -231,9 +229,8 @@ internal static class MotherBrainRoomColorsVerification
             original.MotherBrainRoomColors);
         var replacement = CreateEnemy(editedCgram,
             edited.MotherBrainRoomColors);
-        var request = RecoveryRequest(0);
-        stock.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
-        replacement.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
+        stock.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
+        replacement.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
         AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor] !=
             editedCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor],
             "first recovery-light slice edit reaches live CGRAM");
@@ -243,13 +240,6 @@ internal static class MotherBrainRoomColorsVerification
         AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             "recovery-light edits change only two selected CGRAM words");
     }
-
-    /// <summary>Constructs the native source, two destinations, and slice width for one recovery-light frame.</summary>
-    private static MotherBrainBackgroundPaletteTransferRequest RecoveryRequest(ushort frame) =>
-        new(frame, (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
-            MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort),
-            MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort),
-            MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination);
 
     /// <summary>Checks room-entry glass and tube edits change exactly their two selected CGRAM words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]

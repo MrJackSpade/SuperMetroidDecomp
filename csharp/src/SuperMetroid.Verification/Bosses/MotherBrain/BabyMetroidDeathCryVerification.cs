@@ -59,7 +59,7 @@ internal static class BabyMetroidDeathCryVerification
         for (int frame = 0; frame < 7; frame++)
         {
             var recovery = baby.Step(samus, sequence, HeadOf(sequence));
-            AssertEqual((ushort)frame, (recovery.BackgroundPaletteTransfer ?? throw new InvalidOperationException("Verification requires recovery.BackgroundPaletteTransfer.")).PaletteIndex, "Recovery publishes each native light row");
+            AssertEqual(frame, (recovery.RecoveryLightsFrame ?? throw new InvalidOperationException("Verification requires recovery.RecoveryLightsFrame.")), "Recovery publishes each native light row");
             apply(state, recovery);
             for (int index = 0; index < 256; index++)
             {

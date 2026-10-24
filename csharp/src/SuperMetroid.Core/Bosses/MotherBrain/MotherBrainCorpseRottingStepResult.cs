@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [IndependentFlag("whether the corpse is still rotting after this step")]
 public readonly record struct MotherBrainCorpseRottingStepResult(
     bool StillRotting,
-    IReadOnlyList<MotherBrainCorpseRotUpload> VramTransfers,
+    int? ShownRotStep,
     IReadOnlyList<MotherBrainCorpseDustRequest> DustRequests);

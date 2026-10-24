@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -168,16 +169,20 @@ public sealed class MotherBrainEnemyState
     /// <summary>Upper-neck table byte offset 0, 2, 4, 6, or 8; processed after the lower half so raising targets observe its newly updated angle.</summary>
     public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
 
+    /// <summary>The pages the ascent shows one per call: the eight leg pages, then the four attack pages the legs covered.</summary>
+    public static int LegLoadPageCount =>
+        MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Legs) + MotherBrainSpritePage.PageCount(MotherBrainSpritePageSheet.Attack);
+
     /// <summary>
-    /// The next of the twelve leg-artwork pages the ascent loads, one per call. Zero both starts the list and is the
+    /// The next of the twelve leg-loading pages the ascent shows, one per call. Zero both starts the list and is the
     /// resting value after the final page, because a list that is not running starts from the first page.
     /// </summary>
     public int NextLegTilePage
     {
         get;
-        internal set => field = (uint)value < MotherBrainLegTileTransferDefinitions.PageCount
+        internal set => field = (uint)value < LegLoadPageCount
             ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain has twelve leg-artwork pages.");
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain's ascent shows twelve pages.");
     }
 
     /// <summary>True while bank-$88's rising layer-mask object is alive.</summary>

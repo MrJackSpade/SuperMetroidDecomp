@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Diagnostics.Configuration;
 namespace SuperMetroid.Verification.Frontend;
 
 /// <summary>Checks shipped game option defaults, accepted INI values, and configuration error messages.</summary>
@@ -10,45 +11,48 @@ internal static class GameConfigurationVerification
 /// <summary>Compares the INI template with programmatic defaults and checks parsing across game, video, audio, and diagnostics sections.</summary>
 internal static void VerifyGameConfigurationIni()
 {
-    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
-        SuperMetroidGameOptionsIni.Parse("").Renderer, "omitted renderer prefers hardware");
-    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
-        new SuperMetroidGameOptions().Renderer, "programmatic renderer prefers hardware");
-    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
-        SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents).Renderer,
+    AssertEqual(RendererSelection.Auto,
+        HostOptionsIni.Parse("").Renderer, "omitted renderer prefers hardware");
+    AssertEqual(RendererSelection.Auto,
+        new HostOptions().Renderer, "programmatic renderer prefers hardware");
+    AssertEqual(RendererSelection.Auto,
+        HostOptionsIni.Parse(HostOptionsIni.DefaultFileContents).Renderer,
         "generated INI renderer prefers hardware");
-    foreach (var selection in Enum.GetValues<SuperMetroid.Core.Rendering.RendererSelection>())
-        AssertEqual(selection, SuperMetroidGameOptionsIni.Parse($"[Video]\nRenderer={selection.ToString().ToLowerInvariant()}").Renderer,
+    foreach (var selection in Enum.GetValues<RendererSelection>())
+        AssertEqual(selection, HostOptionsIni.Parse($"[Video]\nRenderer={selection.ToString().ToLowerInvariant()}").Renderer,
             "explicit renderer names parse case-insensitively");
     foreach (string invalid in new[] { "0", "1", "Vulkan", "Software,Auto", "" })
-        AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse($"[Video]\nRenderer={invalid}"),
+        AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse($"[Video]\nRenderer={invalid}"),
             "unknown or numeric renderer rejected");
-    AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Video]\nRenderer=Auto\nrenderer=Software"),
+    AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Video]\nRenderer=Auto\nrenderer=Software"),
         "duplicate renderer rejected");
-    AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Video]\nReportErrorsToGitHub=true"),
+    AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Video]\nReportErrorsToGitHub=true"),
         "wrong-section renderer key rejected");
-    SuperMetroidGameOptions defaults =
-        SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents);
-    AssertEqual(new SuperMetroidGameOptions(), defaults,
+    HostOptions defaults =
+        HostOptionsIni.Parse(HostOptionsIni.DefaultFileContents);
+    AssertEqual(new HostOptions(), defaults,
         "shipped INI and programmatic defaults match for every option");
-    AssertEqual(defaults, SuperMetroidGameOptionsIni.Parse(""),
+    AssertEqual(defaults, HostOptionsIni.Parse(""),
         "missing-key parser defaults match the shipped INI");
-    string[] documentedKeys = SuperMetroidGameOptionsIni.DefaultFileContents.Split('\n')
+    string[] documentedKeys = HostOptionsIni.DefaultFileContents.Split('\n')
         .Select(line => line.Trim()).Where(line => !line.StartsWith(';') && line.Contains('='))
         .Select(line => line[..line.IndexOf('=')].Trim())
-        .Select(key => key == "Enabled" ? nameof(SuperMetroidGameOptions.AudioEnabled) : key)
+        .Select(key => key == "Enabled" ? nameof(HostOptions.AudioEnabled) : key)
         .OrderBy(key => key, StringComparer.Ordinal).ToArray();
+    // The file documents the game's options beside the host's own settings; the host record carries the game's as one member.
     string[] optionProperties = MetadataShape.Properties(typeof(SuperMetroidGameOptions), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
-        .Select(property => property.Name).OrderBy(key => key, StringComparer.Ordinal).ToArray();
+        .Concat(MetadataShape.Properties(typeof(HostOptions), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public))
+        .Select(property => property.Name).Where(name => name != nameof(HostOptions.Game))
+        .OrderBy(key => key, StringComparer.Ordinal).ToArray();
     AssertEqual(string.Join(',', optionProperties), string.Join(',', documentedKeys),
         "shipped INI explicitly documents every supported option exactly once");
-    AssertEqual(false, defaults.SkipOpeningCinematic,
+    AssertEqual(false, defaults.Game.SkipOpeningCinematic,
         "game INI template preserves the opening cinematic");
-    AssertEqual(false, defaults.Invincibility,
+    AssertEqual(false, defaults.Game.Invincibility,
         "game INI template preserves cartridge damage");
-    AssertEqual(false, defaults.InfiniteAmmo,
+    AssertEqual(false, defaults.Game.InfiniteAmmo,
         "game INI template preserves cartridge ammunition");
-    AssertEqual(MapRevealMode.None, defaults.MapReveal,
+    AssertEqual(MapRevealMode.None, defaults.Game.MapReveal,
         "game INI template preserves ordinary map visibility");
     AssertEqual(true, defaults.AudioEnabled, "game INI template enables cartridge audio");
     AssertEqual(100, defaults.MasterVolumePercent, "game INI template uses full host gain");
@@ -57,42 +61,42 @@ internal static void VerifyGameConfigurationIni()
     AssertEqual("MrJackSpade/SuperMetroidDecomp", defaults.GitHubErrorRepository,
         "game INI template names the private development repository");
 
-    SuperMetroidGameOptions enabled = SuperMetroidGameOptionsIni.Parse(
+    HostOptions enabled = HostOptionsIni.Parse(
         "# local developer convenience\n[game]\nSKIPOPENINGCINEMATIC=TrUe\n" +
         "INVINCIBILITY=true\nINFINITEAMMO=true\nMAPREVEAL=sEcReT\n",
         "in-memory enabled fixture");
-    AssertEqual(true, enabled.SkipOpeningCinematic,
+    AssertEqual(true, enabled.Game.SkipOpeningCinematic,
         "game INI names and boolean values are case-insensitive");
-    AssertEqual(true, enabled.Invincibility,
+    AssertEqual(true, enabled.Game.Invincibility,
         "game INI enables host invincibility");
-    AssertEqual(true, enabled.InfiniteAmmo,
+    AssertEqual(true, enabled.Game.InfiniteAmmo,
         "game INI enables infinite unlocked ammunition");
-    AssertEqual(MapRevealMode.Secret, enabled.MapReveal,
+    AssertEqual(MapRevealMode.Secret, enabled.Game.MapReveal,
         "game INI parses named map reveal values case-insensitively");
 
-    SuperMetroidGameOptions missing = SuperMetroidGameOptionsIni.Parse(
+    HostOptions missing = HostOptionsIni.Parse(
         "; An old configuration may not contain newly introduced keys.\n[Game]\n",
         "in-memory missing-key fixture");
-    AssertEqual(false, missing.SkipOpeningCinematic,
+    AssertEqual(false, missing.Game.SkipOpeningCinematic,
         "missing game INI key retains retail behavior");
-    AssertEqual(false, missing.Invincibility,
+    AssertEqual(false, missing.Game.Invincibility,
         "missing invincibility key retains cartridge damage");
-    AssertEqual(false, missing.InfiniteAmmo,
+    AssertEqual(false, missing.Game.InfiniteAmmo,
         "missing infinite-ammo key retains cartridge ammunition");
-    AssertEqual(MapRevealMode.None, missing.MapReveal,
+    AssertEqual(MapRevealMode.None, missing.Game.MapReveal,
         "missing map-reveal key retains cartridge visibility");
     AssertEqual(true, missing.AudioEnabled, "missing audio section enables sound by default");
     AssertEqual(100, missing.MasterVolumePercent, "missing volume retains full gain");
     AssertEqual(false, missing.ReportErrorsToGitHub,
         "missing diagnostics section does not publish errors");
 
-    SuperMetroidGameOptions audio = SuperMetroidGameOptionsIni.Parse(
+    HostOptions audio = HostOptionsIni.Parse(
         "[Audio]\nEnabled=false\nMasterVolumePercent=37\n",
         "in-memory audio fixture");
     AssertEqual(false, audio.AudioEnabled, "audio INI disable");
     AssertEqual(37, audio.MasterVolumePercent, "audio INI gain");
 
-    SuperMetroidGameOptions diagnostics = SuperMetroidGameOptionsIni.Parse(
+    HostOptions diagnostics = HostOptionsIni.Parse(
         "[Diagnostics]\nReportErrorsToGitHub=true\nGitHubErrorRepository=owner/repo.name\n",
         "in-memory diagnostics fixture");
     AssertEqual(true, diagnostics.ReportErrorsToGitHub,
@@ -146,7 +150,7 @@ internal static void AssertInvalidGameConfiguration(string contents, string expe
 {
     try
     {
-        _ = SuperMetroidGameOptionsIni.Parse(contents, "invalid in-memory fixture");
+        _ = HostOptionsIni.Parse(contents, "invalid in-memory fixture");
     }
     catch (InvalidDataException exception)
     {

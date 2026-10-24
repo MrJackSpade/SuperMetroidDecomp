@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.Recording;

@@ -15,7 +15,7 @@ internal sealed class CrocomireCombat
 {
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
+    /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing and room effects to Crocomire AI.</summary>
     private readonly EnemyFrameContext _frameContext;

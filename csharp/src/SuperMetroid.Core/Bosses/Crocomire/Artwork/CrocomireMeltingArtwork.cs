@@ -7,8 +7,8 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
-/// Indexed four-bit artwork for Crocomire's two melting images. The native erase order,
-/// distortion, timing and VRAM destinations remain in the enemy mechanics.
+/// Indexed four-bit artwork for Crocomire's two melting images and the tilemaps that lay them out. The extraction pictures
+/// each band of an image at every dissolve step; the death sequence selects which picture each band shows.
 /// </summary>
 public sealed class CrocomireMeltingArtwork
 {
@@ -52,26 +52,20 @@ public sealed class CrocomireMeltingArtwork
             CrocomireMeltingArtworkFormat.FirstByteCount);
         RoomCharacterAtlas second = RoomCharacterAtlas.Load(secondPng,
             CrocomireMeltingArtworkFormat.SecondByteCount);
-        ValidatePadding(first, CrocomireMeltingTransferDefinitions.Passes[0], "first");
-        ValidatePadding(second, CrocomireMeltingTransferDefinitions.Passes[1], "second");
+        ValidatePadding(first, CrocomireMeltingIllustration.First);
+        ValidatePadding(second, CrocomireMeltingIllustration.Second);
         return new(first, second, ReadTilemap(firstTilemapJson),
             ReadTilemap(secondTilemapJson));
     }
 
-    /// <summary>
-    /// Replaces only the byte range written by the native overlapping copies. The rest of
-    /// the scratch allocation retains its prior value, including across the second pass.
-    /// </summary>
-    internal void CopyPassTo(int headerOffset, Span<byte> scratch)
+    /// <summary>The four-bit characters of <paramref name="illustration"/>'s image, sixteen to a row, a band per row.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not a melt image.</exception>
+    internal ReadOnlyMemory<byte> Characters(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(headerOffset);
-        ReadOnlySpan<byte> image = (headerOffset ==
-            (ushort)CrocomireMeltingHeader.First ? first : second).Transfer.Span;
-        int used = UsedByteCount(pass);
-        if (scratch.Length < used)
-            throw new InvalidDataException("Crocomire melting scratch image is too small.");
-        image[..used].CopyTo(scratch);
-    }
+        CrocomireMeltingIllustration.First => first.Transfer,
+        CrocomireMeltingIllustration.Second => second.Transfer,
+        _ => throw new ArgumentOutOfRangeException(nameof(illustration), illustration, $"Undefined {nameof(CrocomireMeltingIllustration)}."),
+    };
 
     /// <summary>Returns only the visual tile references, never melt control or hitboxes.</summary>
     internal ReadOnlySpan<ushort> Tilemap(CrocomireMeltingTilemapAddress sourceAddress) => sourceAddress switch
@@ -141,23 +135,22 @@ public sealed class CrocomireMeltingArtwork
         WriteIndented = true,
     };
 
-    /// <summary>Finds the last scratch byte written by a pass's overlapping native copies.</summary>
-    internal static int UsedByteCount(CrocomireMeltingPass pass)
-    {
-        int end = 0;
-        foreach (CrocomireMeltingCopy copy in pass.Copies)
-            end = Math.Max(end, copy.DestinationWord - CrocomireMeltingTransferDefinitions.ScratchStart + (pass.WordsToCopy + 1) * 2);
-        return end;
-    }
+    /// <summary>Bytes of one row of a melt image's characters: sixteen four-bit characters.</summary>
+    private const int RowByteCount = CrocomireMeltingDefinitions.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile;
 
-    /// <summary>Rejects nonzero PNG data outside the scratch region touched by native melt copies.</summary>
-    private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingPass pass,
-        string name)
+    /// <summary>
+    /// The bytes of <paramref name="illustration"/>'s image the cartridge assembles: a row per band, and the first two
+    /// bytes of the row after the last, which its assembly carries one word past the image.
+    /// </summary>
+    internal static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
+        CrocomireMelting.BandCount(illustration) * RowByteCount + sizeof(ushort);
+
+    /// <summary>Rejects nonzero PNG data outside the bytes the cartridge assembles <paramref name="illustration"/>'s image from.</summary>
+    private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingIllustration illustration)
     {
         ReadOnlySpan<byte> bytes = atlas.Transfer.Span;
-        int used = UsedByteCount(pass);
-        if (bytes[used..].IndexOfAnyExcept((byte)0) >= 0)
+        if (bytes[UsedByteCount(illustration)..].IndexOfAnyExcept((byte)0) >= 0)
             throw new InvalidDataException(
-                $"Crocomire {name} melt PNG contains pixels outside the native scratch image.");
+                $"Crocomire {illustration} melt PNG contains pixels outside the image the melt assembles.");
     }
 }

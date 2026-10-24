@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
@@ -20,7 +20,7 @@ internal sealed class CrocomireBridgeCollapse
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, tilemap transfers and the acid smoke drawn with it.</summary>
+    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
     private readonly CrocomireBg2 _bg2;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
@@ -177,7 +177,7 @@ internal sealed class CrocomireBridgeCollapse
                 $"Crocomire sink selected BG2 word {firstWord}, outside the {tilemap.Length}-word buffer.");
         }
         tilemap.Slice(firstWord, 32).Fill(CrocomireBg2.CrocomireBlankBg2Tile);
-        _bg2.TransferCrocomireBg2Words(firstWord, 32);
+        _bg2.WriteCrocomireBg2Words(firstWord, 32);
     }
 
     /// <summary>Runs the paired body and BG2 presentation while Crocomire sinks into acid.</summary>
@@ -330,7 +330,7 @@ internal sealed class CrocomireBridgeCollapse
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(78, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:90D8
-        _access.RequireCrocomireDeath().SkeletonTileChunk = 0;
+        _access.RequireCrocomireDeath().SkeletonChunksShown = 0;
     }
 
     /// <summary>Ports <c>Crocomire_Func_52</c> and initializer $86:9286.</summary>

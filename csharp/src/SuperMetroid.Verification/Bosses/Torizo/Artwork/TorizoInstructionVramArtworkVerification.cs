@@ -123,18 +123,24 @@ internal static class TorizoInstructionVramArtworkVerification
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
         editedSlot.Bind(EnemyDefinitionId.GoldenTorizo, editedSlot.Definition);
         editedSlot.Bind(editedSlot.DefinitionId, installedSlot.Definition);
-        // Golden Torizo's initial program uploads its awakening sheet first.
-        int goldenUpload = TorizoAnimations.Programs.Steps(TorizoBodyProgram.GoldenInitial0)
-            .OfType<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>().Select(step => step.Cue).OfType<TorizoCue.CopyTiles>().First().Transfer;
+        // Golden Torizo's initial program shows its awakening sheet first.
+        TorizoArtworkSwap goldenSwap = TorizoAnimations.Programs.Steps(TorizoBodyProgram.GoldenInitial0)
+            .OfType<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>().Select(step => step.Cue).OfType<TorizoCue.ShowArtwork>().First().Swap;
+        int goldenUpload = goldenSwap.Ordinal;
         AssertEqual(golden.SourceAddress, TorizoInstructionVramTransferDefinitions.All[goldenUpload].SourceAddress,
-            "Golden Torizo's initial upload copies its awakening sheet");
-        UploadTorizoTiles(editedEnemies, editedSlot, goldenUpload);
-        ObjCharacterUpload goldenTiles = editedEnemies.Room.Session.ObjCharacters.Uploads.Single();
-        AssertEqual<ObjCharacterSource>(new TorizoTileTransferCharacters(goldenUpload), goldenTiles.Source,
-            "Golden Torizo's upload binds its installed transfer by entry");
-        AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.ObjCharacters,
+            "Golden Torizo's initial swap shows its awakening sheet");
+        var goldenState = new TorizoEnemyState(editedSlot, isGolden: true);
+        ShowTorizoArtwork(editedEnemies, editedSlot, goldenState, goldenSwap);
+        AssertEqual((long?)1, goldenState.Artwork.LastShown(goldenSwap), "Golden Torizo's cue selects its awakening sheet first");
+        AssertEqual(0, editedEnemies.Room.Session.ObjCharacters.Uploads.Count, "the swap is a selection, not an upload");
+        // The awakening sheet as Golden Torizo's sheets picture it: the installed transfer where the cartridge copies it.
+        var shown = new ObjCharacterUploads();
+        shown.Record(TorizoInstructionVramTransferDefinitions.Uploads[goldenUpload]);
+        AssertEqual<ObjCharacterSource>(new TorizoTileTransferCharacters(goldenUpload), shown.Uploads.Single().Source,
+            "Golden Torizo's swap names its installed transfer by entry");
+        AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(shown,
                 new EnemyTileTransfers(edited)).Characters[(0x6d00 - GameplayVramLayout.ObjectCharacters.Offset) * 2],
-            "edited Golden Torizo PNG changes the production OBJ page upload");
+            "edited Golden Torizo PNG changes the pictured awakening sheet");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Bosses.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .TorizoInstructionVram.")).TryResolve(golden.SourceAddress,
                     golden.ByteCount, out ReadOnlyMemory<byte> reloaded) &&
@@ -150,12 +156,12 @@ internal static class TorizoInstructionVramArtworkVerification
             "byte parity, live edit, reload, and invalid-asset rejection pass.");
     }
 
-    /// <summary>Copies tile transfer <paramref name="transfer"/> through Torizo's production tile-copy cue.</summary>
-    private static void UploadTorizoTiles(RoomEnemySystem enemies, RoomEnemySlot slot, int transfer) =>
-        AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, new TorizoEnemyState(slot, isGolden: true),
+    /// <summary>Shows artwork swap <paramref name="swap"/> through Torizo's production cue.</summary>
+    private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, TorizoEnemyState state, TorizoArtworkSwap swap) =>
+        AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, state,
                 new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
-                new TorizoCue.CopyTiles(Transfer: transfer),
+                new TorizoCue.ShowArtwork(swap),
                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,
-            $"Torizo tile transfer {transfer} runs on");
+            $"Torizo artwork swap {swap.Ordinal} runs on");
 
 }

@@ -810,8 +810,10 @@ Crocomire's first and second melting images are the separate indexed files
 Their matching 16×16 BG2 layouts are `crocomire-melt-first-tiles.json` and
 `crocomire-melt-second-tiles.json`. Copy any of these four files to
 `overrides/enemy-tiles/` and edit the PNG's indexed pixels or a JSON cell's
-`tileIndex`, `palette`, `priority`, `flipX`, or `flipY`. The native erase order,
-distortion timing, transfer destinations, and collision stay fixed.
+`tileIndex`, `palette`, `priority`, `flipX`, or `flipY`. The erase order,
+distortion timing, the update each band of the image is shown on, and collision
+stay fixed; extraction pictures every band at every dissolve step and the death
+sequence selects which picture each band shows (`--crocomire-melt-frames`).
 Pixels beyond each native image's written byte range are reserved and must
 remain zero. Stock melt sheets are hash-checked and repaired with the other
 enemy art, while valid overrides survive repair and application updates.
@@ -822,7 +824,7 @@ their initializer changes actor state, phase counters or mutable graphics tables
 The focused `--enemy-effect-isolation` verifier replaces both melt maps/images
 and Mother Brain corpse pixels with authored PNG/JSON. It checks both 54-call
 dissolves and the 118-call corpse rot, including exact erase/HDMA, row completion,
-smoke, transfer and audio schedules. Production receives RAM only; these checks
+smoke, band-selection and audio schedules. Production receives RAM only; these checks
 verify identified conversion paths, not the complete battles or every corpse family.
 `--enemy-effect-resources` checks failure before mutation, `--crocomire-melt-json`
 checks strict fields, and `--mother-brain-corpse-stock-artwork` uses import-only

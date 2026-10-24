@@ -133,10 +133,10 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException($"Expected {EnemyTileArtworkFormat.RetailDefinitionCount} retail enemy sheets; found {entries.Count}.");
         ValidateDefinitionIds(entries.Keys);
         byte[] firstMelt = ExtractCrocomireMelt(bus,
-            CrocomireMeltingTransferDefinitions.Passes[0],
+            CrocomireMeltingIllustration.First,
             CrocomireMeltingArtworkFormat.FirstByteCount);
         byte[] secondMelt = ExtractCrocomireMelt(bus,
-            CrocomireMeltingTransferDefinitions.Passes[1],
+            CrocomireMeltingIllustration.Second,
             CrocomireMeltingArtworkFormat.SecondByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             (int)CrocomireMeltingTilemapAddress.FirstTilemap);
@@ -1201,18 +1201,20 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
     }
 
-    /// <summary>Reconstructs one Crocomire melt DMA pass as indexed PNG and checks its planar-byte roundtrip.</summary>
+    /// <summary>Assembles one Crocomire melt image as the cartridge does, as indexed PNG, and checks its planar-byte roundtrip.</summary>
     private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
-        CrocomireMeltingPass pass, int encodedByteCount)
+        CrocomireMeltingIllustration illustration, int encodedByteCount)
     {
         var planar = new byte[encodedByteCount];
-        foreach (CrocomireMeltingCopy copy in pass.Copies)
+        int bank = CrocomireMeltingSources.Graphics(illustration).Bank;
+        for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
         {
-            int destination = copy.DestinationWord - CrocomireMeltingDefinitions.DestinationWordBase;
-            for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
+            int imageByte = CrocomireMeltingSources.ImageByte(band);
+            int source = CrocomireMeltingSources.SourceWord(illustration, band);
+            for (int index = 0; index < CrocomireMeltingSourceDefinitions.CopyByteCount; index++)
             {
-                planar[destination + index] = bus.ReadCartridgeByte(
-                    ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
+                planar[imageByte + index] = bus.ReadCartridgeByte(
+                    ((int)new SnesAddress(checked((byte)bank), checked((ushort)(source + index)))));
             }
         }
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(encodedByteCount);
@@ -1226,7 +1228,7 @@ public static class EnemyTileArtworkFiles
             new MemoryStream(encoded, writable: false), encodedByteCount);
         if (!roundtrip.Transfer.Span.SequenceEqual(planar))
             throw new InvalidDataException(
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} PNG changed native graphics bytes.");
+                $"Crocomire {illustration} melt PNG changed native graphics bytes.");
         return encoded;
     }
 

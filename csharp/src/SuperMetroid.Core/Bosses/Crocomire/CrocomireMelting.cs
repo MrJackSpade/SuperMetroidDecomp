@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -11,9 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireMelting
 {
-    /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
-    private readonly EnemyPresentation _presentation;
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, tilemap transfers and the acid smoke drawn with it.</summary>
+    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
     private readonly CrocomireBg2 _bg2;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
@@ -22,10 +19,9 @@ internal sealed class CrocomireMelting
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireMelting(EnemyPresentation presentation, CrocomireBg2 bg2, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal CrocomireMelting(CrocomireBg2 bg2, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
     {
         _bossArtwork = bossArtwork;
-        _presentation = presentation;
         _bg2 = bg2;
         _access = access;
     }
@@ -80,9 +76,6 @@ internal sealed class CrocomireMelting
     /// <summary>Starts the selected body melting list and synchronizes actor state with the new BG2 map.</summary>
     private void StartCrocomireMeltingTilemap(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
-        death.PixelsToErasePerColumn = CrocomireMeltingDefinitions.ColumnPixels;
-        death.MeltTargetHeight = CrocomireMeltingDefinitions.ColumnPixels;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, bodyProgram);
     }
@@ -97,96 +90,72 @@ internal sealed class CrocomireMelting
 
         // $A4:93BE receives byte count `tilemap bytes + $0400`, so the initial upload also
         // includes 512 blank leading words and retains blank space after the compact image.
-        _bg2.TransferCrocomireBg2Words(0, 512 + copiedWords);
+        _bg2.WriteCrocomireBg2Words(0, 512 + copiedWords);
     }
 
-    /// <summary>Ports the shipped off-by-one ROM-to-$7E:4000 copies at $A4:943D.</summary>
-    internal void InitializeCrocomireMeltingGraphics(CrocomireEnemyState state)
+    /// <summary>
+    /// Begins <paramref name="pass"/>'s melt (<c>$A4:943D</c>): resets the BG2 scroll table and the distortion, and starts
+    /// the pass with no column erased and its first band to show. Each band keeps the previous pass's picture until this
+    /// pass shows its own.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installed boss artwork has no melt images.</exception>
+    internal void BeginCrocomireMeltPass(CrocomireEnemyState state, CrocomireMeltingIllustration pass)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(
-            death.MeltingTableOffset);
-        var artwork = _bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
+        _ = _bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
             "Crocomire melting requires installed graphics artwork.");
-
-        // Both assets have already passed geometry/padding validation during installation.
-        // CopyPassTo checks scratch capacity before its first write. Only then publish the
-        // new phase and distortion state; no cartridge reader is available as a fallback.
-        artwork.CopyPassTo(pass.HeaderOffset, death.MutableMeltingGraphics);
         _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.DistortionStep = 256;
-        death.MeltingColumnCursor = 0;
-
-        death.MaximumAdjustedDestinationY = pass.MaximumAdjustedDestinationY;
-        death.AdjustedDestinationY = death.MaximumAdjustedDestinationY;
-        death.DistortionEndY = pass.DistortionEndY;
-
-        // Keep the native cursor so serialized mid-melt states resume at the same record.
-        death.MeltingTableOffset = pass.TransferStartOffset;
-        death.MeltingTransferOffset = 0;
-        death.MutableMeltingColumnHeights.Clear();
-    }
-
-    /// <summary>Transfers the next installed melting record and advances the serializable upload cursor.</summary>
-    internal void UploadNextCrocomireMeltingGraphicsSlice(CrocomireEnemyState state)
-    {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
-        int recordOffset = death.MeltingTableOffset + death.MeltingTransferOffset;
-        if (!CrocomireMeltingTransferDefinitions.TryUpload(
-            recordOffset, out CrocomireMeltingUpload upload))
-        {
-            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-            death.MeltingTransferOffset = 0;
-            return;
-        }
-
-        UploadCrocomireMeltingRecord(upload);
-        death.MeltingTransferOffset += 8;
+        death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
+        death.DistortionSourceRow = death.LowestDistortionSourceRow;
+        death.DistortionEndY = CrocomireMeltingDefinitions.DistortionEndY;
+        death.MeltPass = pass;
+        death.MeltColumnsErased = 0;
+        death.NextMeltBand = 0;
     }
 
     /// <summary>
-    /// Binds one compiled melting graphics record's slice of the masked image at its native VRAM destination (#1355):
-    /// the melt shows through background artwork bindings, not VRAM writes.
+    /// Shows the pass's next band at its image before any column is erased, one band an update; the update after the
+    /// last band moves to the next death phase and starts the bands over.
     /// </summary>
-    [PpuLayoutBoundary("codec: Crocomire melting VRAM transfer records' native destinations")]
-    private void UploadCrocomireMeltingRecord(CrocomireMeltingUpload upload)
+    internal void ShowNextCrocomireMeltBand(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        int byteCount = upload.ByteCount;
-        int destinationWord = upload.DestinationWord;
-        int sourceBank = upload.SourceBank;
-        int source = upload.SourceWord;
-        if (sourceBank != CrocomireMeltingTransferDefinitions.ScratchBank)
+        if (death.NextMeltBand == BandCount(death.MeltPass))
         {
-            throw new InvalidDataException(
-                $"Crocomire melting VRAM record uses unexpected source bank ${sourceBank:X2}.");
+            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+            death.NextMeltBand = 0;
+            return;
         }
-
-        int sourceOffset = unchecked((ushort)(source - CrocomireMeltingTransferDefinitions.ScratchStart));
-        if (sourceOffset < 0 || sourceOffset + byteCount > death.MeltingGraphics.Length)
-            throw new InvalidDataException("Crocomire melting VRAM record exceeds the scratch image.");
-        // The slice shows the pass's image after the columns erased so far, each erased whole (#1392).
-        int step = 0;
-        foreach (byte height in death.MeltingColumnHeights)
-        {
-            if (height == death.MeltTargetHeight)
-                step++;
-        }
-        CrocomireMeltingHeader pass = ClosedNativeWords.Decode<CrocomireMeltingHeader>(
-            checked((ushort)CrocomireMeltingTransferDefinitions.Transfers(death.MeltingTableOffset).HeaderOffset), "Crocomire melt header offset");
-        _presentation.Backgrounds.Bind(MeltingCharacters(pass, step, destinationWord), destinationWord, death.MeltingGraphics.Slice(sourceOffset, byteCount));
+        ShowMeltBand(death, death.NextMeltBand++);
     }
 
-    /// <summary>The name every artwork the melt binds starts with.</summary>
+    /// <summary>The bands <paramref name="pass"/>'s melt image is shown in.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pass"/> is not a melt image.</exception>
+    internal static int BandCount(CrocomireMeltingIllustration pass) => pass switch
+    {
+        CrocomireMeltingIllustration.First => CrocomireMeltingDefinitions.FirstPassBandCount,
+        CrocomireMeltingIllustration.Second => CrocomireMeltingDefinitions.SecondPassBandCount,
+        _ => throw new ArgumentOutOfRangeException(nameof(pass), pass, $"Undefined {nameof(CrocomireMeltingIllustration)}."),
+    };
+
+    /// <summary>
+    /// Selects, at this update, the picture <paramref name="band"/> shows (#1406): the pass's image after the columns erased
+    /// so far, which the band draws from the room's tile word sheet.
+    /// </summary>
+    private static void ShowMeltBand(CrocomireDeathState death, int band) =>
+        death.ShowMeltBand(band, new CrocomireMeltBandPicture(death.MeltPass, death.MeltColumnsErased));
+
+    /// <summary>The name every picture of a melt band starts with.</summary>
     private const string MeltingCharactersName = "Crocomire melting characters";
 
     /// <summary>
-    /// The artwork the melt binds over the characters from <paramref name="destinationWord"/>: <paramref name="pass"/>'s image
-    /// after <paramref name="step"/> columns are erased, which the extraction pictures his tile words over (#1392).
+    /// The characters <paramref name="band"/> of the melt image shows as <paramref name="picture"/>, which the extraction
+    /// pictures his tile words over (#1392).
     /// </summary>
-    internal static BgArtworkIdentity MeltingCharacters(CrocomireMeltingHeader pass, int step, int destinationWord) =>
-        new($"{MeltingCharactersName} {pass} step {step} ${destinationWord:X4}");
+    internal static BgArtworkIdentity MeltingCharacters(CrocomireMeltBandPicture picture, int band) =>
+        new($"{MeltingCharactersName} {picture.Pass} step {picture.Step} band {band}");
 
     /// <summary>Starts Crocomire's dissolve after installed graphics and tilemap data are ready.</summary>
     internal void BeginCrocomireMelting(CrocomireEnemyState state)
@@ -212,16 +181,12 @@ internal sealed class CrocomireMelting
         state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
             death.BodyXBeforeMelting + ((death.MeltShakeCounter.RawValue & 2) != 0 ? 4 : 0))));
 
-        if (!EraseNextCrocomireMeltingColumn())
-        {
-            CompleteCrocomireMeltingDissolve(state);
-            return;
-        }
+        EraseNextCrocomireMeltingColumn();
 
         // $A4:95D5 refreshes the BG2 scroll, which also moves the tongue onto the body.
         _bg2.UpdateCrocomireBg2Scroll(state);
-        int nextAdjustedY = death.AdjustedDestinationY - 3;
-        if (death.AdjustedDestinationY < 19)
+        int nextAdjustedY = death.DistortionSourceRow - 3;
+        if (death.DistortionSourceRow < 19)
         {
             if (death.DistortionStep >= CrocomireBehavior.MaximumCrocomireDistortionStep)
             {
@@ -230,85 +195,27 @@ internal sealed class CrocomireMelting
             }
             nextAdjustedY = 16;
         }
-        death.AdjustedDestinationY = nextAdjustedY;
+        death.DistortionSourceRow = nextAdjustedY;
         death.DistortionStep = Math.Min(
             death.DistortionStep + 384,
             CrocomireBehavior.MaximumCrocomireDistortionStep);
         BuildCrocomireMeltingScrollTable(state, death);
     }
 
-    /// <summary>Ports the retail column-order and four-bitplane mask loop at $A4:96C8.</summary>
-    internal bool EraseNextCrocomireMeltingColumn()
+    /// <summary>
+    /// Takes the dissolve's next step (<c>$A4:96C8</c>): erases the next column of the melt image and shows the pass's next
+    /// band at the new step, starting the bands over after the last. Once every column is erased it shows nothing more,
+    /// while the distortion runs on to its end.
+    /// </summary>
+    internal void EraseNextCrocomireMeltingColumn()
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        Span<byte> heights = death.MutableMeltingColumnHeights;
-        Span<byte> graphics = death.MutableMeltingGraphics;
-
-        int cursor = death.MeltingColumnCursor;
-        int xColumn;
-        while (true)
-        {
-            // The retail table at $A4:9697 contains one permutation of X=0..48 and then
-            // immediately falls into executable opcodes. The upstream C translation adds
-            // this same `index > 48` guard to prevent those opcodes from becoming bogus X
-            // coordinates while the distortion coefficient finishes its last few frames.
-            // Returning success is important: it keeps the HDMA contraction running; false
-            // would skip directly to the next death state several frames too early.
-            if (cursor >= CrocomireMeltingDefinitions.ColumnCount)
-            {
-                death.MeltingColumnCursor = cursor;
-                return true;
-            }
-            xColumn = CrocomireMeltingDefinitions.SelectColumn(cursor);
-            if (heights[xColumn] < death.MeltTargetHeight)
-                break;
-            cursor++;
-        }
-        death.MeltingColumnCursor = cursor;
-
-        EraseColumn(graphics, heights, cursor, death.PixelsToErasePerColumn);
-
-        int recordOffset = death.MeltingTableOffset + death.MeltingTransferOffset;
-        if (!CrocomireMeltingTransferDefinitions.TryUpload(
-            recordOffset, out CrocomireMeltingUpload upload))
-        {
-            death.MeltingTransferOffset = 0;
-            recordOffset = death.MeltingTableOffset;
-            if (!CrocomireMeltingTransferDefinitions.TryUpload(recordOffset, out upload))
-                throw new InvalidDataException("Crocomire melt pass has no first transfer.");
-        }
-        UploadCrocomireMeltingRecord(upload);
-        death.MeltingTransferOffset += 8;
-        return true;
-    }
-
-    /// <summary>
-    /// Erases up to <paramref name="pixels"/> pixels down the column the dissolve selects at <paramref name="cursor"/>, from its
-    /// height in <paramref name="heights"/>, raising that height. The extraction plays the same erasure to picture each state
-    /// the melt shows (#1392).
-    /// </summary>
-    /// <exception cref="InvalidDataException">The column lies outside the graphics image.</exception>
-    internal static void EraseColumn(Span<byte> graphics, Span<byte> heights, int cursor, int pixels)
-    {
-        int xColumn = CrocomireMeltingDefinitions.SelectColumn(cursor);
-        // The shipped routine masks by [table index & 7], not [selected X & 7]. This is one
-        // of its documented indexing bugs and materially changes the dissolve silhouette.
-        byte mask = CrocomireMeltingDefinitions.SelectMask(cursor);
-        int remaining = pixels;
-        do
-        {
-            int y = heights[xColumn];
-            int byteIndex = 2 * (y & 7) + ((y & ~7) << 6) + 4 * (xColumn & ~7);
-            if (byteIndex + 17 >= graphics.Length)
-                throw new InvalidDataException("Crocomire melting column addressed outside its graphics image.");
-            graphics[byteIndex] &= mask;
-            graphics[byteIndex + 1] &= mask;
-            graphics[byteIndex + 16] &= mask;
-            graphics[byteIndex + 17] &= mask;
-            if (heights[xColumn] == 48)
-                break;
-            heights[xColumn]++;
-        } while (--remaining != 0);
+        if (death.MeltColumnsErased == CrocomireMeltingDefinitions.ColumnCount)
+            return;
+        death.MeltColumnsErased++;
+        if (death.NextMeltBand == BandCount(death.MeltPass))
+            death.NextMeltBand = 0;
+        ShowMeltBand(death, death.NextMeltBand++);
     }
 
     /// <summary>Builds scanline BG2 offsets that distort Crocomire's body through the melting pass.</summary>
@@ -318,11 +225,11 @@ internal sealed class CrocomireMelting
     {
         Span<ushort> output = death.MutableBg2ScrollByScanline;
         int line = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
-        int adjustedY = death.AdjustedDestinationY;
+        int adjustedY = death.DistortionSourceRow;
         int currentY = adjustedY;
         ushort fraction = 0;
         while (line < output.Length &&
-               adjustedY < death.MaximumAdjustedDestinationY)
+               adjustedY < death.LowestDistortionSourceRow)
         {
             output[line++] = unchecked((ushort)(
                 _bg2.CrocomireBg2Scroll.Y + adjustedY - currentY));
@@ -342,10 +249,7 @@ internal sealed class CrocomireMelting
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltingHdmaActive = false;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-
-        death.MeltingTableOffset = CrocomireMeltingTransferDefinitions.Transfers(
-            death.MeltingTableOffset).NextHeaderOffset;
-        death.MeltingTransferOffset = 0;
+        death.NextMeltBand = 0;
     }
 
     /// <summary>Restores the BG2 presentation and actor state after the final melting pass.</summary>
@@ -353,7 +257,7 @@ internal sealed class CrocomireMelting
     {
         state.StartVerticalMotion(SnesEightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         _bg2.ClearCrocomireBg2WorkingTilemap();
-        _bg2.TransferCrocomireBg2Words(0, 1024);
+        _bg2.WriteCrocomireBg2Words(0, 1024);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 }

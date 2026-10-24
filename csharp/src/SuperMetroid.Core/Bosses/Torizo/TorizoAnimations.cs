@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>
 /// Bomb and Golden Torizo's typed body programs (#641), in place of their bank-$AA lists. Generated from the verified
 /// native lists: each frame shows a <see cref="TorizoFrame"/> pose, each callback becomes a <see cref="TorizoCue"/>
-/// with its typed operands, and each tile transfer names its <see cref="TorizoInstructionVramTransferDefinitions"/>
+/// with its typed operands, and each artwork swap names its <see cref="TorizoArtworkSwap"/>
 /// entry. A callback that sleeps for a fixed time is its cue followed by a wait of that length.
 /// </summary>
 internal static class TorizoAnimations

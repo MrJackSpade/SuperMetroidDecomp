@@ -101,14 +101,6 @@ internal sealed class PlmFramePhase
 
         plms.Step(_room.LevelData, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = bombProjectiles.PowerBombExplosion.Status });
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms, room.Enemies);
-
-        foreach (PlmVramWriteRequest request in plms.BombTorizoHand.VramWriteRequests)
-        {
-            _vramWrites.EnqueueBackground(
-                checked((ushort)request.SizeInBytes),
-                request.SourceAddress,
-                request.Destination);
-        }
     }
 
     /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>

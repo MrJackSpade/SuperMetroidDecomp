@@ -245,17 +245,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Shows tile transfer <paramref name="transfer"/>'s installed characters in the OBJ character table, as the common
-    /// $814B copies them.
+    /// Selects, at this update, artwork swap <paramref name="swap"/> to show under <paramref name="state"/>'s poses (#1406),
+    /// after every swap it showed before; its frames draw the pictures of the swaps shown.
     /// </summary>
-    private void ApplyTorizoTileTransfer(int transfer)
+    /// <exception cref="InvalidDataException">The installed boss artwork has no Torizo artwork swaps.</exception>
+    private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkSwap swap)
     {
-        TileTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[transfer];
-        var installed = _bossArtwork.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
-            "Torizo instruction-time tile transfers require installed artwork.");
-        if (!installed.TryResolve(definition.SourceAddress, definition.ByteCount, out _))
-            throw new InvalidDataException($"Torizo tile transfer {transfer} has no installed art.");
-        _presentation.ObjCharacters.Record(TorizoInstructionVramTransferDefinitions.Uploads[transfer]);
+        _ = _bossArtwork.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
+            "Torizo's artwork swaps require installed artwork.");
+        state.Artwork.Show(swap);
     }
 
     /// <summary>
@@ -595,8 +593,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     TorizoMovement.RequireBombTorizoLevel(inputs.Level),
                     walk.TableOffset);
 
-            case TorizoCue.CopyTiles copyTiles:
-                ApplyTorizoTileTransfer(copyTiles.Transfer);
+            case TorizoCue.ShowArtwork showArtwork:
+                ShowTorizoArtwork(state, showArtwork.Swap);
                 return null;
 
             default:

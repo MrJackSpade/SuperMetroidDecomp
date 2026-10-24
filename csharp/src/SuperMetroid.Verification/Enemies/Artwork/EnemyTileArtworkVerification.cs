@@ -73,17 +73,20 @@ internal static class EnemyTileArtworkVerification
         return cgram;
     }
 
-    /// <summary>The melt scratch image <paramref name="pass"/>'s copies produce from their retail cartridge sources.</summary>
+    /// <summary>
+    /// The melt image the cartridge assembles for <paramref name="pass"/> from its retail graphics: each band's $0402-byte
+    /// copy, $0200 bytes after the last, from its $0200-byte chunk of bank $A4, sized as the installed image.
+    /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire melting pass source bytes")]
-    private static byte[] ReadNativeCrocomireMeltingPassScratch(ISnesAddressSpace rom, CrocomireMeltingPass pass)
+    private static byte[] ReadNativeCrocomireMeltingPassImage(ISnesAddressSpace rom, CrocomireMeltingIllustration pass)
     {
-        var expected = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
-        foreach (CrocomireMeltingCopy copy in pass.Copies)
+        bool first = pass == CrocomireMeltingIllustration.First;
+        var expected = new byte[first ? CrocomireMeltingArtworkFormat.FirstByteCount : CrocomireMeltingArtworkFormat.SecondByteCount];
+        int firstChunk = first ? 0xa4a07d : 0xa4ac7d;
+        for (int band = 0; band < (first ? 6 : 7); band++)
         {
-            int destination = copy.DestinationWord - 0x4000;
-            for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
-                expected[destination + index] = rom.ReadCartridgeByte(
-                    ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
+            for (int index = 0; index < 0x402; index++)
+                expected[band * 0x200 + index] = rom.ReadCartridgeByte(firstChunk + band * 0x200 + index);
         }
         return expected;
     }
@@ -209,12 +212,12 @@ internal static class EnemyTileArtworkVerification
             ushort[] stockSecondMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
                 bus, stock, CrocomireMeltingTilemapAddress.SecondTilemap,
                 CrocomireBodyProgram.MeltingTwoTopRow);
-            foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
+            foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
             {
                 byte[] actual = VerifyInstalledCrocomireMeltingPass(stock, pass);
-                byte[] expected = ReadNativeCrocomireMeltingPassScratch(bus, pass);
+                byte[] expected = ReadNativeCrocomireMeltingPassImage(bus, pass);
                 AssertTrue(actual.SequenceEqual(expected),
-                    $"installed Crocomire melt pass ${pass.HeaderOffset:X4} preserves native scratch bytes");
+                    $"installed Crocomire {pass} melt image preserves the image the cartridge assembles");
                 stockMeltImages.Add(actual);
             }
             foreach (string file in files)
@@ -269,17 +272,17 @@ internal static class EnemyTileArtworkVerification
             InstalledEnemyArtwork editedMelt = EnemyTileArtworkFiles.Load(
                 directory, overrideDirectory);
             byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(editedMelt,
-                CrocomireMeltingTransferDefinitions.Passes[0]);
+                CrocomireMeltingIllustration.First);
             AssertEqual((byte)(stockMeltImages[0][0] ^ 0x80), changedMelt[0],
                 "Crocomire melt PNG edit changes the live first planar pixel");
             AssertTrue(changedMelt.AsSpan(1).SequenceEqual(stockMeltImages[0].AsSpan(1)),
-                "Crocomire melt PNG edit leaves all other scratch bytes unchanged");
+                "Crocomire melt PNG edit leaves all other image bytes unchanged");
             AssertTrue(VerifyInstalledCrocomireMeltingPass(editedMelt,
-                    CrocomireMeltingTransferDefinitions.Passes[1])
+                    CrocomireMeltingIllustration.Second)
                 .SequenceEqual(stockMeltImages[1]),
                 "first-melt PNG edit does not change the second pass");
             AssertTrue(VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkFiles.Load(directory, overrideDirectory),
-                    CrocomireMeltingTransferDefinitions.Passes[0])
+                    CrocomireMeltingIllustration.First)
                 .SequenceEqual(changedMelt),
                 "Crocomire melt override survives catalog reload");
             string firstTilemapFile = Path.Combine(directory,

@@ -26,10 +26,10 @@ public enum CrocomireDeathPhase : ushort
     SecondHopSink,
     /// <summary>Installs the first melting tilemap and tongue/arm actor.</summary>
     InstallFirstMeltImage,
-    /// <summary>Copies the first melting graphics into the native scratch image.</summary>
-    CopyFirstMeltGraphics,
-    /// <summary>Uploads one first-melt graphics slice per frame.</summary>
-    UploadFirstMeltGraphics,
+    /// <summary>Begins the first melt pass.</summary>
+    BeginFirstMeltPass,
+    /// <summary>Shows one band of the first melt image per frame.</summary>
+    ShowFirstMeltBands,
     /// <summary>Third hop rising phase.</summary>
     ThirdHopRise,
     /// <summary>Starts the first column dissolve and vertical-scroll HDMA table.</summary>
@@ -54,10 +54,10 @@ public enum CrocomireDeathPhase : ushort
     SixthHopSink,
     /// <summary>Installs the second melting tilemap.</summary>
     InstallSecondMeltImage,
-    /// <summary>Copies the second melting graphics into the scratch image.</summary>
-    CopySecondMeltGraphics,
-    /// <summary>Uploads one second-melt graphics slice per frame.</summary>
-    UploadSecondMeltGraphics,
+    /// <summary>Begins the second melt pass.</summary>
+    BeginSecondMeltPass,
+    /// <summary>Shows one band of the second melt image per frame.</summary>
+    ShowSecondMeltBands,
     /// <summary>Shipped index-only spacer.</summary>
     ShippedSpacer,
     /// <summary>Sixth hop rising phase.</summary>

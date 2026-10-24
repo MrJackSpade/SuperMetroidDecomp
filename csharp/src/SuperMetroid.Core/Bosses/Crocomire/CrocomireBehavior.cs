@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
@@ -19,7 +20,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, tilemap transfers and the acid smoke drawn with it.</summary>
+    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
     internal CrocomireBg2 Bg2 { get; }
 
     /// <summary>Crocomire's setup, its body and tongue programs and their cues, and the invisible wall that holds Samus back.</summary>
@@ -54,7 +55,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, Bg2 = Bg2, Access = Access , BossArtwork = _bossArtwork });
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access, _bossArtwork);
         BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.ZebetiteBehavior, Bg2, Access);
-        Melting = new CrocomireMelting(dependencies.Presentation.Surfaces, Bg2, Access, _bossArtwork);
+        Melting = new CrocomireMelting(Bg2, Access, _bossArtwork);
         Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access, _bossArtwork);
     }
 
@@ -158,11 +159,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.InstallFirstMeltImage:
                 Melting.LoadFirstCrocomireMeltingTilemap(state);
                 return;
-            case CrocomireDeathPhase.CopyFirstMeltGraphics:
-                Melting.InitializeCrocomireMeltingGraphics(state);
+            case CrocomireDeathPhase.BeginFirstMeltPass:
+                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First);
                 return;
-            case CrocomireDeathPhase.UploadFirstMeltGraphics:
-                Melting.UploadNextCrocomireMeltingGraphicsSlice(state);
+            case CrocomireDeathPhase.ShowFirstMeltBands:
+                Melting.ShowNextCrocomireMeltBand(state);
                 return;
             case CrocomireDeathPhase.ThirdHopRise:
                 BridgeCollapse.RunCrocomireRisingComposite(state, samus);
@@ -201,11 +202,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.InstallSecondMeltImage:
                 Melting.LoadSecondCrocomireMeltingTilemap(state);
                 return;
-            case CrocomireDeathPhase.CopySecondMeltGraphics:
-                Melting.InitializeCrocomireMeltingGraphics(state);
+            case CrocomireDeathPhase.BeginSecondMeltPass:
+                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Second);
                 return;
-            case CrocomireDeathPhase.UploadSecondMeltGraphics:
-                Melting.UploadNextCrocomireMeltingGraphicsSlice(state);
+            case CrocomireDeathPhase.ShowSecondMeltBands:
+                Melting.ShowNextCrocomireMeltBand(state);
                 return;
             case CrocomireDeathPhase.ShippedSpacer:
                 state.DeathSequenceIndex = state.DeathSequenceIndex.Next();

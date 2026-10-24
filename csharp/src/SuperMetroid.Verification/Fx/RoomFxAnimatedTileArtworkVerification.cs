@@ -28,7 +28,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
 
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] png = RoomFxAnimatedTileAtlasExtractor.Extract(rom);
-        RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(png));
+        RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(png));
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         var provider = new RoomFxArtworkTestProvider(atlas);
         int frameCount = 0;
@@ -94,7 +94,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         AssertThrows<InvalidDataException>(() => atlas.TryResolve(
             RoomFxAnimatedTileArtworkDefinitions.LavaFirstSource, 1, out _),
             "artwork cannot change the native transfer byte count");
-        AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlas.Load(
+        AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes, each shown on its update.");
     }

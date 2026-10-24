@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -11,11 +12,11 @@ internal static class LookupFxLegacySheetsVerification
     internal static void VerifyRoomFxLegacySheetSelection()
     {
         using var stockPng = Sheet(1808, 1);
-        var stock = RoomFxAnimatedTileAtlas.Load(stockPng);
+        var stock = RoomFxAnimatedTileAtlasPng.Read(stockPng);
         foreach (int width in new[] { 1544, 776, 712, 1616, 1808 })
         {
             using var input = Sheet(width, 2);
-            var loaded = RoomFxAnimatedTileAtlas.Load(input, stock);
+            var loaded = RoomFxAnimatedTileAtlasPng.Read(input, stock);
             var transfer = loaded.characters;
             AssertEqual(3616, transfer.Length, "Legacy import produces full original sheet geometry");
             for (int index = 0; index < transfer.Length; index++)
@@ -25,18 +26,18 @@ internal static class LookupFxLegacySheetsVerification
             }
             if (width == 1808) continue;
             input.Position = 7;
-            AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlas.Load(input), "Legacy dimensions need stock tail");
+            AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(input), "Legacy dimensions need stock tail");
             using var forwardOnly = new FxAtlasForwardOnlyStream(input.ToArray()[7..]);
-            AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlas.Load(forwardOnly, stock), "Legacy fallback requires rewind");
+            AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(forwardOnly, stock), "Legacy fallback requires rewind");
         }
         foreach (int width in new[] { 8, 704, 720, 768, 784, 1536, 1552, 1608, 1624 })
         {
             using var invalid = Sheet(width, 2);
-            AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlas.Load(invalid, stock), "Unsupported neighboring geometry rejects");
+            AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(invalid, stock), "Unsupported neighboring geometry rejects");
         }
         using var current = Sheet(1808, 2);
         using var nonSeekable = new FxAtlasForwardOnlyStream(current.ToArray()[7..]);
-        _ = RoomFxAnimatedTileAtlas.Load(nonSeekable, stock);
+        _ = RoomFxAnimatedTileAtlasPng.Read(nonSeekable, stock);
 
         static MemoryStream Sheet(int width, byte pixel)
         {

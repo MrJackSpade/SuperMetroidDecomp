@@ -231,7 +231,7 @@ internal static class InstalledSporesTests
             using var legacyPng = new MemoryStream();
             IndexedPng.Write(legacyPng, new(checked((ushort)width), 8), pixels, image.Colours);
             legacyPng.Position = 0;
-            RoomFxAnimatedTileAtlas legacy = RoomFxAnimatedTileAtlas.Load(legacyPng, stock);
+            RoomFxAnimatedTileAtlas legacy = RoomFxAnimatedTileAtlasPng.Read(legacyPng, stock);
             byte[] expected = (byte[])planar.Clone();
             SnesPlanarTileEncoder.Encode(pixels, new(checked((ushort)width), 8), 2).CopyTo(expected, 0);
             int offset = 0;

@@ -23,7 +23,7 @@ internal static class SpeedBoosterEchoStopVerification
         var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
         var libraries = renderer.PlayerForVerification.soundLibraries;
         var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -58,11 +58,19 @@ internal static class SpeedBoosterEchoStopVerification
                 queue.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
             }
             var commands = queue.AdvanceFrame(renderer.Acknowledgements);
-            foreach (var command in commands.OfType<CartridgeAudioCommand.WritePort>().Where(command => command.InputPort == ApuPort.SoundLibrary3))
+            foreach (AudioRequest command in commands)
             {
-                if (command.Value != library3Port && command.Value == 3) starts++;
-                if (command.Value != library3Port && command.Value == 0x25) stops++;
-                library3Port = command.Value;
+                int? requested = command switch
+                {
+                    AudioRequest.RequestSound { Sound.Library: SoundEffectLibrary.Library3 } sound => sound.Sound.Value,
+                    AudioRequest.ClearSoundRequest { Library: SoundEffectLibrary.Library3 } => 0,
+                    _ => null,
+                };
+                if (requested is not int value)
+                    continue;
+                if (value != library3Port && value == 3) starts++;
+                if (value != library3Port && value == 0x25) stops++;
+                library3Port = value;
             }
             var pcm = renderer.RenderFrame(commands);
             finalPeak = pcm.Max(sample => Math.Abs((int)sample));

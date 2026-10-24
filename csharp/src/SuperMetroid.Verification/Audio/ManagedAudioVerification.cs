@@ -172,7 +172,7 @@ internal static class ManagedAudioVerification
 
         var player = new PortDrivenSpcPlayer();
         player.Upload(CollectionsMarshal.AsSpan(upload));
-        player.WritePort(ApuPort.Music, 1);
+        player.WriteMusicPort(1);
         short[] pcm = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
         // The SPC starts at tempo $10 and requires multiple 64-cycle timer carries before
         // the two-tick track startup handshake reaches the first pattern command.

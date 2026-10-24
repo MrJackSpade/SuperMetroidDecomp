@@ -71,9 +71,9 @@ internal static class GameOverPresentationVerification
             }
             native.Step(input);
             installed.Step(input);
-            IReadOnlyList<CartridgeAudioCommand> nativeCommands =
+            IReadOnlyList<AudioRequest> nativeCommands =
                 nativeAudio.AdvanceFrame(default);
-            IReadOnlyList<CartridgeAudioCommand> installedCommands =
+            IReadOnlyList<AudioRequest> installedCommands =
                 installedAudio.AdvanceFrame(default);
             AssertTrue(nativeCommands.SequenceEqual(installedCommands),
                 $"compiled game-over audio dispatch matches cartridge frame {tick}");

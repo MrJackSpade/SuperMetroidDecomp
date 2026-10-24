@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// The clip backend's playback state (#1305), kept by the session so a restored session continues
-/// its audio: the bank context, the music port and tempo timer, the music clip and its start, each
+/// its audio: the data set, the music port and tempo timer, the music clip and its start, each
 /// sound library's sound, priority and low-health mode, and the clips still releasing. Positions
 /// are absolute native stereo frames since the session's first update.
 /// </summary>
@@ -11,14 +11,14 @@ public sealed class ClipPlaybackState
     /// <summary>The three sound libraries, in queue order.</summary>
     internal readonly ClipLibraryState[] Libraries = [new(), new(), new()];
 
-    /// <summary>Clips cut by a newer sound, a track change or an upload, fading over one key-off release.</summary>
+    /// <summary>Clips cut by a newer sound, a track change or a data set change, fading over one key-off release.</summary>
     internal readonly List<ReleasingClip> Releasing = [];
 
     /// <summary>Native stereo frames rendered so far.</summary>
     internal long Sample { get; private set; }
 
-    /// <summary>The music bank uploaded last, or null while only the common upload is installed.</summary>
-    internal AudioBank? Context { get; private set; }
+    /// <summary>The music data set loaded last, or null while only the shared sounds are loaded.</summary>
+    internal MusicDataSet? Context { get; private set; }
 
     /// <summary>The track the music port holds, 0 through 255; zero when stopped or after a track ended.</summary>
     internal int MusicPort { get; private set; }
@@ -52,8 +52,8 @@ public sealed class ClipPlaybackState
         return latched;
     }
 
-    /// <summary>An upload of <paramref name="context"/> stops the music, empties the port and drops the pending write.</summary>
-    internal void Upload(AudioBank? context)
+    /// <summary>Loading <paramref name="context"/> stops the music, empties the port and drops the pending write.</summary>
+    internal void Upload(MusicDataSet? context)
     {
         Music = null;
         MusicPort = 0;

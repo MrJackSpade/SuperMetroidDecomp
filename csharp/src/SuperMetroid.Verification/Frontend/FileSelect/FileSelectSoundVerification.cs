@@ -30,7 +30,7 @@ internal static class FileSelectSoundVerification
             bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
             menu.Step(accept ? SnesButton.A : 0);
             var commands = audio.AdvanceFrame(renderer.Acknowledgements);
-            writes += commands.Count(command => command is CartridgeAudioCommand.WritePort { InputPort: ApuPort.SoundLibrary1 } write && write.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
+            writes += commands.Count(command => command == new AudioRequest.RequestSound(SoundEffectLibrary1Sounds.FileSelectSwoosh));
             var pcm = renderer.RenderFrame(commands);
             if (!accepted && !accept) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
             else nonzero += pcm.Count(value => value != 0);

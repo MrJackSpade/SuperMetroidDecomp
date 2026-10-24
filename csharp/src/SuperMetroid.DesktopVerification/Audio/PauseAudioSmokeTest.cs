@@ -42,7 +42,7 @@ public static class PauseAudioSmokeTest
         {
             FrontendFrame next = game.Step(input);
             game.CopyAudioFrame(samples);
-            commandCount += game.AudioEventsForVerification.Count(audioEvent => audioEvent is not AudioEvent.DriverTick);
+            commandCount += game.AudioEventsForVerification.Count(audioEvent => audioEvent is not AudioEvent.ClockStep);
             continuity.Observe(samples);
             frames++;
             if (next.GameState is >= SuperMetroidGameState.PausingDarkening and
@@ -54,7 +54,7 @@ public static class PauseAudioSmokeTest
                 pauseSoundStarts.AddRange(game.AudioEventsForVerification
                     .OfType<AudioEvent.StartSoundEffect>()
                     .Select(audioEvent => audioEvent.SoundEffect));
-                if (game.AudioEventsForVerification.Any(audioEvent => audioEvent is AudioEvent.LoadAudioBank))
+                if (game.AudioEventsForVerification.Any(audioEvent => audioEvent is AudioEvent.ChangeMusicDataSet))
                 {
                     throw new InvalidDataException(
                         $"Pause state {next.GameState} restarted an SPC data upload.");

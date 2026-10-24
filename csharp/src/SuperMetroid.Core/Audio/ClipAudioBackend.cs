@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Audio;
 /// Plays pre-rendered clips (#1305) from the session's audio events, reproducing the driver's
 /// command semantics from the session's events.
 /// <list type="bullet">
-/// <item>A music-port write is latched and consumed at the next music tick: a carry of the tempo
-/// accumulator, which the driver advances by the playing clip's tempo on every driver tick.</item>
-/// <item>Writing the playing track is ignored. A track that ends returns the port to zero, so the
-/// same track can then restart. Zero stops the music.</item>
+/// <item>A track selection is latched and consumed at the next music tick: a carry of the tempo
+/// accumulator, which advances by the playing clip's tempo on every clock step.</item>
+/// <item>Selecting the playing track is ignored. A track that ends leaves no track selected, so
+/// the same track can then restart. Selecting no track stops the music.</item>
 /// <item>Each library accepts a request by its clip's policy (priority, low-health mode, exempt
 /// requests); the sound holds the library until its logical end.</item>
-/// <item>An upload stops the music and silences each playing sound until its next key-on, then
-/// continues it in the new bank context.</item>
+/// <item>A data set change stops the music and silences each playing sound until its next key-on,
+/// then continues it in the new data set's clips.</item>
 /// <item>A cut clip fades over one key-off release.</item>
 /// </list>
 /// Clips mix in the native 32.04-kHz domain and resample to 48 kHz exactly as the emulated DSP's
@@ -48,7 +48,7 @@ public sealed class ClipAudioBackend
     /// <summary>Applies one update's events in order and writes its interleaved 48-kHz stereo PCM.</summary>
     /// <exception cref="InvalidDataException">
     /// An event is malformed or out of order, a pause or resume command arrives, a track is
-    /// requested with no music bank loaded, or a requested sound has no clip in the bank context.
+    /// requested with no music bank loaded, or a requested sound has no clip in the data set.
     /// </exception>
     public void Render(in AudioFrameEvents frame, Span<short> stereo48k)
     {
@@ -62,28 +62,28 @@ public sealed class ClipAudioBackend
         {
             switch (audioEvent)
             {
-                case AudioEvent.LoadAudioBank loadAudioBank:
+                case AudioEvent.ChangeMusicDataSet change:
                     RequireBeforeTicks(ticked, audioEvent);
-                    Upload(loadAudioBank.AudioSet, frameStart);
+                    ChangeDataSet(change.DataSet, frameStart);
                     break;
-                case AudioEvent.WriteMusicPort writeMusicPort:
+                case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticked, audioEvent);
-                    State.LatchMusic(LatchedMusicCommand(writeMusicPort.Music));
+                    State.LatchMusic(selection.Track?.Number ?? 0);
                     break;
-                case AudioEvent.DriverTick driverTick:
-                    if (driverTick.DspCycleOffset < cursor || driverTick.DspCycleOffset >= FramesPerUpdate)
-                        throw new InvalidDataException($"Driver tick at DSP cycle {driverTick.DspCycleOffset} is out of order or outside the update.");
-                    Mix(frameStart, cursor, driverTick.DspCycleOffset);
-                    cursor = driverTick.DspCycleOffset;
+                case AudioEvent.ClockStep step:
+                    if (step.SampleOffset < cursor || step.SampleOffset >= FramesPerUpdate)
+                        throw new InvalidDataException($"Clock step at sample {step.SampleOffset} is out of order or outside the update.");
+                    Mix(frameStart, cursor, step.SampleOffset);
+                    cursor = step.SampleOffset;
                     ticked = true;
-                    lastTick = driverTick.DspCycleOffset;
-                    lastPolled = driverTick.SoundEffectsPolled;
-                    Tick(frameStart + cursor, driverTick.Ticks, driverTick.SoundEffectsPolled);
+                    lastTick = step.SampleOffset;
+                    lastPolled = step.ChecksRequests;
+                    Tick(frameStart + cursor, step.Steps, step.ChecksRequests);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
-                    if (!lastPolled || lastTick != startSoundEffect.DspCycleOffset)
-                        throw new InvalidDataException($"{audioEvent} does not follow its polling driver tick.");
-                    StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.DspCycleOffset);
+                    if (!lastPolled || lastTick != startSoundEffect.SampleOffset)
+                        throw new InvalidDataException($"{audioEvent} does not follow its request-checking clock step.");
+                    StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.SampleOffset);
                     break;
                 default:
                     throw new InvalidDataException($"Unknown audio event {audioEvent}.");
@@ -94,11 +94,11 @@ public sealed class ClipAudioBackend
         PcmFrameResampler.ResampleStereoLinear(native, stereo48k[..CartridgeAudioSession.PcmSamplesPerFrame]);
     }
 
-    /// <summary>An upload stops the music, clears the music latch and silences each playing sound until its next key-on in the new context.</summary>
-    private void Upload(AudioBank audioSet, long now)
+    /// <summary>A data set change stops the music, clears the music latch and silences each playing sound until its next key-on in the new data set.</summary>
+    private void ChangeDataSet(MusicDataSet? dataSet, long now)
     {
         ReleaseMusic(now);
-        State.Upload(audioSet == AudioAssetCatalogDefinitions.Common.AudioSet ? null : audioSet);
+        State.Upload(dataSet);
         for (int index = 0; index < State.Libraries.Length; index++)
         {
             ClipLibraryState library = State.Libraries[index];
@@ -116,7 +116,7 @@ public sealed class ClipAudioBackend
         }
     }
 
-    /// <summary>Services one driver tick: sound logical ends at a poll, then the tempo timer and, on a carry, the music latch.</summary>
+    /// <summary>Services one clock step: sound logical ends at a request check, then the tempo timer and, on a carry, the music latch.</summary>
     private void Tick(long now, int ticks, bool polled)
     {
         if (polled)
@@ -149,7 +149,7 @@ public sealed class ClipAudioBackend
             State.SelectTrack(command, null, now);
             return;
         }
-        AudioBank bank = State.Context ?? throw new InvalidDataException($"Track {command} was requested with no music bank loaded.");
+        MusicDataSet bank = State.Context ?? throw new InvalidDataException($"Track {command} was requested with no music bank loaded.");
         State.SelectTrack(command, catalog.GetMusic(bank, command), now);
     }
 
@@ -297,21 +297,11 @@ public sealed class ClipAudioBackend
         return pcm;
     }
 
-    /// <summary>
-    /// The value a music-port write leaves in the driver's latch: the port carries the command's low byte,
-    /// and the driver's empty marker in that byte means no command is pending.
-    /// </summary>
-    private static int? LatchedMusicCommand(MusicCommand command)
-    {
-        int written = command.DataIndex;
-        return written == SpcPortDefinitions.MusicLatchEmpty ? null : written;
-    }
-
-    /// <summary>Bank loads and music commands precede the update's ticks; one after a tick is malformed.</summary>
+    /// <summary>Data set changes and track selections precede the update's clock steps; one after a step is malformed.</summary>
     private static void RequireBeforeTicks(bool ticked, AudioEvent audioEvent)
     {
         if (ticked)
-            throw new InvalidDataException($"{audioEvent} follows a driver tick; it must precede the update's ticks.");
+            throw new InvalidDataException($"{audioEvent} follows a clock step; it must precede the update's steps.");
     }
 
     /// <summary>Saturates a mixed sample to signed 16 bits, as the DSP's output stage does.</summary>

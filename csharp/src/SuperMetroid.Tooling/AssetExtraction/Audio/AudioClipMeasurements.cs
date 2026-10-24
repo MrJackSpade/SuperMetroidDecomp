@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -43,7 +44,7 @@ internal static class AudioClipMeasurements
         observer.Attach(renderer);
         MusicTrackAnalysis.QueueBanks(renderer, track.Bank);
         renderer.AdvanceSequencerFrame();
-        renderer.WriteMusicPort(unchecked((byte)track.Track));
+        renderer.PlayTrack(new MusicTrack(track.Track));
         while (observer.Period is null)
             renderer.AdvanceSequencerFrame();
         return observer.Period.Value;

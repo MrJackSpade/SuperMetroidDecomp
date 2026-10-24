@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal static class ClipAudioOverrides
 {
-    /// <summary>A song identity: data index in hexadecimal and track number in decimal, as the extracted catalog names tracks.</summary>
+    /// <summary>A song identity: its music data set's name and its track number in decimal.</summary>
     private const string MusicPrefix = "music-";
 
     /// <summary>A sound-effect identity: library number and command in hexadecimal.</summary>
@@ -69,8 +69,8 @@ internal static class ClipAudioOverrides
     }
 
     /// <summary>The music identity of <paramref name="audioSet"/>'s <paramref name="track"/>, as the override names it.</summary>
-    internal static string MusicId(AudioBank audioSet, int track) =>
-        $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(audioSet).DataIndex:x2}-track-{track:00}";
+    internal static string MusicId(MusicDataSet audioSet, int track) =>
+        $"{MusicPrefix}{audioSet}-track-{track:00}";
 
     /// <summary>The sound-effect identity of <paramref name="library"/>'s <paramref name="command"/>, as the override names it.</summary>
     internal static string SoundEffectId(SoundEffectLibrary library, int command) =>
@@ -108,7 +108,7 @@ internal static class ClipAudioOverrides
         music[index] = music[index] with { Clip = clip, LoopStart = replacement.LoopStart };
     }
 
-    /// <summary>Replaces one sound's layers in every bank context with the replacement clip.</summary>
+    /// <summary>Replaces one sound's layers in every data set with the replacement clip.</summary>
     private static void ReplaceSoundEffect(List<SoundEffectClipEntry> soundEffects, AudioClipOverride replacement, AudioClipFile clip)
     {
         bool found = false;

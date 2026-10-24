@@ -19,7 +19,7 @@ public static class CartridgeAudioSmokeTest
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frames; frame++)
         {
-            IReadOnlyList<CartridgeAudioCommand> commands =
+            IReadOnlyList<AudioRequest> commands =
                 queue.AdvanceFrame(acknowledgements);
             foreach (short sample in engine.RenderFrame(commands))
             {
@@ -68,7 +68,7 @@ public static class CartridgeAudioSmokeTest
 
         for (int frame = 0; frame < auditFrames; frame++)
         {
-            IReadOnlyList<CartridgeAudioCommand> commands =
+            IReadOnlyList<AudioRequest> commands =
                 soundQueue.AdvanceFrame(acknowledgements);
             foreach (short sample in soundEngine.RenderFrame(commands))
             {

@@ -88,22 +88,22 @@ internal static class AudioVerification
         audio.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
         audio.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
 
-        IReadOnlyList<CartridgeAudioCommand> reset =
+        IReadOnlyList<AudioRequest> reset =
             audio.AdvanceFrame(default);
         AssertEqual(3, reset.Count, "audio reset command count");
         AssertEqual(
-            new CartridgeAudioCommand.Upload(AudioRomData.Assets.InitialAudioBank),
+            new AudioRequest.ChangeMusicDataSet(AudioRomData.Assets.InitialAudioBank),
             reset[0],
             "initial SPC bank upload");
-        AssertEqual(new CartridgeAudioCommand.WritePort(ApuPort.Music, 0), reset[1], "reset music port");
-        AssertEqual(new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 0), reset[2], "reset SFX2 port");
+        AssertEqual(new AudioRequest.StopMusic(), reset[1], "reset music port");
+        AssertEqual(AudioRequest.ForSound(SoundEffectLibrary.Library2, 0), reset[2], "reset SFX2 port");
 
         for (int delayFrame = 0; delayFrame < 7; delayFrame++)
             AssertEqual(0, audio.AdvanceFrame(default).Count, $"music upload delay {delayFrame}");
-        IReadOnlyList<CartridgeAudioCommand> upload = audio.AdvanceFrame(default);
+        IReadOnlyList<AudioRequest> upload = audio.AdvanceFrame(default);
         AssertEqual(4, upload.Count, "music upload plus SFX-downtime command count");
         AssertEqual(
-            new CartridgeAudioCommand.Upload(AudioBank.TitleSequence),
+            new AudioRequest.ChangeMusicDataSet(AudioBank.TitleSequence),
             upload[0],
             "compiled music data routing ignores absent ROM pointer bytes");
 
@@ -115,9 +115,9 @@ internal static class AudioVerification
         int trackCall = 0;
         for (int call = 1; call <= 9; call++)
         {
-            foreach (CartridgeAudioCommand command in audio.AdvanceFrame(default))
+            foreach (AudioRequest command in audio.AdvanceFrame(default))
             {
-                if (command == new CartridgeAudioCommand.WritePort(ApuPort.Music, 5))
+                if (command == AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5)))
                     trackCall = call;
             }
         }
@@ -131,10 +131,12 @@ internal static class AudioVerification
         var permanentItemPortWrites = new List<int>();
         for (int frame = 0; frame < 384; frame++)
         {
-            foreach (CartridgeAudioCommand command in audio.AdvanceFrame(default))
+            foreach (AudioRequest command in audio.AdvanceFrame(default))
             {
-                if (command is CartridgeAudioCommand.WritePort { InputPort: ApuPort.Music } write)
-                    permanentItemPortWrites.Add(write.Value);
+                if (command is AudioRequest.PlayMusicTrack play)
+                    permanentItemPortWrites.Add(play.Track.Number);
+                else if (command is AudioRequest.StopMusic)
+                    permanentItemPortWrites.Add(0);
             }
         }
         AssertSequenceEqual(
@@ -168,15 +170,14 @@ internal static class AudioVerification
             var roomMusic = new CartridgeAudioState();
             roomMusic.AdvanceFrame(default);
             roomMusic.QueueRoomMusic(dataIndex: 0, trackIndex: (byte)roomTrack);
-            var portWrites = new List<CartridgeAudioCommand>();
+            var portWrites = new List<AudioRequest>();
             for (int frame = 0; frame < 9; frame++)
                 portWrites.AddRange(roomMusic.AdvanceFrame(default).Where(command =>
-                    command is CartridgeAudioCommand.WritePort { InputPort: ApuPort.Music }));
+                    command is AudioRequest.PlayMusicTrack or AudioRequest.StopMusic));
             if (roomTrack == 0)
                 AssertEqual(0, portWrites.Count, "room byte zero inherits rather than queues stop");
             else
-                AssertSequenceEqual(new[] { new CartridgeAudioCommand.WritePort(ApuPort.Music,
-                    (byte)(roomTrack & AudioRomData.MusicWireFormat.TrackMask)) }, portWrites,
+                AssertSequenceEqual(new[] { AudioRequest.ForTrack(MusicTrack.NumberedOrNone((byte)(roomTrack & AudioRomData.MusicWireFormat.TrackMask))) }, portWrites,
                     $"native room track ${roomTrack:X2} dispatches its low seven bits");
         }
 
@@ -189,43 +190,41 @@ internal static class AudioVerification
         for (int frame = 0; frame < 9; frame++)
             postCeresLandingMusic.AdvanceFrame(default);
         postCeresLandingMusic.QueueRoomMusic(dataIndex: 6, trackIndex: 5);
-        var postCeresMusicCommands = new List<CartridgeAudioCommand>();
+        var postCeresMusicCommands = new List<AudioRequest>();
         for (int frame = 0; frame < 40; frame++)
             postCeresMusicCommands.AddRange(postCeresLandingMusic.AdvanceFrame(default));
         AssertTrue(
             postCeresMusicCommands.Any(command =>
-                command is CartridgeAudioCommand.Upload),
+                command is AudioRequest.ChangeMusicDataSet),
             "Landing Site changes the post-Ceres SPC data bank");
         AssertTrue(
             postCeresMusicCommands.Any(command =>
-                command == new CartridgeAudioCommand.WritePort(ApuPort.Music, 5)),
+                command == AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5))),
             "Landing Site restarts same-numbered track after SPC data-bank change");
 
         var sfx = new CartridgeAudioState();
         sfx.AdvanceFrame(default); // consume reset upload/port writes
         sfx.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, maximumQueued: 6);
-        IReadOnlyList<CartridgeAudioCommand> request = sfx.AdvanceFrame(default);
-        AssertEqual(new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 0x57), request.Single(), "SFX request write");
+        IReadOnlyList<AudioRequest> request = sfx.AdvanceFrame(default);
+        AssertEqual(AudioRequest.ForSound(SoundEffectLibrary.Library2, 0x57), request.Single(), "SFX request write");
         AssertEqual(
             0,
             sfx.AdvanceFrame(new SoundAcknowledgements(0, 0x57, 0)).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(
-            new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 0),
+            AudioRequest.ForSound(SoundEffectLibrary.Library2, 0),
             sfx.AdvanceFrame(default).Single(),
             "SFX request clear");
 
         var cancellation = new CartridgeAudioState();
         cancellation.AdvanceFrame(default);
         cancellation.QueueCancelSoundEffects();
-        IReadOnlyList<CartridgeAudioCommand> cancelWrites =
+        IReadOnlyList<AudioRequest> cancelWrites =
             cancellation.AdvanceFrame(default);
         AssertEqual(AudioRomData.Queues.SoundLibraryCount, cancelWrites.Count,
             "sound cancellation writes every native SFX library");
-        AssertTrue(cancelWrites.Contains(new CartridgeAudioCommand.WritePort(
-                ApuPort.SoundLibrary1,
-                SoundEffectLibrary1Sounds.CancelAll.Value)),
+        AssertTrue(cancelWrites.Contains(AudioRequest.ForSound(SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.CancelAll.Value)),
             "sound cancellation queues library one sentinel");
 
         // Library numbers are an exclusive cartridge domain: only queues one through

@@ -47,13 +47,15 @@ internal static class SpcMemoryBoundaryVerification
         AssertEqual(unchecked((sbyte)0xa5), player.Music.ReadFirCoefficient(1), "FIR preset byte 1 through its own view");
         AssertEqual(0xa5, panNext, "pan index 21's next entry aliases FIR preset byte 1");
 
-        // Requests are typed by library: a request outside 0 through 255, and a port that carries no library, are rejected.
+        // Requests are typed by library: a request outside 0 through 255, and a library index outside 0 through 2, are rejected.
         var clock = new SoundAcceptanceClock();
         clock.Request(2, 0x42);
         AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(2, 0x100), "a sound request is 0 through 255");
         AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundAcceptanceClock.LibraryCount, 0), "a sound library index is 0 through 2");
-        AssertThrows<ArgumentOutOfRangeException>(() => ApuPorts.LibraryIndexAt(ApuPort.Music), "the music port carries no sound library");
-        AssertEqual(ApuPort.SoundLibrary2, new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 1).InputPort, "port commands round-trip their port");
+        AssertEqual(new AudioRequest.RequestSound(new SoundEffectId(SoundEffectLibrary.Library2, 1)),
+            AudioRequest.ForSound(SoundEffectLibrary.Library2, 1), "a nonzero sound number requests that sound of its library");
+        AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2),
+            AudioRequest.ForSound(SoundEffectLibrary.Library2, 0), "sound number zero withdraws the library's request");
     }
 
     /// <summary>Runs the focused SPC memory and APU port boundary check.</summary>

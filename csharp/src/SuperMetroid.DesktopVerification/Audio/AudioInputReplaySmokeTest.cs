@@ -211,7 +211,7 @@ public static class AudioInputReplaySmokeTest
             }
             if (active is { } pause)
             {
-                AudioEvent[] events = [.. game.AudioEventsForVerification.Where(audioEvent => audioEvent is not AudioEvent.DriverTick)];
+                AudioEvent[] events = [.. game.AudioEventsForVerification.Where(audioEvent => audioEvent is not AudioEvent.ClockStep)];
                 pause.AudioEvents += events.Length;
                 if (events.Length != 0)
                     pause.RecordEvents(frameIndex, frame.GameState, events);

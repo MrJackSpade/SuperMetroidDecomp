@@ -51,7 +51,7 @@ internal static class GrappleSoundsVerification
             var audio = new CartridgeAudioState();
             audio.AdvanceFrame(default);
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-            AssertEqual(new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary1, request.SoundEffect.Value),
+            AssertEqual(AudioRequest.ForSound(SoundEffectLibrary.Library1, request.SoundEffect.Value),
                 audio.AdvanceFrame(default).Single(), "grapple command reaches the actual APU sound port");
         }
     }

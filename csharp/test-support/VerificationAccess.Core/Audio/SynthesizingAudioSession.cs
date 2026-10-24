@@ -25,7 +25,7 @@ internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets
     internal ManagedSpcPlayer PlayerForVerification => backend.Player;
 
     /// <summary>Applies one update's commands, renders its PCM and returns its events.</summary>
-    internal IReadOnlyList<AudioEvent> Advance(IReadOnlyList<CartridgeAudioCommand> commands)
+    internal IReadOnlyList<AudioEvent> Advance(IReadOnlyList<AudioRequest> commands)
     {
         AudioEvent[] frameEvents = events.Advance(commands);
         backend.Render(new AudioFrameEvents(frameEvents), lastPcm);
@@ -36,7 +36,7 @@ internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets
     internal void CopyFrame(Span<short> destination) => lastPcm.CopyTo(destination);
 
     /// <summary>Applies one update's commands and returns a copy of its PCM.</summary>
-    internal short[] RenderFrame(IReadOnlyList<CartridgeAudioCommand> commands)
+    internal short[] RenderFrame(IReadOnlyList<AudioRequest> commands)
     {
         Advance(commands);
         return (short[])lastPcm.Clone();

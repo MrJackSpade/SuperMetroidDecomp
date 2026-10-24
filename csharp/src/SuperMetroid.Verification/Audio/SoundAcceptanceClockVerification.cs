@@ -54,17 +54,16 @@ internal static class SoundAcceptanceClockVerification
         {
             QueueScenarioRequests(rendered, frame);
             QueueScenarioRequests(modeled, frame);
-            IReadOnlyList<CartridgeAudioCommand> commands = rendered.AdvanceFrame(session.Acknowledgements);
+            IReadOnlyList<AudioRequest> commands = rendered.AdvanceFrame(session.Acknowledgements);
             AssertSequenceEqual(commands, modeled.AdvanceFrame(modeledAcknowledgements),
                 $"frame {frame} commands under modeled acknowledgements");
-            foreach (CartridgeAudioCommand command in commands)
+            foreach (AudioRequest command in commands)
             {
-                if (command is CartridgeAudioCommand.Upload && frame > 0)
+                if (command is AudioRequest.ChangeMusicDataSet && frame > 0)
                     uploadFrame = frame;
-                else if (command == new CartridgeAudioCommand.WritePort(ApuPort.Music, 5))
+                else if (command == AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5)))
                     trackFrame = frame;
-                else if (command == new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3,
-                    SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value))
+                else if (command == AudioRequest.ForSound(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value))
                     downtimeRequestFrame = frame;
             }
 
@@ -120,28 +119,38 @@ internal static class SoundAcceptanceClockVerification
     /// does not run; the dispatcher reads only the three sound-effect ports.
     /// </summary>
     private static List<AudioEvent> ExpectedEvents(SoundAcceptanceClock ports,
-        IReadOnlyList<CartridgeAudioCommand> commands, out SoundAcknowledgements acknowledgements)
+        IReadOnlyList<AudioRequest> commands, out SoundAcknowledgements acknowledgements)
     {
         var expected = new List<AudioEvent>();
-        foreach (CartridgeAudioCommand command in commands)
+        foreach (AudioRequest command in commands)
         {
-            if (command is CartridgeAudioCommand.Upload upload)
+            switch (command)
             {
-                ports.PauseForMusicLoad();
-                expected.Add(new AudioEvent.LoadAudioBank(upload.AudioSet));
-                continue;
+                case AudioRequest.ChangeMusicDataSet change:
+                    ports.PauseForMusicLoad();
+                    expected.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
+                    break;
+                case AudioRequest.PlayMusicTrack play:
+                    expected.Add(new AudioEvent.SelectMusicTrack(play.Track));
+                    break;
+                case AudioRequest.StopMusic:
+                    expected.Add(new AudioEvent.SelectMusicTrack(null));
+                    break;
+                case AudioRequest.RequestSound sound:
+                    ports.Request(SoundEffectLibraries.ToQueueIndex(sound.Sound.Library), sound.Sound.Value);
+                    break;
+                case AudioRequest.ClearSoundRequest clear:
+                    ports.Request(SoundEffectLibraries.ToQueueIndex(clear.Library), 0);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unknown audio request {command}.");
             }
-            var write = AssertIs<CartridgeAudioCommand.WritePort>(command, "a cartridge audio command is an upload or a port write");
-            if (write.InputPort == ApuPort.Music)
-                expected.Add(new AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(write.Value)));
-            else
-                ports.Request(ApuPorts.LibraryIndexAt(write.InputPort), write.Value);
         }
         Span<SoundClockStep> schedule = stackalloc SoundClockStep[SoundAcceptanceClock.MaximumStepsPerUpdate];
         int ticks = ports.Advance(schedule);
         foreach (SoundClockStep tick in schedule[..ticks])
         {
-            expected.Add(new AudioEvent.DriverTick(tick.SampleOffset, tick.Steps, tick.ChecksRequests));
+            expected.Add(new AudioEvent.ClockStep(tick.SampleOffset, tick.Steps, tick.ChecksRequests));
             if (!tick.ChecksRequests)
                 continue;
             for (int library = 0; library < SoundEffectLibraries.Count; library++)

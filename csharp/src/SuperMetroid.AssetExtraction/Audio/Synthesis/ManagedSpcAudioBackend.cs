@@ -48,23 +48,22 @@ public sealed class ManagedSpcAudioBackend
         {
             switch (audioEvent)
             {
-                case AudioEvent.LoadAudioBank loadAudioBank:
+                case AudioEvent.ChangeMusicDataSet change:
                     RequireBeforeTicks(ticks, audioEvent);
-                    LoadBank(loadAudioBank.AudioSet);
+                    LoadBank(change.DataSet);
                     break;
-                case AudioEvent.WriteMusicPort writeMusicPort:
+                case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
-                    Player.WriteMusicPort(unchecked((byte)writeMusicPort.Music.RawValue));
+                    Player.WriteMusicPort(checked((byte)(selection.Track?.Number ?? 0)));
                     break;
-                case AudioEvent.DriverTick driverTick:
+                case AudioEvent.ClockStep step:
                     if (ticks == schedule.Length)
                         throw new InvalidDataException($"An update holds more than {schedule.Length} driver ticks.");
-                    schedule[ticks++] = new SoundClockStep(driverTick.DspCycleOffset, driverTick.Ticks,
-                        driverTick.SoundEffectsPolled, default);
+                    schedule[ticks++] = new SoundClockStep(step.SampleOffset, step.Steps, step.ChecksRequests, default);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
                     if (ticks == 0 || !schedule[ticks - 1].ChecksRequests ||
-                        schedule[ticks - 1].SampleOffset != startSoundEffect.DspCycleOffset)
+                        schedule[ticks - 1].SampleOffset != startSoundEffect.SampleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its polling driver tick.");
                     schedule[ticks - 1] = StartAt(schedule[ticks - 1], startSoundEffect.SoundEffect);
                     break;

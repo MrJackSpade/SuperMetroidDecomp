@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// The game session's per-update audio advance (#1303, #1304): it applies the update's
-/// cartridge port writes and uploads to the SPC port model, runs the driver timer for one
+/// The game session's per-update audio advance (#1303, #1304, #1410): it applies the update's
+/// <see cref="AudioRequest"/>s to the <see cref="SoundAcceptanceClock"/>, runs the clock for one
 /// update, publishes the acknowledgements the next update's sound handlers read, and turns the
 /// update into semantic <see cref="AudioEvent"/>s for an <see cref="ClipAudioBackend"/>.
 /// </summary>
@@ -37,14 +37,13 @@ public sealed class CartridgeAudioSession
     [NonSerialized]
     private short[]? lastPcm;
 
-    /// <summary>The acknowledgement bytes published by the most recent update, for the next one.</summary>
-    /// <remarks>The music echo on port zero belongs to the sequencer and is never read by gameplay; it is published as zero.</remarks>
+    /// <summary>The acknowledgements published by the most recent update, for the next one.</summary>
     public SoundAcknowledgements Acknowledgements => eventSource.Acknowledgements;
 
     /// <summary>
     /// Binds the installed clips (#1305) so each following update also renders host PCM from them.
     /// A restored session keeps its saved playback state; otherwise the binding must precede the
-    /// first update, because the backend has to see the reset upload.
+    /// first update, because the backend has to see the power-on data set.
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The session has already advanced without clips.</exception>
@@ -63,15 +62,14 @@ public sealed class CartridgeAudioSession
     }
 
     /// <summary>
-    /// Advances audio by one update: applies <paramref name="commands"/> in order, walks the
-    /// driver timer, publishes the next update's acknowledgements and, when bound, renders PCM.
+    /// Advances audio by one update: applies <paramref name="requests"/> in order, runs the
+    /// sound acceptance clock, publishes the next update's acknowledgements and, when bound, renders PCM.
     /// </summary>
     /// <returns>The update's ordered semantic events (see <see cref="AudioFrameEvents"/>).</returns>
-    /// <exception cref="InvalidDataException">A command kind is unknown, or the backend rejects its input.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">A port write selects a port outside 0..3.</exception>
-    internal IReadOnlyList<AudioEvent> Advance(IReadOnlyList<CartridgeAudioCommand> commands)
+    /// <exception cref="InvalidDataException">A request kind is unknown, or the backend rejects its input.</exception>
+    internal IReadOnlyList<AudioEvent> Advance(IReadOnlyList<AudioRequest> requests)
     {
-        AudioEvent[] frameEvents = eventSource.Advance(commands);
+        AudioEvent[] frameEvents = eventSource.Advance(requests);
         hasAdvanced = true;
         if (backend is not null)
         {

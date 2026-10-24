@@ -186,7 +186,7 @@ internal sealed class FrontendSession
     /// <summary>The most recent update's ordered semantic audio events; the session has already rendered them.</summary>
     internal IReadOnlyList<AudioEvent> LastAudioEvents { get; private set; } = Array.Empty<AudioEvent>();
     /// <summary>Advances the audio session by this update's commands and keeps the events it publishes.</summary>
-    internal void AdvanceAudio(IReadOnlyList<CartridgeAudioCommand> commands) => LastAudioEvents = audioSession.Advance(commands);
+    internal void AdvanceAudio(IReadOnlyList<AudioRequest> requests) => LastAudioEvents = audioSession.Advance(requests);
     /// <summary>
     /// Runtime publication number last copied into the frontend audio queue. A runtime counts its completed gameplay
     /// publications from one, so zero means none has been copied and a runtime that has not completed one has nothing

@@ -80,7 +80,7 @@ internal static class AudioClipExportVerification
         short[] independent = RenderIndependently(
             catalog,
             AudioBank.GreenBrinstar,
-            new CartridgeAudioCommand.WritePort(ApuPort.Music, unchecked((byte)track)),
+            AudioRequest.ForTrack(MusicTrack.NumberedOrNone(unchecked((byte)track))),
             player => player.Music.musicPortToSnes == track,
             byte.MaxValue,
             frames + (frames - loopStart));
@@ -103,7 +103,7 @@ internal static class AudioClipExportVerification
             short[] independent = RenderIndependently(
                 catalog,
                 AudioBank.GreenBrinstar,
-                new CartridgeAudioCommand.WritePort(PortOf(effect.Library), effect.Value),
+                AudioRequest.ForSound(effect.Library, effect.Value),
                 player => player.soundLibraries[libraryIndex].CurrentSound == effect.Value,
                 layer.Voices.ToVoiceMask(),
                 rendered);
@@ -113,9 +113,6 @@ internal static class AudioClipExportVerification
         }
         AssertEqual(effect == SoundEffectLibrary3Sounds.SpeedBoosterEcho, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }
-
-    /// <summary>The input port that carries <paramref name="library"/>'s requests.</summary>
-    private static ApuPort PortOf(SoundEffectLibrary library) => ApuPorts.ForLibrary(library);
 
     /// <summary>A tampered clip, an escaping path and a wrong format version are each rejected.</summary>
     private static void VerifyLoaderRejections(string directory, ClipAudioCatalog clips)
@@ -154,7 +151,7 @@ internal static class AudioClipExportVerification
     private static short[] RenderIndependently(
         ExtractedAudioAssetCatalog catalog,
         AudioBank context,
-        CartridgeAudioCommand request,
+        AudioRequest request,
         Func<ManagedSpcPlayer, bool> started,
         byte voices,
         long frames)
@@ -166,15 +163,15 @@ internal static class AudioClipExportVerification
         backend.Player.Music.observer = observer;
         short[] frame = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
         var pcm = new List<short>();
-        IReadOnlyList<CartridgeAudioCommand>[] script =
+        IReadOnlyList<AudioRequest>[] script =
         [
-            [new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet), new CartridgeAudioCommand.Upload(context)],
+            [new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet), new AudioRequest.ChangeMusicDataSet(context)],
             [request],
         ];
         for (int index = 0; pcm.Count < frames * 2; index++)
         {
             observer.Frame = index;
-            IReadOnlyList<CartridgeAudioCommand> commands = index < script.Length ? script[index] : [];
+            IReadOnlyList<AudioRequest> commands = index < script.Length ? script[index] : [];
             backend.RenderNative(new AudioFrameEvents(events.Advance(commands)), frame);
             if (observer.StartSample is long start)
             {

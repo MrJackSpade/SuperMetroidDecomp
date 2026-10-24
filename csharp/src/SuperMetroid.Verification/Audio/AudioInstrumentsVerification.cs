@@ -89,12 +89,11 @@ internal static class AudioInstrumentsVerification
                 ExtractedAudioAssetCatalog.Load(editedDirectory);
             var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
             var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
-            CartridgeAudioCommand common =
-                new CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
-            CartridgeAudioCommand titleUpload =
-                new CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
-            CartridgeAudioCommand titleTrack = new CartridgeAudioCommand.WritePort(
-                ApuPort.Music, AudioRomDataMusicTracks.Title);
+            AudioRequest common =
+                new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine);
+            AudioRequest titleUpload =
+                new AudioRequest.ChangeMusicDataSet(AudioBank.TitleSequence);
+            AudioRequest titleTrack = AudioRequest.ForTrack(MusicTrack.NumberedOrNone(AudioRomDataMusicTracks.Title));
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);
             stockRenderer.RenderFrame([titleUpload]);

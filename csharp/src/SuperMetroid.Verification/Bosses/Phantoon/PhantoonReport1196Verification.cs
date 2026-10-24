@@ -26,7 +26,7 @@ internal static class PhantoonReport1196Verification
         var audio = new CartridgeAudioState();
         var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         // The handshake rewrites a request each update until the driver echoes it ($82:8A55), so

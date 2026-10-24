@@ -1,3 +1,5 @@
+using SuperMetroid.Diagnostics.Saves;
+using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
@@ -6,7 +8,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
 
@@ -30,9 +31,8 @@ public static class DebuggerSaveStateSmokeTest
             GameInstallation installation = GameAssetInstaller.Install(fullRomPath,
                 Path.Combine(temporaryDirectory, "installed"));
             var maps = installation.LoadMaps();
-            var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions(),
-                GameArtwork.Unbound with { MapPresentation = maps });
-            game.BindAudio(installation.LoadAudioClips());
+            var content = new InstalledSessionContent(installation.LoadGameArtwork(maps, installation.LoadProjectiles()), installation.LoadAudioClips());
+            var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions(), content, storage: null);
             for (int frame = 0; frame < 90; frame++)
                 game.Step(0);
             GameContentIdentity contentIdentity = GameContentIdentity.Create(
@@ -86,7 +86,7 @@ public static class DebuggerSaveStateSmokeTest
                 throw new InvalidDataException("Compatible cross-build state did not emit both build warnings.");
             // The real hosts rebind nonserialized installed catalogs after restoration.
             // The audit must use that contract too, not an implicit cartridge fallback.
-            GameSessionComposer.Rebind(loaded.Game, GameArtwork.Unbound with { MapPresentation = maps });
+            GameSessionComposer.Restore(loaded.Game, content, new GameSaveFile(Path.Combine(temporaryDirectory, "SuperMetroid.save.json")));
 
             GameContentIdentity changedAudioIdentity = GameContentIdentity.Create(
                 new string('D', 64),
@@ -102,8 +102,6 @@ public static class DebuggerSaveStateSmokeTest
                 throw new InvalidDataException(
                     "Selected-audio drift did not supplement the two assembly-build warnings.");
             }
-            // The player is restored inside the game graph; the host rebinds only the catalog.
-            loaded.Game.BindAudio(installation.LoadAudioClips());
             if (loaded.Game.FrameNumber != saved.FrameNumber)
             {
                 throw new InvalidDataException(

@@ -22,6 +22,7 @@ using SuperMetroid.Desktop.Input;
 using SuperMetroid.Desktop.Timing;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
@@ -39,10 +40,12 @@ public sealed class PlayableGameControl : UserControl
     private SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog? mapPresentation;
     /// <summary>Installed projectile display data selected at session restart.</summary>
     private SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation? projectilePresentation;
-    /// <summary>Installed gameplay and frontend artwork rebound after debugger restores.</summary>
-    private GameArtwork? artwork;
+    /// <summary>Installed artwork and audio, bound to every game this control composes or restores.</summary>
+    private InstalledSessionContent? content;
     /// <summary>Human-readable JSON save path in the player data directory.</summary>
     private readonly string saveFilePath;
+    /// <summary>The JSON save file that keeps an interactive session's saves.</summary>
+    private readonly GameSaveFile saveFile;
     /// <summary>Prior .srm path read only for one-time save migration.</summary>
     private readonly string legacySaveRamPath;
     /// <summary>Host options retained unchanged through in-window restarts.</summary>
@@ -75,8 +78,6 @@ public sealed class PlayableGameControl : UserControl
     internal SuperMetroidAddressSpace addressSpace;
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
     internal SuperMetroidGame game;
-    /// <summary>Installed audio catalog the session binds for synthesis.</summary>
-    private ClipAudioCatalog? audioAssets;
     /// <summary>Host-owned PCM storage; the device copies each frame on submit.</summary>
     private readonly short[] audioFrame = new short[CartridgeAudioSession.PcmSamplesPerFrame];
     /// <summary>Optional selected audio override directory for this session.</summary>
@@ -127,6 +128,7 @@ public sealed class PlayableGameControl : UserControl
         // has been removed. It matches the basename used by previous releases.
         string saveBase = Path.Combine(playerDataDirectory, GameInstallationLayout.RomFileName);
         saveFilePath = Path.ChangeExtension(saveBase, GameSaveJsonFormat.FileExtension);
+        saveFile = new GameSaveFile(saveFilePath);
         legacySaveRamPath = Path.ChangeExtension(saveBase, ".srm");
         this.hostOptions = Ensure.NotNull(hostOptions);
         this.replay = replay;
@@ -270,18 +272,18 @@ public sealed class PlayableGameControl : UserControl
         addressSpace = installation.OpenRuntimeAddressSpace();
         mapPresentation = installation.LoadMaps();
         ClipAudioCatalog selectedAudioAssets = LoadAudioAssets();
-        audioAssets = selectedAudioAssets;
         if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();
         projectilePresentation = installation.LoadProjectiles();
-        artwork = installation.LoadGameArtwork(
+        GameArtwork artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
             projectilePresentation);
-        game = GameSessionComposer.Create(saves, hostOptions.Game, artwork);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
-        game.BindAudio(selectedAudioAssets);
+        content = new InstalledSessionContent(artwork, selectedAudioAssets);
+        // A replay's saves start from its header and are never written back.
+        game = GameSessionComposer.Create(saves, hostOptions.Game, content, replay is null ? saveFile : null);
         Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,
@@ -304,7 +306,6 @@ public sealed class PlayableGameControl : UserControl
         stateStore = CreateStateStore();
         if (replay is null)
         {
-            game.SaveRamChanged += PersistSaveRamToDisk;
             // The reset seed is captured after disk SRAM has been validated/copied but
             // before the first dispatcher call. A crash in state zero is therefore just as
             // reproducible as a gameplay failure hours later.
@@ -377,12 +378,9 @@ public sealed class PlayableGameControl : UserControl
         if (rendererStopping || IsDisposed) return;
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
-        GameSessionComposer.Rebind(game, artwork ?? throw new InvalidOperationException(
-            "Restored desktop session has no installed artwork."));
-        game.BindAudio(audioAssets ?? throw new InvalidOperationException(
-            "Restored desktop session has no installed audio."));
+        GameSessionComposer.Restore(game, content ?? throw new InvalidOperationException(
+            "Restored desktop session has no installed content."), saveFile);
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
-        game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoom = null;
         pendingPlaybackFrames = 0;
 
@@ -495,8 +493,6 @@ public sealed class PlayableGameControl : UserControl
     /// the write before the next frame preserves the save even if the host is stopped at a
     /// breakpoint or closed immediately after the Ceres checkpoint.
     /// </summary>
-    private void PersistSaveRamToDisk() => GameSaveFileStore.WriteAtomic(game.Saves, saveFilePath);
-
     /// <summary>Defers simulation while the enabled audio output cannot accept another frame.</summary>
     private RecoveringAudioOutput CreateAudioDevice() => new(() => new WaveOutAudioDevice(
         CartridgeAudioSession.SampleRate,

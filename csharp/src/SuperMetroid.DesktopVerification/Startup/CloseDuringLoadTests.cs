@@ -15,7 +15,7 @@ internal static class CloseDuringLoadTests
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        using var form = new GameForm(DesktopAccess.InstallationFor(rom), new HostOptions { Renderer = RendererSelection.Direct3D11, AudioEnabled = false });
+        using var form = new GameForm(DesktopAccess.InstallationFor(rom), new HostOptions { AudioEnabled = false });
         _ = form.Handle;
         var control = form.gameControl;
         _ = control.Handle;

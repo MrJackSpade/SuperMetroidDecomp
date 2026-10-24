@@ -31,7 +31,7 @@ internal static class DesktopTimerSoakTests
             // The installed host path writes player data and debugger slots into its root, so
             // each scene runs on a private copy of the repository installation.
             using var copy = InstalledFixtures.CreatePrivateCopy();
-            var options = new HostOptions { Renderer = RendererSelection.Direct3D11, MasterVolumePercent = 0,
+            var options = new HostOptions { MasterVolumePercent = 0,
                 Game = new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true } };
             CreateDesktopSoakSeed(copy.Installation, options.Game, paused);
             using var form = new GameForm(copy.Installation, options);

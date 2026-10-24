@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// Verification oracle (#1392): a frame composed from character artwork as the cartridge composes it, source X showing
 /// frame Y at position P with flip, palette and priority, read from bound characters. Gameplay draws pre-coloured
-/// images; checks compare each with this composition through <see cref="SuperMetroid.Core.Rendering.CharacterSpriteRaster"/>.
+/// images; checks compare each image's frame, characters and placed parts with this composition.
 /// </summary>
 internal sealed record CharacterSpriteDraw
 {

@@ -2925,7 +2925,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCeresHazeNativeRamp), () => VerifyCeresHazeNativeRamp(rom));
         Suite(nameof(VerifyCeresHazeTintScaling), () => VerifyCeresHazeTintScaling(rom));
         Suite(nameof(VerifyCeresHazePhaseControl), () => VerifyCeresHazePhaseControl(rom));
-        Console.WriteLine("Ceres haze: original HDMA bands, all17 native counters, both channels, captured/software views and RGB5 tint scaling pass.");
+        Console.WriteLine("Ceres haze: original HDMA bands, all17 native counters, both channels, captured views and RGB5 tint scaling pass.");
         return 0;
     }
 

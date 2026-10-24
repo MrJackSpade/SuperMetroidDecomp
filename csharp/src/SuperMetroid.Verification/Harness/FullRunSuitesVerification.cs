@@ -405,9 +405,9 @@ internal static class FullRunSuitesVerification
     internal sealed record RegisteredSuite(string Name, Action Body);
 
     /// <summary>
-    /// The portable render contract (<c>--render-contract</c>): every snapshot, codec, publication,
-    /// scene-capture and software parity check. It deliberately excludes unrelated gameplay audits,
-    /// and never loads the Windows desktop or a graphics backend.
+    /// The portable render contract (<c>--render-contract</c>): every snapshot, codec, publication
+    /// and scene-capture check, whose pixels are drawn on the WARP device. It deliberately excludes
+    /// unrelated gameplay audits, and never loads the Windows desktop.
     /// </summary>
     internal static RegisteredSuite[] RenderContractSuites() =>
     [

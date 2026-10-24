@@ -102,7 +102,7 @@ internal sealed class EnemyPresentation
     public GradualColorChangeCounter GradualColorChange => _room.Session.GradualColorChange;
 
     /// <summary>
-    /// Publishes one frame of <paramref name="enemy"/>'s installed sheet (#1392): the sheet its room's graphics set
+    /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's graphics set
     /// names. While the draw's palette bits are not those the set loaded the enemy with, as on a hit or freeze flash or
     /// after its AI moves it to another row, the frame shows them ORed into each part's own row.
     /// </summary>

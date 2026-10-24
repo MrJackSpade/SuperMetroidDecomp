@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -12,7 +13,6 @@ internal static class GameplayRenderAllocationVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     public static int Run()
     {
-        var vram = new SnesVram();
         var cgram = new SnesCgram();
         var sprites = new SpriteFrameBuffer();
         cgram.SetColor(0, Bgr555.FromWord(0x1234));

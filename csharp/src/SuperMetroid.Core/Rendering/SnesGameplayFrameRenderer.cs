@@ -452,7 +452,7 @@ public static class SnesGameplayFrameRenderer
         for (int y = HudHeight; y < Height; y++)
         {
             MotherBrainBeamLine line = lines[y];
-            if (line.Crosses) windows[y] = new(line.Left, line.Right, red, green, blue);
+            if (line.Crosses) windows[y] = new(checked((byte)line.Left), checked((byte)line.Right), red, green, blue);
         }
         return new(windows);
     }

@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Gameplay;

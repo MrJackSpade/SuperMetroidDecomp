@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Frontend;
 

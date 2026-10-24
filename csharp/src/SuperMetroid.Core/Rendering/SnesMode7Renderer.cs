@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Rooms.Backgrounds;
 

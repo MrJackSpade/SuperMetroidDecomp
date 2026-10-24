@@ -10,28 +10,24 @@ public readonly record struct ScreenBrightness
     /// <summary>The fully lit level.</summary>
     public const int FullLevel = 15;
 
-    /// <summary>Stores a validated level and blanking; callers use <see cref="Lit"/>, <see cref="Blanked"/> or <see cref="FullyLit"/>.</summary>
-    private ScreenBrightness(int level, bool isBlanked)
-    {
-        Level = level;
-        IsBlanked = isBlanked;
-    }
+    /// <summary>Stores a validated, shown level; callers use <see cref="Lit"/>, <see cref="Blanked"/> or <see cref="FullyLit"/>.</summary>
+    private ScreenBrightness(int level) => Level = level;
 
     /// <summary>A blanked screen, showing nothing.</summary>
-    public static ScreenBrightness Blanked => new(0, true);
+    public static ScreenBrightness Blanked => new(0) { IsBlanked = true };
 
     /// <summary>A fully lit screen.</summary>
-    public static ScreenBrightness FullyLit => new(FullLevel, false);
+    public static ScreenBrightness FullyLit => new(FullLevel);
 
     /// <summary>A screen shown at <paramref name="level"/>, 0 (black) through <see cref="FullLevel"/>.</summary>
-    public static ScreenBrightness Lit(int level) => new(Ensure.BetweenInclusive(0, FullLevel, level), false);
+    public static ScreenBrightness Lit(int level) => new(Ensure.BetweenInclusive(0, FullLevel, level));
 
     /// <summary>The level the screen shows at, 0 (black) through <see cref="FullLevel"/>; a blanked screen's is zero.</summary>
     [IntegerQuantity("screen brightness level, 0 black through 15 fully lit")]
     public int Level { get; }
 
     /// <summary>Whether the screen is blanked, which is how a fade-out reports that it has finished.</summary>
-    public bool IsBlanked { get; }
+    public bool IsBlanked { get; private init; }
 
     /// <summary>The same level, no longer blanked: a blanked screen becomes level zero.</summary>
     public ScreenBrightness Unblanked() => Lit(Level);

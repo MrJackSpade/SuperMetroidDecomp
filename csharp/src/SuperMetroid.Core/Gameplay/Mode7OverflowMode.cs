@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>What shows beyond a Mode 7 floor's 1024 by 1024 pixels (#1403).</summary>
 public enum Mode7OverflowMode : byte

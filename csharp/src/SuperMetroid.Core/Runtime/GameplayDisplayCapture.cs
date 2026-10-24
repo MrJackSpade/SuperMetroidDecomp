@@ -234,7 +234,7 @@ public static class GameplayDisplayCapture
                 unchecked((short)(perspective.Transform.Scroll.X + shake.Bg1.X)),
                 unchecked((short)(perspective.Transform.Scroll.Y + shake.Bg1.Y))),
         };
-        Mode1FloorBand? floor = perspective.ShowsLayer2Below
+        Mode1FloorBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
             ? new(GameplayRenderDefinitions.CeresFloorFirstScanline, ppu.Bg2Scroll + shake.Bg2,
                 new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))

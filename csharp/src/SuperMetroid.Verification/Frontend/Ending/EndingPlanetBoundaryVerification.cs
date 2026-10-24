@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -158,7 +159,7 @@ internal static class EndingPlanetBoundaryVerification
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
             // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction.
             RenderLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is Mode7RenderLayer floor
-                ? (RenderLayer)(floor with { Floor = AffineFloorFixtures.Floor(reconstructed, live.Paint.Colors) }) : layer)];
+                ? (floor with { Floor = AffineFloorFixtures.Floor(reconstructed, live.Paint.Colors) }) : layer)];
             var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(live.Paint, reconstructedLayers, live.Brightness));
             differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
             if (capture is not null && capture.Frames.Contains(frame))

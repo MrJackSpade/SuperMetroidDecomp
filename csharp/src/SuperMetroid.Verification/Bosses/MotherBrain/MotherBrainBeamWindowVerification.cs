@@ -160,8 +160,8 @@ internal static class MotherBrainBeamWindowVerification
         var bytes = new byte[lines.Length * 2];
         for (int i = 0; i < lines.Length; i++)
         {
-            bytes[i * 2] = lines[i].Left;
-            bytes[i * 2 + 1] = lines[i].Right;
+            bytes[i * 2] = checked((byte)lines[i].Left);
+            bytes[i * 2 + 1] = checked((byte)lines[i].Right);
         }
         return Convert.ToHexString(SHA256.HashData(bytes))[..16];
     }

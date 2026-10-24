@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// A Mode 7 floor's affine transform (#1403): the signed 8.8 matrix stepping through the floor per screen pixel and per

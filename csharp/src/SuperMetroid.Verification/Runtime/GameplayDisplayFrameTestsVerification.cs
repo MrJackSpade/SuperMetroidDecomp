@@ -212,7 +212,7 @@ internal static class GameplayDisplayFrameTestsVerification
     private static void VerifyCeresModeTiming(SuperMetroidRuntime runtime)
     {
         GameplayDisplayLatch shaft = runtime.PublishDisplayFrame().Latched;
-        AssertTrue(shaft.PerspectiveFloor is { ShowsLayer2Below: false },
+        AssertTrue(shaft.PerspectiveFloor is { Below: BelowPerspectiveFloor.Nothing },
             "door setup $8F:E4E0 shows the elevator shaft's floor");
 
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));

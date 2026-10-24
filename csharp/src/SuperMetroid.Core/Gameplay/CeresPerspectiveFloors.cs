@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Gameplay;
@@ -16,9 +15,9 @@ internal static class CeresPerspectiveFloors
     internal static PerspectiveFloor ElevatorShaft(SamusMode7Transform shaft, Position16<RoomPixels> layer1Scroll) => new(
         new AffineTransform(shaft.MatrixA, shaft.MatrixB, shaft.MatrixC, shaft.MatrixA, shaft.Center.AsMode7Register(),
             new Offset16<Mode7Pixels>(unchecked((short)layer1Scroll.X), unchecked((short)layer1Scroll.Y))),
-        ShowsLayer2Below: false);
+        BelowPerspectiveFloor.Nothing);
 
     /// <summary>The floor Ceres Ridley's getaway flies over, with the room's layer 2 below it.</summary>
     /// <param name="ridley">The getaway's transform as its room main last wrote it (<see cref="CeresRidleyGetaway.FloorTransform"/>).</param>
-    internal static PerspectiveFloor RidleyGetaway(AffineTransform ridley) => new(ridley, ShowsLayer2Below: true);
+    internal static PerspectiveFloor RidleyGetaway(AffineTransform ridley) => new(ridley, BelowPerspectiveFloor.Layer2);
 }

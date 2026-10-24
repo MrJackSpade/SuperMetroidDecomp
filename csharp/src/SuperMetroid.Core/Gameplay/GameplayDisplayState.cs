@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Gameplay;
@@ -49,7 +49,7 @@ internal sealed class GameplayDisplayState
     internal void PublishDoorElevatorFloor(SamusMode7Transform? transform) =>
         Latched = Latched with
         {
-            PerspectiveFloor = Latched.PerspectiveFloor is { ShowsLayer2Below: true } getaway ? getaway
+            PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } getaway ? getaway
                 : transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, Latched.Ppu.Bg1Scroll)
                 : null,
         };

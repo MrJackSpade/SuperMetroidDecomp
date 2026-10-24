@@ -10,7 +10,7 @@ internal static class RainbowBeamWindowBuilder
     /// The working edge word of a line the beam misses: the rasterization packs each line's left column in the low
     /// byte and its right column in the high byte, and compares those words against its off-screen sentinels.
     /// </summary>
-    private static readonly ushort MissedLineWord = SnesLittleEndian.Word(MotherBrainBeamLine.None.Left, MotherBrainBeamLine.None.Right);
+    private static readonly ushort MissedLineWord = SnesLittleEndian.Word(checked((byte)MotherBrainBeamLine.None.Left), checked((byte)MotherBrainBeamLine.None.Right));
 
     /// <summary>
     /// Returns the screen columns the beam crosses on each visible scanline. The HUD lines and every line the beam

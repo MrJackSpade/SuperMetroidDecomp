@@ -42,7 +42,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
             RoomMetatileAtlas.Write(encoded, document, native.Length);
             string json = Encoding.UTF8.GetString(encoded.ToArray());
             void Load(string text) => AssertTrue(RoomMetatileAtlas.Load(TilemapContractStream(text), native.Length)
-                .Transfer.Span.SequenceEqual(native), "metatile compilation retains every quadrant/tile/priority/flip bit");
+                .BlockDefinitions.Span.SequenceEqual(native), "metatile compilation retains every quadrant/tile/priority/flip bit");
             Load(json); Load(TilemapContractHistoricalCasing(json));
             foreach (string corrupt in TilemapContractCorruptions(json, root => (JsonObject)root.Required("blocks").Required(0).Required("topLeft"))
                 .Concat(new[] { TilemapContractMutate(json, root => root.Required("blocks").Required(0)["collision"] = 7),

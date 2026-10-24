@@ -66,7 +66,7 @@ public sealed class CartridgeRoomAssets
     public static byte[] BlockDefinitions(RoomMetatileCatalog metatiles, TilesetDefinition tileset, bool ceres)
     {
         Ensure.NotNull(metatiles);
-        byte[] roomBlockDefinitions = metatiles.Get(tileset.Blocks).Transfer.ToArray();
+        byte[] roomBlockDefinitions = metatiles.Get(tileset.Blocks).BlockDefinitions.ToArray();
         byte[] blockDefinitions;
         if (ceres)
         {
@@ -76,7 +76,7 @@ public sealed class CartridgeRoomAssets
         }
         else
         {
-            byte[] creDefinitions = metatiles.Cre.Transfer.ToArray();
+            byte[] creDefinitions = metatiles.Cre.BlockDefinitions.ToArray();
             blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
             creDefinitions.CopyTo(blockDefinitions, 0);
             roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
@@ -117,7 +117,7 @@ public sealed class CartridgeRoomAssets
             levelData,
             scrolls,
             new RoomTilesetArtwork(tileset, characterArt.Cre.Transfer.ToArray(), characterArt.Get(tileset.Characters).Transfer.ToArray(),
-                paletteArt.Get(tileset.Palette).Transfer.ToArray(), catalogs.BlockSheets));
+                paletteArt.Get(tileset.Palette).PackedColours.ToArray(), catalogs.BlockSheets));
     }
 
     /// <summary>

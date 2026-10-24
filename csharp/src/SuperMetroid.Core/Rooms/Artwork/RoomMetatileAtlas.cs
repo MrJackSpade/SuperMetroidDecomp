@@ -18,7 +18,7 @@ public sealed class RoomMetatileAtlas
     private RoomMetatileAtlas(byte[] blockDefinitions) => this.blockDefinitions = blockDefinitions;
 
     /// <summary>Compiled native block-table bytes: four little-endian BG tilemap words per block, ordered top-left, top-right, bottom-left, bottom-right.</summary>
-    public ReadOnlyMemory<byte> Transfer => blockDefinitions;
+    public ReadOnlyMemory<byte> BlockDefinitions => blockDefinitions;
 
     /// <summary>Validates editable metatile JSON and packs each block's four tile references and visual attributes into the native eight-byte representation.</summary>
     /// <param name="json">Map document stream using the strict, camel-case version-1 schema.</param>

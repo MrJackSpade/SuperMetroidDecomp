@@ -54,7 +54,7 @@ internal static class MessageBoxSheetComposer
         IReadOnlyDictionary<string, ImmutableArray<ushort>> messages)
     {
         Ensure.NotNull(inputs);
-        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
+        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
         colours[GameplayMessageRomData.Palette.TemporaryLightIndex] = GameplayMessageRomData.Palette.TemporaryLightColor;
         colours[GameplayMessageRomData.Palette.TemporaryDarkIndex] = GameplayMessageRomData.Palette.TemporaryDarkColor;
         int width = GameplayMessageRomData.Layout.TilemapWidth;

@@ -99,9 +99,6 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="GameplayActorDrawing"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayActorDrawing ActorDrawing { get; }
 
-    /// <summary>The session's BG tilemap staging (<c>$7E:4000</c>), shared by library backgrounds and X-ray.</summary>
-    internal Bg2TilemapStaging Bg2TilemapStaging { get; }
-
     /// <summary>The session's Mode 7 transfer queue residue, bound into the enemies and every Samus this runtime creates.</summary>
     internal SuperMetroid.Core.Hardware.Mode7TransferQueueResidue FloorQueueResidue { get; }
 
@@ -159,8 +156,7 @@ internal sealed class SuperMetroidRuntime
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player, Vram = Vram, VramWrites = VramWrites });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Room = Room, Hud = Hud, Player = Player, VramWrites = VramWrites});
         GameplayWindows = new GameplayWindowRegisters(Room);
-        Bg2TilemapStaging = new Bg2TilemapStaging();
-        Xray = new XrayReveal(BackgroundScroll, Room, System, Bg2TilemapStaging);
+        Xray = new XrayReveal(BackgroundScroll, Room, System);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
@@ -170,11 +166,11 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, Backgrounds = BgArtwork, VramWrites = VramWrites});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Backgrounds = BgArtwork, VramWrites = VramWrites});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System, VramWrites = VramWrites});
-        PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Cgram = Cgram, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup, VramWrites = VramWrites});
+        PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Cgram = Cgram, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System, VramWrites = VramWrites});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Cgram = Cgram, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System });
 

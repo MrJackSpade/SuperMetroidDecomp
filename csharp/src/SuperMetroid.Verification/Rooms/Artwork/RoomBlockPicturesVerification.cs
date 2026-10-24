@@ -365,20 +365,22 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>
     /// Asserts BG2's library background paints, pixel for pixel over both pages, the palette index, priority and standard
-    /// colour BG2's tilemap tiles paint over the characters the bindings compose into VRAM; returns its rebound cells.
+    /// colour the image's tilemap tiles paint over the characters the bindings compose into VRAM; returns its rebound cells.
     /// </summary>
     private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, string where)
     {
         RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.Bg2Image
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
+        // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds.
+        ImmutableArray<ushort> words = (runtime.Room.Scope?.BackgroundImage
+            ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.TilemapWords;
         // A 32x64 map lays the two pages out one above the other, as the image does.
         IBgSource shown = plane.At(new Extent16<TilemapCells>(RoomBackgroundImage.PageTiles, RoomBackgroundImage.Pages * RoomBackgroundImage.PageTiles));
         for (int y = 0; y < RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels; y++)
         for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
         {
-            int at = GameplayVramLayout.Bg2TilemapWord * 2 + (y / CharacterPixels * RoomBackgroundImage.PageTiles + x / CharacterPixels) * 2;
-            var word = new SnesBgTilemapWord((ushort)(vram[at] | vram[at + 1] << 8));
+            var word = new SnesBgTilemapWord(words[y / CharacterPixels * RoomBackgroundImage.PageTiles + x / CharacterPixels]);
             int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
             int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
             int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;

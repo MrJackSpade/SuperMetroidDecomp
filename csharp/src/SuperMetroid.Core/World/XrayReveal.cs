@@ -17,18 +17,21 @@ internal sealed class XrayReveal
     private readonly ActiveRoomState _room;
     /// <summary>Supplies system flags that affect revealed overlays.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>The session's BG tilemap staging; the frozen reveal map is built in its bytes (<c>$7E:4000</c>).</summary>
-    private readonly Bg2TilemapStaging _tilemapStaging;
-    /// <summary>The frozen reveal map; it is never rebuilt from later room or VRAM changes.</summary>
-    internal StagingWordView RevealTilemap => _tilemapStaging.TilemapWords;
+    /// <summary>
+    /// The frozen reveal map, owned here (#1406). The cartridge built it in the tilemap staging its library backgrounds
+    /// decompress into; nothing reads one through the other, so the map is its own state.
+    /// </summary>
+    private readonly ushort[] _revealTilemap = new ushort[XrayTilemapLayout.BufferWords];
+
+    /// <summary>The frozen reveal map; it is never rebuilt from later room changes.</summary>
+    internal ReadOnlySpan<ushort> RevealTilemap => _revealTilemap;
 
     /// <summary>Binds the gameplay owners used to construct the X-ray reveal.</summary>
-    internal XrayReveal(BackgroundScrollState backgroundScroll, ActiveRoomState room, Bank80SystemState system, Bg2TilemapStaging tilemapStaging)
+    internal XrayReveal(BackgroundScrollState backgroundScroll, ActiveRoomState room, Bank80SystemState system)
     {
         _backgroundScroll = backgroundScroll;
         _room = room;
         _system = system;
-        _tilemapStaging = tilemapStaging;
     }
     /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
     [field: NonSerialized]
@@ -52,7 +55,6 @@ internal sealed class XrayReveal
             (byte)room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, plms.CollectiblePlms.Collectibles, _system,
             room.State.XrayOverlay, layer1, XrayRevealVisuals);
-        StagingWordView reveal = RevealTilemap;
-        for (int i = 0; i < map.Length; i++) reveal[i] = map[i];
+        map.AsSpan(0, Math.Min(map.Length, _revealTilemap.Length)).CopyTo(_revealTilemap);
     }
 }

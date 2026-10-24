@@ -1,7 +1,4 @@
-using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandArtworkVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandDrawVerification;
 using SuperMetroid.Verification.Rooms.Plms;
@@ -17,7 +14,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.World;
@@ -26,11 +22,10 @@ using SuperMetroid.Core.World;
 internal static class BombTorizoHandVerification
 {
     /// <summary>
-    /// Locks Bomb Torizo's resident `$D6EA` header, Bombs inventory gate, odd-byte DMA,
-    /// eight debris requests, final music command, and cartridge-timed deletion together.
+    /// Locks Bomb Torizo's resident `$D6EA` header, Bombs inventory gate, crumble delay, eight debris
+    /// requests, final music command, and cartridge-timed deletion together.
     /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    internal static void VerifyBombTorizoHandPlm(InstalledEnemyArtwork? installedArtwork = null)
+    internal static void VerifyBombTorizoHandPlm()
     {
         Suite(nameof(VerifyBombTorizoHandProgramDefinitions), () => VerifyBombTorizoHandProgramDefinitions());
         Suite(nameof(VerifyBombTorizoHandVisualInstallation), () => VerifyBombTorizoHandVisualInstallation());
@@ -82,8 +77,8 @@ internal static class BombTorizoHandVerification
             plms.Step(level);
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "hand remains resident while Samus lacks Bombs");
-        AssertEqual(0, plms.BombTorizoHand.VramWriteRequests.Count,
-            "sleeping hand performs no premature DMA");
+        AssertEqual(0, plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
+            "sleeping hand drops no premature fragment");
 
         samus.CollectedItems |= SamusEquipmentFlags.Bombs;
         plms.Step(level); // D33B skips sleep, starts 120-frame wait.
@@ -92,50 +87,23 @@ internal static class BombTorizoHandVerification
 
         for (int frame = 0; frame < 119; frame++)
             plms.Step(level);
-        AssertEqual(0, plms.BombTorizoHand.VramWriteRequests.Count,
-            "DMA waits for complete 120-frame post-pickup delay");
+        AssertEqual(0, plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
+            "the hand holds through its 120-frame post-pickup delay");
         plms.Step(level);
-        AssertEqual(1, plms.BombTorizoHand.VramWriteRequests.Count,
-            "120th frame emits one PLM VRAM write");
-        AssertEqual(0x0400, plms.BombTorizoHand.VramWriteRequests[0].SizeInBytes,
-            "hand DMA byte count");
-        AssertEqual(0xadb200, plms.BombTorizoHand.VramWriteRequests[0].SourceAddress,
-            "hand DMA source address");
-        AssertEqual(0x6e00, plms.BombTorizoHand.VramWriteRequests[0].Destination.Encoded,
-            "hand DMA VRAM destination");
-
-        if (installedArtwork is not null)
-        {
-            // #1162: checking only the emitted descriptor missed the actual failure.
-            // Drain that exact production request through the runtime's installed-art
-            // provider and RAM-only memory boundary, as the accepted NMI does.
-            var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
-            runtime.EnemySession.TileArtwork = installedArtwork.Enemies;
-            runtime.BossArtwork.Artwork = installedArtwork.Bosses;
-            runtime.AreaArtwork.Artwork = installedArtwork.Areas;
-            PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
-            runtime.VramWrites.Enqueue(checked((ushort)request.SizeInBytes), request.SourceAddress,
-                request.Destination);
-            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
-            AssertTrue(new EnemyTileTransfers(installedArtwork).TryResolve(request.SourceAddress,
-                request.SizeInBytes, out ReadOnlyMemory<byte> expected),
-                "Bomb Torizo PLM transfer resolves installed artwork");
-            for (int offset = 0; offset < expected.Length; offset++)
-                AssertEqual(expected.Span[offset],
-                    runtime.Vram.ReadByte(request.Destination.Encoded * 2 + offset),
-                    $"Bomb Torizo debris DMA installs exact tile byte {offset:X4}");
-            AssertEqual(0, runtime.VramWrites.TailInBytes,
-                "successful debris DMA clears the pending queue");
-        }
-
         var fragments = new List<int>();
-        for (int frame = 0; frame < 400 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand); frame++)
+        int firstFragmentFrame = 0;
+        for (int frame = 1; frame <= 400 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand); frame++)
         {
             plms.Step(level);
+            if (fragments.Count == 0 && plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Count > 0)
+                firstFragmentFrame = frame;
             fragments.AddRange(plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
                 request => request.Fragment));
         }
+        // The crumble starts on the delay's last frame; the first fragment drops its own delay later, with no step
+        // between them for the debris characters the cartridge loaded there (#1406).
+        AssertEqual(BombTorizoHandPlmProgramDefinitions.FragmentDelay(0), firstFragmentFrame,
+            "the first fragment drops its authored delay after the crumble begins");
         AssertSequenceEqual(
             new[] { 0, 1, 2, 3, 4, 5, 6, 7 },
             fragments,
@@ -161,7 +129,7 @@ internal static class BombTorizoHandVerification
             "complete hand lifecycle and defeated reload never reread program or draw bytes");
 
         Console.WriteLine(
-            "  Bomb Torizo hand: inventory gate, DMA, debris cadence, music, and deletion agree.");
+            "  Bomb Torizo hand: inventory gate, crumble delay, debris cadence, music, and deletion agree.");
     }
 
     /// <summary>Compares hand draw geometry, physical words, instructions, callback, debris, and DMA operands with the cartridge.</summary>

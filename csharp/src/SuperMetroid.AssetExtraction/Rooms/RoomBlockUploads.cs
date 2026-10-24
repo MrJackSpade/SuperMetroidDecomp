@@ -216,7 +216,7 @@ internal static class RoomBlockUploads
         // A door no transfer names stands for every door the program does not tell apart.
         CartridgeDoorHeader entry = door ?? new CartridgeDoorHeader("no library background door", room,
             new CartridgeDoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, 0, DoorSetupCode.None);
-        LibraryBackgroundExecutionResult result = LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(new Bg2TilemapStaging(), new EnemyStagingSurfaces()), vram, program,
+        LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program,
             entry, new LibraryBackgroundArtwork
             {
                 TilemapArt = inputs.BackgroundTilemaps,

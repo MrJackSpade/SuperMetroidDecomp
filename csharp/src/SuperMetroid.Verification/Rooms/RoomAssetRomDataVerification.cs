@@ -24,8 +24,8 @@ internal static class RoomAssetRomDataVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for tileset definition pointers and compressed graphics streams")]
     internal static void VerifyRoomAssetRomData()
     {
-        ValidateTilemapTransfer(RoomAssetRomData.LibraryBackground.ClearFx, "clear FX");
-        ValidateTilemapTransfer(RoomAssetRomData.LibraryBackground.ClearBg2, "clear BG2");
+        ValidateLibraryBackgroundClear(LibraryBackgroundRomData.ClearFx, "clear FX");
+        ValidateLibraryBackgroundClear(LibraryBackgroundRomData.ClearBg2, "clear BG2");
         AssertEqual(
             RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionsByteCount,
             RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionCount *
@@ -179,7 +179,7 @@ internal static class RoomAssetRomDataVerification
         {
             byte[] native = sourceAddress == ghostSource
                 ? RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
-                    RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount)
+                    LibraryBackgroundRomData.TourianStatueGhostByteCount)
                 : RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];
             RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(new MemoryStream(png), native.Length);
@@ -270,9 +270,9 @@ internal static class RoomAssetRomDataVerification
             "and padding edits are rejected.");
     }
 
-    /// <summary>Checks a library-background transfer's WRAM source/destination identity, whole-word size and WRAM/VRAM bounds.</summary>
-    private static void ValidateTilemapTransfer(
-        RoomAssetRomData.TilemapTransfer transfer,
+    /// <summary>Checks a library-background clear's WRAM source/destination identity, whole-word size and WRAM/VRAM bounds.</summary>
+    private static void ValidateLibraryBackgroundClear(
+        LibraryBackgroundClear transfer,
         string description)
     {
         AssertEqual(

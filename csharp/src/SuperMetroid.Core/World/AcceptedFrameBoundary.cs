@@ -282,7 +282,6 @@ internal sealed class AcceptedFrameBoundary
         if (rooms.Bg2 is null && sky is null && latched.Bosses.KraidBody is null && latched.Bosses.EnemyBg2 is null
             && scope.BackgroundImage is { } background)
         {
-            background.Image.AssertLoadedIntoBg2(_backgrounds);
             image = background.Resolve(_backgrounds);
         }
         // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.

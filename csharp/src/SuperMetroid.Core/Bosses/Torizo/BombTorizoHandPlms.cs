@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms;
@@ -26,12 +25,6 @@ internal sealed class BombTorizoHandPlms
         _bombTorizoStatueProjectileRequests = [];
     /// <summary>Delayed track-selection commands queued by the hand program for this frame.</summary>
     private readonly List<DelayedMusicRequest> _musicRequests = [];
-
-    /// <summary>
-    /// Whether the hand has shown the Chozo debris artwork its crumbling statue's fragments draw from (#1406), selected on
-    /// the update its program reaches the debris; it stays shown for the room.
-    /// </summary>
-    public bool DebrisShown { get; private set; }
 
     /// <summary>Bank-$86 statue fragments emitted during the latest PLM pass.</summary>
     public IReadOnlyList<BombTorizoStatueProjectileRequest>
@@ -88,9 +81,6 @@ internal sealed class BombTorizoHandPlms
         slot.WakePastSleep();
         slot.PreInstruction = PlmPreInstructions.Inert;
     }
-    /// <summary><c>$84:87E5</c>: selects the Chozo debris artwork, at this update, before the hand crumbles.</summary>
-    internal void ShowDebris() => DebrisShown = true;
-
     /// <summary><c>$84:D357</c>: spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
     internal void SpawnFragment(PlmSlot slot, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(

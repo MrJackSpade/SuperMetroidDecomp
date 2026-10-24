@@ -28,7 +28,7 @@ internal static class Mode7TileSheetComposer
         Ensure.NotNull(content);
         var vram = new byte[SnesVram.ByteCount];
         content.ComposeOver(vram);
-        Bgr555[] background = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
+        Bgr555[] background = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
         var loaded = new ScreenPalette();

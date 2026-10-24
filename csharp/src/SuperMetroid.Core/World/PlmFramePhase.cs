@@ -34,8 +34,6 @@ internal sealed class PlmFramePhase
     private readonly ActiveRoomState _room;
     /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Queues PLM tile transfers and collected-beam character uploads.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
 
     /// <summary>Binds the shared PLM handler to live runtime state and its presentation effects.</summary>
@@ -50,7 +48,6 @@ internal sealed class PlmFramePhase
         _player = dependencies.Player;
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
-        _vramWrites = dependencies.VramWrites;
 
     }
     /// <summary>

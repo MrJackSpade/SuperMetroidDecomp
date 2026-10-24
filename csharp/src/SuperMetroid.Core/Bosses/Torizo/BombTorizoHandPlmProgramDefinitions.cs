@@ -5,13 +5,12 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// The Bomb Torizo hand's PLM programs (#1296), in place of its bank-$84 instruction list: the intact hand sleeps until
-/// Samus has Bombs, then holds, loads the debris tiles and drops eight fragments at quickening intervals before the
-/// cleared hand and the boss music.
+/// Samus has Bombs, then holds and drops eight fragments at quickening intervals before the cleared hand and the boss
+/// music. The cartridge's crumble list also loads the debris characters the fragments are drawn with (#1406); the
+/// fragments show their own pictures, so that load has no step here and takes no time.
 /// </summary>
 internal static class BombTorizoHandPlmProgramDefinitions
 {
-    /// <summary>How many words into the OBJ character table the debris tiles load.</summary>
-    internal const int DebrisObjectCharacterWordOffset = 0x0e00;
     /// <summary>How many fragments the hand drops.</summary>
     internal const int FragmentCount = 8;
     /// <summary>How long the woken hand holds before it crumbles.</summary>
@@ -38,13 +37,12 @@ internal static class BombTorizoHandPlmProgramDefinitions
         _ => 17 - fragment,
     };
 
-    /// <summary>The hold, the debris tiles, the eight fragments, the cleared hand and the music.</summary>
+    /// <summary>The hold, the eight fragments, the cleared hand and the music.</summary>
     private static Step[] Crumble()
     {
         List<Step> steps =
         [
             Step.Show(BombTorizoHandDraw.Intact, CrumbleDelay),
-            Step.Publish(new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles)),
         ];
         for (int fragment = 0; fragment < FragmentCount; fragment++)
         {

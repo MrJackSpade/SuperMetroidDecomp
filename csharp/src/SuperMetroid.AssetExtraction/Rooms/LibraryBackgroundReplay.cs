@@ -1,0 +1,187 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.World;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
+
+/// <summary>
+/// Replays a room state's library-background command list as bank $82's interpreter runs it (#1406). Only extraction runs
+/// the list: it decompresses tilemaps into the cartridge's tilemap staging, copies staged and sky tilemaps to BG2's pages,
+/// fills pages with the blank tile, and binds the characters the list brings through the runtime's own decision. The BG2
+/// pages the replay leaves are pictured as the background's image, which the runtime selects by name instead.
+/// </summary>
+[PpuLayoutBoundary("codec: the VRAM words and work-RAM staging a library-background command list writes")]
+internal static class LibraryBackgroundReplay
+{
+    /// <summary>
+    /// Replays <paramref name="program"/> as a room entered through <paramref name="activeDoor"/> runs it, into
+    /// <paramref name="vram"/>. The tilemap staging starts empty and the enemy BG2 staging holds
+    /// <paramref name="enemyBg2Staging"/> (empty for none, as a room load leaves it).
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The list holds a command the interpreter does not accept, a zero-length transfer, or a transfer from ROM that no
+    /// installed artwork owns.
+    /// </exception>
+    internal static LibraryBackgroundExecutionResult Execute(SnesVram vram, LibraryBackgroundProgram program,
+        CartridgeDoorHeader activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
+    {
+        Ensure.NotNull(vram);
+        Ensure.NotNull(program);
+        Ensure.NotNull(artwork);
+        if (enemyBg2Staging.Length > LibraryBackgroundRomData.EnemyBg2StagingByteCount)
+            throw new ArgumentOutOfRangeException(nameof(enemyBg2Staging), enemyBg2Staging.Length, "The enemy BG2 staging is 4 KiB.");
+        var staging = new Staging(enemyBg2Staging);
+        LibraryBackgroundCharacterArtwork characters = artwork.CharactersOver(artwork.Backgrounds ?? new BgArtworkBindings(vram));
+        bool selectsKraidHudCharacters = false;
+        foreach (LibraryBackgroundInstruction instruction in program.Instructions)
+        {
+            switch (instruction.Command)
+            {
+                case LibraryBackgroundCommand.TransferToVram:
+                    Transfer(staging, vram, instruction, artwork, characters);
+                    break;
+                case LibraryBackgroundCommand.DecompressToWorkRam:
+                    staging.WriteDecompressed(instruction.Destination, (artwork.TilemapArt ?? throw new InvalidOperationException(
+                        "Library-background decompression requires installed tilemaps.")).Get(instruction.SourceAddress).Transfer.Span,
+                        instruction.SourceAddress);
+                    break;
+                case LibraryBackgroundCommand.ClearFxTilemap:
+                    FillAndTransfer(staging, vram, LibraryBackgroundRomData.ClearFx);
+                    break;
+                case LibraryBackgroundCommand.TransferToVramForKraid:
+                    Transfer(staging, vram, instruction, artwork, characters);
+                    selectsKraidHudCharacters = true;
+                    break;
+                case LibraryBackgroundCommand.ClearBg2:
+                    FillAndTransfer(staging, vram, LibraryBackgroundRomData.ClearBg2);
+                    break;
+                case LibraryBackgroundCommand.ClearBg2ForKraid:
+                    // Kraid's list repeats the filled staging at his own page before BG2's.
+                    LibraryBackgroundClear clear = LibraryBackgroundRomData.ClearBg2;
+                    staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue);
+                    vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), LibraryBackgroundRomData.KraidBg2VramDestinationWord);
+                    vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestinationWord);
+                    break;
+                case LibraryBackgroundCommand.TransferForDoor:
+                    if (instruction.Door == activeDoor)
+                        Transfer(staging, vram, instruction, artwork, characters);
+                    break;
+                case LibraryBackgroundCommand.End:
+                default:
+                    throw new InvalidDataException(
+                        $"Unknown compiled library-background command {instruction.Command} in list {program.Name}.");
+            }
+        }
+        return new LibraryBackgroundExecutionResult(selectsKraidHudCharacters);
+    }
+
+    /// <summary>
+    /// One transfer command: characters bind as the runtime binds them; a work-RAM source copies the staging; a sky page
+    /// copies its installed rows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The transfer is empty, or reads ROM that no installed artwork owns.</exception>
+    private static void Transfer(Staging staging, SnesVram vram, LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork,
+        LibraryBackgroundCharacterArtwork characters)
+    {
+        if (transfer.ByteCount == 0)
+            throw new InvalidDataException($"Library-background transfer from ${transfer.SourceAddress:X6} uses unsupported DMA size zero.");
+        // The destination is an encoded VRAM word with the increment in its top bit, as the DMA's VMADD/VMAIN take it.
+        ushort destination = checked((ushort)transfer.Destination);
+        if (staging.TryRead(transfer.SourceAddress, transfer.ByteCount, out ReadOnlySpan<byte> staged))
+            vram.ExecuteQueuedAssetWrite(staged, destination);
+        else if (LibraryBackgroundLoader.TryBindTransferredCharacters(transfer, characters))
+            return;
+        else if (artwork.SkyArt is { } skies && skies.TryResolve(transfer.SourceAddress, transfer.ByteCount, out ReadOnlyMemory<byte> sky))
+            vram.ExecuteQueuedAssetWrite(sky.Span, destination);
+        else if (transfer.SourceAddress >= LibraryBackgroundRomData.RomSourceAddressFloor && artwork.SkyArt is not null && artwork.HudArt is not null
+            && artwork.CharacterArt is not null)
+            // Every installed catalog is bound: a source none of them owns must not fall back to the cartridge's bytes.
+            throw new InvalidDataException(
+                $"Installed library-background art does not own ROM transfer ${transfer.SourceAddress:X6} ({transfer.ByteCount} bytes).");
+        else
+            throw new InvalidDataException($"Library-background transfer ${transfer.SourceAddress:X6} has no installed artwork.");
+    }
+
+    /// <summary>Fills the staging as <paramref name="clear"/> names, then transfers it to its VRAM destination.</summary>
+    private static void FillAndTransfer(Staging staging, SnesVram vram, LibraryBackgroundClear clear)
+    {
+        staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue);
+        vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestinationWord);
+    }
+
+    /// <summary>The work RAM a replay reads and writes: the tilemap staging, and the enemy BG2 staging it only reads.</summary>
+    /// <param name="enemyBg2">The enemy BG2 staging's leading bytes; the rest are zero.</param>
+    private sealed class Staging(ReadOnlyMemory<byte> enemyBg2)
+    {
+        /// <summary>The tilemap staging's bytes in address order.</summary>
+        private readonly byte[] tilemap = new byte[LibraryBackgroundRomData.TilemapStagingByteCount];
+
+        /// <summary>The enemy BG2 staging's bytes in address order.</summary>
+        private readonly byte[] enemy = Copied(enemyBg2);
+
+        /// <summary>The staged bytes at <paramref name="address"/>, which must lie in one staging.</summary>
+        /// <exception cref="InvalidDataException">The range lies in neither staging.</exception>
+        public ReadOnlySpan<byte> Read(int address, int byteCount) =>
+            TryRead(address, byteCount, out ReadOnlySpan<byte> bytes) ? bytes
+                : throw new InvalidDataException($"Library-background work-RAM transfer ${address:X6}+{byteCount} has no staging.");
+
+        /// <summary>Whether <paramref name="address"/> and its <paramref name="byteCount"/> bytes lie in one staging, and those bytes.</summary>
+        public bool TryRead(int address, int byteCount, out ReadOnlySpan<byte> bytes)
+        {
+            if (Within(address, byteCount, LibraryBackgroundRomData.TilemapStagingAddress, LibraryBackgroundRomData.TilemapStagingByteCount))
+            {
+                bytes = tilemap.AsSpan(address - LibraryBackgroundRomData.TilemapStagingAddress, byteCount);
+                return true;
+            }
+            if (Within(address, byteCount, LibraryBackgroundRomData.EnemyBg2StagingAddress, LibraryBackgroundRomData.EnemyBg2StagingByteCount))
+            {
+                bytes = enemy.AsSpan(address - LibraryBackgroundRomData.EnemyBg2StagingAddress, byteCount);
+                return true;
+            }
+            bytes = default;
+            return false;
+        }
+
+        /// <summary>Writes a decompressed tilemap at bank-$7E <paramref name="destination"/>.</summary>
+        /// <exception cref="InvalidDataException">The tilemap leaves the staging.</exception>
+        public void WriteDecompressed(int destination, ReadOnlySpan<byte> bytes, int sourceAddress) =>
+            bytes.CopyTo(tilemap.AsSpan(Offset(destination, bytes.Length,
+                $"Library-background decompression from ${sourceAddress:X6} to $7E:{destination:X4} leaves the tilemap staging buffer.")));
+
+        /// <summary>Fills <paramref name="byteCount"/> bytes at bank-$7E <paramref name="destination"/> with <paramref name="value"/> words.</summary>
+        /// <exception cref="InvalidDataException">The fill leaves the staging.</exception>
+        public void FillWords(int destination, int byteCount, ushort value)
+        {
+            if ((byteCount & 1) != 0)
+                throw new ArgumentOutOfRangeException(nameof(byteCount));
+            int first = Offset(destination, byteCount,
+                $"Library-background fill of {byteCount} bytes at $7E:{destination:X4} leaves the tilemap staging buffer.");
+            for (int offset = 0; offset < byteCount; offset += sizeof(ushort))
+            {
+                tilemap[first + offset] = SnesLittleEndian.LowByte(value);
+                tilemap[first + offset + 1] = SnesLittleEndian.HighByte(value);
+            }
+        }
+
+        /// <summary>The staging offset of bank-$7E <paramref name="destination"/>, whose range must lie in the tilemap staging.</summary>
+        private static int Offset(int destination, int byteCount, string failure)
+        {
+            int first = destination - LibraryBackgroundRomData.TilemapStagingBankOffset;
+            return first >= 0 && first + byteCount <= LibraryBackgroundRomData.TilemapStagingByteCount ? first : throw new InvalidDataException(failure);
+        }
+
+        /// <summary>Whether <paramref name="byteCount"/> bytes from <paramref name="address"/> lie in the staging at <paramref name="first"/>.</summary>
+        private static bool Within(int address, int byteCount, int first, int stagingBytes) =>
+            address >= first && address + byteCount <= first + stagingBytes;
+
+        /// <summary>A 4 KiB staging holding <paramref name="leading"/> first.</summary>
+        private static byte[] Copied(ReadOnlyMemory<byte> leading)
+        {
+            var bytes = new byte[LibraryBackgroundRomData.EnemyBg2StagingByteCount];
+            leading.Span.CopyTo(bytes);
+            return bytes;
+        }
+    }
+}

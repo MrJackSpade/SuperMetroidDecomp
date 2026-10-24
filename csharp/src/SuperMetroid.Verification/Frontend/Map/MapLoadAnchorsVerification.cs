@@ -206,7 +206,7 @@ internal static class MapLoadAnchorsVerification
             AssertTrue(native.Render().SequenceEqual(compiled.Render()), "every saved station has exact composed room-map position");
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
-        byte[] ReadSram() => SuperMetroid.Core.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
+        byte[] ReadSram() => SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.Scroll;
         static ScrollStateResult ScrollState(FileSelectMapScroll value) =>
             new ScrollStateResult(value.Scroll, value.Minimum, value.Maximum, value.Direction);

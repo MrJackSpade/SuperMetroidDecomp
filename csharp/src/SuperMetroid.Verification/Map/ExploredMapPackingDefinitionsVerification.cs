@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

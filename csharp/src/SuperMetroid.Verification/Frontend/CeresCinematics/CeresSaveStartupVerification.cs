@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;

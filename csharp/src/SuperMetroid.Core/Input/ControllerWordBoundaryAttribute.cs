@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Input;
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method | AttributeTargets.Constructor |
     AttributeTargets.Property, Inherited = false)]
-internal sealed class ControllerWordBoundaryAttribute : Attribute
+public sealed class ControllerWordBoundaryAttribute : Attribute
 {
     /// <summary>Records why this declaration owns raw controller words.</summary>
     public ControllerWordBoundaryAttribute(string reason) => Reason = reason;

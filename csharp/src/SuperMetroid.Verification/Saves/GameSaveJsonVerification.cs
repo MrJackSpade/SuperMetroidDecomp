@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Saves;
 using System.Buffers.Binary;
 using static SuperMetroid.Verification.Saves.SaveSchemaTranslationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -11,7 +12,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Saves;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Map;
 
 /// <summary>Checks named JSON save persistence against canonical SRAM and legacy migration.</summary>
 internal static class GameSaveJsonVerification

@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Saves;
+﻿using SuperMetroid.Diagnostics.Saves;
+namespace SuperMetroid.Core.Saves;
 
 /// <summary>Verification access to <see cref="SaveSlotStore"/> members production does not use.</summary>
 internal static class SaveSlotStoreAccess

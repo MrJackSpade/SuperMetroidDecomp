@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Saves;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Saves;
+
+namespace SuperMetroid.Diagnostics.Saves;
 
 /// <summary>Outcome of choosing JSON persistence or importing legacy SRAM, without claiming that a JSON file exists or reporting a gameplay-load result.</summary>
 /// <param name="JsonPath">The requested JSON path, preserved exactly as supplied rather than normalized to an absolute path.</param>

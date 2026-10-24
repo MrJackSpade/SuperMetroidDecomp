@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>
 /// The session's battery-backed saves as owned state (#1322): three slots (null is empty or invalid), the menu's
 /// selected slot and game completion. Gameplay, menus, checkpoints and JSON read and write it directly; SRAM is only
-/// <see cref="SaveRamCodec"/>'s import and export format.
+/// the hosts' import and export format.
 /// </summary>
 public sealed class SaveSlotStore
 {
     /// <summary>The retail format's fixed number of save slots.</summary>
-    public const int SlotCount = SaveRamLayout.SlotCount;
+    public const int SlotCount = 3;
 
     /// <summary>Each slot's decoded record; null is an empty or invalid slot.</summary>
     internal readonly SuperMetroidSaveSlot?[] slots = new SuperMetroidSaveSlot?[SlotCount];
@@ -32,9 +32,12 @@ public sealed class SaveSlotStore
     /// <param name="mapPresentation">Installed stock map rules; saving a slot requires them.</param>
     public SaveSlotStore(IAreaMapSource? mapPresentation = null) => this.mapPresentation = mapPresentation;
 
-    /// <summary>The store <see cref="SaveRamCodec.Decode"/> produces from an SRAM image.</summary>
+    /// <summary>
+    /// A store imported from a save image a host decoded: its slots, the menu's selection, completion, whether the
+    /// marker field held the corrupt-SRAM signature, and the carry boot's marker comparison left.
+    /// </summary>
     [IndependentFlag("Game completion, the corrupt marker and the marker carry are separate facts decoded from save RAM.")]
-    internal static SaveSlotStore Decoded(SuperMetroidSaveSlot?[] slots, int selectedSlot, bool gameCompleted,
+    public static SaveSlotStore Imported(SuperMetroidSaveSlot?[] slots, int selectedSlot, bool gameCompleted,
         bool corruptMarkerWritten, bool markerCarry, IAreaMapSource maps)
     {
         Ensure.LengthEqual(slots, SlotCount);
@@ -50,7 +53,7 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>Whether the marker field holds the corrupt-SRAM signature boot writes when every slot is invalid.</summary>
-    internal bool CorruptMarkerWritten { get; private set; }
+    public bool CorruptMarkerWritten { get; private set; }
 
     /// <summary>Installs map rules after a host binds artwork, or after restoring a store that did not serialize them.</summary>
     internal void BindMapPresentation(IAreaMapSource? maps) => mapPresentation = maps;
@@ -58,7 +61,7 @@ public sealed class SaveSlotStore
     /// <summary>A detached copy of the save in <paramref name="slot"/>, or null when it is empty or invalid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(int slot)
     {
-        SaveRamCodec.ValidateSlot(slot);
+        RequireSlot(slot);
         return slots[slot] is { } saved ? Detached(saved, slot) : null;
     }
 
@@ -68,15 +71,15 @@ public sealed class SaveSlotStore
     /// </summary>
     public void SaveSlot(int slot, SuperMetroidSaveSnapshot snapshot)
     {
-        SaveRamCodec.ValidateSlot(slot);
-        slots[slot] = SaveRamCodec.DecodePayload(SaveRamCodec.EncodePayload(snapshot, mapPresentation), slot, mapPresentation);
+        RequireSlot(slot);
+        slots[slot] = SaveSlotRetention.Retain(snapshot, slot, mapPresentation);
     }
 
     /// <summary>File-copy menu index 13 at <c>$81:9A2C</c>: the destination receives the source's save.</summary>
     public void CopySlot(int sourceSlot, int destinationSlot)
     {
-        SaveRamCodec.ValidateSlot(sourceSlot);
-        SaveRamCodec.ValidateSlot(destinationSlot);
+        RequireSlot(sourceSlot);
+        RequireSlot(destinationSlot);
         if (sourceSlot == destinationSlot)
             throw new ArgumentException("File copy requires two different SRAM slots.");
         SuperMetroidSaveSlot source = slots[sourceSlot] ??
@@ -87,14 +90,14 @@ public sealed class SaveSlotStore
     /// <summary>File-clear menu index 25 at <c>$81:9C9E</c>: the slot becomes empty.</summary>
     public void ClearSlot(int slot)
     {
-        SaveRamCodec.ValidateSlot(slot);
+        RequireSlot(slot);
         slots[slot] = null;
     }
 
     /// <summary>Stores the menu's selected slot.</summary>
     public void SelectSlot(int slot)
     {
-        SaveRamCodec.ValidateSlot(slot);
+        RequireSlot(slot);
         selectedSlot = slot;
     }
 
@@ -123,15 +126,15 @@ public sealed class SaveSlotStore
             return true;
         if (decodedMarkerCarry is { } decoded)
             return decoded;
-        ReadOnlySpan<byte> marker = HasCompletedGame ? SaveRamLayout.CompletionMarker
-            : CorruptMarkerWritten ? SaveRamLayout.CorruptSramMarker
-            : new byte[SaveRamLayout.CompletionMarker.Length];
-        return SaveRamCodec.MarkerCarry(marker);
+        // Boot compares the marker field's words with the completion signature's from the last down. The completion
+        // signature matches, leaving the carry set; the corrupt-SRAM signature's last word is the larger, setting it; a
+        // cleared field's is the smaller, clearing it.
+        return HasCompletedGame || CorruptMarkerWritten;
     }
 
     /// <summary>
     /// Boot's <c>DetermineNumberOfDemoSets</c> ($80:8261), called once from $80:8564. When all three slots are invalid
-    /// it overwrites the completion marker with <see cref="SaveRamLayout.CorruptSramMarker"/> ($80:8283-8290) and
+    /// it overwrites the completion marker with the corrupt-SRAM signature ($80:8283-8290) and
     /// enables three demo sets; otherwise the completion signature enables the fourth. The cartridge never re-evaluates
     /// the count before reset.
     /// </summary>
@@ -146,6 +149,13 @@ public sealed class SaveSlotStore
             return DemoSetUnlockRomData.DefaultSetCount;
         }
         return HasCompletedGame ? DemoSetUnlockRomData.SetCount : DemoSetUnlockRomData.DefaultSetCount;
+    }
+
+    /// <summary>Rejects slot numbers outside A, B and C.</summary>
+    private static void RequireSlot(int slot)
+    {
+        if ((uint)slot >= SlotCount)
+            throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
     }
 
     /// <summary>Whether any slot holds a save.</summary>

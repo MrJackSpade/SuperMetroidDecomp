@@ -1,14 +1,17 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Saves;
 
-namespace SuperMetroid.Core.Saves;
+namespace SuperMetroid.Diagnostics.Saves;
 
 /// <summary>
 /// The cartridge's 8-KiB SRAM image as a byte codec (#1322): legacy emulator saves, replay reset headers and recorder
 /// seeds carry saves in this format, and <see cref="SaveSlotStore"/> is decoded from and encoded to it at those
-/// boundaries only. It is the encoding owner of the SRAM image layout <see cref="SaveRamLayout"/> describes.
+/// boundaries only, by the hosts. It is the encoding owner of the SRAM image layout <see cref="SaveRamLayout"/> describes.
 /// </summary>
 /// <remarks>
 /// <c>$81:8000-$81:812A</c> stores one contiguous WRAM mirror ($D7C0-$DE1B) per slot, then writes both a checksum and
@@ -37,7 +40,7 @@ public static class SaveRamCodec
         var slots = new SuperMetroidSaveSlot?[SaveRamLayout.SlotCount];
         for (int slot = 0; slot < slots.Length; slot++)
             slots[slot] = IsSlotValid(image, slot) ? DecodeSlot(image, slot, maps) : null;
-        return SaveSlotStore.Decoded(slots, ReadSelectedSlot(image), HasCompletedGame(image), HasCorruptMarker(image),
+        return SaveSlotStore.Imported(slots, ReadSelectedSlot(image), HasCompletedGame(image), HasCorruptMarker(image),
             MarkerCarry(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length)), maps);
     }
 
@@ -116,7 +119,7 @@ public static class SaveRamCodec
             OpenedDoorBytes: payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, Bank80SystemState.DoorBitByteCount).ToArray(),
             UsedSaveStationBytes: payload.Slice(SaveRamLayout.UsedSaveStationsOffset, Bank80SystemState.UsedSaveStationByteCount).ToArray(),
             MapStationBytes: payload.Slice(SaveRamLayout.MapStationsOffset, Bank80SystemState.MapStationByteCount).ToArray(),
-            ExploredMapBytes: UnpackExploredMap(
+            ExploredMapBytes: ExploredMapStorage.Unpack(
                 payload.Slice(SaveRamLayout.CompressedMapDataOffset, SaveRamLayout.CompressedMapDataByteCount), maps),
             LoadingGameState: ReadWord(payload, SaveRamLayout.LoadingGameStateOffset),
             SaveStation: ReadWord(payload, SaveRamLayout.SaveStationOffset),
@@ -211,7 +214,7 @@ public static class SaveRamCodec
             SaveFieldValue.Encode(snapshot.LoadingGameState, nameof(snapshot.LoadingGameState)));
         WriteWord(payload, SaveRamLayout.SaveStationOffset, SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation)));
         WriteWord(payload, SaveRamLayout.AreaOffset, SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area)));
-        PackExploredMap(snapshot.ExploredMapBytes, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
+        ExploredMapStorage.Pack(snapshot.ExploredMapBytes, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
         return payload;
     }
 
@@ -406,55 +409,6 @@ public static class SaveRamCodec
         (ushort)bindings.AimDown,
         (ushort)bindings.AimUp,
     ];
-
-    /// <summary>Packs each area's occupied explored-map bytes into the cartridge's fixed SRAM field.</summary>
-    private static byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap, IAreaMapSource? maps)
-    {
-        int expectedByteCount = Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea;
-        if (exploredMap.Length != expectedByteCount)
-            throw new InvalidDataException($"A save snapshot requires exactly {expectedByteCount} unpacked explored-map bytes.");
-
-        var compressed = new byte[SaveRamLayout.CompressedMapDataByteCount];
-        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
-        {
-            ExploredMapPackingDefinition definition = ExploredMapPackingDefinitions.Area(area, RequireMaps(maps));
-            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
-            for (int index = 0; index < areaByteIndexes.Count; index++)
-            {
-                int compressedIndex = definition.SaveOffset + index;
-                if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
-                compressed[compressedIndex] = exploredMap[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndexes[index]];
-            }
-        }
-        return compressed;
-    }
-
-    /// <summary>Expands the packed SRAM map field into area-major explored-map bytes using stock map rules.</summary>
-    private static byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed, IAreaMapSource? maps)
-    {
-        if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
-            throw new ArgumentException("Compressed map payload must contain exactly $500 bytes.", nameof(compressed));
-
-        var explored = new byte[Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
-        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
-        {
-            ExploredMapPackingDefinition definition = ExploredMapPackingDefinitions.Area(area, RequireMaps(maps));
-            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
-            for (int index = 0; index < areaByteIndexes.Count; index++)
-            {
-                int compressedIndex = definition.SaveOffset + index;
-                if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
-                explored[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndexes[index]] = compressed[compressedIndex];
-            }
-        }
-        return explored;
-    }
-
-    /// <summary>The bound map rules; packing fails loudly without them.</summary>
-    private static IAreaMapSource RequireMaps(IAreaMapSource? maps) =>
-        maps ?? throw new InvalidOperationException("Save-map packing requires bound immutable stock map rules.");
 
     /// <summary>Reads one little-endian word.</summary>
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) => SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]);

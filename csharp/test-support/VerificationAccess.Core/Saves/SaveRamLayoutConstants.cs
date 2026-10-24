@@ -1,6 +1,6 @@
+using SuperMetroid.Diagnostics.Saves;
 namespace SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Map;
 
 /// <summary>Cartridge values of <see cref="SaveRamLayout"/> that only verification reads.</summary>
 internal static class SaveRamLayoutConstants

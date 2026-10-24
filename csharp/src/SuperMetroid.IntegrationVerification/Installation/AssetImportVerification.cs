@@ -1,6 +1,6 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;

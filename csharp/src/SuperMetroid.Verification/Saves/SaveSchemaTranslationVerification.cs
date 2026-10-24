@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
@@ -66,7 +67,7 @@ internal static class SaveSchemaTranslationVerification
             pages.Add(new JsonObject { ["offset"] = $"0x{offset:X4}", ["bytes"] = Convert.ToHexString(native.AsSpan(offset, 256)) });
         legacy["preservedUntranslatedSram"] = pages;
         string oldJson = legacy.ToJsonString();
-        var upgraded = GameSaveJsonCodec.Deserialize(oldJson);
+        var upgraded = LegacyGameSaveJson.Deserialize(oldJson, "game save", out _);
         AssertEqual(2, upgraded.SchemaVersion, "schema-one import becomes schema two");
         SaveSlotStore importedSaves = GameSaveJsonCodec.ToStore(upgraded, RetailPresentationFixture());
         var imported = importedSaves.ReadSlot(0);
@@ -78,10 +79,10 @@ internal static class SaveSchemaTranslationVerification
         AssertTrue(!GameSaveJsonCodec.Serialize(upgraded).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "legacy import never re-emits its blob");
         var bad = RequiredJson.Parse(oldJson).AsObject();
         bad.Required("preservedUntranslatedSram").Required(0)["bytes"] = "not hex";
-        AssertInvalidJsonSave(bad.ToJsonString(), "not hexadecimal");
+        AssertInvalidLegacyJsonSave(bad.ToJsonString(), "not hexadecimal");
         bad = RequiredJson.Parse(oldJson).AsObject();
         bad.Required("preservedUntranslatedSram").AsArray().RemoveAt(0);
-        AssertInvalidJsonSave(bad.ToJsonString(), "32 pages");
+        AssertInvalidLegacyJsonSave(bad.ToJsonString(), "32 pages");
         AssertInvalidJsonSave("{\"schemaVersion\":\"two\"}", "schemaVersion");
         var illegalV2 = RequiredJson.Parse(json).AsObject();
         illegalV2["preservedUntranslatedSram"] = new JsonArray();
@@ -150,5 +151,20 @@ internal static class SaveSchemaTranslationVerification
         shot.Plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(shot.Level, BgArtworkFixtures.For(new SnesVram()), shot.System, AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, shot.System.LoadedItemCount, "saved item-load counter wraps as a native word");
         ram.SelectSlot(0);
+    }
+
+    /// <summary>Confirms a malformed schema-one save is rejected by the hosts' upgrade with a diagnostic naming the invalid value.</summary>
+    private static void AssertInvalidLegacyJsonSave(string json, string expectedMessagePart)
+    {
+        try
+        {
+            _ = LegacyGameSaveJson.Deserialize(json, "invalid legacy JSON save fixture", out _);
+            throw new InvalidOperationException($"Invalid legacy JSON save containing '{expectedMessagePart}' was accepted.");
+        }
+        catch (InvalidDataException exception)
+        {
+            AssertTrue(exception.Message.Contains(expectedMessagePart, StringComparison.OrdinalIgnoreCase),
+                $"invalid legacy JSON save identifies '{expectedMessagePart}'");
+        }
     }
 }

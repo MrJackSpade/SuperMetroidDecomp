@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Map;
 
-namespace SuperMetroid.Core.Map;
+namespace SuperMetroid.Diagnostics.Saves;
 
 /// <summary>Native SRAM directory and per-slot payload layout used by bank <c>$81</c>.</summary>
 /// <remarks>
@@ -183,10 +183,10 @@ public static class SaveRamLayout
     public const int CompressedMapDataOffset = 0x015c;
 
     /// <summary>Byte length of the cartridge's interleaved explored-map payload for one save slot.</summary>
-    public const int CompressedMapDataByteCount = 0x0500;
+    public const int CompressedMapDataByteCount = ExploredMapStorage.PackedByteCount;
 
     /// <summary>Number of Zebes area maps packed into SRAM; the Ceres prologue has no persisted map.</summary>
-    public const int PackedMapAreaCount = 6;
+    public const int PackedMapAreaCount = ExploredMapStorage.PackedAreaCount;
 
     /// <summary>$81:812B SaveSlotOffsets: first payload begins after the sixteen-byte checksum directory.</summary>
     private const ushort FirstSlotOffset = 0x0010;

@@ -5,8 +5,6 @@ public sealed record GameSaveJsonDocument
 {
     /// <summary>The file-format revision used to select compatible decoding and migration rules.</summary>
     public int SchemaVersion { get; init; } = GameSaveJsonFormat.SchemaVersion;
-    /// <summary>Revision read from the source file before any compatibility migration updates the output schema.</summary>
-    internal int SourceSchemaVersion { get; init; } = GameSaveJsonFormat.SchemaVersion;
 
     /// <summary>The zero-based file-select slot persisted globally; valid values are 0 through 2.</summary>
     public required int SelectedSlot { get; init; }

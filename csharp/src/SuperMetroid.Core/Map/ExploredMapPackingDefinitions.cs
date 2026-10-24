@@ -14,7 +14,7 @@ internal static class ExploredMapPackingDefinitions
     /// </summary>
     public static ExploredMapPackingDefinition Area(int area, IAreaMapSource maps)
     {
-        if ((uint)area >= SaveRamLayout.PackedMapAreaCount)
+        if ((uint)area >= ExploredMapStorage.PackedAreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         Ensure.NotNull(maps);
         int offset = 0;

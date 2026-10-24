@@ -13,7 +13,7 @@ internal static class ControllerInputRecordingVerification
     internal static void VerifyControllerInputRecording()
     {
         byte[] digest = Enumerable.Range(0, 32).Select(index => (byte)index).ToArray();
-        byte[] saveRam = new byte[SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount];
+        byte[] saveRam = new byte[SuperMetroid.Diagnostics.Saves.SaveRamLayout.ImageByteCount];
         for (int index = 0; index < saveRam.Length; index++)
             saveRam[index] = unchecked((byte)(index * 37));
         ushort[] inputs = [0, 0x0080, 0x0280, 0xffff, 0x1000];

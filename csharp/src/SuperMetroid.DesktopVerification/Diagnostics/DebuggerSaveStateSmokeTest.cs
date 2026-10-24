@@ -55,7 +55,7 @@ public static class DebuggerSaveStateSmokeTest
                 directoryOverride: temporaryDirectory).Load(0);
             if (installedLoad.Warnings.Count != 0)
                 throw new InvalidDataException("Installer-verified debugger state identity did not match the retail source revision.");
-            VerifyInstalledRecorder(temporaryDirectory, SuperMetroid.Core.Saves.SaveRamCodec.Encode(game.Saves, maps), contentIdentity);
+            VerifyInstalledRecorder(temporaryDirectory, SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(game.Saves, maps), contentIdentity);
             // Change only the two build IDs: the exact graph must remain loadable and its
             // deterministic continuation below must still match, including PCM and pixels.
             using (var changedBuild = new FileStream(saved.Path, FileMode.Open, FileAccess.Write))

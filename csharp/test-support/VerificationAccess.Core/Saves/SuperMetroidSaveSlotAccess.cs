@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Saves;
 
 namespace SuperMetroid.Core.Saves;
 

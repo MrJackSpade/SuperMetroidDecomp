@@ -1,7 +1,9 @@
 using System.Text;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Saves;
 
-namespace SuperMetroid.Core.Saves;
+namespace SuperMetroid.Diagnostics.Saves;
 
 /// <summary>Atomic JSON persistence and one-time emulator-SRAM migration for normal saves.</summary>
 public static class GameSaveFileStore
@@ -25,11 +27,12 @@ public static class GameSaveFileStore
         ArgumentException.ThrowIfNullOrWhiteSpace(legacySramPath);
         if (File.Exists(jsonPath))
         {
-            GameSaveJsonDocument document = GameSaveJsonCodec.Deserialize(
+            GameSaveJsonDocument document = LegacyGameSaveJson.Deserialize(
                 File.ReadAllText(jsonPath),
-                jsonPath);
+                jsonPath,
+                out bool migrated);
             SaveSlotStore loaded = GameSaveJsonCodec.ToStore(document, maps);
-            if (document.SourceSchemaVersion < GameSaveJsonFormat.SchemaVersion)
+            if (migrated)
                 WriteAtomic(loaded, jsonPath);
             return new GameSaveLoadResult(jsonPath, MigratedLegacySram: false, loaded);
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
@@ -20,7 +21,6 @@ using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Input;
 using SuperMetroid.Desktop.Timing;
 using SuperMetroid.Diagnostics.Configuration;
-using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;

@@ -1,9 +1,9 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Map;
 
 /// <summary>Confirms the boot-time corrupt-SRAM marker write and demo-set count latch (#1339).</summary>
 internal static class BootDemoSetCountVerification

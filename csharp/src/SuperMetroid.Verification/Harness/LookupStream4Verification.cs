@@ -1,6 +1,6 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Verification.Fx.Artwork;
@@ -75,7 +75,6 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Harness;

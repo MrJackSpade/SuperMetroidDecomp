@@ -206,11 +206,11 @@ public sealed record ControllerInputRecording
         var mapReveal = (MapRevealMode)mapRevealBits;
 
         int saveRamLength = BinaryPrimitives.ReadInt32LittleEndian(header[60..]);
-        if (saveRamLength != SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount)
+        if (saveRamLength != SuperMetroid.Diagnostics.Saves.SaveRamLayout.ImageByteCount)
         {
             throw new InvalidDataException(
                 $"Controller recording contains {saveRamLength} SRAM bytes; expected " +
-                $"{SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount}.");
+                $"{SuperMetroid.Diagnostics.Saves.SaveRamLayout.ImageByteCount}.");
         }
 
         int inputCount = BinaryPrimitives.ReadInt32LittleEndian(header[64..]);
@@ -294,11 +294,11 @@ public sealed record ControllerInputRecording
             ValidateDigest(contentIdentity.CompositeSha256, "composite");
             GameContentComponentFormat.Validate(contentIdentity.AdditionalContentSha256);
         }
-        if (InitialSaveRam.Length != SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount)
+        if (InitialSaveRam.Length != SuperMetroid.Diagnostics.Saves.SaveRamLayout.ImageByteCount)
         {
             throw new InvalidDataException(
                 $"A controller recording requires exactly " +
-                $"{SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount} SRAM bytes.");
+                $"{SuperMetroid.Diagnostics.Saves.SaveRamLayout.ImageByteCount} SRAM bytes.");
         }
     }
 

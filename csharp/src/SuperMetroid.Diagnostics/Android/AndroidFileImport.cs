@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -67,7 +68,7 @@ internal static class AndroidFileImport
     {
         // Validate the full schema and its translation to saves before publishing a pending
         // import. A separate file prevents ongoing gameplay persistence overwriting it.
-        _ = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(File.ReadAllText(source), source), maps);
+        _ = GameSaveJsonCodec.ToStore(LegacyGameSaveJson.Deserialize(File.ReadAllText(source), source, out _), maps);
         ReplaceWithBackup(root, source, PendingPath(root));
         return "Regular save validated and staged for next app launch. Current gameplay is unchanged. Previous save will be backed up before activation.";
     }
@@ -80,7 +81,7 @@ internal static class AndroidFileImport
     {
         string pending = PendingPath(root);
         if (!File.Exists(pending)) return null;
-        SaveSlotStore saves = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(File.ReadAllText(pending), pending), maps);
+        SaveSlotStore saves = GameSaveJsonCodec.ToStore(LegacyGameSaveJson.Deserialize(File.ReadAllText(pending), pending, out _), maps);
         if (File.Exists(savePath)) Backup(root, savePath);
         GameSaveFileStore.WriteAtomic(saves, savePath);
         File.Delete(pending);

@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Diagnostics.Recording;
 
 namespace SuperMetroid.Diagnostics.Recording;
 
@@ -97,7 +96,7 @@ internal sealed class ControllerInputRecorder : IDisposable
             throw new InvalidDataException(
                 "Installed content identity does not name the supported source cartridge revision.");
         }
-        Ensure.LengthEqual(initialSaveRam, SuperMetroid.Core.Map.SaveRamLayout.ImageByteCount);
+        Ensure.LengthEqual(initialSaveRam, SuperMetroid.Diagnostics.Saves.SaveRamLayout.ImageByteCount);
         return StartCore(
             System.IO.Path.Combine(System.IO.Path.GetFullPath(dataDirectory), RecordingDirectoryName),
             SupportedCartridge.CreateSha256Digest(),

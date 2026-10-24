@@ -405,9 +405,9 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     saveRam.SelectSlot(2);
     AssertEqual(2, saveRam.ReadSelectedSlot(), "SRAM selected-slot word and complement");
-    byte[] image = SuperMetroid.Core.Saves.SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
-    image[SuperMetroid.Core.Map.SaveRamLayout.SlotOffset(1) + SuperMetroid.Core.Map.SaveRamLayout.HealthOffset] ^= 1;
-    AssertTrue(SuperMetroid.Core.Saves.SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(1) is null,
+    byte[] image = SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
+    image[SuperMetroid.Diagnostics.Saves.SaveRamLayout.SlotOffset(1) + SuperMetroid.Diagnostics.Saves.SaveRamLayout.HealthOffset] ^= 1;
+    AssertTrue(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(1) is null,
         "SRAM payload corruption invalidates both directories");
 
     Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");

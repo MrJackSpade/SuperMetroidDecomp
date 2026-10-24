@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
@@ -14,6 +13,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks stored shine, launch, flight, crash, and echo phases against native state and palette behavior.</summary>
 internal static class SamusShinesparkVerification
@@ -69,9 +69,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     // No sine-table region is installed: echo mechanics use compiled stock samples.
 
     SeedStoredShinePalettes(bus);
-    var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+    var suitColors = SamusSuitColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-    var cycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
+    var cycleColors = SamusFullBodyCycleColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
 
     var shine = new SamusState

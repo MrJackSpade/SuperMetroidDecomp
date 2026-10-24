@@ -22,6 +22,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Focused cartridge comparisons for aerial motion, jump poses, liquid drag, and
@@ -691,9 +692,9 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
         SeedSamusPaletteWord(bus, pointer, unchecked((ushort)(0x1200 + shade)));
     }
 
-    var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+    var suitColors = SamusSuitColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-    var cycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
+    var cycleColors = SamusFullBodyCycleColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SamusColourRig();

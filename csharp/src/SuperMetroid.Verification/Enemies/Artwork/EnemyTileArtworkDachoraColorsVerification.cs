@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         string overrides = Path.Combine(stockDirectory, "dachora-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, DachoraColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, DachoraColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, DachoraColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         DachoraColorCatalog colors = edited.Enemies.DachoraColors ??
             throw new InvalidDataException("Edited enemy art has no Dachora colors.");
@@ -129,7 +129,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Dachora color property fails loudly");
         visual.Speed[0][5] = visual.Speed[0][5] with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => DachoraColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => DachoraColorFile.Write(visual),
             "Dachora RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

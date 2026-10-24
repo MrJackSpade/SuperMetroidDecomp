@@ -223,7 +223,7 @@ internal static class EnemyDefinitionBoundaryVerification
     private static void VerifyEnemyAuxiliaryColors(ISnesAddressSpace source)
     {
         byte[] json = EnemyAuxiliaryColorFiles.Extract(source);
-        EnemyAuxiliaryColorCatalog catalog = EnemyAuxiliaryColorCatalog.Load(new MemoryStream(json, writable: false));
+        EnemyAuxiliaryColorCatalog catalog = EnemyAuxiliaryColorFiles.Read(new MemoryStream(json, writable: false));
         foreach (var definition in EnemyAuxiliaryColorDefinitions.All)
             for (int frame = 0; frame < definition.FrameCount; frame++)
                 for (int color = 0; color < definition.ColorCount; color++)
@@ -234,13 +234,13 @@ internal static class EnemyDefinitionBoundaryVerification
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter<EnemyAuxiliaryPalette>() } });
         document.Palettes[EnemyAuxiliaryPalette.FaceBlock][0][0] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
-        EnemyAuxiliaryColorCatalog edited = EnemyAuxiliaryColorCatalog.Load(
-            new MemoryStream(EnemyAuxiliaryColorCatalog.Write(document), writable: false));
+        EnemyAuxiliaryColorCatalog edited = EnemyAuxiliaryColorFiles.Read(
+            new MemoryStream(EnemyAuxiliaryColorFiles.Write(document), writable: false));
         AssertEqual(31, edited.Resolve(EnemyAuxiliaryPalette.FaceBlock, 0, 0), "auxiliary art override survives compilation");
         document.Palettes[EnemyAuxiliaryPalette.FaceBlock][0][0] = new PaletteRgb5 { Red = 32, Green = 0, Blue = 0 };
-        AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorCatalog.Write(document), "out-of-range RGB5 rejected");
+        AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorFiles.Write(document), "out-of-range RGB5 rejected");
         string text = Encoding.UTF8.GetString(json);
-        AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorCatalog.Load(new MemoryStream(
+        AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorFiles.Read(new MemoryStream(
             Encoding.UTF8.GetBytes(text.Replace("\"version\": 1", "\"version\": 1, \"version\": 1", StringComparison.Ordinal)))),
             "duplicate palette JSON property rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(EnemyAuxiliaryPalette.FaceBlock, 8, 0), "palette frame bounded");

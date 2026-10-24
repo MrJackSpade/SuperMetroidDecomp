@@ -30,7 +30,7 @@ internal static class PowerBombFixedColorsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        PowerBombFixedColorCatalog catalog = PowerBombFixedColorCatalog.Load(
+        PowerBombFixedColorCatalog catalog = PowerBombFixedColorFile.Read(
             new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
         int compared = 0;
         foreach (PowerBombFixedColorSequence sequence in Enum.GetValues<PowerBombFixedColorSequence>())
@@ -56,9 +56,9 @@ internal static class PowerBombFixedColorsVerification
         Suite(nameof(VerifyPowerBombColorAnimation), () => VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: false));
         Suite(nameof(VerifyPowerBombColorAnimation), () => VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: true));
         Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline(catalog));
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt Power Bomb colors fail loudly");
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Power Bomb color field fails loudly");
         Console.WriteLine($"  Power Bomb fixed colors: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
@@ -120,7 +120,7 @@ internal static class PowerBombFixedColorsVerification
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
         PaletteRgb5 original = document.PreExplosion[0];
         document.PreExplosion[0] = original with { Red = (original.Red + 1) % 32 };
-        File.WriteAllBytes(path, PowerBombFixedColorCatalog.Write(document));
+        File.WriteAllBytes(path, PowerBombFixedColorFile.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Power Bomb color edit changes installed content identity");
@@ -137,7 +137,7 @@ internal static class PowerBombFixedColorsVerification
             "Power Bomb color override reaches the live explosion frame");
         AssertEqual(0, forbidden.ForbiddenReadAttempts,
             "edited Power Bomb color does not read the native table");
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorCatalog.Write(document with
+        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Write(document with
         {
             PreExplosion = [original with { Red = 32 }, .. document.PreExplosion.Skip(1)],
         }), "out-of-range Power Bomb color fails loudly");

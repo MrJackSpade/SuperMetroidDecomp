@@ -86,7 +86,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileTrailExtractor.Extract(bus)));
     var fixtureChargeColors = SamusChargeColorCatalog.Load(
         new MemoryStream(SamusChargeColorExtractor.Extract(bus)));
-    var fixtureSuitColors = SamusSuitColorCatalog.Load(
+    var fixtureSuitColors = SamusSuitColorFile.Read(
         new MemoryStream(SamusSuitColorExtractor.Extract(bus)));
     var fixtureFlarePlacement = ChargeFlarePlacementCatalog.Load(
         new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));

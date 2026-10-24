@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks Samus pose-input matching, horizontal speed, and external displacement arithmetic.</summary>
 internal static class SamusMotionCoreVerification
@@ -99,10 +100,10 @@ internal static void VerifySamusHorizontalSpeed()
 {
     var bus = new TestAddressSpace();
     SamusFullBodyCycleColorCatalog CycleColors() =>
-        SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
+        SamusFullBodyCycleColorFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
     SamusSuitColorCatalog SuitColors() =>
-        SamusSuitColorCatalog.Load(new MemoryStream(
+        SamusSuitColorFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
 
     // Normal air stores $9F55. Running movement type one advances by one more 12-byte

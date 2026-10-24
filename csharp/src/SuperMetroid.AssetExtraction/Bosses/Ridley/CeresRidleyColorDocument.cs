@@ -1,6 +1,8 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses;
 
-namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Editable JSON payload of native Ridley/Baby palette rows; colors use independent integer RGB5 channels, and row indices describe paint phases rather than animation durations.</summary>
 public sealed record CeresRidleyColorDocument

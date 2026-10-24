@@ -36,7 +36,7 @@ public static class CrystalFlashColorExtractor
                 SamusSourceDefinitions.BubblePointers.Value + frame * sizeof(ushort));
             bubble[frame] = ReadColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
         }
-        return CrystalFlashColorCatalog.Write(new CrystalFlashColorDocument
+        return CrystalFlashColorFile.Write(new CrystalFlashColorDocument
         {
             Version = CrystalFlashColorFormat.Version,
             Body = body,

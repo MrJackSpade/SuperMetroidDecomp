@@ -20,7 +20,7 @@ public static class SamusHurtColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return SamusHurtColorCatalog.Write(new SamusHurtColorDocument
+        return SamusHurtColorFile.Write(new SamusHurtColorDocument
         {
             Version = SamusHurtColorFormat.Version,
             Hurt = ReadColors(bus, SamusSourceDefinitions.HurtFlashColors.Value),

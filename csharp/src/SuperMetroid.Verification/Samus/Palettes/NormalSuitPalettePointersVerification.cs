@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks normal suit pointer selection and live palette restoration against retail colors.</summary>
 internal static class NormalSuitPalettePointersVerification
@@ -20,7 +21,7 @@ internal static class NormalSuitPalettePointersVerification
     internal static void VerifyNormalSuitPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+        SamusSuitColorCatalog suitColors = SamusSuitColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(rom)));
         SamusEquipmentFlags[] equipment =
         [

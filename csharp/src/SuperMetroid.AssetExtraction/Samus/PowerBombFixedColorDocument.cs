@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable five-bit fixed-color component sequences for bank-$88 explosion color math; entries are not CGRAM palette words or COLDATA command bytes.</summary>
 public sealed record PowerBombFixedColorDocument

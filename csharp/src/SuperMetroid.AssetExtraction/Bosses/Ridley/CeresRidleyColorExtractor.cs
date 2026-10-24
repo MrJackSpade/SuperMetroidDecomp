@@ -17,7 +17,7 @@ public static class CeresRidleyColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return CeresRidleyColorCatalog.Write(new CeresRidleyColorDocument
+        return CeresRidleyColorFile.Write(new CeresRidleyColorDocument
         {
             Version = (int)CeresRidleyColorVersion.Current,
             Start = ReadColors(CeresRidleyPaletteRomData.StartColors,

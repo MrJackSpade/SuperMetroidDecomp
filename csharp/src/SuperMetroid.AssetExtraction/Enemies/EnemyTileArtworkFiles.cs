@@ -111,7 +111,7 @@ public static class EnemyTileArtworkFiles
                         Blue = word >> 10 & 31,
                     };
                 }
-                byte[] paletteJson = EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
+                byte[] paletteJson = EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
                 {
                     Version = 1,
                     Colors = colors,
@@ -119,7 +119,7 @@ public static class EnemyTileArtworkFiles
                 var nativeCgram = new SnesCgram();
                 var compiledCgram = new ScreenPalette();
                 new CgramPalettes(nativeCgram).All.LoadPortBytes(nativeColors);
-                EnemyPaletteSheet.Load(new MemoryStream(paletteJson, writable: false))
+                EnemyPaletteSheetFile.Read(new MemoryStream(paletteJson, writable: false))
                     .LoadTo(compiledCgram.BackgroundRow(0));
                 if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
@@ -534,7 +534,7 @@ public static class EnemyTileArtworkFiles
             {
                 byte[] selected = selectedPalettePath == stockPalettePath
                     ? stockPalette : File.ReadAllBytes(selectedPalettePath);
-                palettes.Add(definitionPointer, EnemyPaletteSheet.Load(
+                palettes.Add(definitionPointer, EnemyPaletteSheetFile.Read(
                     new MemoryStream(selected, writable: false)));
             }
             catch (InvalidDataException error)
@@ -881,7 +881,7 @@ public static class EnemyTileArtworkFiles
         {
             byte[] selected = ReadStockOrOverride(KraidColorFormat.FileName,
                 manifest.KraidColorsSha256);
-            kraidColors = KraidColorCatalog.Load(new MemoryStream(selected, writable: false));
+            kraidColors = KraidColorFile.Read(new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
         {
@@ -906,7 +906,7 @@ public static class EnemyTileArtworkFiles
         {
             byte[] selected = ReadStockOrOverride(MagdollitePaletteCycleFormat.FileName,
                 manifest.MagdollitePaletteCycleSha256);
-            magdollitePaletteCycle = MagdollitePaletteCycle.Load(
+            magdollitePaletteCycle = MagdollitePaletteCycleFile.Read(
                 new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -920,7 +920,7 @@ public static class EnemyTileArtworkFiles
         {
             byte[] selected = ReadStockOrOverride(WorkRobotPaletteCycleFormat.FileName,
                 manifest.WorkRobotPaletteCycleSha256);
-            workRobotPaletteCycle = WorkRobotPaletteCycle.Load(
+            workRobotPaletteCycle = WorkRobotPaletteCycleFile.Read(
                 new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -976,7 +976,7 @@ public static class EnemyTileArtworkFiles
         {
             byte[] selected = ReadStockOrOverride(ChozoAndTubeColorFormat.FileName,
                 manifest.ChozoAndTubeColorsSha256);
-            chozoAndTubeColors = ChozoAndTubeColorCatalog.Load(
+            chozoAndTubeColors = ChozoAndTubeColorFile.Read(
                 new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -1004,7 +1004,7 @@ public static class EnemyTileArtworkFiles
         {
             byte[] selected = ReadStockOrOverride(DachoraColorFormat.FileName,
                 manifest.DachoraColorsSha256);
-            dachoraColors = DachoraColorCatalog.Load(
+            dachoraColors = DachoraColorFile.Read(
                 new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -1113,7 +1113,7 @@ public static class EnemyTileArtworkFiles
                 $"Invalid Tourian statue colors in {overrideDirectory ?? stockDirectory}: {error.Message}",
                 error);
         }
-        var auxiliaryColors = EnemyAuxiliaryColorCatalog.Load(new MemoryStream(
+        var auxiliaryColors = EnemyAuxiliaryColorFiles.Read(new MemoryStream(
             ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName, manifest.AuxiliaryColorsSha256), writable: false));
         return new InstalledEnemyArtwork(
             EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts
@@ -1290,7 +1290,7 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>Writes Kraid's backdrop, target, health, secondary, and death-arm palettes as one editable color document.</summary>
     private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
-        KraidColorCatalog.Write(new KraidColorDocument
+        KraidColorFile.Write(new KraidColorDocument
         {
             Version = KraidColorFormat.Version,
             RoomBackdrop = ReadKraidColors(bus, KraidPaletteSource.RoomBackdrop),

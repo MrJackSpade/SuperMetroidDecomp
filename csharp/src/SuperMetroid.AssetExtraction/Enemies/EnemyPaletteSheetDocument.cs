@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Editable JSON schema for one enemy's sixteen-color palette; room selection, destination assignment, and animation are separate engine behavior.</summary>
 public sealed record EnemyPaletteSheetDocument

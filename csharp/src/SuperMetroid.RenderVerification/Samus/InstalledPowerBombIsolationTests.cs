@@ -14,6 +14,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Finite production-owner tests of the source-identified color/lifetime coupling in
@@ -56,7 +57,7 @@ internal static class InstalledPowerBombIsolationTests
                     _ => new PaletteRgb5 { Red = index % 32, Green = (index * 3) % 32, Blue = (index * 7) % 32 },
                 }).ToArray();
                 File.WriteAllBytes(Path.Combine(overrides, PowerBombFixedColorFormat.FileName),
-                    PowerBombFixedColorCatalog.Write(document with
+                    PowerBombFixedColorFile.Write(document with
                     { PreExplosion = Replace(document.PreExplosion), Explosion = Replace(document.Explosion) }));
                 AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrides);
                 Require(stock.ContentIdentity != edited.ContentIdentity, edit + ": override identity did not change");

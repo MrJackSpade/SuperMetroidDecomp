@@ -21,6 +21,7 @@ namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Constructed cartridge checks for Samus draining, solid-enemy probes, and Draygon grab control.</summary>
 internal static class SamusDamageAndGrabVerification
@@ -88,11 +89,11 @@ internal static void VerifySamusDrainedController()
 
     InstallHyperBeamSuitPaletteFixture(bus);
     InstallHyperBeamProjectilePaletteProgramFixture(bus);
-    var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+    var suitColors = SamusSuitColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var rainbowColors = SamusHyperBeamColorCatalog.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorExtractor.Extract(bus)));
-    var projectileColors = HyperBeamFxColorCatalog.Load(new MemoryStream(
+    var projectileColors = HyperBeamFxColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(bus)));
     var drainedCgram = new SamusColourRig();
 

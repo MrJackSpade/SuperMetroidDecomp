@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 
@@ -24,7 +25,7 @@ internal static class CrystalFlashColorsVerification
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(rom);
-        CrystalFlashColorCatalog native = CrystalFlashColorCatalog.Load(
+        CrystalFlashColorCatalog native = CrystalFlashColorFile.Read(
             new MemoryStream(extracted, writable: false));
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
@@ -54,7 +55,7 @@ internal static class CrystalFlashColorsVerification
         Paint(document.Body[0]);
         Paint(document.Bubble[0]);
         string replacement = Path.Combine(overrideDirectory, CrystalFlashColorFormat.FileName);
-        File.WriteAllBytes(replacement, CrystalFlashColorCatalog.Write(document));
+        File.WriteAllBytes(replacement, CrystalFlashColorFile.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Crystal Flash color edit changes installed-content identity");
@@ -109,7 +110,7 @@ internal static class CrystalFlashColorsVerification
 
         PaletteRgb5 previous = document.Body[0][1];
         document.Body[0][1] = previous with { Red = 32 };
-        AssertThrows<InvalidDataException>(() => CrystalFlashColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => CrystalFlashColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
                 document, ArtworkJson.Options), writable: false)),
             "Crystal Flash colors reject out-of-range RGB5 channels");

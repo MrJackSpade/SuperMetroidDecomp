@@ -1,6 +1,8 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Editable RGB5 palette payload for ordinary Dachora enemy $E5FF; frame timing, speed thresholds, and shine-state transitions are not schema fields.</summary>
 public sealed record DachoraColorDocument

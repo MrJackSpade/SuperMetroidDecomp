@@ -20,7 +20,7 @@ public static class SamusSuitColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return SamusSuitColorCatalog.Write(new SamusSuitColorDocument
+        return SamusSuitColorFile.Write(new SamusSuitColorDocument
         {
             Version = SamusSuitColorFormat.Version,
             Power = Read(SamusSourceDefinitions.PowerSuitPalette.Value),

@@ -1,6 +1,8 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Editable JSON schema for four auxiliary enemy palette families; runtime AI retains palette destination, update cadence, drain-stage progression, and health-band selection.</summary>
 public sealed record EnemyAuxiliaryColorDocument

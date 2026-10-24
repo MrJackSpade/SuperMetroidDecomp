@@ -43,7 +43,7 @@ public static class WorkRobotPaletteCycleExtractor
                 };
             }
         }
-        return WorkRobotPaletteCycle.Write(new WorkRobotPaletteCycleDocument
+        return WorkRobotPaletteCycleFile.Write(new WorkRobotPaletteCycleDocument
         {
             Version = WorkRobotPaletteCycleFormat.Version,
             Frames = frames,

@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Editable tube-crack and Chozo-statue RGB5 images, each retaining two ordered sixteen-color OBJ palettes including their transparent-slot words.</summary>
 public sealed record ChozoAndTubeColorDocument

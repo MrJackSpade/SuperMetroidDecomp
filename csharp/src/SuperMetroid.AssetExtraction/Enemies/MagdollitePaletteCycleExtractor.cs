@@ -42,7 +42,7 @@ public static class MagdollitePaletteCycleExtractor
                 };
             }
         }
-        return MagdollitePaletteCycle.Write(new MagdollitePaletteCycleDocument
+        return MagdollitePaletteCycleFile.Write(new MagdollitePaletteCycleDocument
         {
             Version = MagdollitePaletteCycleFormat.Version,
             Frames = frames,

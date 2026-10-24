@@ -20,7 +20,7 @@ public static class DachoraColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return DachoraColorCatalog.Write(new DachoraColorDocument
+        return DachoraColorFile.Write(new DachoraColorDocument
         {
             Version = DachoraColorFormat.Version,
             Normal = Read(DachoraColorRomData.DefaultSource),

@@ -15,6 +15,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
@@ -28,7 +29,7 @@ internal static class CeresRidleyColorsVerification
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(rom);
-        CeresRidleyColorCatalog native = CeresRidleyColorCatalog.Load(
+        CeresRidleyColorCatalog native = CeresRidleyColorFile.Read(
             new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
         Check(CeresRidleyPaletteRomData.StartColors,
@@ -78,7 +79,7 @@ internal static class CeresRidleyColorsVerification
         Paint(document.RetreatShared);
         Paint((document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby."))[1]);
         string replacement = Path.Combine(overrideDirectory, CeresRidleyColorFormat.FileName);
-        File.WriteAllBytes(replacement, CeresRidleyColorCatalog.Write(document));
+        File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
@@ -204,10 +205,10 @@ internal static class CeresRidleyColorsVerification
         AssertEqual(original.CeresRidleyColors.ResolveAlarm(7, 1),
             preAlarm.CeresRidleyColors.ResolveAlarm(7, 1),
             "version-two Ridley override inherits stock alarm colors");
-        File.WriteAllBytes(replacement, CeresRidleyColorCatalog.Write(document));
+        File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
 
         document.EyeFade[0][0] = document.EyeFade[0][0] with { Red = 32 };
-        AssertThrows<InvalidDataException>(() => CeresRidleyColorCatalog.Write(document),
+        AssertThrows<InvalidDataException>(() => CeresRidleyColorFile.Write(document),
             "Ceres Ridley colors reject invalid RGB5 channel");
         string replacementStock = Path.Combine(
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),

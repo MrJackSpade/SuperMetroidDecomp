@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON payload containing Crystal Flash body and bubble RGB5 frames; native playback timing is not part of this schema.</summary>
 public sealed record CrystalFlashColorDocument

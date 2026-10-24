@@ -2179,8 +2179,8 @@ internal static class LookupStream3Verification
             }
         }
         var document = new WorkRobotPaletteCycleDocument { Version = 1, Frames = colors };
-        WorkRobotPaletteCycle Load() => WorkRobotPaletteCycle.Load(
-            new MemoryStream(WorkRobotPaletteCycle.Write(document), writable: false));
+        WorkRobotPaletteCycle Load() => WorkRobotPaletteCycleFile.Read(
+            new MemoryStream(WorkRobotPaletteCycleFile.Write(document), writable: false));
         void Check(WorkRobotPaletteCycle cycle)
         {
             var cgram = new GameplayColours(new SpriteColourSets());
@@ -2604,7 +2604,7 @@ internal static class LookupStream3Verification
                 Palettes = words.ToDictionary(pair => pair.Key, pair => pair.Value.Select(row => row.Select(word =>
                     new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray()).ToArray()),
             };
-            return EnemyAuxiliaryColorCatalog.Load(new MemoryStream(EnemyAuxiliaryColorCatalog.Write(document), writable: false));
+            return EnemyAuxiliaryColorFiles.Read(new MemoryStream(EnemyAuxiliaryColorFiles.Write(document), writable: false));
         }
         void Check(EnemyAuxiliaryColorCatalog catalog)
         {

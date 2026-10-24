@@ -1,6 +1,8 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Editable four-row Magdollite glow schema, containing only animated OBJ colors rather than the complete sixteen-color native palette rows.</summary>
 public sealed record MagdollitePaletteCycleDocument

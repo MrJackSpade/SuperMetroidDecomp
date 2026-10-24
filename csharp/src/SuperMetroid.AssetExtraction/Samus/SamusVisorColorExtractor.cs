@@ -34,7 +34,7 @@ public static class SamusVisorColorExtractor
                 Blue = (word >> 10) & 31,
             };
         }
-        return SamusVisorColorCatalog.Write(new SamusVisorColorDocument
+        return SamusVisorColorFile.Write(new SamusVisorColorDocument
         {
             Version = SamusVisorColorFormat.Version,
             Colors = colors,

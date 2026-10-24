@@ -30,6 +30,7 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Constructed cartridge checks for permanent item PLMs, messages, saves, and suit acquisition.</summary>
 internal static class CollectiblesVerification
@@ -690,7 +691,7 @@ internal static class CollectiblesVerification
     private static void VerifySuitPickupTransformation()
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();
-        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+        SamusSuitColorCatalog suitColors = SamusSuitColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
         Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(suitColors));
         var cgram = new SamusColourRig();

@@ -17,7 +17,7 @@ public static class ChozoAndTubeColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return ChozoAndTubeColorCatalog.Write(new ChozoAndTubeColorDocument
+        return ChozoAndTubeColorFile.Write(new ChozoAndTubeColorDocument
         {
             Version = ChozoAndTubeColorFormat.Version,
             TubeCracks = Read(ChozoAndTubeColorRomData.TubeCracksSource),

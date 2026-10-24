@@ -65,7 +65,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         }
 
         byte[] extracted = WorkRobotPaletteCycleExtractor.Extract(rom);
-        WorkRobotPaletteCycle stock = WorkRobotPaletteCycle.Load(
+        WorkRobotPaletteCycle stock = WorkRobotPaletteCycleFile.Read(
             new MemoryStream(extracted, writable: false));
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
         for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
@@ -85,8 +85,8 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         {
             Blue = prior.Blue == 31 ? 30 : prior.Blue + 1,
         };
-        WorkRobotPaletteCycle edited = WorkRobotPaletteCycle.Load(
-            new MemoryStream(WorkRobotPaletteCycle.Write(visual), writable: false));
+        WorkRobotPaletteCycle edited = WorkRobotPaletteCycleFile.Read(
+            new MemoryStream(WorkRobotPaletteCycleFile.Write(visual), writable: false));
 
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SamusColourRig();

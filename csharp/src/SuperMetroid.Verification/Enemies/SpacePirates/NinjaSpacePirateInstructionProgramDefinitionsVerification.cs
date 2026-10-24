@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Checks compiled ninja Space Pirate programs, frame selectors, and attack callbacks.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
@@ -53,8 +54,8 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlas.Load(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheet.Load(new MemoryStream(
-                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
+                [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheetFile.Read(new MemoryStream(
+                    EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
             } });
         NinjaSpacePirateProgram[] programs =
         [

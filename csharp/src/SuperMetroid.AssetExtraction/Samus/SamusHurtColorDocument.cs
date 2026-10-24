@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON payload for the two complete Samus OBJ palettes; initialized array references and their RGB5 entries remain caller-owned and mutable.</summary>
 public sealed record SamusHurtColorDocument

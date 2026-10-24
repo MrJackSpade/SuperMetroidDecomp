@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON schema for the ten Hyper Beam projectile palette rows; the separate native palette program retains frame durations, destination selection, and loop control.</summary>
 public sealed record HyperBeamFxColorDocument

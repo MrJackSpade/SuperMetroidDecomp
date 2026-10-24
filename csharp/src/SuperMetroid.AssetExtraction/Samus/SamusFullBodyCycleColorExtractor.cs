@@ -20,7 +20,7 @@ public static class SamusFullBodyCycleColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return SamusFullBodyCycleColorCatalog.Write(new SamusFullBodyCycleColorDocument
+        return SamusFullBodyCycleColorFile.Write(new SamusFullBodyCycleColorDocument
         {
             Version = SamusFullBodyCycleColorFormat.Version,
             SpeedBooster = ReadFamily(SamusFullBodyCycleFamily.SpeedBooster),

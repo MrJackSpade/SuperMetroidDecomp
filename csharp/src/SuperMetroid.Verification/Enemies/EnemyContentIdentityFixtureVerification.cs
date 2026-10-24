@@ -164,9 +164,9 @@ internal static class EnemyContentIdentityFixtureVerification
             });
             var palettes = Ordered(new[]
             {
-                KeyValuePair.Create(firstId, EnemyPaletteSheet.Load(Json(new EnemyPaletteSheetDocument
+                KeyValuePair.Create(firstId, EnemyPaletteSheetFile.Read(Json(new EnemyPaletteSheetDocument
                     { Version = 1, Colors = Colors("palette-first", EnemyPaletteSheet.ColorCount) }))),
-                KeyValuePair.Create((EnemyDefinitionId)2, EnemyPaletteSheet.Load(Json(new EnemyPaletteSheetDocument
+                KeyValuePair.Create((EnemyDefinitionId)2, EnemyPaletteSheetFile.Read(Json(new EnemyPaletteSheetDocument
                     { Version = 1, Colors = Colors("palette-second", EnemyPaletteSheet.ColorCount) }))),
             });
             var dma = Ordered(new[] { KeyValuePair.Create(firstId, edit == "dma-source" ? 3 : 1), KeyValuePair.Create((EnemyDefinitionId)2, 2) });
@@ -209,7 +209,7 @@ internal static class EnemyContentIdentityFixtureVerification
                 Pages = Ordered(CeresEscapeOverlayTilemapDefinitions.All.Select(page =>
                     KeyValuePair.Create(page.Name, Words("ceres-overlay-" + page.Name, page.WordCount)))),
             }));
-            var auxiliary = EnemyAuxiliaryColorCatalog.Load(Json(new EnemyAuxiliaryColorDocument
+            var auxiliary = EnemyAuxiliaryColorFiles.Read(Json(new EnemyAuxiliaryColorDocument
             {
                 Version = EnemyAuxiliaryColorFormat.Version,
                 Palettes = Ordered(EnemyAuxiliaryColorDefinitions.All.Select(definition =>
@@ -217,15 +217,15 @@ internal static class EnemyContentIdentityFixtureVerification
             }));
 
             return new InstalledEnemyArtwork(
-                EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), DmaSources = dma, ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycle.Load, new EnemyContentIdentityFixtureField("frames", MagdollitePaletteRomData.FrameCount, MagdollitePaletteRomData.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycle.Load, new EnemyContentIdentityFixtureField("frames", WorkRobotPaletteTimingDefinitions.RecordCount, WorkRobotPaletteRomData.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorCatalog.Load,
+                EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), DmaSources = dma, ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", MagdollitePaletteRomData.FrameCount, MagdollitePaletteRomData.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", WorkRobotPaletteTimingDefinitions.RecordCount, WorkRobotPaletteRomData.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorFile.Read,
                     new EnemyContentIdentityFixtureField("tubeCracks", 0, ChozoAndTubeColorRomData.ColorCount), new EnemyContentIdentityFixtureField("wreckedShip", 0, ChozoAndTubeColorRomData.ColorCount),
-                    new EnemyContentIdentityFixtureField("lowerNorfair", 0, ChozoAndTubeColorRomData.ColorCount)), DachoraColors = ColorCatalog(DachoraColorCatalog.Load, new EnemyContentIdentityFixtureField("normal", 0, DachoraColorRomData.ColorsPerFrame),
+                    new EnemyContentIdentityFixtureField("lowerNorfair", 0, ChozoAndTubeColorRomData.ColorCount)), DachoraColors = ColorCatalog(DachoraColorFile.Read, new EnemyContentIdentityFixtureField("normal", 0, DachoraColorRomData.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("speed", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("shine", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
                 new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
                     Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
                     Map("kraid-lower", KraidBackgroundRomData.DecompressedTilemapBytes), heads,
-                    Characters("kraid-background", KraidBackgroundRomData.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorCatalog.Load,
+                    Characters("kraid-background", KraidBackgroundRomData.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFile.Read,
                     new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.RoomBackdrop)),
                     new EnemyContentIdentityFixtureField("initialTarget", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.InitialTarget)),
                     new EnemyContentIdentityFixtureField("health", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.Health)),

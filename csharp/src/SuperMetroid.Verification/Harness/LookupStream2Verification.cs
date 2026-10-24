@@ -54,6 +54,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
@@ -1020,8 +1021,8 @@ internal static class LookupStream2Verification
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlas.Load(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheet.Load(new MemoryStream(
-                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
+                [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheetFile.Read(new MemoryStream(
+                    EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
                     {
                         Version = 1,
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
@@ -1536,7 +1537,7 @@ internal static class LookupStream2Verification
             WreckedShip = Read(ChozoAndTubeColorRomData.WreckedShipSource),
             LowerNorfair = Read(ChozoAndTubeColorRomData.LowerNorfairSource) };
         ChozoAndTubeColorCatalog Load(ChozoAndTubeColorDocument document) =>
-            ChozoAndTubeColorCatalog.Load(new MemoryStream(ChozoAndTubeColorCatalog.Write(document), writable: false));
+            ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
         AssertEqual(8, stock.tubeColorSeeds.Length,
@@ -1899,7 +1900,7 @@ internal static class LookupStream2Verification
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CrystalFlashColorDocument>(
             source, ArtworkJson.Options);
-        var stock = CrystalFlashColorCatalog.Load(new MemoryStream(source));
+        var stock = CrystalFlashColorFile.Read(new MemoryStream(source));
         AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
         var cgram = new SamusColourRig();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
@@ -1914,7 +1915,7 @@ internal static class LookupStream2Verification
                 var rows = document.Body.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
                 rows[frame][color] = rows[frame][color] with { Red = (rows[frame][color].Red + 1) % 32 };
                 var changedDocument = document with { Body = rows };
-                var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
+                var changed = CrystalFlashColorFile.Read(new MemoryStream(CrystalFlashColorFile.Write(changedDocument)));
                 AssertTrue(changed.body is not null, "Independent supplied body edit retains its rows");
                 for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
                 {
@@ -1945,7 +1946,7 @@ internal static class LookupStream2Verification
             var rows = document.Bubble.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
             rows[frame][color] = rows[frame][color] with { Green = (rows[frame][color].Green + 1) % 32 };
             var changedDocument = document with { Bubble = rows };
-            var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
+            var changed = CrystalFlashColorFile.Read(new MemoryStream(CrystalFlashColorFile.Write(changedDocument)));
             for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
             {
                 changed.ApplyBubble(cgram.Samus, verifyFrame);
@@ -1988,7 +1989,7 @@ internal static class LookupStream2Verification
             Secondary = ReadSource(KraidPaletteSource.Secondary),
             DeathArm = ReadSource(KraidPaletteSource.DeathArm),
         };
-        var stock = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(document)));
+        var stock = KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(document)));
         object health = stock.health;
         object secondary = stock.secondary;
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
@@ -2031,7 +2032,7 @@ internal static class LookupStream2Verification
                 KraidPaletteSource.DeathArm => document with { DeathArm = editedColors },
                 _ => document with { DeathArm = editedColors },
             };
-            var edited = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(editedDocument)));
+            var edited = KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(editedDocument)));
             Check(edited, editedDocument);
             AssertTrue(edited.ContentIdentity != stock.ContentIdentity, "Every independent Kraid color edit changes content identity");
         }

@@ -17,6 +17,7 @@ namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Finite, source-selected production-owner fixtures for #541. These compare stock
@@ -53,11 +54,11 @@ internal sealed class InstalledSamusIsolationTests
         this.artwork = artwork;
         var source = new GameInstallation(Path.GetFullPath(root));
         suits = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            SamusSuitColorFormat.FileName, SamusSuitColorCatalog.Load);
+            SamusSuitColorFormat.FileName, SamusSuitColorFile.Read);
         cycles = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            SamusFullBodyCycleColorFormat.FileName, SamusFullBodyCycleColorCatalog.Load);
+            SamusFullBodyCycleColorFormat.FileName, SamusFullBodyCycleColorFile.Read);
         crystal = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            CrystalFlashColorFormat.FileName, CrystalFlashColorCatalog.Load);
+            CrystalFlashColorFormat.FileName, CrystalFlashColorFile.Read);
         using var stream = File.OpenRead(Path.Combine(source.ProjectileDirectory, BeamPaletteDefinitions.FileName));
         beams = BeamPaletteCatalog.Load(stream);
     }

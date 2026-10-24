@@ -566,7 +566,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         foreach (bool eyes in new[] { true, false })
         {
             int count = eyes ? 3 : 11, start = eyes ? 0xA6E2AA : 0xA6E30A;
@@ -605,7 +605,7 @@ internal static class LookupStream4Verification
                         _ => original with { Blue = original.Blue ^ 1 },
                     };
                     var changed = eyes ? document with { EyeFade = rows } : document with { BodyFade = rows };
-                    selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(changed)));
+                    selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(changed)));
                 }
                 for (int row = 0; row < 16; row++)
                 {
@@ -643,7 +643,7 @@ internal static class LookupStream4Verification
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var definition = stock.alarm;
         var inputs = definition.edits;
         AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
@@ -663,7 +663,7 @@ internal static class LookupStream4Verification
                 int word = edit / 3, channel = edit % 3;
                 var original = rows[word / 3][word % 3];
                 rows[word / 3][word % 3] = channel switch { 0 => original with { Red = original.Red ^ 1 }, 1 => original with { Green = original.Green ^ 1 }, _ => original with { Blue = original.Blue ^ 1 } };
-                selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Alarm = rows })));
+                selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Alarm = rows })));
             }
             if (edit is -1 or 0 or 143)
             {
@@ -709,7 +709,7 @@ internal static class LookupStream4Verification
         foreach (int version in new[] { 1, 2 })
         {
             byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = version, Alarm = null }, ArtworkJson.Options);
-            var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
+            var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
             for (int row = 0; row < 16; row++)
             for (int color = 0; color < 3; color++)
                 AssertEqual(Native(row, color), legacy.ResolveAlarm(row, color), "legacy alarm fallback preserves immutable calculated source");
@@ -2320,7 +2320,7 @@ internal static class LookupStream4Verification
     private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
-        var catalog = PowerBombFixedColorCatalog.Load(new MemoryStream(original));
+        var catalog = PowerBombFixedColorFile.Read(new MemoryStream(original));
         AssertEqual(0, catalog.preExplosion.Count, "stock pre-explosion colors are entirely calculated");
         AssertEqual(11, catalog.explosion.Count, "only unresolved explosion tail remains stored");
         foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
@@ -2347,7 +2347,7 @@ internal static class LookupStream4Verification
             var rows = edit.First == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
             var before = rows[edit.Second];
             rows[edit.Second] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
-            var installed = PowerBombFixedColorCatalog.Load(new MemoryStream(PowerBombFixedColorCatalog.Write(document)));
+            var installed = PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document)));
             foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
             for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
             {
@@ -3225,7 +3225,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         for (int color = 0; color < 32; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + color * 2)), stock.ResolveStart(color), "Complete native additional palette");
         for (int color = 0; color < 16; color++)
@@ -3251,7 +3251,7 @@ internal static class LookupStream4Verification
                 };
                 if (edit < 32) starts[edit] = changed; else babies[0][edit - 32] = changed;
             }
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, Baby = babies })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, Baby = babies })));
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyStart(cgram);
@@ -3281,7 +3281,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         ushort Native(int row, int color)
         {
             int a = 0xa6e1f1 + (row * 15 + color) * 2;
@@ -3298,7 +3298,7 @@ internal static class LookupStream4Verification
         foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, Baby = null }, ArtworkJson.Options);
-        var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
+        var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
             AssertEqual(Native(row, color), legacy.ResolveBaby(row, color), "Legacy document preserves the independently installed Baby owner");
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
@@ -3318,7 +3318,7 @@ internal static class LookupStream4Verification
                 };
                 if (edit < 60) rows[edit / 15][edit % 15] = replacement; else body[15][8 + edit - 60] = replacement;
             }
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = rows, BodyFade = body })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Baby = rows, BodyFade = body })));
             for (int row = 0; row < 4; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
@@ -3341,7 +3341,7 @@ internal static class LookupStream4Verification
             var babyRows = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
             if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             enemies.Presentation.BindCgram(cgram.Gameplay);
@@ -3373,7 +3373,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var stored = stock.retreatShared;
         AssertEqual(0, stored.Count, "No native retreat shared paints retained");
         for (int color = 0; color < 8; color++)
@@ -3391,7 +3391,7 @@ internal static class LookupStream4Verification
                 var replacement = channel switch { 0 => old with { Red = old.Red ^ 1 }, 1 => old with { Green = old.Green ^ 1 }, _ => old with { Blue = old.Blue ^ 1 } };
                 if (edit < 8) shared[edit] = replacement; else starts[edit - 7] = replacement;
             }
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, RetreatShared = shared })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, RetreatShared = shared })));
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
@@ -3452,7 +3452,7 @@ internal static class LookupStream4Verification
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var retreatEdits = stock.retreatBg;
         AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
@@ -3463,7 +3463,7 @@ internal static class LookupStream4Verification
             if (edit is >= 0 and < 15) retreat[edit] = Change(retreat[edit], channel);
             else if (edit is >= 15 and < 26) body[1][edit - 15] = Change(body[1][edit - 15], channel);
             else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
@@ -3495,7 +3495,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         ushort Native(int row, int color)
         {
             int a = 0xa6e46a + (row * 14 + color) * 2;
@@ -3514,7 +3514,7 @@ internal static class LookupStream4Verification
             if (edit is >= 0 and < 42) rows[edit / 14][edit % 14] = Change(rows[edit / 14][edit % 14], channel);
             else if (edit is >= 42 and < 53) body[15][edit - 42] = Change(body[15][edit - 42], channel);
             else if (edit >= 53) eyes[0][edit - 53] = Change(eyes[0][edit - 53], channel);
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
             for (int row = 0; row < 3; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
@@ -3534,7 +3534,7 @@ internal static class LookupStream4Verification
             var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
             if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
             if (variation == 1) body[15][9] = Change(body[15][9], 1);
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             var cgram = new SamusColourRig();
             enemies.Presentation.BindCgram(cgram.Gameplay);

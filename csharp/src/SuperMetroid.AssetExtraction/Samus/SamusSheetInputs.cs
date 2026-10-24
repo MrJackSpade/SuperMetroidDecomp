@@ -43,7 +43,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     private static SamusSuitColorCatalog LoadSuitColors(string path)
     {
         using FileStream json = File.OpenRead(path);
-        return SamusSuitColorCatalog.Load(json);
+        return SamusSuitColorFile.Read(json);
     }
 
     /// <summary>The Power Suit's place in the suit colour tables.</summary>

@@ -14,6 +14,7 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>
 internal static class RoomPaletteFxDefinitionsVerification
@@ -102,7 +103,7 @@ internal static class RoomPaletteFxDefinitionsVerification
 
         var hyperBeam = new HyperBeamPaletteFxState();
         hyperBeam.Spawn();
-        var hyperColors = SuperMetroid.Core.Samus.Artwork.HyperBeamFxColorCatalog.Load(
+        var hyperColors = HyperBeamFxColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(rom)));
         hyperBeam.Step(new SamusColourRig().Samus, hyperColors);
         AssertEqual(0, hyperBeam.CurrentFrameIndex,

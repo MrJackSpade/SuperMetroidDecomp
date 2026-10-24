@@ -20,7 +20,7 @@ public static class PowerBombFixedColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return PowerBombFixedColorCatalog.Write(new PowerBombFixedColorDocument
+        return PowerBombFixedColorFile.Write(new PowerBombFixedColorDocument
         {
             Version = PowerBombFixedColorFormat.Version,
             PreExplosion = Read(bus, PowerBombFixedColorSequence.PreExplosion),

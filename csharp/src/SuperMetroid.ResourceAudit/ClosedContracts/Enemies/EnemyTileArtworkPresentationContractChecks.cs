@@ -10,6 +10,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -48,10 +49,10 @@ internal static class EnemyTileArtworkPresentationContractChecks
         }
         var sheets = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId,
             definition => Sheet(definition.ByteCount));
-        using var paletteJson = new MemoryStream(EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument {
+        using var paletteJson = new MemoryStream(EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument {
             Version = 1, Colors = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
                 .Select(_ => new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }).ToArray() }));
-        EnemyPaletteSheet palette = EnemyPaletteSheet.Load(paletteJson);
+        EnemyPaletteSheet palette = EnemyPaletteSheetFile.Read(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
         var sources = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, definition => definition.SourceAddress);
         var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());

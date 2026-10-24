@@ -1148,7 +1148,7 @@ internal static class LookupStream5Verification
 
         static MagdollitePaletteCycle Check(MagdollitePaletteCycleDocument expected)
         {
-            var actual = MagdollitePaletteCycle.Load(new MemoryStream(MagdollitePaletteCycle.Write(expected), writable: false));
+            var actual = MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(expected), writable: false));
             var cgram = new GameplayColours(new SpriteColourSets());
             ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
                 (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
@@ -1471,8 +1471,8 @@ internal static class LookupStream5Verification
         RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png,planar.Length);
         return EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseSidehopper] = atlas }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [EnemyDefinitionId.CorpseSidehopper] = EnemyPaletteSheet.Load(new MemoryStream(
-                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
+                [EnemyDefinitionId.CorpseSidehopper] = EnemyPaletteSheetFile.Read(new MemoryStream(
+                    EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
                     {
                         Version=1,
                         Colors=Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0,Green=0,Blue=0 }).ToArray(),

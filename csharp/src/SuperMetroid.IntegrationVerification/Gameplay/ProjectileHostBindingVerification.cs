@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
@@ -9,10 +8,10 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Checks Android host binding of installed projectile art across startup, save loads, and edited overrides.</summary>
+/// <summary>Checks a host's binding of installed projectile art at startup and with edited overrides.</summary>
 internal static class ProjectileHostBindingVerification
 {
     /// <summary>Installs the repository ROM into a disposable root, verifies host binding, then removes it.</summary>
@@ -28,24 +27,18 @@ internal static class ProjectileHostBindingVerification
         finally { Directory.Delete(root, recursive: true); }
     }
 
-    /// <summary>Compares host catalogs with installed files before and after a state load, restart, and invalid override.</summary>
+    /// <summary>Compares host catalogs with installed files at startup, after a restart with overrides, and with an invalid override.</summary>
     private static int Verify(GameInstallation installation)
     {
         string root = installation.Root;
-        using (var session = new AndroidSessionData(root))
+        using (var session = new InstalledGameSession(root))
         {
             var content = session.Game.Artwork.ProjectileCompositions;
-            if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed Android session did not bind projectile content.");
+            if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed session did not bind projectile content.");
             CheckCatalog(content, installation.LoadProjectiles().Catalog);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
-            session.SaveSlot(0);
             CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
-            session.LoadSlot(0);
-            CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
-            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
-            if (!ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions)) throw new InvalidDataException("State load lost current host projectile content.");
             CheckBeams(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork."), installation.LoadProjectiles().BeamTiles);
             CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
@@ -96,16 +89,13 @@ internal static class ProjectileHostBindingVerification
         var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)));
         grappleSwing.Required("frames")[0] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName), grappleSwing.ToJsonString());
-        using (var session = new AndroidSessionData(root))
+        using (var session = new InstalledGameSession(root))
         {
             var content = session.Game.Artwork.ProjectileCompositions;
             CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
-            session.LoadSlot(0);
-            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
             if (content is null || !ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions))
-                throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
+                throw new InvalidDataException("Restarted host did not bind the newly selected content.");
             CheckCatalog(content, installation.LoadProjectiles().Catalog);
             CheckBeams(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork."), installation.LoadProjectiles().BeamTiles);
             CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
@@ -114,11 +104,11 @@ internal static class ProjectileHostBindingVerification
         File.WriteAllText(path, "invalid override");
         try
         {
-            using var session = new AndroidSessionData(root);
+            using var session = new InstalledGameSession(root);
             throw new InvalidOperationException("Invalid installed override was silently accepted.");
         }
         catch (InvalidDataException) { }
-        Console.WriteLine("PASS installed Android projectile binding: startup, state load, restart with override, old-state rebind and invalid override rejection.");
+        Console.WriteLine("PASS installed projectile binding: startup, restart with override and invalid override rejection.");
         return 0;
     }
 

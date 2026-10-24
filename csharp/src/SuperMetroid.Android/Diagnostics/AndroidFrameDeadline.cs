@@ -1,4 +1,4 @@
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>The Android host's wall-clock scheduling decision after one actually completed simulation step.</summary>
 /// <param name="NextDeadline">Absolute next-frame deadline in seconds on the caller's monotonic clock.</param>

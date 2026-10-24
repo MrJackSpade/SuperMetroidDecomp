@@ -8,17 +8,15 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
-using SuperMetroid.Diagnostics.Sessions;
-using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Diagnostics.Sessions;
 
 /// <summary>
-/// Worker-owned game and diagnostic state. No Activity/View references are persisted.
-/// A reset recording starts from SRAM; a recording after a state load includes the exact
-/// seed file alongside it so desktop replay need not invent a reset-time equivalent.
+/// A game opened from an installation, with its saves, debugger states and input recording, for the tools that run it
+/// headless to make state fixtures. A reset recording starts from SRAM; a recording after a state load includes the exact seed file alongside
+/// it so replay need not invent a reset-time equivalent.
 /// </summary>
-internal sealed class AndroidSessionData : IDisposable
+internal sealed class InstalledGameSession : IDisposable
 {
     /// <summary>JSON options: Indented output.</summary>
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
@@ -35,11 +33,11 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation projectiles;
     /// <summary>State store tied to the session's options and installed content identity.</summary>
     private readonly DebuggerSaveStateStore states;
-    /// <summary>Input recorder replaced after each successful debugger state load.</summary>
-    private ControllerInputRecorder recorder;
+    /// <summary>The session's input recording, seeded from the saves it opened with.</summary>
+    private readonly ControllerInputRecorder recorder;
 
     /// <summary>Opens installed assets and RAM state, binds art and audio, and begins a reset-seeded recording.</summary>
-    public AndroidSessionData(string root, string? cartridgePath = null, string? audioDirectory = null)
+    public InstalledGameSession(string root, string? cartridgePath = null, string? audioDirectory = null)
     {
         this.root = root;
         // A caller-provided cartridge is an import input only. The session always
@@ -55,7 +53,6 @@ internal sealed class AndroidSessionData : IDisposable
         Bus = installation.OpenRuntimeAddressSpace();
         maps = installation.LoadMaps();
         SaveSlotStore saves = GameSaveFileStore.LoadOrMigrate(savePath, Path.Combine(root, "SuperMetroid.srm"), maps).Saves;
-        saves = AndroidFileImport.ActivatePendingSave(root, savePath, maps) ?? saves;
         // A caller-provided cartridge has already passed through the importer;
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
@@ -96,22 +93,8 @@ internal sealed class AndroidSessionData : IDisposable
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
     public void Record(SnesButton input) => recorder.RecordFrame(input);
-    /// <summary>Atomically writes the live saves as JSON.</summary>
-    public void PersistSave() => saveFile.Persist(Game.Saves);
     /// <summary>Flushes accepted input frames after a worker failure.</summary>
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
-
-    /// <summary>Stages an external debugger state into the selected Android slot.</summary>
-    public string ImportState(string path, int slot) =>
-        AndroidFileImport.ImportState(root, path, slot);
-    /// <summary>Stages a regular save file for import on the next session open.</summary>
-    public string ImportSave(string path) =>
-        AndroidFileImport.StageRegularSave(root, path);
-
-    /// <summary>Writes an automatic state only after an eligible completed door transition.</summary>
-    public void SaveCompletedDoor(SuperMetroidGameState previousState) =>
-        DoorTransitionAutosave.TrySave(Options.DoorTransitionAutosave, replay: false,
-            previousState, states, Bus, Game);
 
     /// <summary>Saves a manual debugger slot and flushes its accompanying input recording.</summary>
     public string SaveSlot(int slot)
@@ -123,41 +106,20 @@ internal sealed class AndroidSessionData : IDisposable
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.Room}.";
     }
 
-    /// <summary>Replaces the game, RAM, and audio graph with a validated slot and starts a seeded recording.</summary>
-    public string LoadSlot(int slot)
-    {
-        if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
-            return $"Slot {DebuggerSaveStateStore.SlotName(slot)} is empty. No state to load.";
-        // All decoding/validation happens before replacing the live game, including the
-        // audio binding, which rejects a state whose session never bound clips. Retain the
-        // precise seed before future saves can overwrite this user-visible slot.
-        GameSessionComposer.Restore(loaded.Game, content, saveFile);
-        recorder.Dispose();
-        Bus = loaded.AddressSpace;
-        Game = loaded.Game;
-        Generation++;
-        recorder = StartRecorder();
-        string seed = Path.ChangeExtension(recorder.Path, ".seed.smstate");
-        File.Copy(states.GetSlotPath(slot), seed, overwrite: false);
-        WriteRecordingMetadata(Path.GetFileName(seed));
-        return $"Loaded slot {DebuggerSaveStateStore.SlotName(slot)}, frame {loaded.Metadata.FrameNumber}." +
-            (loaded.Warnings.Count == 0 ? "" : "\nWARNING: " + string.Join("\n", loaded.Warnings));
-    }
-
     /// <summary>Writes content and assembly identity alongside a reset or debugger-seeded recording.</summary>
     private void WriteRecordingMetadata(string? seedFile)
     {
         // The recording embeds installed-content identity. This sidecar additionally
         // identifies whether replay starts at reset or from an exact debugger graph and
-        // records the Android-specific assemblies which generated that graph.
+        // records the assemblies which generated that graph.
         File.WriteAllText(Path.ChangeExtension(recorder.Path, ".json"), JsonSerializer.Serialize(new
         {
-            format = "SuperMetroid.Android.RecordingSeed.v1",
+            format = "SuperMetroid.InstalledSession.RecordingSeed.v1",
             recording = Path.GetFileName(recorder.Path),
             seedFile,
             coreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
             diagnosticsBuild = typeof(DebuggerSaveStateStore).Module.ModuleVersionId,
-            hostBuild = typeof(AndroidSessionData).Module.ModuleVersionId,
+            hostBuild = typeof(InstalledGameSession).Module.ModuleVersionId,
             contentIdentity = ContentIdentity,
         }, IndentedJson));
         FlushRecording();

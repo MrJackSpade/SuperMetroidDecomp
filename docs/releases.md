@@ -1,13 +1,14 @@
 # Tagged application releases
 
 Push a tag such as `v1.0.0` or `v1.1.0-rc.1` to run `.github/workflows/release.yml`.
-The workflow builds the tagged source, stages both downloads in a draft GitHub
-Release, and publishes it only after both builds and asset checks pass. Tags with a
+The workflow builds the tagged source, stages the download in a draft GitHub
+Release, and publishes it only after the build and asset checks pass. Tags with a
 suffix become prereleases. Ordinary branch pushes and pull requests do not publish.
 
-Downloads are `SuperMetroid-windows-x64.zip` (self-contained .NET desktop app),
-`SuperMetroid-android-arm64.apk` (Release AOT), and `SHA256SUMS.txt`. Neither app
-contains a ROM or extracted game resources. Players supply their ROM at first launch.
+Downloads are `SuperMetroid-windows-x64.zip` (self-contained .NET desktop app) and
+`SHA256SUMS.txt`. The app contains no ROM or extracted game resources. The Android
+host is dormant until the Godot port supplies it (#1408), so releases ship no APK;
+the Android notes below describe how it was built and signed. Players supply their ROM at first launch.
 Windows builds retain the existing pinned shader compiler/version/hash check.
 
 The Windows publish includes the canonical `SuperMetroid.defaults.ini`, embedded

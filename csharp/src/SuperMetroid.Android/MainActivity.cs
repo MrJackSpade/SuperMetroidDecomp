@@ -8,7 +8,7 @@ using Android.Hardware.Input;
 using Android.Media;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Android.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.SaveStates;
 using AndroidX.Activity;
@@ -526,9 +526,15 @@ public sealed class MainActivity : ComponentActivity
             var progress = new Progress<string>(message => { if (!destroyed) status.Text = message; });
             await Task.Run(() =>
             {
-                using System.IO.Stream source = Documents.OpenInputStream(uri)
-                    ?? throw new IOException("Android could not open that file. Choose another local ROM.");
-                GameAssetInstaller.Install(source, root, token, progress);
+                // The installer reads a ROM file; the picked document is copied to one first.
+                string picked = Path.Combine(CacheDir?.AbsolutePath ?? throw new IOException("Android did not provide a cache directory."),
+                    "picked-rom.smc");
+                using (System.IO.Stream source = Documents.OpenInputStream(uri)
+                    ?? throw new IOException("Android could not open that file. Choose another local ROM."))
+                using (var copy = File.Create(picked))
+                    source.CopyTo(copy);
+                try { GameAssetInstaller.Install(picked, root, token, progress); }
+                finally { File.Delete(picked); }
             }, token);
             if (!destroyed) StartInstalledGame(root);
         }
@@ -578,7 +584,7 @@ public sealed class MainActivity : ComponentActivity
                                 {
                                     // Re-read just before editing. Preserve all unrelated settings;
                                     // validate before replacing the durable file atomically.
-                                    string updated = HostOptionsIni.WithValue(File.ReadAllText(path),
+                                    string updated = AndroidIniEditing.WithValue(File.ReadAllText(path),
                                         definition.Section, definition.Key, definition.Values[choice.Which]);
                                     File.WriteAllText(path + ".tmp", updated);
                                     File.Move(path + ".tmp", path, overwrite: true);

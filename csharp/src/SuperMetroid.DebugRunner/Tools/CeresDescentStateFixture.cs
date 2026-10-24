@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.DebugRunner.Tools;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Creates a private, portable cinematic seed without changing any player's saves.</summary>
@@ -17,7 +17,7 @@ internal static class CeresDescentStateFixture
         if (Directory.Exists(root))
             throw new IOException($"Refusing to overwrite an existing fixture directory: {root}");
         Directory.CreateDirectory(root);
-        using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
+        using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         data.Game.Session.SetupSelectedGame();
         data.Game.GameState = SuperMetroidGameState.CeresGoesBoom;

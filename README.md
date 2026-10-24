@@ -49,6 +49,9 @@ moving the app or installing an update.
 
 ### Android
 
+The Android build is dormant until the Godot port supplies it: current releases ship
+no APK, and the steps below apply to the earlier releases that did.
+
 1. Open [Releases](https://github.com/MrJackSpade/SuperMetroidDecomp/releases) on your device and download **SuperMetroid-android-arm64.apk**.
 2. Install the APK. If Android asks, allow your browser or file manager to install apps.
 3. Open **Super Metroid C# Testing**, tap **Choose ROM**, and select your ROM through the file picker.

@@ -1,5 +1,10 @@
 # Retroid Pocket Classic testing build — issue #355
 
+> **Dormant (#1408).** The Android host is out of the solution build and the release
+> workflow until the Godot port (v1.0.0) supplies it. It drew with the software
+> renderer, which v0.9.0 deletes (#1409); the project stays in the tree, unbuilt, for
+> reference. The notes below describe it as it last stood.
+
 This is an in-progress **private** Android port of the same C# game, not an emulator
 or streaming client. The APK includes no cartridge or extracted audio. On first launch,
 choose your own supported ROM with Android's document picker; see [ROM setup](ROM-SETUP.md).

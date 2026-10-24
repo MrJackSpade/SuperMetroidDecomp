@@ -48,11 +48,11 @@ internal static class InstallationOverrideLifecycleVerification
             Assert(GameAssetInstaller.OpenOrRepair(installation.Root) is not null,
                 "complete overridden installation opens with source and installed ROM unavailable");
             VerifySelected(installation, edits, selected, overrideFiles, "ROM-unavailable startup");
-            using (var session = new SuperMetroid.Diagnostics.Android.AndroidSessionData(installation.Root))
+            using (var session = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(installation.Root))
             {
                 Assert(session.ContentIdentity.MapContentSha256 == selected[nameof(GameInstallation.LoadMaps)] &&
                     session.ContentIdentity.AudioContentSha256 == selected[nameof(GameInstallation.LoadAudioClips)],
-                    "fresh portable Android session binds selected map/font and audio identities");
+                    "a fresh installed session binds selected map/font and audio identities");
                 Assert(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
                     "fresh portable session retains no cartridge payload");
             }

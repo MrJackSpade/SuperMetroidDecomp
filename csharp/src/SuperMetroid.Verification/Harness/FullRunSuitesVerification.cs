@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
 using static SuperMetroid.Verification.Samus.Movement.AerialSpreadTransitionVerification;
 using static SuperMetroid.Verification.Samus.Movement.AirSpikeAlphaRadiusVerification;
-using static SuperMetroid.Verification.Frontend.AndroidHostVerification;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Frontend.Map.AreaMapAssetsVerification;
 using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
@@ -163,7 +162,6 @@ using static SuperMetroid.Verification.Runtime.HeroShotRuntimeVerification;
 using static SuperMetroid.Verification.Runtime.HeroShotsVerification;
 using static SuperMetroid.Verification.Audio.HostIndependentAudioAcknowledgementsVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ImplicitScrollResidueVerification;
-using static SuperMetroid.Verification.Frontend.IniEditingVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroBabyActorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicRomDataVerification;
@@ -462,7 +460,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyOperationContracts), () => VerifyOperationContracts()),
         new(nameof(VerifyNullContracts), () => VerifyNullContracts()),
         new(nameof(VerifySpanQueries), () => VerifySpanQueries()),
-        new(nameof(VerifyAndroidHostPolicies), () => VerifyAndroidHostPolicies()),
         new(nameof(VerifyBoostFloorScroll), () => VerifyBoostFloorScroll()),
         new(nameof(VerifyXrayControls), () => VerifyXrayControls()),
         new(nameof(VerifyIntroPoseHistory), () => VerifyIntroPoseHistory()),
@@ -476,7 +473,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyReserveMode), () => VerifyReserveMode("csharp/test-fixtures/movement-release/reserve-mode-433.csv")),
         new(nameof(VerifyCinematicCrystalFlash), () => VerifyCinematicCrystalFlash("csharp/test-fixtures/movement-release/cinematic-flash-432.csv")),
         new(nameof(VerifyElevatubeScrolling), () => VerifyElevatubeScrolling()),
-        new(nameof(VerifyIniEditing), () => VerifyIniEditing()),
         .. RenderContractSuites(),
         new(nameof(VerifyRandomNumberGeneratorExhaustively), () => VerifyRandomNumberGeneratorExhaustively()),
         new(nameof(SaveLoadRandomAudit), () => SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), InstalledFixtures.BindGame)),

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
-using System.IO.Compression;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -76,17 +75,6 @@ internal static class DoorTransitionAutosaveVerification
             AssertEqual(1, writes, "one autosave only at completed transition");
             AssertEqual(RoomHeaderDefinitions.LandingSite, (game.GameplayActiveRoom ?? throw new InvalidOperationException("Verification requires game.GameplayActiveRoom.")), "autosave destination is Landing Site");
             byte[] first = File.ReadAllBytes(autoPath);
-            string bundle = Path.Combine(directory, "auto-diagnostics.zip");
-            SuperMetroid.Diagnostics.Android.AndroidDiagnosticBundle.Create(directory, bundle, DebuggerStateFormat.AutomaticSlot);
-            using (var zip = ZipFile.OpenRead(bundle))
-            {
-                AssertTrue(zip.GetEntry("debug-states/SuperMetroid-debug-slot-auto.smstate") is not null,
-                    "Android diagnostic export includes selected auto state");
-                AssertTrue(!zip.Entries.Any(entry => entry.FullName.Contains("debug-slot-0.smstate", StringComparison.Ordinal)),
-                    "auto export does not include unrelated manual states");
-            }
-            AssertTrue(SuperMetroid.Diagnostics.Android.AndroidFileImport.ImportState(directory, "unused", DebuggerStateFormat.AutomaticSlot)
-                .Contains("reserved", StringComparison.Ordinal), "manual import cannot replace automatic recovery");
             var loaded = store.Load(DebuggerStateFormat.AutomaticSlot);
             AssertEqual(SuperMetroidGameState.MainGameplay, loaded.Game.GameState, "auto resumes after destination fade");
             AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "auto captures completed transition frame");

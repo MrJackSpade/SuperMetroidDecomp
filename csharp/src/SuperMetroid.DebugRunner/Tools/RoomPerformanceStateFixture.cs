@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.DebugRunner.Tools;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Representative retail-room fixtures for Android performance issues #361-363.</summary>
@@ -20,7 +20,7 @@ internal static class RoomPerformanceStateFixture
         string root = Path.GetFullPath(destination);
         if (Directory.Exists(root)) throw new IOException($"Fixture directory already exists: {root}");
         Directory.CreateDirectory(root);
-        using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
+        using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         data.Game.Session.SetupSelectedGame();
         var runtime = data.Game.Session.GameplayRuntime;

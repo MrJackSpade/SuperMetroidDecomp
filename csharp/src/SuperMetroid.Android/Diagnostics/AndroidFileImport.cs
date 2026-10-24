@@ -3,7 +3,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>Validated local file imports; replacement always preserves a unique recovery copy.</summary>
 internal static class AndroidFileImport

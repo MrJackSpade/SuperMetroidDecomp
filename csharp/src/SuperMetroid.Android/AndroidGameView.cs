@@ -3,7 +3,7 @@ using Android.Graphics;
 using Android.Views;
 using SuperMetroid.Core.Frontend;
 using System.Diagnostics;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Android.Diagnostics;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Android;

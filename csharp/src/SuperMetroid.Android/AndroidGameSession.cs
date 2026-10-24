@@ -1,9 +1,10 @@
+using SuperMetroid.Android.Input;
 using System.Diagnostics;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Android.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 
 namespace SuperMetroid.Android;
@@ -302,5 +303,6 @@ internal sealed class AndroidGameSession
 
     /// <summary>Publishes game options combined with Android audio controls for UI readers.</summary>
     private void RefreshEffectiveOptions(AndroidSessionData data) => Volatile.Write(ref effectiveOptions,
-        data.Options with { Game = data.Game.ConfiguredOptions });
+        // The host shows its INI's options; while it is dormant (#1408) a loaded state's own options are not shown apart.
+        data.Options);
 }

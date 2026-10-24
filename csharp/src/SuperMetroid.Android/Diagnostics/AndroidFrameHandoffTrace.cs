@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>
 /// Allocation-free rolling handoff events. The mailbox gate owns all access.

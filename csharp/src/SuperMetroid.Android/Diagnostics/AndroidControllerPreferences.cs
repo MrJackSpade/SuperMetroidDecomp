@@ -1,7 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Input;
 
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>
 /// Persisted host-key overrides, not cartridge control bindings. Unspecified keys keep

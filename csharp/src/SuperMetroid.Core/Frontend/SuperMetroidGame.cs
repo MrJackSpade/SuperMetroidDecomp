@@ -75,8 +75,6 @@ public sealed class SuperMetroidGame
         Session.Screen?.BindArtwork(previous, artwork, Session.GameState);
     }
 
-    /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
-    public SuperMetroidGameOptions ConfiguredOptions { get => Session.ConfiguredOptions; }
 
     /// <summary>Creates a reset-state session, reading the selected save slot and capturing the native boot carry before any dispatcher frame runs.</summary>
     /// <param name="saves">The battery-backed saves the session owns; the host loads them and persists them on <see cref="SaveRamChanged"/>.</param>

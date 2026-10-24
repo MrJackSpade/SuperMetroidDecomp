@@ -105,7 +105,8 @@ def publish(directory):
     tag = os.environ["RELEASE_TAG"]
     version(tag)
     root = Path(directory)
-    assets = [root / "SuperMetroid-windows-x64.zip", root / "SuperMetroid-android-arm64.apk"]
+    # The Android host is dormant until the Godot port supplies it (#1408), so a release ships Windows only.
+    assets = [root / "SuperMetroid-windows-x64.zip"]
     for asset in assets:
         check_archive(asset)
     checksums = root / "SHA256SUMS.txt"
@@ -122,13 +123,13 @@ def publish(directory):
     if not release:
         gh("release", "create", tag, "--verify-tag", "--draft", "--title", tag, "--generate-notes")
         release = release_info(tag)
-        set_body(release, (release["body"] or "") + "\n\nDownloads: Windows x64 (self-contained ZIP) and Android ARM64 APK. "
+        set_body(release, (release["body"] or "") + "\n\nDownloads: Windows x64 (self-contained ZIP). "
                  "No game assets are bundled.\n")
     gh("release", "upload", tag, *(str(p) for p in assets), "--clobber")
     args = ["release", "edit", tag, "--tag", tag, "--draft=false"]
     args.append("--prerelease" if "-" in tag else "--latest")
     gh(*args)
-    print(f"Published {tag} with both verified applications and SHA-256 checksums.")
+    print(f"Published {tag} with the verified Windows application and SHA-256 checksums.")
 
 
 def webhook_request(url, method="GET", payload=None):
@@ -150,7 +151,7 @@ def receipt_body(body, receipt):
 
 def notification_payload(tag, url):
     version(tag)
-    return {"content": f"**Super Metroid {tag} is available**\nWindows x64 and Android ARM64 downloads:\n{url}",
+    return {"content": f"**Super Metroid {tag} is available**\nWindows x64 download:\n{url}",
             "allowed_mentions": {"parse": []}, "flags": 4}
 
 

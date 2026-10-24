@@ -1,6 +1,7 @@
+using SuperMetroid.Android.Audio;
 using Android.Media;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Android.Diagnostics;
 
 namespace SuperMetroid.Android;
 

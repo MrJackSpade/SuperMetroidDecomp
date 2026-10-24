@@ -1,4 +1,4 @@
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>The Android host's wall-clock pacing policy; it never changes input consumption or the simulation's step order.</summary>
 internal static class AndroidFrameTimingDefinitions

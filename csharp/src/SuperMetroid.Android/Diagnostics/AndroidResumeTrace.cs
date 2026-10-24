@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>
 /// Bounded, memory-only startup/resume trace shared by emulation and PCM workers.

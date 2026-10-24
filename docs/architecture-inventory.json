@@ -45,153 +45,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Android.AndroidControllerMapping",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidControllerMapping.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Android.AndroidDocumentPickers",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidDocumentPickers.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Android.AndroidDocumentRequest",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidDocumentRequest.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Android.AndroidDocumentResult",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidDocumentResult.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Android.AndroidGameSession",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidGameSession.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Android.AndroidGameView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidGameView.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Android.AndroidPcmOutput",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidPcmOutput.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Android.AndroidPixelPacking",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/AndroidPixelPacking.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Android.MainActivity",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/MainActivity.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Android.MainActivity.HostFocusListener",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/MainActivity.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner",
-      "flags": [
-        "back-reference:SuperMetroid.Android.MainActivity"
-      ],
-      "justified": true
-    },
-    {
-      "type": "SuperMetroid.Android.MainActivity.MenuCancelled",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Android"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Android/MainActivity.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.ArchitectureAudit.ArchitectureReview",
       "kind": "record",
       "scope": "tool",
@@ -14289,19 +14142,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.QueuedPcmSink",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/QueuedPcmSink.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Audio.ReleasingClip",
@@ -82922,19 +82762,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Input.FrameInputLatch",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/FrameInputLatch.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Input.SnesButton",
       "kind": "enum",
       "scope": "product",
@@ -84600,6 +84427,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.BackgroundColours",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/BackgroundColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Rendering.BackgroundMosaicSampling",
@@ -113173,214 +113013,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidControllerPreferences",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidControllerPreferences.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidDiagnosticBundle",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidDiagnosticBundle.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidDisplayViewport",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidDisplayViewport.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidFileImport",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFileImport.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidFrameDeadline",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFrameDeadline.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidFrameHandoffTrace",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFrameHandoffTrace.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidFrameHandoffTrace.Entry",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFrameHandoffTrace.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidFrameMailbox",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFrameMailbox.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidFrameTimingDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidFrameTimingDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidResumeTrace",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidResumeTrace.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidRunPolicy",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidRunPolicy.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidSessionCommands",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidSessionCommands.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidSessionData",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidSessionData.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidSessionRequest",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidSessionRequest.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidSettingDefinition",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidSettingDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Diagnostics.Android.AndroidSettingDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/Android/AndroidSettingDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Diagnostics.Configuration.HostOptions",
       "kind": "record",
       "scope": "product",
@@ -113821,6 +113453,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Sessions.InstalledGameSession",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Diagnostics/Sessions/InstalledGameSession.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Diagnostics.Sessions.InstalledSessionContent",
@@ -115919,45 +115564,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.IntegrationVerification.Android.AndroidFrameMailboxVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.IntegrationVerification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.IntegrationVerification/Android/AndroidFrameMailboxVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.IntegrationVerification.Android.AndroidImportVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.IntegrationVerification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.IntegrationVerification/Android/AndroidImportVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.IntegrationVerification.Android.AndroidSessionCommandVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.IntegrationVerification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.IntegrationVerification/Android/AndroidSessionCommandVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.IntegrationVerification.Gameplay.GameplayRenderAllocationVerification",
       "kind": "static class",
       "scope": "test",
@@ -116921,6 +116527,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.RenderVerification.Device.DisplayPacketInputTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.RenderVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.RenderVerification/Device/DisplayPacketInputTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.RenderVerification.Device.DisplayPassTests",
@@ -117967,6 +117586,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11ColourSlot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11ColourSlot.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11ConstantPacking",
       "kind": "static class",
       "scope": "product",
@@ -117978,6 +117610,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11FloorImage",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11FloorImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11FrameRenderer",
@@ -117993,14 +117638,27 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11GameplaySubscreenKind",
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11ImageAtlas",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11ImageAtlas.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11PictureColouring",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Rendering.Direct3D11"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11GameplaySubscreenKind.cs"
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11ColourSlot.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -118058,6 +117716,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11SceneColourBuffer",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11SceneColourBuffer.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11Screen",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11Screen.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11ShaderLayout",
       "kind": "static class",
       "scope": "product",
@@ -118105,6 +117789,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11TileOperation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11XrayBehindLayers",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11XrayBehindLayers.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -122915,19 +122612,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Verification.Audio.QueuedPcmSinkVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Audio/QueuedPcmSinkVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Audio.SoundAcceptanceClockCase",
@@ -138322,19 +138006,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Frontend.AndroidHostVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/AndroidHostVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Frontend.BootDemoSetCountVerification",
       "kind": "static class",
       "scope": "test",
@@ -139711,19 +139382,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Frontend.IniEditingVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/IniEditingVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification",

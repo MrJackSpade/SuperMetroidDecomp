@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.DebugRunner.Tools;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Portable #51 seed for the reported Blue Brinstar eye, isolated from player saves.</summary>
@@ -17,7 +17,7 @@ internal static class ReportedEyeStateFixture
         if (Directory.Exists(root))
             throw new IOException($"Refusing to overwrite an existing fixture directory: {root}");
         Directory.CreateDirectory(root);
-        using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
+        using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         data.Game.Session.SetupSelectedGame();
         var runtime = data.Game.Session.GameplayRuntime;

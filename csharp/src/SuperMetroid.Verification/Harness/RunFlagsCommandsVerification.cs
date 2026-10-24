@@ -10,11 +10,4 @@ internal static class RunFlagsCommandsVerification
     {
         return 0;
     }
-
-    /// <summary>Recognizes the Android-host flag and exits successfully without running a suite.</summary>
-    [VerificationCommand("--android-host")]
-    internal static int AndroidHostCommand()
-    {
-        return 0;
-    }
 }

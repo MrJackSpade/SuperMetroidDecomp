@@ -1,4 +1,5 @@
-namespace SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
+namespace SuperMetroid.Android.Input;
 
 /// <summary>
 /// Bridges event-driven controller producers to a simulation thread. A complete tap

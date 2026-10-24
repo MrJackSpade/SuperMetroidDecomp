@@ -1,4 +1,4 @@
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>A queued Android session action and where its result goes.</summary>
 /// <param name="Action">The action.</param>

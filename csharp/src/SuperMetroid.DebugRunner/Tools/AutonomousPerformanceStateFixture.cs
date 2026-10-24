@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.DebugRunner.Tools;
-using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Diagnostics.Sessions;
 
 /// <summary>Reaches a measured autonomous host frame without changing the demo sequence.</summary>
 internal static class AutonomousPerformanceStateFixture
@@ -17,7 +17,7 @@ internal static class AutonomousPerformanceStateFixture
         string root = Path.GetFullPath(destination);
         if (Directory.Exists(root)) throw new IOException($"Fixture directory already exists: {root}");
         Directory.CreateDirectory(root);
-        using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
+        using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         var output = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
         for (int frame = 1; frame <= targetFrame; frame++)

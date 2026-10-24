@@ -2,7 +2,7 @@ using System.IO.Compression;
 using System.Text.Json;
 using SuperMetroid.Diagnostics.SaveStates;
 
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>
 /// Local, portable diagnostic package. Includes an explicit allowlist rather than the

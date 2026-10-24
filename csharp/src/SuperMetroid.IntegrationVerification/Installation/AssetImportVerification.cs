@@ -8,7 +8,7 @@ namespace SuperMetroid.IntegrationVerification.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free Android startup.</summary>
+/// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free startup.</summary>
 internal static class AssetImportVerification
 {
 /// <summary>Exercises invalid imports first, then optional retail extraction, audio parity, cancellation, recovery, and host startup.</summary>
@@ -20,23 +20,27 @@ using var temporaryScratch = new TestScratchDirectory("import-verification");
 try
 {
     string missingRoot = Path.Combine(temporary, "must-not-exist");
-    Reject<InvalidDataException>(() => GameAssetInstaller.Install(new MemoryStream("not a ROM"u8.ToArray()), missingRoot));
+    string notRom = Path.Combine(temporary, "not-a-rom.smc");
+    File.WriteAllBytes(notRom, "not a ROM"u8.ToArray());
+    Reject<InvalidDataException>(() => GameAssetInstaller.Install(notRom, missingRoot));
     Check(!Directory.Exists(missingRoot), "invalid input creates no installation");
     using (var oversized = new NonSeekableStream(new byte[SupportedCartridge.RomByteCount + SupportedCartridge.CopierHeaderByteCount + 100]))
     {
-        Reject<InvalidDataException>(() => GameAssetInstaller.Install(oversized, missingRoot));
+        Reject<InvalidDataException>(() => SupportedCartridge.Read(oversized));
         Check(oversized.BytesRead == SupportedCartridge.RomByteCount + SupportedCartridge.CopierHeaderByteCount + 1,
-            "non-seekable oversized documents are bounded before extraction");
+            "non-seekable oversized input is bounded before extraction");
     }
     using (var cancelled = new CancellationTokenSource())
     {
         cancelled.Cancel();
-        Reject<OperationCanceledException>(() => GameAssetInstaller.Install(new MemoryStream(new byte[SupportedCartridge.RomByteCount]), missingRoot, cancelled.Token));
+        string blank = Path.Combine(temporary, "blank.smc");
+        File.WriteAllBytes(blank, new byte[SupportedCartridge.RomByteCount]);
+        Reject<OperationCanceledException>(() => GameAssetInstaller.Install(blank, missingRoot, cancelled.Token));
         Check(!Directory.Exists(missingRoot), "cancelled selection creates no installation");
     }
     if (romPath is null)
     {
-        Console.WriteLine("PASS input validation. --asset-import-rom adds extraction, repair, and Android-session integration from the repository ROM.");
+        Console.WriteLine("PASS input validation. --asset-import-rom adds extraction, repair, and installed-session integration from the repository ROM.");
         return 0;
     }
     using Stream original = File.OpenRead(romPath);
@@ -67,18 +71,16 @@ try
         Check(!MetadataShape.DeclaresProperty(romFreeMemory.GetType(), "Rom") &&
             romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount,
             "installed runtime starts with mutable memory but no cartridge allocation");
-        using (var romFreeSession = new SuperMetroid.Diagnostics.Android.AndroidSessionData(root))
+        using (var romFreeSession = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(root))
         {
             Check(!MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
-                "installed Android host boots from extracted assets with no ROM copy");
+                "an installed session boots from extracted assets with no ROM copy");
             for (int frame = 0; frame < 90; frame++)
                 romFreeSession.Game.StepCaptured(0, frame + 1, romFreeSession.Generation);
             string saved = romFreeSession.SaveSlot(0);
-            string loaded = romFreeSession.LoadSlot(0);
             Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
-                loaded.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
                 !MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
-                "installed Android state save/load retains cartridge-free memory");
+                "an installed session's state save retains cartridge-free memory");
         }
         Check(GameAssetInstaller.EnsureInstalled(root) is null,
             "repair requires a ROM even though validated extracted content can boot");
@@ -120,9 +122,9 @@ try
     string receipt = Path.Combine(installed.ContentDirectory, GameInstallationLayout.ReceiptFileName);
     DateTime installedAt = File.GetLastWriteTimeUtc(receipt);
     File.WriteAllText(Path.Combine(installed.AudioDirectory, "user-note.txt"), "keep custom files");
-    using (var stream = new NonSeekableStream(headered)) GameAssetInstaller.Install(stream, root);
+    GameAssetInstaller.Install(input, root);
     Check(File.GetLastWriteTimeUtc(receipt) == installedAt && File.Exists(Path.Combine(installed.AudioDirectory, "user-note.txt")),
-        "repeat Android-style stream import reuses complete content instead of replacing it");
+        "repeat import reuses complete content instead of replacing it");
 
     string settings = Path.Combine(root, "SuperMetroid.ini");
     File.WriteAllText(settings, HostOptionsIni.DefaultFileContents);
@@ -153,10 +155,16 @@ try
 
     byte[] wrong = (byte[])rom.Clone();
     wrong[0] ^= 1;
-    Reject<InvalidDataException>(() => GameAssetInstaller.Install(new MemoryStream(wrong), root));
+    string wrongPath = Path.Combine(temporary, "unsupported.smc");
+    File.WriteAllBytes(wrongPath, wrong);
+    Reject<InvalidDataException>(() => GameAssetInstaller.Install(wrongPath, root));
     Check(File.ReadAllBytes(installed.RomPath).SequenceEqual(rom), "unsupported ROM never replaces a valid installation");
     using (var gate = new FileStream(Path.Combine(root, ".game-install.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-        Reject<IOException>(() => GameAssetInstaller.Install(new MemoryStream(rom), root));
+    {
+        string romCopy = Path.Combine(temporary, "locked-out.smc");
+        File.WriteAllBytes(romCopy, rom);
+        Reject<IOException>(() => GameAssetInstaller.Install(romCopy, root));
+    }
 
     File.Delete(receipt);
     using (var cancellation = new CancellationTokenSource())
@@ -173,14 +181,14 @@ try
     Check(GameAssetInstaller.EnsureInstalled(root) is not null && File.Exists(installed.RomPath),
         "startup recovers interruption between directory publication steps");
 
-    using (var session = new SuperMetroid.Diagnostics.Android.AndroidSessionData(root))
+    using (var session = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(root))
     {
         for (int frame = 0; frame < 90; frame++)
             session.Game.StepCaptured(0, frame + 1, session.Generation);
         Check(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
-            "Android session boots from extracted content without retaining cartridge bytes");
+            "an installed session boots from extracted content without retaining cartridge bytes");
     }
-    Console.WriteLine("PASS ROM import, header normalization, exact audio parity, non-seekable input, cancellation, repair, recovery, and Android startup.");
+    Console.WriteLine("PASS ROM import, header normalization, exact audio parity, non-seekable input, cancellation, repair, recovery, and installed-session startup.");
     return 0;
 }
 finally

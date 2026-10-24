@@ -1,6 +1,7 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Diagnostics.Android;
+namespace SuperMetroid.Android.Diagnostics;
 
 /// <summary>The Android host's display rectangle: the native picture at the largest whole-number scale that fits.</summary>
 /// <param name="Offset">The picture's top-left corner relative to the client's.</param>

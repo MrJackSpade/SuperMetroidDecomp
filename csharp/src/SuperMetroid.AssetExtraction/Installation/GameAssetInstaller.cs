@@ -30,14 +30,6 @@ public static class GameAssetInstaller
         return InstallValidated(rom, root, cancellationToken, progress);
     }
 
-    /// <summary>Supports Android document-provider streams, including streams without seek or length support.</summary>
-    public static GameInstallation Install(Stream source, string root,
-        CancellationToken cancellationToken = default, IProgress<string>? progress = null)
-    {
-        progress?.Report("Checking ROM…");
-        return InstallValidated(SupportedCartridge.Read(source, cancellationToken), root, cancellationToken, progress);
-    }
-
     /// <summary>
     /// Uses a complete installation or rebuilds missing/outdated resources from its own validated ROM.
     /// Published content never changes, so any number of processes may open a complete installation

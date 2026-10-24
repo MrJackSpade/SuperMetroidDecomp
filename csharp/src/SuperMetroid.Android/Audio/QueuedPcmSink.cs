@@ -1,7 +1,8 @@
+using SuperMetroid.Core;
 using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
 
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.Android.Audio;
 
 /// <summary>Bounded, ordered PCM delivery that isolates a host's blocking device writes.</summary>
 public sealed class QueuedPcmSink : IDisposable

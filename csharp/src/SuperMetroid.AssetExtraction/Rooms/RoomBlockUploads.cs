@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
@@ -160,8 +161,8 @@ internal static class RoomBlockUploads
             {
                 foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
                 {
-                    yield return new AnimatedCharacterUpload(AnimatedTileFrames.Picture(statue.AnimatedObject, picture), statue.Destination.Word,
-                        Frame(inputs, TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture), statue.TransferByteCount));
+                    yield return new AnimatedCharacterUpload(AnimatedTileFrames.Picture(statue.AnimatedObject, picture), AnimatedTileVramDestinations.WordOf(statue.AnimatedObject),
+                        Frame(inputs, TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture), statue.FrameByteCount));
                 }
             }
         }
@@ -304,7 +305,7 @@ internal static class RoomBlockUploads
         RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]),
-                mechanics.TransferByteCount, VramDmaDestination.FromNative(mechanics.EncodedVramDestination).Word);
+                mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
     /// <summary>
@@ -360,8 +361,8 @@ internal static class RoomBlockUploads
         if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out WreckedShipTreadmillObjectDefinition? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return Animated(inputs, animatedObject, frame, treadmill.FrameSource(frame), WreckedShipTreadmillRomData.TransferByteCount,
-                    VramDmaDestination.FromNative(WreckedShipTreadmillRomData.EncodedVramDestination).Word);
+                yield return Animated(inputs, animatedObject, frame, treadmill.FrameSource(frame), WreckedShipTreadmillRomData.FrameByteCount,
+                    AnimatedTileVramDestinations.WordOf(animatedObject));
             yield break;
         }
         if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
@@ -369,7 +370,7 @@ internal static class RoomBlockUploads
         RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, animatedObject, frame, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]),
-                mechanics.TransferByteCount, VramDmaDestination.FromNative(mechanics.EncodedVramDestination).Word);
+                mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
     /// <summary>Frame <paramref name="frame"/> of <paramref name="animatedObject"/>'s animation, pictured from its installed characters.</summary>

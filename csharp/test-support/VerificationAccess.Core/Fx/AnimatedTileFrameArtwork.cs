@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
@@ -39,7 +40,7 @@ internal static class AnimatedTileFrameArtwork
         if (!frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown))
             return;
         RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
-        vram.LoadBytes(VramDmaDestination.FromNative(mechanics.EncodedVramDestination).Word * sizeof(ushort), Bytes(shown.Artwork, atlas).Span);
+        vram.LoadBytes(AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) * sizeof(ushort), Bytes(shown.Artwork, atlas).Span);
     }
 
     /// <summary>Every animated-tile frame, with the cartridge source and size of its installed characters.</summary>
@@ -49,20 +50,20 @@ internal static class AnimatedTileFrameArtwork
         {
             for (int frame = 0; frame < mechanics.Frames.Count; frame++)
                 yield return (AnimatedTileFrames.Frame(mechanics.AnimatedObject, frame),
-                    RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]), mechanics.TransferByteCount);
+                    RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]), mechanics.FrameByteCount);
         }
         foreach (WreckedShipTreadmillDirection direction in Enum.GetValues<WreckedShipTreadmillDirection>())
         {
             WreckedShipTreadmillObjectDefinition treadmill = WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
                 yield return (AnimatedTileFrames.Frame(treadmill.AnimatedObject, frame), treadmill.FrameSource(frame),
-                    WreckedShipTreadmillRomData.TransferByteCount);
+                    WreckedShipTreadmillRomData.FrameByteCount);
         }
         foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
         {
             foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
                 yield return (AnimatedTileFrames.Picture(statue.AnimatedObject, picture),
-                    TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture), statue.TransferByteCount);
+                    TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture), statue.FrameByteCount);
         }
     }
 }

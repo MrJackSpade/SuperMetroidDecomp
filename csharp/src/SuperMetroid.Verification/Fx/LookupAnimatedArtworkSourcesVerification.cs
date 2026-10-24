@@ -38,7 +38,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
             }
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
-        var unknown = new RoomFxAnimatedTileObjectDefinition(0, 32, 0, 1, 10);
+        var unknown = new RoomFxAnimatedTileObjectDefinition(0, 32, 1, 10);
         AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileArtworkDefinitions.SourceAddress(unknown, 0x8000),
             "Unknown object cannot acquire an artwork mapping");
     }

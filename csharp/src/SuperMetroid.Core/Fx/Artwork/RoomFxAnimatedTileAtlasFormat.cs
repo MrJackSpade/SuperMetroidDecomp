@@ -62,9 +62,9 @@ public static class RoomFxAnimatedTileAtlasFormat
                 }
         for (int frame = 0; frame < TreadmillFrameCount; frame++)
         {
-            total += WreckedShipTreadmillRomData.TransferByteCount;
+            total += WreckedShipTreadmillRomData.FrameByteCount;
             yield return new(WreckedShipTreadmillRomData.FrameSource(frame),
-                WreckedShipTreadmillRomData.TransferByteCount, true);
+                WreckedShipTreadmillRomData.FrameByteCount, true);
         }
         total += TourianStatueTileStripDefinitions.ByteCount;
         yield return new(TourianStatueTileStripDefinitions.FirstSource,
@@ -90,7 +90,7 @@ public static class RoomFxAnimatedTileAtlasFormat
                 if (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes &&
                     frame.Index == 3) continue;
                 yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame),
-                    definition.TransferByteCount, true);
+                    definition.FrameByteCount, true);
             }
         }
     }

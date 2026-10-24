@@ -10,6 +10,6 @@ internal static class WreckedShipTreadmillRomDataConstants
     {
         /// <summary>The source of 32-byte graphics frame <paramref name="frame"/>: frame 0's, then one transfer further per frame.</summary>
         /// <param name="frame">The frame, 0 through 3.</param>
-        internal static int FrameSource(int frame) => WreckedShipTreadmillRomData.Frame0Source + frame * WreckedShipTreadmillRomData.TransferByteCount;
+        internal static int FrameSource(int frame) => WreckedShipTreadmillRomData.Frame0Source + frame * WreckedShipTreadmillRomData.FrameByteCount;
     }
 }

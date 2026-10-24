@@ -16,7 +16,7 @@ internal sealed record TourianStatuePictureCharacters(AnimatedTileObject Statue,
         TourianStatueAnimatedTileProgramDefinition definition =
             TourianStatueAnimatedTileMechanicsDefinitions.All.Single(statue => statue.AnimatedObject == Statue);
         return InstalledObjCharacterArtwork.Of(resolver).AnimatedTiles.TryResolve(
-            TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, Picture), definition.TransferByteCount,
+            TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, Picture), definition.FrameByteCount,
             out ReadOnlyMemory<byte> characters)
             ? characters
             : throw new InvalidDataException($"Installed animated tiles hold no {Statue} {Picture} picture.");

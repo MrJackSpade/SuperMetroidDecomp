@@ -26,8 +26,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatuePhantoon => new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatuePhantoon,
-            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
-            EncodedVramDestination = 0x7800,
+            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
             AnimatingFlag = TourianStatueAnimationState.PhantoonAnimating,
             GreyEvent = EventNumber.PhantoonStatueGrey,
             FirstFrameDuration = 6,
@@ -41,8 +40,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatueRidley => new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueRidley,
-            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
-            EncodedVramDestination = 0x7220,
+            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
             AnimatingFlag = TourianStatueAnimationState.RidleyAnimating,
             GreyEvent = EventNumber.RidleyStatueGrey,
             FirstFrameDuration = 10,
@@ -56,8 +54,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatueKraid => new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueKraid,
-            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
-            EncodedVramDestination = 0x0b40,
+            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
             AnimatingFlag = TourianStatueAnimationState.KraidAnimating,
             GreyEvent = EventNumber.KraidStatueGrey,
             FirstFrameDuration = 4,
@@ -71,8 +68,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatueDraygon => new()
         {
             AnimatedObject = AnimatedTileObject.TourianStatueDraygon,
-            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
-            EncodedVramDestination = 0x0ca0,
+            FrameByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
             AnimatingFlag = TourianStatueAnimationState.DraygonAnimating,
             GreyEvent = EventNumber.DraygonStatueGrey,
             FirstFrameDuration = 8,

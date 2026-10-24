@@ -77,7 +77,7 @@ internal sealed class RoomFxAnimatedTilesState
         instructionTimer = WrappingCountdown.Start(1);
         IsActive = true;
 
-        if (compiledMechanics.TransferByteCount == 0)
+        if (compiledMechanics.FrameByteCount == 0)
             throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has no transfer bytes.");
     }
 

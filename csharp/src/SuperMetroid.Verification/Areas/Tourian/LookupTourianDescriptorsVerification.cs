@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -50,14 +51,14 @@ internal static class LookupTourianDescriptorsVerification
     private static void VerifyTourianStatueTransferSizes(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
-            AssertEqual(HeaderWord(rom, header, 1), Resolve(header).TransferByteCount, "Original statue transfer size");
+            AssertEqual(HeaderWord(rom, header, 1), Resolve(header).FrameByteCount, "Original statue transfer size");
     }
 
     /// <summary>Compares each statue's encoded VRAM destination with the third word of its native header.</summary>
     private static void VerifyTourianStatueVramDestinations(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
-            AssertEqual(HeaderWord(rom, header, 2), Resolve(header).EncodedVramDestination, "Original statue VRAM destination");
+            AssertEqual(HeaderWord(rom, header, 2), AnimatedTileVramDestinations.WordOf(Resolve(header).AnimatedObject), "Original statue VRAM destination");
     }
 
     /// <summary>Word <paramref name="index"/> of the native animated-tile object header at <paramref name="header"/>.</summary>

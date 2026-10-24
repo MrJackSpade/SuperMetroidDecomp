@@ -37,7 +37,7 @@ internal static class SandAnimatedTilesVerification
                     definition, definition.Frames[frame].InstructionPointer);
                 bus.WriteBytes(source,
                     Enumerable.Repeat((byte)(1 + slot * 4 + frame),
-                        definition.TransferByteCount).ToArray());
+                        definition.FrameByteCount).ToArray());
             }
         }
         var atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(

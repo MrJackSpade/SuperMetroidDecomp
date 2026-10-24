@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Fx;
+namespace SuperMetroid.Core.Fx;
 
 /// <summary>Verification access to <see cref="RoomFxAnimatedTileObjectDefinition"/> members production does not use.</summary>
 internal static class RoomFxAnimatedTileObjectDefinitionAccess
@@ -46,9 +47,9 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
             if (pointer == (ushort)self.AnimatedObject)
                 value = self.InstructionPointer;
             else if (pointer == unchecked((ushort)((ushort)self.AnimatedObject + 2)))
-                value = self.TransferByteCount;
+                value = self.FrameByteCount;
             else if (pointer == unchecked((ushort)((ushort)self.AnimatedObject + 4)))
-                value = self.EncodedVramDestination;
+                value = AnimatedTileVramDestinations.WordOf(self.AnimatedObject);
             else if (pointer == self.GotoInstructionPointer)
                 value = (ushort)AnimatedTileInstruction.Goto;
             else if (pointer == unchecked((ushort)(self.GotoInstructionPointer + 2)))

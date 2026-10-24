@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -47,20 +50,29 @@ internal static class TreadmillVisualVerification
                     WreckedShipTreadmillRomData.FrameSource(2), WreckedShipTreadmillRomData.FrameSource(3)]
                 : [WreckedShipTreadmillRomData.FrameSource(3), WreckedShipTreadmillRomData.FrameSource(2),
                     WreckedShipTreadmillRomData.FrameSource(1), WreckedShipTreadmillRomData.Frame0Source];
+            // The floor's frames are selected (#1406): the frame boundary shows the frame the previous update selected, which the
+            // render places over the room's characters where the cartridge copies it.
+            ArtworkAnimation treadmill = AnimatedTileFrames.Of((bits & 4) != 0
+                ? AnimatedTileObject.WreckedShipTreadmillRightwards : AnimatedTileObject.WreckedShipTreadmillLeftwards);
+            RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
+                ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");
             for (int frame = 0; frame < 12; frame++)
             {
+                ArtworkFrame? latched = runtime.Room.LoadedScope.ArtworkFrames.TryShown(treadmill, out ArtworkFrame selected) ? selected : null;
                 runtime.StepFrame(0);
-                // Animated background characters bind as artwork over VRAM (#1350); a capture shows the composition.
                 byte[] shown = BgArtworkFixtures.Composed(runtime.Vram, runtime.BgArtwork);
+                if (latched is { } latchedFrame)
+                    AnimatedTileFrameArtwork.Bytes(latchedFrame.Artwork, animatedTiles).Span.CopyTo(
+                        shown.AsSpan(AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2));
                 images.Add(Convert.ToHexString(shown.AsSpan(
-                    WreckedShipTreadmillRomData.EncodedVramDestination * 2,
-                    WreckedShipTreadmillRomData.TransferByteCount)));
+                    AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2,
+                    WreckedShipTreadmillRomData.FrameByteCount)));
                 // Isolate the live floor character in a one-tile viewport. A diagnostic
                 // ramp exposes every color index; this tests actual decoded pixels,
                 // not merely a changing DMA pointer or unrelated enemy animation.
                 var tileView = new SnesVram();
                 tileView.LoadBytes(0, shown);
-                tileView.ExecuteWordTransfer([(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
+                tileView.ExecuteWordTransfer([(ushort)(AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) / 16)], 0x7000, 1);
                 var pixels = SnesBgTilemapRenderer.Render4BppViewport(tileView, palette, new BgVramAddresses { TilemapBaseWord = 0x7000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) });
                 renderedFrames.Add(string.Join(',', pixels.Select(pixel => pixel.R)));
                 if (frame > 0)
@@ -82,9 +94,9 @@ internal static class TreadmillVisualVerification
     {
         var expected = new SnesVram();
         ImportedVramOracle.ExecuteHardware(expected, bus, source,
-            WreckedShipTreadmillRomData.TransferByteCount,
-            WreckedShipTreadmillRomData.EncodedVramDestination);
-        expected.ExecuteWordTransfer([(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
+            WreckedShipTreadmillRomData.FrameByteCount,
+            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards));
+        expected.ExecuteWordTransfer([(ushort)(AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) / 16)], 0x7000, 1);
         return SnesBgTilemapRenderer.Render4BppViewport(expected, palette, new BgVramAddresses { TilemapBaseWord = 0x7000, CharacterBaseWord = 0 },
             new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) });
     }

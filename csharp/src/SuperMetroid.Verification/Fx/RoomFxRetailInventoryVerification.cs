@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Globalization;
@@ -386,7 +387,7 @@ internal static class RoomFxRetailInventoryVerification
             (ushort)AnimatedTileObject.Lava,
             RoomFxRomData.Layer3AnimatedTiles.LavaFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
-            RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
+            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
             RoomFxRomData.Layer3AnimatedTiles.LavaFirstFrame,
             "lava"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
@@ -394,7 +395,7 @@ internal static class RoomFxRetailInventoryVerification
             (ushort)AnimatedTileObject.Acid,
             RoomFxRomData.Layer3AnimatedTiles.AcidFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
-            RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
+            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
             RoomFxRomData.Layer3AnimatedTiles.AcidFirstFrame,
             "acid"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
@@ -402,7 +403,7 @@ internal static class RoomFxRetailInventoryVerification
             (ushort)AnimatedTileObject.Rain,
             RoomFxRomData.Layer3AnimatedTiles.RainFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.RainFrameByteCount,
-            RoomFxRomData.Layer3AnimatedTiles.RainDestinationWord,
+            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Rain),
             RoomFxRomData.Layer3AnimatedTiles.RainFirstFrame,
             "rain"));
     }

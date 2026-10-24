@@ -6,19 +6,17 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// <summary>Arithmetic view of timed records, retaining no presentation source pointers.</summary>
     internal readonly CalculatedFrames frames;
 
-    /// <summary>Binds a bank-$87 object header to its transfer geometry and frame schedule.</summary>
+    /// <summary>Binds a bank-$87 object header to its frame size and frame schedule.</summary>
     internal RoomFxAnimatedTileObjectDefinition(
         AnimatedTileObject animatedObject,
-        ushort transferByteCount,
-        ushort encodedVramDestination,
+        ushort frameByteCount,
         int frameCount,
         ushort frameDuration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
 
         AnimatedObject = animatedObject;
-        TransferByteCount = transferByteCount;
-        EncodedVramDestination = encodedVramDestination;
+        FrameByteCount = frameByteCount;
         frames = new CalculatedFrames(animatedObject, frameCount, frameDuration);
     }
 
@@ -56,11 +54,8 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     public AnimatedTileObject AnimatedObject { get; }
 
 
-    /// <summary>The number of presentation bytes copied for every displayed frame.</summary>
-    public ushort TransferByteCount { get; }
-
-    /// <summary>The hardware-encoded VRAM destination shared by every frame.</summary>
-    public ushort EncodedVramDestination { get; }
+    /// <summary>The bytes of characters every frame shows.</summary>
+    public ushort FrameByteCount { get; }
 
     /// <summary>The timed frame-control records in cartridge execution order.</summary>
     public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => frames;

@@ -67,6 +67,6 @@ public static class RoomFxAnimatedTileArtworkDefinitions
                 $"No compiled artwork source for room-FX object $87:{(int)definition.AnimatedObject:X4}."),
         };
         return first + (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes && frame.Index == 3
-            ? 1 : frame.Index) * definition.TransferByteCount;
+            ? 1 : frame.Index) * definition.FrameByteCount;
     }
 }

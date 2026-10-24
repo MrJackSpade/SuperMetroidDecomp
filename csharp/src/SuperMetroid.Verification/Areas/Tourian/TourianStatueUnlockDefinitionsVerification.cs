@@ -95,7 +95,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
         {
             int source = TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture);
-            byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.TransferByteCount);
+            byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.FrameByteCount);
             AssertTrue(artwork.TryResolve(source, native.Length,
                     out ReadOnlyMemory<byte> installed) &&
                 installed.Span.SequenceEqual(native),

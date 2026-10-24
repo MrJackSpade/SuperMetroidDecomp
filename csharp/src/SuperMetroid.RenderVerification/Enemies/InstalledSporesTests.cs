@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
@@ -77,8 +78,8 @@ internal static class InstalledSporesTests
     {
         var mechanics = RoomFxAnimatedTileMechanicsDefinitions.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
-        Require(mechanics.InstructionPointer == 0x82ed && mechanics.TransferByteCount == 48 &&
-            mechanics.EncodedVramDestination == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
+        Require(mechanics.InstructionPointer == 0x82ed && mechanics.FrameByteCount == 48 &&
+            AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
             "Compiled spores controls differ from pinned $87:82ED-$8302.");
         int records = 0, comparisons = 0, alteredTransfers = 0;
@@ -250,8 +251,8 @@ internal static class InstalledSporesTests
                 int source = TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture);
                 int statueOffset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
                     source - TourianStatueTileStripDefinitions.FirstSource;
-                Require(legacy.TryResolve(source, statue.TransferByteCount, out var actual) &&
-                    actual.Span.SequenceEqual(expected.AsSpan(statueOffset, statue.TransferByteCount)),
+                Require(legacy.TryResolve(source, statue.FrameByteCount, out var actual) &&
+                    actual.Span.SequenceEqual(expected.AsSpan(statueOffset, statue.FrameByteCount)),
                     "Appending spores shifted an existing statue alias.");
             }
         }

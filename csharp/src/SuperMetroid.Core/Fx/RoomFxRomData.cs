@@ -45,14 +45,8 @@ public static class RoomFxRomData
     /// <summary>Retail headers and first frames of type-owned bank-$87 animations.</summary>
     public static class Layer3AnimatedTiles
     {
-        /// <summary>Common lava/acid transfer destination from objects $82AB/$82C9.</summary>
-        public const ushort LiquidDestinationWord = 0x4280;
-
         /// <summary>Common lava/acid frame size from objects $82AB/$82C9.</summary>
         public const ushort LiquidFrameByteCount = 0x0040;
-
-        /// <summary>Rain transfer destination from object $87:82E7.</summary>
-        public const ushort RainDestinationWord = 0x4280;
 
         /// <summary>Rain frame size from object $87:82E7.</summary>
         public const ushort RainFrameByteCount = 0x0050;

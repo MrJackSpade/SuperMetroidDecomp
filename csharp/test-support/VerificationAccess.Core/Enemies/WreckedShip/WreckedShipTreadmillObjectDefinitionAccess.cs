@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
@@ -44,9 +45,9 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
             if (pointer == (ushort)self.AnimatedObject)
                 value = self.WaitInstructionPointer;
             else if (pointer == unchecked((ushort)(self.AnimatedObject + 2)))
-                value = WreckedShipTreadmillRomData.TransferByteCount;
+                value = WreckedShipTreadmillRomData.FrameByteCount;
             else if (pointer == unchecked((ushort)(self.AnimatedObject + 4)))
-                value = WreckedShipTreadmillRomData.EncodedVramDestination;
+                value = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
             else if (pointer == self.WaitInstructionPointer)
                 value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;
             else if (self.FrameIndex(pointer) >= 0)

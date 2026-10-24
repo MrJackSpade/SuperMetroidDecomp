@@ -22,15 +22,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The animated-tile object this statue's program belongs to.</summary>
     public required AnimatedTileObject AnimatedObject { get; init; }
 
-    /// <summary>The bytes of statue artwork each shown frame transfers.</summary>
-    public required int TransferByteCount { get; init; }
-
-    /// <summary>The hardware-encoded VRAM destination for each timed frame.</summary>
-    public required ushort EncodedVramDestination { get; init; }
-
-    /// <summary>The queued-DMA destination <see cref="EncodedVramDestination"/> decodes to.</summary>
-    [PpuLayoutBoundary("codec: Tourian statue animated-tile program's native VRAM destination")]
-    public VramDmaDestination Destination => VramDmaDestination.FromNative(EncodedVramDestination);
+    /// <summary>The bytes of statue artwork each shown frame shows.</summary>
+    public required int FrameByteCount { get; init; }
 
     /// <summary>The statue's own flag in the shared statue animation state.</summary>
     public required TourianStatueAnimationState AnimatingFlag { get; init; }

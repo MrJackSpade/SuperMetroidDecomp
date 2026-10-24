@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -41,10 +42,10 @@ internal static class LookupAnimatedHeadersVerification
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 0, definition => definition.InstructionPointer));
     /// <summary>Compares each compiled tile-transfer size with its native header.</summary>
     internal static void VerifySimpleAnimationTransferSizes(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.TransferByteCount));
+        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.FrameByteCount));
     /// <summary>Compares each encoded VRAM destination with its native header.</summary>
     internal static void VerifySimpleAnimationVramDestinations(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => definition.EncodedVramDestination));
+        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => AnimatedTileVramDestinations.WordOf(definition.AnimatedObject)));
 
     /// <summary>Checks a header word through lookup, enumeration, and mechanics-word views.</summary>
     private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,

@@ -52,7 +52,7 @@ internal static class VramDmaDomains
                      RoomEnemyDefinitionCatalog.Get(entry.DefinitionId).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
             case "fx":
                 return Native(RoomFxAnimatedTileMechanicsDefinitions.All.SelectMany(definition => definition.Frames.Select(frame =>
-                    new NativeTransfer(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame), definition.TransferByteCount))));
+                    new NativeTransfer(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame), definition.FrameByteCount))));
             case "arm":
                 return Native(SamusArmCannonArtworkFormat.CoverTileDmaSources.Select(pointer =>
                     new NativeTransfer(SamusRenderingRomData.Banks.CharacterData | pointer, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
@@ -62,10 +62,10 @@ internal static class VramDmaDomains
             case "statues":
                 return Native(TourianStatueAnimatedTileMechanicsDefinitions.All.SelectMany(definition =>
                     TourianStatueTileStripDefinitions.Pictures.Select(picture =>
-                        new NativeTransfer(TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture), definition.TransferByteCount))));
+                        new NativeTransfer(TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture), definition.FrameByteCount))));
             case "treadmill":
                 return Native(Enumerable.Range(0, RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount).Select(index =>
-                    new NativeTransfer(WreckedShipTreadmillRomData.FrameSource(index), WreckedShipTreadmillRomData.TransferByteCount)));
+                    new NativeTransfer(WreckedShipTreadmillRomData.FrameSource(index), WreckedShipTreadmillRomData.FrameByteCount)));
             case "landing":
                 return Native(LibraryBackgroundSources.Program(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
                     .Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)

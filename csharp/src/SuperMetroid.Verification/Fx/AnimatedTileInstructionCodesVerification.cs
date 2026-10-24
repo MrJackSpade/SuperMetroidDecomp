@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
@@ -106,8 +107,8 @@ internal static class AnimatedTileInstructionCodesVerification
     {
         var bus = new TestAddressSpace();
         WriteTestWords(bus, 0x870000 | (ushort)AnimatedTileObject.Lava, 0x9000,
-            WreckedShipTreadmillRomData.TransferByteCount,
-            WreckedShipTreadmillRomData.EncodedVramDestination);
+            WreckedShipTreadmillRomData.FrameByteCount,
+            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards));
         WriteTestWords(bus, 0x879000, program);
         return bus;
     }

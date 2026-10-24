@@ -38,6 +38,12 @@ internal static class CartridgeEncodingAnalyzerTests
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M() => 16; }")]);
         // Catalog-owned values, reviewed allowances and build output are not functional literals.
         ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { public const ushort Idle = 0x9389; }")]);
+        // A file named for addresses, pointers, ROM data or tables is not a catalog (#1411): its literals are reported.
+        foreach (string suffix in new[] { "Addresses", "CodePointers", "Pointers", "RomData", "Tables" })
+        {
+            ExpectEncoding([new AnalyzerTestSource($"csharp/src/SuperMetroid.Core/Game/Walker{suffix}.cs", $"static class Walker{suffix} {{ public const int Idle = 0x10; }}")],
+                new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawHexId, ""));
+        }
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M(int a) => a & 0x0f; // cartridge-encoding: allow(Mask) - low nibble\n }")]);
         ExpectEncoding([new AnalyzerTestSource("csharp/src/SuperMetroid.Core/obj/Release/Generated.cs", "class C { int M() => 0x10; }")]);
 

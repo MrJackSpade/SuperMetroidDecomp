@@ -50,4 +50,5 @@ SME6443 | Design | Error | DisplayPacketAnalyzer
 SME6444 | Design | Error | PaletteLayoutAnalyzer
 SME6445 | Design | Error | TransferWordAnalyzer
 SME6446 | Design | Error | AudioRequestAnalyzer
+SME6447 | Design | Error | CartridgeAddressAnalyzer
 SME6448 | Design | Error | HostConcernAnalyzer

@@ -15,13 +15,14 @@ internal static class CartridgeEncodingScanner
 {
     /// <summary>
     /// File-name suffixes of named definition catalogs, shared with the production magic-number audit:
-    /// raw values there are catalog-owned data, inventoried but not ratcheted as functional literals.
+    /// raw values there are catalog-owned data, inventoried but not ratcheted as functional literals. A name that
+    /// says the file holds addresses, pointers, ROM data or tables does not exempt it (#1411): an address belongs to
+    /// the import pipeline, not to a catalog in the simulation.
     /// </summary>
     internal static readonly string[] CatalogSuffixes =
     [
-        "Addresses.cs", "Catalog.cs", "CodePointers.cs", "Codes.cs", "Constants.cs", "Definition.cs", "Definitions.cs", "Flags.cs",
-        "InstructionLists.cs", "Layout.cs", "Masks.cs", "Pointers.cs", "RomData.cs", "PlmHeaderId.cs",
-        "RoomPlmInstruction.cs", "SamusPoseId.cs", "Tables.cs", "Values.cs", "Words.cs",
+        "Catalog.cs", "Codes.cs", "Constants.cs", "Definition.cs", "Definitions.cs", "Flags.cs", "InstructionLists.cs",
+        "Layout.cs", "Masks.cs", "PlmHeaderId.cs", "RoomPlmInstruction.cs", "SamusPoseId.cs", "Values.cs", "Words.cs",
     ];
 
     /// <summary>

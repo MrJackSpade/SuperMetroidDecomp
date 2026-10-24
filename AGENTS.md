@@ -285,6 +285,11 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   assigns and divides work, merges agent branches (`--no-ff`), builds, runs the focused
   verification, fixes integration breakage, commits, pushes and drains the Discord queue.
 - Every agent prompt includes the manifesto's section 8 rules and this section.
+- Before branching agents off for a ticket, merge that ticket's pre-existing WIP branches into main first, so
+  agents start from all existing work.
+- No branch pile-up: when a ticket's work is complete, every branch it used (pre-existing WIP and agent branches)
+  is merged into main and deleted locally and on origin, and agent worktrees are removed. A branch whose work is
+  already in main is deleted at once. WIP branches for other tickets wait until their ticket is taken.
 
 ## Batch handoff summaries
 

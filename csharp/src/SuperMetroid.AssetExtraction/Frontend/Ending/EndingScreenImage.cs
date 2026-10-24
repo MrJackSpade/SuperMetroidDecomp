@@ -145,6 +145,6 @@ internal static class EndingScreenImage
         artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork.");
 
     /// <summary>The bound ending font.</summary>
-    private static EndingFontAtlas Font(EndingScreenArtwork artwork) =>
-        artwork.Font ?? throw new InvalidOperationException("Ending font requires installed presentation assets.");
+    private static EndingFontCharacters Font(EndingScreenArtwork artwork) =>
+        EndingFontCharacters.Of(artwork.Font ?? throw new InvalidOperationException("Ending font requires installed presentation assets."));
 }

@@ -126,6 +126,14 @@ internal sealed class EndingStage
             throw new InvalidDataException($"{name} expanded to ${data.Length:X}, expected at least ${minimum:X}.");
     }
 
+    /// <summary>Rejects an installed font whose characters do not reach a native VRAM transfer span of <paramref name="minimum"/> bytes.</summary>
+    internal static void RequireMinimum(EndingFontAtlas font, int minimum, string name)
+    {
+        int span = Ensure.NotNull(font).CharacterCount * (EndingFontAtlasFormat.ByteCount / EndingFontAtlasFormat.TileCount);
+        if (span < minimum)
+            throw new InvalidDataException($"{name} expanded to ${span:X}, expected at least ${minimum:X}.");
+    }
+
     /// <summary>Native scene boundaries clear slots but retain installed color ownership.</summary>
     internal void ResetPaletteFx()
     {

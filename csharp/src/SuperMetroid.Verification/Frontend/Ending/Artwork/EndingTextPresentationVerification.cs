@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Checks installed ending text and font assets against native tilemaps and guarded typewriter execution.</summary>
 internal static class EndingTextPresentationVerification
@@ -27,7 +28,7 @@ internal static class EndingTextPresentationVerification
         EndingTextPresentation presentation = EndingTextPresentation.Load(
             new MemoryStream(extracted, writable: false));
         byte[] fontPng = SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(nativeBus);
-        EndingFontAtlas font = EndingFontAtlas.Load(new MemoryStream(fontPng, writable: false));
+        EndingFontCharacters font = EndingFontCharacters.Read(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
             EndingCreditsRomData.Rendering.FloorBytes);
@@ -109,7 +110,7 @@ internal static class EndingTextPresentationVerification
         IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
             editableFont.Pixels, editableFont.Colours);
         editedFontPng.Position = 0;
-        EndingFontAtlas editedFont = EndingFontAtlas.Load(editedFontPng);
+        EndingFontCharacters editedFont = EndingFontCharacters.Read(editedFontPng);
         AssertTrue(!editedFont.Characters.Span.SequenceEqual(font.Characters.Span),
             "ending-font PNG edit changes compiled VRAM bytes");
         Console.WriteLine($"Ending text: exact producer/copyright panels and {comparedFrames} native typewriter frames match with bank-$8C text reads forbidden; edits, restore and validation pass.");
@@ -177,8 +178,8 @@ internal static class EndingTextPresentationVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(!edited.EndingFont.Characters.Span.SequenceEqual(
-            stockCatalog.EndingFont.Characters.Span),
+        AssertTrue(!EndingFontCharacters.Of(edited.EndingFont).Characters.Span.SequenceEqual(
+            EndingFontCharacters.Of(stockCatalog.EndingFont).Characters.Span),
             "ending-font override changes installed VRAM bytes");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "ending-font override changes catalog content identity");

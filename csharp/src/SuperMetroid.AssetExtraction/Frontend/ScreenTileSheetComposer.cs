@@ -20,6 +20,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -45,11 +46,11 @@ internal static class ScreenTileSheetComposer
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionRomData.Transfers.FloorCharacterBytes],
                 BgBitDepth.FourBpp, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.EndingCreditsFontTiles => Compose(maps.EndingFont.Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+            SpriteSheetId.EndingCreditsFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.Credits)),
-            SpriteSheetId.EndingTextFontTiles => Compose(maps.EndingFont.Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
+            SpriteSheetId.EndingTextFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes],
                 BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingSubtitleTiles => Compose(maps.EndingFont.Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
+            SpriteSheetId.EndingSubtitleTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
                 EndingPostShotUploadDefinitions.SubtitleLength), BgBitDepth.FourBpp, EndingColours(sources, EndingPaletteId.PostCredits)),
             SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Characters.Span, BgBitDepth.FourBpp,
                 EndingColours(sources, EndingPaletteId.PostCredits)),

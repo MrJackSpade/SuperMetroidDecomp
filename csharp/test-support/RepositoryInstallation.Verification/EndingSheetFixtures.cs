@@ -77,7 +77,7 @@ internal static class EndingSheetFixtures
     {
         ArgumentNullException.ThrowIfNull(ending);
         return new CinematicSpriteSheet(ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward,
-            ending.screen.LogoTileTransfers)), family);
+            ending.screen.LogoChunksShown)), family);
     }
 
     extension(EndingArtwork self)

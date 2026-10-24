@@ -17,8 +17,8 @@ internal sealed class EndingRewardJump
     private readonly IntroDiscoverySprite? head;
     /// <summary>Shared packed vertical velocity; each active actor movement applies gravity to it.</summary>
     internal int Velocity { get; private set; }
-    /// <summary>Number of landing graphics sheets already queued for upload.</summary>
-    private int uploads;
+    /// <summary>Number of reward icon chunks already shown.</summary>
+    private int iconChunksShown;
     /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
     /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
@@ -64,7 +64,7 @@ internal sealed class EndingRewardJump
         }
         else if (bodyPreInstruction == CinematicSpritePreInstruction.RewardLanding)
         {
-            if (uploads < EndingRewardJumpDefinitions.UploadCount) queueGraphicsUpload(uploads++);
+            if (iconChunksShown < EndingRewardJumpDefinitions.IconChunkCount) queueGraphicsUpload(iconChunksShown++);
             Move(body);
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
             {

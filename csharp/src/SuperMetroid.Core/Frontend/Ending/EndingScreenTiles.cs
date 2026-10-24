@@ -21,8 +21,8 @@ internal static class EndingScreenTiles
     {
         Ensure.NotNull(sheets);
         var tiles = new FloorCharacters();
-        int chunkTiles = EndingCreditsRomData.Rendering.FlyawayUploadBytes / Mode7CharacterSheet.TileBytes;
-        int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / EndingCreditsRomData.Rendering.FlyawayUploadBytes;
+        int chunkTiles = EndingCreditsRomData.Rendering.FlyawayChunkBytes / Mode7CharacterSheet.TileBytes;
+        int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / EndingCreditsRomData.Rendering.FlyawayChunkBytes;
         int rewardTiles = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes;
         foreach (EndingUpload upload in Ensure.NotNull(uploads))
         {

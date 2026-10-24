@@ -85,8 +85,8 @@ internal sealed class EndingScreen
     /// <summary>Records a tilemap transfer of <paramref name="words"/>, copying them as they are now.</summary>
     public void Record(EndingUploadKind kind, int key, ReadOnlySpan<ushort> words) => Record(new EndingUpload(kind, key, words.ToArray()));
 
-    /// <summary>How many of the logo's character transfers the post-shot has made.</summary>
-    internal int LogoTileTransfers => uploads.Count(upload => upload.Kind == EndingUploadKind.PostShotTransfer &&
+    /// <summary>How many of the logo's character chunks the post-shot has shown.</summary>
+    internal int LogoChunksShown => uploads.Count(upload => upload.Kind == EndingUploadKind.PostShotTransfer &&
         EndingPostShotUploadDefinitions.Get(upload.Key).Source == EndingPostShotUploadSource.LogoTiles);
 
     /// <summary>Forgets what the screen shows after the bound artwork changes.</summary>

@@ -44,7 +44,7 @@ internal static class EndingRewardGestureVerification
                 $"reward graphics source address {chunk} matches pinned cartridge");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
-                EndingRewardGraphicsUploadDefinitions.DestinationWord(chunk),
+                SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
             graphicsScreen.Record(EndingUploadKind.RewardChunk, chunk);
             SnesVram graphicsVram = EndingScreenFixtures.Vram(graphicsScreen, rewardArtwork);
@@ -60,7 +60,7 @@ internal static class EndingRewardGestureVerification
             () => EndingRewardGraphicsUploadDefinitions.SourceWord(16),
             "reward icon source rejects the seventeenth transfer");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingRewardGraphicsUploadDefinitions.DestinationWord(-1),
+            () => SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(-1),
             "reward icon destination rejects a negative transfer");
         var rewardBus = NewEndingRewardDefinitionReadGuard(bus);
         var rewardSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites);
@@ -117,7 +117,7 @@ internal static class EndingRewardGestureVerification
         new CartridgeReadGuard(source)
             .Forbid(address => address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
                     address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
-                    EndingRewardJumpDefinitions.UploadCount * sizeof(ushort),
+                    EndingRewardJumpDefinitions.IconChunkCount * sizeof(ushort),
                 address => $"Reward icon upload reread address-table byte ${address:X6}.");
 
     /// <summary>The ten reward gesture and jump actors, in native spawn order.</summary>

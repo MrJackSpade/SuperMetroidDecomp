@@ -15,8 +15,8 @@ internal sealed class EndingPostShot
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
     public SnesAngle Angle { get; private set; } = SnesAngle.Zero;
-    /// <summary>Number of subtitle and logo transfers already sent to VRAM.</summary>
-    public int Uploads { get; private set; }
+    /// <summary>Number of the subtitle and logo parts shown so far.</summary>
+    public int PartsShown { get; private set; }
     /// <summary>Indicates that the shot graphic has reached its minimum scale.</summary>
     public bool RotationFinished { get; private set; }
     /// <summary>Signals the caller to hand control to the white-flash phase after the hold expires.</summary>
@@ -52,8 +52,8 @@ internal sealed class EndingPostShot
         {
             // Func141 calls the fade before the upload helper: its final fade call
             // permits the first sheet replacement on that very same frame.
-            if (samusFade == EndingPostShotDefinitions.FadeFrames && Uploads < EndingPostShotUploadDefinitions.Count)
-                screen.Record(EndingUploadKind.PostShotTransfer, Uploads++);
+            if (samusFade == EndingPostShotDefinitions.FadeFrames && PartsShown < EndingPostShotUploadDefinitions.Count)
+                screen.Record(EndingUploadKind.PostShotTransfer, PartsShown++);
             ReadyForWhiteFlash = --hold == 0;
         }
     }

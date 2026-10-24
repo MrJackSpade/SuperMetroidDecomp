@@ -15,7 +15,7 @@ internal static class EndingScreenFloor
     internal static byte[] Cells(IReadOnlyList<EndingUpload> uploads, EndingFloorArtworkCatalog? floor, CeresFlightArtworkCatalog? flight)
     {
         var cells = new byte[AffineFloor.CellCount];
-        int chunkBytes = EndingCreditsRomData.Rendering.FlyawayUploadBytes;
+        int chunkBytes = EndingCreditsRomData.Rendering.FlyawayChunkBytes;
         int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / chunkBytes;
         foreach (EndingUpload upload in uploads)
         {

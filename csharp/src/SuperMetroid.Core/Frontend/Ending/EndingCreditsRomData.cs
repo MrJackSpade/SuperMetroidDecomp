@@ -117,8 +117,8 @@ public static class EndingCreditsRomData
         public const ushort PostCreditsTilemapWord = 0x4800;
         /// <summary>Size in bytes of one complete ending Mode 7 lane, also used for the full reward character sheet.</summary>
         public const int FloorBytes = 0x4000;
-        /// <summary>$8B:DAD3 table stride and Func118 queue transfer size.</summary>
-        public const int FlyawayUploadBytes = 0x0800;
+        /// <summary>$8B:DAD3 table stride: the bytes of one of Func118's sixteen flyaway chunks.</summary>
+        public const int FlyawayChunkBytes = 0x0800;
         /// <summary>$8B:D56C preserves the first $0300 map bytes and fills the remainder with tile $8C.</summary>
         public const int FlyawayMapDataBytes = 0x0300;
         /// <summary>$8B:D5A1 blank map tile $8C fills the flyaway map after its retained $0300-byte prefix.</summary>
@@ -274,13 +274,13 @@ public static class EndingCreditsRomData
     public static class Text
     {
         /// <summary>Row-major tile-word index 288, column zero of row nine, where the 9-row result panel is placed.</summary>
-        public const int ResultPanelDestination = 288;
+        public const int ResultPanelFirstCell = 288;
         /// <summary>Number of tile words in the 32-column, 9-row result panel cleared before the copyright panel.</summary>
         public const int ResultPanelWords = 288;
         /// <summary>Row-major tile-word index 384, column zero of row twelve, where the copyright panel is placed.</summary>
-        public const int CopyrightPanelDestination = 384;
+        public const int CopyrightPanelFirstCell = 384;
         /// <summary>Row-major tile-word index 736, column zero of row twenty-three, where the Japanese subtitle region is drawn or cleared.</summary>
-        public const int JapaneseSubtitleDestination = 736;
+        public const int JapaneseSubtitleFirstCell = 736;
         /// <summary>Number of tile words in the two-row, 32-column Japanese subtitle region.</summary>
         public const int JapaneseSubtitleWords = 64;
         /// <summary>Tile-word index of the top half of the item-percentage hundreds digit; tens, units, and percent sign follow to its right.</summary>

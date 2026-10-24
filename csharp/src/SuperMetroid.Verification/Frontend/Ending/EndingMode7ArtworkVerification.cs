@@ -159,17 +159,17 @@ internal static class EndingMode7ArtworkVerification
                 byte[] partiallyUploaded = partial.ShownVram().ToArray();
                 partial.Stage.BindFloorArtwork(editedMap);
                 byte[] rebound = partial.ShownVram().ToArray();
-                for (int word = 0; word < EndingCreditsRomData.Rendering.FlyawayUploadBytes; word++)
+                for (int word = 0; word < EndingCreditsRomData.Rendering.FlyawayChunkBytes; word++)
                     AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
                         $"edited explosion retains already-transferred map word {word}");
                 AssertTrue(!partiallyUploaded.AsSpan(
-                        EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2,
+                        EndingCreditsRomData.Rendering.FlyawayChunkBytes * 2,
                         EndingCreditsRomData.Rendering.FloorBytes * 2 -
-                            EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2)
+                            EndingCreditsRomData.Rendering.FlyawayChunkBytes * 2)
                     .SequenceEqual(rebound.AsSpan(
-                        EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2,
+                        EndingCreditsRomData.Rendering.FlyawayChunkBytes * 2,
                         EndingCreditsRomData.Rendering.FloorBytes * 2 -
-                            EndingCreditsRomData.Rendering.FlyawayUploadBytes * 2)),
+                            EndingCreditsRomData.Rendering.FlyawayChunkBytes * 2)),
                     "edited explosion updates only the not-yet-transferred Mode-7 map region");
                 AssertEqual(0, partialBus.ForbiddenReadAttempts,
                     "partial explosion rebind never reads authored cartridge sources");
@@ -244,7 +244,7 @@ internal static class EndingMode7ArtworkVerification
         guard.Forbid(address =>
                 (address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
                  address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
-                 EndingRewardJumpDefinitions.UploadCount * sizeof(ushort)) ||
+                 EndingRewardJumpDefinitions.IconChunkCount * sizeof(ushort)) ||
                 address is EndingCreditsRomData.Assets.EscapeMapA or
                 EndingCreditsRomData.Assets.EscapeCharactersA or
                 EndingCreditsRomData.Assets.EscapeMapB or

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>WRAM source and VRAM destination progression for the sixteen post-credits icon uploads.</summary>
+/// <summary>WRAM source progression for the sixteen post-credits icon chunks.</summary>
 internal static class EndingRewardGraphicsUploadDefinitions
 {
     /// <summary>$7F:4000: decompressed post-credits icon staging buffer.</summary>
@@ -20,20 +20,10 @@ internal static class EndingRewardGraphicsUploadDefinitions
         return SourceBase + index * ChunkBytes;
     }
 
-    /// <summary>
-    /// $8B:F6D8..F6F7 stores $0000,$0400,...,$3C00. VRAM increments after
-    /// its high port, so each $800-byte chunk spans $400 word addresses.
-    /// </summary>
-    public static int DestinationWord(int index)
-    {
-        ValidateIndex(index);
-        return index * (ChunkBytes / sizeof(ushort));
-    }
-
     /// <summary>Rejects upload indexes outside the sixteen authored Func216 transfers.</summary>
     private static void ValidateIndex(int index)
     {
-        if ((uint)index >= EndingRewardJumpDefinitions.UploadCount)
+        if ((uint)index >= EndingRewardJumpDefinitions.IconChunkCount)
             throw new ArgumentOutOfRangeException(nameof(index));
     }
 }

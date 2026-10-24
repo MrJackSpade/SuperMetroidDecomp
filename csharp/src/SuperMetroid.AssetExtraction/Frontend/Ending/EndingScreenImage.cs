@@ -68,7 +68,7 @@ internal static class EndingScreenImage
             case EndingUploadKind.RewardChunk:
                 // The queued transfer writes both VRAM ports with increment-after-high; the bytes are already interleaved.
                 int source = EndingRewardGraphicsUploadDefinitions.SourceWord(upload.Key);
-                vram.LoadBytes(EndingRewardGraphicsUploadDefinitions.DestinationWord(upload.Key) * sizeof(ushort),
+                vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(upload.Key) * sizeof(ushort),
                     Mode7(artwork).RewardIcon.Bytes.Span.Slice(source - EndingRewardGraphicsUploadDefinitions.SourceBase,
                         EndingRewardGraphicsUploadDefinitions.ChunkBytes));
                 break;
@@ -85,7 +85,7 @@ internal static class EndingScreenImage
     {
         SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtworkCatalog flight = artwork.Flight ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
-        int chunkBytes = EndingCreditsRomData.Rendering.FlyawayUploadBytes;
+        int chunkBytes = EndingCreditsRomData.Rendering.FlyawayChunkBytes;
         int chunksPerLane = EndingCreditsRomData.Rendering.FloorBytes / chunkBytes;
         int offset = index % chunksPerLane * chunkBytes;
         var floor = new Mode7Vram(vram);
@@ -129,7 +129,7 @@ internal static class EndingScreenImage
             EndingPostShotUploadSource.LogoMap => Objects(artwork).PostShotLogoMap.Bytes.Span[..length],
             _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
         };
-        vram.LoadBytes(transfer.DestinationWord * sizeof(ushort), bytes);
+        vram.LoadBytes(EndingVramDestinations.PostShotWordOf(transfer) * sizeof(ushort), bytes);
     }
 
     /// <summary>The tilemap words a tilemap transfer recorded.</summary>

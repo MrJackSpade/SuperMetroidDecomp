@@ -1246,7 +1246,7 @@ internal static class LookupStream4Verification
             var screen = new EndingScreen();
             state.Step(screen);
             SnesVram vram = EndingScreenFixtures.Vram(screen);
-            int destination = EndingCreditsRomData.Text.JapaneseSubtitleDestination;
+            int destination = EndingCreditsRomData.Text.JapaneseSubtitleFirstCell;
             AssertTrue(expected.SequenceEqual(tilemap.AsSpan(destination, expected.Length)), "Actual ending state draws the calculated/edited subtitle");
             for (int cell = 0; cell < expected.Length; cell++)
             {

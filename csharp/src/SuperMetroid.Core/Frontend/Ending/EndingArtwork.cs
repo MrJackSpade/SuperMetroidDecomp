@@ -130,7 +130,7 @@ internal sealed class EndingArtwork
     {
         if (!rewardIconUploading)
             throw new InvalidOperationException("Reward landing has no active graphics upload.");
-        if ((uint)index >= EndingRewardJumpDefinitions.UploadCount)
+        if ((uint)index >= EndingRewardJumpDefinitions.IconChunkCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         screen.Record(EndingUploadKind.RewardChunk, index);
     }

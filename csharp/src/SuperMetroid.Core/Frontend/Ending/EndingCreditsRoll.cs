@@ -84,10 +84,10 @@ internal sealed class EndingCreditsRoll
         // Func135 removes the producer panel and replaces rows twelve/thirteen with
         // the literal DEDB copyright tilemap. BG1 alone is visible until Func137 ends.
         Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile,
-            EndingCreditsRomData.Text.ResultPanelDestination, EndingCreditsRomData.Text.ResultPanelWords);
+            EndingCreditsRomData.Text.ResultPanelFirstCell, EndingCreditsRomData.Text.ResultPanelWords);
         (_artwork.EndingText ?? throw new InvalidOperationException(
             "Ending copyright requires installed text assets.")).BuildCopyrightPanel().CopyTo(
-            postCreditsTilemap, EndingCreditsRomData.Text.CopyrightPanelDestination);
+            postCreditsTilemap, EndingCreditsRomData.Text.CopyrightPanelFirstCell);
         UploadPostCreditsTilemap();
         RewardCopyrightShown = true;
         _stage.PhaseTimer = EndingCreditsRomData.Timing.CopyrightHoldFrames;

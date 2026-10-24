@@ -42,7 +42,7 @@ internal static class EndingPostShotVerification
             AssertEqual(SnesAngle.FromTableIndex(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
             AssertEqual(frame == 216, shot.ReadyForWhiteFlash, "white-flash handoff follows a full 180-frame hold");
-            AssertEqual(Math.Clamp(frame - 47, 0, 6), shot.Uploads, "logo uploads wait for Samus fade, one transfer per frame");
+            AssertEqual(Math.Clamp(frame - 47, 0, 6), shot.PartsShown, "logo uploads wait for Samus fade, one transfer per frame");
             foreach (int start in new[] { 192, 240 })
             {
                 int remaining = 32 - Math.Clamp(frame - (start == 240 ? 16 : 0), 0, 32);

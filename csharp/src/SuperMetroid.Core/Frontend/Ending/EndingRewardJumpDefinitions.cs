@@ -11,6 +11,6 @@ internal static class EndingRewardJumpDefinitions
     public const int SheetSwitchY = -80;
     /// <summary>The body stops here before its landed instruction list begins.</summary>
     public const int LandingY = 136;
-    /// <summary>Number of sequential graphics uploads queued during the returning-body phase.</summary>
-    public const int UploadCount = 16;
+    /// <summary>Number of reward icon chunks shown one a frame during the returning-body phase.</summary>
+    public const int IconChunkCount = 16;
 }

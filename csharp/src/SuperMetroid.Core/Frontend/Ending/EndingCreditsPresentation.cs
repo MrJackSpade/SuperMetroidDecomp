@@ -201,7 +201,7 @@ internal static class EndingCreditsPresentation
 
         // A frame that draws nothing needs no sheet.
         SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward,
-            ending.screen.LogoTileTransfers));
+            ending.screen.LogoChunksShown));
     }
 
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>

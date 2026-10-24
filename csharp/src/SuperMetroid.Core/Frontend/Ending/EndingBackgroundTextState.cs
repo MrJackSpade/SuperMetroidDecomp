@@ -114,7 +114,7 @@ internal sealed class EndingBackgroundTextState
             DrawItemPercentage();
             if (japaneseText)
                 Presentation.JapaneseSubtitle.CopyTo(tilemap.AsSpan(
-                    EndingCreditsRomData.Text.JapaneseSubtitleDestination,
+                    EndingCreditsRomData.Text.JapaneseSubtitleFirstCell,
                     EndingCreditsRomData.Text.JapaneseSubtitleWords));
             installedHoldStarted = true;
             InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
@@ -124,7 +124,7 @@ internal sealed class EndingBackgroundTextState
         if (installedSequence == EndingTextSequence.ItemPercentage)
         {
             Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile,
-                EndingCreditsRomData.Text.JapaneseSubtitleDestination,
+                EndingCreditsRomData.Text.JapaneseSubtitleFirstCell,
                 EndingCreditsRomData.Text.JapaneseSubtitleWords);
             RequestedItemPercentageScroll = true;
         }

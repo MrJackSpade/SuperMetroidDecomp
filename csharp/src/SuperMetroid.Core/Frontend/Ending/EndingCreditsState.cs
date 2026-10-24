@@ -306,7 +306,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     // nine through seventeen before the following 180-frame hold.
                     (InstalledArtwork.EndingText ?? throw new InvalidOperationException(
                         "Post-credits text requires installed ending text.")).BuildResultPanel().CopyTo(
-                        postCreditsTilemap, EndingCreditsRomData.Text.ResultPanelDestination);
+                        postCreditsTilemap, EndingCreditsRomData.Text.ResultPanelFirstCell);
                     CreditsRoll.UploadPostCreditsTilemap();
                     Stage.PhaseTimer = 180;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingSamus;

@@ -112,16 +112,22 @@ internal static class PowerBombShapeDefinitionsVerification
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
             explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius));
             explosion.FixedColor = explosion.FixedColor.WithRed(31);
-            var frame = Enumerable.Repeat(new Rgba32(0, 0, 0, 255), 256 * 224).ToArray();
-            SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(frame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+            ScanlineColorAddRenderLayer windows = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
+                ?? throw new InvalidOperationException("An active Power Bomb captures its windows.");
             int[] profile = Profile(radius);
             for (int y = 0; y < 224; y++)
-            for (int x = 0; x < 256; x++)
             {
-                int distance = Math.Abs(y - centerY);
-                int halfWidth = distance < profile.Length ? profile[distance] : -1;
-                bool lit = y >= DisplayScreen.HudHeight && halfWidth >= 0 && Math.Abs(x - centerX) <= halfWidth;
-                AssertEqual(new Rgba32(lit ? (byte)255 : (byte)0, 0, 0, 255), frame[y * 256 + x], "Power Bomb native-profile pixels and clipping");
+                ColorAddWindow window = windows.Windows[y];
+                for (int x = 0; x < 256; x++)
+                {
+                    int distance = Math.Abs(y - centerY);
+                    int halfWidth = distance < profile.Length ? profile[distance] : -1;
+                    bool lit = y >= DisplayScreen.HudHeight && halfWidth >= 0 && Math.Abs(x - centerX) <= halfWidth;
+                    bool covered = x >= window.Left && x <= window.Right;
+                    AssertEqual(lit, covered, "Power Bomb native-profile window and clipping");
+                    if (covered)
+                        AssertEqual((255, 0, 0), (window.Red, window.Green, window.Blue), "Power Bomb window adds its fixed colour");
+                }
             }
             frames++;
         }

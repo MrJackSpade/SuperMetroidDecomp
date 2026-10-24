@@ -22,13 +22,7 @@ internal static class TitleGradientExtractor
             variants[variant] = new TitleGradientVariant
             {
                 ZoomHighNibble = variant,
-                Lines = decoded.Select(line => new TitleGradientScanline
-                {
-                    Red = line.Red,
-                    Green = line.Green,
-                    Blue = line.Blue,
-                    ColorMathControl = line.Control.ToNativeByte(),
-                }).ToArray(),
+                Lines = decoded.Select(TitleGradientPresentation.Author).ToArray(),
             };
         }
 

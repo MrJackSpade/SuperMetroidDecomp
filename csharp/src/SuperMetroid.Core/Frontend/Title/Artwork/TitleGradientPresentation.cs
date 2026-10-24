@@ -22,11 +22,11 @@ public sealed class TitleGradientPresentation
     public ReadOnlySpan<TitleGradientLine> Resolve(ushort zoom) =>
         variants[(zoom >> 4) % 16];
 
-    /// <summary>Validates all sixteen authored zoom variants and compiles their independent per-scanline fixed colors and color-math controls.</summary>
+    /// <summary>Validates all sixteen authored zoom variants and compiles their independent per-scanline colours and blends.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open for the caller.</param>
     /// <returns>An immutable presentation whose scanlines do not retain the document's mutable arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant ordering/count is wrong, or a variant lacks 224 valid RGB5/control-byte scanlines.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant ordering/count is wrong, or a variant lacks 224 scanlines with valid RGB5 colours.</exception>
     public static TitleGradientPresentation Load(Stream json)
     {
         TitleGradientDocument document;
@@ -68,20 +68,49 @@ public sealed class TitleGradientPresentation
             {
                 TitleGradientScanline? value = source.Lines[line];
                 if (value is null || value.Red is < 0 or > 31 || value.Green is < 0 or > 31 ||
-                    value.Blue is < 0 or > 31 || value.ColorMathControl is < 0 or > byte.MaxValue)
+                    value.Blue is < 0 or > 31)
                 {
                     throw new InvalidDataException(
-                        $"Title gradient variant {variant}, scanline {line} requires RGB5 colors " +
-                        "and an eight-bit color-math control value.");
+                        $"Title gradient variant {variant}, scanline {line} requires RGB5 colors.");
                 }
-                variants[variant][line] = new(
-                    value.Red,
-                    value.Green,
-                    value.Blue,
-                    (ColorMathControlFlags)value.ColorMathControl);
+                variants[variant][line] = new(value.Red, value.Green, value.Blue, Blend(value));
             }
         }
         return new TitleGradientPresentation(variants);
+    }
+
+    /// <summary>The layers <paramref name="line"/> blends with and how, as the renderers' colour-math control.</summary>
+    private static ColorMathControlFlags Blend(TitleGradientScanline line)
+    {
+        ColorMathControlFlags blend = default;
+        if (line.BlendsFloor) blend |= ColorMathControlFlags.Bg1;
+        if (line.BlendsObjects) blend |= ColorMathControlFlags.Obj;
+        if (line.BlendsBackdrop) blend |= ColorMathControlFlags.Backdrop;
+        if (line.Subtracts) blend |= ColorMathControlFlags.Subtract;
+        return blend;
+    }
+
+    /// <summary>
+    /// The authored scanline for a compiled <paramref name="line"/>: its colour, the layers it blends with and whether it
+    /// subtracts. A control naming any layer or mode the title does not use is rejected rather than dropped.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="line"/> blends a layer or mode outside the title's four.</exception>
+    public static TitleGradientScanline Author(TitleGradientLine line)
+    {
+        const ColorMathControlFlags titleBlends = ColorMathControlFlags.Bg1 | ColorMathControlFlags.Obj |
+            ColorMathControlFlags.Backdrop | ColorMathControlFlags.Subtract;
+        if ((line.Control & ~titleBlends) != 0)
+            throw new InvalidDataException($"Title gradient line blends {line.Control}, outside the floor, objects, backdrop and subtraction.");
+        return new TitleGradientScanline
+        {
+            Red = line.Red,
+            Green = line.Green,
+            Blue = line.Blue,
+            BlendsFloor = (line.Control & ColorMathControlFlags.Bg1) != 0,
+            BlendsObjects = (line.Control & ColorMathControlFlags.Obj) != 0,
+            BlendsBackdrop = (line.Control & ColorMathControlFlags.Backdrop) != 0,
+            Subtracts = (line.Control & ColorMathControlFlags.Subtract) != 0,
+        };
     }
 
     /// <summary>Serializes and validates every gradient variant before writing any UTF-8 JSON bytes.</summary>

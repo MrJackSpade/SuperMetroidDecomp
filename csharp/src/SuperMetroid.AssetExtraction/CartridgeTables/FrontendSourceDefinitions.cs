@@ -10,6 +10,12 @@ internal static class FrontendSourceDefinitions
     /// <summary>$8C:BC5D, TitleSequenceHDMATables: sixteen pointers indexed by zoom bits 4..7.</summary>
     internal static readonly SnesAddress FixedColorPointers = new(0x8c, 0xbc5d);
 
+    /// <summary>Bank $8C, holding the title gradient colour streams <see cref="FixedColorPointers"/> point into.</summary>
+    internal const int TitleGradientColorBank = 0x8c0000;
+
+    /// <summary>$88:EB95, HDMATable_ColorMathControlRegB_TitleSequenceGradient: the title gradient's per-line blend runs.</summary>
+    internal const int TitleGradientBlendTable = 0x88eb95;
+
     /// <summary>Bank $8C containing title-sequence spritemaps referenced by bank-relative list operands.</summary>
     internal const byte TitleSpritemapBank = 0x8c;
 

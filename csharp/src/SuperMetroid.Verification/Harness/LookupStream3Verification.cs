@@ -1450,7 +1450,7 @@ internal static class LookupStream3Verification
             int nativeStaging = (int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
             AssertEqual(nativeStaging, EnemyStagingDefinitions.RottingHeapNativeAddress + rotRow.RottingOffset, "stream 3 native corpse rot row source");
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
-                MotherBrainCharacterUploads.RotRegion(rotRow).FirstByte, "stream 3 native corpse rot row placement");
+                rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, MotherBrainCorpseArtworkDefinitions.PageSource(row), "stream 3 corpse source page");

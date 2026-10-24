@@ -1,10 +1,10 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The installed enemy sheets' manifest (#1392): each room graphics set's sheet for each of its enemies, and for each tile
 /// base its spawned objects draw at.
 /// </summary>
-public sealed record EnemySheetManifestDocument
+internal sealed record EnemySheetManifestDocument
 {
     /// <summary>The manifest revision.</summary>
     public required int Version { get; init; }
@@ -24,10 +24,10 @@ public sealed record EnemySheetManifestDocument
     /// reading the same uploaded regions, each run with the regions it reads. The enemy's sheet holds a picture of each
     /// layer for each upload each of its regions can show. A frame drawn over none is absent and drawn whole.
     /// </summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>> Pictures { get; init; }
+    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>> Pictures { get; init; }
 
     /// <summary>The same for each set's spawned-object sheets, by the tile base in decimal in place of the enemy.</summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>> SpawnedPictures { get; init; }
+    public required Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>> SpawnedPictures { get; init; }
 
     /// <summary>
     /// For each graphics set by name, then each enemy by definition name and each of its frames drawn over a rotting

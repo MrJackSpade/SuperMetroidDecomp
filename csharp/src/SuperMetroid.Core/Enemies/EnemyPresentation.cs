@@ -99,9 +99,9 @@ internal sealed class EnemyPresentation
     /// <summary>The rot step each region Mother Brain's rotting corpse uploads shows (#1392).</summary>
     internal CorpseRotUploads RotUploads { get; } = new();
 
-    /// <summary>Records that a rotting corpse shows <paramref name="region"/> of its characters as rot step <paramref name="step"/> left them (#1406).</summary>
-    internal void ShowRot(CharacterRegion region, int step) =>
-        RotUploads.Show(Ensure.NotNull(region).FirstByte, region.ByteCount, step, ObjCharacters.Recorded);
+    /// <summary>Records that Mother Brain's corpse shows its row <paramref name="row"/> as rot step <paramref name="step"/> left it (#1406).</summary>
+    internal void ShowRotRow(int row, int step) =>
+        RotUploads.Show(Sheets.Coverage(LoadedSet).RotRow(row), step, ObjCharacters.Recorded);
 
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
@@ -184,10 +184,11 @@ internal sealed class EnemyPresentation
             return [frame];
         RuntimeCharacterUploadCatalog catalog = Sheets.Uploads;
         IReadOnlyList<RuntimeCharacterUpload> uploads = catalog.Of(LoadedSet);
+        SetCharacterCoverage coverage = Sheets.Coverage(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
             [.. regions.Select(region => RotUploads.TryShowing(region, out int step, out long stamp)
-                    && !ObjCharacters.ShowsNewerOver(region.FirstByte, region.ByteCount, stamp)
-                ? new CharacterRegionContent(region, null, step) : catalog.Showing(ObjCharacters, uploads, region, ArtworkFrames))]));
+                    && !ObjCharacters.NewestFirst.TakeWhile(shown => shown.Stamp > stamp).Any(shown => coverage.Covers(shown.Source, region))
+                ? new CharacterRegionContent(region, null, step) : catalog.Showing(ObjCharacters, uploads, region, ArtworkFrames, coverage))]));
     }
 
     /// <summary>

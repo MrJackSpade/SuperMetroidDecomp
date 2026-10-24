@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
@@ -68,11 +70,14 @@ internal static class UploadedPictureChecks
     /// or each of its <paramref name="layers"/> showing in each region it reads the upload made last over it, or the
     /// set's own characters before any is.
     /// </summary>
-    internal static IReadOnlyList<string> ExpectedPictures(IEnemySheetSource sheets, string frame, IReadOnlyList<CharacterRegion[]> layers,
-        IReadOnlyList<RuntimeCharacterUpload> made) =>
-        layers.Count == 0 ? [frame] : [.. layers.Select((regions, layer) => sheets.Uploads.PictureName(frame, layer,
+    internal static IReadOnlyList<string> ExpectedPictures(IEnemySheetSource sheets, RoomEnemyGraphicsSetDefinition set, string frame,
+        IReadOnlyList<CharacterRegion[]> layers, IReadOnlyList<RuntimeCharacterUpload> made)
+    {
+        SetCharacterCoverage coverage = sheets.Coverage(set);
+        return layers.Count == 0 ? [frame] : [.. layers.Select((regions, layer) => sheets.Uploads.PictureName(frame, layer,
             [.. regions.Select(region => new CharacterRegionContent(region,
-                made.LastOrDefault(upload => RuntimeCharacterUploadCatalog.Over([upload], region).Any())))]))];
+                made.LastOrDefault(upload => coverage.Covers(upload.Source, region))))]))];
+    }
 
     /// <summary>Asserts <paramref name="drawn"/> are exactly <paramref name="sheet"/>'s pictures named <paramref name="expected"/>, in order.</summary>
     internal static void AssertDrawnPictures(SpriteSheet sheet, IReadOnlyList<string> expected, ImmutableArray<SpriteDraw> drawn, string message)
@@ -92,8 +97,11 @@ internal static class UploadedPictureChecks
     internal static void AssertRegionsFollowUploads(SuperMetroidRuntime runtime, IReadOnlyList<RuntimeCharacterUpload> uploads, string message)
     {
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        IReadOnlyList<RuntimeCharacterUpload> setUploads = sheets.Uploads.Of(runtime.Enemies.GraphicsSet.LoadedSet);
-        IReadOnlyList<CharacterRegion> regions = RuntimeCharacterUploadCatalogConstants.Regions(setUploads);
+        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
+        IReadOnlyList<RuntimeCharacterUpload> setUploads = sheets.Uploads.Of(set);
+        SetCharacterCoverage coverage = sheets.Coverage(set);
+        SetRegions ranges = InstalledSetRegions.Of(set);
+        IReadOnlyList<CharacterRegion> regions = [.. coverage.Regions.Where(region => setUploads.Any(upload => coverage.Covers(upload.Source, region)))];
         AssertTrue(regions.Count > 0, $"{message}: the loaded set's encounter uploads over its characters");
         byte[] loaded = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters).Characters.ToArray();
         var made = new List<RuntimeCharacterUpload>();
@@ -107,13 +115,14 @@ internal static class UploadedPictureChecks
             ReadOnlySpan<byte> live = runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters).Characters;
             foreach (CharacterRegion region in regions)
             {
-                RuntimeCharacterUpload? expected = made.LastOrDefault(upload => RuntimeCharacterUploadCatalog.Over([upload], region).Any());
-                AssertEqual(expected, sheets.Uploads.Showing(runtime.EnemySession.ObjCharacters, setUploads, region, new SuperMetroid.Core.Assets.ArtworkFrameSelections()).Upload,
-                    $"{message}: after {step} uploads the draw selects the upload made last over table byte {region.FirstByte:X4}");
-                ReadOnlySpan<byte> composed = expected is null ? loaded.AsSpan(region.FirstByte, region.ByteCount)
-                    : expected.Source.Resolve(runtime.Artwork).Span.Slice(region.FirstByte - expected.FirstByte, region.ByteCount);
-                AssertTrue(live.Slice(region.FirstByte, region.ByteCount).SequenceEqual(composed),
-                    $"{message}: after {step} uploads the live characters at table byte {region.FirstByte:X4} are those its picture composes from");
+                RuntimeCharacterUpload? expected = made.LastOrDefault(upload => coverage.Covers(upload.Source, region));
+                AssertEqual(expected, sheets.Uploads.Showing(runtime.EnemySession.ObjCharacters, setUploads, region, new SuperMetroid.Core.Assets.ArtworkFrameSelections(), coverage).Upload,
+                    $"{message}: after {step} uploads the draw selects the upload made last over region {region.Name}");
+                CharacterRange range = ranges.RangeOf(region);
+                ReadOnlySpan<byte> composed = expected is null ? loaded.AsSpan(range.FirstByte, range.ByteCount)
+                    : expected.Source.Resolve(runtime.Artwork).Span.Slice(range.FirstByte - expected.FirstByte, range.ByteCount);
+                AssertTrue(live.Slice(range.FirstByte, range.ByteCount).SequenceEqual(composed),
+                    $"{message}: after {step} uploads the live characters of region {region.Name} are those its picture composes from");
             }
         }
     }

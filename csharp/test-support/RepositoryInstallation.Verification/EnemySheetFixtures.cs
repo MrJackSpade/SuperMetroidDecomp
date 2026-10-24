@@ -60,6 +60,10 @@ internal static class EnemySheetFixtures
         public RuntimeCharacterUploadCatalog Uploads => SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog;
 
         /// <inheritdoc/>
+        public SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>
+            installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set) ? installed.Coverage(set) : sets.GetValue(set, Compose).Coverage;
+
+        /// <inheritdoc/>
         public IReadOnlyList<CharacterRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetDefinitions.DrawnUnder.Contains(set))
@@ -104,24 +108,24 @@ internal static class EnemySheetFixtures
             var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
             var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>>();
             var rotPictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>>();
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures,
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
             {
                 enemies[enemy] = Load(sources, $"{enemy}-{owner}");
-                pictures[enemy] = framePictures;
+                pictures[enemy] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, setSources.Regions);
                 rotPictures[enemy] = frameRots;
             }
             var spawned = new Dictionary<int, SpawnedObjectSheet>();
             var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>>();
             var spawnedRotPictures = new Dictionary<int, IReadOnlyDictionary<string, string>>();
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures,
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
                 spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"), plan.Palette);
-                spawnedPictures[plan.TileBase] = framePictures;
+                spawnedPictures[plan.TileBase] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, setSources.Regions);
                 spawnedRotPictures[plan.TileBase] = frameRots;
             }
-            return new ComposedSet(enemies, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures);
+            return new ComposedSet(enemies, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures, setSources.Regions.Coverage(set));
         }
 
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
@@ -142,10 +146,11 @@ internal static class EnemySheetFixtures
     /// <param name="SpawnedPictures">The same for each spawned-object sheet, by tile base.</param>
     /// <param name="RotPictures">Each enemy sheet's frames drawn over a rotting corpse's rows, and the kind of corpse each shows.</param>
     /// <param name="SpawnedRotPictures">The same for each spawned-object sheet, by tile base.</param>
+    /// <param name="Coverage">What covers each region of the set's characters.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies,
         IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CharacterRegion[][]>> Pictures,
         IReadOnlyDictionary<int, IReadOnlyDictionary<string, CharacterRegion[][]>> SpawnedPictures,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>> RotPictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures);
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures, SetCharacterCoverage Coverage);
 }

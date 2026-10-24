@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>One spawned-object sheet in the enemy sheet manifest (#1392).</summary>
-public sealed record SpawnedObjectSheetDocument
+internal sealed record SpawnedObjectSheetDocument
 {
     /// <summary>The installed sheet name.</summary>
     public required string Sheet { get; init; }

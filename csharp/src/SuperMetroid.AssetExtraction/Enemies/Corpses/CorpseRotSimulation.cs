@@ -165,7 +165,7 @@ internal sealed class CorpseRotSimulation
             throw new InvalidDataException($"Installed {MotherBrainCorpseArtworkDefinitions.FileName} holds {atlas.Characters.Length} bytes, not {MotherBrainCorpseArtworkDefinitions.ByteCount}.");
         return Batch("MotherBrain", null, [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
                 new CorpseRotRow(row.Row, EnemyStagingDefinitions.RottingHeapNativeAddress + row.RottingOffset, row.ByteCount,
-                    MotherBrainCharacterUploads.RotRegion(row).FirstByte))],
+                    row.FirstCharacter * SuperMetroid.Core.Assets.SpriteArtwork.CharacterByteCount))],
             new EnemyStagingSurfaces().MotherBrainRotTable, CorpseStaging.MotherBrain(atlas.Characters.Span), CorpseRowGeometry.MotherBrain,
             populated: 1, uploadsLastStep: false);
     }

@@ -1,3 +1,7 @@
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -15,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal sealed class SetRegions
 {
     /// <summary>Each region a rotting corpse uploads a row over, with the corpse and the row.</summary>
-    private readonly Dictionary<CharacterRegion, CorpseRegion> corpseRows = [];
+    private readonly Dictionary<CharacterRange, CorpseRegion> corpseRows = [];
 
     /// <summary>
     /// The uploads the set's encounters make and the corpses that rot in its rooms: the regions both divide the characters
@@ -33,25 +37,67 @@ internal sealed class SetRegions
         }
         int[] bounds = [.. uploads.SelectMany(upload => new[] { upload.FirstByte, upload.FirstByte + upload.ByteCount })
             .Concat(rows.SelectMany(row => new[] { row.Row.FirstByte, row.Row.FirstByte + row.Row.ByteCount })).Distinct().Order()];
-        var regions = new List<CharacterRegion>();
+        var regions = new List<CharacterRange>();
         for (int index = 0; index + 1 < bounds.Length; index++)
         {
-            var region = new CharacterRegion(bounds[index], bounds[index + 1] - bounds[index]);
+            var region = new CharacterRange(bounds[index], bounds[index + 1] - bounds[index]);
             CorpseRegion? row = rows.FirstOrDefault(row => row.Row.FirstByte <= region.FirstByte
                 && region.FirstByte + region.ByteCount <= row.Row.FirstByte + row.Row.ByteCount);
             if (row is not null)
                 corpseRows.Add(region, row);
-            if (row is not null || RuntimeCharacterUploadCatalog.Over(uploads, region).Any())
+            if (row is not null || CharacterRange.Over(uploads, region).Any())
                 regions.Add(region);
         }
         Regions = regions;
+        for (int ordinal = 0; ordinal < regions.Count; ordinal++)
+            named.Add(regions[ordinal], new CharacterRegion(ordinal, $"{regions[ordinal].FirstByte:X4}"));
     }
 
     /// <summary>The uploads the set's encounters make.</summary>
     internal IReadOnlyList<RuntimeCharacterUpload> Uploads { get; }
 
-    /// <summary>The regions the uploads and the corpses' rows divide the characters into.</summary>
-    internal IReadOnlyList<CharacterRegion> Regions { get; }
+    /// <summary>The ranges the uploads and the corpses' rows divide the characters into.</summary>
+    internal IReadOnlyList<CharacterRange> Regions { get; }
+
+    /// <summary>Each range's region, as Core names it: by its ordinal among the set's ranges, and the name its pictures spell it by.</summary>
+    private readonly Dictionary<CharacterRange, CharacterRegion> named = [];
+
+    /// <summary>The region <paramref name="range"/> is, as Core names it.</summary>
+    /// <exception cref="InvalidDataException">The range is not one of the set's regions.</exception>
+    internal CharacterRegion RegionOf(CharacterRange range) => named.TryGetValue(Ensure.NotNull(range), out CharacterRegion? region) ? region
+        : throw new InvalidDataException($"Table bytes {range.FirstByte}+{range.ByteCount} are not a region of the set's characters.");
+
+    /// <summary>The range region <paramref name="region"/> spans.</summary>
+    internal CharacterRange RangeOf(CharacterRegion region) => Regions[Ensure.NotNull(region).Ordinal];
+
+    /// <summary>
+    /// What covers each of the set's regions (#1406): each of its encounters' uploads, each entry of the set's own load and
+    /// the standard sprites, by the bytes each shares with a region, as a room's characters show the last of them over it;
+    /// and each of Mother Brain's corpse rows, by the regions it spans.
+    /// </summary>
+    internal SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set)
+    {
+        Ensure.NotNull(set);
+        var bySource = new Dictionary<ObjCharacterSource, CharacterRegion[]>();
+        void Add(ObjCharacterSource source, int firstByte, int byteCount)
+        {
+            CharacterRegion[] covered = [.. Regions.Where(range => range.Overlaps(firstByte, byteCount)).Select(RegionOf)];
+            bySource[source] = bySource.TryGetValue(source, out CharacterRegion[]? earlier) ? [.. earlier.Union(covered)] : covered;
+        }
+        foreach (RuntimeCharacterUpload upload in Uploads)
+            Add(upload.Source, upload.FirstByte, upload.ByteCount);
+        foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, set))
+            Add(new TransferObjCharacters(entry.Definition.TileDataAddress, entry.TileByteCount),
+                EnemyGraphicsSet.EnemyTileAreaFirstByte + entry.StagingOffset, entry.TileByteCount);
+        Add(new AssetObjCharacters(VramAssetId.StandardObjectTiles), 0, StandardObjectArtworkFormat.ByteCount);
+        CharacterRegion[][] rotRows = corpseRows.Count == 0 ? [] : [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
+            Regions.Where(range => range.FirstByte >= row.FirstCharacter * CharacterBytes
+                && range.FirstByte + range.ByteCount <= row.FirstCharacter * CharacterBytes + row.ByteCount).Select(RegionOf).ToArray())];
+        return new SetCharacterCoverage([.. Regions.Select(RegionOf)], bySource, rotRows);
+    }
+
+    /// <summary>The bytes one four-bit character holds.</summary>
+    private const int CharacterBytes = 32;
 
     /// <summary>
     /// What <paramref name="regions"/> can show together: each upload or the set's own characters in each region an
@@ -60,13 +106,13 @@ internal sealed class SetRegions
     /// encounters left there. Only a corpse's own frames show its rot, so unless <paramref name="showsRot"/> a corpse's
     /// rows show only what the encounters left there.
     /// </summary>
-    internal IEnumerable<IReadOnlyList<CharacterRegionContent>> Contents(IReadOnlyList<CharacterRegion> regions, bool showsRot)
+    internal IEnumerable<IReadOnlyList<CharacterRegionContent>> Contents(IReadOnlyList<CharacterRange> regions, bool showsRot)
     {
         Ensure.NotNull(regions);
-        IEnumerable<Dictionary<CharacterRegion, CharacterRegionContent>> combinations = [[]];
-        foreach (CharacterRegion encounter in regions.Where(region => !corpseRows.ContainsKey(region)))
+        IEnumerable<Dictionary<CharacterRange, CharacterRegionContent>> combinations = [[]];
+        foreach (CharacterRange encounter in regions.Where(region => !corpseRows.ContainsKey(region)))
             combinations = Combine(combinations, Encountered([encounter]));
-        foreach (IGrouping<CorpseRotSimulation, CharacterRegion> corpse in regions.Where(corpseRows.ContainsKey)
+        foreach (IGrouping<CorpseRotSimulation, CharacterRange> corpse in regions.Where(corpseRows.ContainsKey)
                      .GroupBy(region => corpseRows[region].Corpse))
             combinations = Combine(combinations, Corpse(corpse.Key, [.. corpse], showsRot));
         return combinations.Select(combination => (IReadOnlyList<CharacterRegionContent>)[.. regions.Select(region => combination[region])]);
@@ -76,7 +122,7 @@ internal sealed class SetRegions
     /// The names of the pictures of <paramref name="frame"/>: the frame whole once when it has no
     /// <paramref name="layers"/>, else each layer once for each content <see cref="Contents"/> gives its regions.
     /// </summary>
-    internal IEnumerable<string> PictureNames(string frame, IReadOnlyList<CharacterRegion[]> layers, bool showsRot) =>
+    internal IEnumerable<string> PictureNames(string frame, IReadOnlyList<CharacterRange[]> layers, bool showsRot) =>
         Ensure.NotNull(layers).Count == 0 ? [frame]
             : layers.SelectMany((regions, layer) => Contents(regions, showsRot)
                 .Select(contents => SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.PictureName(frame, layer, contents)));
@@ -86,46 +132,56 @@ internal sealed class SetRegions
     internal ReadOnlySpan<byte> RotBytes(CharacterRegionContent content)
     {
         Ensure.NotNull(content);
-        CorpseRegion corpse = corpseRows[content.Region];
+        CharacterRange range = RangeOf(content.Region);
+        CorpseRegion corpse = corpseRows[range];
         return corpse.Corpse.RowBytes(corpse.Row, content.RotStep ?? throw new InvalidOperationException(
-                $"The region at table byte {content.Region.FirstByte} shows no rot step."))
-            .Slice(content.Region.FirstByte - corpse.Row.FirstByte, content.Region.ByteCount);
+                $"The region at table byte {range.FirstByte} shows no rot step."))
+            .Slice(range.FirstByte - corpse.Row.FirstByte, range.ByteCount);
     }
 
     /// <summary>What the encounters' uploads can leave <paramref name="regions"/> showing, by the cartesian product.</summary>
-    private IEnumerable<IReadOnlyList<CharacterRegionContent>> Encountered(IReadOnlyList<CharacterRegion> regions) =>
-        RuntimeCharacterUploadCatalog.Contents(regions, Uploads);
+    private IEnumerable<IReadOnlyList<CharacterRegionContent>> Encountered(IReadOnlyList<CharacterRange> regions)
+    {
+        IEnumerable<IReadOnlyList<CharacterRegionContent>> combinations = [[]];
+        foreach (CharacterRange range in regions)
+        {
+            CharacterRegion region = RegionOf(range);
+            CharacterRegionContent[] contents = [new(region, null), .. CharacterRange.Over(Uploads, range).Select(upload => new CharacterRegionContent(region, upload))];
+            combinations = [.. combinations.SelectMany(earlier => contents.Select(content => (IReadOnlyList<CharacterRegionContent>)[.. earlier, content]))];
+        }
+        return combinations;
+    }
 
     /// <summary>
     /// What a corpse's <paramref name="regions"/> can show together: for each state its rows can show together, a rot
     /// step in each region of a row it uploaded, and what the encounters left in each of a row it has not.
     /// </summary>
-    private IEnumerable<IReadOnlyList<CharacterRegionContent>> Corpse(CorpseRotSimulation corpse, CharacterRegion[] regions, bool showsRot)
+    private IEnumerable<IReadOnlyList<CharacterRegionContent>> Corpse(CorpseRotSimulation corpse, CharacterRange[] regions, bool showsRot)
     {
         CorpseRotRow[] rows = [.. regions.Select(region => corpseRows[region].Row).Distinct()];
         IEnumerable<int?[]> states = showsRot ? corpse.Shown(rows) : [new int?[rows.Length]];
         foreach (int?[] state in states)
         {
-            CharacterRegion[] unrotted = [.. regions.Where(region => state[Array.IndexOf(rows, corpseRows[region].Row)] is null)];
+            CharacterRange[] unrotted = [.. regions.Where(region => state[Array.IndexOf(rows, corpseRows[region].Row)] is null)];
             foreach (IReadOnlyList<CharacterRegionContent> encountered in Encountered(unrotted))
             {
                 yield return [.. regions.Select(region => state[Array.IndexOf(rows, corpseRows[region].Row)] is int step
-                    ? new CharacterRegionContent(region, null, step)
-                    : encountered.Single(content => content.Region == region))];
+                    ? new CharacterRegionContent(RegionOf(region), null, step)
+                    : encountered.Single(content => content.Region == RegionOf(region)))];
             }
         }
     }
 
     /// <summary>Every combination of an earlier one and one of <paramref name="contents"/>.</summary>
-    private static IEnumerable<Dictionary<CharacterRegion, CharacterRegionContent>> Combine(
-        IEnumerable<Dictionary<CharacterRegion, CharacterRegionContent>> combinations, IEnumerable<IReadOnlyList<CharacterRegionContent>> contents)
+    private IEnumerable<Dictionary<CharacterRange, CharacterRegionContent>> Combine(
+        IEnumerable<Dictionary<CharacterRange, CharacterRegionContent>> combinations, IEnumerable<IReadOnlyList<CharacterRegionContent>> contents)
     {
         IReadOnlyList<CharacterRegionContent>[] shown = [.. contents];
         return [.. combinations.SelectMany(earlier => shown.Select(content =>
         {
-            var combined = new Dictionary<CharacterRegion, CharacterRegionContent>(earlier);
+            var combined = new Dictionary<CharacterRange, CharacterRegionContent>(earlier);
             foreach (CharacterRegionContent region in content)
-                combined.Add(region.Region, region);
+                combined.Add(RangeOf(region.Region), region);
             return combined;
         }))];
     }

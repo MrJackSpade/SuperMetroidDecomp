@@ -40,8 +40,8 @@ internal static class EnemySheetComposer
         var perEnemy = new Dictionary<EnemyDefinitionId, int>();
         var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
         var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
-        var pictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>>(StringComparer.Ordinal);
-        var spawnedPictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>>(StringComparer.Ordinal);
+        var pictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>>(StringComparer.Ordinal);
+        var spawnedPictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>>(StringComparer.Ordinal);
         var rotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
         var spawnedRotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
         var perBase = new Dictionary<int, int>();
@@ -49,9 +49,9 @@ internal static class EnemySheetComposer
         {
             GraphicsSetSheetSources setSources = Sources(inputs, set);
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
-            var memberPictures = new Dictionary<string, Dictionary<string, CharacterRegion[][]>>(StringComparer.Ordinal);
+            var memberPictures = new Dictionary<string, Dictionary<string, CharacterRange[][]>>(StringComparer.Ordinal);
             var memberRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures,
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
             {
                 ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
@@ -69,7 +69,7 @@ internal static class EnemySheetComposer
                     throw new InvalidDataException($"Enemy graphics set {set.Name} colours {enemy} two ways.");
                 members[enemy.ToString()] = name;
                 if (framePictures.Count > 0)
-                    memberPictures[enemy.ToString()] = new Dictionary<string, CharacterRegion[][]>(framePictures, StringComparer.Ordinal);
+                    memberPictures[enemy.ToString()] = new Dictionary<string, CharacterRange[][]>(framePictures, StringComparer.Ordinal);
                 if (frameRots.Count > 0)
                     memberRotPictures[enemy.ToString()] = new Dictionary<string, string>(frameRots, StringComparer.Ordinal);
             }
@@ -79,9 +79,9 @@ internal static class EnemySheetComposer
             if (memberRotPictures.Count > 0)
                 rotPictures.Add(set.Name, memberRotPictures);
             var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
-            var basePictures = new Dictionary<string, Dictionary<string, CharacterRegion[][]>>(StringComparer.Ordinal);
+            var basePictures = new Dictionary<string, Dictionary<string, CharacterRange[][]>>(StringComparer.Ordinal);
             var baseRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRegion[][]> framePictures,
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
                 ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
@@ -103,7 +103,7 @@ internal static class EnemySheetComposer
                 });
                 if (framePictures.Count > 0)
                     basePictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
-                        new Dictionary<string, CharacterRegion[][]>(framePictures, StringComparer.Ordinal);
+                        new Dictionary<string, CharacterRange[][]>(framePictures, StringComparer.Ordinal);
                 if (frameRots.Count > 0)
                     baseRotPictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
                         new Dictionary<string, string>(frameRots, StringComparer.Ordinal);
@@ -133,7 +133,7 @@ internal static class EnemySheetComposer
         LoadedGraphicsSet loaded = Load(inputs, set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
             [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn).Select(plan =>
-                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours))]);
+                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours))], loaded.Characters.RegionSet);
     }
 
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>
@@ -147,7 +147,7 @@ internal static class EnemySheetComposer
                 continue;
             EnemyGraphicsIndexes indexes = graphics.DrawIndexes(enemy);
             int paletteBits = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
-            var pictures = new Dictionary<string, CharacterRegion[][]>(StringComparer.Ordinal);
+            var pictures = new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
             foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileIndex), loaded.Characters,

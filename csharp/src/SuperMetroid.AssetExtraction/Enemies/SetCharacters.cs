@@ -59,7 +59,10 @@ internal sealed class SetCharacters
     internal SpriteArtwork Loaded { get; }
 
     /// <summary>The regions the uploads and the corpses' rows divide the characters into.</summary>
-    internal IReadOnlyList<CharacterRegion> Regions => regions.Regions;
+    internal IReadOnlyList<CharacterRange> Regions => regions.Regions;
+
+    /// <summary>The set's regions, which name them by ordinal and know what covers each.</summary>
+    internal SetRegions RegionSet => regions;
 
     /// <summary>
     /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame whole when it is drawn over no
@@ -80,17 +83,17 @@ internal sealed class SetCharacters
         if (showsRot)
         {
             CorpseRotSimulation[] rotting = [.. corpses.Where(corpse => frame.Parts.Any(part =>
-                corpse.Rows.Any(row => DrawsOver(part, new CharacterRegion(row.FirstByte, row.ByteCount)))))];
+                corpse.Rows.Any(row => DrawsOver(part, new CharacterRange(row.FirstByte, row.ByteCount)))))];
             if (rotting.Length > 1)
                 throw new InvalidDataException($"Frame {name} reads the rows of {string.Join(" and ", rotting.Select(corpse => corpse.Flesh))}.");
             if (rotting.Length == 1)
                 return RotPictures(name, frame, rotting[0]);
         }
-        CharacterRegion[][] read = [.. frame.Parts.Select(part => Regions.Where(region => DrawsOver(part, region)).ToArray())];
+        CharacterRange[][] read = [.. frame.Parts.Select(part => Regions.Where(region => DrawsOver(part, region)).ToArray())];
         if (read.All(regions => regions.Length == 0))
             return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null);
         var sources = new List<SheetFrameSource>();
-        var layers = new List<CharacterRegion[]>();
+        var layers = new List<CharacterRange[]>();
         int first = 0;
         while (first < read.Length)
         {
@@ -98,7 +101,7 @@ internal sealed class SetCharacters
             while (end < read.Length && read[end].SequenceEqual(read[first]))
                 end++;
             int layer = layers.Count;
-            CharacterRegion[] layerRegions = read[first];
+            CharacterRange[] layerRegions = read[first];
             var parts = new SpriteFrame($"{frame.Name}#{layer}", frame.Parts[first..end]);
             sources.AddRange(regions.Contents(layerRegions, showsRot).Select(contents => new SheetFrameSource(
                 SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.PictureName(name, layer, contents), parts, Page(contents))));
@@ -134,11 +137,11 @@ internal sealed class SetCharacters
     }
 
     /// <summary>Whether <paramref name="row"/> shares a byte with <paramref name="region"/>.</summary>
-    private static bool Overlaps(CorpseRotRow row, CharacterRegion region) =>
+    private static bool Overlaps(CorpseRotRow row, CharacterRange region) =>
         row.FirstByte < region.FirstByte + region.ByteCount && region.FirstByte < row.FirstByte + row.ByteCount;
 
     /// <summary>Whether <paramref name="part"/> reads a character in <paramref name="region"/>.</summary>
-    private static bool DrawsOver(SpriteFramePart part, CharacterRegion region)
+    private static bool DrawsOver(SpriteFramePart part, CharacterRange region)
     {
         for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
         {
@@ -163,18 +166,19 @@ internal sealed class SetCharacters
         byte[] shown = [.. table];
         foreach (CharacterRegionContent content in contents)
         {
+            CharacterRange range = regions.RangeOf(content.Region);
             if (content.RotStep is not null)
             {
-                regions.RotBytes(content).CopyTo(shown.AsSpan(content.Region.FirstByte));
+                regions.RotBytes(content).CopyTo(shown.AsSpan(range.FirstByte));
                 continue;
             }
             if (content.Upload is not { } upload)
                 continue;
             ReadOnlySpan<byte> bytes = upload.Source.Resolve(resolver).Span;
-            int offset = content.Region.FirstByte - upload.FirstByte;
-            if (bytes.Length < offset + content.Region.ByteCount)
+            int offset = range.FirstByte - upload.FirstByte;
+            if (bytes.Length < offset + range.ByteCount)
                 throw new InvalidDataException($"{upload.Source} holds {bytes.Length} bytes; its upload shows {upload.ByteCount}.");
-            bytes.Slice(offset, content.Region.ByteCount).CopyTo(shown.AsSpan(content.Region.FirstByte));
+            bytes.Slice(offset, range.ByteCount).CopyTo(shown.AsSpan(range.FirstByte));
         }
         page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), shown);
         pages.Add(key, page);
@@ -187,4 +191,4 @@ internal sealed class SetCharacters
 /// <param name="Sources">Each picture's composition.</param>
 /// <param name="Layers">The frame's layers, front first, each with the uploaded regions it reads; none when it is drawn whole.</param>
 /// <param name="RotCorpse">The kind of corpse whose rot the frame shows, which names its pictures (#1406); none when it shows no rot.</param>
-internal sealed record FramePictures(string Name, IReadOnlyList<SheetFrameSource> Sources, CharacterRegion[][] Layers, string? RotCorpse);
+internal sealed record FramePictures(string Name, IReadOnlyList<SheetFrameSource> Sources, CharacterRange[][] Layers, string? RotCorpse);

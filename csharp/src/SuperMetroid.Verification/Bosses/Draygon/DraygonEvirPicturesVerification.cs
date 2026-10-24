@@ -59,8 +59,8 @@ internal static class DraygonEvirPicturesVerification
         IReadOnlyList<CharacterRegion[]> layers = sheets.SpawnedLayers(set, tileBase, frame);
         AssertTrue(layers.Count > 0, $"the Evir's frame {frame} is drawn over characters Draygon's opening uploads");
         SpriteSheet sheet = sheets.Spawned(set, tileBase).Sheet;
-        IReadOnlyList<string> setPictures = UploadedPictureChecks.ExpectedPictures(sheets, frame, layers, []);
-        IReadOnlyList<string> evirPictures = UploadedPictureChecks.ExpectedPictures(sheets, frame, layers, [PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles)]);
+        IReadOnlyList<string> setPictures = UploadedPictureChecks.ExpectedPictures(sheets, set, frame, layers, []);
+        IReadOnlyList<string> evirPictures = UploadedPictureChecks.ExpectedPictures(sheets, set, frame, layers, [PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles)]);
 
         UploadedPictureChecks.AssertDrawnPictures(sheet, setPictures, AssertDrawnLikeParts(runtime, evir, "before the opening upload"),
             "an Evir drawn before the opening upload shows the pictures of the set's own characters");

@@ -34,8 +34,8 @@ internal sealed class MotherBrainEncounter
     /// </summary>
     internal void ShowCorpseRotStep(int step)
     {
-        foreach (MotherBrainCorpseRotRow row in MotherBrainCorpseArtworkDefinitions.RotRows)
-            _presentation.ShowRot(MotherBrainCharacterUploads.RotRegion(row), step);
+        for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RotRows.Count; row++)
+            _presentation.ShowRotRow(row, step);
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

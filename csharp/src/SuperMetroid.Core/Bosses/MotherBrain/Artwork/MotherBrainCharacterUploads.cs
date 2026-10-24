@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainCharacterUploads
 {
-    /// <summary>The bytes one sprite character holds.</summary>
-    private const int CharacterBytes = 32;
-
     /// <summary>Every page's artwork, in the order <see cref="MotherBrainSpritePage.All"/> lists the pages, which the catalogue names them by.</summary>
     internal static IReadOnlyList<ObjCharacterSource> All { get; } = [.. MotherBrainSpritePage.All.Select(Of)];
 
@@ -29,9 +26,6 @@ internal static class MotherBrainCharacterUploads
         MotherBrainSpritePageSheet.EscapeText => new MotherBrainEscapeTextCharacters(page.Page),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {(int)page.Sheet}."),
     };
-
-    /// <summary>The characters corpse row <paramref name="row"/>'s rotting part shows in.</summary>
-    internal static CharacterRegion RotRegion(MotherBrainCorpseRotRow row) => new(row.FirstCharacter * CharacterBytes, row.ByteCount);
 
     /// <summary>Page <paramref name="page"/> of special sheet <paramref name="sheet"/>, by its place in <see cref="MotherBrainSpecialSpriteArtworkDefinitions.All"/>.</summary>
     private static MotherBrainSpecialSpriteCharacters Special(int sheet, int page) =>

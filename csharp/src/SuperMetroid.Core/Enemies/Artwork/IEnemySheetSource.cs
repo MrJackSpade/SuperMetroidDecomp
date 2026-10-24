@@ -16,6 +16,9 @@ public interface IEnemySheetSource
     /// <summary>The uploads each encounter makes over the characters, whose pictures the sheets hold.</summary>
     RuntimeCharacterUploadCatalog Uploads { get; }
 
+    /// <summary>What covers each region of graphics set <paramref name="set"/>'s characters (#1406).</summary>
+    SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set);
+
     /// <summary>
     /// The layers frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set
     /// <paramref name="set"/> draws as, front first, each with the regions it reads whose characters the set's encounters

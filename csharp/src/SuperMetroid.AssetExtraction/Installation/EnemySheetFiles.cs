@@ -57,6 +57,7 @@ public static class EnemySheetFiles
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
         var pictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>();
         var spawnedPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>>();
+        var coverage = new Dictionary<string, SetCharacterCoverage>(StringComparer.Ordinal);
         var rotPictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>>();
         var spawnedRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
@@ -71,21 +72,23 @@ public static class EnemySheetFiles
             // The corpses that rot in the set's rooms are pictured for the rot steps the extraction plays from their art.
             IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(artwork.Value.Enemies, artwork.Value.Bosses, drawn);
             setCorpses[set] = [.. corpses.Where(corpse => corpse.Kind is not null)];
-            SetRegions regions = setRegions[set] = new SetRegions(SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(RoomEnemyGraphicsSetDefinitions.DrawnUnder
-                .FirstOrDefault(definition => definition.Name == set) ?? throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}.")),
+            RoomEnemyGraphicsSetDefinition definition = RoomEnemyGraphicsSetDefinitions.DrawnUnder
+                .FirstOrDefault(known => known.Name == set) ?? throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}.");
+            SetRegions regions = setRegions[set] = new SetRegions(SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog.Of(definition),
                 [.. corpses.Where(corpse => corpse.Kind is null)]);
+            coverage.Add(set, regions.Coverage(definition));
             foreach ((string enemyName, string name) in members)
             {
                 var enemy = Enum.Parse<EnemyDefinitionId>(enemyName);
                 SpriteSheet sheet = loaded[name];
-                Dictionary<string, CharacterRegion[][]> framePictures = FramePictures(manifest.Pictures, set, enemyName, regions);
+                Dictionary<string, CharacterRange[][]> framePictures = FramePictures(manifest.Pictures, set, enemyName, regions);
                 Dictionary<string, string> frameRots = RotFrames(manifest.RotPictures, set, enemyName, setCorpses[set]);
                 if (!sheet.HoldsExactly(EnemySheetComposer.FrameNames(artwork.Value.Enemies, enemy).SelectMany(frame => PictureNames(frame,
                         regions, framePictures, frameRots, setCorpses[set], CorpseRotSimulation.Rots(enemy)))))
                     throw new InvalidDataException($"Enemy sheet {name} does not hold exactly the pictures of the frames {enemy} shows.");
                 sheets.Add(new EnemySheetKey(set, enemy), sheet);
                 if (framePictures.Count > 0)
-                    pictures.Add(new EnemySheetKey(set, enemy), framePictures);
+                    pictures.Add(new EnemySheetKey(set, enemy), Named(framePictures, regions));
                 if (frameRots.Count > 0)
                     rotPictures.Add(new EnemySheetKey(set, enemy), frameRots);
             }
@@ -102,27 +105,31 @@ public static class EnemySheetFiles
                 EnemyDefinitionId[] spawners = [.. entry.Spawners.Select(name => Enum.TryParse(name, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
                     ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
                 SpriteSheet sheet = loaded[entry.Sheet];
-                Dictionary<string, CharacterRegion[][]> framePictures = FramePictures(manifest.SpawnedPictures, set, baseText, regions);
+                Dictionary<string, CharacterRange[][]> framePictures = FramePictures(manifest.SpawnedPictures, set, baseText, regions);
                 Dictionary<string, string> frameRots = RotFrames(manifest.SpawnedRotPictures, set, baseText, setCorpses[set]);
                 if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(spawners, entry.Anywhere).SelectMany(frame => PictureNames(frame,
                         regions, framePictures, frameRots, setCorpses[set], SpawnedObjectSheetComposer.ShowsRot(frame)))))
                     throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
                 spawned.Add(new SpawnedObjectSheetKey(set, tileBase), new SpawnedObjectSheet(sheet, entry.Palette));
                 if (framePictures.Count > 0)
-                    spawnedPictures.Add(new SpawnedObjectSheetKey(set, tileBase), framePictures);
+                    spawnedPictures.Add(new SpawnedObjectSheetKey(set, tileBase), Named(framePictures, regions));
                 if (frameRots.Count > 0)
                     spawnedRotPictures.Add(new SpawnedObjectSheetKey(set, tileBase), frameRots);
             }
         }
         return new InstalledEnemySheets(sheets, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures,
-            SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog);
+            SuperMetroid.AssetExtraction.Enemies.RuntimeCharacterUploadPlacements.Catalog, coverage);
     }
+
+    /// <summary>Each frame's layers over the regions Core names by ordinal.</summary>
+    internal static IReadOnlyDictionary<string, CharacterRegion[][]> Named(IReadOnlyDictionary<string, CharacterRange[][]> frames, SetRegions regions) =>
+        frames.ToDictionary(entry => entry.Key, entry => entry.Value.Select(layer => layer.Select(regions.RegionOf).ToArray()).ToArray(), StringComparer.Ordinal);
 
     /// <summary>
     /// The names of the pictures a sheet holds of <paramref name="frame"/>: for a frame showing a corpse's rot, the frame
     /// and its picture of each rot the corpse can show (#1406); else its pictures for what its uploaded regions can show.
     /// </summary>
-    private static IEnumerable<string> PictureNames(string frame, SetRegions regions, Dictionary<string, CharacterRegion[][]> framePictures,
+    private static IEnumerable<string> PictureNames(string frame, SetRegions regions, Dictionary<string, CharacterRange[][]> framePictures,
         Dictionary<string, string> frameRots, IReadOnlyList<CorpseRotSimulation> corpses, bool showsRot) =>
         frameRots.TryGetValue(frame, out string? corpse)
             ? corpses.Single(simulation => simulation.Flesh == corpse).PictureNames(frame)
@@ -152,20 +159,20 @@ public static class EnemySheetFiles
     /// each region of which must be one the set's encounters' uploads and corpses' rows divide the characters into.
     /// </summary>
     /// <exception cref="InvalidDataException">A frame has no layer, or a layer names a region the uploads do not make.</exception>
-    private static Dictionary<string, CharacterRegion[][]> FramePictures(
-        Dictionary<string, Dictionary<string, Dictionary<string, CharacterRegion[][]>>> manifest, string set, string owner,
+    private static Dictionary<string, CharacterRange[][]> FramePictures(
+        Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>> manifest, string set, string owner,
         SetRegions setRegions)
     {
-        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, CharacterRegion[][]>>? owners)
-            || !owners.TryGetValue(owner, out Dictionary<string, CharacterRegion[][]>? frames))
-            return new Dictionary<string, CharacterRegion[][]>(StringComparer.Ordinal);
-        IReadOnlyList<CharacterRegion> regions = setRegions.Regions;
-        foreach ((string frame, CharacterRegion[][] layers) in frames)
+        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, CharacterRange[][]>>? owners)
+            || !owners.TryGetValue(owner, out Dictionary<string, CharacterRange[][]>? frames))
+            return new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
+        IReadOnlyList<CharacterRange> regions = setRegions.Regions;
+        foreach ((string frame, CharacterRange[][] layers) in frames)
         {
             if (layers.Length == 0 || layers.Any(layer => layer.Any(region => !regions.Contains(region))))
                 throw new InvalidDataException($"Enemy sheet manifest draws {set} {owner} frame {frame} in layers over regions its encounters do not upload.");
         }
-        return new Dictionary<string, CharacterRegion[][]>(frames, StringComparer.Ordinal);
+        return new Dictionary<string, CharacterRange[][]>(frames, StringComparer.Ordinal);
     }
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>

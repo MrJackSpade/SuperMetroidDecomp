@@ -75,7 +75,7 @@ internal static class GunshipLiftoffPicturesVerification
                 var source = new SpriteSource(SpriteSourceKind.Enemy, part.SlotIndex);
                 ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
                 UploadedPictureChecks.AssertDrawnPictures(sheets.For(set, part.DefinitionId),
-                    UploadedPictureChecks.ExpectedPictures(sheets, name, layers, made), drawn,
+                    UploadedPictureChecks.ExpectedPictures(sheets, set, name, layers, made), drawn,
                     $"after {step} liftoff uploads the ship's {part.DefinitionId}");
 
                 CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(live, source, runtime.EnemySession.TileArtwork?.Spritemaps

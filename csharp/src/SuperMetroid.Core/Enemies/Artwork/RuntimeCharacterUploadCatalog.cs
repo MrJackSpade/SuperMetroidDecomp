@@ -38,31 +38,6 @@ public sealed class RuntimeCharacterUploadCatalog
         [.. Ensure.NotNull(set).Records.Span.SelectToArray(record => record.DefinitionId).Distinct()
             .Where(byEnemy.ContainsKey).SelectMany(enemy => byEnemy[enemy]).Distinct().OrderBy(all.IndexOf)];
 
-    /// <summary>The uploads among <paramref name="uploads"/> that show over <paramref name="region"/> when made.</summary>
-    public static IEnumerable<RuntimeCharacterUpload> Over(IEnumerable<RuntimeCharacterUpload> uploads, CharacterRegion region)
-    {
-        Ensure.NotNull(region);
-        return Ensure.NotNull(uploads).Where(upload =>
-            upload.FirstByte <= region.FirstByte && region.FirstByte + region.ByteCount <= upload.FirstByte + upload.ByteCount);
-    }
-
-    /// <summary>
-    /// Every combination of what <paramref name="regions"/> can show, in a fixed order: in each region, the graphics set's
-    /// own characters or each of <paramref name="uploads"/> that shows over it.
-    /// </summary>
-    public static IEnumerable<IReadOnlyList<CharacterRegionContent>> Contents(IReadOnlyList<CharacterRegion> regions,
-        IReadOnlyList<RuntimeCharacterUpload> uploads)
-    {
-        Ensure.NotNull(uploads);
-        IEnumerable<IReadOnlyList<CharacterRegionContent>> combinations = [[]];
-        foreach (CharacterRegion region in Ensure.NotNull(regions))
-        {
-            CharacterRegionContent[] contents = [new(region, null), .. Over(uploads, region).Select(upload => new CharacterRegionContent(region, upload))];
-            combinations = [.. combinations.SelectMany(earlier => contents.Select(content => (IReadOnlyList<CharacterRegionContent>)[.. earlier, content]))];
-        }
-        return combinations;
-    }
-
     /// <summary>
     /// The name of the picture of layer <paramref name="layer"/> of <paramref name="frame"/> whose regions each show what
     /// <paramref name="shown"/> pairs with it.
@@ -72,7 +47,7 @@ public sealed class RuntimeCharacterUploadCatalog
         ArgumentException.ThrowIfNullOrEmpty(frame);
         Ensure.AtLeastZero(layer);
         return $"{frame}#{layer}" + string.Concat(Ensure.NotNull(shown).Select(content =>
-            $"|{content.Region.FirstByte:X4}={Token(content)}"));
+            $"|{content.Region.Name}={Token(content)}"));
     }
 
     /// <summary>How a picture's name spells what <paramref name="content"/> shows over its region.</summary>
@@ -85,36 +60,38 @@ public sealed class RuntimeCharacterUploadCatalog
 
     /// <summary>
     /// What shows over <paramref name="region"/> now: the frame an animation the set's encounters paint the region with
-    /// shows in <paramref name="frames"/> (#1406); else the upload among <paramref name="setUploads"/> made last over it, or
-    /// none while the graphics set's own characters, which the room load uploaded, show there.
+    /// shows in <paramref name="frames"/> (#1406); else, of the sources <paramref name="coverage"/> says cover it, the upload
+    /// among <paramref name="setUploads"/> shown last, or none while the graphics set's own characters, which the room load
+    /// showed, or the standard sprites show there.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// An upload the set's encounters do not make shows over the region, or an animation shows a frame the set's encounters
-    /// do not paint the region with.
+    /// An upload the set's encounters do not make shows over its characters, or an animation shows a frame the set's
+    /// encounters do not paint the region with.
     /// </exception>
     public CharacterRegionContent Showing(ObjCharacterUploads uploads, IReadOnlyList<RuntimeCharacterUpload> setUploads,
-        CharacterRegion region, ArtworkFrameSelections frames)
+        CharacterRegion region, ArtworkFrameSelections frames, SetCharacterCoverage coverage)
     {
         Ensure.NotNull(uploads);
         Ensure.NotNull(setUploads);
         Ensure.NotNull(region);
         Ensure.NotNull(frames);
-        RuntimeCharacterUpload[] over = [.. Over(setUploads, region)];
+        Ensure.NotNull(coverage);
+        RuntimeCharacterUpload[] over = [.. setUploads.Where(upload => coverage.Covers(upload.Source, region))];
         foreach (RuntimeCharacterUpload upload in over)
         {
             if (upload.Source is not ArtworkFrameCharacters painted || !frames.TryShown(painted.Frame.Animation, out ArtworkFrame shown))
                 continue;
             RuntimeCharacterUpload selected = over.FirstOrDefault(candidate => candidate.Source is ArtworkFrameCharacters frame && frame.Frame == shown)
-                ?? throw new InvalidDataException($"{shown} shows over table byte {region.FirstByte}, which no encounter of this graphics set paints with it.");
+                ?? throw new InvalidDataException($"{shown} shows over region {region.Name}, which no encounter of this graphics set paints with it.");
             return new CharacterRegionContent(region, selected);
         }
-        if (uploads.LastOver(region.FirstByte, region.ByteCount) is not { } last)
-            return new CharacterRegionContent(region, null);
-        RuntimeCharacterUpload? made = setUploads.FirstOrDefault(upload =>
-            upload.Source == last.Source && upload.FirstByte == last.FirstByte && upload.ByteCount == last.ByteCount);
-        if (made is null && all.Any(upload => upload.Source == last.Source && upload.FirstByte == last.FirstByte))
-            throw new InvalidDataException(
-                $"{last.Source}, uploaded at table byte {last.FirstByte} by an encounter of another graphics set, shows over a frame drawn under this one.");
-        return new CharacterRegionContent(region, made);
+        foreach ((ObjCharacterSource source, _) in uploads.NewestFirst)
+        {
+            if (!coverage.Knows(source) && all.Any(upload => upload.Source == source))
+                throw new InvalidDataException($"{source}, uploaded by an encounter of another graphics set, shows over a frame drawn under this one.");
+            if (coverage.Covers(source, region))
+                return new CharacterRegionContent(region, setUploads.FirstOrDefault(upload => upload.Source == source));
+        }
+        return new CharacterRegionContent(region, null);
     }
 }

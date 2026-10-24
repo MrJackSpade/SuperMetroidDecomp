@@ -65,18 +65,13 @@ public sealed class ObjCharacterUploads
         return null;
     }
 
-    /// <summary>
-    /// Whether an upload recorded after the one <paramref name="stamp"/> places shows over any of <paramref name="byteCount"/>
-    /// bytes from <paramref name="firstByte"/>: what a corpse's rot upload made at that stamp shows there no longer shows.
-    /// </summary>
-    public bool ShowsNewerOver(int firstByte, int byteCount, long stamp)
+    /// <summary>The sources recorded, newest first, each with its place among all uploads ever recorded.</summary>
+    public IEnumerable<(ObjCharacterSource Source, long Stamp)> NewestFirst
     {
-        for (int index = 0; index < uploads.Count; index++)
+        get
         {
-            ObjCharacterUpload upload = uploads[index];
-            if (_stamps[index] > stamp && upload.FirstByte < firstByte + byteCount && firstByte < upload.FirstByte + upload.ByteCount)
-                return true;
+            for (int index = uploads.Count - 1; index >= 0; index--)
+                yield return (uploads[index].Source, _stamps[index]);
         }
-        return false;
     }
 }

@@ -26,6 +26,8 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
 
     /// <summary>The same for each set's spawned-object sheets.</summary>
     private readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures;
+    /// <summary>What covers each region of each set's characters, by set name.</summary>
+    private readonly Dictionary<string, SetCharacterCoverage> coverage;
 
     /// <summary>
     /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and tile base, with the regions
@@ -38,8 +40,9 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
         IReadOnlyDictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>> spawnedPictures,
         IReadOnlyDictionary<EnemySheetKey, IReadOnlyDictionary<string, string>> rotPictures,
         IReadOnlyDictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures,
-        RuntimeCharacterUploadCatalog uploads)
+        RuntimeCharacterUploadCatalog uploads, IReadOnlyDictionary<string, SetCharacterCoverage> coverage)
     {
+        this.coverage = new Dictionary<string, SetCharacterCoverage>(Ensure.NotNull(coverage), StringComparer.Ordinal);
         Uploads = Ensure.NotNull(uploads);
         this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));
         this.spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>(Ensure.NotNull(spawned));
@@ -51,6 +54,10 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
 
     /// <inheritdoc/>
     public RuntimeCharacterUploadCatalog Uploads { get; }
+
+    /// <inheritdoc/>
+    public SetCharacterCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>
+        coverage.TryGetValue(Ensure.NotNull(set).Name, out SetCharacterCoverage? covered) ? covered : SetCharacterCoverage.None;
 
     /// <inheritdoc/>
     public string? RotCorpse(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame) =>
@@ -147,8 +154,8 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
                     content.Append("layer", layer.Length);
                     foreach (CharacterRegion region in layer)
                     {
-                        content.Append("region-first", region.FirstByte);
-                        content.Append("region-bytes", region.ByteCount);
+                        content.Append("region", region.Ordinal);
+                        content.Append("region-name", System.Text.Encoding.UTF8.GetBytes(region.Name));
                     }
                 }
             }

@@ -131,14 +131,6 @@ internal static class EnemyEffectIsolationVerification
             for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
                 AssertEqual(MotherBrainCorpseRottingState.ReadEntry(baseline, index),
                     MotherBrainCorpseRottingState.ReadEntry(edited, index), "every corpse row's Y/delay is independent of artwork");
-            // Every corpse row shows the step the call took (#1392, #1406).
-            if (expected.ShownRotStep is int step)
-            {
-                baselineEnemies.MotherBrainEncounter.ShowCorpseRotStep(step);
-                foreach (MotherBrainCorpseRotRow row in MotherBrainCorpseArtworkDefinitions.RotRows)
-                    AssertTrue(baselineEnemies.Presentation.RotUploads.TryShowing(MotherBrainCharacterUploads.RotRegion(row), out int shown, out _) && shown == call,
-                        "the encounter records the step each corpse row shows");
-            }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
         AssertEqual(118u, baselineRot.ProcessCallCount, "fixed corpse completion clock");

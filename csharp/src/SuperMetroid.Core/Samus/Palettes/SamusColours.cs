@@ -112,8 +112,8 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     {
         >= SamusPaletteRomData.Common.SamusObjPaletteStart and < SamusPaletteRomData.Common.SamusObjPaletteStart + SamusColourDefinitions.RowColours
             => new Place(suit, position - SamusPaletteRomData.Common.SamusObjPaletteStart),
-        >= SamusProjectileRomData.Palettes.BeamDestinationIndex and < SamusProjectileRomData.Palettes.BeamDestinationIndex + SamusColourDefinitions.RowColours
-            => new Place(beam, position - SamusProjectileRomData.Palettes.BeamDestinationIndex),
+        >= SamusProjectileRomData.Palettes.BeamFirstColour and < SamusProjectileRomData.Palettes.BeamFirstColour + SamusColourDefinitions.RowColours
+            => new Place(beam, position - SamusProjectileRomData.Palettes.BeamFirstColour),
         _ => null,
     };
 

@@ -190,8 +190,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     internal void RunGunshipTopMain(
         RoomEnemySlot top,
         SamusState? samus,
-        SnesButton newlyPressedControllerInput,
-        VramWriteQueue? vramWriteQueue)
+        SnesButton newlyPressedControllerInput)
     {
         if (top.SlotIndex + 2 >= _slotTable.EnemyCount)
             throw new InvalidDataException("Gunship top is missing its two following component slots.");
@@ -278,7 +277,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 }
                 return;
             case GunshipFunction.LoadLiftoffDustTiles:
-                QueueGunshipTakeoffTiles(top, vramWriteQueue);
+                ShowGunshipTakeoffPage(top);
                 return;
             case GunshipFunction.FireUpEngines:
                 FireUpGunshipEngines(top, samus);
@@ -484,7 +483,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         {
             RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
             Part(top).Function = GunshipFunction.LoadLiftoffDustTiles;
-            Part(top).LiftoffTransferIndex = 0;
+            Part(top).NextLiftoffPage = 0;
             Part(bottom).EscapeVelocity = 0;
             Part(bottom).RumbleFrame = 0;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffStarted;
@@ -523,30 +522,25 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePadClosing, maximumQueued: 6);
     }
 
-    /// <summary>Ports gunship function 17 at <c>$A2:ABC7</c>.</summary>
-    [PpuLayoutBoundary("codec: gunship liftoff transfer records' native VRAM destinations ($A2:ABC7)")]
-    internal void QueueGunshipTakeoffTiles(
-        RoomEnemySlot top,
-        VramWriteQueue? vramWriteQueue)
+    /// <summary>
+    /// Ports gunship function 17 at <c>$A2:ABC7</c> (#1406): shows the next of the five liftoff pages over the OBJ
+    /// characters, one a step, as the cartridge's copy at this update's NMI shows it; after the fifth, the engines fire up.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The page index left its five pages, or the liftoff artwork is not installed.</exception>
+    internal void ShowGunshipTakeoffPage(RoomEnemySlot top)
     {
-        if (vramWriteQueue is null)
-            throw new InvalidOperationException("Gunship takeoff requires the runtime VRAM queue.");
-
-        int transferIndex = Part(top).LiftoffTransferIndex;
-        if ((uint)transferIndex >= GunshipLiftoffTransferDefinitions.Frames.Length)
-            throw new InvalidDataException("Gunship takeoff tile index escaped its five-entry table.");
-        GunshipLiftoffTransferDefinition transfer =
-            GunshipLiftoffTransferDefinitions.Frames[transferIndex];
+        int page = Part(top).NextLiftoffPage;
+        if ((uint)page >= GunshipLiftoffTransferDefinitions.Uploads.Count)
+            throw new InvalidDataException("Gunship takeoff page escaped its five pages.");
         if (_room.Artwork?.GunshipLiftoff is null)
             throw new InvalidDataException("Gunship takeoff requires the installed liftoff artwork.");
-        vramWriteQueue.EnqueueAsset(transfer.Asset,
-            GunshipLiftoffTransferDefinitions.ByteCount, VramDmaDestination.FromNative(transfer.DestinationWord));
+        _room.Session.ObjCharacters.Record(GunshipLiftoffTransferDefinitions.Uploads[page]);
 
-        Part(top).LiftoffTransferIndex = unchecked((ushort)(Part(top).LiftoffTransferIndex + 1));
-        if (Part(top).LiftoffTransferIndex >= GunshipLiftoffTransferDefinitions.Frames.Length)
+        Part(top).NextLiftoffPage = page + 1;
+        if (Part(top).NextLiftoffPage >= GunshipLiftoffTransferDefinitions.Uploads.Count)
         {
             Part(top).Function = GunshipFunction.FireUpEngines;
-            Part(top).LiftoffTransferIndex = 0;
+            Part(top).NextLiftoffPage = 0;
         }
     }
 
@@ -651,8 +645,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RunGunshipTopMain(
             slot,
             frame.Samus,
-            frame.NewlyPressedControllerInput,
-            frame.VramWriteQueue);
+            frame.NewlyPressedControllerInput);
     }
 
     /// <summary>The state of a gunship hull or pad slot.</summary>

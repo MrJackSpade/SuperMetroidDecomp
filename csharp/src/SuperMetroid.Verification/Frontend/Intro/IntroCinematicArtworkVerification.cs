@@ -373,9 +373,9 @@ internal static class IntroCinematicArtworkVerification
                     (IntroVramLayout.CinematicObjectCharacters.Offset * 2)));
                 // The final beam DMA wins over the $C600-$C6FF portion of the fixed
                 // OBJ sheet, including in a freshly constructed cinematic state.
-                nativeVram.AsSpan(BeamTileAtlasDefinitions.DestinationWord * 2,
+                nativeVram.AsSpan(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2,
                     BeamTileAtlasDefinitions.ByteCount).CopyTo(expected.AsSpan(
-                        BeamTileAtlasDefinitions.DestinationWord * 2));
+                        ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         editedState.ShownVram().SequenceEqual(expected),
                     $"edited {name} reaches the exact production VRAM transfer without changing other scene bytes");

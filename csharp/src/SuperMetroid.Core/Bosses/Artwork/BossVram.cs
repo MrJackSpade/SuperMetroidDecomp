@@ -23,14 +23,10 @@ public static class BossVram
             KraidBg3RestoreDma(KraidBg3RestoreQuarterWord(quarter)).Word, characters);
 
     /// <summary>The first word of quarter <paramref name="quarter"/> within the BG3 characters Kraid's death restores.</summary>
-    public static int KraidBg3RestoreQuarterWord(int quarter) => quarter * (KraidBackgroundRomData.StandardBg3TransferBytes / 2);
+    public static int KraidBg3RestoreQuarterWord(int quarter) => quarter * (KraidBackgroundRomData.StandardBg3QuarterBytes / 2);
 
     /// <summary>Destination of Draygon's opening Evir character sheet.</summary>
     public static VramDmaDestination DraygonEvirTilesDma => VramDmaDestination.At(BossVramLayout.DraygonEvirTiles);
-
-    /// <summary>Destination of one Crocomire skeleton chunk <paramref name="wordOffset"/> words into the OBJ characters.</summary>
-    /// <param name="wordOffset">The chunk's word offset from the OBJ character base.</param>
-    public static VramDmaDestination CrocomireSkeletonTilesDma(int wordOffset) => VramDmaDestination.At(BossVramLayout.CrocomireSkeletonTiles, wordOffset);
 
     /// <summary>Queued-DMA destination <paramref name="wordOffset"/> words into the BG3 characters Kraid's death restores.</summary>
     public static VramDmaDestination KraidBg3RestoreDma(int wordOffset) => VramDmaDestination.At(BossVramLayout.KraidBg3Restore, wordOffset);

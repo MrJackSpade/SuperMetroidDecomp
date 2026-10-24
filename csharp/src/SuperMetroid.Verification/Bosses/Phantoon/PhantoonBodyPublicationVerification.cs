@@ -41,7 +41,7 @@ internal static class PhantoonBodyPublicationVerification
         EnemyBg2FrameLookup lookup = ((IEnemyBg2Frames)body.Entity!).FindBg2Frame(frame, runtime.Enemies.Room)
             ?? throw new InvalidOperationException("Phantoon's body frame has installed writes.");
         foreach (EnemyBg2TilemapWrite write in lookup.Writes.Span)
-            write.Tiles.Span.CopyTo(expected.AsSpan(write.DestinationWord));
+            write.Tiles.Span.CopyTo(expected.AsSpan(write.FirstCell));
 
         // Wavy fade-in: the intro wave set up and built once.
         state.Bg2Scroll = new Position16<Bg2Pixels>(40, 0);

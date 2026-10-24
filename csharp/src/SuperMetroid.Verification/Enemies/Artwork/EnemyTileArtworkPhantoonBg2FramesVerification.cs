@@ -66,7 +66,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 EnemyBg2TilemapWrite write = installed.Span[index];
                 AssertEqual(native[index].Destination,
                     checked((ushort)(PhantoonBg2FrameDefinitions.WorkingRamBase +
-                        write.DestinationWord * 2)),
+                        write.FirstCell * 2)),
                     $"Phantoon {frame.Name} write {index} preserves BG2 destination");
                 AssertTrue(write.Tiles.Span.SequenceEqual(native[index].Tiles),
                     $"Phantoon {frame.Name} write {index} preserves native tiles");
@@ -120,7 +120,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertTrue(nativeVram.SequenceEqual(stockVram),
             "installed Phantoon frame draws native BG2 without cartridge reads");
         int changedVramByte = (PhantoonBg2FrameDefinitions.VramBase +
-            editedFrame.Span[0].DestinationWord) * 2;
+            editedFrame.Span[0].FirstCell) * 2;
         AssertEqual((ushort)(originalTile ^ 1),
             BitConverter.ToUInt16(editedVram, changedVramByte),
             "Phantoon BG2 override changes the live rendered tile word");

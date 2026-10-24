@@ -228,7 +228,7 @@ internal static class RoomBlockPicturesVerification
         {
             var image = new EnemyBg2Image(fill);
             foreach (EnemyBg2TilemapWrite write in frame.Value)
-                image.Write(write.DestinationWord, write.Tiles.Span);
+                image.Write(write.FirstCell, write.Tiles.Span);
             return (frame.Key.ToString(), image.Publish().Words);
         });
 

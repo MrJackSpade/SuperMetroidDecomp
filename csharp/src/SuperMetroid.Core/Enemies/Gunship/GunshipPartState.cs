@@ -10,8 +10,8 @@ internal sealed class GunshipPartState
     /// <summary>The function timer word.</summary>
     private int _functionTimerWord;
 
-    /// <summary>The liftoff tile-transfer index word.</summary>
-    private int _liftoffTransferIndexWord;
+    /// <summary>The next liftoff page word.</summary>
+    private int _nextLiftoffPageWord;
 
     /// <summary>The idle-bob phase word.</summary>
     private int _bobPhaseWord;
@@ -29,11 +29,11 @@ internal sealed class GunshipPartState
         internal set => _functionTimerWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>The top hull's next liftoff tile transfer, 0 through the transfer table's last entry.</summary>
-    public int LiftoffTransferIndex
+    /// <summary>The top hull's next liftoff page to show, 0 through the last of the five.</summary>
+    public int NextLiftoffPage
     {
-        get => _liftoffTransferIndexWord;
-        internal set => _liftoffTransferIndexWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get => _nextLiftoffPageWord;
+        internal set => _nextLiftoffPageWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>The top hull's next idle-bob entry, 0 through 3.</summary>
@@ -104,7 +104,7 @@ internal sealed class GunshipPartState
     internal void ClearWithRecord()
     {
         _functionTimerWord = 0;
-        _liftoffTransferIndexWord = 0;
+        _nextLiftoffPageWord = 0;
         _bobPhaseWord = 0;
         _timerWord = 0;
         _heightOrStepWord = 0;

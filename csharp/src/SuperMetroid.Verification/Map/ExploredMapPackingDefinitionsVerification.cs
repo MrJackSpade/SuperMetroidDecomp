@@ -46,7 +46,7 @@ internal static class ExploredMapPackingDefinitionsVerification
                 $"packed map area {area} byte count");
             AssertEqual(Word(
                     ExploredMapPackingDefinitions.NativeDestinationOffsetTable + area * 2),
-                definition.DestinationOffset,
+                definition.SaveOffset,
                 $"packed map area {area} SRAM offset");
             ushort nativeSourcePointer = ExploredMapNativeSourcePointers[area];
             AssertEqual(Word(
@@ -146,7 +146,7 @@ internal static class ExploredMapPackingDefinitionsVerification
                 var a = ExploredMapPackingDefinitions.Area(area, original);
                 var b = ExploredMapPackingDefinitions.Area(area, edited);
                 AssertTrue(a.AreaByteIndexes.SequenceEqual(b.AreaByteIndexes), "editable artwork retains stock occupied byte order");
-                AssertEqual(a.DestinationOffset, b.DestinationOffset, "editable artwork retains packed offset");
+                AssertEqual(a.SaveOffset, b.SaveOffset, "editable artwork retains packed offset");
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[-1], "negative packed index rejected");
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[a.AreaByteIndexes.Count], "packed index end rejected");
             }

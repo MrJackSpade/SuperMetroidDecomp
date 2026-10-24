@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -13,8 +12,6 @@ internal static class CrocomireSkeletonTransferDefinitions
     internal const int ChunkByteCount = 0x0200;
     /// <summary>Total source bytes across the six selected skeleton uploads.</summary>
     internal const int TotalByteCount = ChunkByteCount * FrameCount;
-    /// <summary>VRAM word selected by OBSEL for the skeleton's OBJ tile atlas.</summary>
-    internal const int ObselBaseWord = 0x6000;
     /// <summary>Editable source image containing the extracted skeleton character tiles.</summary>
     internal const string FileName = "crocomire-skeleton-tiles.png";
     /// <summary>First source page at $AD:A600; subsequent pages are contiguous $0200-byte chunks.</summary>
@@ -38,20 +35,18 @@ internal static class CrocomireSkeletonTransferDefinitions
     /// <summary>Calculated six-entry source and VRAM placement sequence in native upload order.</summary>
     internal static CrocomireSkeletonTransferSequence Frames => new(FrameCount);
 
-    /// <summary>The six skeleton uploads over the OBJ characters, in upload order (#1392).</summary>
+    /// <summary>The six skeleton uploads over the OBJ characters, in upload order (#1392, #1406).</summary>
     internal static IReadOnlyList<RuntimeCharacterUpload> Uploads { get; } = [.. Enumerable.Range(0, FrameCount).Select(index =>
-        RuntimeCharacterUpload.To(BossVram.CrocomireSkeletonTilesDma(Frame(index).DestinationOffset), ChunkByteCount,
-            new CrocomireSkeletonChunkCharacters(index)))];
+        new RuntimeCharacterUpload(new CrocomireSkeletonChunkCharacters(index), Frame(index).FirstCharacter * TileByteCount, ChunkByteCount))];
 
-    /// <summary>Computes a contiguous bank-$AD source page and its discontinuous OBJ atlas destination for one upload.</summary>
+    /// <summary>Computes a contiguous bank-$AD source page and the discontinuous OBJ character it begins at for one upload.</summary>
     internal static CrocomireSkeletonTransferDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         int tile = index < FirstRegionRows
             ? FirstAtlasTile + index * TilesPerRow
             : SecondAtlasTile + (index - FirstRegionRows) * TilesPerRow;
-        return new(FirstGraphicsSourceAddress + index * ChunkByteCount,
-            (ushort)(tile * TileByteCount / sizeof(ushort)));
+        return new(FirstGraphicsSourceAddress + index * ChunkByteCount, tile);
     }
 
     /// <summary>Returns false only for the native seventh-entry sentinel.</summary>

@@ -155,7 +155,7 @@ internal static class CrocomireBodyVisualsVerification
             for (int index = 0; index < native.Count; index++)
             {
                 AssertEqual(native[index].DestinationWord,
-                    installed.Span[index].DestinationWord,
+                    installed.Span[index].FirstCell,
                     $"Crocomire BG2 frame $A4:{frame.Pointer:X4} write {index} destination");
                 AssertTrue(native[index].Tiles.SequenceEqual(
                         installed.Span[index].Tiles.Span),

@@ -85,7 +85,7 @@ public static class SamusRenderingRomData
 
 
         /// <summary>Bytes uploaded for the cover's single 4bpp 8x8 character.</summary>
-        public const ushort TileUploadByteCount = 0x20;
+        public const ushort TileByteCount = 0x20;
 
         /// <summary>Number of direction selectors accepted by the native dispatcher.</summary>
         public const int DirectionCount = 10;

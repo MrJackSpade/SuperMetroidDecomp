@@ -37,8 +37,8 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 EnemyRomTablePointersGunship.LiftoffVramDestinationWords + index * 2);
             AssertEqual(0x940000 | source, transfer.SourceAddress,
                 $"gunship frame {index} compiled source matches the cartridge");
-            AssertEqual(destination, transfer.DestinationWord,
-                $"gunship frame {index} compiled destination matches the cartridge");
+            AssertEqual(destination, ObjCharacterNativeWords.Of(GunshipLiftoffTransferDefinitions.Uploads[index].FirstByte / 32),
+                $"gunship frame {index} compiled place among the OBJ characters matches the cartridge");
             ReadOnlySpan<byte> pixels = installed.Resolve(transfer.Asset).Span;
             AssertEqual(GunshipLiftoffTransferDefinitions.ByteCount, pixels.Length,
                 $"gunship frame {index} transfer length");
@@ -51,25 +51,25 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.EnemySession.TileArtwork = stock.Enemies;
         runtime.BossArtwork.Artwork = stock.Bosses;
         runtime.AreaArtwork.Artwork = stock.Areas;
-        VramWriteQueue stockQueue = QueueAllTakeoffFrames(stock);
+        ObjCharacterUploads stockPages = ShowAllTakeoffPages(stock);
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
         {
             GunshipLiftoffTransferDefinition transfer = transfers[index];
-            AssertEqual(transfer.Asset, stockQueue.Entries[index].AssetId,
-                $"takeoff frame {index} is a typed installed upload");
-            AssertEqual(transfer.DestinationWord,
-                stockQueue.Entries[index].Destination.Encoded,
-                $"takeoff frame {index} keeps the compiled VRAM target");
-            nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
-                transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));
+            AssertEqual<ObjCharacterSource>(new AssetObjCharacters(transfer.Asset), stockPages.Uploads[index].Source,
+                $"takeoff frame {index} shows its installed page");
+            AssertEqual(GunshipLiftoffTransferDefinitions.Uploads[index].FirstByte, stockPages.Uploads[index].FirstByte,
+                $"takeoff frame {index} keeps its compiled place among the OBJ characters");
+            nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount, transfer.SourceAddress,
+                VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(stockPages.Uploads[index].FirstByte / 32)));
         }
-        var installedVram = new SnesVram();
         var nativeVram = new SnesVram();
-        stockQueue.DrainTo(installedVram, runtime.Artwork, null, BgArtworkFixtures.For(installedVram));
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
-        AssertTrue(installedVram.ImageEquals(nativeVram),
-            "all five installed takeoff uploads match the native VRAM image");
+        byte[] installedPage = new ObjCharacterTablePage().Page(stockPages, runtime.Artwork).Characters.ToArray();
+        int pagesByte = stockPages.Uploads[0].FirstByte, pagesBytes = transfers.Length * GunshipLiftoffTransferDefinitions.ByteCount;
+        AssertTrue(installedPage.AsSpan(pagesByte, pagesBytes).SequenceEqual(
+                nativeVram.Bytes.Slice(GameplayVramLayout.ObjectCharacters.Offset * sizeof(ushort) + pagesByte, pagesBytes)),
+            "all five installed takeoff pages match the native OBJ characters");
 
         string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(0);
         string stockPath = Path.Combine(directory, fileName);
@@ -89,26 +89,12 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.EnemySession.TileArtwork = edited.Enemies;
         runtime.BossArtwork.Artwork = edited.Bosses;
         runtime.AreaArtwork.Artwork = edited.Areas;
-        VramWriteQueue pending = QueueAllTakeoffFrames(stock);
-        var editedVram = new SnesVram();
-        pending.DrainTo(editedVram, runtime.Artwork, null, BgArtworkFixtures.For(editedVram));
-        int firstDestinationByte = transfers[0].DestinationWord * 2;
-        AssertEqual((byte)(installedVram.ReadByte(firstDestinationByte) ^ 0x80),
-            editedVram.ReadByte(firstDestinationByte),
-            "rebound PNG changes the next accepted takeoff upload");
-        AssertTrue(editedVram.Bytes[..firstDestinationByte]
-                .SequenceEqual(installedVram.Bytes[..firstDestinationByte]) &&
-            editedVram.Bytes[(firstDestinationByte + 1)..]
-                .SequenceEqual(installedVram.Bytes[(firstDestinationByte + 1)..]),
+        byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock), runtime.Artwork).Characters.ToArray();
+        AssertEqual((byte)(installedPage[pagesByte] ^ 0x80), editedPage[pagesByte],
+            "rebound PNG changes the takeoff page shown");
+        AssertTrue(editedPage.AsSpan(..pagesByte).SequenceEqual(installedPage.AsSpan(..pagesByte)) &&
+            editedPage.AsSpan((pagesByte + 1)..).SequenceEqual(installedPage.AsSpan((pagesByte + 1)..)),
             "gunship PNG edit changes only its selected planar pixel");
-        var legacyQueue = new VramWriteQueue();
-        legacyQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
-            transfers[0].SourceAddress, VramDmaDestination.FromNative(transfers[0].DestinationWord));
-        var legacyVram = new SnesVram();
-        legacyQueue.DrainTo(legacyVram, runtime.Artwork, null, BgArtworkFixtures.For(legacyVram));
-        AssertEqual(editedVram.ReadByte(firstDestinationByte),
-            legacyVram.ReadByte(firstDestinationByte),
-            "older pending cartridge-source takeoff upload rebinds to current art");
         AssertTrue(EnemyTileArtworkFiles.Load(directory, overrides).Enemies.GunshipLiftoff is not null,
             "gunship PNG override survives reload");
 
@@ -121,21 +107,20 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             () => EnemyTileArtworkFiles.Load(directory, overrides),
             "malformed gunship override fails loudly");
         Console.WriteLine(
-            "Gunship takeoff art: five compiled transfers, installed PNG parity, " +
-            "live/rebound VRAM edit, legacy queue rebind and strict resources pass.");
+            "Gunship takeoff art: five compiled pages, installed PNG parity, " +
+            "live/rebound page edit and strict resources pass.");
 
-        static VramWriteQueue QueueAllTakeoffFrames(InstalledEnemyArtwork art)
+        static ObjCharacterUploads ShowAllTakeoffPages(InstalledEnemyArtwork art)
         {
             var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);
-            var queue = new VramWriteQueue();
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
-                enemies.GunshipBehavior.QueueGunshipTakeoffTiles(top, queue);
+                enemies.GunshipBehavior.ShowGunshipTakeoffPage(top);
             AssertEqual(GunshipLiftoffTransferDefinitions.Frames.Length,
-                queue.Entries.Count, "five native takeoff calls append five uploads");
-            return queue;
+                enemies.Room.Session.ObjCharacters.Uploads.Count, "five native takeoff calls show five pages");
+            return enemies.Room.Session.ObjCharacters;
         }
     }
 }

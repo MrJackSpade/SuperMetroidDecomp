@@ -85,7 +85,7 @@ public static class SamusProjectileRomData
     public static class Palettes
     {
         /// <summary>$90:ACCD writes the sixteen beam colors beginning at CGRAM index $E0.</summary>
-        public const int BeamDestinationIndex = 0xe0;
+        public const int BeamFirstColour = 0xe0;
     }
 
     /// <summary>Missile, Super Missile, bomb, and linked-projectile definitions.</summary>

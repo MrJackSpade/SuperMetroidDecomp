@@ -60,9 +60,9 @@ internal static class MotherBrainTankBackgroundVerification
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapWordCount).ToArray();
         foreach (var write in writes.Span)
         {
-            write.Tiles.Span.CopyTo(expectedImage.AsSpan(write.DestinationWord));
+            write.Tiles.Span.CopyTo(expectedImage.AsSpan(write.FirstCell));
             for (int index = 0; index < write.Tiles.Length; index++)
-                AssertEqual(write.Tiles.Span[index], ReadStaged(write.DestinationWord + index),
+                AssertEqual(write.Tiles.Span[index], ReadStaged(write.FirstCell + index),
                     "Body frame updates the native staging image as well as the shown BG2 image");
         }
         AssertTrue(image.Publish().Words.SequenceEqual(expectedImage),

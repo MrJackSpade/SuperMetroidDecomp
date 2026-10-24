@@ -117,8 +117,6 @@ internal static class EnemyTileArtworkKraidVerification
                 $"Kraid head ${pointer:X4} leaves the working map");
             AssertTrue(installedShown.SequenceEqual(nativeShown),
                 $"Kraid head ${pointer:X4} preserves the shown head");
-            AssertEqual(baseline.HeadTilemapUploadCount, selected.HeadTilemapUploadCount,
-                $"Kraid head ${pointer:X4} preserves upload count");
         }
 
         ushort editedPointer = pointers[0];
@@ -179,14 +177,9 @@ internal static class EnemyTileArtworkKraidVerification
 
         var baselineQueued = new SnesVram();
         baselineQueued.LoadBytes(KraidBackgroundRomData.StandardBg3VramWord * 2, native);
-        SnesVram installedQueued = RunKraidBg3Restoration(enemyArtwork,
-            stock.HudTiles, stock, useQueue: true);
-        SnesVram installedDirect = RunKraidBg3Restoration(enemyArtwork,
-            stock.HudTiles, stock, useQueue: false);
-        AssertTrue(installedQueued.ImageEquals(baselineQueued),
-            "installed NMI-queued Kraid BG3 restoration preserves native VRAM");
-        AssertTrue(installedDirect.ImageEquals(baselineQueued),
-            "installed direct Kraid BG3 restoration preserves native VRAM");
+        SnesVram installed = RunKraidBg3Restoration(enemyArtwork, stock.HudTiles);
+        AssertTrue(installed.ImageEquals(baselineQueued),
+            "installed Kraid BG3 restoration preserves native VRAM");
         // These checks exercise asset binding/queue restoration, not starting colors.
         // Supply the constructor's explicit palette dependency; never revive its ROM fallback.
         PaletteRgb5[] Colors(int count) => Enumerable.Range(0, count)
@@ -201,7 +194,7 @@ internal static class EnemyTileArtworkKraidVerification
         runtime.AreaArtwork.Artwork = enemyArtwork.Areas;
         AssertTrue(ReferenceEquals(stock.HudTiles, runtime.BossArtwork.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
              quarter++)
         {
             VramAssetId asset = KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter);
@@ -210,16 +203,16 @@ internal static class EnemyTileArtworkKraidVerification
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }
         var restored = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
              quarter++)
             restored.VramWrites.Enqueue(
-                KraidBackgroundRomData.StandardBg3TransferBytes,
+                KraidBackgroundRomData.StandardBg3QuarterBytes,
                 KraidBackgroundRomData.StandardBg3TilesAddress +
-                    quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
+                    quarter * KraidBackgroundRomData.StandardBg3QuarterBytes,
                 checked(VramDmaDestination.FromNative((ushort)(KraidBackgroundRomData.StandardBg3VramWord +
-                    quarter * (KraidBackgroundRomData.StandardBg3TransferBytes / 2)))));
+                    quarter * (KraidBackgroundRomData.StandardBg3QuarterBytes / 2)))));
         restored.Artwork.MapPresentation = stock;
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
              quarter++)
             AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                 restored.VramWrites.Entries[quarter].AssetId,
@@ -239,8 +232,7 @@ internal static class EnemyTileArtworkKraidVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
-        SnesVram changed = RunKraidBg3Restoration(enemyArtwork,
-            edited.HudTiles, edited, useQueue: true);
+        SnesVram changed = RunKraidBg3Restoration(enemyArtwork, edited.HudTiles);
         int destination = KraidBackgroundRomData.StandardBg3VramWord * sizeof(ushort);
         AssertEqual((byte)(baselineQueued.ReadByte(destination) ^ 0x80),
             changed.ReadByte(destination),
@@ -249,18 +241,13 @@ internal static class EnemyTileArtworkKraidVerification
                 .SequenceEqual(changed.Bytes[(destination + 1)..]),
             "edited Kraid BG3 character leaves all other VRAM bytes unchanged");
         AreaMapPresentationCatalog reloaded = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
-        AssertTrue(RunKraidBg3Restoration(enemyArtwork,
-                reloaded.HudTiles, reloaded, useQueue: true)
+        AssertTrue(RunKraidBg3Restoration(enemyArtwork, reloaded.HudTiles)
             .Bytes.SequenceEqual(changed.Bytes),
             "Kraid BG3 uses the current HUD PNG override after catalog reload");
     }
 
-    /// <summary>Invokes each death-phase BG3 quarter transfer through the live Kraid behavior.</summary>
-    private static SnesVram RunKraidBg3Restoration(
-        InstalledEnemyArtwork enemyArtwork,
-        HudTileAtlas hud,
-        AreaMapPresentationCatalog map,
-        bool useQueue)
+    /// <summary>Invokes each death-phase BG3 quarter restoration through the live Kraid behavior.</summary>
+    private static SnesVram RunKraidBg3Restoration(InstalledEnemyArtwork enemyArtwork, HudTileAtlas hud)
     {
         var bus = SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
@@ -270,26 +257,14 @@ internal static class EnemyTileArtworkKraidVerification
         };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-        Action<RoomEnemySlot, KraidEnemyState, int,
-                KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.Death.AdvanceKraidDeathBg3Transfer;
+        Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction> restore = enemies.KraidBehavior.Death.RestoreKraidDeathBg3Quarter;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new KraidEnemyState();
-        var queue = new VramWriteQueue();
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
+        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
              quarter++)
         {
-            transfer(body, state, quarter, KraidAiFunction.DeathFadeInBackground,
-                useQueue ? queue : null);
-            if (useQueue)
-            {
-                AssertEqual(1, queue.Entries.Count,
-                    $"Kraid BG3 quarter {quarter} produces one native NMI record");
-                AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
-                    queue.Entries[0].AssetId,
-                    $"Kraid BG3 quarter {quarter} queues installed art");
-                queue.DrainTo(vram, map, null, BgArtworkFixtures.For(vram));
-            }
-            AssertEqual(quarter + 1, state.DeathBg3TransferCount,
+            restore(body, state, quarter, KraidAiFunction.DeathFadeInBackground);
+            AssertEqual(quarter + 1, state.RestoredBg3Quarters,
                 $"Kraid BG3 quarter {quarter} retains death coroutine cadence");
         }
         // The restored characters are bound (#1352); the image a capture shows composes them.
@@ -380,14 +355,14 @@ internal static class EnemyTileArtworkKraidVerification
         return state;
     }
 
-    /// <summary>Shows both BG2 working-map pages and checks their native upload counts.</summary>
+    /// <summary>Shows both BG2 working-map pages and checks that they are what Kraid displays.</summary>
     private static ushort[] ShowKraidVisiblePages(InstalledEnemyArtwork artwork)
     {
         KraidEnemyState state = InitializeKraidBackground(artwork);
         KraidBackground.TransferKraidTopTilemap(state);
         KraidBackground.TransferKraidBottomTilemap(state);
-        AssertEqual(1, state.TopTilemapUploadCount, "Kraid upper page transfer count");
-        AssertEqual(1, state.BottomTilemapUploadCount, "Kraid lower page transfer count");
+        AssertTrue(state.DisplayedBody.Top == state.WorkingTop && state.DisplayedBody.Bottom == state.WorkingBottom,
+            "Kraid displays both working pages");
         return KraidBodyFixtures.Shown(artwork.Bosses, state);
     }
 }

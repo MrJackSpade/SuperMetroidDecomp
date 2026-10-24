@@ -121,7 +121,7 @@ internal static class RetailKraidCaptureTests
             if (boss.DeathSequenceComplete) break;
             runtime.StepFrame(0);
         }
-        if (!boss.DeathSequenceComplete || boss.DeathBg3TransferCount != 4 ||
+        if (!boss.DeathSequenceComplete || boss.RestoredBg3Quarters != 4 ||
             !deathPhases.Contains(KraidAiFunction.DeathSink) ||
             !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");

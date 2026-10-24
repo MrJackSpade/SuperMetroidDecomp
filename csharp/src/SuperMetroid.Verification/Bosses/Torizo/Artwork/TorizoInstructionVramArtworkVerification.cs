@@ -36,7 +36,7 @@ internal static class TorizoInstructionVramArtworkVerification
         var authoredOpcodes = new HashSet<ushort>();
         for (int transferIndex = 0; transferIndex < TorizoInstructionVramTransferDefinitions.All.Length; transferIndex++)
         {
-            TileTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.All[transferIndex];
+            TorizoTileTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.All[transferIndex];
             ushort instruction = TorizoInstructionVramTransferDefinitions.Sites[transferIndex].Instruction;
             AssertTrue(instruction > previousInstruction,
                 "Torizo transfer opcodes are distinct and sorted");
@@ -51,7 +51,7 @@ internal static class TorizoInstructionVramArtworkVerification
             int nativeSource = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{instruction:X4} source");
-            AssertEqual(transfer.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
+            AssertEqual(ObjCharacterNativeWords.Of(transfer.FirstCharacter), CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{instruction:X4} VRAM destination");
             AssertTrue((stock.Bosses.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
@@ -63,7 +63,7 @@ internal static class TorizoInstructionVramArtworkVerification
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
             ShowTorizoArtwork(installedEnemies, installedSlot, new TorizoArtworkSwap(transferIndex));
             ReadOnlySpan<byte> shown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.ObjCharacters,
-                new EnemyTileTransfers(stock)).Characters.Slice((transfer.DestinationWord - GameplayVramLayout.ObjectCharacters.Offset) * 2);
+                new EnemyTileTransfers(stock)).Characters.Slice(transfer.FirstCharacter * 32);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset], shown[offset],
                     $"production Torizo upload $AA:{instruction:X4} byte {offset:X4}");

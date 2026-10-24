@@ -49,7 +49,7 @@ internal static class KraidInstalledPresentationOracleVerification
         var head = new ushort[KraidBackgroundRomData.HeadTilemapWords];
         for (int word = 0; word < head.Length; word++)
             head[word] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(word * 2));
-        var state = new KraidEnemyState { HeadTilemapUploadCount = 1 };
+        var state = new KraidEnemyState();
         return new ReadImportedKraidHeadFrameResult(state, KraidBodyFixtures.Tilemap(Blank(), head, Blank()));
 
         static ushort[] Blank() => Enumerable.Repeat(KraidBackgroundRomData.BlankTile, KraidBackgroundRomData.VisiblePageWords).ToArray();

@@ -24,7 +24,7 @@ internal sealed class CreditsObjectState
     /// <summary>The scroll advance, one eight-pixel tilemap row, after which the next source row is copied.</summary>
     private static readonly Offset16<BgPlanePixels> RowAdvance = new(0, 8);
     /// <summary>Next circular tilemap row to overwrite.</summary>
-    internal int DestinationRow { get; private set; }
+    internal int NextRow { get; private set; }
     /// <summary>Next installed credits row to consume.</summary>
     private int sourceRow;
 
@@ -72,9 +72,9 @@ internal sealed class CreditsObjectState
         else
         {
             content.GetRow(sourceRow++).CopyTo(
-                tilemap.AsSpan(DestinationRow * EndingCreditsRomData.Rendering.TilemapWidth,
+                tilemap.AsSpan(NextRow * EndingCreditsRomData.Rendering.TilemapWidth,
                     EndingCreditsRomData.Rendering.TilemapWidth));
-            DestinationRow = (DestinationRow + 1) &
+            NextRow = (NextRow + 1) &
                 (EndingCreditsRomData.Rendering.TilemapHeight - 1);
             copied = true;
         }

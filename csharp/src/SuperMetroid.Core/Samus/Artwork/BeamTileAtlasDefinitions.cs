@@ -13,8 +13,6 @@ public static class BeamTileAtlasDefinitions
     public const int Height = 8;
     /// <summary>Native $90:AC8D upload length, $0100 bytes: eight four-bit planar characters at 32 bytes each.</summary>
     public const int ByteCount = 256;
-    /// <summary>$90:AC8D writes eight 4-bpp tiles to VRAM word $6300.</summary>
-    public const ushort DestinationWord = 0x6300;
     /// <summary>$90:C3B1 contains twelve legal beam-combination pointers before palette data.</summary>
     public const int SelectionCount = 12;
     /// <summary>Twelve ordinary sheets plus the bounded Chainsaw and SpaceTime adjacent-table uploads.</summary>

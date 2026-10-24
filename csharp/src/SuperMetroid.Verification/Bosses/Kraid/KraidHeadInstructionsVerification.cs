@@ -67,7 +67,6 @@ internal static class KraidHeadInstructionsVerification
                 AssertEqual(displayed.OuterShape, (ushort)shown.VulnerableShape, $"Kraid command ${record.Pointer:X4} outer shape");
                 AssertEqual(native.CursorAt(unchecked((ushort)(displayed.Pointer + 8))), state.HeadProgram,
                     $"Kraid command ${record.Pointer:X4} advances cursor");
-                AssertEqual(1, state.HeadTilemapUploadCount, $"Kraid command ${record.Pointer:X4} uploads one head tilemap");
             }
 
             if (!record.IsPose && !record.IsTerminator)
@@ -91,7 +90,7 @@ internal static class KraidHeadInstructionsVerification
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
         var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
-        var combat = new Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);
+        var combat = new Action<RoomEnemySlot, KraidEnemyState, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -99,7 +98,7 @@ internal static class KraidHeadInstructionsVerification
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = WrappingCountdown.FromRaw((ushort)raw);
             state.Parts[0].HeadTimer = 999;
-            combat(body, state, null, 0);
+            combat(body, state, 0);
             AssertEqual(raw == 1
                     ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,
@@ -108,7 +107,7 @@ internal static class KraidHeadInstructionsVerification
             state.Parts[0].Function = KraidAiFunction.SecondPhaseThinking;
             state.ThinkingTimer = WrappingCountdown.FromRaw((ushort)raw);
             state.Parts[0].HeadTimer = 999;
-            combat(body, state, null, 0);
+            combat(body, state, 0);
             AssertEqual(raw == 1
                     ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,

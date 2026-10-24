@@ -204,7 +204,7 @@ public sealed class SamusArmCannonArtworkCatalog
         int index = CoverTileIndex(direction, frame) ??
             throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
         return coverTiles.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
-            tiles.Characters.Span.Slice(key * SamusRenderingRomData.ArmCannon.TileUploadByteCount, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
+            tiles.Characters.Span.Slice(key * SamusRenderingRomData.ArmCannon.TileByteCount, SamusRenderingRomData.ArmCannon.TileByteCount)));
     }
 
     /// <summary>Cover characters already built, by installed tile index.</summary>
@@ -214,7 +214,7 @@ public sealed class SamusArmCannonArtworkCatalog
     public bool TryResolveTile(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
-        if (byteCount == SamusRenderingRomData.ArmCannon.TileUploadByteCount)
+        if (byteCount == SamusRenderingRomData.ArmCannon.TileByteCount)
         {
             int source = SnesAddressMath.OffsetInBank(sourceAddress);
             if ((SnesAddressMath.BankBase(sourceAddress)) == SamusRenderingRomData.Banks.CharacterData &&

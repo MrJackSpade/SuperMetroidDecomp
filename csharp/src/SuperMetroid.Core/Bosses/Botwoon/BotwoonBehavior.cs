@@ -128,7 +128,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HalfHealth = head.Health >> 1;
         state.QuarterHealth = head.Health >> 2;
         state.PreviousHealth = head.Health;
-        state.PaletteDestinationColor = ((head.PaletteIndex >> 4) + 256) / sizeof(ushort);
+        state.PaletteFirstColour = ((head.PaletteIndex >> 4) + 256) / sizeof(ushort);
         // `$B3:961B` ORs $0400: the head starts hidden in its hole, out of every collision pass.
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
@@ -701,14 +701,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!BotwoonHealthPaletteDefinitions.ShouldAdvance(state.PalettePhase, head.Health))
             return;
 
-        int destinationColor = state.PaletteDestinationColor;
+        int destinationColor = state.PaletteFirstColour;
         int colorCount = 256 - destinationColor;
         if (_bossArtwork.Artwork?.BotwoonColors is { } colors)
         {
             // The retail actor owns OBJ palette seven. A restored/non-retail offset
             // would copy past this authored image into adjacent ROM data; do not
             // silently substitute a different visual result for that state.
-            if (destinationColor != BotwoonHealthPaletteDefinitions.DestinationColor ||
+            if (destinationColor != BotwoonHealthPaletteDefinitions.FirstColour ||
                 colorCount != BotwoonHealthPaletteDefinitions.ColorsPerPalette)
                 throw new InvalidDataException(
                     $"Botwoon palette destination {destinationColor} is outside the retail sprite palette.");

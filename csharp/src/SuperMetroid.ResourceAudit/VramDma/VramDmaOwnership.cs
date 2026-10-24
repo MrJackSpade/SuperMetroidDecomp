@@ -27,7 +27,7 @@ internal static class VramDmaOwnership
         if (GrappleTileDefinitions.Transfers.Any(frame => frame.SourceAddress == source && frame.ByteCount == count)) return true;
         if ((SnesAddressMath.BankBase(source)) == SamusRenderingRomData.Banks.CharacterData &&
             SamusArmCannonArtworkFormat.CoverTileDmaSources.IndexOf((ushort)source) >= 0 &&
-            count == SamusRenderingRomData.ArmCannon.TileUploadByteCount) return true;
+            count == SamusRenderingRomData.ArmCannon.TileByteCount) return true;
         if (GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.SourceAddress == source &&
                 count == GunshipLiftoffTransferDefinitions.ByteCount)) return true;
         if (PlmVramArtworkAudit.OwnsInstalledTransfer(source, count)) return true;
@@ -52,7 +52,7 @@ internal static class VramDmaOwnership
         if (asset == VramAssetId.ProjectileMissileTrailTiles) return count == ProjectileTrailAtlasDefinitions.MissileByteCount;
         if (GrappleTileDefinitions.Transfers.Any(frame => frame.Asset == asset && frame.ByteCount == count)) return true;
         if (asset is >= VramAssetId.KraidBg3RestoreQuarter0 and <= VramAssetId.KraidBg3RestoreQuarter3)
-            return count == KraidBackgroundRomData.StandardBg3TransferBytes;
+            return count == KraidBackgroundRomData.StandardBg3QuarterBytes;
         return GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.Asset == asset && count == GunshipLiftoffTransferDefinitions.ByteCount);
     }
 }

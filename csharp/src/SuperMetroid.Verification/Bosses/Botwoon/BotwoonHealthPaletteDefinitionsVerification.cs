@@ -53,7 +53,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         var state = new BotwoonEnemyState()
         {
             // Sprite palette seven starts at CGRAM color 240.
-            PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor,
+            PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour,
         };
 
         for (int phase = 0; phase < BotwoonHealthPaletteDefinitions.CompletePhase; phase++)

@@ -121,7 +121,7 @@ internal static class KraidReportedCollisionsVerification
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = WrappingCountdown.Start(100);
             ResetSamus(180, 500);
-            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null, null);
+            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null);
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
             AssertEqual((ushort)492, samus.Position.Y.Whole, "Kraid ejects Samus eight pixels up");
             AssertEqual((ushort)(999 - body.Definition.Damage), samus.Health, "Kraid body touch damage");
@@ -135,7 +135,7 @@ internal static class KraidReportedCollisionsVerification
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = WrappingCountdown.Start(100);
             ResetSamus(180, 500);
-            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null, null);
+            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null);
             state.EjectionLimit = smallFormLimit;
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid still ejects Samus eight pixels left");
             AssertEqual((ushort)496, samus.Position.Y.Whole, "Kraid's upward push stops at the ejection limit's Y");

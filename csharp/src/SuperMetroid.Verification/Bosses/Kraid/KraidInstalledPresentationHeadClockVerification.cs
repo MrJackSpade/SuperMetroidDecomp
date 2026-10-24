@@ -48,7 +48,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             var changed = new KraidHeadClockFixture(edited);
             baseline.State.HeadProgram = changed.State.HeadProgram = commands[0].Cursor;
             baseline.State.Parts[0].HeadTimer = changed.State.Parts[0].HeadTimer = 1;
-            int nextEvent = 0, cursor = 0, soundCount = 0, uploadCount = 0;
+            int nextEvent = 0, cursor = 0, soundCount = 0;
             ushort outer = 0, inner = 0, physical = 0;
             ushort[] expectedStock = baseline.Shown();
             ushort[] expectedEdited = changed.Shown();
@@ -90,7 +90,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     AssertEqual((ushort)1, stockResult, "frame admission result");
                     nextEvent += admission.Opcode;
                     physical = admission.Tilemap; outer = admission.OuterShape; inner = admission.InnerShape;
-                    uploadCount++; frames++;
+                    frames++;
                     KraidHeadClockFixture.ExpectedUpload(expectedStock, (stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(physical));
                     KraidHeadClockFixture.ExpectedUpload(expectedEdited, (edited.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires edited.KraidBackground.")).HeadWords(physical));
                     AssertTrue(!baseline.Shown().SequenceEqual(changed.Shown()), "replacement head is actually visible");
@@ -105,7 +105,6 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertEqual(inner, shown.InvulnerableShape is { } innerShape ? (ushort)innerShape : ushort.MaxValue,
                     "inner mouth window follows compiled admission");
                 AssertEqual(soundCount, baseline.State.RoarRequestCount, "roar callback count on every tick");
-                AssertEqual(uploadCount, baseline.State.HeadTilemapUploadCount, "no extra head upload during hold");
                 AssertTrue(expectedStock.SequenceEqual(baseline.Shown()), "exact stock head and untouched body");
                 AssertTrue(expectedEdited.SequenceEqual(changed.Shown()), "exact authored head and untouched body");
                 // Actual mouth collision method, including the strict bottom-edge -1,

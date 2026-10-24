@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 
@@ -14,15 +14,8 @@ public static class BossVramLayout
     /// </summary>
     public static readonly PpuLayoutCell KraidBg3Restore = new(nameof(KraidBg3Restore), PpuLayoutRegion.Vram,
         KraidBackgroundRomData.StandardBg3VramWord,
-        KraidBackgroundRomData.StandardBg3TransferCount * KraidBackgroundRomData.StandardBg3TransferBytes / sizeof(ushort),
+        KraidBackgroundRomData.StandardBg3QuarterCount * KraidBackgroundRomData.StandardBg3QuarterBytes / sizeof(ushort),
         "2-bpp BG3 characters", GameplayVramLayout.HudCharacters);
-
-    /// <summary>
-    /// VMADD $6000-$7FFF: the OBJ table as Crocomire's skeleton uploads address it, by atlas
-    /// tile relative to the OBSEL base (<c>$A4:99CB</c>/<c>$99D9</c>).
-    /// </summary>
-    public static readonly PpuLayoutCell CrocomireSkeletonTiles = new(nameof(CrocomireSkeletonTiles), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonTransferDefinitions.ObselBaseWord, 0x2000, "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
 
     /// <summary>VMADD $6D00-$6FFF: the Evir characters Draygon's opening uploads (<c>$A5:8745</c>).</summary>
     public static readonly PpuLayoutCell DraygonEvirTiles = new(nameof(DraygonEvirTiles), PpuLayoutRegion.Vram,

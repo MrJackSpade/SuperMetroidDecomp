@@ -61,7 +61,7 @@ internal sealed class AttractDemoSchedule
         Scene++;
         HoldFramesRemaining = 0;
         Cancelled = false;
-        loadFramesRemaining = AttractDemoRomData.EnemyTransferFrames;
+        loadFramesRemaining = AttractDemoRomData.EnemyGraphicsLoadFrames;
     }
 
     /// <summary>Counts one enemy-transfer wait; returns whether it was the last.</summary>

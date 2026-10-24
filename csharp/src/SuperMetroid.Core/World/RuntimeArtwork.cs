@@ -151,11 +151,11 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     [SuperMetroid.Core.Hardware.PpuLayoutBoundary("codec: legacy queued VRAM DMA records rebound from native bus sources to installed artwork")]
     private void RebindLegacyArtworkTransfers()
     {
-        for (int quarter = 0; quarter < SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferCount;
+        for (int quarter = 0; quarter < SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3QuarterCount;
              quarter++)
             _vramWrites.RebindBusSource(
                 SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3QuarterAddress(quarter),
-                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferBytes,
+                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3QuarterBytes,
                 SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
         _vramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,
             EscapeTimerTileAtlasFormat.FirstByteCount,

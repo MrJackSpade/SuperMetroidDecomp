@@ -1668,28 +1668,27 @@ internal static class LookupStream2Verification
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
-        var queue = new VramWriteQueue();
-        var append = new Action<RoomEnemySlot, VramWriteQueue>(enemies.GunshipBehavior.QueueGunshipTakeoffTiles);
+        ObjCharacterUploads shown = enemies.Room.Session.ObjCharacters;
         int enumerated = 0;
         foreach (var transfer in transfers)
         {
             int source = 0x940000 | ReadVerificationWord(rom, 0xa2ac07 + 2 * enumerated);
             ushort destination = ReadVerificationWord(rom, 0xa2ac11 + 2 * enumerated);
             AssertEqual(source, transfer.SourceAddress, "Gunship original source");
-            AssertEqual(destination, transfer.DestinationWord, "Gunship original destination");
+            AssertEqual(destination, ObjCharacterNativeWords.Of(GunshipLiftoffTransferDefinitions.Uploads[enumerated].FirstByte / 32), "Gunship original destination");
             AssertEqual(VramAssetId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
-            append(slot, queue);
-            AssertEqual(destination, queue.Entries[enumerated].Destination.Encoded, "Gunship actual queued destination");
-            AssertEqual(transfer.Asset, queue.Entries[enumerated].AssetId, "Gunship actual queued liftoff artwork");
+            enemies.GunshipBehavior.ShowGunshipTakeoffPage(slot);
+            AssertEqual(GunshipLiftoffTransferDefinitions.Uploads[enumerated].FirstByte, shown.Uploads[enumerated].FirstByte, "Gunship shows its page in place");
+            AssertEqual<ObjCharacterSource>(new AssetObjCharacters(transfer.Asset), shown.Uploads[enumerated].Source, "Gunship shows its installed liftoff page");
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
-        AssertEqual(0, part.LiftoffTransferIndex, "Gunship completes transfer phase");
+        AssertEqual(0, part.NextLiftoffPage, "Gunship completes its page phase");
         AssertEqual(GunshipFunction.FireUpEngines, part.Function, "Gunship starts engines after fifth transfer");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
-        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
+        Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the pages shown/phase handoff, enumeration and bounds pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors, independent edits, and CGRAM placement.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]

@@ -7,7 +7,7 @@ internal static class CreditsObjectStateAccess
     extension(CreditsObjectState self)
     {
         /// <summary>BG row selected for the next credits tilemap transfer.</summary>
-        internal int DestinationRow => self.DestinationRow;
+        internal int NextRow => self.NextRow;
 
         /// <summary>Retained credits tilemap words before their BG transfer.</summary>
         internal ReadOnlySpan<ushort> Tilemap => self.tilemap;

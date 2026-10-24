@@ -74,9 +74,10 @@ internal static class GunshipEscapeTimerVerification
             }
         }
         AssertTrue(sawDustUpload, "Confirmation reaches the actual liftoff dust upload");
-        runtime.StepFrame(0); // NMI consumes the final queued dust tile transfer.
-        AssertTrue(!runtime.Vram.Bytes.Slice(0xfc00, 0x400).SequenceEqual(timerTilesBefore), "Liftoff actually repurposes the timer tiles");
-        AssertTrue(!TimerSpritesPresent(), "No stale timer draw remains after dust artwork reaches VRAM");
+        // The final dust page shows on the update that recorded it, over the characters the timer drew from (#1406).
+        byte[] shownObjects = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.ObjCharacters, runtime.Artwork).Characters.ToArray();
+        AssertTrue(!shownObjects.AsSpan(0x3c00, 0x400).SequenceEqual(timerTilesBefore), "Liftoff actually repurposes the timer tiles");
+        AssertTrue(!TimerSpritesPresent(), "No stale timer draw remains once the dust page shows");
         AssertEqual(timeBeforeBoarding, Time(), "Liftoff keeps the timer suspended");
         Console.WriteLine("Gunship escape timer: normal timer draws, same-frame boarding suppression, preserved active status and no timer sprites through liftoff dust upload passed.");
         return 0;

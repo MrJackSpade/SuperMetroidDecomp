@@ -76,7 +76,7 @@ public sealed class BotwoonEnemyState
     /// <summary>The next step of the head animation's timeline.</summary>
     internal int HeadAnimationPosition { get; set; }
     /// <summary>CGRAM destination color; retail initialization targets color $F0, the start of OBJ palette seven.</summary>
-    public int PaletteDestinationColor { get; internal set; }
+    public int PaletteFirstColour { get; internal set; }
     /// <summary>Band 0 through 7 selecting the next health threshold/palette; 8 marks completion of all eight palette steps.</summary>
     public int PalettePhase { get; internal set; }
     /// <summary>Head health retained from initialization, independently of subsequent damage and the palette threshold table.</summary>

@@ -20,7 +20,7 @@ internal sealed class EnemyBg2FrameCatalog
                 content.Append("writes", writes.Length);
                 foreach (EnemyBg2TilemapWrite write in writes)
                 {
-                    content.Append("destination", write.DestinationWord);
+                    content.Append("destination", write.FirstCell);
                     content.AppendWords("tiles", write.Tiles.Span);
                 }
             }

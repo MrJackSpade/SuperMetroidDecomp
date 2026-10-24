@@ -50,7 +50,7 @@ internal sealed class EnemyInstructionInterpreter
                 $"Installed {family} frame {selected} has no BG2 presentation.");
         if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
             foreach (EnemyBg2TilemapWrite write in writes.Span)
-                ApplyExtendedEnemyBg2Words(write.DestinationWord, write.Tiles.Span);
+                ApplyExtendedEnemyBg2Words(write.FirstCell, write.Tiles.Span);
     }
 
     /// <summary>

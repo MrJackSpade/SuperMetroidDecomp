@@ -93,7 +93,6 @@ internal sealed class KraidHead
     internal static void TransferKraidHeadTilemap(KraidEnemyState state, KraidHeadFrame frame)
     {
         state.DisplayedBody = state.DisplayedBody with { Head = frame };
-        state.HeadTilemapUploadCount++;
     }
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>

@@ -114,19 +114,11 @@ public sealed class KraidEnemyState
     /// <summary>Live BG2HOFS/BG2VOFS calculated by Kraid main AI from the camera and body position.</summary>
     public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
 
-    /// <summary>Native BG2 top/bottom upload requests issued during the rise sequence.</summary>
-    public int TopTilemapUploadCount { get; internal set; }
-    /// <summary>Gets the number of authored bottom-half BG2 tilemap uploads issued by rise, growth, and death logic.</summary>
-    public int BottomTilemapUploadCount { get; internal set; }
-
     /// <summary>Number of `$A7:C995` rock/quake spawn requests made by retail cadence.</summary>
     public int RiseRockSpawnRequestCount { get; internal set; }
 
     /// <summary>Rise-rock requests that acquired a real bank-$86 projectile slot.</summary>
     public int SpawnedRiseRockCount { get; internal set; }
-
-    /// <summary>BG2 head entries installed by the private eight-byte instruction stream.</summary>
-    public int HeadTilemapUploadCount { get; internal set; }
 
     /// <summary>Retail `$BC0A` spat-rock requests issued while head tilemap three is active.</summary>
     public int SpitRockRequestCount { get; internal set; }
@@ -152,8 +144,8 @@ public sealed class KraidEnemyState
     public int SinkTableEventCount { get; internal set; }
     /// <summary>Gets the number of pickup actors requested by Kraid's authored death scatter, independent of pool allocation success.</summary>
     public int DeathDropRequestCount { get; internal set; }
-    /// <summary>Gets the number of standard BG3 graphics quarters queued during ordinary-background restoration.</summary>
-    public int DeathBg3TransferCount { get; internal set; }
+    /// <summary>Gets how many of the four standard BG3 character quarters the death sequence has restored so far.</summary>
+    public int RestoredBg3Quarters { get; internal set; }
     /// <summary>Gets whether this encounter's death handoff newly wrote the persistent area-boss defeat bit.</summary>
     public bool BossDefeatPersisted { get; internal set; }
     /// <summary>Gets whether background restoration and the death music/persistence handoff have reached the terminal death entry.</summary>

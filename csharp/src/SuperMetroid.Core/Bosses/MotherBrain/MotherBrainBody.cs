@@ -130,7 +130,7 @@ internal sealed class MotherBrainBody
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,
             BackgroundTilemapPrepared = true,
-            EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTransferByteCount,
+            EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTilemapByteCount,
         };
         _motherBrainEncounter.MotherBrain.RecordInitialTurretRequests();
         // The first LoadFxEntry, which the room loader applies after enemy initialization.

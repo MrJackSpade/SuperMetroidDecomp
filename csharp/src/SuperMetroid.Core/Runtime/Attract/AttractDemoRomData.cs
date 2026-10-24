@@ -6,7 +6,7 @@ public static class AttractDemoRomData
     /// <summary>$82:8548 waits ninety NMI calls on the completed demo's final image.</summary>
     public const int FinalImageHoldFrames = 90;
     /// <summary>$82:8000 demo enemy-graphics loop starts at six and includes zero.</summary>
-    public const int EnemyTransferFrames = 7;
+    public const int EnemyGraphicsLoadFrames = 7;
     /// <summary>Literal state writes in the demo setup routines.</summary>
     public static class SetupValues
     {

@@ -76,7 +76,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        VramWriteQueue? vramWriteQueue,
         SamusProjectileSystem? samusProjectiles,
         SamusBombProjectileSystem? sharedProjectiles)
     {
@@ -103,13 +102,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             Rise.RunKraidRiseFunction(body, state, samus);
             return;
         }
-        RunKraidCombatFunction(body, state, vramWriteQueue, camera.X);
+        RunKraidCombatFunction(body, state, camera.X);
     }
 
     /// <summary>Ports Kraid's main AI.</summary>
     internal void RunKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(slot, frame.Samus, frame.Camera, frame.VramWriteQueue, frame.SamusProjectiles, frame.SharedProjectiles);
+        RunKraidBodyMain(slot, frame.Samus, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <summary>Ports KraidArm's main AI.</summary>
@@ -238,7 +237,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunKraidCombatFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
-        VramWriteQueue? vramWriteQueue,
         ushort cameraX)
     {
         switch (state.Parts[body.SlotIndex].Function)
@@ -308,7 +306,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:
-                Death.RunKraidDeathFunction(body, state, vramWriteQueue, cameraX);
+                Death.RunKraidDeathFunction(body, state, cameraX);
                 return;
 
             case KraidAiFunction.NoOperation:

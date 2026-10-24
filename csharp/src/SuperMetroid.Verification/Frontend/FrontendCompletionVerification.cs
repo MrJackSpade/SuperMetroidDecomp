@@ -341,13 +341,13 @@ internal static void VerifyCreditsObjectInterpreter()
         AssertTrue(!credits.Step().CopiedRow, "credits waits sixteen half-pixel frames");
     CreditsObjectStepResult first = credits.Step();
     AssertTrue(first.CopiedRow, "credits copies first row at eight-pixel boundary");
-    AssertEqual(1, credits.DestinationRow, "credits advances circular destination row");
+    AssertEqual(1, credits.NextRow, "credits advances circular destination row");
     AssertEqual((ushort)0x0100, credits.Tilemap[0], "credits copies installed first row");
 
     for (int row = 1; row < rows.Length; row++)
         for (int frame = 0; frame < 16; frame++)
             credits.Step();
-    AssertEqual(1, credits.DestinationRow, "credits destination wraps after thirty-two rows");
+    AssertEqual(1, credits.NextRow, "credits destination wraps after thirty-two rows");
     AssertEqual((ushort)0x0120, credits.Tilemap[0], "wrapped row replaces circular row zero");
 
     CreditsObjectStepResult ending = default;

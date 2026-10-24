@@ -15,7 +15,7 @@ internal static class BotwoonHealthPaletteDefinitions
     public const int ColorsPerPalette = 16;
 
     /// <summary>Retail Botwoon writes sprite palette seven, CGRAM colors $F0-$FF.</summary>
-    public const int DestinationColor = 240;
+    public const int FirstColour = 240;
 
     /// <summary>Terminal native byte offset after all eight threshold words are consumed.</summary>
     public const int CompletePhase = 8;

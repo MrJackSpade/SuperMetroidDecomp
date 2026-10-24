@@ -10,6 +10,6 @@ internal static class TorizoInstructionVramTransferDefinitionsAccess
     extension(TorizoInstructionVramTransferDefinitions)
     {
         /// <summary>Compiled native VRAM transfer records in source order.</summary>
-        internal static ReadOnlySpan<TileTransferDefinition> All => TorizoInstructionVramTransferDefinitions.Entries;
+        internal static ReadOnlySpan<TorizoTileTransferDefinition> All => TorizoInstructionVramTransferDefinitions.Entries;
     }
 }

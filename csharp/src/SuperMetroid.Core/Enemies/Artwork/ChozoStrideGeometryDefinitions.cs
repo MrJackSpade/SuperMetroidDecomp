@@ -26,13 +26,13 @@ internal static class ChozoStrideGeometryDefinitions
         Right = 0x171,
     }
     /// <summary>$AA:E959/E9C4/EA34/EAA4: chosen left-foot origins -31/-28/-14/-7.</summary>
-    private const int TransferFootX = -31, EarlySupportFootX = -28,
+    private const int WeightShiftFootX = -31, EarlySupportFootX = -28,
         LateSupportFootX = -14, PushOffFootX = -7;
 
     /// <summary>Gets the left support-foot origin for one of the four stride phases.</summary>
     internal static int SupportFootX(int phase) => phase switch
     {
-        0 => TransferFootX,
+        0 => WeightShiftFootX,
         1 => EarlySupportFootX,
         2 => LateSupportFootX,
         3 => PushOffFootX,

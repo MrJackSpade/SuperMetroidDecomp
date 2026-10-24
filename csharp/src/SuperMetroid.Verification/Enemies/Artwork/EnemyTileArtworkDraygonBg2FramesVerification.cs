@@ -73,7 +73,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 EnemyBg2TilemapWrite write = installed.Span[index];
                 AssertEqual(native[index].Destination,
                     checked((ushort)(EnemyBg2FrameLayout.WorkingRamBase +
-                        write.DestinationWord * 2)),
+                        write.FirstCell * 2)),
                     $"Draygon {frame.Name} write {index} preserves destination");
                 AssertTrue(write.Tiles.Span.SequenceEqual(native[index].Tiles),
                     $"Draygon {frame.Name} write {index} preserves tile words");
@@ -119,7 +119,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "edited Draygon BG2 frame is installed");
         int vramByte = (EnemyBg2FrameLayout.VramBase +
-            editedFrame.Span[0].DestinationWord) * 2;
+            editedFrame.Span[0].FirstCell) * 2;
         AssertEqual((ushort)changedTile,
             BitConverter.ToUInt16(DrawDraygonBg2(edited, editedIdentity.Pointer, true), vramByte),
             "Draygon visual override changes the live BG2 tile word");

@@ -17,8 +17,4 @@ public static class ProjectileTrailAtlasDefinitions
     public const int IceWaveByteCount = 256;
     /// <summary>Four 4-bpp missile trail tiles.</summary>
     public const int MissileByteCount = 128;
-    /// <summary>VRAM word $6380: standard OBJ base $6000 plus tile $38's word offset.</summary>
-    public const ushort IceWaveDestinationWord = 0x6380;
-    /// <summary>VRAM word $6480: standard OBJ base $6000 plus tile $48's word offset.</summary>
-    public const ushort MissileDestinationWord = 0x6480;
 }

@@ -65,7 +65,7 @@ internal static class BossDisplayBindingsStockVerification
                 AssertEqual(native.Bg2.Length, writes.Length, frame.Name + " exact BG2 run count");
                 for (int index = 0; index < native.Bg2.Length; index++)
                 {
-                    AssertEqual(native.Bg2[index].DestinationWord, writes.Span[index].DestinationWord, frame.Name + " native BG2 destination/order");
+                    AssertEqual(native.Bg2[index].FirstCell, writes.Span[index].FirstCell, frame.Name + " native BG2 destination/order");
                     AssertTrue(native.Bg2[index].Tiles.Span.SequenceEqual(writes.Span[index].Tiles.Span), frame.Name + " native BG2 payload/boundaries");
                     runs++; tiles += native.Bg2[index].Tiles.Length;
                 }
@@ -75,7 +75,7 @@ internal static class BossDisplayBindingsStockVerification
                 AssertTrue(expectedOam.ImageEquals(rendered),
                     "stock packed OAM matches independently decoded native records");
                 AssertBossBg2(fixture.Vram, native.Bg2.Select(write => new EnemyBg2WriteDocument
-                { X = write.DestinationWord % EnemyBg2FrameLayout.TilemapWidth, Y = write.DestinationWord / EnemyBg2FrameLayout.TilemapWidth,
+                { X = write.FirstCell % EnemyBg2FrameLayout.TilemapWidth, Y = write.FirstCell / EnemyBg2FrameLayout.TilemapWidth,
                     Tiles = write.Tiles.Span.SelectToArray(value => (int)value) }).ToArray());
             }
         }

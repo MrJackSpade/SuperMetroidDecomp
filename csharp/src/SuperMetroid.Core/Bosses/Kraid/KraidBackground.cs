@@ -34,14 +34,12 @@ internal sealed class KraidBackground
     internal static void TransferKraidTopTilemap(KraidEnemyState state)
     {
         state.DisplayedBody = state.DisplayedBody with { Top = state.WorkingTop, Head = null };
-        state.TopTilemapUploadCount++;
     }
 
     /// <summary>Shows the lower working page exactly as <c>$A7:C8B6</c> uploads it.</summary>
     internal static void TransferKraidBottomTilemap(KraidEnemyState state)
     {
         state.DisplayedBody = state.DisplayedBody with { Bottom = state.WorkingBottom };
-        state.BottomTilemapUploadCount++;
     }
 
     /// <summary>Separates immutable RGB5 artwork from Kraid's native palette timing.</summary>

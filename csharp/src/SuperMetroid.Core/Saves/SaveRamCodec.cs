@@ -421,7 +421,7 @@ public static class SaveRamCodec
             ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
             for (int index = 0; index < areaByteIndexes.Count; index++)
             {
-                int compressedIndex = definition.DestinationOffset + index;
+                int compressedIndex = definition.SaveOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)
                     throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
                 compressed[compressedIndex] = exploredMap[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndexes[index]];
@@ -443,7 +443,7 @@ public static class SaveRamCodec
             ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
             for (int index = 0; index < areaByteIndexes.Count; index++)
             {
-                int compressedIndex = definition.DestinationOffset + index;
+                int compressedIndex = definition.SaveOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)
                     throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
                 explored[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndexes[index]] = compressed[compressedIndex];

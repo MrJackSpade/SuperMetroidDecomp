@@ -238,7 +238,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
             MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray);
         if (!transferred)
             return;
-        var screen = new ushort[MotherBrainBg2Definitions.InitialTransferByteCount / sizeof(ushort)];
+        var screen = new ushort[MotherBrainBg2Definitions.InitialTilemapByteCount / sizeof(ushort)];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
         var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);

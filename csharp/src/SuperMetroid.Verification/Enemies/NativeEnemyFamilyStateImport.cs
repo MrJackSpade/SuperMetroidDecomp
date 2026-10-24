@@ -96,7 +96,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {
             gunshipRecord.FunctionTimer = words.A;
-            gunshipRecord.LiftoffTransferIndex = words.B;
+            gunshipRecord.NextLiftoffPage = words.B;
             gunshipRecord.BobPhase = words.C;
             gunshipRecord.BobTimer = words.D;
             gunshipRecord.BaseY = words.E;

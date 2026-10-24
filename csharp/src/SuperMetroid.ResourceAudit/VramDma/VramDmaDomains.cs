@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -39,12 +38,6 @@ internal static class VramDmaDomains
             case "trails":
                 return Typed([new AssetTransfer(VramAssetId.ProjectileIceWaveTrailTiles, ProjectileTrailAtlasDefinitions.IceWaveByteCount),
                     new AssetTransfer(VramAssetId.ProjectileMissileTrailTiles, ProjectileTrailAtlasDefinitions.MissileByteCount)]);
-            case "kraid":
-                return Typed(Enumerable.Range(0, KraidBackgroundRomData.StandardBg3TransferCount).Select(index =>
-                    new AssetTransfer(KraidBackgroundRomData.StandardBg3AssetForQuarter(index), KraidBackgroundRomData.StandardBg3TransferBytes)));
-            case "gunship":
-                return Native(GunshipLiftoffTransferDefinitions.Frames.Select(frame => new NativeTransfer(frame.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount)))
-                    .Concat(Typed(GunshipLiftoffTransferDefinitions.Frames.Select(frame => new AssetTransfer(frame.Asset, GunshipLiftoffTransferDefinitions.ByteCount))));
             case "enemies":
                 return Native(RoomEnemyGraphicsSetDefinitions.All.SelectMany(set =>
                     set.Records.ToArray()).Select(entry =>
@@ -55,7 +48,7 @@ internal static class VramDmaDomains
                     new NativeTransfer(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame), definition.FrameByteCount))));
             case "arm":
                 return Native(SamusArmCannonArtworkFormat.CoverTileDmaSources.Select(pointer =>
-                    new NativeTransfer(SamusRenderingRomData.Banks.CharacterData | pointer, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
+                    new NativeTransfer(SamusRenderingRomData.Banks.CharacterData | pointer, SamusRenderingRomData.ArmCannon.TileByteCount)));
             case "beam":
                 return Typed(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(selection =>
                     new AssetTransfer(BeamTileCatalog.AssetFor(selection), BeamTileAtlasDefinitions.ByteCount)));

@@ -11,7 +11,7 @@ internal sealed record TorizoTileTransferCharacters(int Entry) : ObjCharacterSou
     /// <exception cref="InvalidDataException">The installed Torizo artwork holds no characters for the transfer.</exception>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver)
     {
-        TileTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[Entry];
+        TorizoTileTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[Entry];
         return (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.TorizoInstructionVram ?? throw new InvalidDataException(
                 "Torizo instruction-time tile transfers require installed artwork."))
             .TryResolve(definition.SourceAddress, definition.ByteCount, out ReadOnlyMemory<byte> characters)

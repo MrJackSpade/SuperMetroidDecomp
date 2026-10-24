@@ -41,17 +41,17 @@ public static class KraidBackgroundRomData
     /// </summary>
     public const int StandardBg3TilesAddress = 0x9ab200;
 
-    /// <summary>One of the four $0400-byte standard-BG3 transfers made during Kraid's death.</summary>
-    public const ushort StandardBg3TransferBytes = HudTileAtlasFormat.RestoreQuarterBytes;
+    /// <summary>The bytes of one of the four standard-BG3 character quarters Kraid's death restores.</summary>
+    public const ushort StandardBg3QuarterBytes = HudTileAtlasFormat.RestoreQuarterBytes;
 
     /// <summary>First VRAM word restored by <c>$A7:C777</c>.</summary>
     public const ushort StandardBg3VramWord = 0x4000;
 
     /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
-    public const int StandardBg3TransferCount = HudTileAtlasFormat.RestoreQuarterCount;
+    public const int StandardBg3QuarterCount = HudTileAtlasFormat.RestoreQuarterCount;
 
     /// <summary>The cartridge source of standard-BG3 quarter <paramref name="quarter"/>.</summary>
-    public static int StandardBg3QuarterAddress(int quarter) => StandardBg3TilesAddress + quarter * StandardBg3TransferBytes;
+    public static int StandardBg3QuarterAddress(int quarter) => StandardBg3TilesAddress + quarter * StandardBg3QuarterBytes;
 
     /// <summary>The installed art of each of the four cartridge-authored restoration phases, indexed by quarter.</summary>
     private static readonly VramAssetId[] StandardBg3QuarterAssets =

@@ -65,7 +65,6 @@ internal sealed class KraidDeath
         state.WorkingTop = KraidBodyPage.Blank;
         state.DisplayedBody = state.DisplayedBody with { Top = KraidBodyPage.Blank, Head = null };
         state.OwnsBg2Tilemap = true;
-        state.TopTilemapUploadCount++;
     }
 
     /// <summary><c>$A7:C751</c>: blanks the rest of Kraid's BG2 map, so it shows nothing for the rest of the visit.</summary>
@@ -73,14 +72,12 @@ internal sealed class KraidDeath
     {
         state.WorkingBottom = KraidBodyPage.Blank;
         state.DisplayedBody = state.DisplayedBody with { Bottom = KraidBodyPage.Blank };
-        state.BottomTilemapUploadCount++;
     }
 
     /// <summary>Dispatches the staged sinking, palette, and room-repair death sequence.</summary>
     internal void RunKraidDeathFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
-        VramWriteQueue? vramWriteQueue,
         ushort cameraX)
     {
         switch (state.Parts[body.SlotIndex].Function)
@@ -137,36 +134,16 @@ internal sealed class KraidDeath
                 ClearKraidBottomTilemapForDeath(state);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter1:
-                AdvanceKraidDeathBg3Transfer(
-                    body,
-                    state,
-                    transferIndex: 0,
-                    KraidAiFunction.DeathLoadBg3Quarter2,
-                    vramWriteQueue);
+                RestoreKraidDeathBg3Quarter(body, state, quarter: 0, KraidAiFunction.DeathLoadBg3Quarter2);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter2:
-                AdvanceKraidDeathBg3Transfer(
-                    body,
-                    state,
-                    transferIndex: 1,
-                    KraidAiFunction.DeathLoadBg3Quarter3,
-                    vramWriteQueue);
+                RestoreKraidDeathBg3Quarter(body, state, quarter: 1, KraidAiFunction.DeathLoadBg3Quarter3);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter3:
-                AdvanceKraidDeathBg3Transfer(
-                    body,
-                    state,
-                    transferIndex: 2,
-                    KraidAiFunction.DeathLoadBg3Quarter4,
-                    vramWriteQueue);
+                RestoreKraidDeathBg3Quarter(body, state, quarter: 2, KraidAiFunction.DeathLoadBg3Quarter4);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter4:
-                AdvanceKraidDeathBg3Transfer(
-                    body,
-                    state,
-                    transferIndex: 3,
-                    KraidAiFunction.DeathFadeInBackground,
-                    vramWriteQueue);
+                RestoreKraidDeathBg3Quarter(body, state, quarter: 3, KraidAiFunction.DeathFadeInBackground);
                 return;
             case KraidAiFunction.DeathFadeInBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
@@ -336,35 +313,26 @@ internal sealed class KraidDeath
         }
     }
 
-    /// <summary>Restores standard BG3 tiles through staged DMA after the body dies.</summary>
-    internal void AdvanceKraidDeathBg3Transfer(
+    /// <summary>
+    /// Restores standard BG3 character quarter <paramref name="quarter"/> after the body dies (#1406).
+    /// <c>$A7:C777-$C7EF</c> deliberately spreads the $1000-byte restoration over four enemy frames, one quarter a
+    /// frame; each quarter is bound as background artwork this update and shows on the frame its NMI copy did.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="quarter"/> is not one of the four quarters.</exception>
+    /// <exception cref="InvalidDataException">The standard BG3 artwork is not installed.</exception>
+    internal void RestoreKraidDeathBg3Quarter(
         RoomEnemySlot body,
         KraidEnemyState state,
-        int transferIndex,
-        KraidAiFunction next,
-        VramWriteQueue? vramWriteQueue)
+        int quarter,
+        KraidAiFunction next)
     {
-        if ((uint)transferIndex >= KraidBackgroundRomData.StandardBg3TransferCount)
-            throw new ArgumentOutOfRangeException(nameof(transferIndex));
-
-        int destinationWord = BossVram.KraidBg3RestoreQuarterWord(transferIndex);
-
-        // `$A7:C777-$C7EF` deliberately spreads the $1000-byte restoration over four
-        // enemy frames. The runtime path appends the same four native seven-byte DMA
-        // records so NMI owns visibility. Isolated enemy audits have no NMI/queue owner;
-        // executing that one frame's transfer directly preserves the identical bytes and
-        // keeps their per-frame sequencing observable without fabricating a host queue.
-        // The restored characters are background artwork bound at the NMI (#1352).
+        if ((uint)quarter >= KraidBackgroundRomData.StandardBg3QuarterCount)
+            throw new ArgumentOutOfRangeException(nameof(quarter));
         HudTileAtlas hud = _bossArtwork.HudTileArtwork ?? throw new InvalidDataException(
             "Installed Kraid death restoration has no standard BG3 artwork.");
-        if (vramWriteQueue is not null)
-            vramWriteQueue.EnqueueBackgroundAsset(
-                KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
-                KraidBackgroundRomData.StandardBg3TransferBytes, BossVram.KraidBg3RestoreDma(destinationWord));
-        else
-            BossVram.BindKraidBg3Restore(_presentation.Backgrounds, transferIndex, hud.KraidRestoreQuarter(transferIndex).Span);
+        BossVram.BindKraidBg3Restore(_presentation.Backgrounds, quarter, hud.KraidRestoreQuarter(quarter).Span);
 
-        state.DeathBg3TransferCount++;
+        state.RestoredBg3Quarters++;
         state.Parts[body.SlotIndex].Function = next;
     }
 }

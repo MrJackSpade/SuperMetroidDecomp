@@ -1787,7 +1787,7 @@ internal static class LookupStream4Verification
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
                 for (int index = 0; index < SnesCgram.ColorCount; index++)
                 {
-                    int color = index - SamusProjectileRomData.Palettes.BeamDestinationIndex;
+                    int color = index - SamusProjectileRomData.Palettes.BeamFirstColour;
                     ushort expected = color is >= 0 and < 16 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)) : (ushort)(index * 31);
                     if (edit >= 0 && selection * 16 + color == edit / 3 && color is >= 0 and < 16)
                         expected ^= (ushort)(1 << (edit % 3 * 5));
@@ -2976,7 +2976,7 @@ internal static class LookupStream4Verification
                 enemies.Presentation.BindCgram(cgram.Gameplay);
                 Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
-                var state = new BotwoonEnemyState() { PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor };
+                var state = new BotwoonEnemyState() { PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour };
                 for (int band = 0; band < 8; band++)
                 {
                     for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));

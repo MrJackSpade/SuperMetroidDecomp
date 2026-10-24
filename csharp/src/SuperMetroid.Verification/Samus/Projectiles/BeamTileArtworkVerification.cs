@@ -49,7 +49,7 @@ internal static class BeamTileArtworkVerification
             editedPng.Position = 0;
             var edited = BeamTileAtlas.Load(editedPng, SamusBeamCombinations.FromTableIndex(selection));
             edited.LoadTo(extracted);
-            int firstByte = BeamTileAtlasDefinitions.DestinationWord * 2;
+            int firstByte = ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2;
             AssertEqual((byte)(native.Bytes[firstByte] ^ 0x80), extracted.Bytes[firstByte], "Edited pixel changes the correct tile plane bit");
             for (int index = 0; index < native.Bytes.Length; index++)
                 if (index != firstByte) AssertEqual(native.Bytes[index], extracted.Bytes[index], "Beam edit cannot change neighboring VRAM or other pixels");
@@ -65,14 +65,14 @@ internal static class BeamTileArtworkVerification
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, catalog,
                 InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
             AssertTrue(pages.For((SamusBeamFlags)selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
-                    BeamTileAtlasDefinitions.ByteCount).SequenceEqual(native.Bytes.Slice(BeamTileAtlasDefinitions.DestinationWord * 2, BeamTileAtlasDefinitions.ByteCount)),
+                    BeamTileAtlasDefinitions.ByteCount).SequenceEqual(native.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
                 "The bound projectile page shows the native beam characters");
             AssertTrue(new CgramPalettes(actualPalette).ImageEquals(new CgramPalettes(expectedPalette)), "PNG selection leaves beam palette behavior unchanged");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
             var editedPages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, BeamTileCatalog.Load(replacements),
                 InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
             AssertTrue(editedPages.For((SamusBeamFlags)selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
-                    BeamTileAtlasDefinitions.ByteCount).SequenceEqual(extracted.Bytes.Slice(BeamTileAtlasDefinitions.DestinationWord * 2, BeamTileAtlasDefinitions.ByteCount)),
+                    BeamTileAtlasDefinitions.ByteCount).SequenceEqual(extracted.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
                 "The bound page shows the edited PNG");
         }
         using var wrongSize = new MemoryStream();
@@ -101,13 +101,13 @@ internal static class BeamTileArtworkVerification
         {
             var bytes = new byte[BeamTileAtlasDefinitions.ByteCount];
             for (int i = 0; i < bytes.Length; i++) bytes[i] = bus.ReadCartridgeByte(tileSource + i);
-            vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, bytes);
+            vram.LoadBytes(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, bytes);
         }
-        queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, VramDmaDestination.FromNative(BeamTileAtlasDefinitions.DestinationWord));
+        queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter)));
         int colors = SamusProjectileRomData.Banks.Movement |
             CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.PalettePointers + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
+            cgram.SetColor(SamusProjectileRomData.Palettes.BeamFirstColour + i, Bgr555.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
     }
     /// <summary>Checks accepted NMI publication of edited PNG bytes and host artwork rebinding after a runtime restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]

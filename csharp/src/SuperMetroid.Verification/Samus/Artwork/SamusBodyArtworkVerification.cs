@@ -622,7 +622,7 @@ internal static class SamusBodyArtworkVerification
         {
             int source = SamusRenderingRomData.Banks.CharacterData | pointer;
             AssertTrue(armCannon.TryResolveTile(source,
-                SamusRenderingRomData.ArmCannon.TileUploadByteCount, out var tile),
+                SamusRenderingRomData.ArmCannon.TileByteCount, out var tile),
                 $"arm-cannon character ${source:X6} installed");
             for (int offset = 0; offset < tile.Length; offset++)
                 AssertEqual(bus.ReadCartridgeByte(source + offset), tile.Span[offset],

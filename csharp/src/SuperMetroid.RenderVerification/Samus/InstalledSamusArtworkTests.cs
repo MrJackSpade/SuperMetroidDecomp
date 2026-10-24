@@ -133,7 +133,7 @@ internal static class InstalledSamusArtworkTests
         foreach (ushort source in SamusArmCannonArtworkFormat.CoverTileDmaSources)
         {
             Check(SamusRenderingRomData.Banks.CharacterData | source,
-                SamusRenderingRomData.ArmCannon.TileUploadByteCount,
+                SamusRenderingRomData.ArmCannon.TileByteCount,
                 SamusRenderingRomDataArmCannonConstants.TileVramDestination, $"cannon {source:X4}");
             count++;
         }

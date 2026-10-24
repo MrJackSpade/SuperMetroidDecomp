@@ -32,7 +32,7 @@ internal static class CrocomireSkeletonArtworkVerification
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             ushort source = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
-            AssertEqual(destination, frame.DestinationOffset,
+            AssertEqual(destination, frame.FirstCharacter * 16,
                 $"Crocomire skeleton destination {index} matches the cartridge");
             AssertEqual(0xad0000 | source, frame.SourceAddress,
                 $"Crocomire skeleton source {index} matches the cartridge");
@@ -94,7 +94,7 @@ internal static class CrocomireSkeletonArtworkVerification
             stockDirectory, overrides);
         (byte[] editedCharacters, _, CartridgeReadGuard editedGuard) =
             RunInstalled(edited);
-        int firstDestination = frames[0].DestinationOffset * 2;
+        int firstDestination = frames[0].FirstCharacter * 32;
         AssertEqual((byte)(installedCharacters[firstDestination] ^ 0x80),
             editedCharacters[firstDestination],
             "Crocomire skeleton PNG edit changes the actual uploaded planar pixel");

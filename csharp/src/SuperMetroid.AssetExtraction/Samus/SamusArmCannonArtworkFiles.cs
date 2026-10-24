@@ -75,10 +75,10 @@ public static class SamusArmCannonArtworkFiles
             CoverTiles = coverTiles,
         };
         byte[] planar = new byte[SamusArmCannonArtworkFormat.CoverTileCount *
-            SamusRenderingRomData.ArmCannon.TileUploadByteCount];
+            SamusRenderingRomData.ArmCannon.TileByteCount];
         for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
-            for (int offset = 0; offset < SamusRenderingRomData.ArmCannon.TileUploadByteCount; offset++)
-                planar[tile * SamusRenderingRomData.ArmCannon.TileUploadByteCount + offset] =
+            for (int offset = 0; offset < SamusRenderingRomData.ArmCannon.TileByteCount; offset++)
+                planar[tile * SamusRenderingRomData.ArmCannon.TileByteCount + offset] =
                     bus.ReadCartridgeByte(SamusRenderingRomData.Banks.CharacterData |
                         (SamusArmCannonArtworkFormat.CoverTileDmaSources[tile] + offset));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
@@ -100,10 +100,10 @@ public static class SamusArmCannonArtworkFiles
         {
             if (!roundTrip.TryResolveTile(SamusRenderingRomData.Banks.CharacterData |
                     SamusArmCannonArtworkFormat.CoverTileDmaSources[tile],
-                    SamusRenderingRomData.ArmCannon.TileUploadByteCount, out var decoded) ||
+                    SamusRenderingRomData.ArmCannon.TileByteCount, out var decoded) ||
                 !decoded.Span.SequenceEqual(planar.AsSpan(
-                    tile * SamusRenderingRomData.ArmCannon.TileUploadByteCount,
-                    SamusRenderingRomData.ArmCannon.TileUploadByteCount)))
+                    tile * SamusRenderingRomData.ArmCannon.TileByteCount,
+                    SamusRenderingRomData.ArmCannon.TileByteCount)))
                 throw new InvalidDataException($"Arm-cannon tile {tile} changed in PNG round-trip.");
         }
     }
@@ -140,7 +140,7 @@ public static class SamusArmCannonArtworkFiles
             var placement = json.Compile(SamusArmCannonArtworkCatalog.LoadPlacement);
             var tiles = png.Compile(stream => RoomCharacterAtlas.Load(stream,
                 SamusArmCannonArtworkFormat.CoverTileCount *
-                    SamusRenderingRomData.ArmCannon.TileUploadByteCount));
+                    SamusRenderingRomData.ArmCannon.TileByteCount));
             return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);
         }
     }

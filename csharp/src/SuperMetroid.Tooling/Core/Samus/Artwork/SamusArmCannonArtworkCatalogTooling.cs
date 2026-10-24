@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -14,7 +14,7 @@ internal static class SamusArmCannonArtworkCatalogTooling
         SamusArmCannonArtworkCatalog.Placement placement = SamusArmCannonArtworkCatalog.LoadPlacement(json);
         RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
             SamusArmCannonArtworkFormat.CoverTileCount *
-                SamusRenderingRomData.ArmCannon.TileUploadByteCount);
+                SamusRenderingRomData.ArmCannon.TileByteCount);
         return SamusArmCannonArtworkCatalog.FromPlacement(placement, tiles);
     }
 }

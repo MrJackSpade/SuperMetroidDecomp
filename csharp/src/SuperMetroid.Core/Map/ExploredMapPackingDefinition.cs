@@ -2,5 +2,5 @@ namespace SuperMetroid.Core.Map;
 
 /// <summary>One area's calculated SRAM destination and occupied native map-byte view.</summary>
 internal readonly record struct ExploredMapPackingDefinition(
-    ushort DestinationOffset,
+    ushort SaveOffset,
     ExploredMapPackingDefinitions.OccupiedByteIndexes AreaByteIndexes);

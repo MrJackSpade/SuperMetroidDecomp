@@ -381,7 +381,7 @@ internal static class TileWordSheetComposer
     /// <summary>Each frame of a catalog: its writes, at the tilemap words they write.</summary>
     private static IEnumerable<(string Name, BodyPart Part)> FrameParts(EnemyBg2FrameCatalog catalog) =>
         catalog.Frames.OrderBy(frame => frame.Key.ToString(), StringComparer.Ordinal).Select(frame => (frame.Key.ToString(),
-            new BodyPart([.. frame.Value.SelectMany(write => Runs(write.DestinationWord, write.Tiles.ToArray()))])));
+            new BodyPart([.. frame.Value.SelectMany(write => Runs(write.FirstCell, write.Tiles.ToArray()))])));
 
     /// <summary>The tiles a boss fills its tilemap with, as one part.</summary>
     private static (string Name, BodyPart Part) Fill(params ushort[] words) => ("Fill", new BodyPart([new BodyRun(0, 0, [.. words.Distinct()])]));

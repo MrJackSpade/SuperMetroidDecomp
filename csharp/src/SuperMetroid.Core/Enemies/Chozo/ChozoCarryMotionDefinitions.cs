@@ -17,14 +17,14 @@ public static class ChozoCarryMotionDefinitions
     /// continuous physical rates. No independent planted3/14/7 magnitude is retained.
     /// Investigation: #625 / #665.
     /// </remarks>
-    private const int FootTransferAdvance = 2, FinalPlantSlide = 1;
+    private const int WeightShiftAdvance = 2, FinalPlantSlide = 1;
 
     /// <summary>Derives the authored statue stride burst from adjacent planted-foot positions.</summary>
     private static short Magnitude(int local)
     {
         if (local is < 4 or >= 12) return 0;
         int phase = local % 4;
-        int pixels = phase == 0 ? FootTransferAdvance :
+        int pixels = phase == 0 ? WeightShiftAdvance :
             ChozoStrideGeometryDefinitions.SupportFootX(phase) -
             ChozoStrideGeometryDefinitions.SupportFootX(phase - 1) +
             (phase == 3 ? FinalPlantSlide : 0);

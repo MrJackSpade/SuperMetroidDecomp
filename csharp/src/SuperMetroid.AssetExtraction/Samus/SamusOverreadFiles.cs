@@ -90,22 +90,21 @@ public static class SamusOverreadFiles
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
         {
             IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list);
+            SnesAddress start = ProjectileTrailPlacementSources.Start(cartridge, list);
             var bytes = new byte[frames.Count * SamusOverreadDefinitions.TrailOverrunEntryByteCount];
             for (int index = 0; index < frames.Count; index++)
             {
                 Span<byte> entry = bytes.AsSpan(index * SamusOverreadDefinitions.TrailOverrunEntryByteCount,
                     SamusOverreadDefinitions.TrailOverrunEntryByteCount);
-                int record = (ProjectileTrailPlacementSources.Addresses[list] + frames[index] * ProjectileTrailPlacementSources.RecordByteCount) &
-                    ushort.MaxValue;
-                if (record < ProjectileTrailPlacementSources.CartridgeHalfStart ||
-                    record > ushort.MaxValue - (ProjectileTrailPlacementSources.RecordByteCount - 1))
+                SnesAddress record = start.AddWithinBank(frames[index] * ProjectileTrailPlacementSources.RecordByteCount);
+                SnesAddress last = record.AddWithinBank(ProjectileTrailPlacementSources.RecordByteCount - 1);
+                if (!record.IsUpperLoRomWindow || last.Offset < record.Offset)
                 {
                     entry[0] = (byte)TrailOverrunEntryKind.Scratch;
                     continue;
                 }
                 entry[0] = (byte)TrailOverrunEntryKind.Placement;
-                for (int offset = 0; offset < ProjectileTrailPlacementSources.RecordByteCount; offset++)
-                    entry[1 + offset] = cartridge.ReadCartridgeByte(ProjectileTrailPlacementSources.Bank | (record + offset));
+                RomDataReader.ReadFixedBank(cartridge, record, ProjectileTrailPlacementSources.RecordByteCount).CopyTo(entry[1..]);
             }
             lists.Add(list.ToString(), Convert.ToBase64String(bytes));
         }

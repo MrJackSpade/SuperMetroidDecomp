@@ -39,9 +39,9 @@ public static class EscapeTypewriterDefinitions
     /// <summary>$A6:C4A0..C4C9: reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
     private const int ZebesLineCount = 2;
     /// <summary>$A6:C456, TypewriterText_CeresEscapeTimer: BG1 tilemap VRAM identity.</summary>
-    private const int CeresTilemapBase = 0x5000;
+    internal const int CeresTilemapBase = 0x5000;
     /// <summary>$A6:C4A2, TypewriterText_ZebesEscapeTimer: BG2 tilemap VRAM identity.</summary>
-    private const int ZebesTilemapBase = 0x4800;
+    internal const int ZebesTilemapBase = 0x4800;
 
     /// <summary>Ceres uses three warning lines while Zebes uses two.</summary>
     internal static int LineCount(EscapeTypewriterProgramId id) => id switch

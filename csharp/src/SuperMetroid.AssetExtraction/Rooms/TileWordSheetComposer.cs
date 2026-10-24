@@ -52,9 +52,10 @@ internal static class TileWordSheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
-        List<(string Name, BodyPart Part)> parts = [.. Ensure.NotNull(writers).Order()
-            .SelectMany(writer => Parts(inputs, writer).Select(part => ($"{writer}.{part.Name}", part.Part)))];
-        return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, uploads.Uploads, [uploads.WordCharacterBase], uploads.WordUploads);
+        List<NamedPart> parts = [.. Ensure.NotNull(writers).Order()
+            .SelectMany(writer => Parts(inputs, writer).Select(part => part with { Name = $"{writer}.{part.Name}" }))];
+        return Compose(inputs, tileset,
+            new LayerWords(TileWordLayer.Bg12, parts, content, uploads.Uploads, [uploads.WordCharacterBase], uploads.WordUploads));
     }
 
     /// <summary>
@@ -70,26 +71,26 @@ internal static class TileWordSheetComposer
         Ensure.NotNull(uploads);
         // The minimap keeps showing the last area's map until it next updates, as across an area's elevator, so every
         // area's map tiles can show in any room.
-        List<(string Name, BodyPart Part)> parts = [.. HudParts(inputs.Maps.GameplayHud), ("Minimap", Minimap(inputs.Maps, Enum.GetValues<AreaId>())),
-            .. uploads.FxTypes.Order().Select(type => ($"Fx{type}", Page(inputs.Maps.RoomFxLayer3Tilemaps.Resolve(type).Span))),
+        List<NamedPart> parts = [.. HudParts(inputs.Maps.GameplayHud), new("Minimap", Minimap(inputs.Maps, Enum.GetValues<AreaId>())),
+            .. uploads.FxTypes.Order().Select(type => new NamedPart($"Fx{type}", Page(inputs.Maps.RoomFxLayer3Tilemaps.Resolve(type).Span))),
             Fill(RoomFxRomData.Layer3.ClearTilemapWord)];
-        return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
+        return Compose(inputs, tileset, new LayerWords(TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             [RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],
-            [uploads.Bg3ContentBase, .. uploads.Bg3CharacterBases.Where(characterBase => characterBase != uploads.Bg3ContentBase).Order()], []);
+            [uploads.Bg3ContentBase, .. uploads.Bg3CharacterBases.Where(characterBase => characterBase != uploads.Bg3ContentBase).Order()], []));
     }
 
     /// <summary>
-    /// Composes <paramref name="layer"/>'s sheet of <paramref name="parts"/> over <paramref name="content"/>, which binds
-    /// <paramref name="bound"/> beyond the room's load, each word's character read at the first of <paramref name="bases"/>,
-    /// and each word pictured again over each of <paramref name="options"/> covering its character at any of them.
+    /// Composes the sheet of <paramref name="words"/>' parts over its content, which binds its bound uploads beyond the
+    /// room's load, each word's character read at the first of its character bases, and each word pictured again over
+    /// each of its options covering its character at any of them.
     /// </summary>
     /// <exception cref="InvalidDataException">A part reads a character nothing the room loads is bound over.</exception>
     [PpuLayoutBoundary("codec: the BG characters written tile words name, from their layer's character bases")]
-    private static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, TileWordLayer layer,
-        List<(string Name, BodyPart Part)> parts, BgArtworkBindings content, IReadOnlyList<BgCharacterUpload> options, int[] bases,
-        IReadOnlyList<BgCharacterUpload> bound)
+    private static ComposedTileWordSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, LayerWords words)
     {
+        (TileWordLayer layer, List<NamedPart> parts, BgArtworkBindings content, IReadOnlyList<BgCharacterUpload> options, int[] bases,
+            IReadOnlyList<BgCharacterUpload> bound) = words;
         Ensure.NotNull(content);
         int characterWords = TileWordSheet.CharacterWordsOf(layer);
         IReadOnlyList<BgCharacterUpload> load = CartridgeRoomAssets.CharacterUploads(tileset, inputs.Characters.Cre.Transfer,
@@ -99,53 +100,53 @@ internal static class TileWordSheetComposer
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).Transfer.Span);
 
         var tiles = new List<TileWordSheetTile>();
-        var pictured = new HashSet<(ushort, BgArtworkShown)>();
-        var placed = new List<(int Top, ushort Word, BgArtworkShown Shown, int X, int Y)>();
+        var pictured = new HashSet<PicturedWord>();
+        var placed = new List<PlacedWord>();
         int top = 0;
         foreach ((string name, BodyPart part) in parts)
         {
             // A part shows the last word it writes at each position.
-            var written = new SortedDictionary<(int Y, int X), ushort>();
+            var written = new SortedDictionary<Position16<TilemapCells>, ushort>(RowMajor);
             foreach (BodyRun run in part.Runs)
             {
                 for (int index = 0; index < run.Words.Length; index++)
-                    written[(run.Y - part.Top, run.X + index)] = run.Words[index];
+                    written[Cell(run.Start.X + index, run.Start.Y - part.Top)] = run.Words[index];
             }
-            foreach (((int y, int x), ushort word) in written)
+            foreach ((Position16<TilemapCells> cell, ushort word) in written)
             {
                 int first = CharacterWord(bases[0], word, characterWords);
                 if (!content.TryShowing(first, characterWords, out BgArtworkShown shown))
                     throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {name} reads a character at VRAM word ${first:X4} its room loads nothing over.");
-                placed.Add((top, word, shown, x, y));
-                if (pictured.Add((word, shown)))
-                    tiles.Add(new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), name, Corner(x, y)));
+                var picture = new PicturedWord(new SnesBgTilemapWord(word), shown);
+                placed.Add(new PlacedWord(top, picture, cell));
+                if (pictured.Add(picture))
+                    tiles.Add(new TileWordSheetTile(picture.Artwork, name, Corner(cell)));
             }
             top += part.Rows;
         }
         // A word the room shows over artwork it binds after loading is pictured once more over that artwork.
-        var rebound = new List<(ushort Word, BgArtworkShown Shown)>();
-        foreach (ushort word in placed.Select(tile => tile.Word).Distinct())
+        var rebound = new List<PicturedWord>();
+        foreach (SnesBgTilemapWord word in placed.Select(tile => tile.Picture.Word).Distinct())
         {
             foreach (int first in bases.Select(characterBase => CharacterWord(characterBase, word, characterWords)))
             {
                 foreach (BgCharacterUpload upload in options.Where(upload => RoomBlockSheetComposer.Covers(upload, first, characterWords)))
                 {
-                    var shown = new BgArtworkShown(upload.Identity, first - upload.FirstWord);
-                    if (pictured.Add((word, shown)))
-                        rebound.Add((word, shown));
+                    var picture = new PicturedWord(word, new BgArtworkShown(upload.Identity, first - upload.FirstWord));
+                    if (pictured.Add(picture))
+                        rebound.Add(picture);
                 }
             }
         }
         int reboundRows = (rebound.Count + PartTiles - 1) / PartTiles;
         var canvas = new RoomTileCanvas(PartTiles * RoomTileCanvas.CharacterPixels, (top + reboundRows) * RoomTileCanvas.CharacterPixels);
-        foreach ((int partTop, ushort word, BgArtworkShown shown, int x, int y) in placed)
-            Paint(x, partTop + y, word, shown);
+        foreach (PlacedWord tile in placed)
+            Paint(Cell(tile.Cell.X, tile.PartTop + tile.Cell.Y), tile.Picture);
         for (int index = 0; index < rebound.Count; index++)
         {
-            (ushort word, BgArtworkShown shown) = rebound[index];
-            int x = index % PartTiles, y = index / PartTiles;
-            Paint(x, top + y, word, shown);
-            tiles.Add(new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(word), shown), TileWordSheet.ReboundFrameName, Corner(x, y)));
+            Position16<TilemapCells> cell = Cell(index % PartTiles, index / PartTiles);
+            Paint(Cell(cell.X, top + cell.Y), rebound[index]);
+            tiles.Add(new TileWordSheetTile(rebound[index].Artwork, TileWordSheet.ReboundFrameName, Corner(cell)));
         }
 
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
@@ -159,19 +160,28 @@ internal static class TileWordSheetComposer
             frames.Add(TileWordSheet.ReboundFrameName, Frame(canvas, top, reboundRows, layer));
         return new ComposedTileWordSheet(layer, tileset, canvas.ToSheet(colours, frames, TileWordSheet.ColoursOf(layer)), tiles);
 
-        void Paint(int x, int y, ushort word, BgArtworkShown shown)
+        void Paint(Position16<TilemapCells> cell, PicturedWord picture)
         {
+            BgArtworkShown shown = picture.Shown;
             ReadOnlySpan<byte> character = bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
+            Position16<ImagePixels> corner = Corner(cell);
             if (layer == TileWordLayer.Bg3)
-                canvas.PaintTwoBppTile(x * RoomTileCanvas.CharacterPixels, y * RoomTileCanvas.CharacterPixels, new SnesBgTilemapWord(word), character, colours);
+                canvas.PaintTwoBppTile(corner.X, corner.Y, picture.Word, character, colours);
             else
-                canvas.PaintTile(x * RoomTileCanvas.CharacterPixels, y * RoomTileCanvas.CharacterPixels, new SnesBgTilemapWord(word), character, colours);
+                canvas.PaintTile(corner.X, corner.Y, picture.Word, character, colours);
         }
     }
 
-    /// <summary>The pixel corner of the tile at (<paramref name="x"/>, <paramref name="y"/>) within its frame.</summary>
-    private static Position16<ImagePixels> Corner(int x, int y) =>
-        new((ushort)(x * RoomTileCanvas.CharacterPixels), (ushort)(y * RoomTileCanvas.CharacterPixels));
+    /// <summary>Orders tilemap cells row by row, left to right within a row, as a part's words are laid out.</summary>
+    private static readonly Comparer<Position16<TilemapCells>> RowMajor = Comparer<Position16<TilemapCells>>.Create(
+        (left, right) => left.Y != right.Y ? left.Y.CompareTo(right.Y) : left.X.CompareTo(right.X));
+
+    /// <summary>The tilemap cell at column <paramref name="column"/> of row <paramref name="row"/>.</summary>
+    private static Position16<TilemapCells> Cell(int column, int row) => new(checked((ushort)column), checked((ushort)row));
+
+    /// <summary>The pixel corner of the tile at <paramref name="cell"/> within its frame.</summary>
+    private static Position16<ImagePixels> Corner(Position16<TilemapCells> cell) =>
+        new(checked((ushort)(cell.X * RoomTileCanvas.CharacterPixels)), checked((ushort)(cell.Y * RoomTileCanvas.CharacterPixels)));
 
     /// <summary>The frame of <paramref name="rows"/> tile rows from row <paramref name="top"/>, across the sheet.</summary>
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows, TileWordLayer layer)
@@ -192,43 +202,43 @@ internal static class TileWordSheetComposer
 
     /// <summary>The parts <paramref name="writer"/> writes, each named, in a stable order.</summary>
     /// <exception cref="InvalidDataException">The writer's installed artwork is missing.</exception>
-    private static IEnumerable<(string Name, BodyPart Part)> Parts(RoomBlockSheetInputs inputs, TileWordWriter writer)
+    private static IEnumerable<NamedPart> Parts(RoomBlockSheetInputs inputs, TileWordWriter writer)
     {
         BossArtworkCatalog bosses = inputs.Bosses;
         switch (writer)
         {
             case TileWordWriter.ZebesEscapeText:
-                yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase,
-                    GameplayVramLayout.Bg2TilemapWord));
+                yield return new("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase,
+                    EscapeTypewriterDefinitions.ZebesTilemapBase));
                 break;
             case TileWordWriter.CeresEscapeText:
-                foreach ((string, BodyPart) part in CeresWarningParts(inputs))
+                foreach (NamedPart part in CeresWarningParts(inputs))
                     yield return part;
                 break;
             case TileWordWriter.Kraid:
-                foreach ((string, BodyPart) part in KraidParts(bosses.KraidBackground ?? throw Missing(writer)))
+                foreach (NamedPart part in KraidParts(bosses.KraidBackground ?? throw Missing(writer)))
                     yield return part;
                 break;
             case TileWordWriter.Phantoon:
-                foreach ((string, BodyPart) part in FrameParts((bosses.PhantoonBg2Frames ?? throw Missing(writer)).Writes))
+                foreach (NamedPart part in FrameParts((bosses.PhantoonBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 yield return Fill(PhantoonBg2FrameDefinitions.BlankTile);
                 break;
             case TileWordWriter.Draygon:
-                foreach ((string, BodyPart) part in FrameParts((bosses.DraygonBg2Frames ?? throw Missing(writer)).Writes))
+                foreach (NamedPart part in FrameParts((bosses.DraygonBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 yield return Fill(EnemyBg2SurfaceDefinitions.BlankTile.Raw);
                 break;
             case TileWordWriter.Crocomire:
-                foreach ((string, BodyPart) part in FrameParts((bosses.CrocomireBg2Frames ?? throw Missing(writer)).Writes))
+                foreach (NamedPart part in FrameParts((bosses.CrocomireBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(writer);
                 foreach (CrocomireMeltingTilemapAddress image in Enum.GetValues<CrocomireMeltingTilemapAddress>())
-                    yield return ($"Melting{image}", Rows(melting.Tilemap(image).ToArray()));
+                    yield return new($"Melting{image}", Rows(melting.Tilemap(image).ToArray()));
                 yield return Fill(CrocomireBg2.CrocomireBlankBg2Tile);
                 break;
             case TileWordWriter.MotherBrain:
-                foreach ((string, BodyPart) part in FrameParts((bosses.MotherBrainBodyBg2Frames ?? throw Missing(writer)).Writes))
+                foreach (NamedPart part in FrameParts((bosses.MotherBrainBodyBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 yield return Fill(MotherBrainBg2Definitions.BlankTile, MotherBrainDeathRomData.EmptyBodyTile);
                 break;
@@ -238,17 +248,17 @@ internal static class TileWordSheetComposer
     }
 
     /// <summary>Kraid's body pages, with and without the priority his growth sets, and his head frames.</summary>
-    private static IEnumerable<(string Name, BodyPart Part)> KraidParts(KraidBackgroundArtwork art)
+    private static IEnumerable<NamedPart> KraidParts(KraidBackgroundArtwork art)
     {
         ushort[] working = KraidBodyTilemap.ComposeWorkingMap(art);
         ushort[] upper = working[..KraidBackgroundRomData.VisiblePageWords];
         ushort[] lower = working.AsSpan(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords).ToArray();
-        yield return ("Upper", Rows(upper));
-        yield return ("UpperPriority", Rows(WithPriority(upper)));
-        yield return ("Lower", Rows(lower));
-        yield return ("LowerPriority", Rows(WithPriority(lower)));
+        yield return new("Upper", Rows(upper));
+        yield return new("UpperPriority", Rows(WithPriority(upper)));
+        yield return new("Lower", Rows(lower));
+        yield return new("LowerPriority", Rows(WithPriority(lower)));
         foreach ((int mouthStage, KraidHeadTilemapAtlas head) in art.Heads.OrderBy(entry => entry.Key))
-            yield return ($"Head{mouthStage}", Rows(head.Words.ToArray()));
+            yield return new($"Head{mouthStage}", Rows(head.Words.ToArray()));
         yield return Fill(KraidBackgroundRomData.BlankTile);
     }
 
@@ -258,12 +268,12 @@ internal static class TileWordSheetComposer
     /// </summary>
     /// <exception cref="InvalidDataException">The installed area artwork has no Ceres warning tilemaps.</exception>
     [PpuLayoutBoundary("codec: Ceres warning tilemaps' native BG1 tilemap destinations")]
-    private static IEnumerable<(string Name, BodyPart Part)> CeresWarningParts(RoomBlockSheetInputs inputs)
+    private static IEnumerable<NamedPart> CeresWarningParts(RoomBlockSheetInputs inputs)
     {
         CeresEscapeOverlayTilemapCatalog overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
         CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
-        yield return ("Emergency", new BodyPart([.. Runs(CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord,
+        yield return new("Emergency", new BodyPart([.. Runs(CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord,
             OverlayWords(overlays, emergency.SourceAddress, emergency.WordCount * sizeof(ushort)))]));
         var subtitle = new List<BodyRun>();
         for (int record = 0; record < CeresEscapeVramTransferDefinitions.JapaneseOverlayRecords; record++)
@@ -272,9 +282,9 @@ internal static class TileWordSheetComposer
             subtitle.AddRange(Runs(transfer.DestinationWord - GameplayVramLayout.Bg1TilemapWord,
                 OverlayWords(overlays, transfer.SourceAddress, transfer.ByteCount)));
         }
-        yield return ("Subtitle", new BodyPart([.. subtitle]));
-        yield return ("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase,
-            GameplayVramLayout.Bg1TilemapWord));
+        yield return new("Subtitle", new BodyPart([.. subtitle]));
+        yield return new("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase,
+            EscapeTypewriterDefinitions.CeresTilemapBase));
     }
 
     /// <summary>The words of the installed Ceres warning tilemap the getaway writes from <paramref name="sourceAddress"/>.</summary>
@@ -315,7 +325,7 @@ internal static class TileWordSheetComposer
     /// each energy and reserve-tank count, each ammunition count, each item highlighted and not, the reserve indicator on,
     /// off and cleared, and no items at all.
     /// </summary>
-    private static IEnumerable<(string Name, BodyPart Part)> HudParts(GameplayHudPresentation presentation)
+    private static IEnumerable<NamedPart> HudParts(GameplayHudPresentation presentation)
     {
         SamusEquipmentFlags everything = Enum.GetValues<SamusEquipmentFlags>().Aggregate((all, item) => all | item);
         var stocked = new HudSnapshot(1499, 1499, 230, 230, 50, 50, 50, 50, everything, HudItem.Beam, 400, ReserveTankMode.Auto);
@@ -323,7 +333,7 @@ internal static class TileWordSheetComposer
         hud.BindPresentation(presentation);
         hud.Initialize(stocked);
         ushort[] shown = [.. presentation.TopRow(), .. hud.MutableRows];
-        yield return ("Hud", Rows(shown));
+        yield return new("Hud", Rows(shown));
         var glyphs = new SortedSet<ushort>();
         void Show(HudSnapshot snapshot)
         {
@@ -356,11 +366,11 @@ internal static class TileWordSheetComposer
         glyphs.UnionWith(hud.MutableRows.ToArray());
         Show(HudSnapshot.CeresDebug);
         glyphs.ExceptWith(shown);
-        yield return ("Glyphs", Rows([.. glyphs]));
+        yield return new("Glyphs", Rows([.. glyphs]));
     }
 
     /// <summary>Every word the HUD's minimap shows of <paramref name="areas"/>' maps: each tile explored and not, blinking or not, and the blank.</summary>
-    private static BodyPart Minimap(AreaMapPresentationCatalog maps, IEnumerable<AreaId> areas)
+    private static BodyPart Minimap(IAreaMapSource maps, IEnumerable<AreaId> areas)
     {
         var words = new SortedSet<ushort> { (ushort)MapTileWords.HudBlank };
         foreach (AreaId area in areas)
@@ -390,12 +400,13 @@ internal static class TileWordSheetComposer
     }
 
     /// <summary>Each frame of a catalog: its writes, at the tilemap words they write.</summary>
-    private static IEnumerable<(string Name, BodyPart Part)> FrameParts(EnemyBg2FrameCatalog catalog) =>
-        catalog.Frames.OrderBy(frame => frame.Key.ToString(), StringComparer.Ordinal).Select(frame => (frame.Key.ToString(),
+    private static IEnumerable<NamedPart> FrameParts(EnemyBg2FrameCatalog catalog) =>
+        catalog.Frames.OrderBy(frame => frame.Key.ToString(), StringComparer.Ordinal).Select(frame => new NamedPart(frame.Key.ToString(),
             new BodyPart([.. frame.Value.SelectMany(write => Runs(write.DestinationWord, write.Tiles.ToArray()))])));
 
     /// <summary>The tiles a boss fills its tilemap with, as one part.</summary>
-    private static (string Name, BodyPart Part) Fill(params ushort[] words) => ("Fill", new BodyPart([new BodyRun(0, 0, [.. words.Distinct()])]));
+    private static NamedPart Fill(params ushort[] words) =>
+        new("Fill", new BodyPart([new BodyRun(Position16<TilemapCells>.Zero, [.. words.Distinct()])]));
 
     /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row.</summary>
     private static BodyPart Rows(ushort[] words) => new([.. Runs(0, words)]);
@@ -406,7 +417,7 @@ internal static class TileWordSheetComposer
         for (int start = 0; start < words.Length;)
         {
             int word = firstWord + start, count = Math.Min(words.Length - start, PartTiles - word % PartTiles);
-            yield return new BodyRun(word % PartTiles, word / PartTiles, words[start..(start + count)]);
+            yield return new BodyRun(Cell(word % PartTiles, word / PartTiles), words[start..(start + count)]);
             start += count;
         }
     }
@@ -427,22 +438,45 @@ internal static class TileWordSheetComposer
     private sealed record BodyPart(BodyRun[] Runs)
     {
         /// <summary>The first tilemap row a run writes.</summary>
-        internal int Top => Runs.Min(run => run.Y);
+        internal int Top => Runs.Min(run => run.Start.Y);
 
         /// <summary>The tilemap rows from the first a run writes to the last.</summary>
-        internal int Rows => Runs.Max(run => run.Y) - Top + 1;
+        internal int Rows => Runs.Max(run => run.Start.Y) - Top + 1;
     }
 
     /// <summary>A run of words written left to right from one tilemap position.</summary>
-    /// <param name="X">The first word's column.</param>
-    /// <param name="Y">The row.</param>
+    /// <param name="Start">The tilemap cell the first word is written to.</param>
     /// <param name="Words">The words.</param>
-    private sealed record BodyRun(int X, int Y, ushort[] Words);
+    private sealed record BodyRun(Position16<TilemapCells> Start, ushort[] Words);
+
+    /// <summary>One part a writer writes, under the name of its frame in the sheet.</summary>
+    /// <param name="Name">The frame name.</param>
+    /// <param name="Part">The part.</param>
+    private sealed record NamedPart(string Name, BodyPart Part);
+
+    /// <summary>One tile word pictured over the artwork its character is read from.</summary>
+    /// <param name="Word">The tile word.</param>
+    /// <param name="Shown">The artwork, and the word within it, its character is read from.</param>
+    private readonly record struct PicturedWord(SnesBgTilemapWord Word, BgArtworkShown Shown)
+    {
+        /// <summary>The word as the sheet's tile artwork.</summary>
+        internal BgTileArtwork Artwork => new(Word, Shown);
+    }
+
+    /// <summary>A pictured word at its cell within a part.</summary>
+    /// <param name="PartTop">The sheet row the part starts at.</param>
+    /// <param name="Picture">The word and the artwork it shows over.</param>
+    /// <param name="Cell">The cell within the part.</param>
+    private sealed record PlacedWord(int PartTop, PicturedWord Picture, Position16<TilemapCells> Cell);
+
+    /// <summary>The words one layer's sheet pictures, what they show over and where their characters are read.</summary>
+    /// <param name="Layer">The backgrounds the words are written over.</param>
+    /// <param name="Parts">The named parts, in sheet order.</param>
+    /// <param name="Content">The room as it has loaded, which the parts show over.</param>
+    /// <param name="Options">The artwork a room binds after loading, over which each word is pictured again.</param>
+    /// <param name="Bases">The layer's character bases; the first is where each word's character is read.</param>
+    /// <param name="Bound">What the content binds beyond the room's load.</param>
+    private sealed record LayerWords(TileWordLayer Layer, List<NamedPart> Parts, BgArtworkBindings Content,
+        IReadOnlyList<BgCharacterUpload> Options, int[] Bases, IReadOnlyList<BgCharacterUpload> Bound);
 }
 
-/// <summary>A composed tile word sheet: its part images and where it pictures each tile word over each artwork.</summary>
-/// <param name="Layer">The backgrounds the words are written over.</param>
-/// <param name="Tileset">The tileset whose rooms the words are written in.</param>
-/// <param name="Sheet">The part images.</param>
-/// <param name="Tiles">Every tile pictured.</param>
-internal sealed record ComposedTileWordSheet(TileWordLayer Layer, TilesetDefinition Tileset, ComposedSpriteSheet Sheet, IReadOnlyList<TileWordSheetTile> Tiles);

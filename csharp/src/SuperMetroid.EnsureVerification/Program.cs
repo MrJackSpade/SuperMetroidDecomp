@@ -40,8 +40,6 @@ internal static class Program
                 VerifyMemberDocumentationAnalyzer();
                 return 0;
             }
-            if (args.Length != 0)
-                throw new ArgumentException("Unknown verification arguments.", nameof(args));
             // Every suite runs even after one fails, so a single run reports every failure in full.
             AnalyzerSuite[] suites =
             [
@@ -73,6 +71,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer), FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer),
                 new AnalyzerSuite(nameof(DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer), DisplayPacketAnalyzerTests.VerifyDisplayPacketAnalyzer),
                 new AnalyzerSuite(nameof(PaletteLayoutAnalyzerTests.VerifyPaletteLayoutAnalyzer), PaletteLayoutAnalyzerTests.VerifyPaletteLayoutAnalyzer),
+                new AnalyzerSuite(nameof(HostConcernAnalyzerTests.VerifyHostConcernAnalyzer), HostConcernAnalyzerTests.VerifyHostConcernAnalyzer),
                 new AnalyzerSuite(nameof(VerifyKindTaggedRecordAnalyzer), VerifyKindTaggedRecordAnalyzer),
                 new AnalyzerSuite(nameof(VerifyStringIdentityAnalyzer), VerifyStringIdentityAnalyzer),
                 new AnalyzerSuite(nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
@@ -96,6 +95,18 @@ internal static class Program
                 new AnalyzerSuite(nameof(VerifyWordReadAnalyzer), VerifyWordReadAnalyzer),
                 new AnalyzerSuite(nameof(VerifyPaletteFxDependencyContract), VerifyPaletteFxDependencyContract),
             ];
+            // `--suite <name>...` runs only the named suites, so a change to one rule checks only that rule.
+            if (args is ["--suite", .. var names] && names.Length != 0)
+            {
+                string[] unknown = names.Where(name => !suites.Any(suite => suite.Name == name)).ToArray();
+                if (unknown.Length != 0)
+                    throw new ArgumentException($"Unknown verification suites: {string.Join(", ", unknown)}.", nameof(args));
+                suites = suites.Where(suite => names.Contains(suite.Name)).ToArray();
+            }
+            else if (args.Length != 0)
+            {
+                throw new ArgumentException("Unknown verification arguments.", nameof(args));
+            }
             var failed = new List<string>();
             foreach ((string name, Action run) in suites)
             {

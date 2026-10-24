@@ -306,11 +306,10 @@ internal static class CrocomireStateQuantitiesVerification
     private static void VerifyMeltShakeCounterWraps()
     {
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
-        CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Passes[0];
         fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap);
-        fixture.Call(c => c.Melting.InitializeCrocomireMeltingGraphics);
-        for (int record = 0; record <= pass.Uploads.Length; record++)
-            fixture.Call(c => c.Melting.UploadNextCrocomireMeltingGraphicsSlice);
+        fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First));
+        for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandCount; band++)
+            fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
         fixture.Call(c => c.Melting.BeginCrocomireMelting);
         AssertEqual(0, fixture.Effect.MeltShakeCounter.RawValue, "the melt shake counter starts from zero");
 

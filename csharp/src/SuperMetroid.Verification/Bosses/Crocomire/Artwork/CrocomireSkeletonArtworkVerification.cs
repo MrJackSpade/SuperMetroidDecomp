@@ -71,8 +71,8 @@ internal static class CrocomireSkeletonArtworkVerification
         AssertEqual(-1, Enumerable.Range(0, nativeCharacters.Length).FirstOrDefault(index => installedCharacters[index] != nativeCharacters[index], -1),
             "all six installed Crocomire skeleton uploads match the native OBJ characters (first differing byte)");
         AssertEqual(frames.Length,
-            installedState.SkeletonTileChunk,
-            "terminal skeleton upload does not advance the chunk count");
+            installedState.SkeletonChunksShown,
+            "the update after the last chunk shows no further chunk");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire skeleton upload reads no ROM bytes");
 
@@ -130,8 +130,12 @@ internal static class CrocomireSkeletonArtworkVerification
             SetRuntimeFields(system, guard, vram);
             for (int index = 0;
                  index <= CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
-                Upload(system, state);
-            return new RunInstalledResult(new ObjCharacterTablePage().Page(system.Room.Session.ObjCharacters, new EnemyTileTransfers(art)).Characters[..ObjCharacterUploads.TableByteCount].ToArray(),
+                ShowNextChunk(system, state);
+            // The skeleton's chunks as its sheets picture them: each installed chunk where the cartridge uploads it (#1406).
+            var shown = new ObjCharacterUploads();
+            foreach (RuntimeCharacterUpload upload in CrocomireSkeletonTransferDefinitions.Uploads)
+                shown.Record(upload);
+            return new RunInstalledResult(new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(art)).Characters[..ObjCharacterUploads.TableByteCount].ToArray(),
                 state, guard);
         }
 
@@ -141,9 +145,9 @@ internal static class CrocomireSkeletonArtworkVerification
             system.Presentation.BindVram(BgArtworkFixtures.For(vram));
         }
 
-        static void Upload(RoomEnemySystem system, CrocomireDeathState state)
+        static void ShowNextChunk(RoomEnemySystem system, CrocomireDeathState state)
         {
-            system.CrocomireBehavior.Skeleton.UploadNextCrocomireSkeletonTileChunk(state);
+            system.CrocomireBehavior.Skeleton.ShowNextCrocomireSkeletonChunk(state);
         }
     }
 

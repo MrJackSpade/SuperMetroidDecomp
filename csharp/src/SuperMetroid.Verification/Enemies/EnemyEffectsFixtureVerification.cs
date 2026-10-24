@@ -48,7 +48,6 @@ internal static class EnemyEffectsFixtureVerification
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
-            Effect.MutableMeltingGraphics.Fill(0x39);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
@@ -92,7 +91,8 @@ internal static class EnemyEffectsFixtureVerification
             AssertAnimationValues(expected.Enemies.SlotTable.Slots[slot], actual.Enemies.SlotTable.Slots[slot], context);
         for (int slot = 0; slot < expected.Enemies.RoomSpriteObjects.Count; slot++)
             AssertAnimationValues(expected.Enemies.RoomSpriteObjects[slot], actual.Enemies.RoomSpriteObjects[slot], context);
-        AssertTrue(expected.Effect.MeltingColumnHeights.SequenceEqual(actual.Effect.MeltingColumnHeights), context + " erase schedule");
+        for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
+            AssertEqual(expected.Effect.MeltBand(band), actual.Effect.MeltBand(band), context + " band " + band + " picture");
         AssertTrue(expected.Effect.Bg2ScrollByScanline.SequenceEqual(actual.Effect.Bg2ScrollByScanline), context + " HDMA geometry");
         AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
@@ -138,9 +138,9 @@ internal static class EnemyEffectsFixtureVerification
         int seed = 0, string? firstJson = null)
     {
         using var first = EffectPng(CrocomireMeltingArtworkFormat.FirstByteCount,
-            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingTransferDefinitions.Passes[0]), pattern);
+            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.First), pattern);
         using var second = EffectPng(CrocomireMeltingArtworkFormat.SecondByteCount,
-            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingTransferDefinitions.Passes[1]), pattern);
+            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.Second), pattern);
         using var firstMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(firstJson ?? MeltEffectJson(seed)));
         using var secondMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(MeltEffectJson(seed)));
         return CrocomireMeltingArtwork.Load(first, second, firstMap, secondMap);

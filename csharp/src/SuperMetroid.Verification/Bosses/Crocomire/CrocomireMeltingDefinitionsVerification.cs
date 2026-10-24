@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -10,323 +11,166 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Crocomire's typed melt selectors, transfer records, and production output against the cartridge.</summary>
+/// <summary>
+/// Checks Crocomire's melt definitions against the cartridge's melt table: the dissolve's columns and masks and the image
+/// assembly and band layout the extraction pictures the melt from, and the distortion and band counts the runtime keeps.
+/// </summary>
 internal static class CrocomireMeltingDefinitionsVerification
 {
-    /// <summary>Compares all melt columns, masks, transfer passes, and production erase behavior with the ROM.</summary>
+    /// <summary><c>CrocomireMeltingXOffsetTable</c>: the column each dissolve step erases.</summary>
+    private const int ColumnTableAddress = 0xa49697;
+    /// <summary><c>TilePixelColumnBitmasks</c>: the eight masks the dissolve chooses by step.</summary>
+    private const int MaskTableAddress = 0xa49bbd;
+    /// <summary>The cartridge's melt table: both passes' headers, copy lists and upload lists.</summary>
+    private const int MeltTableAddress = 0xa49bc5;
+    /// <summary>Offset of the second pass's header in the melt table.</summary>
+    private const int SecondHeaderOffset = 0x54;
+    /// <summary>Work-memory address of the first byte of the image the melt assembles.</summary>
+    private const int ImageAddress = 0x4000;
+    /// <summary>Bank of the work memory the assembled image lives in.</summary>
+    private const int ImageBank = 0x7e;
+    /// <summary>The cartridge's list terminator.</summary>
+    private const ushort Terminator = 0xffff;
+
+    /// <summary>Compares the melt's columns, masks, passes and dissolve with the ROM.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting definitions")]
     internal static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
-        const int columnTable = 0xa49697;
         Suite(nameof(VerifyCrocomireMaskAlgorithm), () => VerifyCrocomireMaskAlgorithm(rom));
-        for (int cursor = 0; cursor < CrocomireMeltingDefinitions.ColumnCount; cursor++)
-        {
-            AssertEqual(rom.ReadCartridgeByte(columnTable + cursor),
-                CrocomireMeltingDefinitions.SelectColumn(cursor),
-                $"Crocomire melt column {cursor}");
-
-        }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CrocomireMeltingDefinitions.SelectColumn(-1),
-            "Crocomire negative melt cursor");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CrocomireMeltingDefinitions.SelectColumn(49),
-            "Crocomire melt cursor after authored table");
-
-        Suite(nameof(VerifyCrocomireMeltingTransferCatalog), () => VerifyCrocomireMeltingTransferCatalog(rom));
-        Suite(nameof(VerifyCrocomireMeltingProductionSequence), () => VerifyCrocomireMeltingProductionSequence(rom));
-        Console.WriteLine(
-            "Crocomire melting definitions: all 49 column selectors, eight masks, " +
-            "both native transfer passes, the complete production erase sequence, " +
-            "and source-table read guards pass.");
-    }
-
-    /// <summary>Checks the eight repeating erase masks at every authored melt cursor.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire mask algorithm")]
-    internal static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
-    {
-        for (int cursor = 0; cursor < 49; cursor++)
-            AssertEqual(rom.ReadCartridgeByte(CrocomireMeltingDefinitions.MaskReferenceAddress + (cursor & 7)),
-                CrocomireMeltingDefinitions.SelectMask(cursor), $"Original chronological melt mask {cursor}");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(-1), "Mask negative cursor");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(49), "Mask upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(int.MaxValue), "Mask invalid maximum");
-    }
-
-    /// <summary>Runs focused comparisons for pass headers, copies, uploads, and their graphics effects.</summary>
-    private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
-    {
         Suite(nameof(VerifyCrocomireMeltHeaders), () => VerifyCrocomireMeltHeaders(rom));
         Suite(nameof(VerifyCrocomireMeltCopies), () => VerifyCrocomireMeltCopies(rom));
         Suite(nameof(VerifyCrocomireMeltUploads), () => VerifyCrocomireMeltUploads(rom));
-        Suite(nameof(VerifyCrocomireMeltingGraphicsProduction), () => VerifyCrocomireMeltingGraphicsProduction(rom));
+        Suite(nameof(VerifyCrocomireMeltingProductionSequence), () => VerifyCrocomireMeltingProductionSequence(rom));
+        Console.WriteLine(
+            "Crocomire melting definitions: all 49 columns, eight masks, both passes' headers, " +
+            "band copies and band uploads, and the complete extraction dissolve pass.");
     }
 
-    /// <summary>Checks both typed pass headers and their transfer cursors against native words.</summary>
+    /// <summary>Checks the eight repeating erase masks at every dissolve step.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire mask algorithm")]
+    internal static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
+    {
+        for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
+            AssertEqual(rom.ReadCartridgeByte(MaskTableAddress + (step & 7)),
+                CrocomireMeltDissolve.SelectMask(step), $"Original chronological melt mask {step}");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectMask(-1), "Mask negative step");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectMask(49), "Mask upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectMask(int.MaxValue), "Mask invalid maximum");
+    }
+
+    /// <summary>The melt table offset of <paramref name="pass"/>'s header.</summary>
+    private static int HeaderAddress(CrocomireMeltingIllustration pass) =>
+        MeltTableAddress + (pass == CrocomireMeltingIllustration.First ? 0 : SecondHeaderOffset);
+
+    /// <summary>The cartridge address of <paramref name="pass"/>'s upload list.</summary>
+    private static int UploadListAddress(CrocomireMeltingIllustration pass) =>
+        HeaderAddress(pass) + 8 + 4 * CrocomireMelting.BandCount(pass) + 2;
+
+    /// <summary>Checks each pass's header: its distortion rows, its copy length and its graphics bank.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt headers")]
     internal static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
     {
-        int index = 0;
-        foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
+        var source = CartridgeImportSource.Require(rom);
+        foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            AssertEqual((ushort)(index == 0 ? 0 : 0x54), pass.HeaderOffset, "native melt header identity");
-            AssertEqual(index == 0 ? 6 : 7, pass.ChunkCount, "native melt chunk count");
-            AssertEqual(pass, CrocomireMeltingTransferDefinitions.Passes[index++], "melt pass enumeration");
-            int header = CrocomireMeltingTransferDefinitions.NativeSourceAddress +
-                pass.HeaderOffset;
-            AssertEqual(pass.MaximumAdjustedDestinationY, CartridgeImportSource.Require(rom).ReadCartridgeWord(header),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} maximum Y");
-            AssertEqual(pass.DistortionEndY, CartridgeImportSource.Require(rom).ReadCartridgeWord((header + 2)),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} distortion end Y");
-            AssertEqual(pass.WordsToCopy, CartridgeImportSource.Require(rom).ReadCartridgeWord((header + 4)),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} copy word count");
-            AssertEqual(pass.SourceBank, rom.ReadCartridgeByte(header + 6),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} source bank");
-
-            AssertEqual(pass, CrocomireMeltingTransferDefinitions.Transfers(pass.TransferStartOffset), "melt transfer selector");
+            int header = HeaderAddress(pass);
+            AssertEqual(CrocomireMeltingDefinitions.LowestDistortionSourceRow, source.ReadCartridgeWord(header),
+                $"Crocomire {pass} melt lowest distortion source row");
+            AssertEqual(CrocomireMeltingDefinitions.DistortionEndY, source.ReadCartridgeWord(header + 2),
+                $"Crocomire {pass} melt distortion end");
+            AssertEqual(CrocomireMeltingSourceDefinitions.CopyByteCount, (source.ReadCartridgeWord(header + 4) + 1) * 2,
+                $"Crocomire {pass} melt copy length, counted inclusively");
+            AssertEqual(CrocomireMeltingSources.Graphics(pass).Bank, rom.ReadCartridgeByte(header + 6),
+                $"Crocomire {pass} melt graphics bank");
         }
-        AssertEqual(0xb4, CrocomireMeltingTransferDefinitions.Passes[1].NextHeaderOffset, "native melt record extent");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[-1], "negative melt pass");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[2], "melt pass past end");
-        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Header(1), "invalid melt header");
-        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Transfers(0), "header is not transfer start");
+        AssertEqual(MeltTableAddress + SecondHeaderOffset,
+            UploadListAddress(CrocomireMeltingIllustration.First) + 8 * CrocomireMeltingDefinitions.FirstPassBandCount + 2,
+            "the second pass's header follows the first pass's upload terminator");
     }
 
-    /// <summary>Checks every source and destination word in the two native scratch-copy lists.</summary>
+    /// <summary>Checks every band copy each pass makes: its graphics source and where in the image it lands.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt copies")]
     internal static void VerifyCrocomireMeltCopies(SuperMetroidAddressSpace rom)
     {
-        foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
+        var source = CartridgeImportSource.Require(rom);
+        foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            var pass = CrocomireMeltingTransferDefinitions.Header(headerOffset);
-            int header = 0xa49bc5 + headerOffset;
-            for (int index = 0; index < pass.Copies.Length; index++)
+            int bands = CrocomireMelting.BandCount(pass);
+            for (int band = 0; band < bands; band++)
             {
-                int source = header + 8 + index * 4;
-                CrocomireMeltingCopy copy = pass.Copies[index];
-                AssertEqual(copy.SourceWord, CartridgeImportSource.Require(rom).ReadCartridgeWord(source),
-                    $"Crocomire melt pass ${pass.HeaderOffset:X4} copy {index} source");
-                AssertEqual(copy.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 2)),
-                    $"Crocomire melt pass ${pass.HeaderOffset:X4} copy {index} destination");
+                int copy = HeaderAddress(pass) + 8 + band * 4;
+                AssertEqual(CrocomireMeltingSources.SourceWord(pass, band), source.ReadCartridgeWord(copy),
+                    $"Crocomire {pass} melt band {band} copy source");
+                AssertEqual(ImageAddress + CrocomireMeltingSources.ImageByte(band), source.ReadCartridgeWord(copy + 2),
+                    $"Crocomire {pass} melt band {band} copy destination");
             }
-            int copyEnd = header + 8 + pass.Copies.Length * 4;
-            AssertEqual((ushort)0xffff, CartridgeImportSource.Require(rom).ReadCartridgeWord(copyEnd),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} copy terminator");
-            AssertEqual(pass.TransferStartOffset,
-                (ushort)(copyEnd + 2 - CrocomireMeltingTransferDefinitions.NativeSourceAddress),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer start");
-
-            AssertEqual(pass.ChunkCount, pass.Copies.Length, "melt copy domain");
-            int enumerated = 0;
-            foreach (var copy in pass.Copies) AssertEqual(pass.Copies[enumerated++], copy, "melt copy enumeration");
-            AssertEqual(pass.ChunkCount, enumerated, "melt copy enumeration count");
-            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[-1], "negative melt copy");
-            AssertThrows<IndexOutOfRangeException>(() => _ = pass.Copies[pass.ChunkCount], "melt copy past end");
+            AssertEqual(Terminator, source.ReadCartridgeWord(HeaderAddress(pass) + 8 + bands * 4),
+                $"Crocomire {pass} melt copy terminator");
         }
     }
 
-    /// <summary>Checks both upload lists, terminators, and typed lookup boundaries against the ROM.</summary>
+    /// <summary>Checks every band upload each pass makes: its size, the characters it shows over and its row of the image.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt uploads")]
     internal static void VerifyCrocomireMeltUploads(SuperMetroidAddressSpace rom)
     {
-        foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
+        var source = CartridgeImportSource.Require(rom);
+        foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            var pass = CrocomireMeltingTransferDefinitions.Header(headerOffset);
-            int header = 0xa49bc5 + headerOffset;
-            for (int index = 0; index < pass.Uploads.Length; index++)
+            int bands = CrocomireMelting.BandCount(pass);
+            for (int band = 0; band < bands; band++)
             {
-                int offset = pass.TransferStartOffset + index * 8;
-                int source = CrocomireMeltingTransferDefinitions.NativeSourceAddress + offset;
-                CrocomireMeltingUpload upload = pass.Uploads[index];
-                AssertEqual(upload.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(source),
-                    $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} size");
-                AssertEqual(upload.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 2)),
-                    $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} destination");
-                AssertEqual(upload.SourceBank, rom.ReadCartridgeByte(source + 4),
-                    $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} bank");
-                AssertEqual(upload.SourceWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 6)),
-                    $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} source");
-                AssertTrue(CrocomireMeltingTransferDefinitions.TryUpload(offset,
-                    out CrocomireMeltingUpload selected) && selected == upload,
-                    $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} lookup");
+                int upload = UploadListAddress(pass) + band * 8;
+                AssertEqual(CrocomireMeltingDefinitions.BandCharacterCount * RoomCharacterAtlasFormat.BytesPerTile,
+                    source.ReadCartridgeWord(upload), $"Crocomire {pass} melt band {band} size");
+                AssertEqual(CrocomireMeltDissolve.BandFirstWord(band), source.ReadCartridgeWord(upload + 2),
+                    $"Crocomire {pass} melt band {band} first character word");
+                AssertEqual(ImageBank, rom.ReadCartridgeByte(upload + 4), $"Crocomire {pass} melt band {band} image bank");
+                AssertEqual(ImageAddress + band * CrocomireMeltingDefinitions.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile,
+                    source.ReadCartridgeWord(upload + 6), $"Crocomire {pass} melt band {band} image row");
             }
-            AssertEqual(pass.TransferEndOffset,
-                (ushort)(pass.TransferStartOffset + pass.Uploads.Length * 8),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer end");
-            AssertEqual((ushort)0xffff, CartridgeImportSource.Require(rom).ReadCartridgeWord((CrocomireMeltingTransferDefinitions.NativeSourceAddress + pass.TransferEndOffset)),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer terminator");
-            AssertTrue(!CrocomireMeltingTransferDefinitions.TryUpload(
-                pass.TransferEndOffset, out _),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal lookup");
-            AssertEqual(pass.NextHeaderOffset, (ushort)(pass.TransferEndOffset + 2),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} next header");
-        }
-        foreach (var pass in CrocomireMeltingTransferDefinitions.Passes)
-        {
-            int enumerated = 0;
-            foreach (var upload in pass.Uploads) AssertEqual(pass.Uploads[enumerated++], upload, "melt upload enumeration");
-            AssertEqual(pass.ChunkCount, enumerated, "melt upload enumeration count");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Uploads[-1], "negative melt upload");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = pass.Uploads[pass.ChunkCount], "melt upload past end");
-            AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(pass.TransferStartOffset + 1, out _), "misaligned melt upload");
-        }
-        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0x54, out _), "header is not an upload");
-        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(-1, out _), "negative upload cursor");
-        AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0xb4, out _), "upload after records");
-    }
-    /// <summary>Runs production copy and upload handlers and compares scratch graphics and VRAM with native records.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting graphics production")]
-    private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
-    {
-        var artwork = InstalledFixtures.EnemyTiles;
-        foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
-        {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = InstalledFixtures.BossArtwork };
-            var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
-            var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
-            var vram = new SnesVram();
-            enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-            enemies.CrocomireBehavior.Access.CrocomireDeath = death;
-            Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.Melting.InitializeCrocomireMeltingGraphics;
-            Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.Melting.UploadNextCrocomireMeltingGraphicsSlice;
-            Action<CrocomireEnemyState> complete = enemies.CrocomireBehavior.Melting.CompleteCrocomireMeltingDissolve;
-
-            initialize(state);
-            AssertEqual(pass.MaximumAdjustedDestinationY, death.MaximumAdjustedDestinationY,
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} production maximum Y");
-            AssertEqual(pass.DistortionEndY, death.DistortionEndY,
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} production end Y");
-            AssertEqual(pass.TransferStartOffset, death.MeltingTableOffset,
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} production transfer cursor");
-
-            var expectedGraphics = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
-            foreach (CrocomireMeltingCopy copy in pass.Copies)
-            {
-                int destination = copy.DestinationWord - 0x4000;
-                for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
-                {
-                    expectedGraphics[destination + index] = rom.ReadCartridgeByte(
-                        ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
-                }
-            }
-            AssertTrue(death.MeltingGraphics.SequenceEqual(expectedGraphics),
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} production scratch graphics");
-
-            foreach (CrocomireMeltingUpload record in pass.Uploads)
-            {
-                upload(state);
-                int source = record.SourceWord - 0x4000;
-                // The melt binds its characters (#1355); the image a capture shows composes them.
-                byte[] shown = BgArtworkFixtures.Composed(vram);
-                for (int index = 0; index < record.ByteCount; index++)
-                {
-                    AssertEqual(expectedGraphics[source + index],
-                        shown[record.DestinationWord * 2 + index],
-                        $"Crocomire melt pass ${pass.HeaderOffset:X4} VRAM byte {index}");
-                }
-            }
-            AssertEqual((ushort)(pass.Uploads.Length * 8), death.MeltingTransferOffset,
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} final transfer offset");
-            CrocomireDeathPhase phaseBeforeTerminator = state.DeathSequenceIndex;
-            upload(state);
-            AssertEqual(phaseBeforeTerminator.Next(), state.DeathSequenceIndex,
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal phase");
-            AssertEqual(0, death.MeltingTransferOffset,
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal reset");
-            complete(state);
-            AssertEqual(pass.NextHeaderOffset, death.MeltingTableOffset,
-                $"Crocomire melt pass ${pass.HeaderOffset:X4} completion cursor");
+            AssertEqual(Terminator, source.ReadCartridgeWord(UploadListAddress(pass) + bands * 8),
+                $"Crocomire {pass} melt upload terminator");
         }
     }
 
-    /// <summary>Compares all 49 production erase calls with an independently calculated bitplane silhouette.</summary>
+    /// <summary>Compares all 49 extraction erase steps with an independently calculated bitplane silhouette.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting production sequence")]
-    internal static void VerifyCrocomireMeltingProductionSequence(
-        SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireMeltingProductionSequence(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var death = new CrocomireDeathState
+        var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.SecondByteCount).ToArray();
+        var expected = (byte[])image.Clone();
+        for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
         {
-            MeltingTableOffset = CrocomireMeltingTransferDefinitions.Passes[0].TransferStartOffset,
-            PixelsToErasePerColumn = 48,
-            MeltTargetHeight = 48,
-        };
-        death.MutableMeltingGraphics.Fill(0xff);
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
-        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
-        Func<bool> erase = enemies.CrocomireBehavior.Melting.EraseNextCrocomireMeltingColumn;
-
-        var expectedGraphics = Enumerable.Repeat((byte)0xff,
-            CrocomireDeathState.MeltingGraphicsByteCount).ToArray();
-        var expectedHeights = new byte[CrocomireDeathState.MeltingColumnCount];
-        for (int cursor = 0; cursor < CrocomireMeltingDefinitions.ColumnCount; cursor++)
-        {
-            int xColumn = rom.ReadCartridgeByte(0xa49697 + cursor);
-            byte mask = rom.ReadCartridgeByte(0xa49bbd + (cursor & 7));
-            for (int remaining = 48; remaining != 0; remaining--)
+            int column = rom.ReadCartridgeByte(ColumnTableAddress + step);
+            AssertEqual(column, CrocomireMeltDissolve.SelectColumn(step), $"Crocomire melt column {step}");
+            byte mask = rom.ReadCartridgeByte(MaskTableAddress + (step & 7));
+            for (int y = 0; y < 48; y++)
             {
-                int y = expectedHeights[xColumn];
-                int byteIndex = 2 * (y & 7) + ((y & ~7) << 6) + 4 * (xColumn & ~7);
-                expectedGraphics[byteIndex] &= mask;
-                expectedGraphics[byteIndex + 1] &= mask;
-                expectedGraphics[byteIndex + 16] &= mask;
-                expectedGraphics[byteIndex + 17] &= mask;
-                expectedHeights[xColumn]++;
+                int byteIndex = 2 * (y & 7) + ((y & ~7) << 6) + 4 * (column & ~7);
+                expected[byteIndex] &= mask;
+                expected[byteIndex + 1] &= mask;
+                expected[byteIndex + 16] &= mask;
+                expected[byteIndex + 17] &= mask;
             }
-
-            AssertTrue(erase(), $"Crocomire melt production cursor {cursor} succeeds");
-            AssertEqual((ushort)cursor, death.MeltingColumnCursor,
-                $"Crocomire melt production cursor {cursor}");
-            AssertEqual((byte)48, death.MeltingColumnHeights[xColumn],
-                $"Crocomire melt production column {xColumn} height");
+            CrocomireMeltDissolve.EraseColumn(image, step);
+            AssertTrue(image.SequenceEqual(expected), $"Crocomire melt silhouette after step {step}");
         }
-
-        AssertTrue(death.MeltingGraphics.SequenceEqual(expectedGraphics),
-            "Crocomire melt production bitplane silhouette");
-        AssertTrue(death.MeltingColumnHeights.SequenceEqual(expectedHeights),
-            "Crocomire melt production column heights");
-        AssertTrue(erase(), "Crocomire melt post-table guard retains distortion phase");
-        AssertEqual(CrocomireMeltingDefinitions.ColumnCount,
-            death.MeltingColumnCursor,
-            "Crocomire melt post-table cursor");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectColumn(-1), "Crocomire negative melt step");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectColumn(49), "Crocomire melt step after authored table");
     }
 
-    /// <summary>Runs one installed artwork melt pass and returns its scratch graphics after verifying VRAM uploads.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    internal static byte[] VerifyInstalledCrocomireMeltingPass(InstalledEnemyArtwork artwork, CrocomireMeltingPass pass)
+    /// <summary>The characters of <paramref name="pass"/>'s installed melt image, which the extraction pictures its bands from.</summary>
+    internal static byte[] VerifyInstalledCrocomireMeltingPass(InstalledEnemyArtwork artwork, CrocomireMeltingIllustration pass)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
-        var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
-        var vram = new SnesVram();
-        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
-        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
-        Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.Melting.InitializeCrocomireMeltingGraphics;
-        Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.Melting.UploadNextCrocomireMeltingGraphicsSlice;
-
-        initialize(state);
-        AssertEqual(pass.TransferStartOffset, death.MeltingTableOffset,
-            $"installed Crocomire melt pass ${pass.HeaderOffset:X4} transfer start");
-        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
-            $"installed Crocomire melt pass ${pass.HeaderOffset:X4} phase timing");
-        byte[] scratch = death.MeltingGraphics.ToArray();
-        foreach (CrocomireMeltingUpload record in pass.Uploads)
-        {
-            upload(state);
-            int source = record.SourceWord - 0x4000;
-            byte[] shown = BgArtworkFixtures.Composed(vram);
-            for (int index = 0; index < record.ByteCount; index++)
-                AssertEqual(scratch[source + index],
-                    shown[record.DestinationWord * 2 + index],
-                    $"installed Crocomire melt pass ${pass.HeaderOffset:X4} VRAM {index}");
-        }
-        upload(state);
-        AssertEqual(CrocomireDeathPhase.FirstSubmergedPause, state.DeathSequenceIndex,
-            $"installed Crocomire melt pass ${pass.HeaderOffset:X4} terminal timing");
-        return scratch;
+        CrocomireMeltingArtwork melt = Ensure.NotNull(artwork).Bosses.CrocomireMelting
+            ?? throw new InvalidOperationException("Installed boss artwork has no Crocomire melt images.");
+        byte[] characters = melt.Characters(pass).ToArray();
+        AssertTrue(characters.AsSpan(CrocomireMeltingArtwork.UsedByteCount(pass)).IndexOfAnyExcept((byte)0) < 0,
+            $"installed Crocomire {pass} melt image holds nothing past the bytes the melt assembles");
+        return characters;
     }
 
-    /// <summary>Loads one installed BG2 melt tilemap and compares its working copy and VRAM with native words.</summary>
+    /// <summary>Loads one installed BG2 melt tilemap and compares its working copy and shown words with native words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire melting tilemap")]
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
@@ -340,7 +184,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
-        // Crocomire's initialization attaches the enemy BG2 image his transfers draw into (#1355).
+        // Crocomire's initialization attaches the enemy BG2 image his words draw into (#1355).
         enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireMeltingTilemap.BlankGlyph.Raw));
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
@@ -355,10 +199,6 @@ internal static class CrocomireMeltingDefinitionsVerification
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
-        AssertEqual(48, death.PixelsToErasePerColumn,
-            $"installed Crocomire melt tilemap ${sourceAddress:X6} erase count");
-        AssertEqual(48, death.MeltTargetHeight,
-            $"installed Crocomire melt tilemap ${sourceAddress:X6} target height");
         var result = death.Bg2WorkingTilemap.Slice(32,
             CrocomireMeltingArtworkFormat.TilemapCellCount).ToArray();
         for (int index = 0; index < result.Length; index++)
@@ -373,7 +213,6 @@ internal static class CrocomireMeltingDefinitionsVerification
         }
         return result;
     }
-
 
     /// <summary>Runs the complete Crocomire melting definition check using the repository cartridge.</summary>
     [VerificationCommand("--crocomire-melting-definitions")]

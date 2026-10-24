@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoProgramSteps;

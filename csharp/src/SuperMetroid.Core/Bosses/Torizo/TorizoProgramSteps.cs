@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -13,9 +13,9 @@ internal static class TorizoProgramSteps
     internal static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Cue(TorizoCue cue) =>
         AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Publish(cue);
 
-    /// <summary>Copies tile transfer <paramref name="transfer"/> to VRAM.</summary>
-    internal static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> CopyTiles(int transfer) =>
-        Cue(new TorizoCue.CopyTiles(Transfer: transfer));
+    /// <summary>Shows artwork swap <paramref name="swap"/> under the body's poses.</summary>
+    internal static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> ShowArtwork(int swap) =>
+        Cue(new TorizoCue.ShowArtwork(new TorizoArtworkSwap(swap)));
 
     /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
     internal static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> SetCounter(int count) =>

@@ -19,16 +19,19 @@ using SuperMetroid.Core.Escape;
 /// <summary>Checks that replacement effect artwork changes pixels without changing Crocomire or Mother Brain timing.</summary>
 internal static class EnemyEffectIsolationVerification
 {
-    /// <summary>Checks the two statically identified melt graphs, not a search for runtime reads.</summary>
+    /// <summary>
+    /// Checks that replacement melt artwork changes neither Crocomire's mechanics nor which picture each band of his melt
+    /// image shows on each update (#1406).
+    /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCrocomireEffectIsolation()
     {
         var baseline = new CrocomireEffectFixture(MeltEffectArtwork(0x55));
         var edited = new CrocomireEffectFixture(MeltEffectArtwork(0xaa, seed: 3));
-        foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
+        foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            bool first = pass.HeaderOffset == (ushort)CrocomireMeltingHeader.First;
-            int source = (int)(first ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap);
+            int source = (int)(pass == CrocomireMeltingIllustration.First
+                ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap);
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");
             AssertTrue(!baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "authored melt map reaches scratch");
@@ -36,27 +39,19 @@ internal static class EnemyEffectIsolationVerification
             AssertTrue(!baseline.Enemies.Presentation.RequireBg2Image().Publish().Words.SequenceEqual(
                 edited.Enemies.Presentation.RequireBg2Image().Publish().Words), "authored melt map reaches the BG2 image");
 
-            byte[] tail = baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..].ToArray();
-            baseline.Call(c => c.Melting.InitializeCrocomireMeltingGraphics); edited.Call(c => c.Melting.InitializeCrocomireMeltingGraphics);
-            AssertCrocomireEffectMechanics(baseline, edited, "melt graphics replacement");
-            AssertTrue(!baseline.Effect.MeltingGraphics.SequenceEqual(edited.Effect.MeltingGraphics), "authored melt pixels reach scratch");
-            AssertTrue(tail.SequenceEqual(baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..]),
-                "native overlapping copies retain the unwritten scratch tail");
+            baseline.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
+            edited.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
+            AssertCrocomireEffectMechanics(baseline, edited, "melt pass begins");
+            int bands = CrocomireMelting.BandCount(pass);
             CrocomireDeathPhase phase = baseline.Actor.DeathSequenceIndex;
-            for (int record = 0; record <= pass.Uploads.Length; record++)
+            for (int band = 0; band <= bands; band++)
             {
-                baseline.Call(c => c.Melting.UploadNextCrocomireMeltingGraphicsSlice); edited.Call(c => c.Melting.UploadNextCrocomireMeltingGraphicsSlice);
-                AssertCrocomireEffectMechanics(baseline, edited, "melt upload " + record);
-                AssertEqual(record == pass.Uploads.Length ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex,
-                    "only the native transfer terminator advances the phase");
-                if (record < pass.Uploads.Length)
-                {
-                    CrocomireMeltingUpload upload = pass.Uploads[record];
-                    int offset = upload.SourceWord - 0x4000;
-                    // The slices are bound as background artwork, which a capture composes over VRAM (#1392).
-                    AssertTrue(BgArtworkFixtures.Composed(baseline.Vram).AsSpan(upload.DestinationWord * 2, upload.ByteCount)
-                        .SequenceEqual(baseline.Effect.MeltingGraphics.Slice(offset, upload.ByteCount)), "exact scheduled VRAM upload");
-                }
+                baseline.Call(c => c.Melting.ShowNextCrocomireMeltBand); edited.Call(c => c.Melting.ShowNextCrocomireMeltBand);
+                AssertCrocomireEffectMechanics(baseline, edited, "melt band " + band);
+                AssertEqual(band == bands ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex,
+                    "only the update after the last band advances the phase");
+                if (band < bands)
+                    AssertEqual(new CrocomireMeltBandPicture(pass, 0), baseline.Effect.MeltBand(band), "each band shows the unerased image on its own update");
             }
 
             baseline.Call(c => c.Melting.BeginCrocomireMelting); edited.Call(c => c.Melting.BeginCrocomireMelting);
@@ -71,22 +66,19 @@ internal static class EnemyEffectIsolationVerification
                 AssertCrocomireEffectMechanics(baseline, edited, "melt dissolve call " + call);
                 AssertEqual(call < calls, baseline.Effect.MeltingHdmaActive, "exact HDMA lifetime");
                 AssertEqual(call == calls ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
-                AssertEqual((ushort)Math.Min(call - 1, CrocomireMeltingDefinitions.ColumnCount),
-                    baseline.Effect.MeltingColumnCursor, "fixed erase-column cadence");
+                AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), baseline.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
                     baseline.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
-                for (int column = 0; column < CrocomireMeltingDefinitions.ColumnCount; column++)
-                    AssertEqual((byte)(column < call ? 48 : 0),
-                        baseline.Effect.MeltingColumnHeights[CrocomireMeltingDefinitions.SelectColumn(column)], "exact erased-column height");
+                if (call <= CrocomireMeltingDefinitions.ColumnCount)
+                    AssertEqual(new CrocomireMeltBandPicture(pass, call), baseline.Effect.MeltBand((call - 1) % bands), "each step shows the next band");
             }
-            AssertEqual(pass.NextHeaderOffset, baseline.Effect.MeltingTableOffset, "exact next-pass header");
             baseline.Call(c => c.Melting.FinishCrocomireMeltingPass); edited.Call(c => c.Melting.FinishCrocomireMeltingPass);
             AssertCrocomireEffectMechanics(baseline, edited, "finished melt pass");
             AssertTrue(baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "both visual variants clear the completed melt tilemap");
             AssertTrue(baseline.Vram.Bytes.Slice(EnemyBg2FrameLayout.VramBase * 2, 2048)
                 .SequenceEqual(edited.Vram.Bytes.Slice(EnemyBg2FrameLayout.VramBase * 2, 2048)), "exact cleared BG2 upload");
         }
-        Console.WriteLine("  Crocomire replacement: both maps/images, exact uploads, 54 calls per dissolve, erase/HDMA/smoke/phase timing unchanged.");
+        Console.WriteLine("  Crocomire replacement: both maps/images, band selection per update, 54 calls per dissolve, erase/HDMA/smoke/phase timing unchanged.");
     }
 
     /// <summary>Compares two corpse images through all 118 rot calls, checking row completion and RAM-to-VRAM transfers.</summary>

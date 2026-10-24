@@ -4178,7 +4178,7 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks VRAM transfer order during Crocomire's melt sequence.</summary>
+    /// <summary>Checks the extraction's Crocomire melt image assembly and band layout against the cartridge's melt table.</summary>
     [VerificationCommand("--lookup-crocomire-melt-transfers")]
     internal static int LookupCrocomireMeltTransfersCommand()
     {
@@ -4189,7 +4189,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCrocomireMeltHeaders), () => VerifyCrocomireMeltHeaders(meltOracle));
         Suite(nameof(VerifyCrocomireMeltCopies), () => VerifyCrocomireMeltCopies(meltOracle));
         Suite(nameof(VerifyCrocomireMeltUploads), () => VerifyCrocomireMeltUploads(meltOracle));
-        Console.WriteLine("Crocomire melt: two headers, 13 copies, 13 uploads, sentinels and bounds pass.");
+        Console.WriteLine("Crocomire melt: two headers, 13 band copies, 13 band uploads and sentinels match the extraction.");
         return 0;
     }
 

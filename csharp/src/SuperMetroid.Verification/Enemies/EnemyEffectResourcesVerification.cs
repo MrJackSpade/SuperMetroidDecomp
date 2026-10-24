@@ -23,25 +23,21 @@ internal static class EnemyEffectResourcesVerification
         // runtime reads none.
         CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap),
             "missing melt tilemap");
-        CheckCrocomireResourceFailure(null, fixture => fixture.Call(c => c.Melting.InitializeCrocomireMeltingGraphics),
+        CheckCrocomireResourceFailure(null, fixture => fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First)),
             "missing melt graphics");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
         CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap(0), "unknown melt tilemap");
-        CheckCrocomireResourceFailure(art, fixture => fixture.Call(c => c.Melting.InitializeCrocomireMeltingGraphics),
-            "unknown melt header", invalidHeader: true);
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 
-    /// <summary>Checks that one Crocomire resource error leaves effect mechanics, tilemap, graphics, and VRAM intact.</summary>
+    /// <summary>Checks that one Crocomire resource error leaves effect mechanics, band pictures, tilemap, and VRAM intact.</summary>
     private static void CheckCrocomireResourceFailure(CrocomireMeltingArtwork? art,
-        Action<CrocomireEffectFixture> operation, string context, bool invalidHeader = false)
+        Action<CrocomireEffectFixture> operation, string context)
     {
         var expected = new CrocomireEffectFixture(art);
         var actual = new CrocomireEffectFixture(art);
-        if (invalidHeader) expected.Effect.MeltingTableOffset = actual.Effect.MeltingTableOffset = 1;
         AssertThrows<InvalidDataException>(() => operation(actual), context + " fails loudly");
         AssertCrocomireEffectMechanics(expected, actual, context);
-        AssertTrue(expected.Effect.MeltingGraphics.SequenceEqual(actual.Effect.MeltingGraphics), context + " graphics unchanged");
         AssertTrue(expected.Effect.Bg2WorkingTilemap.SequenceEqual(actual.Effect.Bg2WorkingTilemap), context + " tilemap unchanged");
         AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
     }

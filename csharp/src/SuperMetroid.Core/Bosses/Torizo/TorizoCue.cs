@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.Torizo;
+namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>One cue of Torizo's body programs, with the operands its native instruction carries.</summary>
 internal abstract record TorizoCue
@@ -42,9 +42,9 @@ internal abstract record TorizoCue
     /// <param name="PreInstruction">The pre-instruction a <see cref="SetPreInstruction"/> cue installs.</param>
     internal sealed record SetPreInstruction(TorizoPreInstruction PreInstruction) : TorizoCue;
 
-    /// <summary>Copies a tile transfer to VRAM (the common <c>$814B</c> transfer).</summary>
-    /// <param name="Transfer">The <see cref="TorizoInstructionVramTransferDefinitions"/> entry a <see cref="CopyTiles"/> cue copies.</param>
-    internal sealed record CopyTiles(int Transfer) : TorizoCue;
+    /// <summary>Shows a piece of artwork under the body's poses (the cartridge's common <c>$814B</c> copy).</summary>
+    /// <param name="Swap">The artwork a <see cref="ShowArtwork"/> cue shows.</param>
+    internal sealed record ShowArtwork(TorizoArtworkSwap Swap) : TorizoCue;
 
     /// <summary>A cue that carries no operand.</summary>
     /// <param name="Kind">What the cue does.</param>

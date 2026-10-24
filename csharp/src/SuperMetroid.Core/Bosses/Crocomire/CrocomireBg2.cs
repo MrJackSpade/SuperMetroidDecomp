@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -7,13 +7,13 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's BG2 body: its scroll, scroll table, tilemap transfers and the acid smoke drawn with it.</summary>
+/// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
 [RoomLifetime]
 internal sealed class CrocomireBg2
 {
     /// <summary>Allocates arena debris and cinematic sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
+    /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
@@ -52,7 +52,7 @@ internal sealed class CrocomireBg2
     }
 
     /// <summary>Copies a bounded working-map span into the corresponding words of the shown enemy BG2 image (#1355).</summary>
-    internal void TransferCrocomireBg2Words(int startWord, int wordCount)
+    internal void WriteCrocomireBg2Words(int startWord, int wordCount)
     {
         if (startWord < 0 || wordCount < 0 ||
             startWord + wordCount > CrocomireDeathState.Bg2WorkingWordCount)

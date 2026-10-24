@@ -23,7 +23,7 @@ internal sealed record CrocomireFightDependencies
     /// <summary>Publishes the bridge and wall-break quake effects.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
+    /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
     /// <summary>Resolves Crocomire body and tongue contact with Samus.</summary>
@@ -35,7 +35,7 @@ internal sealed record CrocomireFightDependencies
     /// <summary>Updates boss completion and room-state flags.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, tilemap transfers and the acid smoke drawn with it.</summary>
+    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
     public required CrocomireBg2 Bg2 { get; init; }
 
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>

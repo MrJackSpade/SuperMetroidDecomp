@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -28,7 +28,7 @@ internal sealed class CrocomireFight
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes the bridge and wall-break quake effects.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
+    /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Resolves Crocomire body and tongue contact with Samus.</summary>
     private readonly EnemyCollision _collision;
@@ -36,7 +36,7 @@ internal sealed class CrocomireFight
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Updates boss completion and room-state flags.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Crocomire's BG2 body: its scroll, scroll table, tilemap transfers and the acid smoke drawn with it.</summary>
+    /// <summary>Crocomire's BG2 body: its scroll, scroll table, the words it writes into his BG2 image and the acid smoke drawn with it.</summary>
     private readonly CrocomireBg2 _bg2;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
@@ -92,7 +92,7 @@ internal sealed class CrocomireFight
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
             _access.PublishCrocomirePlm(new Position16<RoomBlocks>(97, 11), PlmHeaderId.ClearCrocomireBridge);
-            _bg2.TransferCrocomireBg2Words(0, 1024);
+            _bg2.WriteCrocomireBg2Words(0, 1024);
             return;
         }
 

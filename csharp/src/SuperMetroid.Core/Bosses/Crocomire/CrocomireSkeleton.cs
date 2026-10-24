@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -19,7 +19,7 @@ internal sealed class CrocomireSkeleton
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
+    /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Produces the native distributed drops at skeleton collapse.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -139,7 +139,7 @@ internal sealed class CrocomireSkeleton
         if (!state.DeathPhaseDelay.IsZero)
         {
             state.DeathPhaseDelay = state.DeathPhaseDelay.Decrement().Remaining;
-            UploadNextCrocomireSkeletonTileChunk(death);
+            ShowNextCrocomireSkeletonChunk(death);
             return;
         }
 
@@ -253,19 +253,18 @@ internal sealed class CrocomireSkeleton
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
-    /// <summary>Shows the next ordered skeleton character chunk at its native OBJ character position.</summary>
-    internal void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
+    /// <summary>
+    /// Selects, at this update, one more of the skeleton's character chunks to show (#1406), in their fixed order, while
+    /// the skeleton waits behind the wall; once all are shown it selects nothing more. His frames draw the pictures of the
+    /// chunks shown.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installed boss artwork has no skeleton characters.</exception>
+    internal void ShowNextCrocomireSkeletonChunk(CrocomireDeathState death)
     {
-        int entry = death.SkeletonTileChunk;
-        var artwork = _bossArtwork.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
+        _ = _bossArtwork.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
             "Installed Crocomire artwork is missing its skeleton characters.");
-        if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out _))
-            return;
-        // Only character pixels are editable; the transfer order and OBJ position are not.
-        if (artwork.Chunk(entry).Length != CrocomireSkeletonTransferDefinitions.ChunkByteCount)
-            throw new InvalidDataException($"Installed Crocomire skeleton chunk {entry} is not one native upload long.");
-        _presentation.ObjCharacters.Record(CrocomireSkeletonTransferDefinitions.Uploads[entry]);
-        death.SkeletonTileChunk++;
+        if (death.SkeletonChunksShown < CrocomireSkeletonVisualDefinitions.ChunkCount)
+            death.SkeletonChunksShown++;
     }
 
     /// <summary>

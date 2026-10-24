@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -143,7 +144,7 @@ internal static class RoomBlockUploads
         }
         if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
         {
-            foreach (BgCharacterUpload upload in CrocomireMeltingUploads(inputs))
+            foreach (BgCharacterUpload upload in CrocomireMeltBandPictures(inputs))
                 yield return upload;
         }
         if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
@@ -155,31 +156,24 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>
-    /// What Crocomire's melt binds over his characters (#1392): each dissolve pass's image, from the pass's copy, after each
-    /// number of columns erased, each chunk the pass uploads under the identity the runtime binds it with.
+    /// What Crocomire's melt shows over his characters (#1392, #1406): each band of each melt image after every number of
+    /// columns erased, under the identity of the picture the runtime selects for it.
     /// </summary>
-    private static IEnumerable<BgCharacterUpload> CrocomireMeltingUploads(RoomBlockSheetInputs inputs)
+    private static IEnumerable<BgCharacterUpload> CrocomireMeltBandPictures(RoomBlockSheetInputs inputs)
     {
         CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
             ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
-        foreach (CrocomireMeltingHeader header in Enum.GetValues<CrocomireMeltingHeader>())
+        foreach (CrocomireMeltingIllustration illustration in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header((int)header);
-            var image = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
-            var heights = new byte[CrocomireDeathState.MeltingColumnCount];
-            artwork.CopyPassTo(pass.HeaderOffset, image);
-            for (int step = 0; ; step++)
+            int step = 0;
+            foreach (byte[] image in CrocomireMeltDissolve.Steps(artwork, illustration))
             {
-                for (int chunk = 0; chunk < pass.Uploads.Length; chunk++)
+                for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
                 {
-                    CrocomireMeltingUpload upload = pass.Uploads[chunk];
-                    int source = upload.SourceWord - CrocomireMeltingTransferDefinitions.ScratchStart;
-                    yield return new BgCharacterUpload(CrocomireMelting.MeltingCharacters(header, step, upload.DestinationWord),
-                        upload.DestinationWord, image.AsSpan(source, upload.ByteCount).ToArray());
+                    yield return new BgCharacterUpload(CrocomireMelting.MeltingCharacters(new CrocomireMeltBandPicture(illustration, step), band),
+                        CrocomireMeltDissolve.BandFirstWord(band), CrocomireMeltDissolve.BandCharacters(image, band));
                 }
-                if (step == CrocomireMeltingDefinitions.ColumnCount)
-                    break;
-                CrocomireMelting.EraseColumn(image, heights, step, CrocomireMeltingDefinitions.ColumnPixels);
+                step++;
             }
         }
     }

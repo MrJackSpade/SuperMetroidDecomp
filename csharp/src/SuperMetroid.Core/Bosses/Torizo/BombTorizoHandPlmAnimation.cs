@@ -28,7 +28,7 @@ internal sealed class BombTorizoHandPlmAnimation()
                 slot.PreInstruction = BombTorizoHandPreInstructions.WakeIfSamusHasBombs;
                 break;
             case BombTorizoHandCueKind.CopyDebrisTiles:
-                hand.CopyDebrisTiles();
+                hand.ShowDebris();
                 break;
             case BombTorizoHandCueKind.SpawnFragment:
                 hand.SpawnFragment(slot, cue.Fragment);

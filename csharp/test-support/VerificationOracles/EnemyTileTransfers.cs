@@ -43,7 +43,7 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
             return true;
         if (installed.Areas.CeresEscapeOverlayTilemaps?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
-        if (installed.Bosses.TorizoInstructionVram?.TryResolve(sourceAddress, byteCount, out data) == true)
+        if (installed.Bosses.TorizoSwaps?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         data = default;
         return false;

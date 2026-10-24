@@ -24,7 +24,7 @@ internal static class BombTorizoHandArtworkVerification
         {
             EnemyTileArtworkFiles.Extract(importer, directory, SupportedCartridge.Sha256);
             InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);
-            TileSheetDefinition page = TorizoInstructionVramArtworkDefinitions.ChozoDebris;
+            TileSheetDefinition page = TorizoSwapArtworkDefinitions.ChozoDebris;
             AssertTrue(new EnemyTileTransfers(stock).TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> bytes),
                 "installed Chozo debris page exists");
             for (int index = 0; index < bytes.Length; index++)

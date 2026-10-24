@@ -182,7 +182,7 @@ public static class EnemyTileArtworkFiles
             extendedJson);
         var torizoInstructionHashes = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (TileSheetDefinition page in
-                 TorizoInstructionVramArtworkDefinitions.All)
+                 TorizoSwapArtworkDefinitions.All)
         {
             byte[] png = ExtractTorizoInstructionPage(bus, page);
             File.WriteAllBytes(Path.Combine(directory, page.FileName), png);
@@ -442,7 +442,7 @@ public static class EnemyTileArtworkFiles
                 GunshipLiftoffTransferDefinitions.Frames.Length ||
             manifest.TorizoInstructionTilesSha256 is null ||
             manifest.TorizoInstructionTilesSha256.Count !=
-                TorizoInstructionVramArtworkDefinitions.All.Length ||
+                TorizoSwapArtworkDefinitions.All.Length ||
             manifest.CeresEscapeTilesSha256 is null ||
             manifest.CeresEscapeTilesSha256.Count !=
                 CeresEscapeTileArtworkDefinitions.All.Length ||
@@ -480,7 +480,7 @@ public static class EnemyTileArtworkFiles
         if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadFrame.ByMouthStage.Select(head => head.MouthStage)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
-                .SequenceEqual(TorizoInstructionVramArtworkDefinitions.All
+                .SequenceEqual(TorizoSwapArtworkDefinitions.All
                     .Select(page => page.FileName).Order(StringComparer.Ordinal)))
             throw new InvalidDataException(
                 "Enemy tile manifest omits or substitutes a Torizo instruction tile page.");
@@ -722,11 +722,11 @@ public static class EnemyTileArtworkFiles
         }
         var gunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunshipFrames);
         var torizoPages = new RoomCharacterAtlas[
-            TorizoInstructionVramArtworkDefinitions.All.Length];
+            TorizoSwapArtworkDefinitions.All.Length];
         for (int index = 0; index < torizoPages.Length; index++)
         {
             TileSheetDefinition page =
-                TorizoInstructionVramArtworkDefinitions.All[index];
+                TorizoSwapArtworkDefinitions.All[index];
             if (!manifest.TorizoInstructionTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
@@ -744,7 +744,7 @@ public static class EnemyTileArtworkFiles
                     error);
             }
         }
-        var torizoInstructionVram = new TorizoInstructionVramArtwork(torizoPages);
+        var torizoInstructionVram = new TorizoSwapArtwork(torizoPages);
         var ceresEscapePages = new RoomCharacterAtlas[
             CeresEscapeTileArtworkDefinitions.All.Length];
         for (int index = 0; index < ceresEscapePages.Length; index++)
@@ -1125,7 +1125,7 @@ public static class EnemyTileArtworkFiles
             BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog
             {
                 CrocomireMelting = crocomire, CrocomireSkeleton = skeleton, CrocomireBg2Frames = crocomireBg2Frames,
-                CrocomireColors = crocomireColors, TorizoInstructionVram = torizoInstructionVram,
+                CrocomireColors = crocomireColors, TorizoSwaps = torizoInstructionVram,
                 PhantoonBg2Frames = phantoonBg2Frames, PhantoonColors = phantoonColors,
                 DraygonBg2Frames = draygonBg2Frames, DraygonColors = draygonColors,
                 KraidBackground = new KraidBackgroundArtwork(upperKraid, lowerKraid, kraidHeads, roomBackground),

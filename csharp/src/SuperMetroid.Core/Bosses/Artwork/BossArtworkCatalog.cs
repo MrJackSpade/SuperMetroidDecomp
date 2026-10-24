@@ -31,7 +31,7 @@ public sealed record BossArtworkCatalog
     public CrocomireColorCatalog? CrocomireColors { get; init; }
 
     /// <summary>Editable tile pages for Bomb and Golden Torizo's instruction-time VRAM uploads.</summary>
-    public TorizoInstructionVramArtwork? TorizoInstructionVram { get; init; }
+    public TorizoSwapArtwork? TorizoSwaps { get; init; }
 
     /// <summary>Editable Phantoon BG2 tilemap frames; collision remains engine-owned.</summary>
     public PhantoonBg2FrameCatalog? PhantoonBg2Frames { get; init; }
@@ -91,7 +91,7 @@ public sealed record BossArtworkCatalog
         content.AppendIdentity("CrocomireSkeleton", CrocomireSkeleton?.ContentIdentity);
         content.AppendIdentity("CrocomireBg2Frames", CrocomireBg2Frames?.ContentIdentity);
         content.AppendIdentity("CrocomireColors", CrocomireColors?.ContentIdentity);
-        content.AppendIdentity("TorizoInstructionVram", TorizoInstructionVram?.ContentIdentity);
+        content.AppendIdentity("TorizoInstructionVram", TorizoSwaps?.ContentIdentity);
         content.AppendIdentity("PhantoonBg2Frames", PhantoonBg2Frames?.ContentIdentity);
         content.AppendIdentity("PhantoonColors", PhantoonColors?.ContentIdentity);
         content.AppendIdentity("DraygonBg2Frames", DraygonBg2Frames?.ContentIdentity);
@@ -115,7 +115,7 @@ public sealed record BossArtworkCatalog
     public static BossArtworkCatalog FromInstalledArtwork(BossArtworkCatalog artwork)
     {
         Ensure.NotNull(artwork);
-        if (artwork.TorizoInstructionVram is null)
+        if (artwork.TorizoSwaps is null)
             throw new InvalidDataException("Installed boss artwork requires the Torizo transfer provider.");
         return artwork;
     }

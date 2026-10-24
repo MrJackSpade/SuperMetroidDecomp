@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>Named PNG sources used by the compiled Bomb/Golden Torizo upload descriptors.</summary>
-internal static class TorizoInstructionVramArtworkDefinitions
+internal static class TorizoSwapArtworkDefinitions
 {
     /// <summary>Shared death/recovery characters at $AA:B0A5.</summary>
     internal static readonly TileSheetDefinition SharedDeath =

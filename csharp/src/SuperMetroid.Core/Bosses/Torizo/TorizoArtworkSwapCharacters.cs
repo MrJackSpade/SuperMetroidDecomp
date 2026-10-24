@@ -12,7 +12,7 @@ internal sealed record TorizoArtworkSwapCharacters(int Entry) : ObjCharacterSour
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver)
     {
         TorizoArtworkSwapDefinition definition = TorizoArtworkSwapDefinitions.Entries[Entry];
-        return (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.TorizoInstructionVram ?? throw new InvalidDataException(
+        return (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.TorizoSwaps ?? throw new InvalidDataException(
                 "Torizo artwork swaps require installed artwork."))
             .Characters(definition.Page, definition.PageByte, definition.ByteCount);
     }

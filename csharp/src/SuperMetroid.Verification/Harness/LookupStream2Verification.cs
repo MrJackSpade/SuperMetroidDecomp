@@ -1163,18 +1163,18 @@ internal static class LookupStream2Verification
     {
         TileSheetDefinition[] original =
         [
-            TorizoInstructionVramArtworkDefinitions.SharedDeath, TorizoInstructionVramArtworkDefinitions.StatueCrumble,
-            TorizoInstructionVramArtworkDefinitions.LeftAttack, TorizoInstructionVramArtworkDefinitions.RightAttack,
-            TorizoInstructionVramArtworkDefinitions.GoldenAwakening, TorizoInstructionVramArtworkDefinitions.GoldenLeftAttack,
-            TorizoInstructionVramArtworkDefinitions.GoldenRightAttack, TorizoInstructionVramArtworkDefinitions.ChozoDebris,
+            TorizoSwapArtworkDefinitions.SharedDeath, TorizoSwapArtworkDefinitions.StatueCrumble,
+            TorizoSwapArtworkDefinitions.LeftAttack, TorizoSwapArtworkDefinitions.RightAttack,
+            TorizoSwapArtworkDefinitions.GoldenAwakening, TorizoSwapArtworkDefinitions.GoldenLeftAttack,
+            TorizoSwapArtworkDefinitions.GoldenRightAttack, TorizoSwapArtworkDefinitions.ChozoDebris,
         ];
         var pages = new RoomCharacterAtlas[original.Length];
         var native = new byte[original.Length][];
         int ordinal = 0;
-        foreach (var page in TorizoInstructionVramArtworkDefinitions.All)
+        foreach (var page in TorizoSwapArtworkDefinitions.All)
         {
             AssertEqual(original[ordinal], page, "Torizo page manifest order/source/extent/filename");
-            AssertEqual(page, TorizoInstructionVramArtworkDefinitions.All[ordinal], "Torizo page enumeration/index agreement");
+            AssertEqual(page, TorizoSwapArtworkDefinitions.All[ordinal], "Torizo page enumeration/index agreement");
             native[ordinal] = Enumerable.Range(0, page.ByteCount).Select(offset => rom.ReadCartridgeByte(page.SourceAddress + offset)).ToArray();
             byte[] pixels = SnesGraphics.DecodePlanarTiles(native[ordinal], 4,
                 Math.Min(RoomCharacterAtlasFormat.TileColumns, page.ByteCount / RoomCharacterAtlasFormat.BytesPerTile), out Extent16<ImagePixels> size);
@@ -1184,7 +1184,7 @@ internal static class LookupStream2Verification
             pages[ordinal++] = RoomCharacterAtlas.Load(png, page.ByteCount);
         }
         AssertEqual(8, ordinal, "Torizo page count");
-        var artwork = new TorizoInstructionVramArtwork(pages);
+        var artwork = new TorizoSwapArtwork(pages);
         string expectedHash = SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
         {
             content.Append("pages", original.Length);
@@ -1201,8 +1201,8 @@ internal static class LookupStream2Verification
             AssertTrue(!artwork.TryResolve(page.SourceAddress, page.ByteCount + 1, out _), "Actual resolver rejects page overrun");
             AssertTrue(!artwork.TryResolve(page.SourceAddress, 0, out _), "Actual resolver rejects empty slice");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[-1], "Torizo page lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[8], "Torizo page upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[-1], "Torizo page lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[8], "Torizo page upper bound");
         Console.WriteLine("Torizo page dispatch:eight exact ordered identities, native decoded page resolution/bounds and canonical content hash pass.");
     }
     /// <summary>Checks Kago visual frame pointers and geometry against compiled native frames.</summary>

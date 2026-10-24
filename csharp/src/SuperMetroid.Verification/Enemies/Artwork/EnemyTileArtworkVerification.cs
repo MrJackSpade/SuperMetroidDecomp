@@ -42,7 +42,7 @@ using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePiratePale
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.Artwork.TorizoInstructionVramArtworkVerification;
+using static SuperMetroid.Verification.Bosses.Torizo.Artwork.TorizoSwapArtworkVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -133,7 +133,7 @@ internal static class EnemyTileArtworkVerification
     {
         using var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
-        Suite(nameof(VerifyTorizoInstructionVramArtwork), () => VerifyTorizoInstructionVramArtwork(bus, directory, stock));
+        Suite(nameof(VerifyTorizoSwapArtwork), () => VerifyTorizoSwapArtwork(bus, directory, stock));
         Suite(nameof(VerifyCeresEscapeTileArtwork), () => VerifyCeresEscapeTileArtwork(bus, directory, stock));
         Suite(nameof(VerifyCeresEscapeOverlayTilemaps), () => VerifyCeresEscapeOverlayTilemaps(bus, directory, stock));
         Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(directory, stock));

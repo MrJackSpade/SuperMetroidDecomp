@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Rooms.Plms;
 [RoomLifetime]
 internal sealed class CollectiblePlms : IPlmFamilySource
 {
+    /// <summary>Words in one collectible character slot: two 16x16 frames of four characters.</summary>
+    private const int CollectibleSlotWordCount = 128;
+
     /// <summary>Registers the Collectible family's step.</summary>
     public void RegisterPlmFamilies(PlmFamilyTable table)
     {
@@ -310,7 +313,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// <summary>Binds <paramref name="graphics"/>, a collectible's two frames, over the characters of slot <paramref name="graphicsSlot"/> (#1350).</summary>
     [PpuLayoutBoundary("codec: the collectible character slots' native VRAM words")]
     internal static BgCharacterUpload SlotUpload(BgArtworkIdentity identity, int graphicsSlot, ReadOnlyMemory<byte> graphics) =>
-        new(identity, RoomGraphicsLayout.CollectibleCharacters.Offset + graphicsSlot * RoomGraphicsVram.CollectibleSlotWordCount, graphics);
+        new(identity, RoomGraphicsLayout.CollectibleCharacters.Offset + graphicsSlot * CollectibleSlotWordCount, graphics);
 
     /// <summary>
     /// The block definition words a collectible writes for slot <paramref name="graphicsSlot"/>: each of its eight

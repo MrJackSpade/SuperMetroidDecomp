@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 /// Editable indexed characters for the native Torizo instruction uploads.
 /// Address and destination ownership remain in compiled control data.
 /// </summary>
-public sealed class TorizoInstructionVramArtwork
+public sealed class TorizoSwapArtwork
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
@@ -21,15 +21,15 @@ public sealed class TorizoInstructionVramArtwork
     private readonly RoomCharacterAtlas[] pages;
 
     /// <summary>Copies and validates one installed character atlas for every required Torizo upload page.</summary>
-    internal TorizoInstructionVramArtwork(RoomCharacterAtlas[] pages)
+    internal TorizoSwapArtwork(RoomCharacterAtlas[] pages)
     {
         Ensure.NotNull(pages);
-        if (pages.Length != TorizoInstructionVramArtworkDefinitions.All.Length)
+        if (pages.Length != TorizoSwapArtworkDefinitions.All.Length)
             throw new InvalidDataException("Torizo instruction artwork requires every tile page.");
         for (int index = 0; index < pages.Length; index++)
         {
             if (pages[index] is null || pages[index].Characters.Length !=
-                TorizoInstructionVramArtworkDefinitions.All[index].ByteCount)
+                TorizoSwapArtworkDefinitions.All[index].ByteCount)
                 throw new InvalidDataException(
                     $"Torizo instruction tile page {index} has the wrong size.");
         }
@@ -48,7 +48,7 @@ public sealed class TorizoInstructionVramArtwork
         for (int index = 0; index < pages.Length; index++)
         {
             TileSheetDefinition page =
-                TorizoInstructionVramArtworkDefinitions.All[index];
+                TorizoSwapArtworkDefinitions.All[index];
             int offset = sourceAddress - page.SourceAddress;
             if (offset < 0 || byteCount <= 0 ||
                 offset > page.ByteCount - byteCount)

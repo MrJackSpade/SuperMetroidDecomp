@@ -251,7 +251,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidDataException">The installed boss artwork has no Torizo artwork swaps.</exception>
     private void ShowTorizoArtwork(TorizoArtworkSwap swap)
     {
-        _ = _bossArtwork.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
+        _ = _bossArtwork.Artwork?.TorizoSwaps ?? throw new InvalidDataException(
             "Torizo's artwork swaps require installed artwork.");
         _presentation.ObjCharacters.Record(TorizoArtworkSwapDefinitions.Uploads[swap.Ordinal]);
     }

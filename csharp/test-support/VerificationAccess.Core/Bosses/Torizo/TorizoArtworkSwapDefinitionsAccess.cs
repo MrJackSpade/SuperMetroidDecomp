@@ -10,7 +10,7 @@ internal static class TorizoArtworkSwapDefinitionsAccess
     extension(TorizoArtworkSwapDefinition swap)
     {
         /// <summary>The swap's cartridge source address.</summary>
-        internal int SourceAddress => SuperMetroid.Core.Bosses.Torizo.Artwork.TorizoInstructionVramArtworkDefinitions.All[(int)swap.Page].SourceAddress + swap.PageByte;
+        internal int SourceAddress => SuperMetroid.Core.Bosses.Torizo.Artwork.TorizoSwapArtworkDefinitions.All[(int)swap.Page].SourceAddress + swap.PageByte;
     }
 
     /// <summary>Reads the Torizo instruction stream's VRAM transfer records in source order.</summary>

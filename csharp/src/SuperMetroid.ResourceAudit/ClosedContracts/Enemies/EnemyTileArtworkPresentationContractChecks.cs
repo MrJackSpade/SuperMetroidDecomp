@@ -57,13 +57,13 @@ internal static class EnemyTileArtworkPresentationContractChecks
             Version = CeresEscapeOverlayTilemapDefinitions.Version,
             Pages = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name, page => new ushort[page.WordCount]) }));
         CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
-        var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All
+        var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All
             .Select(page => Sheet(page.ByteCount)).ToArray());
         EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, DmaSources = sources });
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileArtworkCatalog catalog = Install();
         _ = AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
-        _ = BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog { TorizoInstructionVram = torizo });
+        _ = BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog { TorizoSwaps = torizo });
         Reject(() => AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
         Reject(() => BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog()), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionId];

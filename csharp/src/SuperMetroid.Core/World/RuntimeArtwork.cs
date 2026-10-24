@@ -191,7 +191,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
             return true;
         // The hand PLM queues its fragment sheet through NMI, unlike the enemy
         // instruction uploads that apply directly. Both use current installed art.
-        if (_bossArtwork.Artwork?.TorizoInstructionVram?.TryResolve(sourceAddress, byteCount, out data) == true)
+        if (_bossArtwork.Artwork?.TorizoSwaps?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (MapPresentation?.RoomFxAnimatedTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;

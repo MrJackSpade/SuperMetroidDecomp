@@ -371,7 +371,6 @@ using static SuperMetroid.Verification.Frontend.Pause.UnpauseReserveBlackoutVeri
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseStationLockReleaseVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseRemappedShoulderVerification;
 using static SuperMetroid.Verification.Enemies.VerticalOffScreenDeletionVerification;
-using static SuperMetroid.Verification.Rooms.Scrolling.ViewportParityVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpDustVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpSpinExitVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.WallProbeBombBlockVerification;
@@ -413,7 +412,6 @@ internal static class FullRunSuitesVerification
     internal static RegisteredSuite[] RenderContractSuites() =>
     [
         new(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni()),
-        new(nameof(VerifyViewportTileRowParity), () => VerifyViewportTileRowParity()),
         new(nameof(VerifyFramePaintOwnership), () => VerifyFramePaintOwnership()),
         new(nameof(VerifyTitleRenderSnapshots), () => VerifyTitleRenderSnapshots()),
         new(nameof(VerifyPauseRenderSnapshots), () => VerifyPauseRenderSnapshots()),

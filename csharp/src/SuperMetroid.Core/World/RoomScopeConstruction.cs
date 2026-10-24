@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -33,6 +34,9 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
 
     /// <summary>The load-station record whose load establishes this room; null for a room entered otherwise.</summary>
     public LoadStationEntry? LoadStation { get; } = loadStation;
+
+    /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>
+    public ArtworkFrameSelections ArtworkFrames { get; } = new();
 
     /// <summary>The level allocation, once the level step has run.</summary>
     public RoomLevelData? LevelData { get; set; }
@@ -105,6 +109,8 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         LoadStation = LoadStation,
         LevelData = LevelData ?? throw Missing(nameof(LevelData)),
         Camera = Camera ?? throw Missing(nameof(Camera)),
+        ArtworkFrames = ArtworkFrames,
+        AnimatedCharacters = Assets.Pictures.AnimationsOf(Assets.Tileset),
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
         BackgroundImage = Room.State.Background is { } program
             ? new RoomBackgroundImageResolver(

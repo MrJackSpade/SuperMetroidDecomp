@@ -1036,6 +1036,7 @@ internal sealed class RoomLoader
             Camera = destinationCamera.PixelPosition,
             GunshipScenario = entry.GunshipScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
+            ArtworkFrames = scope.ArtworkFrames,
         });
         // The shared Ridley initializer calls $90:A7E2 only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
@@ -1261,7 +1262,8 @@ internal sealed class RoomLoader
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
-            RoomCharacterSource.Of(RoomScope.CharactersOf(_room.ActiveRoom), _backgrounds, _enemySession.ObjCharacters), []);
+            RoomCharacterSource.Of(RoomScope.CharactersOf(_room.ActiveRoom), _backgrounds, _enemySession.ObjCharacters, scope.AnimatedCharacters,
+                scope.ArtworkFrames), []);
     }
 
     /// <summary>The host-bound room catalogs; room loading never substitutes cartridge artwork.</summary>

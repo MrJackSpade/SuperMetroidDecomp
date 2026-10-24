@@ -55,11 +55,21 @@ internal sealed class EnemyPresentation
         private set;
     }
 
-    /// <summary>Room load: binds the room's background artwork and the VRAM it composes over, which enemy artwork transfers write.</summary>
-    internal void BindVram(BgArtworkBindings backgrounds)
+    /// <summary>
+    /// The frame each of the room's animations shows (#1406): a frame drawn over OBJ characters an encounter's catalogued
+    /// animation paints shows the picture of the frame selected here.
+    /// </summary>
+    internal ArtworkFrameSelections ArtworkFrames { get; private set; } = new();
+
+    /// <summary>
+    /// Room load: binds the room's background artwork and the VRAM it composes over, which enemy artwork transfers write,
+    /// and the room's animation frames, or a fresh set no animation has selected in when <paramref name="frames"/> is null.
+    /// </summary>
+    internal void BindVram(BgArtworkBindings backgrounds, ArtworkFrameSelections? frames = null)
     {
         Backgrounds = Ensure.NotNull(backgrounds);
         Vram = backgrounds.Vram;
+        ArtworkFrames = frames ?? new ArtworkFrameSelections();
     }
 
     /// <summary>
@@ -178,7 +188,7 @@ internal sealed class EnemyPresentation
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
             [.. regions.Select(region => RotUploads.TryShowing(region, out int step, out long stamp)
                     && !ObjCharacters.ShowsNewerOver(region.FirstByte, region.ByteCount, stamp)
-                ? new CharacterRegionContent(region, null, step) : catalog.Showing(ObjCharacters, uploads, region))]));
+                ? new CharacterRegionContent(region, null, step) : catalog.Showing(ObjCharacters, uploads, region, ArtworkFrames))]));
     }
 
     /// <summary>

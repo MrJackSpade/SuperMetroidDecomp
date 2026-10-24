@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -530,6 +531,37 @@ internal static class RoomBlockUploads
 
         /// <summary>Adds the collectibles' uploads.</summary>
         internal void AddCollectibles(IEnumerable<CollectibleSlotUpload> slots) => collectibles.AddRange(slots);
+
+        /// <summary>The runs of the tileset's BG1 and BG2 characters its rooms' animations paint (#1406).</summary>
+        internal HashSet<AnimatedCharacterRun> BlockRuns { get; } = [];
+
+        /// <summary>The runs of the OBJ character page its rooms' animations paint, for rooms whose blocks read it (#1406).</summary>
+        internal HashSet<AnimatedCharacterRun> ObjectPageRuns { get; } = [];
+
+        /// <summary>The runs of BG3's characters its rooms' animations paint, from the HUD's character base (#1406).</summary>
+        internal HashSet<AnimatedCharacterRun> Bg3Runs { get; } = [];
+
+        /// <summary>
+        /// Adds a frame an animation of the tileset's rooms paints over the BG1 and BG2 characters: its blocks and words are
+        /// pictured over it, and the animation is declared to paint its characters (#1406).
+        /// </summary>
+        internal void AddAnimated(AnimatedCharacterUpload frame)
+        {
+            Add(Ensure.NotNull(frame).Upload);
+            BlockRuns.Add(frame.RunFrom(RoomGraphicsLayout.AreaCharacters.Offset, RoomBlockPictureNames.CharacterWords));
+        }
+
+        /// <summary>
+        /// Adds a frame an animation of the tileset's rooms paints over BG3's characters: its BG3 words are pictured over it,
+        /// and the animation is declared to paint its characters (#1406).
+        /// </summary>
+        internal void AddBg3Animated(AnimatedCharacterUpload frame)
+        {
+            BgCharacterUpload upload = Ensure.NotNull(frame).Upload;
+            if (!Bg3Uploads.Any(known => known.Identity == upload.Identity && known.FirstWord == upload.FirstWord))
+                Bg3Uploads.Add(upload);
+            Bg3Runs.Add(frame.RunFrom(GameplayVramLayout.HudCharacterWord, TileWordSheet.CharacterWordsOf(TileWordLayer.Bg3)));
+        }
     }
 
     /// <summary>The BG2 pages a library background leaves, under its installed name, and what then shows at each character.</summary>

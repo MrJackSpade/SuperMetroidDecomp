@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -35,6 +36,15 @@ internal sealed record RoomScope
 
     /// <summary>The room's layer-1 scroll-boundary camera.</summary>
     public required ScrollBoundaryCamera Camera { get; init; }
+
+    /// <summary>
+    /// The frame each of the room's animations shows (#1406): its animated tiles, statues, corpses and bosses select their
+    /// pictures here, and the display resolves the pictures of the characters they paint from it.
+    /// </summary>
+    public required ArtworkFrameSelections ArtworkFrames { get; init; }
+
+    /// <summary>The characters the room tileset's animations paint, as asset extraction declared them (#1406).</summary>
+    public required RoomAnimatedCharacters AnimatedCharacters { get; init; }
 
     /// <summary>Resolves the pre-coloured picture each block the room's planes show draws as (#1392).</summary>
     public required RoomBlockPictureResolver BlockPictures { get; init; }

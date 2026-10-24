@@ -24,10 +24,13 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     /// <summary>The background's image.</summary>
     public RoomBackgroundImage Image { get; } = Ensure.NotNull(image);
 
-    /// <summary>The background as BG2 shows it over what <paramref name="bindings"/> show now.</summary>
+    /// <summary>
+    /// The background as BG2 shows it over what <paramref name="bindings"/> show now, and over the frame
+    /// <paramref name="animated"/> says an animation that paints a tile's character selected (#1406).
+    /// </summary>
     /// <exception cref="InvalidDataException">A cell over rebound artwork has no picture.</exception>
     [PpuLayoutBoundary("codec: the BG characters a background's tiles name, from the room tileset's character base")]
-    public RoomBackgroundImagePlane Resolve(BgArtworkBindings bindings)
+    public RoomBackgroundImagePlane Resolve(BgArtworkBindings bindings, AnimatedCharacterView animated)
     {
         Ensure.NotNull(bindings);
         SpriteSheetFrame?[]? next = resolved ? null : new SpriteSheetFrame?[Image.CellCount];
@@ -43,8 +46,9 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
             bool changed = !resolved, rebound = false;
             for (int tile = 0; tile < RoomBlockPictureNames.Tiles; tile++)
             {
-                now[tile] = bindings.Showing(new SnesBgTilemapWord(words[tile]).CharacterIndex * RoomBlockPictureNames.CharacterWords,
-                    RoomBlockPictureNames.CharacterWords);
+                int character = new SnesBgTilemapWord(words[tile]).CharacterIndex;
+                if (!animated.TryShowing(character, RoomBlockPictureNames.CharacterWords, out now[tile]))
+                    now[tile] = bindings.Showing(character * RoomBlockPictureNames.CharacterWords, RoomBlockPictureNames.CharacterWords);
                 rebound |= !loaded.Contains(now[tile].Artwork);
                 changed |= now[tile] != shown[cell * RoomBlockPictureNames.Tiles + tile];
             }

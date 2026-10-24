@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
@@ -73,16 +74,30 @@ public sealed class RuntimeCharacterUploadCatalog
     }
 
     /// <summary>
-    /// What shows over <paramref name="region"/> now: the upload among <paramref name="setUploads"/> made last over it, or
+    /// What shows over <paramref name="region"/> now: the frame an animation the set's encounters paint the region with
+    /// shows in <paramref name="frames"/> (#1406); else the upload among <paramref name="setUploads"/> made last over it, or
     /// none while the graphics set's own characters, which the room load uploaded, show there.
     /// </summary>
-    /// <exception cref="InvalidDataException">An upload the set's encounters do not make shows over the region.</exception>
+    /// <exception cref="InvalidDataException">
+    /// An upload the set's encounters do not make shows over the region, or an animation shows a frame the set's encounters
+    /// do not paint the region with.
+    /// </exception>
     public CharacterRegionContent Showing(ObjCharacterUploads uploads, IReadOnlyList<RuntimeCharacterUpload> setUploads,
-        CharacterRegion region)
+        CharacterRegion region, ArtworkFrameSelections frames)
     {
         Ensure.NotNull(uploads);
         Ensure.NotNull(setUploads);
         Ensure.NotNull(region);
+        Ensure.NotNull(frames);
+        RuntimeCharacterUpload[] over = [.. Over(setUploads, region)];
+        foreach (RuntimeCharacterUpload upload in over)
+        {
+            if (upload.Source is not ArtworkFrameCharacters painted || !frames.TryShown(painted.Frame.Animation, out ArtworkFrame shown))
+                continue;
+            RuntimeCharacterUpload selected = over.FirstOrDefault(candidate => candidate.Source is ArtworkFrameCharacters frame && frame.Frame == shown)
+                ?? throw new InvalidDataException($"{shown} shows over table byte {region.FirstByte}, which no encounter of this graphics set paints with it.");
+            return new CharacterRegionContent(region, selected);
+        }
         if (uploads.LastOver(region.FirstByte, region.ByteCount) is not { } last)
             return new CharacterRegionContent(region, null);
         RuntimeCharacterUpload? made = setUploads.FirstOrDefault(upload =>

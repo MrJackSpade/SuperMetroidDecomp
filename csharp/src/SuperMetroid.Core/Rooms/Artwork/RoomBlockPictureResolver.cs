@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// Resolves the picture each block a room's planes use shows (#1392): the block's tile words, from the room's live
-/// definitions, over the artwork the background bindings show at each tile's character. A block is resolved again only
+/// definitions, over the frame an animation shows at each tile's character, or else the artwork the background bindings show there. A block is resolved again only
 /// when its definition or what its characters show changes, so a frame whose bindings stand still reuses its table.
 /// </summary>
 /// <param name="sheet">The room tileset's block sheet.</param>
@@ -82,9 +82,11 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             {
                 tiles[tile] = BinaryPrimitives.ReadUInt16LittleEndian(
                     definitions.AsSpan(definition * RoomLevelPlane.DefinitionBytes + tile * sizeof(ushort), sizeof(ushort)));
-                now[tile] = characters.Artwork.Showing(
-                    characters.CharacterBase + new SnesBgTilemapWord(tiles[tile]).CharacterIndex * RoomBlockPictureNames.CharacterWords,
-                    RoomBlockPictureNames.CharacterWords);
+                int character = new SnesBgTilemapWord(tiles[tile]).CharacterIndex;
+                // A character an animation paints shows the frame it selected (#1406); any other shows what is bound over it.
+                if (!characters.Animated.TryShowing(character, RoomBlockPictureNames.CharacterWords, out now[tile]))
+                    now[tile] = characters.Artwork.Showing(characters.CharacterBase + character * RoomBlockPictureNames.CharacterWords,
+                        RoomBlockPictureNames.CharacterWords);
                 changed |= now[tile] != shown[index * RoomBlockPictureNames.Tiles + tile];
             }
             if (!changed)

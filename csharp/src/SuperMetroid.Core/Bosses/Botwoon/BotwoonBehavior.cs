@@ -779,8 +779,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             // `$B3:9B32` invokes QueueMusic_Delayed8(3) only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
             LastBotwoonMusicRequest = new DelayedMusicRequest(
-                MusicCommand.SelectTrack(3),
-                MusicCommandDelay.EightFrames);
+                MusicRequest.SelectTrack(3),
+                MusicQueueDelay.Shortest);
             return;
         }
 
@@ -1128,7 +1128,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastBotwoonSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

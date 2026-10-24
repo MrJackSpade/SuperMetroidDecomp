@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MetroidBehaviorDefinitions
 {
     /// <summary>Library-two cry $50, selected by native random slots0/3 at $A3:EAD6/$EADC.</summary>
-    private static readonly SoundEffectId FirstCry = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0050);
+    private static readonly SoundEffectId FirstCry = Library2Sound.MetroidDrain;
     /// <summary>Library-two cry $58, selected by native random slots1/4/6 at $A3:EAD8/$EADE/$EAE2.</summary>
-    private static readonly SoundEffectId SecondCry = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0058);
+    private static readonly SoundEffectId SecondCry = Library2Sound.ShotMochtroid;
     /// <summary>Library-two cry $5A, selected by native random slots2/5/7 at $A3:EADA/$EAE0/$EAE4.</summary>
-    private static readonly SoundEffectId ThirdCry = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005a);
+    private static readonly SoundEffectId ThirdCry = Library2Sound.ShotMetroid;
 
     /// <summary><c>BombedOffVelocities</c> at $A3:EA3F: four successive two-pixel cardinal displacements.</summary>
     internal static Offset16<RoomPixels> EscapeDisplacement(ushort countdown)

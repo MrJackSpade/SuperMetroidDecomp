@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
@@ -170,7 +171,8 @@ internal static class EnemyDefinitionsVerification
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         byte bank = Byte(12);
-        return new RoomEnemyDefinition(Word(0), Word(4), Word(6), new(Word(8), Word(10)), Byte(13), Word(14), Word(16),
+        return new RoomEnemyDefinition(Word(0), Word(4), Word(6), new(Word(8), Word(10)), Byte(13),
+            SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)), Word(16),
             EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), Word(20), Word(22), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
             SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             Word(34), Word(36), Word(38),

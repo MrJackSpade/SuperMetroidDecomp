@@ -496,6 +496,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastAlcoonSoundEffect, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastAlcoonSoundEffect, maximumQueued: SoundQueueLimit.Max6);
     }
 }

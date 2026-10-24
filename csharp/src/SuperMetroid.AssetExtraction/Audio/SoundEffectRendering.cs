@@ -58,7 +58,7 @@ internal static class SoundEffectRendering
             renderer.RenderFrame(new short[SpcAudioClipRenderer.NativeSamplesPerFrame]);
         else
             renderer.AdvanceSequencerFrame();
-        renderer.RequestSound(new SoundEffectId(library, command));
+        renderer.RequestSound(SoundEffectCommands.Decode(library, command));
         return renderer;
     }
 

@@ -128,9 +128,7 @@ internal static class SporeSpawnCeilingPlmsVerification
         {
             plms.Step(level);
             if (plms.Sounds.SoundRequests.Any(request =>
-                    request.SoundEffect == SoundEffectId.FromCartridge(
-                        SoundEffectLibrary.Library2,
-                        SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId)))
+                    request.SoundEffect == SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId))
                 soundFrame = frame;
             if (frame % 4 == 0 && frame <= (clear ? 0 : 12))
             {

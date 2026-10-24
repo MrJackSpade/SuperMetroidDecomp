@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
@@ -72,7 +73,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     while (!commands[cursor].IsPose && !commands[cursor].IsTerminator)
                     {
                         KraidHeadNativeRecord sound = commands[cursor++];
-                        AssertEqual((byte)sound.Sound, (baseline.Enemies.KraidBehavior.Access.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
+                        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, (byte)sound.Sound), (baseline.Enemies.KraidBehavior.Access.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect,
                             "sound callback fires at the exact head admission tick");
                         if (sound.Opcode == KraidHeadNativeCursors.RoarCryCall) soundCount++;
                         callbacks++;

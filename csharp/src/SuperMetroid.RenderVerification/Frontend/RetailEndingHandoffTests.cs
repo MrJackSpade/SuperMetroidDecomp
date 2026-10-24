@@ -26,8 +26,8 @@ internal static class RetailEndingHandoffTests
         var audioAssets = DesktopAccess.LoadAudioClips();
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
-        var leftAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var rightAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var leftAudio = new short[AudioSession.PcmSamplesPerFrame];
+        var rightAudio = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0;
         void Step(SnesButton input, bool pixels)
         {

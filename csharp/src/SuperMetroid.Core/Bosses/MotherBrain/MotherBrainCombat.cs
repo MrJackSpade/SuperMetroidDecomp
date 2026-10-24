@@ -119,7 +119,7 @@ internal sealed class MotherBrainCombat
             return;
 
         _room.Services.MotherBrain.IncrementGlassRoomArgument();
-        _audio.QueueEnemySound(SoundEffectLibrary2Sounds.MotherBrainGlassHit, maximumQueued: 6);
+        _audio.QueueEnemySound(Library2Sound.ShotMotherBrain, maximumQueued: SoundQueueLimit.Max6);
 
         // `$B52D-$B539` deliberately alternates odd/even flash parity when a second hit
         // arrives during the existing flash. The common no-death damage helper then owns

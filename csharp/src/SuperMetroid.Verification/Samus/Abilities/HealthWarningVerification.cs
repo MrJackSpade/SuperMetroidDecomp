@@ -11,7 +11,7 @@ internal static class HealthWarningVerification
     internal static void VerifyHealthWarning()
     {
         var warning = new SamusHealthWarningState();
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         byte[] positions = audio.SoundWritePositions;
         byte[,] queues = audio.SoundQueues;
         foreach (var sample in new[] { new VerifyHealthWarningCase(99, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(0, 0), new VerifyHealthWarningCase(30, 0), new VerifyHealthWarningCase(31, 1), new VerifyHealthWarningCase(32, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(31, 1) })
@@ -24,7 +24,7 @@ internal static class HealthWarningVerification
         foreach (bool suppressed in new[] { false, true })
         {
             audio.Reset();
-            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, 6);
+            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(Library3Sound.Silence, SoundQueueLimit.Max6);
             warning.Update(30, audio, suppressed);
             AssertTrue(warning.IsActive, "rejected start still sets native latch");
             AssertEqual(suppressed ? 0 : 6, positions[2], "rejected start does not add a command");

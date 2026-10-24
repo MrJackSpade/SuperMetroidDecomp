@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyCue;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCue;
 using K = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCueKind;
@@ -146,8 +147,8 @@ internal static class MotherBrainNativeListAddresses
         [0x9e5b] = new HeadCueOp(0, _ => H.Of(K.AimOnionRingsAtSamus)),
         [0x9df7] = new HeadCueOp(0, _ => H.Of(K.QueueBabyMetroidAttackSound)),
         [0x9e29] = new HeadCueOp(0, _ => H.Of(K.SpawnOnionRing)),
-        [0x9b32] = new HeadCueOp(1, operands => H.Sound3(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, operands[0]))),
-        [0x9b28] = new HeadCueOp(1, operands => H.Sound2(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operands[0]))),
+        [0x9b32] = new HeadCueOp(1, operands => H.Sound3(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, operands[0]))),
+        [0x9b28] = new HeadCueOp(1, operands => H.Sound2(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[0]))),
         [0x9ebd] = new HeadCueOp(1, operands => H.Bomb(operands[0])),
         [0x9b6d] = new HeadCueOp(0, _ => H.Of(K.SpawnBigPurpleBreath)),
         [0x9d0d] = new HeadCueOp(0, _ => H.Of(K.MaybeHoldNeutralPhase3)),

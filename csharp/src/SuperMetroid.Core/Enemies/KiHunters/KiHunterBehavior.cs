@@ -704,8 +704,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits the acid projectile and sound, then starts the native 24-frame spit wait.</summary>
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, HorizontalDirection direction)
     {
-        LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit;
-        _audio.QueueEnemySound(SoundEffectLibrary2Sounds.KiHunterAcidSpit, maximumQueued: 6);
+        LastKiHunterSoundEffect = Library2Sound.AcidSpit;
+        _audio.QueueEnemySound(Library2Sound.AcidSpit, maximumQueued: SoundQueueLimit.Max6);
         SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
         body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = WrappingCountdown.Start(KiHunterSpitWaitFrames);
     }

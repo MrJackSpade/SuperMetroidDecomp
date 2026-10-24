@@ -401,7 +401,7 @@ public sealed class MotherBrainEnemyState
         RainbowBeamPaletteRequested = false;
     }
 
-    /// <summary>Queues one typed music command with its authored delay for this frame.</summary>
-    internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
-        _musicRequests.Add(new DelayedMusicRequest(command, delay));
+    /// <summary>Queues one music request with its delay for this frame.</summary>
+    internal void RequestMusic(MusicRequest request, MusicQueueDelay delay) =>
+        _musicRequests.Add(new DelayedMusicRequest(request, delay));
 }

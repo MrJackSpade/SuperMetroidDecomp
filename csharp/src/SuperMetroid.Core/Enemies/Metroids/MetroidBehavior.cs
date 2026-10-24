@@ -286,7 +286,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Function != MetroidAiFunction.PowerBombEscape)
         {
             if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
-                _audio.QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
+                _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, maximumQueued: SoundQueueLimit.Max6);
             DrainSamusWithMetroid(state, samus);
         }
 
@@ -556,7 +556,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastMetroidSoundEffectLibrary2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastMetroidSoundEffectLibrary2, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>Routes ordinary projectile hits to Metroid-specific frozen and nonfrozen shot handling.</summary>

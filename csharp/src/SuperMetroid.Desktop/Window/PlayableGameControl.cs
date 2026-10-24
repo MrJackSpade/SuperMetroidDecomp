@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
@@ -79,7 +80,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
     internal SuperMetroidGame game;
     /// <summary>Host-owned PCM storage; the device copies each frame on submit.</summary>
-    private readonly short[] audioFrame = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+    private readonly short[] audioFrame = new short[AudioSession.PcmSamplesPerFrame];
     /// <summary>Optional selected audio override directory for this session.</summary>
     private readonly string? installedAudioDirectory;
     /// <summary>Installation root holding player saves, recordings, and debugger states.</summary>
@@ -240,7 +241,7 @@ public sealed class PlayableGameControl : UserControl
         {
             return installation.LoadAudioClips();
         }
-        return ClipAudioCatalog.Load(installedAudioDirectory);
+        return InstalledAudioClips.Load(installedAudioDirectory);
     }
 
     /// <summary>Starts a new display generation before resetting a software-rendered session.</summary>
@@ -494,9 +495,9 @@ public sealed class PlayableGameControl : UserControl
     /// </summary>
     /// <summary>Defers simulation while the enabled audio output cannot accept another frame.</summary>
     private RecoveringAudioOutput CreateAudioDevice() => new(() => new WaveOutAudioDevice(
-        CartridgeAudioSession.SampleRate,
-        CartridgeAudioSession.ChannelCount,
-        CartridgeAudioSession.PcmSamplesPerFrame,
+        AudioSession.SampleRate,
+        AudioSession.ChannelCount,
+        AudioSession.PcmSamplesPerFrame,
         hostOptions.MasterVolumePercent));
 
     /// <summary>Whether the audio device can take another frame; no device never blocks pacing.</summary>

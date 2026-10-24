@@ -17,10 +17,16 @@ public sealed class ClipAudioCatalog
     /// <summary>Bytes of the minimal RIFF/WAVE header the exporter writes before the samples.</summary>
     internal const int WaveHeaderBytes = 44;
 
+    /// <summary>Game updates per second; the clips' rate is one update's samples this many times.</summary>
+    private const int UpdatesPerSecond = 60;
+
     /// <summary>Bytes per 16-bit stereo frame.</summary>
     internal const int BytesPerFrame = PcmSampleFormat.StereoChannelCount * sizeof(short);
 
-    /// <summary>Serializer settings shared by the exporter and the loader.</summary>
+    /// <summary>
+    /// Serializer settings of the installed audio files: names in camel case and enums by name. The clip manifest's
+    /// reader adds the import pipeline's decoding of its sound identities to these.
+    /// </summary>
     public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -32,11 +38,11 @@ public sealed class ClipAudioCatalog
     private readonly string root;
     /// <summary>Music clips by (bank, track).</summary>
     private readonly Dictionary<MusicTrackKey, MusicClipEntry> music;
-    /// <summary>Sound-effect entries by (data set, library, command).</summary>
+    /// <summary>Sound-effect entries by (data set, sound).</summary>
     private readonly Dictionary<SoundEffectClipKey, SoundEffectClipEntry> soundEffects;
-    /// <summary>Each request's acceptance policy, the same in every data set.</summary>
-    private readonly Dictionary<SoundEffectPolicyKey, SoundEffectClipPolicy> policies = [];
-    /// <summary>Effects with no clip in a context, by (data set, library, command).</summary>
+    /// <summary>Each sound's acceptance policy, the same in every data set.</summary>
+    private readonly Dictionary<SoundEffectId, SoundEffectClipPolicy> policies = [];
+    /// <summary>Effects with no clip in a context, by (data set, sound).</summary>
     private readonly Dictionary<SoundEffectClipKey, UnrenderableSoundEffect> unrenderable;
     /// <summary>Each override replacement clip's absolute path; every other clip lives beneath <see cref="root"/>.</summary>
     private readonly IReadOnlyDictionary<AudioClipFile, string> overrideFiles;
@@ -57,19 +63,19 @@ public sealed class ClipAudioCatalog
         soundEffects = [];
         foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
         {
-            if (!soundEffects.TryAdd(new SoundEffectClipKey(entry.Context, entry.Library, entry.Command), entry))
-                throw new InvalidDataException($"Clip manifest repeats {entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)}.");
-            if (!policies.TryAdd(new SoundEffectPolicyKey(entry.Library, entry.Command), entry.Policy) && policies[new SoundEffectPolicyKey(entry.Library, entry.Command)] != entry.Policy)
-                throw new InvalidDataException($"Clip manifest gives {entry.Library} ${entry.Command:X2} different policies by context.");
+            if (!soundEffects.TryAdd(new SoundEffectClipKey(entry.Context, entry.Sound), entry))
+                throw new InvalidDataException($"Clip manifest repeats {entry.Sound} in {ContextName(entry.Context)}.");
+            if (!policies.TryAdd(entry.Sound, entry.Policy) && policies[entry.Sound] != entry.Policy)
+                throw new InvalidDataException($"Clip manifest gives {entry.Sound} different policies by context.");
         }
         unrenderable = [];
         foreach (UnrenderableSoundEffect entry in manifest.Unrenderable)
         {
-            if (soundEffects.ContainsKey(new SoundEffectClipKey(entry.Context, entry.Library, entry.Command)) ||
-                !unrenderable.TryAdd(new SoundEffectClipKey(entry.Context, entry.Library, entry.Command), entry))
+            if (soundEffects.ContainsKey(new SoundEffectClipKey(entry.Context, entry.Sound)) ||
+                !unrenderable.TryAdd(new SoundEffectClipKey(entry.Context, entry.Sound), entry))
             {
                 throw new InvalidDataException(
-                    $"Clip manifest lists {entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)} twice.");
+                    $"Clip manifest lists {entry.Sound} in {ContextName(entry.Context)} twice.");
             }
         }
     }
@@ -83,34 +89,55 @@ public sealed class ClipAudioCatalog
     /// </summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Loads and validates the stock clips beneath <paramref name="audioDirectory"/>.</summary>
-    /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
-    /// <exception cref="InvalidDataException">The format, rate, an identity, a path, a duplicate key, loop bounds or a file size is invalid.</exception>
-    public static ClipAudioCatalog Load(string audioDirectory) => Load(audioDirectory, null);
+    /// <summary>The validated stock clips: their audio root, their manifest and the manifest file's identity.</summary>
+    /// <param name="Root">The audio root the manifest's paths are relative to.</param>
+    /// <param name="Manifest">The validated stock manifest.</param>
+    /// <param name="Identity">SHA-256 of the stock manifest file, which names every clip's hash.</param>
+    internal sealed record StockClips(string Root, AudioClipManifest Manifest, string Identity);
+
 
     /// <summary>
-    /// Loads the stock clips, validates them, then selects the persistent override in
-    /// <paramref name="overrideDirectory"/> when that directory exists (#1305 Q3). Corrupt stock fails
-    /// even with a valid override, and an invalid override never falls back to stock.
+    /// A catalog over the stock clips with a persistent override applied (#1305 Q3): <paramref name="manifest"/> is the
+    /// stock manifest with the replacements in place, <paramref name="contentIdentity"/> the selected audio's identity and
+    /// <paramref name="overrideFiles"/> each replacement clip's absolute path. The installed-file reader that applies the
+    /// override lives in the import pipeline, which knows the identities the override names clips by.
     /// </summary>
-    /// <exception cref="FileNotFoundException">A manifest or a clip file is missing.</exception>
-    /// <exception cref="InvalidDataException">The stock or the override is invalid.</exception>
-    public static ClipAudioCatalog Load(string audioDirectory, string? overrideDirectory)
+    /// <exception cref="InvalidDataException">The selected manifest repeats an identity.</exception>
+    internal static ClipAudioCatalog Select(
+        StockClips stock,
+        AudioClipManifest manifest,
+        string contentIdentity,
+        IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
     {
+        Ensure.NotNull(stock);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
+        return new ClipAudioCatalog(stock.Root, Ensure.NotNull(manifest), contentIdentity, Ensure.NotNull(overrideFiles));
+    }
+
+    /// <summary>
+    /// Reads and validates the stock clip manifest beneath <paramref name="audioDirectory"/> and every clip file's size.
+    /// The manifest names each sound by its library and request number; <paramref name="manifestOptions"/>, the import
+    /// pipeline's reader settings, decode them into sounds.
+    /// </summary>
+    /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
+    /// <exception cref="InvalidDataException">The format, rate, an identity, a path, loop bounds or a file size is invalid.</exception>
+    internal static StockClips ReadStock(string audioDirectory, JsonSerializerOptions manifestOptions)
+    {
+        Ensure.NotNull(manifestOptions);
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
         string root = Path.GetFullPath(audioDirectory);
         string manifestPath = Path.Combine(root, ManifestFileName);
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException($"Audio clip manifest was not found at '{manifestPath}'.", manifestPath);
         byte[] manifestBytes = File.ReadAllBytes(manifestPath);
-        AudioClipManifest manifest = JsonSerializer.Deserialize<AudioClipManifest>(manifestBytes, JsonOptions)
+        AudioClipManifest manifest = JsonSerializer.Deserialize<AudioClipManifest>(manifestBytes, manifestOptions)
             ?? throw new InvalidDataException($"Audio clip manifest '{manifestPath}' deserialized to null.");
         if (manifest.FormatVersion != AudioClipManifest.CurrentFormatVersion)
         {
             throw new InvalidDataException(
                 $"Audio clip manifest '{manifestPath}' uses format {manifest.FormatVersion}; expected {AudioClipManifest.CurrentFormatVersion}.");
         }
-        if (manifest.SampleRate != SpcPortDefinitions.NativeStereoFramesPerVideoFrame * 60)
+        if (manifest.SampleRate != SoundClockTiming.SamplesPerUpdate * UpdatesPerSecond)
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' has rate {manifest.SampleRate}.");
         if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' names no source content identity.");
@@ -125,7 +152,7 @@ public sealed class ClipAudioCatalog
         foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
         {
             if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
-                throw new InvalidDataException($"Never-ending {entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)} has no layers.");
+                throw new InvalidDataException($"Never-ending {entry.Sound} in {ContextName(entry.Context)} has no layers.");
             foreach (SoundEffectClipLayer layer in entry.Layers)
             {
                 ValidateFile(root, layer.Clip);
@@ -133,30 +160,21 @@ public sealed class ClipAudioCatalog
                     layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
                 {
                     throw new InvalidDataException(
-                        $"{entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)} has inconsistent loop bounds.");
+                        $"{entry.Sound} in {ContextName(entry.Context)} has inconsistent loop bounds.");
                 }
             }
         }
-        string stockIdentity = Convert.ToHexString(SHA256.HashData(manifestBytes));
-        if (overrideDirectory is null || !Directory.Exists(overrideDirectory))
-            return new ClipAudioCatalog(root, manifest, stockIdentity, new Dictionary<AudioClipFile, string>());
-        ClipAudioOverrides.Selection selection = ClipAudioOverrides.Apply(manifest, overrideDirectory);
-        // An override without replacements is audibly stock and keeps the stock identity.
-        string identity = selection.Files.Count == 0
-            ? stockIdentity
-            : Convert.ToHexString(SHA256.HashData(Convert.FromHexString(stockIdentity + selection.Identity)));
-        return new ClipAudioCatalog(root, selection.Manifest, identity, selection.Files);
+        return new StockClips(root, manifest, Convert.ToHexString(SHA256.HashData(manifestBytes)));
     }
 
-    /// <summary>Loads the catalog and reads every clip, checking every file's SHA-256: the installer's stock validation.</summary>
-    /// <exception cref="InvalidDataException">The manifest or any clip is invalid.</exception>
-    public static void ValidateStock(string audioDirectory)
+    /// <summary>Reads every clip, checking every file's SHA-256: the installer's stock validation.</summary>
+    /// <exception cref="InvalidDataException">Any clip is invalid.</exception>
+    internal void ReadEveryClip()
     {
-        ClipAudioCatalog catalog = Load(audioDirectory);
-        foreach (MusicClipEntry entry in catalog.Manifest.Music)
-            _ = catalog.ReadClip(entry.Clip);
-        foreach (SoundEffectClipLayer layer in catalog.Manifest.SoundEffects.SelectMany(entry => entry.Layers))
-            _ = catalog.ReadClip(layer.Clip);
+        foreach (MusicClipEntry entry in Manifest.Music)
+            _ = ReadClip(entry.Clip);
+        foreach (SoundEffectClipLayer layer in Manifest.SoundEffects.SelectMany(entry => entry.Layers))
+            _ = ReadClip(layer.Clip);
     }
 
     /// <summary>The music clip for <paramref name="track"/> in <paramref name="audioSet"/>.</summary>
@@ -169,25 +187,25 @@ public sealed class ClipAudioCatalog
     /// <summary>The sound effect's entry in <paramref name="context"/> (null for only the shared sounds).</summary>
     /// <exception cref="InvalidDataException">The effect keys sources the context does not upload, so it has no clip there.</exception>
     /// <exception cref="KeyNotFoundException">The library has no such effect.</exception>
-    public SoundEffectClipEntry GetSoundEffect(MusicDataSet? context, SoundEffectLibrary library, int command)
+    public SoundEffectClipEntry GetSoundEffect(MusicDataSet? context, SoundEffectId sound)
     {
-        if (soundEffects.TryGetValue(new SoundEffectClipKey(context, library, command), out SoundEffectClipEntry? entry))
+        if (soundEffects.TryGetValue(new SoundEffectClipKey(context, sound), out SoundEffectClipEntry? entry))
             return entry;
-        if (unrenderable.TryGetValue(new SoundEffectClipKey(context, library, command), out UnrenderableSoundEffect? missing))
+        if (unrenderable.TryGetValue(new SoundEffectClipKey(context, sound), out UnrenderableSoundEffect? missing))
         {
             throw new InvalidDataException(
-                $"{library} ${command:X2} has no clip in {ContextName(context)}: the upload lacks " +
+                $"{sound} has no clip in {ContextName(context)}: the upload lacks " +
                 $"{string.Join("; ", missing.MissingSources)}.");
         }
-        throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in {ContextName(context)}.");
+        throw new KeyNotFoundException($"No sound effect {sound} in {ContextName(context)}.");
     }
 
-    /// <summary>The request's acceptance policy, which does not depend on the data set.</summary>
+    /// <summary>The sound's acceptance policy, which does not depend on the data set.</summary>
     /// <exception cref="KeyNotFoundException">No context renders the effect.</exception>
-    public SoundEffectClipPolicy GetPolicy(SoundEffectLibrary library, int command) =>
-        policies.TryGetValue(new SoundEffectPolicyKey(library, command), out SoundEffectClipPolicy? policy)
+    public SoundEffectClipPolicy GetPolicy(SoundEffectId sound) =>
+        policies.TryGetValue(sound, out SoundEffectClipPolicy? policy)
             ? policy
-            : throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in any data set.");
+            : throw new KeyNotFoundException($"No sound effect {sound} in any data set.");
 
     /// <summary>Reads a clip's interleaved stereo samples, verifying its SHA-256, rate and length.</summary>
     /// <exception cref="InvalidDataException">The file's hash, encoding, rate or length does not match the manifest.</exception>

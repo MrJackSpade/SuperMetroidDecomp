@@ -400,10 +400,8 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 else if (family != SamusProjectileFamily.Missile)
                 {
                     _sounds.Queue(
-                        SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2,
-                            EyeDoorPlmRomData.RejectedShotSound),
-                        MaximumQueued: 6);
+                        EyeDoorPlmRomData.RejectedShotSound,
+                        MaximumQueued: SoundQueueLimit.Max6);
                     return;
                 }
 
@@ -432,8 +430,8 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     {
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Projectile, parameter);
         _sounds.Queue(
-            SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EyeDoorPlmRomData.ProjectileSound),
-            MaximumQueued: 6);
+            EyeDoorPlmRomData.ProjectileSound,
+            MaximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary><c>$84:D790</c>: the eye sweats.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using System.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Desktop;
@@ -72,11 +73,11 @@ internal static class DesktopAccess
 
     /// <summary>The installed pre-rendered clips beside that audio (#1305), which a game binds.</summary>
     internal static ClipAudioCatalog LoadAudioClips(string? audioDirectory = null) =>
-        ClipAudioCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
+        InstalledAudioClips.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
 
     /// <summary>A standalone synthesizing session over that audio, for fixtures that drive the cartridge audio types directly.</summary>
     internal static SynthesizingAudioSession CreateAudioSession(string? audioDirectory = null) =>
-        CartridgeAudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
+        AudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
 
     /// <summary>
     /// A game control over the installation beside a ROM path, importing it on first use, or over

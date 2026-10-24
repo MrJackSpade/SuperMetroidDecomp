@@ -96,7 +96,7 @@ internal static class CeresHazeVerification
         AssertTrue(!runtime.CeresHaze.IsRed, "defeat cannot replace the current room's HDMA channel");
         runtime.Room.LoadedLevelData.ResolveDoorCollision(0, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         transition.Begin(runtime);
         bool sawDestinationFade = false;
         for (int frame = 0; transition.IsActive && frame < 600; frame++)

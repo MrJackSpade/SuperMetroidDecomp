@@ -77,7 +77,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 // `$A3:C70F` queues library-two sound $5B on the exact frame the wind-up
                 // instruction releases the dive. Publishing it as a frame event retains
                 // native timing without coupling enemy AI to a particular audio backend.
-                _audio.QueueEnemySound(SoundEffectLibrary2Sounds.SkreeDive, maximumQueued: 6);
+                _audio.QueueEnemySound(Library2Sound.SkreeDive, maximumQueued: SoundQueueLimit.Max6);
                 return;
 
             case SkreeEnemyFunction.Diving:
@@ -113,7 +113,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
-            _audio.QueueEnemySound(SoundEffectLibrary2Sounds.SkreeBurrow, maximumQueued: 6);
+            _audio.QueueEnemySound(Library2Sound.SkreeBurrow, maximumQueued: SoundQueueLimit.Max6);
             return;
         }
 

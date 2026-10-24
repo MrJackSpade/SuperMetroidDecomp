@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core;
@@ -65,22 +66,22 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [SoundEffectLibrary1Sounds.PowerBeam],
+            [Library1Sound.UnchargedPowerBeam],
             tally);
         RunSoundScenario(
             "library-2-door",
-            [SoundEffectLibrary2Sounds.DoorOpening],
+            [Library2Sound.DudShotOnDoor],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
-            [new SoundEffectId(SoundEffectLibrary.Library3, 0x23)],
+            [Library3Sound.BabyMetroidCry1],
             tally);
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                SoundEffectLibrary1Sounds.PowerBeam,
-                SoundEffectLibrary2Sounds.DoorOpening,
-                new SoundEffectId(SoundEffectLibrary.Library3, 0x23),
+                Library1Sound.UnchargedPowerBeam,
+                Library2Sound.DudShotOnDoor,
+                Library3Sound.BabyMetroidCry1,
             ],
             tally,
             cancelHalfway: true);
@@ -121,8 +122,8 @@ public static class ManagedAudioRegressionSmokeTest
             IReadOnlyList<AudioRequest> commands = frame == 0
                 ?
                 [
-                    new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet),
-                    new AudioRequest.ChangeMusicDataSet(bank.AudioSet),
+                    new AudioRequest.ChangeMusicDataSet(null),
+                    new AudioRequest.ChangeMusicDataSet(bank.DataSet),
                     AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)),
                 ]
                 : Array.Empty<AudioRequest>();
@@ -144,14 +145,14 @@ public static class ManagedAudioRegressionSmokeTest
             List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(null));
                 commands.AddRange(startSounds.Select(sound => new AudioRequest.RequestSound(sound)));
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.CancelAll.Value));
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library2, SoundEffectLibrary2Sounds.CancelAll.Value));
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.CancelAll.Value));
+                commands.Add(new AudioRequest.RequestSound(Library1Sound.Silence));
+                commands.Add(new AudioRequest.RequestSound(Library2Sound.Silence));
+                commands.Add(new AudioRequest.RequestSound(Library3Sound.Silence));
             }
             HashFrame(name, engine, commands, tally);
         }
@@ -170,8 +171,8 @@ public static class ManagedAudioRegressionSmokeTest
             List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet));
-                commands.Add(new AudioRequest.ChangeMusicDataSet(first.AudioSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(null));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(first.DataSet));
                 commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
             }
             else if (frame == 120)
@@ -180,7 +181,7 @@ public static class ManagedAudioRegressionSmokeTest
             }
             else if (frame == 150)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(second.AudioSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(second.DataSet));
                 commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
             }
             else if (frame == 270)
@@ -218,13 +219,13 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Acknowledgements.AppendData(name);
         ReadOnlySpan<short> pcm = engine.RenderFrame(commands);
         tally.Pcm.AppendData(MemoryMarshal.AsBytes(pcm));
-        SoundAcknowledgements acknowledgements = engine.Acknowledgements;
+        SoundAcknowledgements<SoundEffectId> acknowledgements = engine.Acknowledgements;
         // The corpus pinned four bytes per update: the sequencer's music echo, which the session never publishes, then
         // each library's acknowledgement in library order.
-        Span<byte> reported = stackalloc byte[1 + SoundAcceptanceClock.LibraryCount];
+        Span<byte> reported = stackalloc byte[1 + SoundClockTiming.LibraryCount];
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
-        for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++)
-            reported[1 + library] = checked((byte)acknowledgements[library]);
+        for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
+            reported[1 + library] = SoundEffectCommands.PortByte(acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;

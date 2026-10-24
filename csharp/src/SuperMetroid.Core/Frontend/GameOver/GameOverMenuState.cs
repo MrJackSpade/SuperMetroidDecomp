@@ -23,7 +23,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
-    private readonly CartridgeAudioState audio;
+    private readonly AudioQueues audio;
     /// <summary>The menu screen game over draws: its artwork, tilemaps, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
@@ -56,7 +56,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// publishing the Ceres loader immediately instead of fading into the area map.
     /// </param>
     public GameOverMenuState(
-        CartridgeAudioState audio,
+        AudioQueues audio,
         AreaMapPresentationCatalog? mapPresentation,
         InstalledSpriteSheets? spriteSheets,
         bool continueLoadsCeresArrival = false)
@@ -157,13 +157,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 // black and $81:8D1D blanks it and waits for NMI before configuring the menu.
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: GameOverRomData.MaximumQueuedSounds);
+                audio.QueueSound(Library3Sound.Silence, maximumQueued: GameOverRomData.MaximumQueuedSounds);
                 ResumesAfterFrameWait = true;
                 break;
 
             case GameOverMenuPhase.Initialize:
-                audio.QueueMusicDelayed8(MusicCommand.Stop);
-                audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
+                audio.QueueMusicDelayed8(MusicRequest.Stop);
+                audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
                 BabyStep = null;
                 BabyInstructionTimer = WrappingCountdown.Start(0);
                 StepBabyMetroid();
@@ -178,7 +178,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if (!audio.HasQueuedMusic)
                 {
                     audio.QueueMusicDelayed8(
-                        MusicCommand.SelectTrack(GameOverRomData.Music.TrackIndex));
+                        MusicRequest.SelectTrack(GameOverRomData.Music.TrackIndex));
                     Phase = GameOverMenuPhase.FadeIn;
                 }
                 break;
@@ -195,7 +195,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if ((pressed & (SnesButton.Select | SnesButton.Up | SnesButton.Down)) != 0)
                 {
                     audio.QueueSound(
-                        SoundEffectLibrary1Sounds.MenuCursor,
+                        Library1Sound.MenuCursor,
                         maximumQueued: GameOverRomData.MaximumQueuedSounds);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }

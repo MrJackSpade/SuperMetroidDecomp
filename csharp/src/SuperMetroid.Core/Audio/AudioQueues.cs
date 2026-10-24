@@ -1,7 +1,11 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// C# translation of bank $80's music queue and bank $82's three SFX dispatchers.
+/// The game's music queue and its three sound queues (#1410), a compatibility behaviour whose timing gameplay observes:
+/// each music request waits its delay and plays on the update the original plays it; a data set change withdraws every
+/// library's sound request for <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; a
+/// full music queue drops or overwrites a request as the caller chose; and a sound queue admits a request only below its
+/// caller's limit, keeps each library's request until the library accepts it, then withdraws it.
 /// </summary>
 /// <remarks>
 /// The queues end in <see cref="AudioRequest"/>s: play or stop a track, change the music data
@@ -9,16 +13,16 @@ namespace SuperMetroid.Core.Audio;
 /// delays and acknowledgement states visible to a C# debugger without inventing
 /// gameplay-specific host sounds.
 /// </remarks>
-public sealed class CartridgeAudioState
+public sealed class AudioQueues
 {
     /// <summary>Requests awaiting music dispatch in the circular queue; an empty position holds the stop request.</summary>
     private readonly MusicRequest[] _musicEntries =
         [.. Enumerable.Repeat(MusicRequest.Stop, AudioQueueDefinitions.MusicCapacity)];
     /// <summary>Per-entry frame delays paired with queued music requests.</summary>
-    internal readonly MusicCommandDelay[] MusicDelays =
-        new MusicCommandDelay[AudioQueueDefinitions.MusicCapacity];
-    /// <summary>Three independent unread sound rings, one per sound library.</summary>
-    internal readonly byte[,] SoundQueues = new byte[
+    internal readonly MusicQueueDelay[] MusicDelays =
+        new MusicQueueDelay[AudioQueueDefinitions.MusicCapacity];
+    /// <summary>Three independent unread sound rings, one per sound library; a position holds no sound until one is queued there.</summary>
+    internal readonly SoundEffectId?[,] SoundQueues = new SoundEffectId?[
         AudioQueueDefinitions.SoundLibraryCount,
         AudioQueueDefinitions.SoundCapacity];
     /// <summary>Next unread position in each library's SFX ring.</summary>
@@ -29,11 +33,12 @@ public sealed class CartridgeAudioState
         new byte[AudioQueueDefinitions.SoundLibraryCount];
     /// <summary>Per-library request phase, from request through acknowledged withdrawal.</summary>
     internal readonly byte[] SoundStates = new byte[AudioQueueDefinitions.SoundLibraryCount];
-    /// <summary>Sound number currently awaiting each library's acknowledgement.</summary>
-    private readonly byte[] _currentSounds = new byte[AudioQueueDefinitions.SoundLibraryCount];
+    /// <summary>The sound currently awaiting each library's acknowledgement, or none.</summary>
+    private readonly SoundEffectId?[] _currentSounds = new SoundEffectId?[AudioQueueDefinitions.SoundLibraryCount];
 
-    /// <summary>The sound number each of the three sound dispatchers last asked its library for, zero for none.</summary>
-    internal SoundAcknowledgements SentSoundRequests => new(_currentSounds[0], _currentSounds[1], _currentSounds[2]);
+    /// <summary>The sound each of the three sound dispatchers last asked its library for, as an acknowledgement of it, or none.</summary>
+    internal SoundAcknowledgements<SoundEffectId> SentSoundRequests =>
+        SoundAcknowledgements<SoundEffectId>.Of(_currentSounds[0], _currentSounds[1], _currentSounds[2]);
     /// <summary>Two-frame hold before a recognized sound request is withdrawn from its library.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioQueueDefinitions.SoundLibraryCount];
@@ -55,7 +60,7 @@ public sealed class CartridgeAudioState
     private int _soundHandlerDowntime;
 
     /// <summary>Creates empty music and sound queues and zeroed acknowledgement state, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
-    public CartridgeAudioState() => Reset();
+    public AudioQueues() => Reset();
 
     /// <summary>
     /// Door-owned part of native DisableSounds ($05F5): set after the entry stop
@@ -73,7 +78,7 @@ public sealed class CartridgeAudioState
     public MusicTrack? PlayingTrack { get; private set; }
 
     /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
-    public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Frames != 0);
+    public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Updates != 0);
 
     /// <summary>
     /// Exact door-transition predicate at <c>$82:E2B5-$82:E2D7</c>: true while any of the
@@ -126,10 +131,10 @@ public sealed class CartridgeAudioState
 
     /// <summary>Implements <c>QueueMusic_Delayed8</c> at $80:8FC1.</summary>
     public void QueueMusicDelayed8(MusicRequest request) =>
-        QueueMusic(request, MusicCommandDelay.EightFrames, overflow: MusicQueueOverflow.SkipWhenFull);
+        QueueMusic(request, MusicQueueDelay.Shortest, overflow: MusicQueueOverflow.SkipWhenFull);
 
     /// <summary>Implements <c>QueueMusic_DelayedY</c>, including its minimum delay of eight.</summary>
-    public void QueueMusicDelayed(MusicRequest request, MusicCommandDelay delay) =>
+    public void QueueMusicDelayed(MusicRequest request, MusicQueueDelay delay) =>
         QueueMusic(request, delay, overflow: MusicQueueOverflow.Overwrite);
 
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
@@ -149,7 +154,7 @@ public sealed class CartridgeAudioState
         // Landing Site requests the empty-Crateria set's track 5 and therefore must queue
         // track 5 again after the load instead of leaving only the gunship-engine sound.
         if (RoomTrackQueues(music.Track, changesMusicData))
-            QueueMusicDelayed(RoomTrackRequest(music.Track), MusicCommandDelay.FromDelayedYArgument(6));
+            QueueMusicDelayed(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
 
     /// <summary>
@@ -161,7 +166,7 @@ public sealed class CartridgeAudioState
     {
         Ensure.NotNull(music);
         if (RoomTrackQueues(music.Track, music.DataSet != DataSet))
-            QueueMusicDelayed(RoomTrackRequest(music.Track), MusicCommandDelay.FromDelayedYArgument(6));
+            QueueMusicDelayed(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
 
     /// <summary>
@@ -191,10 +196,6 @@ public sealed class CartridgeAudioState
         _ => throw new InvalidDataException($"Unknown room music track {track}."),
     };
 
-    /// <summary>The music request a queued room track choice makes: its track, or the stop of a silenced room.</summary>
-    private static MusicRequest RoomTrackRequest(RoomMusicTrack track) =>
-        track is RoomMusicTrack.Play play ? new MusicRequest.PlayTrack(play.Track) : MusicRequest.Stop;
-
     /// <summary>
     /// Executes the shared permanent-item music sequence from bank <c>$84</c>.
     /// </summary>
@@ -218,7 +219,7 @@ public sealed class CartridgeAudioState
         QueueMusicDelayed8(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
         QueueMusicDelayed(
             MusicRequest.Stop,
-            MusicCommandDelay.FromDelayedYArgument(AudioQueueDefinitions.PermanentItemFanfareFrames));
+            MusicQueueDelay.AtLeastShortest(AudioQueueDefinitions.PermanentItemFanfareFrames));
         QueueMusicDelayed8(MusicRequest.SelectTrackOrStop(roomTrack));
     }
 
@@ -228,67 +229,54 @@ public sealed class CartridgeAudioState
     /// </summary>
     public void QueueCancelSoundEffects()
     {
-        QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 6);
-        QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 6);
-        QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 6);
+        QueueSound(Library1Sound.Silence, maximumQueued: SoundQueueLimit.Max6);
+        QueueSound(Library2Sound.Silence, maximumQueued: SoundQueueLimit.Max6);
+        QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max6);
     }
 
-    /// <summary>Queues one request through retail SFX library one, two, or three.</summary>
-    public void QueueSound(SoundEffectId soundEffect, int maximumQueued)
-        => QueueSoundAndGetAccumulator(soundEffect, maximumQueued);
-
+    /// <summary>Queues <paramref name="request"/> and returns what the queue did with it (see the overload taking the request's parts).</summary>
+    public SoundQueueAdmission QueueSound(SoundRequest request) =>
+        QueueSound(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
     /// <summary>
-    /// Executes bank $80's sound-queue call and returns its native accumulator.
-    /// Queue-threshold rejection returns sound in the high byte and occupancy
-    /// in the low byte; the admitted path swaps them, even when sound execution
-    /// is suppressed. Speed Booster animation consumes this otherwise incidental
-    /// register result after the library-three call at $90:85A6.
+    /// Executes bank $80's sound-queue call: a request is rejected when its library's ring already holds
+    /// <paramref name="maximumQueued"/> unread requests, and otherwise queued unless sounds are suppressed. The
+    /// outcome says which happened and how full the ring was; the Speed Booster's stage selection reads it after the
+    /// library-three call at $90:85A6.
     /// </summary>
-    /// <param name="soundEffect">Native sound ID and library selecting one of the three independent SFX rings.</param>
-    /// <param name="maximumQueued">Admission threshold from 1 through 15 unread requests; an occupancy at or above this value rejects the request before suppression is tested.</param>
+    /// <param name="soundEffect">The sound, whose library selects one of the three independent rings.</param>
+    /// <param name="maximumQueued">Admission threshold: an occupancy at or above its unread requests rejects the request before suppression is tested.</param>
     /// <param name="soundSuppressed">
     /// The native disable-sounds, demo-state, or active Power Bomb guard, evaluated
     /// after the occupancy threshold. Suppression leaves the queue unchanged.
     /// </param>
-    public ushort QueueSoundAndGetAccumulator(
-        SoundEffectId soundEffect, int maximumQueued, bool soundSuppressed = false)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="soundEffect"/> names no library.</exception>
+    public SoundQueueAdmission QueueSound(
+        SoundEffectId soundEffect, SoundQueueLimit maximumQueued, bool soundSuppressed = false)
     {
-        if (maximumQueued is < 1 or > AudioQueueDefinitions.MaximumSoundOccupancy)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(maximumQueued), maximumQueued, "Retail queue limit must be 1..15.");
-        }
-
         int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
         int occupancy = (SoundWritePositions[queue] - SoundReadPositions[queue]) &
             AudioQueueDefinitions.SoundIndexMask;
-        if (occupancy >= maximumQueued)
-            return SnesLittleEndian.Word(unchecked((byte)occupancy), checked((byte)soundEffect.Value));
+        if (occupancy >= maximumQueued.Requests)
+            return SoundQueueAdmission.Rejected(occupancy);
 
-        ushort accumulator = SnesLittleEndian.Word(checked((byte)soundEffect.Value), unchecked((byte)occupancy));
         if (soundSuppressed || DoorTransitionSoundsDisabled)
-            return accumulator;
+            return SoundQueueAdmission.Admitted(occupancy);
 
+        // The ring never fills here: a full ring holds fifteen unread requests, and every threshold is at most fifteen,
+        // so the occupancy test above has already rejected the request. The cartridge's full-ring branch, which keeps
+        // the higher-priority of two requests in the last free position, is unreachable.
         byte write = SoundWritePositions[queue];
         byte next = unchecked((byte)(
             (write + 1) & AudioQueueDefinitions.SoundIndexMask));
-        if (next == SoundReadPositions[queue])
-        {
-            // A full native ring retains the lower-numbered (higher-priority) request.
-            if (soundEffect.Value < SoundQueues[queue, write])
-                SoundQueues[queue, write] = checked((byte)soundEffect.Value);
-            return accumulator;
-        }
-
-        SoundQueues[queue, write] = checked((byte)soundEffect.Value);
+        SoundQueues[queue, write] = soundEffect;
         SoundWritePositions[queue] = next;
-        SoundQueues[queue, next] = 0;
-        return accumulator;
+        SoundQueues[queue, next] = null;
+        return SoundQueueAdmission.Admitted(occupancy);
     }
 
     /// <summary>Runs selected audio dispatch owners and returns their requests, which only the session's audio advance consumes.</summary>
     internal IReadOnlyList<AudioRequest> AdvanceFrame(
-        SoundAcknowledgements acknowledgements,
+        SoundAcknowledgements<SoundEffectId> acknowledgements,
         bool advanceMusicQueue = true,
         int soundEffectHandlerCalls = 1)
     {
@@ -315,10 +303,10 @@ public sealed class CartridgeAudioState
     /// <summary>Enqueues a delayed music command, optionally dropping it when the native ring has no free slot.</summary>
     private void QueueMusic(
         MusicRequest request,
-        MusicCommandDelay delay,
+        MusicQueueDelay delay,
         MusicQueueOverflow overflow)
     {
-        if (delay.Frames < AudioQueueDefinitions.MinimumMusicDelayFrames)
+        if (delay.Updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
@@ -370,7 +358,7 @@ public sealed class CartridgeAudioState
         }
 
         _musicEntry = _musicEntries[MusicReadPosition];
-        MusicTimer = WrappingCountdown.Start(MusicDelays[MusicReadPosition].Frames);
+        MusicTimer = WrappingCountdown.Start(MusicDelays[MusicReadPosition].Updates);
     }
 
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
@@ -383,7 +371,7 @@ public sealed class CartridgeAudioState
 
     /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent handshakes.</summary>
     private void HandleSoundEffects(
-        SoundAcknowledgements acknowledgements,
+        SoundAcknowledgements<SoundEffectId> acknowledgements,
         List<AudioRequest> requests)
     {
         if (_soundHandlerDowntime != 0)
@@ -395,7 +383,7 @@ public sealed class CartridgeAudioState
                 queue++)
             {
                 requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
-                _currentSounds[queue] = 0;
+                _currentSounds[queue] = null;
             }
             return;
         }
@@ -410,7 +398,7 @@ public sealed class CartridgeAudioState
     /// <summary>Performs request, acknowledgement, withdrawal-delay and zero-acknowledgement phases for one sound library.</summary>
     private void HandleSoundEffectQueue(
         int queue,
-        int acknowledgement,
+        SoundAcknowledgement<SoundEffectId> acknowledgement,
         List<AudioRequest> requests)
     {
         switch (SoundStates[queue])
@@ -420,7 +408,7 @@ public sealed class CartridgeAudioState
                 break;
 
             case 1: // $82:8A55 - wait until the library acknowledges the request.
-                if (acknowledgement != _currentSounds[queue])
+                if (!acknowledgement.Acknowledges(_currentSounds[queue]))
                     requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), _currentSounds[queue]));
                 else
                 {
@@ -433,13 +421,13 @@ public sealed class CartridgeAudioState
                 if ((_soundClearDelays[queue] = WrappingCounter.DecrementByte(_soundClearDelays[queue])) == 0)
                 {
                     requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
-                    _currentSounds[queue] = 0;
+                    _currentSounds[queue] = null;
                     SoundStates[queue] = 3;
                 }
                 break;
 
             case 3: // $82:8A7C - wait for the library to acknowledge the withdrawal, then continue.
-                if (acknowledgement != 0)
+                if (!acknowledgement.IsNone)
                 {
                     requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
                 }
@@ -463,7 +451,7 @@ public sealed class CartridgeAudioState
             return;
 
         byte read = SoundReadPositions[queue];
-        byte sound = SoundQueues[queue, read];
+        SoundEffectId? sound = SoundQueues[queue, read];
         requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), sound));
         _currentSounds[queue] = sound;
         SoundReadPositions[queue] = unchecked((byte)(

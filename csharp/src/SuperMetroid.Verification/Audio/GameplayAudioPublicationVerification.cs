@@ -19,47 +19,49 @@ internal static class GameplayAudioPublicationVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.LiquidPhysics.CinematicFunctionActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         audio.AdvanceFrame(default);
         var publication = new GameplayAudioFramePublication(audio);
 
         // Use real native landing publishers, not direct injection into private lists.
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new SnesUnsignedSixteenSixteen(5, 0));
-        AssertEqual(0x0103, publication.QueueEcho(runtime),
+        // The echo's queue call is admitted with the earlier landing already queued (formerly the accumulator $0103).
+        AssertEqual(SoundQueueAdmission.Admitted(1), publication.QueueEcho(runtime),
             "echo sees earlier landing sound in the same queue");
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new SnesUnsignedSixteenSixteen(1, 1));
         publication.PublishPrefix(runtime);
         publication.PublishPrefix(runtime);
 
-        var played = new List<byte>();
-        byte acknowledgement = 0;
+        var played = new List<SoundEffectId>();
+        SoundEffectId? acknowledgement = null;
         for (int frame = 0; frame < 128; frame++)
         {
-            foreach (var command in audio.AdvanceFrame(new SoundAcknowledgements(0, 0, acknowledgement)))
+            foreach (var command in audio.AdvanceFrame(SoundAcknowledgements<SoundEffectId>.Of(null, null, acknowledgement)))
             {
                 bool recognized = false;
-                foreach (byte value in new byte[] { 0, 3, 4, 5 })
+                foreach (SoundEffectId? value in new SoundEffectId?[] { null, Library3Sound.SpeedBooster, Library3Sound.HardLanding, Library3Sound.Landing })
                 {
                     if (command != AudioRequest.ForSound(SoundEffectLibrary.Library3, value)) continue;
                     acknowledgement = value;
-                    if (value != 0) played.Add(value);
+                    if (value is SoundEffectId sound) played.Add(sound);
                     recognized = true;
                     break;
                 }
                 AssertTrue(recognized, "publication emitted only expected library-three writes");
             }
         }
-        AssertTrue(played.SequenceEqual(new byte[] { 4, 3, 5 }),
+        AssertTrue(played.SequenceEqual(new SoundEffectId[] { Library3Sound.HardLanding, Library3Sound.SpeedBooster, Library3Sound.Landing }),
             "earlier landing, echo, later landing play once in order across repeated flushes");
 
         samus.LiquidPhysics.BeginFrameSoundRequests();
         runtime.PowerBombExplosionStatus = 0x8000;
-        var suppressedAudio = new CartridgeAudioState();
+        var suppressedAudio = new AudioQueues();
         var suppressedPublication = new GameplayAudioFramePublication(suppressedAudio);
-        AssertEqual(3, suppressedPublication.QueueEcho(runtime),
-            "active Power Bomb preserves native accumulator on suppressed echo");
+        // A suppressed echo is still admitted at the threshold with an empty queue (formerly the accumulator $0003).
+        AssertEqual(SoundQueueAdmission.Admitted(0), suppressedPublication.QueueEcho(runtime),
+            "active Power Bomb preserves the native admission on suppressed echo");
         AssertTrue(!suppressedAudio.HasQueuedSounds, "active Power Bomb does not queue echo");
     }
 }

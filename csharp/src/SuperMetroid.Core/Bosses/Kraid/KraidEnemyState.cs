@@ -130,7 +130,7 @@ public sealed class KraidEnemyState
     public int RoarRequestCount { get; internal set; }
 
     /// <summary>Last eight-frame-delayed music request made by the rise sequence.</summary>
-    public MusicCommand? MusicRequest { get; internal set; }
+    public MusicRequest? MusicRequest { get; internal set; }
     /// <summary>Gets the number of growth-sequence ceiling rocks that acquired a live bank-$86 projectile slot.</summary>
     public int CeilingRockSpawnCount { get; internal set; }
 

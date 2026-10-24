@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
@@ -119,10 +120,10 @@ internal static class AudioMusicProgramsVerification
             WriteAudioManifest(manifestPath, editedManifest);
 
             ExtractedAudioAssetCatalog edited = ExtractedAudioAssetCatalog.Load(editedDirectory);
-            var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
-            var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
-            AudioRequest common = new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine);
-            AudioRequest titleUpload = new AudioRequest.ChangeMusicDataSet(AudioBank.TitleSequence);
+            var stockRenderer = AudioSessionAccess.CreateSynthesizing(stock);
+            var editedRenderer = AudioSessionAccess.CreateSynthesizing(edited);
+            AudioRequest common = new AudioRequest.ChangeMusicDataSet(null);
+            AudioRequest titleUpload = new AudioRequest.ChangeMusicDataSet(MusicDataSet.TitleSequence);
             AudioRequest titleCommand = AudioRequest.ForTrack(MusicTrack.NumberedOrNone(unchecked((byte)titleTrackIndex)));
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);

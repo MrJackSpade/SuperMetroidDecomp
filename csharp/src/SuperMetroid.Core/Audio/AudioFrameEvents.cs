@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="Events"/> is ordered: first the update's music data set changes and track selections,
 /// in the order the game made them, then each clock step in time order, each immediately followed
 /// by the sound effects its request check starts. All data set changes and track selections
-/// therefore take effect before the update's <see cref="SoundAcceptanceClock.SamplesPerUpdate"/>
+/// therefore take effect before the update's <see cref="SoundClockTiming.SamplesPerUpdate"/>
 /// samples run.
 /// </remarks>
 /// <param name="Events">The update's ordered events.</param>

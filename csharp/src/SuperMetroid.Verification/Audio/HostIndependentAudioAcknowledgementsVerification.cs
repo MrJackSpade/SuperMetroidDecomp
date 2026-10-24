@@ -41,8 +41,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         playing.BindAudio(assets);
         SuperMetroidGame[] subjects = [silent, playing];
         SuperMetroidGame[] sessions = subjects;
-        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var expectedPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var pcm = new short[AudioSession.PcmSamplesPerFrame];
+        var expectedPcm = new short[AudioSession.PcmSamplesPerFrame];
         int update = 0;
 
         void StepAll()
@@ -61,7 +61,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         // The first frame carries the reset upload, as a booted session's does.
         StepAll();
         foreach (SuperMetroidGame game in sessions)
-            game.AudioForVerification.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, 6);
+            game.AudioForVerification.QueueSound(Library2Sound.DudShotOnDoor, SoundQueueLimit.Max6);
         StepAll();
         foreach (SuperMetroidGame game in sessions)
             AssertEqual((byte)1, game.AudioForVerification.SoundQueueForVerification(1).State,

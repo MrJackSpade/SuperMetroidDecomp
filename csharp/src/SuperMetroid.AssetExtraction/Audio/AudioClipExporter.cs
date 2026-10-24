@@ -99,7 +99,7 @@ internal static class AudioClipExporter
             [.. outcomes.OfType<UnrenderableSoundEffect>()]);
         File.WriteAllText(
             Path.Combine(root, ClipAudioCatalog.ManifestFileName),
-            JsonSerializer.Serialize(manifest, ClipAudioCatalog.JsonOptions));
+            JsonSerializer.Serialize(manifest, InstalledAudioClips.ManifestOptions));
         return manifest;
     }
 
@@ -121,7 +121,8 @@ internal static class AudioClipExporter
                 segments.Add(new MusicTempoSegment(sample - start, tempo));
         }
         return new MusicClipEntry(
-            key.Bank,
+            AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
+                ?? throw new InvalidDataException($"{key.Bank} holds no music data set, so it has no tracks to export."),
             key.Track,
             Write(root, MusicDirectory, files, pcm),
             track.Shape == MusicTrackShape.Loops ? track.Arrivals[0] - start : null,
@@ -144,22 +145,23 @@ internal static class AudioClipExporter
         string[] missing = [.. effect.ChannelPrograms
             .SelectMany(program => scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
             .Distinct()];
+        MusicDataSet? context = key.Context is AudioBank loaded ? AudioAssetCatalogDefinitions.Get(loaded).DataSet : null;
         if (missing.Length != 0)
-            return new UnrenderableSoundEffect(key.Context, key.Library, key.Command, missing);
+            return new UnrenderableSoundEffect(context, SoundEffectCommands.Decode(key.Library, key.Command), missing);
 
         SoundEffectClipPolicy policy = Policy(libraryIndex, key.Command, effect.Configuration);
         if (effect.ChannelPrograms.Any(program => scans[program].RepeatsForever))
         {
             IReadOnlyList<SoundEffectRendering.LoopingLayer> layers = SoundEffectRendering.RenderLoopingLayers(
                 catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count);
-            return new SoundEffectClipEntry(key.Context, key.Library, key.Command, policy, null,
+            return new SoundEffectClipEntry(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, null,
                 [.. layers.Select(layer => new SoundEffectClipLayer(
                     Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart,
                     SoundEffectVoicesCodec.FromVoiceMask(layer.Voice), layer.KeyOnFrames))]);
         }
         SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command);
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
-        return new SoundEffectClipEntry(key.Context, key.Library, key.Command, policy, shot.ActiveFrames,
+        return new SoundEffectClipEntry(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, shot.ActiveFrames,
             shot.Clip.Length == 0
                 ? []
                 : [new SoundEffectClipLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null,

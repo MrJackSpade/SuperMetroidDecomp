@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteNativeListAddresses;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
@@ -19,12 +20,13 @@ internal static class MagdolliteAnimationsVerification
             {
                 var instruction = Instructions[word];
                 AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                // A sound operand is checked by decoding the native byte to the cue's sound.
                 for (int index = 0; index < operands.Length; index++)
-                    AssertEqual(operands[index], instruction.Operands[index] switch
+                    AssertEqual<SoundEffectId>(instruction.Operands[index] switch
                 {
-                    'V' => cue.Sound is { } sound ? (ushort)sound.Value : throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
+                    'V' => cue.Sound ?? throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                }, $"{at}: operand {index}");
+                }, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operands[index]), $"{at}: operand {index}");
             });
         Console.WriteLine($"  Magdollite programs: {Entries.Length} programs ({steps} steps) match bank $A8.");
     }

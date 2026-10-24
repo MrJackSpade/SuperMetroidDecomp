@@ -568,7 +568,7 @@ internal static class FullMovieReplayVerification
         int cries = 0, nativeCries = 0;
         int lastWrite = -1;
         byte nativeCurrent = 0;
-        CartridgeAudioState? audio = null;
+        AudioQueues? audio = null;
         IEnumerable<string> CountCries(SuperMetroidGame game, int update, NativeCheckpointMemory native)
         {
             // $064E is the library-two sound the cartridge last sent to the APU.
@@ -582,9 +582,10 @@ internal static class FullMovieReplayVerification
                 lastWrite = audio.SoundWritePositions[library2];
             }
             int write = audio.SoundWritePositions[library2];
-            for (int index = lastWrite; index != write; index = (index + 1) & AudioRomData.Queues.SoundIndexMask)
+            for (int index = lastWrite; index != write; index = (index + 1) & AudioQueueDefinitions.SoundIndexMask)
             {
-                if (audio.SoundQueues[library2, index] is 0x6f or 0x7e)
+                if (audio.SoundQueues[library2, index] is SoundEffectId cry &&
+                    (cry == Library2Sound.MotherBrainLowCry || cry == Library2Sound.MotherBrainHighCry))
                     cries++;
             }
             lastWrite = write;

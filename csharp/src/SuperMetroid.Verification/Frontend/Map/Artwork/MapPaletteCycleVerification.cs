@@ -123,8 +123,8 @@ internal static class MapPaletteCycleVerification
         saved.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, saved);
         var slot = saves.ReadSlot(0);
-        var nativeMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
-        var menu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
+        var nativeMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
+        var menu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
         for (int tick = 0; tick < 48; tick++) { nativeMenu.Step(0); menu.Step(0); }
         nativeMenu.Step(SnesButton.Start);
         menu.Step(SnesButton.Start);

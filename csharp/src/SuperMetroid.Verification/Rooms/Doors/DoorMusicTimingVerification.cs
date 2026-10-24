@@ -57,10 +57,10 @@ internal static class DoorMusicTimingVerification
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         var audio = game.Session.audio;
         audio.AdvanceFrame(default);
-        audio.QueueRoomMusic(9, 5);
+        audio.QueueRoomMusic(new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(5)));
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(default);
-        AssertEqual(9, audio.MusicDataIndex, "source music data is active");
-        AssertEqual(5, audio.MusicTrackIndex, "source track is active");
+        AssertEqual(MusicDataSet.LowerCrateria, audio.DataSet, "source music data is active");
+        AssertEqual(new MusicTrack(5), audio.PlayingTrack, "source track is active");
         int trackFrame = -1, musicWaitFrame = -1, uploadFrame = -1;
         for (int frame = 0; frame < 400; frame++)
         {
@@ -85,15 +85,15 @@ internal static class DoorMusicTimingVerification
         AssertEqual(musicWaitFrame + 15, uploadFrame, "stop and upload delays advance on outer dispatches after scrolling");
         AssertEqual(uploadFrame + 9, trackFrame, "track queued after upload is acquired on the next prologue, then waits eight dispatches");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "music transition resumes gameplay");
-        AssertEqual(6, audio.MusicDataIndex, "destination music bank is active");
-        audio.QueueRoomMusicTrack(6, 5);
-        AssertTrue(!audio.HasQueuedMusic, "unchanged native music pair queues nothing");
-        audio.QueueRoomMusicTrack(0, 0);
-        AssertTrue(!audio.HasQueuedMusic, "zero room track preserves inherited music");
-        audio.QueueRoomMusicTrack(6, 0x80);
+        AssertEqual(MusicDataSet.EmptyCrateria, audio.DataSet, "destination music data set is active");
+        audio.QueueRoomMusicTrack(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(5)));
+        AssertTrue(!audio.HasQueuedMusic, "unchanged data set and track queues nothing");
+        audio.QueueRoomMusicTrack(RoomMusic.Inherited);
+        AssertTrue(!audio.HasQueuedMusic, "an inherited room track preserves the playing music");
+        audio.QueueRoomMusicTrack(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Silenced));
         var stopCommands = new List<AudioRequest>();
         for (int frame = 0; frame < 9; frame++) stopCommands.AddRange(audio.AdvanceFrame(default));
-        AssertTrue(stopCommands.Contains(new AudioRequest.StopMusic()), "nonzero masked track-zero remains an explicit stop");
+        AssertTrue(stopCommands.Contains(new AudioRequest.StopMusic()), "a silenced room track is an explicit stop");
         Console.WriteLine("  Door music: IRQ-only waits preserve queued delays; post-scroll stop/upload and track dispatch timing agree.");
     }
 

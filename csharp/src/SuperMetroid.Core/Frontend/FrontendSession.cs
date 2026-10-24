@@ -63,9 +63,9 @@ internal sealed class FrontendSession
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
     internal readonly int bootDemoSetCount;
     /// <summary>Native music and SFX queues shared across menus and gameplay.</summary>
-    internal readonly CartridgeAudioState audio = new();
+    internal readonly AudioQueues audio = new();
     /// <summary>Core-owned SPC port model and synthesizer advanced at the end of every update.</summary>
-    internal readonly CartridgeAudioSession audioSession = new();
+    internal readonly AudioSession audioSession = new();
     /// <summary>The frontend screen showing now: the one menu or cinematic the current state runs, or none.</summary>
     internal IFrontendScreen? Screen { get; private set; }
     /// <summary>Shows <paramref name="screen"/> in place of whatever screen was showing.</summary>
@@ -236,33 +236,33 @@ internal sealed class FrontendSession
             // $82:E071 loads data during door setup. $82:E664 selects the track
             // only after the opening scroll and this data queue have completed.
             if (GameState == SuperMetroidGameState.LoadingNextRoomB)
-                audio.QueueRoomMusicData(roomState.MusicDataIndex);
+                audio.QueueRoomMusicData(roomState.Music.DataSet);
             else
-                audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
+                audio.QueueRoomMusic(roomState.Music);
             LastAudioRoomState = roomState;
         }
         // Enemy initialization follows the room's music-data queueing in native loading. Before the first room load,
         // such as while a Ceres save starts its destruction cinematic, there are no enemies to initialize.
         if (runtime?.Room.Scope is { } scope)
-            foreach (MusicCommand command in scope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
-                audio.QueueMusicDelayed8(command);
+            foreach (MusicRequest request in scope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
+                audio.QueueMusicDelayed8(request);
 
         // The message-box selector is an NMI-only owner, not part of the gameplay
         // publication generation below. It has explicit consume semantics so its one-shot
         // request remains audible without making stale enemy/PLM lists eligible again.
         if (runtime?.MessageBoxes.ConsumeMessageBoxSelectionSoundRequest() == true)
-            audio.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+            audio.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
         if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
-            audio.QueueSound(SoundEffectLibrary1Sounds.Saving, maximumQueued: 6);
+            audio.QueueSound(Library1Sound.Saving, maximumQueued: SoundQueueLimit.Max6);
         if (runtime?.MessageBoxes.ConsumeGunshipExitSoundRequest() == true)
-            audio.QueueSound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
+            audio.QueueSound(Library3Sound.GunshipPadOpening, maximumQueued: SoundQueueLimit.Max6);
         // An accepted save station resumes from the message close boundary too.
         if (runtime?.Room.Scope?.Plms.Stations.ConsumeSavingSoundRequest() is { } saving)
-            audio.QueueSoundAndGetAccumulator(saving.SoundEffect, saving.MaximumQueued, soundSuppressed: saving.SoundSuppressed);
+            audio.QueueSound(saving);
         // Suit setup resumes from the message close boundary, outside normal gameplay
         // publication generations. Consume once so HDMA-only frames cannot repeat it.
         if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
-            audio.QueueSoundAndGetAccumulator(SoundEffectLibrary2Sounds.SuitTransformation, maximumQueued: 6,
+            audio.QueueSound(Library2Sound.SuitAcquired, maximumQueued: SoundQueueLimit.Max6,
                 soundSuppressed: runtime.SuitPickup.TransformationSoundSuppressed);
 
         // Frontend states sometimes accept NMIs without running the state-eight owner list.
@@ -288,74 +288,68 @@ internal sealed class FrontendSession
             // These state machines predate the shared SoundRequest list. Consume their
             // one-shot publications here, retaining the exact native library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
-                audio.QueueSound(SoundEffectLibrary3Sounds.SpeedBoosterEcho, maximumQueued: 6);
+                audio.QueueSound(Library3Sound.SpeedBooster, maximumQueued: SoundQueueLimit.Max6);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
-                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.StoredWarning, 9,
+                audio.QueueSound(Library3Sound.StoredShinespark, SoundQueueLimit.Max9,
                     soundSuppressed: samus.Shinespark.StoredShineWarningSoundSuppressed);
             if (samus.Shinespark.ConsumeChargeCancellationSoundRequest())
-                audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll, 9,
+                audio.QueueSound(Library1Sound.Silence, SoundQueueLimit.Max9,
                     soundSuppressed: samus.Shinespark.ChargeCancellationSoundSuppressed);
             if (samus.Shinespark.ConsumeLaunchSoundRequest())
-                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.Launch, 9,
+                audio.QueueSound(Library3Sound.Shinespark, SoundQueueLimit.Max9,
                     soundSuppressed: samus.Shinespark.LaunchSoundSuppressed);
             if (samus.Shinespark.ConsumeCrashSoundRequest())
             {
-                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.CrashImpact, 6,
+                audio.QueueSound(Library1Sound.SamusDamaged, SoundQueueLimit.Max6,
                     soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
-                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.CrashEcho, 6,
+                audio.QueueSound(Library3Sound.ShinesparkEnd, SoundQueueLimit.Max6,
                     soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
             }
             if (samus.CrystalFlash.ConsumeActivationSoundRequest())
-                audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
+                audio.QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
             if (samus.Xray.ConsumeActivationSoundRequest())
-                audio.QueueSound(SoundEffectLibrary1Sounds.XrayStart, maximumQueued: 6);
+                audio.QueueSound(Library1Sound.XrayStart, maximumQueued: SoundQueueLimit.Max6);
             if (samus.Xray.ConsumeDeactivationSoundRequest())
-                audio.QueueSound(SoundEffectLibrary1Sounds.XrayEnd, maximumQueued: 6);
+                audio.QueueSound(Library1Sound.XrayEnd, maximumQueued: SoundQueueLimit.Max6);
             if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
-                audio.QueueSound(SoundEffectLibrary1Sounds.StopSpinJump, maximumQueued: 6);
+                audio.QueueSound(Library1Sound.SpinJumpEnd, maximumQueued: SoundQueueLimit.Max6);
         }
 
         if (runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
         {
-            audio.QueueSoundAndGetAccumulator(
+            audio.QueueSound(
                 projectileSound,
-                runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundMaximum,
+                runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundMaximum
+                    ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."),
                 soundSuppressed: runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundSuppressed);
         }
 
         foreach (SoundRequest request in
             runtime.Room.LoadedScope.Projectiles.LastFrameResult.AdditionalSoundRequests ?? [])
         {
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
 
         foreach (SoundRequest request in runtime.Room.LoadedScope.Projectiles.ImpactAudio.ImpactSoundRequests)
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
 
         foreach (SoundRequest request in
             runtime.Room.LoadedScope.BombProjectiles.LastFrameResult.SoundRequests ?? [])
         {
-            audio.QueueSoundAndGetAccumulator(
-                request.SoundEffect,
-                request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
 
         foreach (SoundRequest request in runtime.Room.LoadedScope.Plms.Sounds.SoundRequests)
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Plms.BombTorizoHand.MusicRequests)
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+            audio.QueueMusicDelayed(request.Request, request.Delay);
         if (runtime.Room.LoadedScope.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
         foreach (SoundRequest request in runtime.Room.LoadedScope.Enemies.Audio.SoundRequests)
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Enemies.Audio.MusicRequests)
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+            audio.QueueMusicDelayed(request.Request, request.Delay);
     }
     /// <summary>
     /// Ports the state-publication half of <c>HandleSamusOutOfHealthAndGameTile</c>. Runtime
@@ -521,11 +515,11 @@ internal sealed class FrontendSession
             // Loading from file select still has the title's SPC song data installed.
             // Preserve the appearance track sequence, but upload the room's bank first
             // just as ordinary room loading does; track numbers alone are bank-local.
-            audio.QueueRoomMusicData(loadedState.MusicDataIndex);
-            audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(14));
+            audio.QueueRoomMusicData(loadedState.Music.DataSet);
+            audio.QueueMusicDelayed(MusicRequest.SelectTrack(1), MusicQueueDelay.AtLeastShortest(14));
             audio.QueueMusicDelayed(
-                MusicCommand.SelectTrackOrStop(loadedState.MusicTrackIndex),
-                MusicCommandDelay.FromDelayedYArgument(360 + 5));
+                loadedState.Music.Track.Request,
+                MusicQueueDelay.AtLeastShortest(360 + 5));
             LastAudioRoomState = loadedState;
             return false;
         }

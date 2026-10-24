@@ -18,7 +18,7 @@ internal static class SamusEaterPlmProgramDefinitions
     /// <summary>How long the closed mouth shows after the release.</summary>
     private const int ReleaseDuration = 96;
     /// <summary>The chew sound's native queue cap.</summary>
-    internal const byte ChewSoundMaximumQueued = 6;
+    internal static readonly SoundQueueLimit ChewSoundMaximumQueued = SoundQueueLimit.Max6;
 
     /// <summary>Every plant program.</summary>
     internal static AnimationProgramSet<SamusEaterProgram, SamusEaterDraw, SamusEaterCue> Programs { get; } = new(

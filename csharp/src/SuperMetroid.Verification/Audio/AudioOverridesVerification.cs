@@ -40,8 +40,8 @@ internal static class AudioOverridesVerification
                 installation.AudioDirectory,
                 [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, ReplacedTrack)],
                 [
-                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value)),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library3, checked((byte)SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value)),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, checked((byte)SoundEffectCommands.Command(Library1Sound.UnchargedPowerBeam))),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library3, checked((byte)SoundEffectCommands.Command(Library3Sound.SpeedBooster))),
                 ]);
         }
         ExportStock();
@@ -57,8 +57,8 @@ internal static class AudioOverridesVerification
             () => AudioAssetOverrideInstaller.Initialize(installation),
             "audio override initialization refuses to overwrite user content");
         AssertEqual(
-            stock.GetMusic(AudioBank.GreenBrinstar, ReplacedTrack).Clip,
-            installation.LoadAudioClips().GetMusic(AudioBank.GreenBrinstar, ReplacedTrack).Clip,
+            stock.GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack).Clip,
+            installation.LoadAudioClips().GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack).Clip,
             "an empty override selects the stock clips");
         AssertEqual(stock.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "an empty override keeps the stock identity");
 
@@ -67,18 +67,21 @@ internal static class AudioOverridesVerification
             tone[sample] = unchecked((short)(sample * 37 % 20000 - 10000));
         string tonePath = Path.Combine(rootScratch.Root, "tone.wav");
         PcmWaveFile.WriteStereoPcm16(tonePath, ClipSampleRate(stock), tone);
-        string songId = ClipAudioOverrides.MusicId(AudioBank.GreenBrinstar, ReplacedTrack);
+        string songId = ClipAudioOverrides.MusicId(MusicDataSet.GreenBrinstar, ReplacedTrack);
+        // #1410: the data set is named in the game, but an override names a song by its music-data index, so the
+        // override manifests players already have keep naming the same song.
+        AssertEqual("music-0f-track-03", songId, "a song's override identity keeps the data index existing overrides use");
         AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
 
         ClipAudioCatalog selected = installation.LoadAudioClips();
-        MusicClipEntry song = selected.GetMusic(AudioBank.GreenBrinstar, ReplacedTrack);
+        MusicClipEntry song = selected.GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack);
         AssertEqual(ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
         AssertEqual<long?>(ToneLoop, song.LoopStart, "the replacement's loop selects the song");
         AssertSequenceEqual(tone, selected.ReadClip(song.Clip), "the session plays the replacement's samples");
         AssertTrue(selected.ContentIdentity != stock.ContentIdentity, "a replacement changes the selected audio identity");
         AssertSequenceEqual(
-            stock.GetSoundEffect(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
-            selected.GetSoundEffect(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
+            stock.GetSoundEffect(MusicDataSet.GreenBrinstar, Library1Sound.UnchargedPowerBeam).Layers.Select(layer => layer.Clip),
+            selected.GetSoundEffect(MusicDataSet.GreenBrinstar, Library1Sound.UnchargedPowerBeam).Layers.Select(layer => layer.Clip),
             "unreplaced sounds stay stock");
 
         // A stock repair replaces only game/audio; the persistent override remains selected.
@@ -91,7 +94,7 @@ internal static class AudioOverridesVerification
             "an unknown song is rejected");
         AssertThrows<InvalidDataException>(
             () => AudioAssetOverrideInstaller.Replace(installation,
-                ClipAudioOverrides.SoundEffectId(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value), tonePath, null),
+                ClipAudioOverrides.SoundEffectId(Library3Sound.SpeedBooster), tonePath, null),
             "a never-ending sound's replacement needs a loop");
         string monoPath = Path.Combine(rootScratch.Root, "mono.wav");
         PcmWaveFile.WriteMonoPcm16(monoPath, ClipSampleRate(stock), tone);

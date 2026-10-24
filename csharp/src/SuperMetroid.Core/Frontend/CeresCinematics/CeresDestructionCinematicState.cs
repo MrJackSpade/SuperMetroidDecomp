@@ -88,7 +88,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>The scene's graphics transfers in the order the phases made them; the capture replays them over the bound artwork (#1358).</summary>
     internal List<CeresDestructionUpload> Uploads { get; } = [];
     /// <summary>The scene's colors: the Ceres base palette and later engine-flicker program (#1358).</summary>
@@ -177,7 +177,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </param>
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     public CeresDestructionCinematicState(
-        CartridgeAudioState? audio = null,
+        AudioQueues? audio = null,
         PowerBombFixedColorCatalog? fixedColors = null,
         IntroCinematicArtworkCatalog? artwork = null,
         IPaletteFxColorSource? paletteFxColors = null,
@@ -252,14 +252,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             initialFrameWaits++;
             SetupCeresDestruction();
             // $8B:C2B8-$C2DF queue the cinematic bank and the state's own track last.
-            audio?.QueueMusicDelayed8(MusicCommand.Stop);
+            audio?.QueueMusicDelayed8(MusicRequest.Stop);
             audio?.QueueMusicDelayed8(
-                MusicCommand.LoadData(CeresDestructionRomData.Music.CeresDataIndex));
+                MusicRequest.LoadDataSet(MusicDataSet.Ceres));
             audio?.QueueMusicDelayed(
-                MusicCommand.SelectTrack(WithSamus
+                MusicRequest.SelectTrack(WithSamus
                     ? CeresDestructionRomData.Music.CeresWithSamusTrack
                     : CeresDestructionRomData.Music.CeresTrack),
-                MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
+                MusicQueueDelay.AtLeastShortest(CeresDestructionRomData.Music.DelayArgument));
         }
         else
         {
@@ -343,7 +343,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     if (WithSamus)
                     {
-                        audio?.QueueMusicDelayed8(MusicCommand.Stop);
+                        audio?.QueueMusicDelayed8(MusicRequest.Stop);
                         Phase = CeresDestructionPhase.Finished;
                     }
                     else
@@ -710,8 +710,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
         stationExplosion.Spawn(new(x, y));
-        audio?.QueueSound(SuperMetroid.Core.Audio.SoundEffectLibrary1Sounds.PowerBombExplosion,
-            maximumQueued: 15);
+        audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
+            maximumQueued: SoundQueueLimit.Max15);
         var cinematicExplosion = new IntroDiscoverySprite(
             new(x, y),
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,

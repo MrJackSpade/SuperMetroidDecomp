@@ -23,7 +23,7 @@ public sealed class ClipAudioBackend
     internal const int ReleaseFrames = 256;
 
     /// <summary>Native stereo frames in one update.</summary>
-    private const int FramesPerUpdate = SpcPortDefinitions.NativeStereoFramesPerVideoFrame;
+    private const int FramesPerUpdate = SoundClockTiming.SamplesPerUpdate;
 
     /// <summary>The installed clips.</summary>
     private readonly ClipAudioCatalog catalog;
@@ -91,7 +91,7 @@ public sealed class ClipAudioBackend
         }
         Mix(frameStart, cursor, FramesPerUpdate);
         State.RenderedTo(frameStart + FramesPerUpdate);
-        PcmFrameResampler.ResampleStereoLinear(native, stereo48k[..CartridgeAudioSession.PcmSamplesPerFrame]);
+        PcmFrameResampler.ResampleStereoLinear(native, stereo48k[..AudioSession.PcmSamplesPerFrame]);
     }
 
     /// <summary>A data set change stops the music, clears the music latch and silences each playing sound until its next key-on in the new data set.</summary>
@@ -110,7 +110,7 @@ public sealed class ClipAudioBackend
                 library.Clear();
                 continue;
             }
-            SoundEffectClipEntry continued = catalog.GetSoundEffect(State.Context, sound.Library, sound.Command);
+            SoundEffectClipEntry continued = catalog.GetSoundEffect(State.Context, sound.Sound);
             long position = now - library.Start;
             library.Continue(continued, [.. continued.Layers.Select(layer => NextKeyOn(layer, position))]);
         }
@@ -158,11 +158,11 @@ public sealed class ClipAudioBackend
     {
         int index = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
         ClipLibraryState library = State.Libraries[index];
-        SoundEffectClipPolicy policy = catalog.GetPolicy(soundEffect.Library, soundEffect.Value);
+        SoundEffectClipPolicy policy = catalog.GetPolicy(soundEffect);
         if (library.Rejects(policy))
             return;
 
-        SoundEffectClipEntry sound = catalog.GetSoundEffect(State.Context, soundEffect.Library, soundEffect.Value);
+        SoundEffectClipEntry sound = catalog.GetSoundEffect(State.Context, soundEffect);
         ReleaseSound(library, now);
         library.Play(sound, now, policy);
     }

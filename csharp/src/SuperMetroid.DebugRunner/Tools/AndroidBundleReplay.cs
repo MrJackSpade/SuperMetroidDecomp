@@ -71,7 +71,7 @@ internal static class AndroidBundleReplay
             }
 
             game.BindAudio(assets);
-            var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+            var samples = new short[AudioSession.PcmSamplesPerFrame];
             using var videoHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             using var audioHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)

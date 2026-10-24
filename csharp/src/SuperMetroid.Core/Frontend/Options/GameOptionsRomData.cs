@@ -25,7 +25,7 @@ public static class GameOptionsRomData
     /// <summary>Number of tile rows in each complete options-page tilemap, including rows outside the visible screen.</summary>
     public const int MenuTilemapHeight = 32;
     /// <summary>Native maximum-six queue policy used for options navigation and confirmation sound requests.</summary>
-    public const int MaximumQueuedMenuSounds = 6;
+    public static readonly SoundQueueLimit MaximumQueuedMenuSounds = SoundQueueLimit.Max6;
 
     /// <summary>Named import sources loaded by native $82:EC66..ECB8.</summary>
     /// <remarks>

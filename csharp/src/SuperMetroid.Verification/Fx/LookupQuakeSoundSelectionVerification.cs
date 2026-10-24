@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
@@ -24,10 +25,10 @@ internal static class LookupQuakeSoundSelectionVerification
             AssertEqual(1, state.SoundRequests.Count, "Each original selection emits exactly one rumble");
             var sound = state.SoundRequests[0];
             int originalIndex = index == count ? 0 : index;
-            AssertEqual(ReadVerificationWord(rom, 0x88b256 + 4 * originalIndex),
-                (ushort)sound.SoundEffect.Value, "Original sound identity including terminator restart");
+            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadVerificationWord(rom, 0x88b256 + 4 * originalIndex)),
+                sound.SoundEffect, "Original sound, decoded by the import, including terminator restart");
             AssertEqual(SoundEffectLibrary.Library2, sound.SoundEffect.Library, "Native QueueSound_Lib2_Max6 library");
-            AssertEqual(6, sound.MaximumQueued, "Native queue capacity");
+            AssertEqual(6, sound.MaximumQueued.Requests, "Native queue capacity");
             AssertEqual(originalIndex + 1, state.EarthquakeSoundSequenceIndex, "Next chronological index after selection");
         }
     }

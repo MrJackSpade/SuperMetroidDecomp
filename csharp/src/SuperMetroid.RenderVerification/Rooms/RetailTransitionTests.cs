@@ -43,7 +43,7 @@ internal static class RetailTransitionTests
             throw new InvalidOperationException("Ceres/Zebes coverage did not finish with both modes.");
         foreach (bool chooseNo in new[] { false, true })
         {
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             var menu = new GameOverMenuState(audio, RenderRetailFixture.Maps, MenuSheetFixtures.For(RenderRetailFixture.Maps));
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)

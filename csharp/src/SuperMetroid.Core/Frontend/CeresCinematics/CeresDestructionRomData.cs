@@ -30,8 +30,6 @@ public static class CeresDestructionRomData
     /// <summary>Music selectors used by the Ceres destruction scene.</summary>
     public static class Music
     {
-        /// <summary>Music-data index loaded for Ceres destruction.</summary>
-        public const byte CeresDataIndex = 0x2d;
         /// <summary>$8B:C2D9: state $22's Ceres track.</summary>
         public const byte CeresTrack = 7;
         /// <summary>$8B:C2CE: state $25 selects this track when Samus is still on Ceres.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -47,7 +48,7 @@ internal static class SaveStationSoundVerification
             SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random);
         game.AdoptRuntime(runtime);
         game.GameState = SuperMetroidGameState.MainGameplay;
-        CartridgeAudioState audio = game.Session.audio;
+        AudioQueues audio = game.Session.audio;
         long hostSequence = 0;
         int messageFrame = -1, soundFrame = -1;
         for (int frame = 0; frame < 900 && soundFrame < 0; frame++)
@@ -60,7 +61,7 @@ internal static class SaveStationSoundVerification
                 messageFrame = frame;
             for (int index = 0; index < audio.SoundWritePositions[0]; index++)
             {
-                if (audio.SoundQueues[0, index] == SoundEffectLibrary1Sounds.Saving.Value)
+                if (audio.SoundQueues[0, index] == Library1Sound.Saving)
                     soundFrame = frame;
             }
         }

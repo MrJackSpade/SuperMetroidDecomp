@@ -1,19 +1,24 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.Core.Audio;
 
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// Applies a persistent audio override (#1305 Q3) to the stock clip manifest. Each replacement
+/// Reads a persistent audio override (#1305 Q3) and applies it to the stock clip manifest. Each replacement
 /// names a stock song or sound effect by identity and supplies a finished stereo WAV at the native
-/// rate. A song keeps its tempo timeline; a sound keeps its policy and logical end in every bank
-/// context, and its replacement loops exactly when the stock sound does. Anything unknown,
-/// duplicated, malformed or outside the override directory fails loudly; no replacement silently
-/// falls back to stock.
+/// rate. A song keeps its tempo timeline; a sound keeps its policy and logical end in every data set, and its
+/// replacement loops exactly when the stock sound does. Anything unknown, duplicated, malformed or outside the override
+/// directory fails loudly; no replacement silently falls back to stock.
 /// </summary>
+/// <remarks>
+/// The reader lives in the import pipeline (#1410) because a song's identity names its music data set by the
+/// cartridge's data index, <c>music-{dataIndex:x2}-track-{nn}</c>, which only <see cref="AudioAssetCatalogDefinitions"/>
+/// knows; the game is handed the selected manifest and never sees the index.
+/// </remarks>
 internal static class ClipAudioOverrides
 {
-    /// <summary>A song identity: its music data set's name and its track number in decimal.</summary>
+    /// <summary>A song identity: its data set's music-data index in hexadecimal and its track number in decimal, as the extracted catalog names tracks.</summary>
     private const string MusicPrefix = "music-";
 
     /// <summary>A sound-effect identity: library number and command in hexadecimal.</summary>
@@ -24,6 +29,26 @@ internal static class ClipAudioOverrides
     /// <param name="Files">Each replacement clip's absolute path.</param>
     /// <param name="Identity">A digest of the override manifest and every replacement file.</param>
     internal sealed record Selection(AudioClipManifest Manifest, IReadOnlyDictionary<AudioClipFile, string> Files, string Identity);
+
+    /// <summary>
+    /// Loads the stock clips beneath <paramref name="audioDirectory"/>, validates them, then selects the persistent
+    /// override in <paramref name="overrideDirectory"/> when that directory exists. Corrupt stock fails even with a valid
+    /// override, and an invalid override never falls back to stock.
+    /// </summary>
+    /// <exception cref="FileNotFoundException">A manifest or a clip file is missing.</exception>
+    /// <exception cref="InvalidDataException">The stock or the override is invalid.</exception>
+    internal static ClipAudioCatalog Load(string audioDirectory, string? overrideDirectory)
+    {
+        ClipAudioCatalog.StockClips stock = ClipAudioCatalog.ReadStock(audioDirectory, InstalledAudioClips.ManifestOptions);
+        if (overrideDirectory is null || !Directory.Exists(overrideDirectory))
+            return ClipAudioCatalog.Select(stock, stock.Manifest, stock.Identity, new Dictionary<AudioClipFile, string>());
+        Selection selection = Apply(stock.Manifest, overrideDirectory);
+        // An override without replacements is audibly stock and keeps the stock identity.
+        string identity = selection.Files.Count == 0
+            ? stock.Identity
+            : Convert.ToHexString(SHA256.HashData(Convert.FromHexString(stock.Identity + selection.Identity)));
+        return ClipAudioCatalog.Select(stock, selection.Manifest, identity, selection.Files);
+    }
 
     /// <summary>Reads the override in <paramref name="overrideDirectory"/> and applies it to <paramref name="stock"/>.</summary>
     /// <exception cref="FileNotFoundException">The override manifest or a replacement file is missing.</exception>
@@ -68,13 +93,21 @@ internal static class ClipAudioOverrides
             Convert.ToHexString(SHA256.HashData(identity.ToArray())));
     }
 
-    /// <summary>The music identity of <paramref name="audioSet"/>'s <paramref name="track"/>, as the override names it.</summary>
-    internal static string MusicId(MusicDataSet audioSet, int track) =>
-        $"{MusicPrefix}{audioSet}-track-{track:00}";
+    /// <summary>
+    /// The music identity of <paramref name="dataSet"/>'s <paramref name="track"/>, as the override names it: the data
+    /// set's music-data index, which is how the extracted catalog has always named tracks, so existing overrides keep
+    /// naming the same songs.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="dataSet"/> is not a defined data set.</exception>
+    internal static string MusicId(MusicDataSet dataSet, int track) =>
+        $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(dataSet).DataIndex:x2}-track-{track:00}";
 
-    /// <summary>The sound-effect identity of <paramref name="library"/>'s <paramref name="command"/>, as the override names it.</summary>
-    internal static string SoundEffectId(SoundEffectLibrary library, int command) =>
-        $"{SoundEffectPrefix}{SoundEffectLibraries.ToQueueIndex(library) + 1}-{command:x2}";
+    /// <summary>
+    /// The identity an override names <paramref name="sound"/> by: its library number and its request number in
+    /// hexadecimal, <c>sfx-{library}-{command:x2}</c>, as the installed clips have always named it.
+    /// </summary>
+    internal static string SoundEffectId(Core.Audio.SoundEffectId sound) =>
+        $"{SoundEffectPrefix}{SoundEffectLibraries.ToQueueIndex(sound.Library) + 1}-{SoundEffectCommands.Command(sound):x2}";
 
     /// <summary>Reads and checks one replacement WAV beneath the override directory.</summary>
     private static ClipReplacement ReadReplacement(string root, AudioClipOverride replacement, int sampleRate)
@@ -115,7 +148,7 @@ internal static class ClipAudioOverrides
         for (int index = 0; index < soundEffects.Count; index++)
         {
             SoundEffectClipEntry entry = soundEffects[index];
-            if (SoundEffectId(entry.Library, entry.Command) != replacement.Id)
+            if (SoundEffectId(entry.Sound) != replacement.Id)
                 continue;
             found = true;
             if ((entry.ActiveFrames is null) != (replacement.LoopStart is not null))

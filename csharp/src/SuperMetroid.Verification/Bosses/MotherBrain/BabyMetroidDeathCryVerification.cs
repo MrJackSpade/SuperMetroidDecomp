@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
@@ -47,8 +48,8 @@ internal static class BabyMetroidDeathCryVerification
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "Fatal transition emits exactly one death cry");
         var request = enemies.Audio.SoundRequests.Single();
         AssertEqual(SoundEffectLibrary.Library3, request.SoundEffect.Library, "Death cry belongs to library three");
-        AssertEqual(0x19, request.SoundEffect.Value, "Death cry retains native sequence 19");
-        AssertEqual(6, request.MaximumQueued, "Death cry uses native Max6");
+        AssertEqual<SoundEffectId>(Library3Sound.BabyMetroidDeath, request.SoundEffect, "Death cry is the Baby Metroid's death (native sequence 19)");
+        AssertEqual(6, request.MaximumQueued.Requests, "Death cry uses native Max6");
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.BeginEnemySoundRequestFrame();
@@ -70,10 +71,10 @@ internal static class BabyMetroidDeathCryVerification
                 AssertEqual(expected, cgram.Colors[index], $"Recovery row {frame} restores exact cartridge colors and preserves other palettes: {index}");
             }
         }
-        var audio = new CartridgeAudioState();
-        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(installation.LoadAudio());
+        var audio = new AudioQueues();
+        var renderer = AudioSessionAccess.CreateSynthesizing(installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.MotherBrain)]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.MotherBrain)]);
         audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         // The CPU rewrites the port each update until the SPC echoes it ($82:8A55); the SPC starts a
         // sound only when its poll latches a changed value, so the starts it publishes are what it received.

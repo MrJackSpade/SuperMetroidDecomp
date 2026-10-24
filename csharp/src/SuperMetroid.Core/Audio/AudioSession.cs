@@ -2,18 +2,18 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// The game session's per-update audio advance (#1303, #1304, #1410): it applies the update's
-/// <see cref="AudioRequest"/>s to the <see cref="SoundAcceptanceClock"/>, runs the clock for one
+/// <see cref="AudioRequest"/>s to the <see cref="SoundAcceptanceClock{TSound}"/>, runs the clock for one
 /// update, publishes the acknowledgements the next update's sound handlers read, and turns the
 /// update into semantic <see cref="AudioEvent"/>s for an <see cref="ClipAudioBackend"/>.
 /// </summary>
 /// <remarks>
-/// Acknowledgements come only from the synthesis-free <see cref="SoundAcceptanceClock"/>, so they are
+/// Acknowledgements come only from the synthesis-free <see cref="SoundAcceptanceClock{TSound}"/>, so they are
 /// identical whether a host plays audio, has audio disabled, or has no device. Audio output is
 /// presentation: when a host binds the installed clips, the update's events also drive a
 /// <see cref="ClipAudioBackend"/> whose PCM the host copies out (#1305). The backend is never
 /// read back by gameplay.
 /// </remarks>
-public sealed class CartridgeAudioSession
+public sealed class AudioSession
 {
     /// <summary>Host PCM output rate of 48,000 stereo frames per second, after resampling the native 32-kHz DSP output.</summary>
     public const int SampleRate = 48_000;
@@ -25,7 +25,7 @@ public sealed class CartridgeAudioSession
     public const int PcmSamplesPerFrame = StereoFramesPerVideoFrame * ChannelCount;
 
     /// <summary>Synthesis-free command-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
-    private readonly CartridgeAudioEventSource eventSource = new();
+    private readonly AudioEventSource eventSource = new();
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
     /// <summary>The clip backend's playback state, kept with the session so a restored session continues its PCM.</summary>
@@ -38,7 +38,7 @@ public sealed class CartridgeAudioSession
     private short[]? lastPcm;
 
     /// <summary>The acknowledgements published by the most recent update, for the next one.</summary>
-    public SoundAcknowledgements Acknowledgements => eventSource.Acknowledgements;
+    public SoundAcknowledgements<SoundEffectId> Acknowledgements => eventSource.Acknowledgements;
 
     /// <summary>
     /// Binds the installed clips (#1305) so each following update also renders host PCM from them.

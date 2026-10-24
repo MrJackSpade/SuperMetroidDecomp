@@ -837,7 +837,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastSporeSpawnSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>

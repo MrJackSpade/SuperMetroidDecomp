@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>LoROM source addresses of every retail non-PAL SPC upload stream.</summary>
 /// <remarks>

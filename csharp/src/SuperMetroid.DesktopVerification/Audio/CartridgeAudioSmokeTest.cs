@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.DesktopVerification.Audio;
 
 /// <summary>Runs the real title music path without opening an audio device or game window.</summary>
@@ -9,13 +10,13 @@ public static class CartridgeAudioSmokeTest
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);
 
-        var queue = new CartridgeAudioState();
-        queue.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
-        queue.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
+        var queue = new AudioQueues();
+        queue.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
+        queue.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
-        SoundAcknowledgements acknowledgements = default;
+        SoundAcknowledgements<SoundEffectId> acknowledgements = default;
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frames; frame++)
         {
@@ -56,11 +57,10 @@ public static class CartridgeAudioSmokeTest
         // A fresh player receives only reset's common driver/sample upload.  Keeping title
         // music out of this pass means any nonzero output belongs to the cartridge's actual
         // library-one power-beam program instead of merely proving that the mixer is alive.
-        var soundQueue = new CartridgeAudioState();
-        soundQueue.QueueSound(
-            SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, powerBeamSound),
-            maximumQueued: 15);
-        SoundAcknowledgements acknowledgements = default;
+        var soundQueue = new AudioQueues();
+        SoundEffectId powerBeam = SoundEffectCommands.Decode(SoundEffectLibrary.Library1, powerBeamSound);
+        soundQueue.QueueSound(powerBeam, maximumQueued: SoundQueueLimit.Max15);
+        SoundAcknowledgements<SoundEffectId> acknowledgements = default;
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
         int nonZeroSamples = 0;
@@ -77,9 +77,9 @@ public static class CartridgeAudioSmokeTest
             }
 
             acknowledgements = soundEngine.Acknowledgements;
-            if (acknowledgements[0] == powerBeamSound)
+            if (acknowledgements[0].Acknowledges(powerBeam))
                 requestAcknowledged = true;
-            else if (requestAcknowledged && acknowledgements[0] == 0)
+            else if (requestAcknowledged && acknowledgements[0].IsNone)
                 clearAcknowledgedAfterRequest = true;
         }
 

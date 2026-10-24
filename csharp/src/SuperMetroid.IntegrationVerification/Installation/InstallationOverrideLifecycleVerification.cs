@@ -261,11 +261,11 @@ internal static class InstallationOverrideLifecycleVerification
         Assert(IntroFontCharacters.Of(installation.LoadMaps().IntroFont).Characters.Span.SequenceEqual(expected.Font), phase + ": actual font transfer");
         Assert(installation.LoadGameplayBasePalettes().Initial[0] == Bgr555.FromWord(expected.Color), phase + ": actual palette word");
         ClipAudioCatalog audio = installation.LoadAudioClips();
-        Assert(audio.ReadClip(audio.GetMusic(expected.MusicBank, expected.MusicTrack).Clip)[0] == expected.ClipFirstSample,
+        Assert(audio.ReadClip(audio.GetMusic(expected.MusicSet, expected.MusicTrack).Clip)[0] == expected.ClipFirstSample,
             phase + ": actual replacement clip sample");
     }
 
     /// <summary>Edited transfer, palette, and audio values expected to survive each installation transition.</summary>
     private sealed record OverrideExpectations(byte[] StandardObjects, byte[] Font, ushort Color,
-        AudioBank MusicBank, int MusicTrack, short ClipFirstSample);
+        MusicDataSet MusicSet, int MusicTrack, short ClipFirstSample);
 }

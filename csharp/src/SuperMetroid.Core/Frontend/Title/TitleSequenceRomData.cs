@@ -34,8 +34,6 @@ public static class TitleSequenceRomData
     /// <summary>Music data set and tracks selected by the normal and skip paths.</summary>
     public static class Music
     {
-        /// <summary>Music data selector $03 loaded at title-sequence setup.</summary>
-        public const byte DataIndex = 0x03;
         /// <summary>Track command five queued after title music data for the normal opening sequence.</summary>
         public const byte OpeningTrack = 5;
         /// <summary>$8B:9A94 track command six queued by the skip transition before reconstructing the immediate title screen.</summary>

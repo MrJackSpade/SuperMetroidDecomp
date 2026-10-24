@@ -56,7 +56,7 @@ internal sealed class DeadMonsterFrame
             new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);
         if ((randomEnemyCounter & 7) == 0)
-            LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
+            LastSoundEffect = Library2Sound.LiquidDamage;
     }
 
     /// <summary>Drops this frame's sound request.</summary>
@@ -66,6 +66,6 @@ internal sealed class DeadMonsterFrame
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: 3);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max3);
     }
 }

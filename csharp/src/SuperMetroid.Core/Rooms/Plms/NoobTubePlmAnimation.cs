@@ -43,7 +43,7 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
                 tube.SpawnCrack(slot);
                 break;
             case NoobTubeCue.QueueBreakSound:
-                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, NoobTubePlmRomData.BreakSound),
+                context.QueueSound(NoobTubePlmRomData.BreakSound,
                     NoobTubePlmProgramDefinitions.BreakSoundMaximumQueued);
                 break;
             case NoobTubeCue.SpawnShardsAndBubbles:

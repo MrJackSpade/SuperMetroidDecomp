@@ -54,9 +54,9 @@ internal static class CoreAccess
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
-        internal CartridgeAudioState AudioForVerification => game.Session.audio;
+        internal AudioQueues AudioForVerification => game.Session.audio;
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
-        internal SoundAcknowledgements AudioAcknowledgementsForVerification => game.Session.audioSession.Acknowledgements;
+        internal SoundAcknowledgements<SoundEffectId> AudioAcknowledgementsForVerification => game.Session.audioSession.Acknowledgements;
         /// <summary>The most recent update's ordered semantic audio events.</summary>
         internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.Session.LastAudioEvents;
         /// <summary>Reads the session frame clock's 16-bit counter, which the frontend advances while no runtime exists.</summary>

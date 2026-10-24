@@ -59,10 +59,8 @@ internal sealed class NoobTubePlms
                 else if (slot.LoopTimer != 0)
                 {
                     _sounds.Queue(
-                        SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2,
-                            NoobTubePlmRomData.IneffectiveShotSound),
-                        MaximumQueued: 6);
+                        NoobTubePlmRomData.IneffectiveShotSound,
+                        MaximumQueued: SoundQueueLimit.Max6);
                 }
                 slot.LoopTimer = 0;
                 return;

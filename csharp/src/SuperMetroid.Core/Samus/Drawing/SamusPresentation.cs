@@ -240,7 +240,7 @@ internal sealed class SamusPresentation
     /// <summary>Consumes a pose delay byte or native animation command after the frame timer expires.</summary>
     private static void HandleAnimationDelay(SamusState samus, SnesButton controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
-        Func<ushort>? queueEchoSound = null)
+        Func<SoundQueueAdmission>? queueEchoSound = null)
     {
         byte delayOrCommand = ReadAnimationByte(samus, samus.AnimationFrame);
         if (!SamusAnimationDelayDefinitions.IsCommand(delayOrCommand))

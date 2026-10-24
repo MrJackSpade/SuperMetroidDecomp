@@ -290,8 +290,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic:
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
-                state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
-                state.RequestMusic(MusicCommand.LoadData(MotherBrainDeathRomData.FakeDeathMusicData), MusicCommandDelay.EightFrames);
+                state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
+                state.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.MotherBrain), MusicQueueDelay.Shortest);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock;
                 state.FunctionTimer = WrappingCountdown.Start(12);
                 RunMotherBrainFakeDeath(state, samus);

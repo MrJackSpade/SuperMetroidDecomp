@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -60,7 +61,8 @@ internal static class GameOverBabyAnimationVerification
                 AssertEqual(expected.Sound, GameOverBabyAnimationDefinitions.NativeSoundOpcode(actual.SoundAfter), "Baby sound handoff");
                 SoundEffectId sound = GameOverRomData.BabyAnimation.ResolveCry(expected.Sound);
                 AssertEqual((byte)0xa9, GameOverBabyAnimationRomByte(rom, 0x820000 | expected.Sound), "native Baby cry LDA immediate");
-                AssertEqual((ushort)sound.Value, ReadVerificationWord(rom, 0x820001 + expected.Sound), "native Baby cry effect");
+                AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadVerificationWord(rom, 0x820001 + expected.Sound)), sound,
+                    "the import decodes the native Baby cry effect to the cry");
                 AssertEqual(SoundEffectLibrary.Library3, sound.Library, "Baby cry library");
                 AssertEqual((byte)0x22, GameOverBabyAnimationRomByte(rom, 0x820003 + expected.Sound), "native Baby cry JSL");
                 AssertEqual((ushort)0x914d, ReadVerificationWord(rom, 0x820004 + expected.Sound), "native library3 queue address");

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Offline renderer for pre-mixed audio clips (#1305). It drives the same
-/// <see cref="CartridgeAudioEventSource"/> and <see cref="ManagedSpcAudioBackend"/> the game
+/// <see cref="AudioEventSource"/> and <see cref="ManagedSpcAudioBackend"/> the game
 /// session uses, so a clip is by construction what runtime synthesis produced, and it returns the
 /// S-DSP's native 32.04-kHz output before the host resample. Requests queued before a frame apply
 /// at that frame's start, exactly as one game update's audio requests do.
@@ -20,7 +20,7 @@ internal sealed class SpcAudioClipRenderer
     internal const int NativeSampleRate = ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 60;
 
     /// <summary>The sound acceptance clock that turns the queued requests into each frame's events.</summary>
-    private readonly CartridgeAudioEventSource eventSource = new();
+    private readonly AudioEventSource eventSource = new();
     /// <summary>The emulated driver and DSP the events drive.</summary>
     private readonly ManagedSpcAudioBackend backend;
     /// <summary>Requests applied at the next frame's start, in order.</summary>
@@ -41,8 +41,12 @@ internal sealed class SpcAudioClipRenderer
     /// <summary>The emulated driver, read by the analysis for its state.</summary>
     internal ManagedSpcPlayer Player => backend.Player;
 
-    /// <summary>Queues an upload of <paramref name="bank"/> for the next frame.</summary>
-    internal void LoadBank(AudioBank bank) => pending.Add(new AudioRequest.ChangeMusicDataSet(bank));
+    /// <summary>
+    /// Queues an upload of <paramref name="bank"/> for the next frame: the change to the music data set it holds, or to
+    /// only the shared sounds for the resident driver's upload.
+    /// </summary>
+    internal void LoadBank(AudioBank bank) =>
+        pending.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Get(bank).DataSet));
 
     /// <summary>Queues playing track <paramref name="track"/> of the loaded data set for the next frame.</summary>
     internal void PlayTrack(MusicTrack track) => pending.Add(new AudioRequest.PlayMusicTrack(track));

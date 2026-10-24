@@ -68,9 +68,9 @@ internal static class DoorEntryEnemySoundVerification
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 
-        AssertEqual((byte)0x4c, audio.SoundQueueEntryForVerification(1, start),
+        AssertEqual<SoundEffectId?>(Library2Sound.AcidSpit, audio.SoundQueueEntryForVerification(1, start),
             "the entry frame's enemy pass queues the spit first");
-        AssertEqual((byte)0x71, audio.SoundQueueEntryForVerification(1, (start + 1) & 0x0f),
+        AssertEqual<SoundEffectId?>(Library2Sound.Silence, audio.SoundQueueEntryForVerification(1, (start + 1) & 0x0f),
             "the door's library-two cancel follows the enemy sound");
         Console.WriteLine("Door entry enemy sound: the entry frame's enemy sounds precede the door's cancel and DisableSounds.");
     }

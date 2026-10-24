@@ -7,5 +7,5 @@ internal static class MaridiaLargeSnailNativeValues
     internal const int SelectorTable = 0xa2cb77;
 
     /// <summary>Library-two sound $0E, which <c>Instruction_Oum_PlaySplashedOutOfWaterSFX</c> at $A2:CB6B queues.</summary>
-    internal const ushort SplashSound = 0x000e;
+    internal static readonly SoundEffectId SplashSound = Library2Sound.SplashOut;
 }

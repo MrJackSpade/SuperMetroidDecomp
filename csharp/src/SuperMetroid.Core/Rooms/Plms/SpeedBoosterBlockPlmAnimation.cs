@@ -36,7 +36,7 @@ internal sealed class SpeedBoosterBlockPlmAnimation(SpeedBoosterBlockProgram pro
     {
         if (cue != SpeedBoosterBlockCue.QueueBreakSound)
             throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterBlockCue)} {cue}.");
-        context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, SpeedBoosterBlockPlmProgramDefinitions.BreakSoundId),
+        context.QueueSound(SpeedBoosterBlockPlmProgramDefinitions.BreakSoundId,
             SpeedBoosterBlockPlmProgramDefinitions.BreakSoundMaximumQueued);
         return null;
     }

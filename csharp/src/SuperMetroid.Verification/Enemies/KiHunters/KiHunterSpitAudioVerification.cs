@@ -57,7 +57,7 @@ internal static class KiHunterSpitAudioVerification
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
             hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance }, random: random);
         game.EnterMainGameplay(runtime);
-        var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
+        var spit = Library2Sound.AcidSpit;
         int requests = 0, starts = 0;
         void Step()
         {
@@ -67,7 +67,7 @@ internal static class KiHunterSpitAudioVerification
         }
         Step();
         AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
-        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.MaximumQueued == 6), "spit calls library two Max6");
+        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.MaximumQueued.Requests == 6), "spit calls library two Max6");
         // Remain in the post-spit waiting state without introducing another attack.
         // The right spit animation's final sleep.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 8);

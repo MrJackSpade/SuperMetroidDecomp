@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("frames counted while a door's new music loads")]
 public interface IDoorMusicLoadFrames
 {
-    /// <summary>The frames counted while music set <paramref name="musicSet"/> loads.</summary>
-    /// <param name="musicSet">The music set the destination room selects.</param>
+    /// <summary>The frames counted while music data set <paramref name="musicSet"/> loads.</summary>
+    /// <param name="musicSet">The music data set the destination room selects.</param>
     /// <returns>A nonnegative count added to the frame counter, without running gameplay updates.</returns>
-    int FramesCountedDuringMusicLoad(int musicSet);
+    int FramesCountedDuringMusicLoad(MusicDataSet musicSet);
 }

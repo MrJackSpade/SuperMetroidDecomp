@@ -25,9 +25,9 @@ internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefini
     internal static EnemyProjectileScatter Scatter => new(new(7, 15), new(0, 0));
 
     /// <summary>$86:B44F-$B451: library-two small explosion $24, Max6.</summary>
-    internal static SoundEffectId ExplosionSound => SoundEffectLibrary2Sounds.SmallExplosion;
+    internal static SoundEffectId ExplosionSound => Library2Sound.SmallExplosion;
     /// <summary>Native maximum of six queued library-two small-explosion sounds.</summary>
-    internal const byte ExplosionSoundMaximum = 6;
+    internal static readonly SoundQueueLimit ExplosionSoundMaximum = SoundQueueLimit.Max6;
 
     /// <summary>$86:B452-$B468: six small-explosion poses holding 4, 6, 5, 5, 5 and 6 frames.</summary>
     internal static ReadOnlySpan<int> FrameDurations => [4, 6, 5, 5, 5, 6];

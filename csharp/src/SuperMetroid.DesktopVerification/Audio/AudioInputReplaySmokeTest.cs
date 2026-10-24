@@ -62,7 +62,7 @@ public static class AudioInputReplaySmokeTest
                 ? recording.InputAt(frameIndex)
                 : SnesButton.None;
             FrontendFrame frame = game.Step(input);
-            SoundAcknowledgements acknowledgements = game.AudioAcknowledgementsForVerification;
+            SoundAcknowledgements<SoundEffectId> acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
 
             RoomHeaderDefinition? activeRoom = game.GameplayActiveRoom;
@@ -82,8 +82,8 @@ public static class AudioInputReplaySmokeTest
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
             powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
-                started == SoundEffectLibrary1Sounds.PowerBeam);
-            powerBeamAcknowledged |= acknowledgements[0] == 0x0b;
+                started == Library1Sound.UnchargedPowerBeam);
+            powerBeamAcknowledged |= acknowledgements[0].Acknowledges(Library1Sound.UnchargedPowerBeam);
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
                 firstDoorBegan = true;
@@ -191,7 +191,7 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         var game = new SuperMetroidGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
-        var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var samples = new short[AudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();
         PauseAccumulator? active = null;
 

@@ -320,8 +320,8 @@ internal sealed class CrocomireBridgeCollapse
             return;
 
         _access.LastCrocomireMusicRequest = new DelayedMusicRequest(
-            MusicCommand.SelectTrack(6),
-            MusicCommandDelay.EightFrames);
+            MusicRequest.SelectTrack(6),
+            MusicQueueDelay.Shortest);
         state.DeathSequenceIndex = CrocomireDeathPhase.RiverSkeletonDetour;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFlowingDownRiver);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);

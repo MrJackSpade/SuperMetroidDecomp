@@ -302,15 +302,15 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (Parts.Draygon?.LastSoundLibrary2 is SoundEffectId draygonLibrary2)
-            audio.QueueEnemySound(draygonLibrary2, maximumQueued: 6);
+            audio.QueueEnemySound(draygonLibrary2, maximumQueued: SoundQueueLimit.Max6);
         if (Parts.Draygon?.LastSoundLibrary3 is SoundEffectId draygonLibrary3)
-            audio.QueueEnemySound(draygonLibrary3, maximumQueued: 6);
+            audio.QueueEnemySound(draygonLibrary3, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)
     {
-        audio.QueueLegacyMusic(Parts.Draygon?.MusicRequest, MusicCommandDelay.EightFrames);
+        audio.QueueLegacyMusic(Parts.Draygon?.MusicRequest, MusicQueueDelay.Shortest);
     }
 
     /// <summary>

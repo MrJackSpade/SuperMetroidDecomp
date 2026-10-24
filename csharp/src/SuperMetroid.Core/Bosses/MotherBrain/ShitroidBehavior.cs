@@ -182,8 +182,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     LastShitroidMusicRequest = new DelayedMusicRequest(
-                        MusicCommand.SelectTrack(5),
-                        MusicCommandDelay.EightFrames);
+                        MusicRequest.SelectTrack(5),
+                        MusicQueueDelay.Shortest);
                     state.Function = ShitroidAiFunction.FlyToSidehopper;
                     goto case ShitroidAiFunction.FlyToSidehopper;
                 }
@@ -498,8 +498,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;
             LastShitroidMusicRequest = new DelayedMusicRequest(
-                MusicCommand.SelectTrack(7),
-                MusicCommandDelay.EightFrames);
+                MusicRequest.SelectTrack(7),
+                MusicQueueDelay.Shortest);
             return;
         }
 
@@ -936,7 +936,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastShitroidSoundEffectLibrary2 is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

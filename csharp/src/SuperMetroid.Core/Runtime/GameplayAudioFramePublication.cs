@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Once-only publication of the sound producers preceding Samus's echo call.
 /// One instance belongs to one frontend Step, never to the serialized game graph.
 /// </summary>
-internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
+internal sealed class GameplayAudioFramePublication(AudioQueues audio)
 {
     /// <summary>Per-producer cursors prevent replaying requests when prefix publication runs more than once.</summary>
     private int roomSounds, paletteSounds, paletteMusic, liquidSounds;
@@ -23,21 +23,19 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (roomSounds < room.Count)
         {
             var request = room[roomSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
         var palette = runtime.Room.LoadedScope.PaletteFx.SoundRequests;
         while (paletteSounds < palette.Count)
         {
             var request = palette[paletteSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
         var music = runtime.Room.LoadedScope.PaletteFx.MusicRequests;
         while (paletteMusic < music.Count)
         {
             var request = music[paletteMusic++];
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+            audio.QueueMusicDelayed(request.Request, request.Delay);
         }
         if (runtime.Player.Samus is not { } samus)
             return;
@@ -45,7 +43,7 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         // Consume the request so the next frontend frame cannot replay the old flag.
         if (!selectionPublished && runtime.Hud.ConsumeSelectionSoundRequest())
         {
-            audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.HudWeaponSelect, 6,
+            audio.QueueSound(Library1Sound.HudWeaponSelect, SoundQueueLimit.Max6,
                 soundSuppressed: runtime.Hud.SelectionSoundSuppressedThisFrame);
             selectionPublished = true;
         }
@@ -53,17 +51,16 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (liquidSounds < liquid.Count)
         {
             var request = liquid[liquidSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
     }
 
-    /// <summary>Executes the native Max6 sound call, preserving its accumulator result.</summary>
-    public ushort QueueEcho(SuperMetroidRuntime runtime)
+    /// <summary>Executes the native Max6 sound call, returning what the queue did with the echo.</summary>
+    public SoundQueueAdmission QueueEcho(SuperMetroidRuntime runtime)
     {
         PublishPrefix(runtime);
-        return audio.QueueSoundAndGetAccumulator(
-            SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6,
+        return audio.QueueSound(
+            Library3Sound.SpeedBooster, SoundQueueLimit.Max6,
             soundSuppressed: runtime.AttractDemo.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
 

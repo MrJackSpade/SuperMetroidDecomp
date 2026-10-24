@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.Artwork;
@@ -125,7 +126,7 @@ internal static class PaletteFxProgramsVerification
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:
-                    AssertCue(step, new PaletteFxCue.QueueSoundLibrary2(Sound: SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operandByte)), at);
+                    AssertCue(step, new PaletteFxCue.QueueSoundLibrary2(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operandByte)), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.Wait:

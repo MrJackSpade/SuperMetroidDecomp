@@ -28,13 +28,13 @@ internal static class GameOverRomDataVerification
         var bus = new TestAddressSpace();
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var menu = new GameOverMenuState(audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         // The Baby stream advances only in indexes one and three onward. A separate menu walks
         // index zero and its NMI continuation, takes index one's first Baby tick, and then
         // enters the fade so every later update ticks the Baby; the music wait and index
         // one's continuation never touch it, so skipping them leaves the stream intact.
-        var babyAudio = new CartridgeAudioState();
+        var babyAudio = new AudioQueues();
         var babyMenu = new GameOverMenuState(babyAudio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         babyMenu.Step(0);
         babyMenu.Step(0);

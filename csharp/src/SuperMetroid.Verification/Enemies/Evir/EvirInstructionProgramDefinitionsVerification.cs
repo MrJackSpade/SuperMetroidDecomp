@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -79,7 +80,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             AssertTrue(!state.InFlight, "regeneration finish cue leaves the projectile stationary");
             AssertEqual((EvirAiFunction?)EvirAiFunction.ProjectileIdle, state.Function, "regeneration finish cue restores idle AI");
             const ushort nativeSpitSound = 0x005e;
-            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, nativeSpitSound),
+            AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library2, nativeSpitSound),
                 enemies.EvirBehavior.LastEvirSoundEffect, "regeneration publishes the native library-two spit sound");
         }
 

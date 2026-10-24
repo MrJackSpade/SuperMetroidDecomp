@@ -11,7 +11,7 @@ internal static class NoobTubePlmProgramDefinitions
     /// <summary>How long the opened tube shows before the room's water is restored.</summary>
     private const int OpenedDuration = 96;
     /// <summary>The break sound's native queue cap.</summary>
-    internal const byte BreakSoundMaximumQueued = 6;
+    internal static readonly SoundQueueLimit BreakSoundMaximumQueued = SoundQueueLimit.Max6;
 
     /// <summary>Every n00b-tube program.</summary>
     internal static AnimationProgramSet<NoobTubeProgram, NoobTubeDraw, NoobTubeCue> Programs { get; } = new(

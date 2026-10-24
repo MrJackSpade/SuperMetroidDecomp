@@ -115,7 +115,7 @@ internal static class HibashiDefinitionsVerification
         AssertEqual(HibashiAnimationsTooling.Spritemaps(HibashiProgram.Graphics).Last(), programGraphics.SpritemapPointer,
             "Hibashi finish retains the last graphics sprite");
         // $A6:8DAF queues per geyser: the contributed lowc movie's two geysers queue two (update 118,130).
-        SoundEffectId eruption = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, HibashiDefinitions.EruptionSoundEffect);
+        SoundEffectId eruption = HibashiDefinitions.EruptionSoundEffect;
         AssertEqual(2, programSystem.Audio.SoundRequests.Count(request => request.SoundEffect == eruption),
             "each Hibashi graphics program queues its eruption sound");
         AssertTrue((programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).ActivityFinished,

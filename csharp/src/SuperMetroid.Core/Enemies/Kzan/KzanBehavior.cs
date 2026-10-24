@@ -34,7 +34,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The library-two landing sound published when the falling top reaches its target.</summary>
     private static readonly SoundEffectId KzanLandingSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.KzanLandingSoundEffect);
+        EnemySoundEffectDefinitions.KzanLandingSoundEffect;
 
     /// <summary>The words each physical slot keeps across Kzan occupants for the current room.</summary>
     private readonly KzanExtensionWords[] _extensions = NewExtensions();
@@ -265,6 +265,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastKzanSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 }

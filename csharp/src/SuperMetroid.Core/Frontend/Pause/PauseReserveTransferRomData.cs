@@ -8,7 +8,7 @@ internal static class PauseReserveTransferRomData
     /// <summary>$82:AF62-$AF75 rounds the initial countdown up to eight and tests its low three bits.</summary>
     public const ushort SoundCadenceMask = 7;
     /// <summary>$82:AF7A, manual reserve refill uses library-three sound $2D.</summary>
-    public static readonly SoundEffectId RefillSound = new(SoundEffectLibrary.Library3, 0x2d);
+    public static readonly SoundEffectId RefillSound = Library3Sound.IncrementalEnergy;
     /// <summary>$82:AF7D calls QueueSound_Lib3_Max6.</summary>
-    public const byte MaximumQueuedSounds = 6;
+    public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
 }

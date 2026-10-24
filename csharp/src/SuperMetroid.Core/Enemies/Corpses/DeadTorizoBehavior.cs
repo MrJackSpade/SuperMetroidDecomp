@@ -220,7 +220,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)
-            LastDeadTorizoSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
+            LastDeadTorizoSoundEffect = Library2Sound.LiquidDamage;
     }
 
 
@@ -364,6 +364,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastDeadTorizoSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 }

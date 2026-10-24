@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
 /// Marks a raw SPC700 memory API (#632): raw APU RAM indexing or spans, a raw RAM address,

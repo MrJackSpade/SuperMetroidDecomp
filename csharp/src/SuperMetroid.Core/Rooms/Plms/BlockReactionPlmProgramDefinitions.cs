@@ -48,7 +48,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble1x1Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 8),
                 Step.Show(F.SingleBreakup1, 6),
                 Step.Show(F.SingleBreakup2, 4),
@@ -61,7 +61,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble2x1Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.HorizontalBreakup0, 4),
                 Step.Show(F.HorizontalBreakup1, 4),
                 Step.Show(F.HorizontalBreakup2, 4),
@@ -74,7 +74,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble1x2Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.VerticalBreakup0, 4),
                 Step.Show(F.VerticalBreakup1, 4),
                 Step.Show(F.VerticalBreakup2, 4),
@@ -87,7 +87,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble2x2Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SquareBreakup0, 4),
                 Step.Show(F.SquareBreakup1, 4),
                 Step.Show(F.SquareBreakup2, 4),
@@ -100,7 +100,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble1x1Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 4),
                 Step.Show(F.SingleBreakup1, 4),
                 Step.Show(F.SingleBreakup2, 4),
@@ -109,7 +109,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble2x1Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.HorizontalBreakup0, 4),
                 Step.Show(F.HorizontalBreakup1, 4),
                 Step.Show(F.HorizontalBreakup2, 4),
@@ -118,7 +118,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble1x2Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.VerticalBreakup0, 4),
                 Step.Show(F.VerticalBreakup1, 4),
                 Step.Show(F.VerticalBreakup2, 4),
@@ -127,7 +127,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.ContactCrumble2x2Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SquareBreakup0, 4),
                 Step.Show(F.SquareBreakup1, 4),
                 Step.Show(F.SquareBreakup2, 4),
@@ -136,7 +136,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.RespawningShotBlock1x1] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 4),
                 Step.Show(F.SingleBreakup1, 4),
                 Step.Show(F.SingleBreakup2, 4),
@@ -149,7 +149,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.RespawningShotBlock2x1] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.HorizontalBreakup0, 4),
                 Step.Show(F.HorizontalBreakup1, 4),
                 Step.Show(F.HorizontalBreakup2, 4),
@@ -162,7 +162,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.RespawningShotBlock1x2] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.VerticalBreakup0, 4),
                 Step.Show(F.VerticalBreakup1, 4),
                 Step.Show(F.VerticalBreakup2, 4),
@@ -175,7 +175,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.RespawningShotBlock2x2] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SquareBreakup0, 4),
                 Step.Show(F.SquareBreakup1, 4),
                 Step.Show(F.SquareBreakup2, 4),
@@ -188,7 +188,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.RespawningSuperMissileBlock] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum6, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum6, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 4),
                 Step.Show(F.SingleBreakup1, 4),
                 Step.Show(F.SingleBreakup2, 4),
@@ -201,7 +201,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.RespawningPowerBombBlock] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 4),
                 Step.Show(F.SingleBreakup1, 4),
                 Step.Show(F.SingleBreakup2, 4),
@@ -214,7 +214,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.PermanentShotBlock1x1] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 4),
                 Step.Show(F.SingleBreakup1, 4),
                 Step.Show(F.SingleBreakup2, 4),
@@ -223,7 +223,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.PermanentShotBlock2x1] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.HorizontalBreakup0, 4),
                 Step.Show(F.HorizontalBreakup1, 4),
                 Step.Show(F.HorizontalBreakup2, 4),
@@ -232,7 +232,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.PermanentShotBlock1x2] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.VerticalBreakup0, 4),
                 Step.Show(F.VerticalBreakup1, 4),
                 Step.Show(F.VerticalBreakup2, 4),
@@ -241,7 +241,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.PermanentShotBlock2x2] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SquareBreakup0, 4),
                 Step.Show(F.SquareBreakup1, 4),
                 Step.Show(F.SquareBreakup2, 4),
@@ -250,7 +250,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.PermanentSuperMissileBlock] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum6, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum6, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 4),
                 Step.Show(F.SingleBreakup1, 4),
                 Step.Show(F.SingleBreakup2, 4),
@@ -259,7 +259,7 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.PermanentPowerBombBlock] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum1, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum1, Library2Sound.BlockCrumble)),
                 Step.Show(F.SingleBreakup0, 3),
                 Step.Show(F.SingleBreakup1, 2),
                 Step.Show(F.SingleBreakup2, 1),
@@ -268,12 +268,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock1x1Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock1x1RespawningBreak),
             ],
             [P.ReactionBombBlock1x1Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock1x1RespawningBreak),
             ],
             [P.BombBlock1x1RespawningBreak] =
@@ -290,12 +290,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock2x1Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock2x1RespawningBreak),
             ],
             [P.ReactionBombBlock2x1Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock2x1RespawningBreak),
             ],
             [P.BombBlock2x1RespawningBreak] =
@@ -312,12 +312,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock1x2Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock1x2RespawningBreak),
             ],
             [P.ReactionBombBlock1x2Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock1x2RespawningBreak),
             ],
             [P.BombBlock1x2RespawningBreak] =
@@ -334,12 +334,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock2x2Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock2x2RespawningBreak),
             ],
             [P.ReactionBombBlock2x2Respawning] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock2x2RespawningBreak),
             ],
             [P.BombBlock2x2RespawningBreak] =
@@ -356,12 +356,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock1x1Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock1x1PermanentBreak),
             ],
             [P.ReactionBombBlock1x1Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock1x1PermanentBreak),
             ],
             [P.BombBlock1x1PermanentBreak] =
@@ -374,12 +374,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock2x1Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock2x1PermanentBreak),
             ],
             [P.ReactionBombBlock2x1Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock2x1PermanentBreak),
             ],
             [P.BombBlock2x1PermanentBreak] =
@@ -392,12 +392,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock1x2Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock1x2PermanentBreak),
             ],
             [P.ReactionBombBlock1x2Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock1x2PermanentBreak),
             ],
             [P.BombBlock1x2PermanentBreak] =
@@ -410,12 +410,12 @@ internal static class BlockReactionPlmProgramDefinitions
             ],
             [P.CollisionBombBlock2x2Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x06)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.ContactBlockBreak)),
                 Step.GoTo(P.BombBlock2x2PermanentBreak),
             ],
             [P.ReactionBombBlock2x2Permanent] =
             [
-                Step.Publish(new(K.QueueSoundLibrary2Maximum3, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum3, Library2Sound.BlockCrumble)),
                 Step.FallInto(P.BombBlock2x2PermanentBreak),
             ],
             [P.BombBlock2x2PermanentBreak] =
@@ -429,7 +429,7 @@ internal static class BlockReactionPlmProgramDefinitions
             [P.RespawningBreakableGrappleBlock] =
             [
                 Step.Show(F.GrappleBlock, 240),
-                Step.Publish(new(K.QueueSoundLibrary2Maximum6, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum6, Library2Sound.BlockCrumble)),
                 Step.Show(F.GrappleBreak0, 4),
                 Step.Show(F.GrappleBreak1, 4),
                 Step.Show(F.GrappleBreak2, 4),
@@ -437,14 +437,14 @@ internal static class BlockReactionPlmProgramDefinitions
                 Step.Show(F.GrappleBreak2, 4),
                 Step.Show(F.GrappleBreak1, 4),
                 Step.Show(F.GrappleBreak0, 4),
-                Step.Publish(new(K.SetBtsToOne, 0)),
+                Step.Publish(new(K.SetBtsToOne, null)),
                 Step.Show(F.RestoredBlock, 1),
                 Step.Stop,
             ],
             [P.PermanentBreakableGrappleBlock] =
             [
                 Step.Show(F.GrappleBlock, 120),
-                Step.Publish(new(K.QueueSoundLibrary2Maximum6, 0x0a)),
+                Step.Publish(new(K.QueueSoundLibrary2Maximum6, Library2Sound.BlockCrumble)),
                 Step.Show(F.GrappleBreak0, 4),
                 Step.Show(F.GrappleBreak1, 4),
                 Step.Show(F.GrappleBreak2, 4),

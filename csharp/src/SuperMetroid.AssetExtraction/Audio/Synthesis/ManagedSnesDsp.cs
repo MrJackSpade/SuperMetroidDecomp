@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -14,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 public sealed class ManagedSnesDsp
 {
     /// <summary>Native 32.04-kHz stereo frames accumulated for each 60-Hz gameplay update.</summary>
-    public const int NativeStereoFramesPerVideoFrame = SpcPortDefinitions.NativeStereoFramesPerVideoFrame;
+    public const int NativeStereoFramesPerVideoFrame = SoundClockTiming.SamplesPerUpdate;
     /// <summary>Number of independent hardware S-DSP voices.</summary>
     public const int VoiceCount = 8;
 

@@ -174,7 +174,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
     private void PlayCacatacSpikeSound() =>
-        LastCacatacSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.CacatacSpikeSound);
+        LastCacatacSoundEffect = EnemySoundEffectDefinitions.CacatacSpikeSound;
 
     /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
@@ -330,6 +330,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastCacatacSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 }

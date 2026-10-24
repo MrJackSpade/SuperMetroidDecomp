@@ -66,8 +66,7 @@ internal static class GrappleGatesVerification
                 AssertTrue(oam.LowTable[..oam.NextByteOffset].SequenceEqual(expected),
                     $"green gate OAM remains visible and identical on {trigger} frame {frame}");
                 if (frame == 2)
-                    AssertTrue(plms.Sounds.SoundRequests.Any(r => r.SoundEffect == SoundEffectId.FromCartridge(
-                        SoundEffectLibrary.Library2, DownwardGatePlmRomData.RejectedShotSound)), "rejected grapple emits gate dud sound");
+                    AssertTrue(plms.Sounds.SoundRequests.Any(r => r.SoundEffect == DownwardGatePlmRomData.RejectedShotSound), "rejected grapple emits gate dud sound");
             }
         }
         Console.WriteLine("  Grapple green gates: both sides retain exact gate OAM before, during and after impact.");

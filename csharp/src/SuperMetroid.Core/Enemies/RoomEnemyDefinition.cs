@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Damage">Header +$06 contact-damage value before Samus damage-reduction rules.</param>
 /// <param name="Radius">Header +$08/+$0A horizontal and vertical collision half-extents in room pixels.</param>
 /// <param name="HurtAiTime">Header +$0D native hurt-AI duration byte, retained separately from mutable flash timers.</param>
-/// <param name="HurtSoundEffect">Header +$0E native enemy cry sound selector.</param>
+/// <param name="HurtSoundEffect">Header +$0E: the library-two cry the enemy makes when a shot hurts it, or none.</param>
 /// <param name="BossId">Header +$10 boss identity published when a room population contains this enemy; zero means no boss identity.</param>
 /// <param name="InitializationAi">Header +$12: whether initialization runs the species' routine or the shared no-op.</param>
 /// <param name="PartCount">Header +$14 native multipart-enemy count.</param>
@@ -42,7 +42,7 @@ public readonly record struct RoomEnemyDefinition(
     ushort Damage,
     Extent16<RoomPixels> Radius,
     byte HurtAiTime,
-    ushort HurtSoundEffect,
+    SoundEffectId? HurtSoundEffect,
     ushort BossId,
     EnemyAiRoutine InitializationAi,
     ushort PartCount,

@@ -15,9 +15,9 @@ internal static class BotwoonWallPlmProgramDefinitions
     /// <summary>Updates each crumble frame lasts.</summary>
     internal const int CrumbleFrameDuration = 4;
     /// <summary>The sound each crumbled row queues: library two sound ten.</summary>
-    internal static SoundEffectId CrumbleSound { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 10);
+    internal static SoundEffectId CrumbleSound { get; } = Library2Sound.BlockCrumble;
     /// <summary>The queue cap of the crumble sound.</summary>
-    internal const byte CrumbleSoundMaximumQueued = 6;
+    internal static readonly SoundQueueLimit CrumbleSoundMaximumQueued = SoundQueueLimit.Max6;
 
     /// <summary>Every wall program.</summary>
     internal static AnimationProgramSet<BotwoonWallProgram, BotwoonWallDraw, BotwoonWallCue> Programs { get; } = new(

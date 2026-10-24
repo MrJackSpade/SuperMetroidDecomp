@@ -43,7 +43,7 @@ internal static class RoomPerformanceStateFixture
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
         data.Game.GameState = SuperMetroidGameState.MainGameplay;
         double stepMs = 0, renderMs = 0, audioMs = 0;
-        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var pcm = new short[AudioSession.PcmSamplesPerFrame];
         Rgba32[]? pixels = null;
         DisplayPacket? lastSnapshot = null;
         for (long frame = 1; frame <= 720; frame++)

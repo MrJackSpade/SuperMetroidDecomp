@@ -163,7 +163,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 $"Ridley death explosion {selectedIndex} production Y");
             AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, effect.Kind,
                 $"Ridley death explosion {selectedIndex} actor kind");
-            AssertEqual<SoundEffectId?>(SoundEffectLibrary2Sounds.SmallExplosion, state.LastDeathSoundEffect,
+            AssertEqual<SoundEffectId?>(Library2Sound.SmallExplosion, state.LastDeathSoundEffect,
                 $"Ridley death explosion {selectedIndex} sound");
         }
     }

@@ -145,7 +145,7 @@ internal static class DoorAlignmentVerification
 
         var transition = new DoorTransitionState();
         transition.Begin(runtime);
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         const SnesButton heldLeftRight = (SnesButton.Left | SnesButton.Right);
         int alignmentCalls = 0;
         bool observedDestinationBuild = false;

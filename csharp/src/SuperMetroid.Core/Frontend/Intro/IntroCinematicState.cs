@@ -189,7 +189,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
 
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>The portrait and narration tilemaps the intro shows across narration and flashback scenes (#1358).</summary>
     internal readonly IntroTilemaps tilemaps = new();
     /// <summary>The intro's colors, including the palette ranges changed by scene crossfades (#1358).</summary>
@@ -289,7 +289,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="japaneseText">The options menu's Japanese text setting (native <c>AltText</c>).</param>
     public IntroCinematicState(
 
-        CartridgeAudioState? audio = null,
+        AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamPaletteCatalog? beamPalettes = null,
@@ -370,9 +370,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             case IntroCinematicPhase.Initial:
                 // $8B:A59B-$A5A2: stop the music, then load the opening music data.
-                audio?.QueueMusicDelayed8(MusicCommand.Stop);
+                audio?.QueueMusicDelayed8(MusicRequest.Stop);
                 audio?.QueueMusicDelayed8(
-                    MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
+                    MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
                 Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
                 break;
 
@@ -397,7 +397,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
                 if (--timer <= 0)
                 {
-                    audio?.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
+                    audio?.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
                     timer = 200;
                 }
@@ -408,12 +408,12 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     // The next music commands wait for APU acknowledgement before the
                     // documented four-second hold. Eight frames models their delayed slot.
-                    audio?.QueueMusicDelayed8(MusicCommand.Stop);
+                    audio?.QueueMusicDelayed8(MusicRequest.Stop);
                     audio?.QueueMusicDelayed8(
-                        MusicCommand.LoadData(IntroCinematicRomData.Music.MotherBrainDataIndex));
+                        MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
                     audio?.QueueMusicDelayed(
-                        MusicCommand.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
-                        MusicCommandDelay.FromDelayedYArgument(
+                        MusicRequest.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
+                        MusicQueueDelay.AtLeastShortest(
                             IntroCinematicRomData.Music.SceneTrackDelayArgument));
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
                     timer = 8;
@@ -1029,7 +1029,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             audio?.QueueSound(
                 soundEffect,
-                flashbackProjectiles.LastFrameResult.QueuedSoundMaximum);
+                flashbackProjectiles.LastFrameResult.QueuedSoundMaximum
+                    ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."));
         }
 
         // $90:E70D/$90:E71C: both the demo and locked handlers end with
@@ -1350,12 +1351,12 @@ level, samus, FrameCounterWord(elapsedUpdates));
             audio,
             NarrationPresentation,
             CharacterArtwork.EyeFrames);
-        audio?.QueueMusicDelayed8(MusicCommand.Stop);
+        audio?.QueueMusicDelayed8(MusicRequest.Stop);
         audio?.QueueMusicDelayed8(
-            MusicCommand.LoadData(IntroCinematicRomData.Music.DiscoveryDataIndex));
+            MusicRequest.LoadDataSet(MusicDataSet.Intro));
         audio?.QueueMusicDelayed(
-            MusicCommand.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
-            MusicCommandDelay.FromDelayedYArgument(
+            MusicRequest.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
+            MusicQueueDelay.AtLeastShortest(
                 IntroCinematicRomData.Music.SceneTrackDelayArgument));
         timer = IntroCinematicRomData.Music.DiscoveryInitialTimer;
         Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;

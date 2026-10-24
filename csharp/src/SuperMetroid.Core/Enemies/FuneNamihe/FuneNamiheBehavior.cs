@@ -280,6 +280,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastFuneNamiheSoundEffect, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastFuneNamiheSoundEffect, maximumQueued: SoundQueueLimit.Max6);
     }
 }

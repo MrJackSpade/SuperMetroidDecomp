@@ -283,8 +283,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
         {
             state.SpawnedLaserCount++;
-            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
-                SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateLaserSound);
+            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateLaserSound;
         }
     }
 
@@ -322,8 +321,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 state.Function = setFunction.Function;
                 return null;
             case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.PlayAttackSound }:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateJumpSound);
+                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateJumpSound;
                 return null;
             default:
                 throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue} cue.");

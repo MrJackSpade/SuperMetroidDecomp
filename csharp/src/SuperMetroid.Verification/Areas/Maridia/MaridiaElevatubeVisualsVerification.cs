@@ -79,9 +79,7 @@ internal static class MaridiaElevatubeVisualsVerification
             {
                 plms.Step(level);
                 if (plms.Sounds.SoundRequests.Any(request =>
-                        request.SoundEffect == SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2,
-                            MaridiaElevatubePlmDefinitionsConstants.SoundId)))
+                        request.SoundEffect == MaridiaElevatubePlmDefinitionsConstants.SoundId))
                     heardAtFrame = frame;
             }
             AssertEqual(16, heardAtFrame,

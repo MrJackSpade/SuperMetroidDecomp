@@ -123,7 +123,7 @@ internal sealed class KraidCombat
             ? MiscDustAnimation.BigExplosion
             : MiscDustAnimation.DudShotTinyExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(position, animationIndex);
-        _audio.QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 6);
+        _audio.QueueEnemySound(Library1Sound.DudShot, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ internal sealed class KraidCombat
                     scratch.Bottom = dud is { } created ? checked((ushort)(created.SlotIndex * sizeof(ushort))) : shot.Position.X;
                     scratch.Top = shot.Position.Y;
                     scratch.Left = (ushort)RoomSpriteObjectKind.EnemyProjectileDud;
-                    _audio.QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 3);
+                    _audio.QueueEnemySound(Library1Sound.DudShot, maximumQueued: SoundQueueLimit.Max3);
                 }
                 shots.MarkCollision(index);
                 mouthHits++;

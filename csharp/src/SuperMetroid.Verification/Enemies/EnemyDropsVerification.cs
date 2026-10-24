@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Assets;
@@ -185,7 +186,7 @@ internal static class EnemyDropsVerification
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
-        AssertEqual((SoundEffectId?)new SoundEffectId(SoundEffectLibrary.Library2, expectedSound), fixture.System.DeathsAndDrops.LastEnemyPickupSoundEffect,
+        AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library2, expectedSound), fixture.System.DeathsAndDrops.LastEnemyPickupSoundEffect,
             $"{kind} library-two sound");
         AssertEqual((ushort)0xefdf, pickup.PreInstructionWord,
             $"{kind} enters shared blank/no-collision tail after collection");

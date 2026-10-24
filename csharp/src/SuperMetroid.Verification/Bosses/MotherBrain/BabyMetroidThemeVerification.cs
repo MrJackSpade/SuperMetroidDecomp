@@ -35,12 +35,18 @@ internal static class BabyMetroidThemeVerification
             var step = baby.Step(samus, sequence, HeadOf(sequence));
             apply(state, step);
             collect();
-            ushort[] expected = frame switch { 0 => [0], 72 => [0xff48, 5], _ => [] };
+            // #1410: the requests are asserted by kind and identity instead of by their queue words ($0000, $FF48, $0005).
+            MusicRequest[] expected = frame switch
+            {
+                0 => [MusicRequest.Stop],
+                72 => [MusicRequest.LoadDataSet(MusicDataSet.SamusThemeUpperCrateria), MusicRequest.SelectTrack(5)],
+                _ => [],
+            };
             AssertEqual(expected.Length, enemies.Audio.MusicRequests.Count, $"Native cutscene music request count at frame {frame}");
             for (int index = 0; index < expected.Length; index++)
             {
-                AssertEqual(expected[index], enemies.Audio.MusicRequests[index].Command.RawValue, "Stop, data upload and track retain native ordering");
-                AssertEqual(8, enemies.Audio.MusicRequests[index].Delay.Frames, "Each native command retains its eight-frame queue delay");
+                AssertEqual(expected[index], enemies.Audio.MusicRequests[index].Request, "Stop, data set change and track retain native ordering");
+                AssertEqual(8, enemies.Audio.MusicRequests[index].Delay.Updates, "Each native command retains its eight-frame queue delay");
             }
             if (frame == 72)
             {

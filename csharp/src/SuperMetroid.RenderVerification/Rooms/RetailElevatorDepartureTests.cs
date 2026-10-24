@@ -56,7 +56,7 @@ internal static class RetailElevatorDepartureTests
         }
         if (!runtime.RoomLoader.HasPendingDoorTransition) throw new InvalidOperationException("Elevator never reached its exit.");
         var transition = new DoorTransitionState();
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         transition.Begin(runtime);
         int doorFrames = 0;
         while (transition.IsActive && doorFrames++ < 512)

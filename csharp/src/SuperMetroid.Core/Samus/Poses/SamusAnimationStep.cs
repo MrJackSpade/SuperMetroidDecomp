@@ -35,5 +35,5 @@ public sealed record SamusAnimationStep
     public bool BossPresent { get; init; } = false;
 
     /// <summary>Queue echo sound.</summary>
-    public Func<ushort>? QueueEchoSound { get; init; } = null;
+    public Func<SoundQueueAdmission>? QueueEchoSound { get; init; } = null;
 }

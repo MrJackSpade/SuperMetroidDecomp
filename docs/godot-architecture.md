@@ -359,10 +359,10 @@ gameplay acknowledgement timing. Specify output mute and device-failure behavior
 without accidentally changing simulated audio progression.
 
 When output storage is reused, give the consumer a copy or an explicit ownership
-handoff. The session reuses its PCM buffer, so `CartridgeAudioSession.CopyFrame`
+handoff. The session reuses its PCM buffer, so `AudioSession.CopyFrame`
 copies each update's samples into host-owned storage. Enqueuing one reused array
 repeatedly can overwrite queued samples.
-See [`CartridgeAudioSession`](../csharp/src/SuperMetroid.Core/Audio/CartridgeAudioSession.cs)
+See [`AudioSession`](../csharp/src/SuperMetroid.Core/Audio/AudioSession.cs)
 and the current host frame loops.
 
 ### Simulation position and visible position

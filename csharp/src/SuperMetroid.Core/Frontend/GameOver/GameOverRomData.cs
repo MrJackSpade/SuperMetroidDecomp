@@ -20,7 +20,7 @@ public static class GameOverRomData
     /// <summary>Full intensity of the four-bit SNES brightness field; native fade-in at $81:90DE enters the interactive menu at this value.</summary>
     public const int MaximumBrightness = 15;
     /// <summary>Maximum-six queue policy used by the native selection-missile sound and all three Baby cry requests.</summary>
-    public const byte MaximumQueuedSounds = 6;
+    public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
 
     /// <summary>Localized text streams and their byte destinations in BG1.</summary>
     /// <remarks>
@@ -82,20 +82,18 @@ public static class GameOverRomData
 
         /// <summary>Typed library-three sound $23 emitted by the first cry opcode, distinct from its bank-$82 instruction address.</summary>
         public static readonly SoundEffectId Cry23 =
-            new(SoundEffectLibrary.Library3, 0x23);
+            Library3Sound.BabyMetroidCry1;
         /// <summary>Typed library-three sound $26 emitted by the second cry opcode, distinct from its bank-$82 instruction address.</summary>
         public static readonly SoundEffectId Cry26 =
-            new(SoundEffectLibrary.Library3, 0x26);
+            Library3Sound.BabyMetroidCry2;
         /// <summary>Typed library-three sound $27 emitted by the third cry opcode, distinct from its bank-$82 instruction address.</summary>
         public static readonly SoundEffectId Cry27 =
-            new(SoundEffectLibrary.Library3, 0x27);
+            Library3Sound.BabyMetroidCry3;
     }
 
     /// <summary>Game-over music data set and track selected by the state machine.</summary>
     public static class Music
     {
-        /// <summary>Music data-set selector three loaded through a delayed-eight command during game-over initialization, after requesting that current music stop.</summary>
-        public const byte DataIndex = 0x03;
         /// <summary>Track selector four, the pre-statue-hall music requested once the initial music-command queue drains at $81:93E8.</summary>
         public const byte TrackIndex = 4;
     }

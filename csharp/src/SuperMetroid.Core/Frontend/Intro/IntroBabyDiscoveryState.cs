@@ -18,7 +18,7 @@ internal sealed class IntroBabyDiscoveryState
 {
 
     /// <summary>Receives egg-hatch and baby-cry sound requests when audio is available.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>Feeds the scripted pose and movement input to Samus.</summary>
     internal readonly DemoInputState demo = new();
     /// <summary>Particles emitted when the egg begins hatching.</summary>
@@ -36,7 +36,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <param name="random">The session's random-number word, which the demo's Samus animation draws from.</param>
     /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
     /// <param name="existingSamus">The flashback's Samus the scene carries on with, or null for a new one.</param>
-    public IntroBabyDiscoveryState(CartridgeRandom random, CartridgeAudioState? audio = null,
+    public IntroBabyDiscoveryState(CartridgeRandom random, AudioQueues? audio = null,
         SamusState? existingSamus = null)
     {
         this.random = Ensure.NotNull(random);

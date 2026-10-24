@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// The persistent audio override (#1305 Q3): replacement clips kept outside the replaceable game

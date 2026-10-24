@@ -22,14 +22,14 @@ internal sealed class ProjectileImpactAudio
 
     /// <summary>Queues library-two beam impact audio, marking it suppressed when a Power Bomb is active.</summary>
     internal void RequestBeamImpactSound(SamusPowerBombExplosionState powerBomb) =>
-        (_impactSoundRequests ??= []).Add(new(SoundEffectLibrary2Sounds.BeamImpact, 6,
+        (_impactSoundRequests ??= []).Add(new(Library2Sound.BeamImpact, SoundQueueLimit.Max6,
             SoundSuppressed: powerBomb.IsActive));
 
     /// <summary>Queues missile impact audio unless the current cinematic frame suppresses it; an active Power Bomb marks the request suppressed.</summary>
     internal void RequestMissileImpactSound(SamusPowerBombExplosionState powerBomb)
     {
         if (!_cinematicImpactAudioSuppressed)
-            (_impactSoundRequests ??= []).Add(new(SoundEffectLibrary2Sounds.MissileImpact, 6,
+            (_impactSoundRequests ??= []).Add(new(Library2Sound.MissileImpact, SoundQueueLimit.Max6,
                 SoundSuppressed: powerBomb.IsActive));
     }
 }

@@ -133,12 +133,6 @@ public static class IntroCinematicRomData
     /// <summary>Music operations performed by the intro's major scene handoffs.</summary>
     public static class Music
     {
-        /// <summary>Music-data index loaded for the opening narration.</summary>
-        public const byte OpeningDataIndex = 0x3f;
-        /// <summary>Music-data index loaded for the Mother Brain flashback.</summary>
-        public const byte MotherBrainDataIndex = 0x42;
-        /// <summary>Music-data index loaded for the Metroid discovery scene.</summary>
-        public const byte DiscoveryDataIndex = 0x36;
         /// <summary>Track selected within each loaded cinematic music data set.</summary>
         public const byte SceneTrack = 5;
         /// <summary>Native delay argument used when the cinematic scene track starts.</summary>
@@ -172,16 +166,16 @@ public static class IntroCinematicRomData
         /// <summary>Object palette used by cinematic explosions.</summary>
         public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Palette(5);
         /// <summary>Maximum sound effects the intro queues for one library.</summary>
-        public const byte MaximumQueuedSounds = 6;
+        public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
         /// <summary>First baby Metroid cry sound.</summary>
         public static readonly SoundEffectId BabyCry1 =
-            new(SoundEffectLibrary.Library3, 0x23);
+            Library3Sound.BabyMetroidCry1;
         /// <summary>Typewriter sound used while narration characters appear.</summary>
         public static readonly SoundEffectId Typewriter =
-            new(SoundEffectLibrary.Library3, 0x0d);
+            Library3Sound.IntroTypewriter;
         /// <summary>Sound played when the baby Metroid hatches.</summary>
         public static readonly SoundEffectId EggHatch =
-            new(SoundEffectLibrary.Library2, 0x0b);
+            Library2Sound.ContactKill;
     }
 
     /// <summary>Record layout consumed by intro text/object streams.</summary>

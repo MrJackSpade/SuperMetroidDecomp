@@ -73,7 +73,7 @@ internal static class AudioClipMeasurements
         internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
         /// <inheritdoc />
-        public void TickStarting(SoundClockStep tick)
+        public void TickStarting(SoundClockStep<byte> tick)
         {
         }
 

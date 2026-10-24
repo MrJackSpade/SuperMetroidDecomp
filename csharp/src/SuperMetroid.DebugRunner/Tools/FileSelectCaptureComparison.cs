@@ -29,9 +29,9 @@ internal static class FileSelectCaptureComparison
             SaveRamCodec.Decode(recording.InitialSaveRam, RepositoryInstallation.Installation.LoadMaps()), recording.GameOptions);
         ClipAudioCatalog clips = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(clips);
-        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var pcm = new short[AudioSession.PcmSamplesPerFrame];
         var muted = new ClipAudioBackend(clips);
-        var suppressed = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var suppressed = new short[AudioSession.PcmSamplesPerFrame];
         var expected = new List<double>();
         var control = new List<double>();
         int requests = 0, firstDifference = -1;
@@ -39,7 +39,7 @@ internal static class FileSelectCaptureComparison
         {
             var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1).Frame;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent is AudioEvent.StartSoundEffect started &&
-                started.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
+                started.SoundEffect == Library1Sound.FileSelected;
             if (game.Session.LastAudioEvents.Any(IsSwoosh))
             {
                 requests++;

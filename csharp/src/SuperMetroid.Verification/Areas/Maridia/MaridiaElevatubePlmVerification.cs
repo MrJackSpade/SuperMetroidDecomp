@@ -44,9 +44,7 @@ internal static class MaridiaElevatubePlmVerification
                     level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                     "first elevatube handler pass draws its physical block");
             if (plms.Sounds.SoundRequests.Any(request =>
-                    request.SoundEffect == SoundEffectId.FromCartridge(
-                        SoundEffectLibrary.Library2,
-                        MaridiaElevatubePlmDefinitionsConstants.SoundId)))
+                    request.SoundEffect == MaridiaElevatubePlmDefinitionsConstants.SoundId))
                 heardAtFrame = frame;
         }
         AssertEqual(16, heardAtFrame,

@@ -30,7 +30,7 @@ internal static class EndingScreenPublicationVerification
         screen.Clear();
         AssertEqual(0, screen.Uploads.Count, "a full clear forgets every transfer");
 
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         EndingCreditsState ending = InstalledFixtures.CreateEnding(audio, 3, 0);
         foreach (EndingCreditsPhase target in new[] { EndingCreditsPhase.Credits, EndingCreditsPhase.PostCreditsLogo })
         {

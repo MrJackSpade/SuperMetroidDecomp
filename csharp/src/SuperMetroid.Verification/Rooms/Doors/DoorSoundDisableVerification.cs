@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 /// <summary>Checks sound admission during a door transition without suppressing queued audio or music.</summary>
@@ -7,21 +8,23 @@ internal static class DoorSoundDisableVerification
     internal static void VerifyDoorSoundDisableGuard()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         audio.AdvanceFrame(default);
-        audio.QueueSound(SoundEffectLibrary1Sounds.StopSpinJump, 15);
+        audio.QueueSound(Library1Sound.SpinJumpEnd, SoundQueueLimit.Max15);
         audio.DoorTransitionSoundsDisabled = true;
-        ushort rejected = audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll, 15);
-        AssertEqual((ushort)(0x0100 | SoundEffectLibrary1Sounds.CancelAll.Value), rejected,
-            "Disabled queue retains the native post-threshold accumulator");
+        // The disabled queue still reports the threshold's outcome: admitted with one unread request
+        // (formerly asserted as the post-threshold accumulator word $0102).
+        SoundQueueAdmission admitted = audio.QueueSound(Library1Sound.Silence, SoundQueueLimit.Max15);
+        AssertEqual(SoundQueueAdmission.Admitted(1), admitted,
+            "Disabled queue retains the native post-threshold outcome");
         var commands = audio.AdvanceFrame(default);
-        AssertTrue(commands.Any(c => c == new AudioRequest.RequestSound(SoundEffectLibrary1Sounds.StopSpinJump)),
+        AssertTrue(commands.Any(c => c == new AudioRequest.RequestSound(Library1Sound.SpinJumpEnd)),
             "Disabling new sounds still submits an already queued request");
         AssertTrue(!audio.HasQueuedSounds, "Rejected request does not refill the drained ring");
-        audio.QueueMusicDelayed8(MusicCommand.Stop);
+        audio.QueueMusicDelayed8(MusicRequest.Stop);
         AssertTrue(audio.HasQueuedMusic, "Door disable flag does not reject music commands");
         audio.DoorTransitionSoundsDisabled = false;
-        audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, 15);
+        audio.QueueSound(Library1Sound.Silence, SoundQueueLimit.Max15);
         AssertTrue(audio.HasQueuedSounds, "Clearing the door flag restores sound admission");
         audio.DoorTransitionSoundsDisabled = true;
         audio.Reset();

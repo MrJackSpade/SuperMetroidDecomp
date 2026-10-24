@@ -33,8 +33,8 @@ internal static class PostCreditsCharacterArtworkVerification
         {
             var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var guardedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-            var nativeAudio = new CartridgeAudioState();
-            var installedAudio = new CartridgeAudioState();
+            var nativeAudio = new AudioQueues();
+            var installedAudio = new AudioQueues();
             var native = CreateRetailEndingFixture(nativeAudio, hours, 0);
             var installed = CreateRetailEndingFixture(installedAudio, hours, 0);
             native.InstalledArtwork.BindStaffCredits(credits);
@@ -206,8 +206,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
                 var stockBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var editedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-                var stockAudio = new CartridgeAudioState();
-                var editedAudio = new CartridgeAudioState();
+                var stockAudio = new AudioQueues();
+                var editedAudio = new AudioQueues();
                 var stockState = CreateRetailEndingFixture(stockAudio, hours, 0);
                 var editedState = CreateRetailEndingFixture(editedAudio, hours, 0);
                 stockState.InstalledArtwork.BindStaffCredits(credits);

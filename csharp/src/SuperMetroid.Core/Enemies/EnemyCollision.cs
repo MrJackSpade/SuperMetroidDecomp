@@ -361,10 +361,8 @@ internal sealed class EnemyCollision
                     // Common shot AI queues the header cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
                     // explosion instructions retain their separate, later sound owner.
-                    // QueueSfx stores the low byte, even for a constructed wide header.
-                    if (enemy.FrozenTimer.IsZero && enemy.Definition.HurtSoundEffect != 0)
-                        _audio.QueueEnemySound(SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2, unchecked((byte)enemy.Definition.HurtSoundEffect)), 3);
+                    if (enemy.FrozenTimer.IsZero && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
+                        _audio.QueueEnemySound(cry, SoundQueueLimit.Max3);
                     // `$A0:A79E` gives every plasma-family hit sixteen invincibility frames.
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
@@ -797,7 +795,7 @@ internal sealed class EnemyCollision
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
         // reaches this helper only with an initially zero clock.
         if (enemy.FrozenTimer.IsZero)
-            _audio.QueueEnemySound(SoundEffectLibrary3Sounds.EnemyFreeze, maximumQueued: 3);
+            _audio.QueueEnemySound(Library3Sound.EnemyFrozen, maximumQueued: SoundQueueLimit.Max3);
         enemy.FrozenTimer = WrappingCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400);
@@ -980,7 +978,7 @@ internal sealed class EnemyCollision
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
-        _audio.QueueEnemySound(SoundEffectLibrary2Sounds.EnemyContactDamaged, maximumQueued: 1);
+        _audio.QueueEnemySound(Library2Sound.ContactKill, maximumQueued: SoundQueueLimit.Max1);
         if (enemy.Health != 0)
             return;
 

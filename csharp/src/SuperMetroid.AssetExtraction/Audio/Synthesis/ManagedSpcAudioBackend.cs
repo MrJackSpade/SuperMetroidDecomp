@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <summary>
 /// The emulated SPC sequencer and S-DSP driven by the session's audio events (#1304): it installs
 /// extracted banks, latches music commands, and runs the translated driver at the tick offsets
-/// and sound-effect starts the session's <see cref="SoundAcceptanceClock"/> published. One owner must
+/// and sound-effect starts the session's <see cref="SoundAcceptanceClock{TSound}"/> published. One owner must
 /// call it in update order.
 /// </summary>
 public sealed class ManagedSpcAudioBackend
@@ -14,7 +14,7 @@ public sealed class ManagedSpcAudioBackend
     /// <summary>Decoded cartridge uploads, instruments, music, sound programs, and sample banks.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
     /// <summary>Reusable driver schedule rebuilt from each update's tick events.</summary>
-    private readonly SoundClockStep[] schedule = new SoundClockStep[SoundAcceptanceClock.MaximumStepsPerUpdate];
+    private readonly SoundClockStep<byte>[] schedule = new SoundClockStep<byte>[SoundClockTiming.MaximumStepsPerUpdate];
 
     /// <summary>Creates the backend over a catalog, continuing an existing player or creating a new one.</summary>
     /// <param name="assets">Upload, instrument, music, sound-program, and sample definitions installed by bank loads.</param>
@@ -40,7 +40,7 @@ public sealed class ManagedSpcAudioBackend
         Player.AdvanceSequencer(Schedule(frame));
 
     /// <summary>Applies the update's bank loads and music commands, and builds its driver schedule with each sound-effect start at its poll.</summary>
-    private ReadOnlySpan<SoundClockStep> Schedule(in AudioFrameEvents frame)
+    private ReadOnlySpan<SoundClockStep<byte>> Schedule(in AudioFrameEvents frame)
     {
         IReadOnlyList<AudioEvent> events = Ensure.NotNull(frame.Events);
         int ticks = 0;
@@ -50,7 +50,7 @@ public sealed class ManagedSpcAudioBackend
             {
                 case AudioEvent.ChangeMusicDataSet change:
                     RequireBeforeTicks(ticks, audioEvent);
-                    LoadBank(change.DataSet);
+                    LoadBank(AudioAssetCatalogDefinitions.BankOf(change.DataSet));
                     break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
@@ -59,7 +59,7 @@ public sealed class ManagedSpcAudioBackend
                 case AudioEvent.ClockStep step:
                     if (ticks == schedule.Length)
                         throw new InvalidDataException($"An update holds more than {schedule.Length} driver ticks.");
-                    schedule[ticks++] = new SoundClockStep(step.SampleOffset, step.Steps, step.ChecksRequests, default);
+                    schedule[ticks++] = new SoundClockStep<byte>(step.SampleOffset, step.Steps, step.ChecksRequests, default);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
                     if (ticks == 0 || !schedule[ticks - 1].ChecksRequests ||
@@ -92,10 +92,11 @@ public sealed class ManagedSpcAudioBackend
     }
 
     /// <summary>Marks <paramref name="soundEffect"/>'s library as acting on a changed request at <paramref name="tick"/>'s poll.</summary>
-    private static SoundClockStep StartAt(SoundClockStep tick, SoundEffectId soundEffect)
+    private static SoundClockStep<byte> StartAt(SoundClockStep<byte> tick, SoundEffectId soundEffect)
     {
-        SoundRequestCheck start = new SoundRequestCheck(soundEffect.Value, Changed: true);
-        SoundRequestChecks polls = tick.Checks;
+        // The emulated driver reads the request number the sound has in its library.
+        SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(checked((byte)SoundEffectCommands.Command(soundEffect)), Changed: true);
+        SoundRequestChecks<byte> polls = tick.Checks;
         polls[SoundEffectLibraries.ToQueueIndex(soundEffect.Library)] = start;
         return tick with { Checks = polls };
     }

@@ -59,8 +59,8 @@ internal static class CeresFlightSpriteArtworkVerification
             CeresFlightSpritePresentation.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var stockFlight = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
-        var editedFlight = new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
+        var stockFlight = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+        var editedFlight = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
         {
             stockFlight.StepFrame();
@@ -98,7 +98,7 @@ internal static class CeresFlightSpriteArtworkVerification
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ceres sprites vanished during stock repair.");
         CeresFlightArtworkCatalog repairedArtwork = repaired.LoadIntroCinematicArt().CeresFlight;
-        var repairedFlight = new IntroCeresFlightState(new CartridgeAudioState(),
+        var repairedFlight = new IntroCeresFlightState(new AudioQueues(),
             repairedArtwork, sheets: CinematicSheetFixtures.WithFlight(repairedArtwork));
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
             repairedFlight.StepFrame();

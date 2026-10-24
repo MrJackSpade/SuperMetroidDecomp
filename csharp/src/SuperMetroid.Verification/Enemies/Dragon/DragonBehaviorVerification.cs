@@ -77,7 +77,7 @@ internal static class DragonBehaviorVerification
             body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.SlotTable.Slots[bodySlot], body);
         }
-        SoundEffectId fireball = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DragonFireballSound);
+        SoundEffectId fireball = EnemySoundEffectDefinitions.DragonFireballSound;
         AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request.SoundEffect == fireball),
             "two Dragons attacking in one frame queue two fireball sounds");
         Console.WriteLine("  Dragon behavior: two Dragons attacking in one frame queue two fireball sounds.");

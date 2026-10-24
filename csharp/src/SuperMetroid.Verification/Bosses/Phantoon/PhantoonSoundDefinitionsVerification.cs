@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -18,7 +19,7 @@ internal static class PhantoonSoundDefinitionsVerification
         AssertEqual(3, PhantoonSoundDefinitions.MaterializationSoundCount, "Phantoon materialization cycle length");
         for (int index = 0; index < 3; index++)
         {
-            SoundEffectId expected = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+            SoundEffectId expected = SoundEffectCommands.Decode(SoundEffectLibrary.Library2,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2));
             AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSound(index),
                 $"Phantoon materialization sound {index}");

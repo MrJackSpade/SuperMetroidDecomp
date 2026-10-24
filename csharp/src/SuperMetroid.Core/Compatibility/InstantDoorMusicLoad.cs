@@ -13,5 +13,5 @@ public sealed class InstantDoorMusicLoad : IDoorMusicLoadFrames
     /// <summary>Counts no frames for any music set.</summary>
     /// <param name="musicSet">The music set; every set loads instantly.</param>
     /// <returns>Zero.</returns>
-    public int FramesCountedDuringMusicLoad(int musicSet) => 0;
+    public int FramesCountedDuringMusicLoad(MusicDataSet musicSet) => 0;
 }

@@ -17,11 +17,11 @@ internal static class PausePaletteSoundVerification
         string rom = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(rom)) throw new FileNotFoundException("Pause palette integration requires the private ROM.", rom);
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
         var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
-        var session = CartridgeAudioSessionAccess.CreateSynthesizing(assets);
-        short[] pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var session = AudioSessionAccess.CreateSynthesizing(assets);
+        short[] pcm = new short[AudioSession.PcmSamplesPerFrame];
         int requests = 0;
         int nonzeroSamples = 0;
         int soundStarts = 0;
@@ -40,7 +40,7 @@ internal static class PausePaletteSoundVerification
             // beep can reach port three on consecutive frames; the driver starts it once.
             soundStarts += session.Advance(commands).Count(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect started &&
-                started.SoundEffect == SoundEffectLibrary3Sounds.MapPaletteLoop);
+                started.SoundEffect == Library3Sound.PauseBeep);
             session.CopyFrame(pcm);
             int audible = pcm.Count(sample => sample != 0);
             if (frame < 39) AssertEqual(0, audible, "isolated pause sound has no premature PCM");

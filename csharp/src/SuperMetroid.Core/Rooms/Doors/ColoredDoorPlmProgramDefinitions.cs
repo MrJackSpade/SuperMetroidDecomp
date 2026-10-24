@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class ColoredDoorPlmProgramDefinitions
 {
     /// <summary>The library-3 sound each hit on a red cap queues.</summary>
-    internal static readonly SoundEffectId RedHitSound = new(SoundEffectLibrary.Library3, 9);
+    internal static readonly SoundEffectId RedHitSound = Library3Sound.MissileDoorHit;
     /// <summary>The hits a red cap takes before it opens.</summary>
     internal const byte RedHitThreshold = 5;
     /// <summary>The hits a yellow or green cap takes before it opens.</summary>

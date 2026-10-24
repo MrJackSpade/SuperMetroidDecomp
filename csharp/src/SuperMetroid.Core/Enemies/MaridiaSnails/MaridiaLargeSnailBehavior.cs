@@ -55,10 +55,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Library-two sound queued by Oum's attack splash.</summary>
     private static readonly SoundEffectId MaridiaLargeSnailSplashSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound);
+        EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound;
     /// <summary>Library-two sound queued after a shot hits Oum.</summary>
     private static readonly SoundEffectId MaridiaLargeSnailShotSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound);
+        EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
 
     /// <summary>Most recent library-two sound requested by Oum this frame.</summary>
     public SoundEffectId? LastMaridiaLargeSnailSoundEffect { get; private set; }
@@ -607,7 +607,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastMaridiaLargeSnailSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>

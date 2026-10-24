@@ -505,7 +505,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
-            LastYappingMawSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.YappingMawAttackSound);
+            LastYappingMawSoundEffect = EnemySoundEffectDefinitions.YappingMawAttackSound;
     }
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>
@@ -641,7 +641,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastYappingMawSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 
     /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>

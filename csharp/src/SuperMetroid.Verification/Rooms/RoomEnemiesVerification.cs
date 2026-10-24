@@ -100,7 +100,7 @@ internal static void VerifyRoomEnemyLoading()
     // The first header is intentionally filled at every documented offset. Besides making
     // the parsed record useful to future damage/interaction translations, this catches a
     // one-word shift immediately rather than waiting for a distant enemy AI to misbehave.
-    WriteEnemyDefinition(bus, primaryDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0x0040, PalettePointer = 0x9000, Bank = 0xa2, TileDataAddress = 0xa29100, BossId = 0x1234, NamePointer = 0x9200, FieldSeed = 0x1100 });
+    WriteEnemyDefinition(bus, primaryDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0x0040, PalettePointer = 0x9000, Bank = 0xa2, TileDataAddress = 0xa29100, BossId = 0x1234, NamePointer = 0x9200, FieldSeed = 0x1100, HurtSound = 0x0036 });
 
     // Bit fifteen selects the definition's encoded staging address instead of the ordinary
     // running $0800 offset. It is still part of the tile-index arithmetic in retail code.
@@ -198,7 +198,8 @@ internal static void VerifyRoomEnemyLoading()
         "extended actor receives native extended-nothing map after initialization");
 
     RoomEnemyDefinition definition = slot.Definition;
-    AssertEqual(0x110e, definition.HurtSoundEffect, "definition hurt SFX offset $0E");
+    // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
+    AssertEqual<SoundEffectId?>(Library2Sound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(0x1114, definition.PartCount, "definition part count offset $14");
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertEqual(EnemyCallbackBody.Routine, definition.PowerBombReactionBody,
@@ -642,19 +643,18 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrozenTimer = WrappingCountdown.Start(0);
     ripper.InvincibilityTimer = WrappingCountdown.Start(0);
     ripper.AiStates = EnemyAiStates.None;
-    byte expectedHurtCry = unchecked((byte)ripper.Definition.HurtSoundEffect);
+    SoundEffectId expectedHurtCry = Library2Sound.ShotRipper;
+    AssertEqual<SoundEffectId?>(expectedHurtCry, ripper.Definition.HurtSoundEffect, "Ripper header cry decodes to the Ripper hit sound");
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
-        request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
-        request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3);
+        request.SoundEffect == expectedHurtCry && request.MaximumQueued.Requests == 3);
     for (int hit = 0; hit < 2; hit++)
     {
         ArmProjectile(shot, ripper, type: 0x0200, damage: 100);
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
-            request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
-            request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3),
-            "common shot queues header low-byte cry for surviving and lethal hits");
+            request.SoundEffect == expectedHurtCry && request.MaximumQueued.Requests == 3),
+            "common shot queues the header cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
     AssertEqual(EnemyDefinitionId.None, ripper.DefinitionId,
@@ -989,8 +989,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "Ceres Ridley becomes tangible after body fade");
     AssertTrue(enemies.Audio.MusicRequests.Contains(new DelayedMusicRequest(
-            MusicCommand.SelectTrack(5),
-            MusicCommandDelay.EightFrames)),
+            MusicRequest.SelectTrack(5),
+            MusicQueueDelay.Shortest)),
         "Ceres Ridley final body fade queues battle/escape track five");
 
     // Finish the 5-frame pre-roar and 253-frame pre-liftoff countdowns, then let the real
@@ -1007,7 +1007,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         observedRoarSound |= enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x59), MaximumQueued: 6));
+            new SoundRequest(Library2Sound.RidleyRoar, MaximumQueued: SoundQueueLimit.Max6));
         battleEntryFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -1201,7 +1201,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng);
     }
     AssertTrue(enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),
+            new SoundRequest(Library2Sound.CeresRidleyGetaway, MaximumQueued: SoundQueueLimit.Max6)),
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     void GetawayFrame()
     {
@@ -1492,6 +1492,7 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
     int address = 0xa00000 | (ushort)definitionPointer;
     for (int offset = 0; offset < 64; offset += 2)
         WriteTestWord(bus, address + offset, unchecked((ushort)(fields.FieldSeed + offset)));
+    WriteTestWord(bus, address + 14, fields.HurtSound);
 
     WriteTestWord(bus, address, fields.TileDataSize);
     WriteTestWord(bus, address + 2, fields.PalettePointer);

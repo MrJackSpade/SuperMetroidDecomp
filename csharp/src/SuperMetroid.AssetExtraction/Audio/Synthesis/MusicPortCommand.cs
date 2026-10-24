@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -12,5 +11,5 @@ internal enum MusicPortCommand : byte
     /// <summary>Resumes the paused track.</summary>
     Resume = 0xf1, // cartridge-encoding: allow(DomainDiscriminator) - driver resume command
     /// <summary>The driver's empty-port value, written after it consumes a command.</summary>
-    None = SpcPortDefinitions.MusicLatchEmpty,
+    None = 0xff, // cartridge-encoding: allow(DomainDiscriminator) - driver empty-port value
 }

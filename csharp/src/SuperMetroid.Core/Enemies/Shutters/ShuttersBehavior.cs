@@ -503,7 +503,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The library-two sound queued when an on-screen shutter begins moving.</summary>
     private static readonly SoundEffectId ShutterActivationSound =
-        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.ShutterActivationSound);
+        EnemySoundEffectDefinitions.ShutterActivationSound;
 
     /// <summary>Frame camera used to admit activation sound only for on-screen shutters.</summary>
     private Position16<RoomPixels> _shutterCamera;
@@ -1001,6 +1001,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastShutterSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: 6);
+            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
     }
 }

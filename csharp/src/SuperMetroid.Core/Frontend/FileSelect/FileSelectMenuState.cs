@@ -34,7 +34,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Receives menu sound requests when audio is available.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
     private readonly SaveSlotStore saves;
     /// <summary>The menu screen file select draws: its artwork, tilemaps, palette and sprite entries.</summary>
@@ -59,7 +59,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private FileSelectPage currentPresentationPage = FileSelectPage.MainEmpty;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
-    public FileSelectMenuState(SaveSlotStore saves, CartridgeAudioState? audio = null,
+    public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
         AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
@@ -342,7 +342,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
-            audio?.QueueSound(SoundEffectLibrary1Sounds.FileSelectSwoosh, maximumQueued: 6);
+            audio?.QueueSound(Library1Sound.FileSelected, maximumQueued: SoundQueueLimit.Max6);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
             HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
@@ -564,7 +564,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
             return;
 
-        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
+        audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
         if (confirmationSelection != YesNoChoice.Yes)
         {
             ReturnFromConfirmation(mode);
@@ -689,7 +689,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Queues the menu cursor sound with the native six-request limit.</summary>
     private void QueueCursorSound() =>
-        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+        audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
 
     /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
     public void BindMapPresentation([NotNull] AreaMapPresentationCatalog? catalog)

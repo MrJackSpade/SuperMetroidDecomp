@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
 /// Marks an approved SPC700 memory boundary (#632): the APU RAM implementation, a typed driver-memory view,

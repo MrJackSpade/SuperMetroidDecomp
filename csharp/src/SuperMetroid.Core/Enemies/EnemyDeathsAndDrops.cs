@@ -61,7 +61,7 @@ internal sealed class EnemyDeathsAndDrops
     public SoundEffectId? LastEnemyDeathSoundEffectLibrary2 { get; internal set; }
 
     /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) queues.</summary>
-    internal static readonly SoundEffectId EnemyKilledSound = new(SoundEffectLibrary.Library2, 9);
+    internal static readonly SoundEffectId EnemyKilledSound = Library2Sound.EnemyKilled;
 
     /// <summary>
     /// Scratch word `$12` as last written by <c>EnemyDeath</c> ($A0:A3E6) or
@@ -498,23 +498,23 @@ internal sealed class EnemyDeathsAndDrops
         {
             case EnemyPickupKind.SmallEnergy:
                 RestoreEnemyDropEnergy(samus, 5);
-                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.SmallEnergyPickup;
+                LastEnemyPickupSoundEffect = Library2Sound.SmallEnergyPickup;
                 break;
             case EnemyPickupKind.BigEnergy:
                 RestoreEnemyDropEnergy(samus, 20);
-                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.BigEnergyPickup;
+                LastEnemyPickupSoundEffect = Library2Sound.BigEnergyPickup;
                 break;
             case EnemyPickupKind.PowerBomb:
                 RestoreEnemyDropPowerBombs(samus, 1);
-                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.PowerBombPickup;
+                LastEnemyPickupSoundEffect = Library2Sound.PowerBombPickup;
                 break;
             case EnemyPickupKind.Missile:
                 RestoreEnemyDropMissiles(samus, 2);
-                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.MissilePickup;
+                LastEnemyPickupSoundEffect = Library2Sound.MissilePickup;
                 break;
             case EnemyPickupKind.SuperMissile:
                 RestoreEnemyDropSuperMissiles(samus, 1);
-                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.SuperMissilePickup;
+                LastEnemyPickupSoundEffect = Library2Sound.SuperMissilePickup;
                 break;
             case EnemyPickupKind.None:
             case EnemyPickupKind.NoDrop:
@@ -588,9 +588,9 @@ internal sealed class EnemyDeathsAndDrops
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastEnemyPickupSoundEffect is { } pickupSound)
-            audio.QueueEnemySound(pickupSound, maximumQueued: 1);
+            audio.QueueEnemySound(pickupSound, maximumQueued: SoundQueueLimit.Max1);
         if (LastEnemyDeathSoundEffectLibrary2 is { } deathSound)
-            audio.QueueEnemySound(deathSound, maximumQueued: 1);
+            audio.QueueEnemySound(deathSound, maximumQueued: SoundQueueLimit.Max1);
     }
 
     /// <summary>
@@ -656,12 +656,10 @@ internal sealed class EnemyDeathsAndDrops
                 QueueEnemyKilledSound();
                 return null;
             case EnemyDeathProjectileCueKind.PlaySmallExplosionSound:
-                LastEnemyDeathSoundEffectLibrary2 = SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DeathSmallExplosionSound);
+                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathSmallExplosionSound;
                 return null;
             case EnemyDeathProjectileCueKind.PlayContactKilledSound:
-                LastEnemyDeathSoundEffectLibrary2 = SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DeathContactKilledSound);
+                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathContactKilledSound;
                 return null;
             case EnemyDeathProjectileCueKind.BecomePickup:
                 if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)

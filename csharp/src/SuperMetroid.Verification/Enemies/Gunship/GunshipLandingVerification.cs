@@ -80,7 +80,7 @@ internal static class GunshipLandingVerification
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
             frames++;
             observedEngineSound |= enemies.Audio.SoundRequests.Contains(
-                new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4d), MaximumQueued: 6));
+                new SoundRequest(Library2Sound.GunshipHover, MaximumQueued: SoundQueueLimit.Max6));
 
             if (GunshipPartState.Of(top).Function == GunshipFunction.DescendAfterCeres)
             {
@@ -121,7 +121,7 @@ internal static class GunshipLandingVerification
                     samus.ApplyPreviousPositionWrites(checkpoint),
                     "landing writes SamusPreviousXPosition with Samus X");
                 AssertTrue(enemies.Audio.SoundRequests.Contains(new SoundRequest(
-                        SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6)),
+                        Library3Sound.GunshipPadOpening, MaximumQueued: SoundQueueLimit.Max6)),
                     "landing queues QueueSound_Lib3_Max6($14)");
                 // EnemyMain starts the pad-opening program, then this same slot's ordinary
                 // instruction phase shows its first timed frame before StepFrame returns.
@@ -150,7 +150,7 @@ internal static class GunshipLandingVerification
         AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 
         var openingSound = new SoundRequest(
-            SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6);
+            Library3Sound.GunshipPadOpening, MaximumQueued: SoundQueueLimit.Max6);
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus });
         AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
             "idle ship does not publish an entrance sound without Down");

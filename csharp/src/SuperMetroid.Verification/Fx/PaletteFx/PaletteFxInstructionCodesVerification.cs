@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
@@ -907,7 +908,7 @@ internal static class PaletteFxInstructionCodesVerification
             damageSoundCount += paletteFx.SoundRequests.Count;
             foreach (SoundRequest request in paletteFx.SoundRequests)
             {
-                AssertEqual(SoundEffectLibrary3Sounds.EnvironmentalDamage,
+                AssertEqual(Library3Sound.IncrementalEnergy,
                     request.SoundEffect,
                     "retail Norfair heat owner publishes native library-three sound");
                 AssertEqual(PaletteFxHeatData.DamageSoundMaximumQueued,
@@ -1588,8 +1589,8 @@ internal static class PaletteFxInstructionCodesVerification
         AssertTrue(soundFrame >= 0, "$F781 beacon reaches its sound opcode");
         AssertEqual(SoundEffectLibrary.Library2, soundRequest.SoundEffect.Library,
             "$F781 beacon sound uses library two");
-        AssertEqual(0x18, soundRequest.SoundEffect.Value,
-            "$F781 beacon sound preserves byte operand $18");
+        AssertEqual<SoundEffectId>(Library2Sound.Beacon, soundRequest.SoundEffect,
+            "$F781 beacon sound is the beacon (operand $18)");
         AssertEqual(PaletteFxAudioQueueLimits.SoundEffects, soundRequest.MaximumQueued,
             "$F781 beacon sound uses QueueSfx2_Max6");
 

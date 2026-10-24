@@ -73,7 +73,7 @@ internal static class PauseMenuFixtureVerification
         {
             Areas = areas,
             ContentIdentity = "constructed-pause-interaction-fixture",
-            Tiles = new MapTileAtlas(Read(MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount)),
+            Tiles = new MapTileCharacters(Read(MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount)),
             HudTiles = new HudTileAtlas(hud),
             HighlightCycle = stock.HighlightCycle,
             Palettes = palettes,
@@ -85,7 +85,7 @@ internal static class PauseMenuFixtureVerification
             Screens = stock.Screens,
             WorldArtwork = stock.WorldArtwork,
             Sprites = MapSpriteCatalog.Load(spriteJson, spritePng),
-            PauseTiles = new MapTileAtlas(Read(PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)),
+            PauseTiles = new MapTileCharacters(Read(PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)),
             PauseBackdrops = backdrops,
             PauseWireframes = stock.PauseWireframes,
             PauseSelectors = PauseSelectorPresentation.Load(selectorJson),

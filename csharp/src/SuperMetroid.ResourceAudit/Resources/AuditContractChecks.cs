@@ -16,6 +16,7 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 
@@ -237,12 +238,12 @@ internal static class AuditContractChecks
         MotherBrainRoomFlashAudit.RequireOperands([neighboringOperand], "fixture.cs", exports, changed);
         Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission" + " (" + changed.Describe() + ")");
 
-        var document = RequiredJson.Deserialize<SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorDocument>(
+        var document = RequiredJson.Deserialize<SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(
             MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), ArtworkJson.Options);
         bool rejected = false;
         try
         {
-            _ = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.Load(new MemoryStream(
+            _ = MotherBrainRoomColorFile.Read(new MemoryStream(
                 JsonSerializer.SerializeToUtf8Bytes(document with { Flash = document.Flash[..^1] },
                     ArtworkJson.Options)));
         }

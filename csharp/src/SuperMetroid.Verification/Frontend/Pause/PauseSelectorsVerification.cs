@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks pause equipment selector placement, animation, editable art, and restored-state rebinding.</summary>
@@ -77,7 +78,7 @@ internal static class PauseSelectorsVerification
             [new() { DurationTicks = 2, Reserve = "Hidden", Beam = "Hidden", Equipment = "Hidden" },
              new() { DurationTicks = 3, Reserve = "Visible", Beam = "Visible", Equipment = "Visible" }] };
         using (var output = File.Create(path)) PauseSelectorPresentation.Write(output, custom);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "selector-only edit changes catalog identity");
         var customSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
         var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
@@ -142,12 +143,12 @@ internal static class PauseSelectorsVerification
         Reject(custom with { Animation = [custom.Animation[0] with { Beam = "missing" }] });
         Reject(custom with { Animation = [custom.Animation[0] with { DurationTicks = 0 }] });
         Reject(custom with { Frames = new() { ["Hidden"] = [], ["Visible"] = [parts[0] with { TileColumn = 15 }] } });
-        File.WriteAllText(path, "bad JSON"); AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "invalid selector override never falls back");
+        File.WriteAllText(path, "bad JSON"); AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "invalid selector override never falls back");
         File.WriteAllBytes(path, bytes);
         try
         {
-            File.Delete(stockPath); AssertThrows<IOException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override cannot hide missing stock selectors");
-            File.WriteAllText(stockPath, "corrupt stock"); AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override cannot hide invalid selector provenance");
+            File.Delete(stockPath); AssertThrows<IOException>(() => AreaMapPresentationFiles.Load(stock, overrides), "override cannot hide missing stock selectors");
+            File.WriteAllText(stockPath, "corrupt stock"); AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "override cannot hide invalid selector provenance");
         }
         finally { File.WriteAllBytes(stockPath, bytes); }
         Console.WriteLine("Pause selectors: sixteen anchors/672 native OAM cases, 1600 guarded native frames, authored timing/parts/palettes, actual toggle, current-content restore and strict failures pass.");

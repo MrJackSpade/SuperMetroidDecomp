@@ -8,7 +8,7 @@ public sealed class RoomStaticPalette
     /// <summary>Validated little-endian BGR555 colours, owned independently of the JSON authoring data.</summary>
     private readonly byte[] nativeBytes;
 
-    /// <summary>Wraps the validated colours assembled by <see cref="Load"/>.</summary>
+    /// <summary>Wraps the packed colours assembled by <see cref="FromColours"/>.</summary>
     private RoomStaticPalette(byte[] nativeBytes) => this.nativeBytes = nativeBytes;
 
     /// <summary>Packs the room's selected background colours in the order the room load transfers them.</summary>

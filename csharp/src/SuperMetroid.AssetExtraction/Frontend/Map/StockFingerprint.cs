@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Whether a presentation resource's stock bytes join the catalog fingerprint as well as its selected bytes.</summary>
 internal enum StockFingerprint

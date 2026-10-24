@@ -24,6 +24,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks extracted suit palettes and edited installed colors through Samus's normal palette paths.</summary>
 internal static class SamusSuitColorsVerification
@@ -148,7 +149,7 @@ internal static class SamusSuitColorsVerification
         Paint(document.Gravity, 3);
         string replacement = Path.Combine(overrideDirectory, SamusSuitColorFormat.FileName);
         File.WriteAllBytes(replacement, SamusSuitColorFile.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Samus suit color override changes installed-content identity");
 
@@ -221,7 +222,7 @@ internal static class SamusSuitColorsVerification
             "Samus suit colors reject out-of-range RGB5 channels");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing Samus suit override restores installed-content identity");
         Console.WriteLine("Samus suit colors: three stock palettes, three live CGRAM edits, production entry, normal restoration branches, ROM guard, invalid data and override removal pass.");

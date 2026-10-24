@@ -1698,7 +1698,7 @@ internal static class LookupStream3Verification
             BeamCycle = Enumerable.Range(0, 38).Select(index => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))).ToArray(),
         };
         MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
-            MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPalettePresentation.Load(
+            MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPaletteFile.Read(
                 new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)), stock);
         void Check(MotherBrainRainbowPalettePresentation palette)
         {
@@ -2235,7 +2235,7 @@ internal static class LookupStream3Verification
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(rom);
-        var stock = MotherBrainHealthPalettePresentation.Load(new MemoryStream(json));
+        var stock = MotherBrainHealthPaletteFile.Read(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         foreach (var palette in new[] { stock.body, stock.backLegs })
@@ -2281,7 +2281,7 @@ internal static class LookupStream3Verification
                         var editedNode = node.DeepClone();
                         var rgb = editedNode.Required(group).Required(state).Required(color);
                         rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
-                        var edited = MotherBrainHealthPalettePresentation.Load(new MemoryStream(
+                        var edited = MotherBrainHealthPaletteFile.Read(new MemoryStream(
                             System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                         for (int checkState = 0; checkState < 4; checkState++)
                         {
@@ -2311,7 +2311,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
-        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var fade = stock.recoveryLights;
@@ -2342,7 +2342,7 @@ internal static class LookupStream3Verification
                     var editedNode = node.DeepClone();
                     var rgb = editedNode.Required("recoveryLights").Required(frame).Required(color);
                     rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
-                    var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                    var edited = MotherBrainRoomColorFile.Read(new MemoryStream(
                         System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                     for (int checkFrame = 0; checkFrame < 7; checkFrame++)
                     {
@@ -2366,7 +2366,7 @@ internal static class LookupStream3Verification
                 var editedNode = node.DeepClone();
                 var rgb = editedNode.Required("finalRoom").Required(color);
                 rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
-                var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                var edited = MotherBrainRoomColorFile.Read(new MemoryStream(
                     System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                 for (int frame = 0; frame < 7; frame++)
                 {
@@ -2389,7 +2389,7 @@ internal static class LookupStream3Verification
         var legacy = node.DeepClone();
         legacy["version"] = MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion;
         legacy.AsObject().Remove("recoveryLights");
-        var oldOverride = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+        var oldOverride = MotherBrainRoomColorFile.Read(new MemoryStream(
             System.Text.Encoding.UTF8.GetBytes(legacy.ToJsonString())), stock);
         for (int frame = 0; frame < 7; frame++)
         {
@@ -2407,7 +2407,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
-        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var flash = stock.flash;
@@ -2447,7 +2447,7 @@ internal static class LookupStream3Verification
                     var editedNode = node.DeepClone();
                     var rgb = editedNode.Required("flash").Required(frame).Required(color);
                     rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
-                    var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                    var edited = MotherBrainRoomColorFile.Read(new MemoryStream(
                         System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                     for (int checkFrame = 0; checkFrame < 14; checkFrame++)
                     {
@@ -2542,7 +2542,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
-        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         AssertTrue(stock.phaseTwoRearLeg is null,
             "stream 3 phase-two rear uses approved calculated health basis without stored rows");
@@ -2558,7 +2558,7 @@ internal static class LookupStream3Verification
                 var editedNode = node.DeepClone();
                 var rgb = editedNode.Required("phaseTwoRearLeg").Required(color);
                 rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
-                var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                var edited = MotherBrainRoomColorFile.Read(new MemoryStream(
                     System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                 var actual = new GameplayColours(new SpriteColourSets());
                 edited.ApplyPhaseTwoInitial(actual);
@@ -2776,7 +2776,7 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Parse(json);
-        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
         var attack = stock.phaseTwoAttack;
         AssertTrue(attack.supplied is null,
             "stock attack palette calculates every color without a stored row");
@@ -2804,7 +2804,7 @@ internal static class LookupStream3Verification
         Confirm(stock, document);
 
         static MotherBrainRoomColorPresentation Load(System.Text.Json.Nodes.JsonNode document) =>
-            MotherBrainRoomColorPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+            MotherBrainRoomColorFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb.Required("red").GetValue<int>()
             | rgb.Required("green").GetValue<int>() << 5 | rgb.Required("blue").GetValue<int>() << 10);
         static void Confirm(MotherBrainRoomColorPresentation palette, System.Text.Json.Nodes.JsonNode expected)
@@ -2828,7 +2828,7 @@ internal static class LookupStream3Verification
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<MotherBrainRoomColorDocument>(imported, ArtworkJson.Options);
-        MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorPresentation.Load(new MemoryStream(
+        MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorFile.Read(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -2897,7 +2897,7 @@ internal static class LookupStream3Verification
         MotherBrainRoomColorDocument Read() => RequiredJson.Deserialize<MotherBrainRoomColorDocument>(
             imported, ArtworkJson.Options);
         MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document, MotherBrainRoomColorPresentation? current = null) =>
-            MotherBrainRoomColorPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
+            MotherBrainRoomColorFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
                 document, ArtworkJson.Options)), current);
         var document = Read();
         var stock = Load(document);

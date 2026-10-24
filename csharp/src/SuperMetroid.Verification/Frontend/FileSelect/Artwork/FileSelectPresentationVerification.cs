@@ -9,6 +9,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;
 
@@ -95,7 +96,7 @@ internal static class FileSelectPresentationVerification
             FileSelectPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             FileSelectPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "file-select override changes selected catalog identity");
 
@@ -120,7 +121,7 @@ internal static class FileSelectPresentationVerification
             "file-select rebind applies edited content without resetting state");
 
         File.WriteAllText(replacement, "{ broken file-select JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
             "corrupt file-select override fails loudly");
         using (var output = File.Create(replacement))
             FileSelectPresentation.Write(output, document);

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
@@ -7,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 /// <summary>Editable JSON payload of native Ridley/Baby palette rows; colors use independent integer RGB5 channels, and row indices describe paint phases rather than animation durations.</summary>
 public sealed record CeresRidleyColorDocument
 {
-    /// <summary>Schema selector: three requires all palette families; versions one and two are accepted by <see cref="CeresRidleyColorCatalog.Load"/> only with a stock fallback.</summary>
+    /// <summary>Schema selector: three requires all palette families; versions one and two are accepted by <see cref="CeresRidleyColorFile.Read"/> only with a stock fallback.</summary>
     public required int Version { get; init; }
     /// <summary>32 startup colors corresponding to $A6:E16F, including both transparent entries of the door/container and Baby OBJ palettes.</summary>
     public required PaletteRgb5[] Start { get; init; }

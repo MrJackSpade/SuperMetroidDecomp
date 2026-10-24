@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Bosses;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable Mother Brain room-color schema; every supplied entry is a nonnull RGB5 color with channels 0..31, and nested arrays remain caller-mutable until compilation.</summary>
 public sealed record MotherBrainRoomColorDocument

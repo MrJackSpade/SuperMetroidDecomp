@@ -19,6 +19,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Checks ending palette identity, native fade colors, installed artwork, and visible overrides.</summary>
 internal static class EndingPaletteArtworkVerification
@@ -443,7 +444,7 @@ internal static class EndingPaletteArtworkVerification
                 frame[color] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         byte[] editedFile = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        RoomPaletteFxPresentation editedColors = RoomPaletteFxPresentation.Load(
+        RoomPaletteFxPresentation editedColors = RoomPaletteFxPresentationFile.Read(
             new MemoryStream(editedFile, writable: false));
 
         var editedAudio = new CartridgeAudioState();

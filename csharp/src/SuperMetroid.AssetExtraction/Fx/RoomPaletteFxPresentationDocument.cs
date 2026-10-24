@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>The editable JSON schema for color samples used by room and cinematic palette-FX programs.</summary>
 /// <remarks>Each jagged array is ordered by native timed record, then by that record's emitted colors. RGB channels range from zero through thirty-one; record durations, skipped palette entries, destinations, and control side effects are compiled mechanics.</remarks>

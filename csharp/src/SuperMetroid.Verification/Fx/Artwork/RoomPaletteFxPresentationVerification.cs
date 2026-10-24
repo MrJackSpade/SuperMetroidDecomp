@@ -18,6 +18,7 @@ namespace SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Compares extracted room palette-FX colors and installed playback against cartridge output.</summary>
 internal static class RoomPaletteFxPresentationVerification
@@ -29,7 +30,7 @@ internal static class RoomPaletteFxPresentationVerification
     {
         byte[] extracted =
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus);
-        RoomPaletteFxPresentation presentation = RoomPaletteFxPresentation.Load(
+        RoomPaletteFxPresentation presentation = RoomPaletteFxPresentationFile.Read(
             new MemoryStream(extracted, writable: false));
         var colorAddresses = new HashSet<int>();
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
@@ -253,7 +254,7 @@ internal static class RoomPaletteFxPresentationVerification
         document.ZebesExplosionGunship[15][9] = document.ZebesExplosionGunship[15][9] with { Green = 0 };
         document.ZebesExplosionGunship[15][13] = document.ZebesExplosionGunship[15][13] with { Blue = 0 };
         using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-        RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
+        RoomPaletteFxPresentation edited = RoomPaletteFxPresentationFile.Read(json);
         for (int frame = 0; frame < 16; frame++)
         for (int color = 0; color < 16; color++)
         {
@@ -310,7 +311,7 @@ internal static class RoomPaletteFxPresentationVerification
             document.PostCreditsIconGlare[edit.Frame][edit.Color] = current with { Red = (current.Red + 11) & 31 };
         }
         using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-        RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
+        RoomPaletteFxPresentation edited = RoomPaletteFxPresentationFile.Read(json);
         for (int frame = 0; frame < 14; frame++)
         for (int color = 0; color < 16; color++)
         {
@@ -899,7 +900,7 @@ internal static class RoomPaletteFxPresentationVerification
             document,
             ArtworkJson.Options);
         void Reject(string description) => AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxPresentation.Load(new MemoryStream(Json(), writable: false)),
+            () => RoomPaletteFxPresentationFile.Read(new MemoryStream(Json(), writable: false)),
             description);
 
         int version = document.Version;
@@ -924,7 +925,7 @@ internal static class RoomPaletteFxPresentationVerification
 
         // Current stock supplies only the new heat family to a version-seventeen
         // override. Its existing environmental edit must survive unchanged.
-        RoomPaletteFxPresentation currentStock = RoomPaletteFxPresentation.Load(
+        RoomPaletteFxPresentation currentStock = RoomPaletteFxPresentationFile.Read(
             new MemoryStream(extracted, writable: false));
         PaletteRgb5 legacyOriginal = document.NorfairForegroundPalette4[0][0];
         PaletteRgb5 legacyEdit = legacyOriginal with
@@ -942,10 +943,10 @@ internal static class RoomPaletteFxPresentationVerification
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(
             legacyDocument, ArtworkJson.Options);
         AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxPresentation.Load(
+            () => RoomPaletteFxPresentationFile.Read(
                 new MemoryStream(legacyBytes, writable: false)),
             "old room palette-FX override requires current stock for new heat rows");
-        RoomPaletteFxPresentation migrated = RoomPaletteFxPresentation.Load(
+        RoomPaletteFxPresentation migrated = RoomPaletteFxPresentationFile.Read(
             new MemoryStream(legacyBytes, writable: false), currentStock);
         ushort legacyPointer = NorfairEnvironmentalPaletteFxColorDefinitions.All
             .Single(item => item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundPalette4)
@@ -970,7 +971,7 @@ internal static class RoomPaletteFxPresentationVerification
         {
             Red = (heatOriginal.Red + 1) & 31,
         };
-        RoomPaletteFxPresentation editedHeat = RoomPaletteFxPresentation.Load(
+        RoomPaletteFxPresentation editedHeat = RoomPaletteFxPresentationFile.Read(
             new MemoryStream(Json(), writable: false));
         var stockOwnerSession = new PaletteFxSessionState();
         var stockOwner = new RoomPaletteFxSystem(stockOwnerSession);
@@ -1228,7 +1229,7 @@ internal static class RoomPaletteFxPresentationVerification
             $"\"version\": {RoomPaletteFxPresentationFormat.Version},\n  \"nativeAddress\": 9240718",
             StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxPresentation.Load(new MemoryStream(
+            () => RoomPaletteFxPresentationFile.Read(new MemoryStream(
                 Encoding.UTF8.GetBytes(unknownField), writable: false)),
             "room palette-FX rejects native-address escape hatch");
     }

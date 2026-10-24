@@ -11,6 +11,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks editable Ceres and Zebes escape typewriter text through installed VRAM writes and state rebinding.</summary>
 internal static class EscapeTypewriterPresentationVerification
@@ -115,7 +116,7 @@ internal static class EscapeTypewriterPresentationVerification
             "TEST!";
         string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDefinitions.FileName);
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
         var state = new EscapeTypewriterState(
             edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),
             EscapeTypewriterRomData.ZebesTileBase);
@@ -129,7 +130,7 @@ internal static class EscapeTypewriterPresentationVerification
 
         File.WriteAllText(replacement, "{ broken escape text");
         AssertThrows<InvalidDataException>(() =>
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory),
+            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory),
             "corrupt escape text override fails loudly");
         Console.WriteLine(
             "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");

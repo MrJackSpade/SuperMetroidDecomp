@@ -1,11 +1,11 @@
 using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.IntegrationVerification.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// Exercises the source-inventoried map/menu/title file boundary using an already
@@ -29,7 +29,7 @@ internal static class MapPresentationJsonContractVerification
             foreach (string source in Directory.GetFiles(installation.MapDirectory))
                 File.Copy(source, Path.Combine(stock, Path.GetFileName(source)));
             Dictionary<string, string> originalHashes = HashFiles(stock);
-            string expected = AreaMapPresentationCatalog.Load(stock, null).ContentIdentity;
+            string expected = AreaMapPresentationFiles.Load(stock, null).ContentIdentity;
             string manifestPath = Path.Combine(stock, AreaMapCatalogFormat.ManifestFile);
             byte[] manifest = File.ReadAllBytes(manifestPath);
             using JsonDocument parsedManifest = JsonDocument.Parse(manifest);
@@ -48,7 +48,7 @@ internal static class MapPresentationJsonContractVerification
                     string path = Path.Combine(rulesOnly ? stock : edits, file);
                     File.WriteAllBytes(path, corrupt);
                     if (rulesOnly) RewriteHash(manifestPath, manifest, file, corrupt);
-                    Reject(file, path, () => AreaMapPresentationCatalog.Load(stock, edits));
+                    Reject(file, path, () => AreaMapPresentationFiles.Load(stock, edits));
                     if (rulesOnly)
                     {
                         File.WriteAllBytes(path, original);
@@ -63,9 +63,9 @@ internal static class MapPresentationJsonContractVerification
                     string path = Path.Combine(edits, file);
                     byte[] selected = [.. original, (byte)' ', (byte)'\n'];
                     File.WriteAllBytes(path, selected);
-                    string selectedIdentity = AreaMapPresentationCatalog.Load(stock, edits).ContentIdentity;
+                    string selectedIdentity = AreaMapPresentationFiles.Load(stock, edits).ContentIdentity;
                     Require(selectedIdentity != expected, file + " participates in selected identity");
-                    Require(AreaMapPresentationCatalog.Load(stock, edits).ContentIdentity == selectedIdentity,
+                    Require(AreaMapPresentationFiles.Load(stock, edits).ContentIdentity == selectedIdentity,
                         file + " retains its identity on a fresh reload");
                     Require(File.ReadAllBytes(path).SequenceEqual(selected), file + " retains authored bytes");
                     File.Delete(path);
@@ -75,12 +75,12 @@ internal static class MapPresentationJsonContractVerification
                 foreach (byte[] corrupt in DuplicateDocuments(document.RootElement))
                 {
                     File.WriteAllBytes(manifestPath, corrupt);
-                    Reject("manifest", manifestPath, () => AreaMapPresentationCatalog.Load(stock, edits));
+                    Reject("manifest", manifestPath, () => AreaMapPresentationFiles.Load(stock, edits));
                 }
             File.WriteAllBytes(manifestPath, manifest);
             Require(HashFiles(stock).OrderBy(pair => pair.Key).SequenceEqual(originalHashes.OrderBy(pair => pair.Key)),
                 "diagnostics must leave the required stock files untouched");
-            Require(AreaMapPresentationCatalog.Load(stock, edits).ContentIdentity == expected,
+            Require(AreaMapPresentationFiles.Load(stock, edits).ContentIdentity == expected,
                 "removing overrides restores the exact stock identity");
             Require(accepted.Count == 0, "silently accepted ambiguous JSON:\n" + string.Join('\n', accepted));
             Console.WriteLine($"PASS installed map/menu/title JSON: {files.Length} resource files plus manifest, " +

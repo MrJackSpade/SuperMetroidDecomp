@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -36,7 +37,7 @@ internal static class PauseTileAtlasVerification
         using (var input = File.OpenRead(stockPath)) image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
         using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "pause-only PNG edit changes content identity");
         var firstMap = new SnesVram(); var editedMap = new SnesVram();
         original.Tiles.LoadTo(new VramRegion(firstMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort))); edited.Tiles.LoadTo(new VramRegion(editedMap, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
@@ -72,20 +73,20 @@ internal static class PauseTileAtlasVerification
             AssertTrue(before.SequenceEqual(pause.Render()), "restored pause uses current PNG without changing animation phase");
         }
         File.WriteAllText(path, "invalid PNG");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt pause override is not silently replaced");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "corrupt pause override is not silently replaced");
         using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "pause PNG dimensions enforced");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "pause PNG dimensions enforced");
         image.Pixels[0] = 16;
         using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(17));
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "pause PNG indexes limited to native 4bpp range");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "pause PNG indexes limited to native 4bpp range");
         File.WriteAllBytes(path, stockBytes);
         // This is isolated generated fixture stock, never an installed player file.
         try
         {
             File.Delete(stockPath);
-            AssertThrows<IOException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override does not hide missing stock provenance");
+            AssertThrows<IOException>(() => AreaMapPresentationFiles.Load(stock, overrides), "override does not hide missing stock provenance");
             File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override does not hide corrupted stock provenance");
+            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "override does not hide corrupted stock provenance");
         }
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions, immediate edited pixels, capture/restore, equipment isolation and strict resource failures pass.");

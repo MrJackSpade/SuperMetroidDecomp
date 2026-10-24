@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks fixed RGB5 colors through Power Bomb and Crystal Flash lifecycles against retail data.</summary>
 internal static class PowerBombFixedColorsVerification
@@ -121,7 +122,7 @@ internal static class PowerBombFixedColorsVerification
         PaletteRgb5 original = document.PreExplosion[0];
         document.PreExplosion[0] = original with { Red = (original.Red + 1) % 32 };
         File.WriteAllBytes(path, PowerBombFixedColorFile.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Power Bomb color edit changes installed content identity");
         AssertTrue(edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
@@ -142,7 +143,7 @@ internal static class PowerBombFixedColorsVerification
             PreExplosion = [original with { Red = 32 }, .. document.PreExplosion.Skip(1)],
         }), "out-of-range Power Bomb color fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing Power Bomb color override restores stock identity");
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");

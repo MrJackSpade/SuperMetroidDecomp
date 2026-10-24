@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
@@ -53,7 +54,7 @@ internal static class MapStationLayoutVerification
         string replacement = Path.Combine(overrides, MapStationLayoutFormat.FileName);
         using (var stream = File.Create(replacement)) MapStationLayout.Write(stream, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(replacement);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "station position edit changes catalog identity");
         var state = new Bank80SystemState();
         state.MarkExploredMapTile(AreaId.Brinstar, new(10, 8)); // Edited visual cell, not native discovery cell.
@@ -85,20 +86,20 @@ internal static class MapStationLayoutVerification
             .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray()), "layout render/rebind preserves exploration bytes");
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "station override survives stock replacement");
+        AssertEqual(edited.ContentIdentity, AreaMapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "station override survives stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "station override bytes preserved");
         string rebuiltStations = Path.Combine(rebuilt, MapStationLayoutFormat.FileName);
         byte[] rebuiltBytes = File.ReadAllBytes(rebuiltStations);
         File.Delete(rebuiltStations);
-        AssertThrows<FileNotFoundException>(() => AreaMapPresentationCatalog.Load(rebuilt, overrides), "override cannot hide missing stock station provenance");
+        AssertThrows<FileNotFoundException>(() => AreaMapPresentationFiles.Load(rebuilt, overrides), "override cannot hide missing stock station provenance");
         File.WriteAllText(rebuiltStations, "corrupt stock stations");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(rebuilt, overrides), "override cannot hide corrupt stock station provenance");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(rebuilt, overrides), "override cannot hide corrupt stock station provenance");
         File.WriteAllBytes(rebuiltStations, rebuiltBytes);
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = 512 }) } })
             AssertThrows<InvalidDataException>(() => MapStationLayout.Write(new MemoryStream(), invalid), "invalid station version/identity/position rejected");
         File.WriteAllText(replacement, "{bad stations");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "malformed station override cannot fall back");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "malformed station override cannot fall back");
         AssertEqual("{bad stations", File.ReadAllText(replacement), "malformed station override not overwritten");
         Console.WriteLine($"Station layout: {combinations} discovery subsets match native OAM; full-menu stock/edit/rebind pixels, ROM-read guard and override isolation pass.");
 

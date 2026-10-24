@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -62,7 +63,7 @@ internal static class MapScreensVerification
             var isolated = new Dictionary<string, MapPresentationCell[]>(document.Pages);
             isolated[name] = document.Pages[name].Select(cell => cell with { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray();
             using (var output = File.Create(jsonPath)) MapScreenPresentation.Write(output, document with { Pages = isolated });
-            var oneEdit = AreaMapPresentationCatalog.Load(stock, overrides);
+            var oneEdit = AreaMapPresentationFiles.Load(stock, overrides);
             bool room = definition.Id is MapScreenPageId.RoomFrame;
             AreaId area = definition.Id switch
             {
@@ -80,7 +81,7 @@ internal static class MapScreensVerification
         var pages = document.Pages.ToDictionary(pair => pair.Key, pair => pair.Value.Select(cell => cell with
         { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray());
         using (var output = File.Create(jsonPath)) MapScreenPresentation.Write(output, document with { Pages = pages });
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "screen JSON changes catalog identity");
         var worldBefore = World(guard, original, (int)AreaId.Maridia);
         var worldAfter = World(guard, edited, (int)AreaId.Maridia);
@@ -106,19 +107,19 @@ internal static class MapScreensVerification
             using (var input = File.OpenRead(Path.Combine(stock, atlas.First))) image = IndexedPng.Read(input, new(WorldMapArtworkFormat.Width, checked((ushort)atlas.Second)));
             for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % atlas.Third);
             using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            var artEdit = AreaMapPresentationCatalog.Load(stock, overrides);
+            var artEdit = AreaMapPresentationFiles.Load(stock, overrides);
             AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
             var changedWorld = World(guard, artEdit, (int)AreaId.Maridia);
             AssertTrue(!worldBefore.RenderBackgrounds().SequenceEqual(changedWorld.RenderBackgrounds()), "each world PNG edit reaches composed world pixels independently");
             changedWorld.BindFixtureArtwork(original);
             AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(changedWorld.RenderBackgrounds()), "world artwork rebind restores exact stock pixels");
             File.WriteAllText(path, "invalid PNG");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
+            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
             using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong world PNG dimensions rejected");
+            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "wrong world PNG dimensions rejected");
             image.Pixels[0] = (byte)atlas.Third;
             using (var output = File.Create(path)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, SnesGraphics.DiagnosticPalette(atlas.Third + 1));
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "world PNG index outside native depth rejected");
+            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "world PNG index outside native depth rejected");
             File.WriteAllBytes(path, File.ReadAllBytes(Path.Combine(stock, atlas.First)));
         }
         // Preserve the original bytes around invalid-resource tests; all paths are
@@ -130,9 +131,9 @@ internal static class MapScreensVerification
             try
             {
                 File.WriteAllText(path, "corrupt stock");
-                AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock resource hash failure remains visible with override present");
+                AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "stock resource hash failure remains visible with override present");
                 File.Delete(path);
-                AssertThrows<FileNotFoundException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "missing stock screen resource remains visible with override present");
+                AssertThrows<FileNotFoundException>(() => AreaMapPresentationFiles.Load(stock, overrides), "missing stock screen resource remains visible with override present");
             }
             finally { File.WriteAllBytes(path, bytes); }
         }
@@ -146,7 +147,7 @@ internal static class MapScreensVerification
         invalidPages[MapScreenDefinitions.WorldForeground.Name][0] = invalidPages[MapScreenDefinitions.WorldForeground.Name][0] with { TileRow = 999 };
         AssertThrows<InvalidDataException>(() => MapScreenPresentation.Write(new MemoryStream(), document with { Pages = invalidPages }), "out of atlas reference rejected");
         File.WriteAllText(jsonPath, "broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt screen override fails loudly");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "corrupt screen override fails loudly");
         AssertEqual("broken JSON", File.ReadAllText(jsonPath), "invalid screen override never overwritten");
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
 

@@ -10,7 +10,6 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
@@ -24,6 +23,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Assets;
 
@@ -86,7 +86,7 @@ internal static class PaletteJsonContractsFixturesVerification
         { Version = MotherBrainHealthPaletteFormat.Version,
             Body = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteRomData.ColorCount),
             BackLegs = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteRomData.ColorCount) }),
-            json => _ = MotherBrainHealthPalettePresentation.Load(json));
+            json => _ = MotherBrainHealthPaletteFile.Read(json));
         yield return new("Mother Brain room", PaletteContractDocument(new MotherBrainRoomColorDocument
         {
             Version = MotherBrainRoomColorFormat.Version,
@@ -98,7 +98,7 @@ internal static class PaletteJsonContractsFixturesVerification
             InitialTubeProjectile = PaletteContractColors(MotherBrainRoomColorRomData.InitialColors),
             RecoveryLights = PaletteContractRows(MotherBrainRoomColorRomData.RecoveryLightsFrames,
                 MotherBrainRoomColorRomData.RecoveryLightsSliceColors * 2),
-        }), json => _ = MotherBrainRoomColorPresentation.Load(json));
+        }), json => _ = MotherBrainRoomColorFile.Read(json));
         MotherBrainRainbowPaletteFrameDocument[] Frames(int count, int body, int legs, bool trailing) => Enumerable.Range(0, count)
             .Select(frame => new MotherBrainRainbowPaletteFrameDocument { Body = PaletteContractColors(body, frame),
                 BackLegs = PaletteContractColors(legs, frame), TrailingColor = trailing ? PaletteContractColors(1, frame)[0] : null }).ToArray();
@@ -114,13 +114,13 @@ internal static class PaletteJsonContractsFixturesVerification
             Normal = Frames(1, MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.ColorCount, false)[0],
             FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathPaletteRomData.FrameCount, MotherBrainFakeDeathPaletteRomData.ColorCount),
             BeamInitial = PaletteContractColors(1)[0], BeamCycle = PaletteContractColors(MotherBrainRainbowPaletteFormat.BeamCycleColorCount),
-        }), json => _ = MotherBrainRainbowPalettePresentation.Load(json));
+        }), json => _ = MotherBrainRainbowPaletteFile.Read(json));
 
         // Only the extractor sees this constructed image. No retail ROM/file is needed
         // and the imported bytes encode colors, not runtime-readable cartridge data.
         var synthetic = new CartridgeImportAddressSpace(Enumerable.Range(0, CartridgeImportAddressSpace.RetailRomByteCount)
             .Select(index => (byte)(index * 13 + 7)).ToArray());
         yield return new("room effects", (JsonObject)RequiredJson.Parse(RoomPaletteFxPresentationExtractor.Extract(synthetic)),
-            json => _ = RoomPaletteFxPresentation.Load(json));
+            json => _ = RoomPaletteFxPresentationFile.Read(json));
     }
 }

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;
 

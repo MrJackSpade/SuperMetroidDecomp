@@ -15,7 +15,7 @@ internal static class RoomPaletteFxPresentationExtractor
     {
         Ensure.NotNull(bus);
         using var json = new MemoryStream();
-        RoomPaletteFxPresentation.Write(json, new RoomPaletteFxPresentationDocument
+        RoomPaletteFxPresentationFile.Write(json, new RoomPaletteFxPresentationDocument
         {
             Version = RoomPaletteFxPresentationFormat.Version,
             SamusHeatPowerSuit = ExtractFrames(HeatPaletteColorDefinitions.Rows(PaletteFxHeatSuit.Power)),

@@ -420,7 +420,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
     {
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
         var stored = stock.colors;
         var sites = new List<LookupStream4Site>();
         for (int owner = 0; owner < 3; owner++)
@@ -449,7 +449,7 @@ internal static class LookupStream4Verification
             var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
             var rows = edit.Owner == 0 ? document.MaridiaSandPits : edit.Owner == 1 ? document.MaridiaSandFalls : document.MaridiaBackgroundWaterfalls;
             rows[edit.Frame][edit.Color] = rows[edit.Frame][edit.Color] with { Red = rows[edit.Frame][edit.Color].Red ^ 1 };
-            var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             foreach (var site in sites)
             {
                 AssertTrue(changed.TryReadColor(site.Pointer, out Bgr555 actual), "edited environmental pointer resolves");
@@ -494,7 +494,7 @@ internal static class LookupStream4Verification
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (all[owner].ProgramStart + 2)), all[owner].ColorByteIndex, "native text color destination");
         }
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
         var stored = stock.colors;
         int storedCount = 0;
         for (int owner = 0; owner < 2; owner++)
@@ -521,7 +521,7 @@ internal static class LookupStream4Verification
             var rows = edit < 24 ? document.PlanetZebesTextFadeIn : document.PlanetZebesTextFadeOut;
             int selected = edit % 24;
             rows[selected / 3][selected % 3] = rows[selected / 3][selected % 3] with { Red = rows[selected / 3][selected % 3].Red ^ 1 };
-            var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             for (int owner = 0; owner < 2; owner++)
             for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 3; color++)
@@ -2111,7 +2111,7 @@ internal static class LookupStream4Verification
         var program = CrateriaLightningColorDefinitions.DarkProgram;
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentation.Load(originalStream);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
         var stored = original.colors;
         for (int frame = 0; frame < 14; frame++)
         for (int index = 0; index < 7; index++)
@@ -2129,7 +2129,7 @@ internal static class LookupStream4Verification
             var source = document.CrateriaUnusedDarkLightning[frame][index];
             document.CrateriaUnusedDarkLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentation.Load(json);
+            var edited = RoomPaletteFxPresentationFile.Read(json);
             for (int row = 0; row < 14; row++)
             for (int color = 0; color < 7; color++)
             {
@@ -2153,7 +2153,7 @@ internal static class LookupStream4Verification
         var program = CrateriaLightningColorDefinitions.SurfaceProgram;
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentation.Load(originalStream);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
         var stored = original.colors;
         for (int frame = 0; frame < 13; frame++)
         for (int index = 0; index < 8; index++)
@@ -2171,7 +2171,7 @@ internal static class LookupStream4Verification
             var source = document.CrateriaSurfaceLightning[frame][index];
             document.CrateriaSurfaceLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentation.Load(json);
+            var edited = RoomPaletteFxPresentationFile.Read(json);
             for (int row = 0; row < 13; row++)
             for (int color = 0; color < 8; color++)
             {
@@ -2249,7 +2249,7 @@ internal static class LookupStream4Verification
         }
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentation.Load(originalStream);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
         var stored = original.colors;
         int storedStatueColors = 0;
         foreach (var pair in native)
@@ -2268,7 +2268,7 @@ internal static class LookupStream4Verification
             var source = document.TourianStatueGrey[edit.Frame][edit.Index];
             document.TourianStatueGrey[edit.Frame][edit.Index] = source with { Red = (source.Red + 9) & 31, Blue = (source.Blue + 5) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentation.Load(json);
+            var edited = RoomPaletteFxPresentationFile.Read(json);
             for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 8; color++)
             {

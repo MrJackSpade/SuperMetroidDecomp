@@ -80,7 +80,7 @@ internal static class PaletteDefinitionAudit
     {
         SyntheticCartridge recorder = ColorAddressRecorder();
         byte[] roomDocument = RoomPaletteFxPresentationExtractor.Extract(recorder);
-        RoomPaletteFxPresentation room = RoomPaletteFxPresentation.Load(new MemoryStream(roomDocument));
+        RoomPaletteFxPresentation room = RoomPaletteFxPresentationFile.Read(new MemoryStream(roomDocument));
         byte[] titleDocument = TitlePaletteExtractor.Extract(recorder);
         TitlePaletteFile.Read(new MemoryStream(titleDocument));
         // Import once / install at multiple identities is legitimate. Use the

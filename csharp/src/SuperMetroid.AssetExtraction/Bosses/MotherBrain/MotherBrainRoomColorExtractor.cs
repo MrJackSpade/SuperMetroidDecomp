@@ -35,7 +35,7 @@ internal static class MotherBrainRoomColorExtractor
                 MotherBrainRoomColorRomData.SliceColors * 2);
         }
         using var json = new MemoryStream();
-        MotherBrainRoomColorPresentation.Write(json, new MotherBrainRoomColorDocument
+        MotherBrainRoomColorFile.Write(json, new MotherBrainRoomColorDocument
         {
             Version = MotherBrainRoomColorFormat.Version,
             Flash = flash,

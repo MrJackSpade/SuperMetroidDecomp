@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Saves;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Checks named save-schema translation, legacy precedence, rejection paths, and backup-preserving upgrade.</summary>
 internal static class SaveSchemaTranslationVerification
@@ -124,7 +125,7 @@ internal static class SaveSchemaTranslationVerification
         var text = SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
         var ending = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
-        ending.InstalledArtwork.BindPaletteFxColors(SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation.Load(new MemoryStream(
+        ending.InstalledArtwork.BindPaletteFxColors(RoomPaletteFxPresentationFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         // The game binds the installed sheets with the ending, which draws its stars from them.
         ending.InstalledArtwork.BindSpriteSheets(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets);

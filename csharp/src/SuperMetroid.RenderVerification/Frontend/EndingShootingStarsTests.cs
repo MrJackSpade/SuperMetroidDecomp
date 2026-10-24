@@ -13,7 +13,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 
-/// <summary>Checks post-credits shooting-star motion, OAM, phase masks, and CPU/GPU rendering.</summary>
+/// <summary>Checks post-credits shooting-star motion, OAM, phase masks, and rendering on this device against the WARP reference device.</summary>
 internal static class EndingShootingStarsTests
 {
     /// <summary>Compares native star records and trajectory before exercising their actual ending scene owner.</summary>

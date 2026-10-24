@@ -1,14 +1,14 @@
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Cartridge values of <see cref="TorizoInstructionVramTransferDefinitions"/> that only verification reads.</summary>
-internal static class TorizoInstructionVramTransferDefinitionsConstants
+/// <summary>Cartridge values of <see cref="TorizoArtworkSwapDefinitions"/> that only verification reads.</summary>
+internal static class TorizoArtworkSwapDefinitionsConstants
 {
     /// <summary>Bank $AA containing the Torizo instruction-controlled VRAM transfer records.</summary>
     public const byte Bank = 0xaa;
 
     /// <summary>
-    /// The cartridge site of each transfer, in <see cref="TorizoInstructionVramTransferDefinitions.Entries"/> order:
+    /// The cartridge site of each transfer, in <see cref="TorizoArtworkSwapDefinitions.Entries"/> order:
     /// the cartridge oracle finds each descriptor by its instruction.
     /// </summary>
     internal static readonly TransferSite[] Sites =
@@ -29,11 +29,11 @@ internal static class TorizoInstructionVramTransferDefinitionsConstants
     internal readonly record struct TransferSite(ushort Instruction);
 
     /// <summary>Provides the bank of Torizo instruction VRAM transfer records.</summary>
-    extension(TorizoInstructionVramTransferDefinitions)
+    extension(TorizoArtworkSwapDefinitions)
     {
-        /// <inheritdoc cref="TorizoInstructionVramTransferDefinitionsConstants.Bank"/>
-        internal static byte Bank => TorizoInstructionVramTransferDefinitionsConstants.Bank;
-        /// <inheritdoc cref="TorizoInstructionVramTransferDefinitionsConstants.Sites"/>
-        internal static ReadOnlySpan<TorizoInstructionVramTransferDefinitionsConstants.TransferSite> Sites => TorizoInstructionVramTransferDefinitionsConstants.Sites;
+        /// <inheritdoc cref="TorizoArtworkSwapDefinitionsConstants.Bank"/>
+        internal static byte Bank => TorizoArtworkSwapDefinitionsConstants.Bank;
+        /// <inheritdoc cref="TorizoArtworkSwapDefinitionsConstants.Sites"/>
+        internal static ReadOnlySpan<TorizoArtworkSwapDefinitionsConstants.TransferSite> Sites => TorizoArtworkSwapDefinitionsConstants.Sites;
     }
 }

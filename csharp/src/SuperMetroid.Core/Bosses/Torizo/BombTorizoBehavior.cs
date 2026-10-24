@@ -253,7 +253,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _ = _bossArtwork.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
             "Torizo's artwork swaps require installed artwork.");
-        _presentation.ObjCharacters.Record(TorizoInstructionVramTransferDefinitions.Uploads[swap.Ordinal]);
+        _presentation.ObjCharacters.Record(TorizoArtworkSwapDefinitions.Uploads[swap.Ordinal]);
     }
 
     /// <summary>

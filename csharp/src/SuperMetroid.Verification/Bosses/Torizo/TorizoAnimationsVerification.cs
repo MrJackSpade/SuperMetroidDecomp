@@ -72,8 +72,8 @@ internal static class TorizoAnimationsVerification
             {
                 var copyStep = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>(Next("tile transfer"), $"{at}: tile transfer");
                 var copy = AssertIs<TorizoCue.ShowArtwork>(copyStep.Cue, $"{at}: artwork swap cue");
-                TorizoTileTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.Entries[copy.Swap.Ordinal];
-                AssertEqual(cursor, TorizoInstructionVramTransferDefinitions.Sites[copy.Swap.Ordinal].Instruction, $"{at}: tile transfer descriptor");
+                TorizoArtworkSwapDefinition transfer = TorizoArtworkSwapDefinitions.Entries[copy.Swap.Ordinal];
+                AssertEqual(cursor, TorizoArtworkSwapDefinitions.Sites[copy.Swap.Ordinal].Instruction, $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
                 AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");
                 AssertEqual(ObjCharacterNativeWords.Of(transfer.FirstCharacter), cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");

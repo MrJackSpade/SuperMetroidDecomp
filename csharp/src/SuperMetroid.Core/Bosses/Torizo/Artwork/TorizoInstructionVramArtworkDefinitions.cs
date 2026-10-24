@@ -45,27 +45,6 @@ internal static class TorizoInstructionVramArtworkDefinitions
         new(TorizoInstructionTileRomData.ChozoDebrisSource,
             TorizoInstructionTileRomData.ChozoDebrisByteCount, "torizo-chozo-debris-tiles.png");
 
-    /// <summary>Mutually exclusive artwork roles in the installed manifest and content-hash order.</summary>
-    private enum PageRole
-    {
-        /// <summary>Characters shared by the death and recovery uploads.</summary>
-        SharedDeath,
-        /// <summary>Alternating statue crumble characters.</summary>
-        StatueCrumble,
-        /// <summary>Left-facing attack and death characters.</summary>
-        LeftAttack,
-        /// <summary>Right-facing attack and death characters.</summary>
-        RightAttack,
-        /// <summary>Golden Torizo's awakening characters.</summary>
-        GoldenAwakening,
-        /// <summary>Golden Torizo's alternate left attack characters.</summary>
-        GoldenLeftAttack,
-        /// <summary>Golden Torizo's alternate right attack characters.</summary>
-        GoldenRightAttack,
-        /// <summary>Bomb Torizo's PLM-uploaded Chozo debris characters.</summary>
-        ChozoDebris,
-    }
-
     /// <summary>Enumerates the eight tile pages in stable installed-manifest and hash order.</summary>
     internal static PageSequence All => default;
 
@@ -77,16 +56,16 @@ internal static class TorizoInstructionVramArtworkDefinitions
         /// <summary>Gets the sequence length for callers using array-style access.</summary>
         public int Length => Count;
         /// <summary>Gets the tile sheet assigned to a stable page-role index.</summary>
-        public TileSheetDefinition this[int index] => (PageRole)index switch
+        public TileSheetDefinition this[int index] => (TorizoTilePage)index switch
         {
-            PageRole.SharedDeath => SharedDeath,
-            PageRole.StatueCrumble => StatueCrumble,
-            PageRole.LeftAttack => LeftAttack,
-            PageRole.RightAttack => RightAttack,
-            PageRole.GoldenAwakening => GoldenAwakening,
-            PageRole.GoldenLeftAttack => GoldenLeftAttack,
-            PageRole.GoldenRightAttack => GoldenRightAttack,
-            PageRole.ChozoDebris => ChozoDebris,
+            TorizoTilePage.SharedDeath => SharedDeath,
+            TorizoTilePage.StatueCrumble => StatueCrumble,
+            TorizoTilePage.LeftAttack => LeftAttack,
+            TorizoTilePage.RightAttack => RightAttack,
+            TorizoTilePage.GoldenAwakening => GoldenAwakening,
+            TorizoTilePage.GoldenLeftAttack => GoldenLeftAttack,
+            TorizoTilePage.GoldenRightAttack => GoldenRightAttack,
+            TorizoTilePage.ChozoDebris => ChozoDebris,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Yields every required tile sheet in page-role order.</summary>

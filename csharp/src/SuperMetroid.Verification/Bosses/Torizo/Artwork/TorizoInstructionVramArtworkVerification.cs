@@ -23,7 +23,7 @@ internal static class TorizoInstructionVramArtworkVerification
     internal static void VerifyTorizoInstructionVramArtwork(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        AssertEqual(52, TorizoInstructionVramTransferDefinitions.All.Length,
+        AssertEqual(52, TorizoArtworkSwapDefinitions.All.Length,
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
         AssertTrue(stock.Bosses.TorizoInstructionVram is not null,
             "installed Torizo instruction tile pages exist");
@@ -34,10 +34,10 @@ internal static class TorizoInstructionVramArtworkVerification
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();
-        for (int transferIndex = 0; transferIndex < TorizoInstructionVramTransferDefinitions.All.Length; transferIndex++)
+        for (int transferIndex = 0; transferIndex < TorizoArtworkSwapDefinitions.All.Length; transferIndex++)
         {
-            TorizoTileTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.All[transferIndex];
-            ushort instruction = TorizoInstructionVramTransferDefinitions.Sites[transferIndex].Instruction;
+            TorizoArtworkSwapDefinition transfer = TorizoArtworkSwapDefinitions.All[transferIndex];
+            ushort instruction = TorizoArtworkSwapDefinitions.Sites[transferIndex].Instruction;
             AssertTrue(instruction > previousInstruction,
                 "Torizo transfer opcodes are distinct and sorted");
             previousInstruction = instruction;
@@ -127,10 +127,10 @@ internal static class TorizoInstructionVramArtworkVerification
         TorizoArtworkSwap goldenSwap = TorizoAnimations.Programs.Steps(TorizoBodyProgram.GoldenInitial0)
             .OfType<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.CueStep>().Select(step => step.Cue).OfType<TorizoCue.ShowArtwork>().First().Swap;
         int goldenUpload = goldenSwap.Ordinal;
-        AssertEqual(golden.SourceAddress, TorizoInstructionVramTransferDefinitions.All[goldenUpload].SourceAddress,
+        AssertEqual(golden.SourceAddress, TorizoArtworkSwapDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial swap shows its awakening sheet");
         ShowTorizoArtwork(editedEnemies, editedSlot, goldenSwap);
-        AssertEqual<ObjCharacterSource>(new TorizoTileTransferCharacters(goldenUpload),
+        AssertEqual<ObjCharacterSource>(new TorizoArtworkSwapCharacters(goldenUpload),
             editedEnemies.Room.Session.ObjCharacters.Uploads.Single().Source,
             "Golden Torizo's swap shows its installed transfer by entry");
         AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.ObjCharacters,

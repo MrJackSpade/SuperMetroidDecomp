@@ -36,6 +36,11 @@ public sealed class TorizoInstructionVramArtwork
         this.pages = [.. pages];
     }
 
+    /// <summary>The <paramref name="byteCount"/> installed characters of <paramref name="page"/> from byte <paramref name="pageByte"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The range leaves the page.</exception>
+    internal ReadOnlyMemory<byte> Characters(TorizoTilePage page, int pageByte, int byteCount) =>
+        pages[(int)page].Characters.Slice(pageByte, byteCount);
+
     /// <summary>Finds the selected bytes for a native upload range wholly contained in one tile page.</summary>
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> characters)

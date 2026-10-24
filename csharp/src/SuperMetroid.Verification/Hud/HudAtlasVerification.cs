@@ -1,4 +1,7 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -121,14 +124,17 @@ internal static class HudAtlasVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
         }
-        // The HUD's characters show as their bound artwork composes them; its four rows are the BG3 plane the frame latches.
+        // The HUD band the display renderer draws: the BG3 plane the frame latches, its characters as their bound artwork
+        // composes them.
         static Rgba32[] Render(SuperMetroidRuntime runtime)
         {
-            var shown = new SnesVram();
-            shown.LoadBytes(0, runtime.ComposedVram());
-            shown.ExecuteWordTransfer(runtime.FrameBoundary.CaptureLayer3Plane().Words[..(Layer3Plane.HudRows * Layer3Plane.Columns)],
-                GameplayVramLayoutConstants.HudTilemapWord, 1);
-            return SnesBgTilemapRenderer.Render2Bpp(shown, runtime.Cgram.AsPaletteColors(), GameplayVramLayoutConstants.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
+            Layer3Cells hud = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().Words, runtime.ComposedVram(),
+                runtime.Cgram.Colors);
+            var layer = new OrdinaryGameplayRenderLayer(new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
+                new Extent16<TilemapCells>(32, 32), ScreenLayers.Bg3), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });
+            Rgba32[] frame = DisplayRendering.Render(new LayeredScene(new FramePaint(runtime.Cgram.Colors, []),
+                new RenderLayer[] { layer }, FadeLevel.Full));
+            return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];
         }
     }
 }

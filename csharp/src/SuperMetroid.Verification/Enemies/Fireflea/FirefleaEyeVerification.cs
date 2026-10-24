@@ -55,7 +55,7 @@ internal static class FirefleaEyeVerification
         {
             var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray();
             var layer = new GameplayColorMathRenderLayer(objects, closed, false, new SceneBlend { Layers = actualDarkness.Blend.Layers, BlendsWithSubscreen = false, FixedColor = new Bgr555(darkness, darkness, darkness) });
-            var pixels = DisplayRendering.Render(new(memory, new RenderLayer[] { layer }, source.Brightness));
+            var pixels = DisplayRendering.Render(new LayeredScene(memory, new RenderLayer[] { layer }, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");
             AssertTrue(pixels.Any(pixel => pixel.R != 0 || pixel.G != 0 || pixel.B != 0),

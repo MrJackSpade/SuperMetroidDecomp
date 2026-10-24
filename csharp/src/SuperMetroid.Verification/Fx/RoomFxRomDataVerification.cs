@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks typed room-FX records, blend dispatch and renderable BG3 effects against native definitions.</summary>
 internal static class RoomFxRomDataVerification
@@ -149,7 +150,6 @@ internal static class RoomFxRomDataVerification
     private static void VerifyRoomLayer3FxTypes()
     {
         var bus = new TestAddressSpace();
-        var vram = new SnesVram();
         var cgram = new GameplayColours(new SpriteColourSets());
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
@@ -183,18 +183,16 @@ internal static class RoomFxRomDataVerification
             AssertTrue(!state.IsRenderable, $"{type} does not impersonate rain/fog BG3");
         }
 
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, stateSession, record, RoomFxType.Lava));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, stateSession, record, RoomFxType.Acid));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, stateSession, record, RoomFxType.Water));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, stateSession, record, RoomFxType.Rain));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, stateSession, record, RoomFxType.Fog));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Lava));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Acid));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Water));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Rain));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Fog));
     }
 
-    /// <summary>Renders a synthetic BG3 surface through the production compositor and checks source page, clipping and type-specific blend routing.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
+    /// <summary>Captures a synthetic BG3 effect and checks its surface, wave tables, hidden-surface sentinel and type-specific blend routing.</summary>
     private static void VerifyRenderableLayer3Fx(
         TestAddressSpace bus,
-        SnesVram vram,
         GameplayColours cgram,
         RoomFxSession session,
         ushort record,
@@ -260,78 +258,13 @@ internal static class RoomFxRomDataVerification
             AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
                 $"{type} anchors BG3 row zero immediately below surface Y 100");
 
-            // Give the liquid page one opaque two-bit tile and a visible blue color. The
-            // exact surface assertion proves the compositor leaves the air row untouched
-            // and applies the cartridge layer-three plane below it.
-            vram.ExecuteWordTransfer(
-                Enumerable.Repeat((ushort)1, 33 * 32).ToArray(),
-                RoomFxRomDataLayer3Constants.TilemapDestinationWord,
-                wordIncrement: 1);
-            var character = new byte[16];
-            for (int row = 0; row < 8; row++)
-                character[row * 2] = 0xff;
-            vram.LoadBytes((0x4000 + 8) * 2, character);
-            cgram.AsPaletteColors().SetColor(1, Bgr555.FromWord(0x7c00));
-        }
-        else
-        {
-            // Rain/fog write BG3SC=$5C and therefore address the second page as a
-            // standalone 32x32 tilemap. Give the ordinary $5800 page a red decoy and the
-            // real $5C00 page a blue source. This reproduces the former HUD-clone failure:
-            // indexing from $5800 sampled the first page and moved it with the effect.
-            vram.ExecuteWordTransfer(
-                Enumerable.Repeat((ushort)1, SnesPpuLayout.TilemapPageWordCount).ToArray(),
-                RoomFxRomDataLayer3Constants.LiquidTilemapBaseWord,
-                wordIncrement: 1);
-            vram.ExecuteWordTransfer(
-                Enumerable.Repeat((ushort)2, SnesPpuLayout.TilemapPageWordCount).ToArray(),
-                RoomFxRomDataLayer3Constants.FullScreenAtmosphereTilemapBaseWord,
-                wordIncrement: 1);
-            var redDecoyCharacter = new byte[16];
-            var blueEffectCharacter = new byte[16];
-            for (int row = 0; row < 8; row++)
-            {
-                redDecoyCharacter[row * 2] = 0xff;
-                blueEffectCharacter[row * 2 + 1] = 0xff;
-            }
-            vram.LoadBytes((0x4000 + 1 * 8) * 2, redDecoyCharacter);
-            vram.LoadBytes((0x4000 + 2 * 8) * 2, blueEffectCharacter);
-            cgram.AsPaletteColors().SetColor(1, Bgr555.FromWord(0x001f));
-            cgram.AsPaletteColors().SetColor(2, Bgr555.FromWord(0x7c00));
-            snapshot = snapshot with { Scroll = Position16<Bg3Pixels>.Zero };
-        }
-
-        // The software compositor now consumes the same typed dispatcher identity as the
-        // room loader. Rain and fog use different main/subscreen ownership in hardware even
-        // though both resolve to additive BG3 pixels, so neither pairing may be substituted.
-        var frame = new Rgba32[
-            DisplayScreen.Width * DisplayScreen.Height];
-        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-            frame, vram, cgram.AsPaletteColors(), snapshot);
-        if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
-        {
-            int above = 90 * DisplayScreen.Width + 20;
-            int below = 110 * DisplayScreen.Width + 20;
-            AssertEqual(new Rgba32(0, 0, 0, 0), frame[above],
-                $"{type} leaves pixels above its surface untouched");
-            AssertTrue(frame[below].B != 0,
-                $"{type} applies its visible BG3 color below the surface");
-
             // Negative liquid positions are the cartridge's deliberate "no visible
-            // surface" sentinel. Reuse the same known-opaque tile and palette so this
-            // assertion would fail if the signed boundary check regressed; an empty
-            // fixture could otherwise make a broken compositor look correct by accident.
-            var hiddenSurfaceFrame = new Rgba32[frame.Length];
-            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-                hiddenSurfaceFrame,
-                vram,
-                cgram.AsPaletteColors(),
-                snapshot with
+            // surface" sentinel: the capture shows no BG3 liquid plane at all.
+            AssertTrue(GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot with
                 {
                     Surface = new(0, ushort.MaxValue),
                     WaterSurfaceScreenY = -1,
-                });
-            AssertTrue(hiddenSurfaceFrame.All(pixel => pixel == default),
+                }, RoomBackgroundsFixtures.BlankBg3()) is null,
                 $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
             ushort[] bg2Scroll = type == RoomFxType.Water
@@ -372,24 +305,6 @@ internal static class RoomFxRomDataVerification
                     $"{type} heat wave rotates backward on frame four");
             }
         }
-        else
-        {
-            Rgba32 firstEffectPixel = frame[
-                DisplayScreen.HudHeight * DisplayScreen.Width];
-            AssertTrue(firstEffectPixel.B != 0 && firstEffectPixel.R == 0,
-                $"{type} samples the $5C00 effect page instead of the $5800 HUD page");
-
-            var wrappedFrame = new Rgba32[frame.Length];
-            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-                wrappedFrame,
-                vram,
-                cgram.AsPaletteColors(),
-                snapshot with { Scroll = snapshot.Scroll.WithY(0x0100) });
-            Rgba32 wrappedEffectPixel = wrappedFrame[
-                DisplayScreen.HudHeight * DisplayScreen.Width];
-            AssertTrue(wrappedEffectPixel.B != 0 && wrappedEffectPixel.R == 0,
-                $"{type} wraps vertical scroll within its 32-row $5C00 page");
-        }
         LayerBlendingConfiguration wrongBlend = type switch
         {
             RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.NormalGameplay,
@@ -408,11 +323,8 @@ internal static class RoomFxRomDataVerification
             _ => LayerBlendingConfiguration.Rain,
         };
         AssertThrows<InvalidDataException>(
-            () => SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-                frame,
-                vram,
-                cgram.AsPaletteColors(),
-                snapshot with { LayerBlendConfiguration = wrongBlend }),
+            () => GameplayEffectCapture.CaptureRoomLayer3Fx(
+                snapshot with { LayerBlendConfiguration = wrongBlend }, RoomBackgroundsFixtures.BlankBg3()),
             $"{type} rejects another FX type's layer-blending route");
     }
 

@@ -104,14 +104,25 @@ internal static class RoomBlockPicturesVerification
             for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
             {
                 var word = new SnesBgTilemapWord(sky.Words[row * SkyTilemap.Columns + x / CharacterPixels]);
-                AssertTrue(shown.TrySample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), out BgSample sample),
-                    $"{room.Name}: the sky shows row {row}");
-                SpriteSheetFrame picture = sample.Picture ?? throw new InvalidOperationException($"{room.Name}: the sky shows a tile at ({x}, {y}).");
-                AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, sample.PicturePixel);
+                AssertTrue(shown.RowsShown[row], $"{room.Name}: the sky shows row {row}");
+                (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
+                AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
             }
         }
         AssertTrue(rows > 0, $"{room.Name}'s sky shows rows");
         Console.WriteLine($"Room background images: {room.Name}'s sky painted its {rows} shown rows from their image.");
+    }
+
+    /// <summary>
+    /// The picture and its pixel a background image shows at (<paramref name="x"/>, <paramref name="y"/>) of its pages or
+    /// rows laid one above the next: a rebound 16x16 cell's own picture, otherwise the image's.
+    /// </summary>
+    private static (SpriteSheetFrame Picture, Position16<ImagePixels> Pixel) PictureAt(RoomBackgroundImagePlane image, int x, int y)
+    {
+        const int cell = 16;
+        return image.Cell(y / cell * (RoomBackgroundImage.PagePixels / cell) + x / cell) is { } picture
+            ? (picture, new Position16<ImagePixels>((ushort)(x % cell), (ushort)(y % cell)))
+            : (image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
     }
 
     /// <summary>
@@ -392,7 +403,6 @@ internal static class RoomBlockPicturesVerification
         ImmutableArray<ushort> words = (runtime.Room.Scope?.BackgroundImage
             ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.TilemapWords;
         // A 32x64 map lays the two pages out one above the other, as the image does.
-        IBgSource shown = plane.At(new Extent16<TilemapCells>(RoomBackgroundImage.PageTiles, RoomBackgroundImage.Pages * RoomBackgroundImage.PageTiles));
         for (int y = 0; y < RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels; y++)
         for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
         {
@@ -406,11 +416,9 @@ internal static class RoomBlockPicturesVerification
             int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1
                 | (bytes[address + 16] >> bit & 1) << 2 | (bytes[address + 17] >> bit & 1) << 3;
             int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-            AssertTrue(shown.TrySample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), out BgSample sample),
-                $"{where}: the background shows ({x}, {y})");
-            SpriteSheetFrame picture = sample.Picture ?? throw new InvalidOperationException($"{where}: the background shows a tile at ({x}, {y}).");
+            (SpriteSheetFrame picture, Position16<ImagePixels> picturePixel) = PictureAt(plane, x, y);
             SpriteImage sheet = picture.Sheet;
-            int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
+            int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
             AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || ((sheet.Inks[pixel].Priority != 0) == word.HasPriority
                     && sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32())),
                 $"{where}: the background paints index {sheet.Inks[pixel].PaletteIndex} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
@@ -549,15 +557,36 @@ internal static class RoomBlockPicturesVerification
             int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
                 | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
             int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-            AssertTrue(reveal.TrySample(new Position16<BgPlanePixels>((ushort)(column * 16 + x), (ushort)(row * 16 + y)), out BgSample sample),
-                $"{where}: the reveal shows block ({column}, {row})");
-            SpriteSheetFrame picture = sample.Picture ?? throw new InvalidOperationException($"{where}: the reveal shows a tile, not a picture.");
+            RevealedBlock block = reveal.Blocks[row * XrayTilemapLayout.MetatileColumns + column]
+                ?? throw new InvalidOperationException($"{where}: the reveal shows no block at ({column}, {row}).");
+            SpriteSheetFrame picture = reveal.Pictures.Picture(block.Definition)
+                ?? throw new InvalidOperationException($"{where}: the reveal's block definition {block.Definition} has no picture.");
+            Position16<ImagePixels> picturePixel = ArrangedPixel(block.Arrangement, x, y);
             SpriteImage sheet = picture.Sheet;
-            int pixel = (picture.Corner.Y + sample.PicturePixel.Y) * sheet.Size.X + picture.Corner.X + sample.PicturePixel.X;
+            int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
             AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority)
                 && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32()),
                 $"{where}: reveal block ({column}, {row}) pixel ({x}, {y}) paints index {sheet.Inks[pixel].PaletteIndex} where its tile ${word.Raw:X4} paints {expected}");
         }
+    }
+
+    /// <summary>
+    /// The pixel of a block definition's picture a revealed block shows at (<paramref name="x"/>, <paramref name="y"/>) of
+    /// its 16x16 square, laid out by <paramref name="arrangement"/>.
+    /// </summary>
+    private static Position16<ImagePixels> ArrangedPixel(RevealedBlockArrangement arrangement, int x, int y)
+    {
+        const int side = RoomBlockSheet.BlockPixels;
+        if (!Enum.IsDefined(arrangement))
+            throw new InvalidDataException($"Unknown revealed block arrangement {arrangement}.");
+        if (arrangement is RevealedBlockArrangement.MirroredHorizontally or RevealedBlockArrangement.MirroredBoth)
+            x = side - 1 - x;
+        if (arrangement is RevealedBlockArrangement.MirroredVertically or RevealedBlockArrangement.MirroredBoth)
+            y = side - 1 - y;
+        // Swapped rows show the lower tile row on top; neither row is flipped.
+        if (arrangement == RevealedBlockArrangement.RowsSwapped)
+            y = (y + side / 2) % side;
+        return new Position16<ImagePixels>((ushort)x, (ushort)y);
     }
 
     /// <summary>Bytes per block definition.</summary>

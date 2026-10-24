@@ -80,8 +80,8 @@ internal static class RidleyAcidVerification
             var plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
             var effect = GameplayEffectCapture.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
                 Layer3CellsFixtures.FromWords(plane.Words, runtime.ComposedVram(), memory.Colors));
-            var baseline = DisplayRendering.Render(new(memory, [], 15));
-            var actual = DisplayRendering.Render(new(memory,
+            var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
+            var actual = DisplayRendering.Render(new LayeredScene(memory,
                 effect is null ? [] : new RenderLayer[] { effect }, 15));
             AssertEqual(expectedVisible, !actual.SequenceEqual(baseline), "acid visibility at lower-arena camera");
             AssertTrue(actual.Take(32 * 256).SequenceEqual(baseline.Take(32 * 256)), "acid does not overwrite HUD");

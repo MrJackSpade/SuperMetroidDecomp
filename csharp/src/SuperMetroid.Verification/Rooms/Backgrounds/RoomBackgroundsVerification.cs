@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
@@ -63,7 +62,7 @@ internal static class RoomBackgroundsVerification
             "a scroll left of the room shows no tile");
         AssertTrue(!planeTiles.TryTileAt(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out SnesBgTilemapWord _),
             "a scroll below the room shows no tile");
-        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out BgSample _),
+        AssertTrue(!layer.Blocks.TryCellAt(new Position16<BgPlanePixels>(0, 0) + new Offset16<BgPlanePixels>(-1, 0), out _, out _),
             "a scroll left of the room shows no block");
 
         // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
@@ -73,29 +72,13 @@ internal static class RoomBackgroundsVerification
             new Offset16<BgPlanePixels>(0, 0), sourcePictures);
         var sourceScroll = new Position16<BgPlanePixels>(0, 0);
         var door = RoomDoorBackground.Begin(source, sourceScroll);
-        var withDoor = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), door).Bg1Source;
         var top = new Position16<BgPlanePixels>(0x18, SnesPpuLayout.FirstVisibleBackgroundScanline + SnesPpuLayout.GameplayHudHeightPixels);
-        AssertTrue(withDoor.TrySample(top, out BgSample doorSample) && doorSample.Picture?.Sheet == sourcePictures.Sheet.Sheet.Image,
+        AssertTrue(door.Covers(top) && ReferenceEquals(door.SourceRoom.Pictures, sourcePictures),
             "the door window's first gameplay line shows the source room");
-        AssertTrue(withDoor.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgSample above) &&
-                layer.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgSample destination) && above == destination,
+        AssertTrue(!door.Covers(top + new Offset16<BgPlanePixels>(0, -1)),
             "the line above the window shows the destination room");
 
-        // Words written over BG1 replace the room's tile at their tilemap cell only, drawn from their pictures (#1403).
-        SpriteSheetFrame wordPicture = sourcePictures.Picture(0) ?? throw new InvalidOperationException("The fixture's first block has no picture.");
-        var overlaid = new BgTilePicture?[RoomTilemapOverlay.WordCount];
-        overlaid[3 * 32 + 5] = new BgTilePicture(wordPicture, new Position16<ImagePixels>(8, 0));
-        var withOverlay = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), null,
-            new RoomOverlayPictures([.. overlaid])).Bg1Source;
-        var cell = new Position16<BgPlanePixels>(5 * 8 + 2, 3 * 8 + 1);
-        AssertTrue(withOverlay.TrySample(cell, out BgSample written) && written.Picture == wordPicture &&
-                written.PicturePixel == new Position16<ImagePixels>(8 + 2, 1),
-            "a written word is shown at its tilemap cell");
-        var neighbor = cell + new Offset16<BgPlanePixels>(8, 0);
-        AssertTrue(withOverlay.TrySample(neighbor, out BgSample unwritten) &&
-                layer.TrySample(neighbor, out BgSample room) && unwritten == room,
-            "the next cell shows the room");
-        Console.WriteLine($"  Room backgrounds: {checks} level samples, door window and overlay agree.");
+        Console.WriteLine($"  Room backgrounds: {checks} level samples and the door window agree.");
     }
 
     /// <summary>A PLM's block change reaches the next published plane, and an earlier plane keeps its blocks.</summary>

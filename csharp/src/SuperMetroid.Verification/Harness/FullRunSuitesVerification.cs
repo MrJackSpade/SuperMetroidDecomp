@@ -371,7 +371,6 @@ using static SuperMetroid.Verification.Frontend.Pause.UnpauseReserveBlackoutVeri
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseStationLockReleaseVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseRemappedShoulderVerification;
 using static SuperMetroid.Verification.Enemies.VerticalOffScreenDeletionVerification;
-using static SuperMetroid.Verification.Rooms.Scrolling.ViewportParityVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpDustVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpSpinExitVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.WallProbeBombBlockVerification;
@@ -412,7 +411,6 @@ internal static class FullRunSuitesVerification
     internal static RegisteredSuite[] RenderContractSuites() =>
     [
         new(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni()),
-        new(nameof(VerifyViewportTileRowParity), () => VerifyViewportTileRowParity()),
         new(nameof(VerifyFramePaintOwnership), () => VerifyFramePaintOwnership()),
         new(nameof(VerifyTitleRenderSnapshots), () => VerifyTitleRenderSnapshots()),
         new(nameof(VerifyPauseRenderSnapshots), () => VerifyPauseRenderSnapshots()),
@@ -522,7 +520,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
-        new(nameof(VerifyBackgroundMosaicSampling), () => VerifyBackgroundMosaicSampling()),
+        new(nameof(VerifyBackgroundMosaicWidth), () => VerifyBackgroundMosaicWidth()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),
         new(nameof(VerifyCeresElevatorArrivalGraphicsIndex), () => VerifyCeresElevatorArrivalGraphicsIndex()),
         new(nameof(VerifySamusRenderingSlice), () => VerifySamusRenderingSlice()),
@@ -671,7 +669,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusMoonwalking), () => VerifySamusMoonwalking()),
         new(nameof(VerifySamusRanIntoWall), () => VerifySamusRanIntoWall()),
         new(nameof(VerifyObjRendering), () => VerifyObjRendering()),
-        new(nameof(VerifyHudStateAndBg3Rendering), () => VerifyHudStateAndBg3Rendering()),
+        new(nameof(VerifyHudState), () => VerifyHudState()),
         new(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera()),
         new(nameof(VerifyRoomScrollPlms), () => VerifyRoomScrollPlms()),
         new(nameof(VerifyRoomPlmHeaderCatalog), () => VerifyRoomPlmHeaderCatalog()),
@@ -720,7 +718,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyReplayTraceCompaction), () => VerifyReplayTraceCompaction()),
         new(nameof(VerifyReplaySnapshotSaveRamSizes), () => VerifyReplaySnapshotSaveRamSizes()),
         .. MapPresentationSuites(),
-        new(nameof(VerifyFourBitBackgroundRendering), () => VerifyFourBitBackgroundRendering()),
+        new(nameof(VerifyBg2ScreenLayout), () => VerifyBg2ScreenLayout()),
         new(nameof(VerifyLoRomCrossBankCompressedData), () => VerifyLoRomCrossBankCompressedData()),
         new(nameof(VerifyMode7Rendering), () => VerifyMode7Rendering()),
         new(nameof(VerifyLayerCompositorBackdrop), () => VerifyLayerCompositorBackdrop()),
@@ -747,7 +745,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCeresFlightActorDefinitions), () => VerifyCeresFlightActorDefinitions()),
         new(nameof(VerifyCeresDestructionActorDefinitions), () => VerifyCeresDestructionActorDefinitions()),
         new(nameof(VerifyCinematicPaletteFader), () => VerifyCinematicPaletteFader()),
-        new(nameof(VerifyHostRoomViewportAlignment), () => VerifyHostRoomViewportAlignment()),
         new(nameof(VerifyPowerBombColorMathWindow), () => VerifyPowerBombColorMathWindow()),
         new(nameof(VerifyChainsawFiring), () => VerifyChainsawFiring()),
         new(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam()),

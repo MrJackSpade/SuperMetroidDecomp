@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Globalization;
@@ -329,15 +330,8 @@ internal static class RoomFxRetailInventoryVerification
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
-            Layer3PlaneFixtures.WriteEffectPlane(vram, actual);
-            var hiddenFrame = new Rgba32[
-                DisplayScreen.Width * DisplayScreen.Height];
-            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-                hiddenFrame,
-                vram,
-                cgram.AsPaletteColors(),
-                hiddenSnapshot);
-            AssertTrue(hiddenFrame.All(pixel => pixel == default),
+            Rgba32[] hiddenFrame = RenderRoomFx(vram, cgram, hiddenSnapshot, EffectPlane(actual));
+            AssertTrue(hiddenFrame.SequenceEqual(RenderRoomFxBackdrop(cgram)),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} negative liquid surface is visually absent");
             return audit;
@@ -363,15 +357,8 @@ internal static class RoomFxRetailInventoryVerification
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} visible liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
-            Layer3PlaneFixtures.WriteEffectPlane(vram, actual);
-            var visibleFrame = new Rgba32[
-                DisplayScreen.Width * DisplayScreen.Height];
-            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-                visibleFrame,
-                vram,
-                cgram.AsPaletteColors(),
-                visibleSnapshot);
-            AssertTrue(visibleFrame.Any(pixel => pixel != default),
+            Rgba32[] visibleFrame = RenderRoomFx(vram, cgram, visibleSnapshot, EffectPlane(actual));
+            AssertTrue(!visibleFrame.SequenceEqual(RenderRoomFxBackdrop(cgram)),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} visibly composes {expectedType}");
         }
@@ -445,21 +432,22 @@ internal static class RoomFxRetailInventoryVerification
         RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
         // The BG3 plane the room shows under a blank HUD: the lava page its effect chose (#1348).
-        Layer3Plane plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
+        Layer3Plane plane = EffectPlane(fx);
         Rgba32[] first = RenderRoomFx(vram, cgram, firstSnapshot, plane);
+        Rgba32[] backdrop = RenderRoomFxBackdrop(cgram);
         int surfaceFirstRow = firstSnapshot.WaterSurfaceScreenY -
             (SnesPpuLayout.BackgroundTileSizePixels - 1);
         Rgba32[] firstSurface = ReadRows(
             first,
             surfaceFirstRow,
             firstSnapshot.WaterSurfaceScreenY + 1);
-        AssertTrue(firstSurface.Any(pixel => pixel != default),
+        AssertTrue(!firstSurface.SequenceEqual(ReadRows(backdrop, surfaceFirstRow, firstSnapshot.WaterSurfaceScreenY + 1)),
             "room $02/$01 renders the animated lava surface through its production compositor");
-        AssertTrue(ReadRows(
+        AssertTrue(!ReadRows(
                 first,
                 firstSnapshot.WaterSurfaceScreenY + 1,
                 firstSnapshot.WaterSurfaceScreenY + 9)
-            .Any(pixel => pixel != default),
+            .SequenceEqual(ReadRows(backdrop, firstSnapshot.WaterSurfaceScreenY + 1, firstSnapshot.WaterSurfaceScreenY + 9)),
             "room $02/$01 renders the lava body below its surface");
 
         for (int frame = 0;
@@ -482,20 +470,29 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$01 lava surface advances to the next bank-$87 animation frame");
     }
 
-    /// <summary>Composes a captured BG3 FX layer with its current VRAM image and CGRAM for visible-surface comparisons.</summary>
+    /// <summary>
+    /// The frame the display renderer draws of a captured BG3 FX layer alone over the backdrop, with its current VRAM image
+    /// and colours, for visible-surface comparisons.
+    /// </summary>
     private static Rgba32[] RenderRoomFx(
         SnesVram vram,
         GameplayColours cgram,
         RoomLayer3FxRenderSnapshot snapshot,
         Layer3Plane plane)
     {
-        var frame = new Rgba32[
-            DisplayScreen.Width * DisplayScreen.Height];
-        if (GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
-                Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram).Bytes, cgram.Colors)) is { } layer)
-            SoftwareBgColorMathRenderer.Composite(frame, cgram.AsPaletteColors(), layer);
-        return frame;
+        FxPlaneBlendRenderLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
+            Layer3CellsFixtures.FromWords(plane.Words, BgArtworkFixtures.ComposedVram(vram).Bytes, cgram.Colors));
+        return DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []),
+            layer is null ? [] : new RenderLayer[] { layer }, FadeLevel.Full));
     }
+
+    /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>
+    private static Rgba32[] RenderRoomFxBackdrop(GameplayColours cgram) =>
+        DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), [], FadeLevel.Full));
+
+    /// <summary>The BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348).</summary>
+    private static Layer3Plane EffectPlane(RoomLayer3FxState fx) =>
+        Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
 
     /// <summary>Copies a vertical frame band so the audit can compare the animated liquid boundary.</summary>
     private static Rgba32[] ReadRows(Rgba32[] frame, int firstRow, int endRow) =>
@@ -661,17 +658,15 @@ internal static class RoomFxRetailInventoryVerification
 
         AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, fxSession.AnimatedTileArtwork
             ?? throw new InvalidOperationException("The retail FX session has no animated tiles."), AnimatedTileObject.Lava);
-        Layer3PlaneFixtures.WriteEffectPlane(vram, fx);
+        Layer3Plane finalPlane = EffectPlane(fx);
         RoomLayer3FxRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
                 $"Room {definition.Room} rising lava published no final snapshot.");
         AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= DisplayScreen.HudHeight and
                 < DisplayScreen.Height,
             $"room {definition.Room} risen lava enters the gameplay viewport");
-        var frame = new Rgba32[
-            DisplayScreen.Width * DisplayScreen.Height];
-        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram.AsPaletteColors(), finalSnapshot);
-        AssertTrue(frame.Any(pixel => pixel != default),
+        Rgba32[] frame = RenderRoomFx(vram, cgram, finalSnapshot, finalPlane);
+        AssertTrue(!frame.SequenceEqual(RenderRoomFxBackdrop(cgram)),
             $"room {definition.Room} risen lava is visibly composed");
     }
 
@@ -882,17 +877,12 @@ internal static class RoomFxRetailInventoryVerification
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
         fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, hiddenRoom.State.Fx, door: null, randomNumber: 0);
-        Layer3PlaneFixtures.WriteEffectPlane(vram, fx);
+        Layer3Plane hiddenPlane = EffectPlane(fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
-        var frame = new Rgba32[
-            DisplayScreen.Width * DisplayScreen.Height];
-        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
-            frame,
-            vram,
-            cgram.AsPaletteColors(),
-            (fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")));
-        AssertTrue(frame.All(pixel => pixel == default),
+        Rgba32[] frame = RenderRoomFx(vram, cgram,
+            (fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")), hiddenPlane);
+        AssertTrue(frame.SequenceEqual(RenderRoomFxBackdrop(cgram)),
             "transition to $FFFF heat FX cannot carry visible lava from the source room");
     }
 

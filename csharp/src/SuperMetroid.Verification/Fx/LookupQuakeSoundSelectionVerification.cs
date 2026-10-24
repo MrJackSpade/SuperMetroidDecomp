@@ -27,7 +27,7 @@ internal static class LookupQuakeSoundSelectionVerification
             AssertEqual(ReadVerificationWord(rom, 0x88b256 + 4 * originalIndex),
                 (ushort)sound.SoundEffect.Value, "Original sound identity including terminator restart");
             AssertEqual(SoundEffectLibrary.Library2, sound.SoundEffect.Library, "Native QueueSound_Lib2_Max6 library");
-            AssertEqual(6, sound.MaximumQueued, "Native queue capacity");
+            AssertEqual(6, sound.MaximumQueued.Requests, "Native queue capacity");
             AssertEqual(originalIndex + 1, state.EarthquakeSoundSequenceIndex, "Next chronological index after selection");
         }
     }

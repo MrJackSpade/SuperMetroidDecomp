@@ -89,8 +89,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         if (source.AttractDemo.IsAttractDemo)
             return;
         foreach (var request in source.Room.LoadedScope.Layer3Fx.SoundRequests)
-            session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            session.audio.QueueSoundAndGetAccumulator(request);
     }
 
     /// <summary>Collects only enemy and Samus audio emitted during the door music-wait pass.</summary>
@@ -99,14 +98,12 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // This coroutine completes no ordinary gameplay publication. Only the
         // owners run by its enemy/draw pass may refill the rings before the test.
         foreach (SoundRequest request in source.Room.LoadedScope.Enemies.Audio.SoundRequests)
-            session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            session.audio.QueueSoundAndGetAccumulator(request);
         foreach (DelayedMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
             session.audio.QueueMusicDelayed(request.Request, request.Delay);
         if (source.Player.Samus is { } samus)
             foreach (SoundRequest request in samus.LiquidPhysics.SoundRequests)
-                session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                    soundSuppressed: request.SoundSuppressed);
+                session.audio.QueueSoundAndGetAccumulator(request);
     }
 
     /// <summary>

@@ -23,15 +23,13 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         while (roomSounds < room.Count)
         {
             var request = room[roomSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSoundAndGetAccumulator(request);
         }
         var palette = runtime.Room.LoadedScope.PaletteFx.SoundRequests;
         while (paletteSounds < palette.Count)
         {
             var request = palette[paletteSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSoundAndGetAccumulator(request);
         }
         var music = runtime.Room.LoadedScope.PaletteFx.MusicRequests;
         while (paletteMusic < music.Count)
@@ -53,8 +51,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         while (liquidSounds < liquid.Count)
         {
             var request = liquid[liquidSounds++];
-            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSoundAndGetAccumulator(request);
         }
     }
 

@@ -28,7 +28,7 @@ internal static class PhantoonReport1196Verification
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued.Requests);
         // The handshake rewrites a request each update until the driver echoes it ($82:8A55), so
         // the CPU writes it twice; the driver starts a sound only on a changed latch, so count the
         // sound starts the session publishes.
@@ -42,7 +42,7 @@ internal static class PhantoonReport1196Verification
             "opening blue flame starts native sound 1D in library three once");
         AssertEqual(0, starts.Count(sound => sound == new SoundEffectId(SoundEffectLibrary.Library2, 0x1d)),
             "opening flame never starts materialization-library 1D");
-        AssertEqual(6, enemies.Audio.SoundRequests.Single().MaximumQueued, "opening flame uses native Max6");
+        AssertEqual(6, enemies.Audio.SoundRequests.Single().MaximumQueued.Requests, "opening flame uses native Max6");
         Suite(nameof(VerifyPhantoonFlameSound), () => VerifyPhantoonFlameSound());
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");
     }

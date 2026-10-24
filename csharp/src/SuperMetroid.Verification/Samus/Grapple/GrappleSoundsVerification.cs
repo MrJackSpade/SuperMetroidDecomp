@@ -50,7 +50,7 @@ internal static class GrappleSoundsVerification
         {
             var audio = new AudioQueues();
             audio.AdvanceFrame(default);
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued.Requests);
             AssertEqual(AudioRequest.ForSound(SoundEffectLibrary.Library1, request.SoundEffect.Value),
                 audio.AdvanceFrame(default).Single(), "grapple command reaches the actual APU sound port");
         }

@@ -52,10 +52,10 @@ internal static class SpeedBoosterEchoStopVerification
                 if (request.SoundEffect.Library == SoundEffectLibrary.Library3 && request.SoundEffect.Value == 0x25)
                 {
                     AssertEqual(40, frame, "echo stop occurs on the wall-cancellation frame");
-                    AssertEqual(15, request.MaximumQueued, "echo stop uses native Max15");
+                    AssertEqual(15, request.MaximumQueued.Requests, "echo stop uses native Max15");
                     stopRequests++;
                 }
-                queue.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
+                queue.QueueSoundAndGetAccumulator(request);
             }
             var commands = queue.AdvanceFrame(renderer.Acknowledgements);
             foreach (AudioRequest command in commands)

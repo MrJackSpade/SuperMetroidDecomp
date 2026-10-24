@@ -80,7 +80,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
                 request.SoundEffect == SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,
                     0x06) &&
-                request.MaximumQueued == 1),
+                request.MaximumQueued.Requests == 1),
             "first handler pass queues crumble sound six with cartridge maximum one");
 
         for (int frame = 0; frame < 80 && plms.SlotTable.ActiveCount != 0; frame++)

@@ -237,6 +237,10 @@ public sealed class AudioQueues
     public void QueueSound(SoundEffectId soundEffect, int maximumQueued)
         => QueueSoundAndGetAccumulator(soundEffect, maximumQueued);
 
+    /// <summary>Queues <paramref name="request"/> and returns the accumulator its queue call leaves (see the overload taking the request's parts).</summary>
+    public ushort QueueSoundAndGetAccumulator(SoundRequest request) =>
+        QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued.Requests, request.SoundSuppressed);
+
     /// <summary>
     /// Executes bank $80's sound-queue call and returns its native accumulator.
     /// Queue-threshold rejection returns sound in the high byte and occupancy

@@ -645,7 +645,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     byte expectedHurtCry = unchecked((byte)ripper.Definition.HurtSoundEffect);
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
         request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
-        request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3);
+        request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued.Requests == 3);
     for (int hit = 0; hit < 2; hit++)
     {
         ArmProjectile(shot, ripper, type: 0x0200, damage: 100);
@@ -653,7 +653,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
-            request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3),
+            request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued.Requests == 3),
             "common shot queues header low-byte cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");

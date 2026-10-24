@@ -49,7 +49,7 @@ internal static class EndingExplosionSlotOrderVerification
         AssertTrue(actual.SpriteParts().All(part => part.Part.Priority == 0), "live flyaway actors use native priority zero");
         var fixedWhite = snapshot.LayersOf<FixedColorAddRenderLayer>().Single();
         RenderLayer[] order = [fixedWhite, new ObjRenderLayer(FixedColor: fixedWhite), background];
-        var nativePixels = DisplayRendering.Render(new(actual, order, snapshot.Brightness));
+        var nativePixels = DisplayRendering.Render(new LayeredScene(actual, order, snapshot.Brightness));
         var actualPixels = ending.Render();
 
         AssertTrue(actualPixels.SequenceEqual(nativePixels),

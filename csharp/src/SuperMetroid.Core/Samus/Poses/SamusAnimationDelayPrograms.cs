@@ -273,10 +273,9 @@ internal static class SamusAnimationDelayPrograms
         (offset, earlier) =>
             new(offset, delays, SamusAnimationCommand.ItemAirborneTransition, new SamusAnimationTransition { Item = item, UnequippedGrounded = unequippedGrounded, UnequippedAirborne = unequippedAirborne, EquippedGrounded = equippedGrounded, EquippedAirborne = equippedAirborne });
 
-    /// <summary>Encodes the byte at a window position inside the programs.</summary>
-    internal static byte ByteAt(int position)
+    /// <summary>Encodes the byte <paramref name="streamOffset"/> bytes into the programs.</summary>
+    internal static byte ByteAt(int streamOffset)
     {
-        int streamOffset = position - SamusAnimationDelayDefinitions.StreamStart;
         int low = 0;
         int high = segments.Length - 1;
         while (low < high)

@@ -33,7 +33,9 @@ public static class SamusOverreadFiles
             Range(cartridge, SamusOverreadSourceDefinitions.HudPrecedingPostureBytes, SamusOverreadDefinitions.HudPrecedingPostureByteCount),
             Range(cartridge, SamusOverreadSourceDefinitions.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount),
             TrailOverruns(cartridge, lists),
-            lists.Positions.ToDictionary(position => position.Key.ToString(), position => position.Value));
+            lists.Positions.ToDictionary(position => position.Key.ToString(), position => position.Value),
+            new SamusAnimationWindows(SamusCartridgeTables.ChargeFlarePrograms & ushort.MaxValue,
+                SamusCartridgeTables.PoseDelayPrograms & ushort.MaxValue, SamusCartridgeTables.RunningCadences & ushort.MaxValue));
         byte[] bytes = SamusOverreadCatalog.Write(document);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.ManifestFileName),

@@ -139,6 +139,7 @@ internal static class InstalledFixtures
         samus.Presentation.SuitColors = Maps.SamusSuitColors;
         samus.Presentation.FullBodyCycleColors = Maps.SamusFullBodyCycleColors;
         samus.Presentation.ChargeColors = Maps.SamusChargeColors;
+        samus.Presentation.AnimationWindows = SamusOverreads.AnimationWindows;
         samus.VisorPalette.PresentationColors = Maps.SamusVisorColors;
         samus.Xray.PresentationColors = Maps.SamusVisorColors;
         samus.Drained.PresentationColors = Maps.SamusHyperBeamColors;

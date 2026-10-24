@@ -81,6 +81,7 @@ public sealed class SamusProjectileSystem
         {
             field = value;
             Trails.Overreads = value;
+            Animation.Overreads = value;
         }
     }
 

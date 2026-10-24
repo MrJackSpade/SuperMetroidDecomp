@@ -6,6 +6,15 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTables
 {
+    /// <summary>$91:B20A, where Samus's pose delay programs start, after the pose pointer table.</summary>
+    internal const int PoseDelayPrograms = 0x91b20a;
+
+    /// <summary>$91:B5D1, where the running cadences start: the word naming the ordinary stream.</summary>
+    internal const int RunningCadences = 0x91b5d1;
+
+    /// <summary>$90:C487, where the charge flare's delay programs start.</summary>
+    internal const int ChargeFlarePrograms = 0x90c487;
+
     /// <summary>$90:C204, where the firing tables <see cref="SuperMetroid.Core.Samus.Projectiles.SamusFiringTables"/> lays out start.</summary>
     internal const int FiringTables = 0x90c204;
 

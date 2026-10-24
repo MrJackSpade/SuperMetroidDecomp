@@ -44,6 +44,9 @@ internal sealed class SamusPresentation
     [field: NonSerialized]
     public SamusSuitColorCatalog? SuitColors { get; set; }
 
+    /// <summary>Where the animation regions sit in their banks, which a restored index reading past its program needs.</summary>
+    public SamusAnimationWindows? AnimationWindows { get; set; }
+
     /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
     public SamusFullBodyCycleColorCatalog? FullBodyCycleColors { get; set; }
@@ -249,8 +252,8 @@ internal sealed class SamusPresentation
             byte runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
-                    ? samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame)
-                    : ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame)
+                    ? samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame, samus.Presentation.AnimationWindows)
+                    : ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame, samus.Presentation.AnimationWindows)
                 : delayOrCommand;
             samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameBuffer + runningOrPoseDelay)));
             return;
@@ -289,7 +292,7 @@ internal sealed class SamusPresentation
             {
                 samus.AnimationFrame = 0;
                 samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
-                    samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, byteIndex: 0))));
+                    samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, byteIndex: 0, windows: null))));
                 return;
             }
         }
@@ -449,18 +452,20 @@ internal sealed class SamusPresentation
 
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
     private static byte ReadAnimationByte(SamusState samus, int byteIndex) =>
-        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex);
+        SamusAnimationDelayDefinitions.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex, samus.Presentation.AnimationWindows);
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
     /// Cadence and command position are compiled mechanics; displayed artwork is separate.
     /// </summary>
-    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, int byteIndex)
+    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, int byteIndex,
+        SamusAnimationWindows? windows)
     {
         return SamusRunningCadenceDefinitions.ReadAnimationByte(
             mode7Residue,
             SamusRunningCadence.Ordinary,
-            byteIndex);
+            byteIndex,
+            windows);
     }
 
     /// <summary>

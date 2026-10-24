@@ -13,17 +13,30 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// frames, and reset zero aliases pose0's direction/movement bytes. Its delay remains
 /// mutable WRAM. Wrapped restored indices may reach other compiled catalog bytes or
 /// the low bank; unrelated upper-bank code stays rejected. No stored table remains.
+/// The cadences are read by offset into their region; a read leaving it finds the region's place in the bank's 16-bit
+/// window, and the words naming each stream, in the installed <see cref="SamusAnimationWindows"/> (#1411).
 /// </remarks>
 internal static class SamusRunningCadenceDefinitions
 {
-    /// <summary>$91:B5D3 AnimationDelayTable_Running_NoSpeedBooster, eleven cadence/command bytes.</summary>
-    private const int OrdinaryDelays = 0x91b5d3;
-    /// <summary>$91:B5DE AnimationDelayTable_Running_SpeedBooster_pointers: the five words naming each stage's stream.</summary>
-    private const int StageStreamTable = 0x91b5de;
-    /// <summary>$91:B5E8..B61E AnimationDelayTable_Running_SpeedBooster_0..4, five eleven-byte cadence streams.</summary>
-    private const int BoostDelays = 0x91b5e8;
-    /// <summary>$91:B61F SpeedBoostTimerResetValues: stages zero through three reset to one, stage four to two.</summary>
-    private const int ResetWords = 0x91b61f;
+    /// <summary>AnimationDelayTable_Running_NoSpeedBooster_pointer, the region's first word: the word naming the ordinary stream.</summary>
+    private const int OrdinaryStreamWord = 0;
+    /// <summary>AnimationDelayTable_Running_NoSpeedBooster: eleven cadence/command bytes.</summary>
+    private const int OrdinaryDelays = 2;
+    /// <summary>AnimationDelayTable_Running_SpeedBooster_pointers: the five words naming each stage's stream.</summary>
+    private const int StageStreamTable = 13;
+    /// <summary>AnimationDelayTable_Running_SpeedBooster_0..4, five eleven-byte cadence streams.</summary>
+    private const int BoostDelays = 23;
+    /// <summary>SpeedBoostTimerResetValues: stages zero through three reset to one, stage four to two.</summary>
+    private const int ResetWords = 78;
+    /// <summary>
+    /// The two zero bytes after the reset words, read when the native echo-sound call returns admitted queue occupancy five
+    /// and the reset lookup crosses into pose zero.
+    /// </summary>
+    private const int SoundQueueStageFiveReset = 88;
+    /// <summary>The bytes the region fills, from the ordinary stream's word to the stage-five reset word.</summary>
+    private const int RegionByteCount = 90;
+    /// <summary>Where stage five's stream starts: window position $0303, in the floor update residue the bank's low half aliases.</summary>
+    private const int SoundQueueClobberStart = 0x0303;
     /// <summary>Each native running cadence stream has ten frames followed by the $FF loop instruction.</summary>
     private const int StreamLength = 11;
     /// <summary>
@@ -45,14 +58,15 @@ internal static class SamusRunningCadenceDefinitions
             $"Speed Booster sound-queue selection {selection} exceeds the native Max6 result domain."),
     };
 
-    /// <summary>Where a cadence's stream starts in the 16-bit window a wrapped frame index reads.</summary>
-    private static ushort StreamStart(SamusRunningCadence cadence) => cadence switch
+    /// <summary>Where a compiled cadence's stream starts in the region.</summary>
+    private static int StreamOffset(SamusRunningCadence cadence) => cadence switch
     {
-        SamusRunningCadence.Ordinary => unchecked((ushort)OrdinaryDelays),
+        SamusRunningCadence.Ordinary => OrdinaryDelays,
         SamusRunningCadence.BoostStage0 or SamusRunningCadence.BoostStage1 or SamusRunningCadence.BoostStage2 or
             SamusRunningCadence.BoostStage3 or SamusRunningCadence.BoostStage4 =>
-            unchecked((ushort)(BoostDelays + (cadence - SamusRunningCadence.BoostStage0) * StreamLength)),
-        SamusRunningCadence.SoundQueueClobber => 0x0303,
+            BoostDelays + (cadence - SamusRunningCadence.BoostStage0) * StreamLength,
+        SamusRunningCadence.SoundQueueClobber => throw new ArgumentOutOfRangeException(
+            nameof(cadence), cadence, "Stage five's stream is not compiled; it starts in the floor update residue."),
         _ => throw new ArgumentOutOfRangeException(nameof(cadence), cadence, "Undefined running cadence."),
     };
 
@@ -66,76 +80,67 @@ internal static class SamusRunningCadenceDefinitions
             $"Speed Booster reset selection {selection} exceeds the native Max6 result domain."),
     };
 
-    /// <summary>Reads a cadence byte at its wrapped frame index.</summary>
+    /// <summary>Reads a cadence byte at its frame index.</summary>
+    /// <param name="mode7Residue">The session's floor update residue, which a read wrapping into the bank's low half reads.</param>
+    /// <param name="cadence">The cadence read.</param>
+    /// <param name="byteIndex">The frame index, which wraps within sixteen bits.</param>
+    /// <param name="windows">Where the region sits in its bank, which a read leaving the region needs; null when none can.</param>
     internal static byte ReadAnimationByte(
         SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
         SamusRunningCadence cadence,
-        int byteIndex)
+        int byteIndex,
+        SamusAnimationWindows? windows)
     {
-        int address = 0x910000 | unchecked((ushort)(StreamStart(cadence) + byteIndex));
-        if (TryReadCompiledByte(address, out byte value))
-            return value;
-
-        // Stage five points at `$91:0303`. This is a genuine cartridge bug: the selected
-        // delay comes from the Mode 7 transfer queue's residue (#1338), not cadence data.
-        SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
-        if (sourceAddress.Bank == 0x91 && !sourceAddress.IsUpperLoRomWindow)
-            return (mode7Residue ?? throw new InvalidOperationException(
-                "Running-cadence stage five reads the floor update residue; bind the session's to this Samus."))
-                .ByteAt(sourceAddress.Offset - SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions.FloorUpdateResidueOffset);
-
-        throw new InvalidDataException(
-            $"Samus running-cadence byte {sourceAddress} is not compiled cadence data " +
-            "or a mutable bank-$91 low-half alias.");
+        if (cadence == SamusRunningCadence.SoundQueueClobber)
+        {
+            // Stage five points at `$91:0303`. This is a genuine cartridge bug: the selected
+            // delay comes from the Mode 7 transfer queue's residue (#1338), not cadence data.
+            return ReadWindow(mode7Residue, windows, unchecked((ushort)(SoundQueueClobberStart + byteIndex)));
+        }
+        int offset = unchecked((ushort)(StreamOffset(cadence) + byteIndex));
+        if (offset < RegionByteCount)
+            return CompiledByte(offset, windows);
+        return ReadWindow(mode7Residue, windows, unchecked((ushort)(RequireWindows(windows).RunningCadences + offset)));
     }
 
-    /// <summary>The two compiled 16-bit words outside the cadence streams and reset table, valued by address.</summary>
-    private enum StandaloneWord
+    /// <summary>
+    /// Calculates the ten-frame delay, loop marker, and reset bytes <paramref name="offset"/> bytes into the region, and
+    /// the bytes of the words naming the streams.
+    /// </summary>
+    /// <param name="offset">The byte's offset into the region.</param>
+    /// <param name="windows">Where the region sits in its bank, which a byte of a word naming a stream needs.</param>
+    /// <param name="value">The byte.</param>
+    /// <returns>Whether the offset lies in the region.</returns>
+    internal static bool TryReadCompiledByte(int offset, SamusAnimationWindows? windows, out byte value)
     {
-        /// <summary>$91:B5D1, AnimationDelayTable_Running_NoSpeedBooster_pointer: the word naming the ordinary stream.</summary>
-        OrdinaryStreamWord = 0x91b5d1,
-        /// <summary>$91:B629-$B62A, the two zero bytes read when the native echo-sound call returns admitted queue occupancy five and the reset lookup crosses into pose zero.</summary>
-        SoundQueueStageFiveReset = 0x91b629,
+        if ((uint)offset >= RegionByteCount)
+        {
+            value = 0;
+            return false;
+        }
+        value = CompiledByte(offset, windows);
+        return true;
     }
 
-    /// <summary>Decodes the ordinary-stream word or stage-five zero reset word outside the cadence streams.</summary>
-    private static ushort StandaloneWordValue(StandaloneWord word) => word switch
+    /// <summary>The byte <paramref name="offset"/> bytes into the region.</summary>
+    private static byte CompiledByte(int offset, SamusAnimationWindows? windows)
     {
-        StandaloneWord.OrdinaryStreamWord => unchecked((ushort)OrdinaryDelays),
-        StandaloneWord.SoundQueueStageFiveReset => 0,
-        _ => throw new InvalidOperationException($"Undefined {nameof(StandaloneWord)} {(int)word}."),
-    };
-
-    /// <summary>Calculates pointer, ten-frame delay, loop marker, and reset bytes in the bounded bank-$91 catalog.</summary>
-    internal static bool TryReadCompiledByte(int address, out byte value)
-    {
-        foreach (StandaloneWord word in Enum.GetValues<StandaloneWord>())
+        if (offset is OrdinaryStreamWord or OrdinaryStreamWord + 1)
+            return WordByte(StreamPosition(windows, SamusRunningCadence.Ordinary), offset - OrdinaryStreamWord);
+        if (offset is >= OrdinaryDelays and < StageStreamTable)
+            return offset == StageStreamTable - 1 ? (byte)0xff : (byte)2;
+        if (offset is >= StageStreamTable and < BoostDelays)
         {
-            int byteOffset = address - (int)word;
-            if (byteOffset is 0 or 1)
-            {
-                value = unchecked((byte)(StandaloneWordValue(word) >> (byteOffset * 8)));
-                return true;
-            }
+            int index = offset - StageStreamTable;
+            return WordByte(StreamPosition(windows, SamusRunningCadence.BoostStage0 + index / 2), index & 1);
         }
-        if (address is >= OrdinaryDelays and < StageStreamTable)
+        if (offset is >= BoostDelays and < ResetWords)
         {
-            value = address == StageStreamTable - 1 ? (byte)0xff : (byte)2;
-            return true;
-        }
-        if (address is >= StageStreamTable and < BoostDelays)
-        {
-            int index = address - StageStreamTable;
-            value = unchecked((byte)(StreamStart(SamusRunningCadence.BoostStage0 + index / 2) >> ((index & 1) * 8)));
-            return true;
-        }
-        if (address is >= BoostDelays and < ResetWords)
-        {
-            int index = address - BoostDelays;
+            int index = offset - BoostDelays;
             int frame = index % StreamLength;
             if (frame == StreamLength - 1)
-                value = 0xff;
-            else value = (index / StreamLength) switch
+                return 0xff;
+            return (index / StreamLength) switch
             {
                 0 => 3,
                 1 => (byte)(2 + (frame & 1)),
@@ -143,15 +148,38 @@ internal static class SamusRunningCadenceDefinitions
                 3 => (byte)(1 + (frame & 1)),
                 _ => 1,
             };
-            return true;
         }
-        if (address is >= ResetWords and < (ResetWords + 10))
+        if (offset is >= ResetWords and < SoundQueueStageFiveReset)
         {
-            int index = address - ResetWords;
-            value = (index & 1) != 0 ? (byte)0 : index < 8 ? (byte)1 : (byte)2;
-            return true;
+            int index = offset - ResetWords;
+            return (index & 1) != 0 ? (byte)0 : index < 8 ? (byte)1 : (byte)2;
         }
-        value = 0;
-        return false;
+        return 0;
     }
+
+    /// <summary>Reads window position <paramref name="position"/>: the floor update residue in the low half, else the region.</summary>
+    private static byte ReadWindow(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, SamusAnimationWindows? windows, ushort position)
+    {
+        if (position < SnesBusLayout.RomWindowStart)
+            return (mode7Residue ?? throw new InvalidOperationException(
+                "Running-cadence stage five reads the floor update residue; bind the session's to this Samus."))
+                .ByteAt(position - SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions.FloorUpdateResidueOffset);
+        int offset = position - RequireWindows(windows).RunningCadences;
+        if ((uint)offset < RegionByteCount)
+            return CompiledByte(offset, windows);
+        throw new InvalidDataException(
+            $"Samus running-cadence window position ${position:X4} is not compiled cadence data or a mutable bank-$91 low-half alias.");
+    }
+
+    /// <summary>The window position <paramref name="cadence"/>'s stream starts at, as the words naming the streams hold it.</summary>
+    private static int StreamPosition(SamusAnimationWindows? windows, SamusRunningCadence cadence) =>
+        RequireWindows(windows).RunningCadences + StreamOffset(cadence);
+
+    /// <summary>Byte <paramref name="index"/> of the little-endian word <paramref name="word"/>.</summary>
+    private static byte WordByte(int word, int index) =>
+        index == 0 ? SnesLittleEndian.LowByte(unchecked((ushort)word)) : SnesLittleEndian.HighByte(unchecked((ushort)word));
+
+    /// <summary>The installed window positions a read leaving the cadences needs.</summary>
+    private static SamusAnimationWindows RequireWindows(SamusAnimationWindows? windows) => windows ?? throw new InvalidOperationException(
+        "A running-cadence read leaving the compiled cadences needs the installed Samus overread catalog's animation windows.");
 }

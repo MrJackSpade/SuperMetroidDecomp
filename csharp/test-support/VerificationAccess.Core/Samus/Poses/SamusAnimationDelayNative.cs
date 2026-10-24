@@ -1,11 +1,15 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Verification's native view of Samus's pose delay programs: the bank-$91 address of each.</summary>
 internal static class SamusAnimationDelayNative
 {
+    /// <summary>$91:B20A: where the pose delay programs start in bank $91.</summary>
+    private const ushort DelayStreamsStart = 0xb20a;
+
     /// <summary>The bank-$91 address of <paramref name="list"/>'s first byte.</summary>
     internal static ushort Address(SamusAnimationDelayList list) => list.Segment is { } segment
-        ? (ushort)(SamusAnimationDelayDefinitions.StreamStart + SamusAnimationDelayPrograms.segments[segment].Offset)
+        ? (ushort)(DelayStreamsStart + SamusAnimationDelayPrograms.segments[segment].Offset)
         : checked((ushort)list.ResidueStart);
 
     /// <summary>The pose delay programs by their bank-$91 addresses.</summary>
@@ -24,7 +28,7 @@ internal static class SamusAnimationDelayNative
         /// <summary>Reads a delay byte from the program starting at bank-$91 <paramref name="pointer"/>.</summary>
         internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
             ushort pointer, int byteIndex) =>
-            SamusAnimationDelayDefinitions.ReadAnimationByte(mode7Residue, List(pointer), byteIndex);
+            SamusAnimationDelayDefinitions.ReadAnimationByte(mode7Residue, List(pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
 
         /// <summary>Read the bounded native table image for byte-for-byte verification.</summary>
         internal static byte ReadCompiledByte(int address)
@@ -36,7 +40,7 @@ internal static class SamusAnimationDelayNative
                 return unchecked((byte)(pointer >> ((byteIndex & 1) * 8)));
             }
             if (address is >= 0x91B20A and < 0x91B5D1)
-                return SamusAnimationDelayPrograms.ByteAt(address & 0xffff);
+                return SamusAnimationDelayPrograms.ByteAt(address - 0x91B20A);
             throw new ArgumentOutOfRangeException(nameof(address), address,
                 "Address is outside the compiled Samus animation definition catalog.");
         }

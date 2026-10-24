@@ -335,7 +335,7 @@ public sealed class SamusHorizontalSpeedState
         SamusRunningCadence cadence = SamusRunningCadenceDefinitions.SpeedBoostCadence(stage);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue, cadence, 0)));
+            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue, cadence, 0, windows: null)));
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
@@ -343,11 +343,12 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
-    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, int byteIndex)
+    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue, int byteIndex,
+        SamusAnimationWindows? windows)
     {
         byte stage = checked((byte)SpeedBoostCounter.Stage);
         return SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue,
-            SamusRunningCadenceDefinitions.SpeedBoostCadence(stage), byteIndex);
+            SamusRunningCadenceDefinitions.SpeedBoostCadence(stage), byteIndex, windows);
     }
 
     /// <summary>

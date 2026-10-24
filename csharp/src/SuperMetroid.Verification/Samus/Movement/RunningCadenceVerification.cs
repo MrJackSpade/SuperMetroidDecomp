@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -30,7 +31,8 @@ internal static class RunningCadenceVerification
         Suite(nameof(VerifyBoostRunningStream3), () => VerifyBoostRunningStream3(rom));
         Suite(nameof(VerifyBoostRunningStream4), () => VerifyBoostRunningStream4(rom));
         Suite(nameof(VerifyBoostRunningResets), () => VerifyBoostRunningResets(rom));
-        var ordinary = new Func<SuperMetroid.Core.Compatibility.IFloorUpdateResidue?, int, byte>(SamusPresentation.ReadDefaultRunningAnimationByte);
+        var ordinary = new Func<SuperMetroid.Core.Compatibility.IFloorUpdateResidue?, int, byte>(
+            (residue, index) => SamusPresentation.ReadDefaultRunningAnimationByte(residue, index, InstalledFixtures.SamusOverreads.AnimationWindows));
         var speed = new SamusHorizontalSpeedState();
 
         // Every authored frame and loop command remains byte-exact. Reads may cross into
@@ -54,12 +56,12 @@ internal static class RunningCadenceVerification
                 byte expected = (SnesAddressMath.OffsetInBank(address)) < 0x8000
                     ? bus.ReadUncompiledByte(address)
                     : rom.ReadCartridgeByte(address);
-                AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(residue, index), "Native Max6 cadence byte selection");
+                AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(residue, index, InstalledFixtures.SamusOverreads.AnimationWindows), "Native Max6 cadence byte selection");
             }
         }
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0600);
         AssertThrows<InvalidDataException>(
-            () => speed.ReadSpeedBoosterAnimationByte(residue, 0),
+            () => speed.ReadSpeedBoosterAnimationByte(residue, 0, InstalledFixtures.SamusOverreads.AnimationWindows),
             "Restored non-native stage cannot reinterpret adjacent code as a pointer");
 
         if (definitionsOnly) return;

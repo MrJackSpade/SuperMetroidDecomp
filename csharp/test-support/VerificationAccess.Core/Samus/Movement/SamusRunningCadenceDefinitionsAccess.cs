@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
@@ -10,7 +11,7 @@ internal static class SamusRunningCadenceDefinitionsAccess
         /// <summary>Returns one byte from the complete bounded native cadence catalog.</summary>
         internal static byte ReadCompiledByte(int address)
         {
-            if (SamusRunningCadenceDefinitions.TryReadCompiledByte(address, out byte value))
+            if (SamusRunningCadenceDefinitions.TryReadCompiledByte(address - 0x91b5d1, InstalledFixtures.SamusOverreads.AnimationWindows, out byte value))
                 return value;
             throw new ArgumentOutOfRangeException(
                 nameof(address), address, "Address is outside the compiled Samus running-cadence catalog.");
@@ -27,7 +28,7 @@ internal static class SamusRunningCadenceDefinitionsAccess
         internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
             ushort pointer, int byteIndex) =>
             SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue,
-                Enum.GetValues<SamusRunningCadence>().Single(cadence => Start(cadence) == pointer), byteIndex);
+                Enum.GetValues<SamusRunningCadence>().Single(cadence => Start(cadence) == pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
     }
 
     /// <summary>The bank-$91 start of <paramref name="cadence"/>.</summary>

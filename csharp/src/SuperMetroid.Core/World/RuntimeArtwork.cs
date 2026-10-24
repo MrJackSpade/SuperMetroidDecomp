@@ -138,6 +138,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
         _player.Samus.Presentation.SuitColors = MapPresentation?.SamusSuitColors;
         _player.Samus.Presentation.FullBodyCycleColors = MapPresentation?.SamusFullBodyCycleColors;
         _player.Samus.Presentation.ChargeColors = MapPresentation?.SamusChargeColors;
+        _player.Samus.Presentation.AnimationWindows = SamusOverreads?.AnimationWindows;
         // All Samus constructors call this rebind before priming the first visual DMA.
         _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
         _player.Samus.Presentation.BodyFrames.BindStandardObjects(StandardObjects);
@@ -238,7 +239,12 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
     public SamusOverreadCatalog? SamusOverreads
     {
         get;
-        set;
+        set
+        {
+            field = value;
+            if (_player.Samus is { } samus)
+                samus.Presentation.AnimationWindows = value?.AnimationWindows;
+        }
     }
 
     /// <summary>The installed pre-coloured sprite sheets drawn families select their frames from.</summary>

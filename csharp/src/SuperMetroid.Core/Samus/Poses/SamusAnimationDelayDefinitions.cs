@@ -11,12 +11,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 internal static class SamusAnimationDelayDefinitions
 {
-    /// <summary>Where the pose delay programs start in the 16-bit window a wrapped program index reads.</summary>
-    internal const ushort StreamStart = 0xB20A;
-    /// <summary>Where the pose delay programs end in that window, before the running cadences.</summary>
-    private const ushort StreamEnd = 0xB5D1;
-    /// <summary>Window positions below this read the Mode 7 transfer queue residue rather than compiled programs.</summary>
-    private const ushort ResidueWindowEnd = 0x8000;
+    /// <summary>The bytes the compiled pose delay programs fill, before the running cadences.</summary>
+    private const int ProgramsByteCount = 967;
 
     /// <summary>
     /// The bank-$91 low-half offset the floor update residue starts at (#1338): the low half aliases WRAM, where the
@@ -424,8 +420,8 @@ internal static class SamusAnimationDelayDefinitions
         if ((int)pose >= RealPoseCount)
         {
             int position = ((int)pose - RealPoseCount) * sizeof(ushort);
-            return new(null, SnesLittleEndian.Word(SamusAnimationDelayPrograms.ByteAt(StreamStart + position),
-                SamusAnimationDelayPrograms.ByteAt(StreamStart + position + 1)));
+            return new(null, SnesLittleEndian.Word(SamusAnimationDelayPrograms.ByteAt(position),
+                SamusAnimationDelayPrograms.ByteAt(position + 1)));
         }
         return pose switch
         {
@@ -690,26 +686,47 @@ internal static class SamusAnimationDelayDefinitions
     }
 
     /// <summary>How many program bytes follow the start of compiled <paramref name="list"/> before the running cadences.</summary>
-    internal static int BytesToStreamEnd(SamusAnimationDelayList list) => StreamEnd - StreamStart -
+    internal static int BytesToStreamEnd(SamusAnimationDelayList list) => ProgramsByteCount -
         SamusAnimationDelayPrograms.segments[list.Segment ??
             throw new ArgumentException("An invalid pose's program is not compiled.", nameof(list))].Offset;
 
     /// <summary>Read an immutable delay/command byte, retaining the reads that land in the transfer queue residue.</summary>
-    /// <remarks>An index wraps within a 16-bit window, so a program index past its end reads the following programs.</remarks>
+    /// <remarks>
+    /// An index wraps within sixteen bits, so a program index past its end reads the following programs. An invalid pose's
+    /// program starts at a window position in the bank's low half, which aliases the floor update residue.
+    /// </remarks>
+    /// <param name="mode7Residue">The session's floor update residue, which a read in the bank's low half reads.</param>
+    /// <param name="list">The program read.</param>
+    /// <param name="byteIndex">The index into the program, which wraps within sixteen bits.</param>
+    /// <param name="windows">Where the programs sit in their bank, which a read leaving them needs; null when none can.</param>
     internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
-        SamusAnimationDelayList list, int byteIndex)
+        SamusAnimationDelayList list, int byteIndex, SamusAnimationWindows? windows)
     {
-        ushort position = unchecked((ushort)((list.Segment is { } segment
-            ? StreamStart + SamusAnimationDelayPrograms.segments[segment].Offset
-            : list.ResidueStart) + byteIndex));
-        if (position is >= StreamStart and < StreamEnd)
-            return SamusAnimationDelayPrograms.ByteAt(position);
-        // Invalid pose bytes $FD-$FF start their programs in the Mode 7 transfer queue's residue.
-        if (position < ResidueWindowEnd)
+        ushort position;
+        if (list.Segment is { } segment)
+        {
+            int offset = unchecked((ushort)(SamusAnimationDelayPrograms.segments[segment].Offset + byteIndex));
+            if (offset < ProgramsByteCount)
+                return SamusAnimationDelayPrograms.ByteAt(offset);
+            position = unchecked((ushort)(RequireWindows(windows).PoseDelayPrograms + offset));
+        }
+        else
+        {
+            // Invalid pose bytes $FD-$FF start their programs in the Mode 7 transfer queue's residue.
+            position = unchecked((ushort)(list.ResidueStart + byteIndex));
+        }
+        if (position < SnesBusLayout.RomWindowStart)
             return (mode7Residue ?? throw new InvalidOperationException(
                 "An invalid pose's delay overread reads the floor update residue; bind the session's to this Samus."))
                 .ByteAt(position - FloorUpdateResidueOffset);
+        int programOffset = position - RequireWindows(windows).PoseDelayPrograms;
+        if ((uint)programOffset < ProgramsByteCount)
+            return SamusAnimationDelayPrograms.ByteAt(programOffset);
         throw new InvalidDataException(
             $"Samus animation delay read at window position ${position:X4} is outside the compiled pose programs.");
     }
+
+    /// <summary>The installed window positions a read leaving the pose programs needs.</summary>
+    private static SamusAnimationWindows RequireWindows(SamusAnimationWindows? windows) => windows ?? throw new InvalidOperationException(
+        "An animation delay read leaving the compiled pose programs needs the installed Samus overread catalog's animation windows.");
 }

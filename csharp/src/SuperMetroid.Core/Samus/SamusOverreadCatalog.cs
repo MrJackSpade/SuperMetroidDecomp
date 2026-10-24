@@ -34,11 +34,15 @@ public sealed class SamusOverreadCatalog
         _hudFollowingPostureBytes = Decode(document.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount,
             nameof(document.HudFollowingPostureBytes));
         ProjectileLists = DecodeProjectileLists(document.ProjectileLists);
+        AnimationWindows = DecodeAnimationWindows(document.AnimationWindows);
         _trailOverruns = DecodeTrailOverruns(document.TrailOverruns, ProjectileLists);
     }
 
     /// <summary>Where each projectile program's list stands, which the glitch paths' list arithmetic and fresh trails read.</summary>
     internal SamusProjectileListLayout ProjectileLists { get; }
+
+    /// <summary>Where the animation regions sit in their banks, which a restored index reading past its program needs.</summary>
+    internal SamusAnimationWindows AnimationWindows { get; }
 
     /// <summary>The SpaceTime palette-copy overrun's source byte <paramref name="offset"/> bytes past the first one it reads.</summary>
     internal byte SpacetimeCopySourceByte(int offset) => Read(_spacetimeCopySource, offset, "SpaceTime copy source");
@@ -116,6 +120,17 @@ public sealed class SamusOverreadCatalog
                     index * SamusOverreadDefinitions.TrailOverrunEntryByteCount, SamusOverreadDefinitions.TrailOverrunEntryByteCount), list));
         }
         return result.ToFrozenDictionary();
+    }
+
+    /// <summary>Decodes the animation regions' window positions, each a sixteen-bit position in its bank's window.</summary>
+    private static SamusAnimationWindows DecodeAnimationWindows(SamusAnimationWindows? windows)
+    {
+        if (windows is null)
+            throw new InvalidDataException("Samus overread file has no animation windows.");
+        foreach (int position in new[] { windows.ChargeFlarePrograms, windows.PoseDelayPrograms, windows.RunningCadences })
+            if ((uint)position > ushort.MaxValue)
+                throw new InvalidDataException($"Samus overread animation window position {position} lies outside a sixteen-bit window.");
+        return windows;
     }
 
     /// <summary>Decodes every program's list position, requiring one for each program.</summary>

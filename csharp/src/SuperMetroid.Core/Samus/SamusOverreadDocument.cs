@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Samus;
 /// <param name="HudFollowingPostureBytes">The bytes after the HUD's posture-transition flags.</param>
 /// <param name="TrailOverruns">What a trail reads past each placement list's records, by list name, as base-64 entries in frame order.</param>
 /// <param name="ProjectileLists">Where each projectile program's list stands, by program name.</param>
+/// <param name="AnimationWindows">Where the charge flare's, pose delays' and running cadences' regions sit in their banks.</param>
 public sealed record SamusOverreadDocument(
     int Version,
     string SpacetimeCopySource,
@@ -17,4 +18,5 @@ public sealed record SamusOverreadDocument(
     string HudPrecedingPostureBytes,
     string HudFollowingPostureBytes,
     IReadOnlyDictionary<string, string> TrailOverruns,
-    IReadOnlyDictionary<string, SamusProjectileListPosition> ProjectileLists);
+    IReadOnlyDictionary<string, SamusProjectileListPosition> ProjectileLists,
+    SamusAnimationWindows AnimationWindows);

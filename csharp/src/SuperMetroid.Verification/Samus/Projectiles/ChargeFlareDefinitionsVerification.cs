@@ -1,3 +1,6 @@
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -12,15 +15,17 @@ internal static class ChargeFlareDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled charge-flare cadence words and the native cadence reference")]
     internal static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
     {
-        for (int address = 0x90c481; address < 0x90c4b5; address++)
+        for (int address = SamusCartridgeTables.ChargeFlarePrograms; address < 0x90c4b5; address++)
         {
-            AssertEqual(CpuBusRegionRead.Read(bus, address), ChargeFlareAnimationDefinitions.ReadByte(address), "Compiled flare cadence byte matches cartridge");
+            AssertEqual(CpuBusRegionRead.Read(bus, address), ChargeFlareAnimationDefinitions.ReadByte(address - SamusCartridgeTables.ChargeFlarePrograms),
+                "Compiled flare cadence byte matches cartridge");
             if (address < 0x90c4b4)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ChargeFlareAnimationDefinitions.ReadWord(address), "Compiled flare cadence word matches cartridge");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
+                    ChargeFlareAnimationDefinitions.ReadWord(address - SamusCartridgeTables.ChargeFlarePrograms), "Compiled flare cadence word matches cartridge");
         }
-        foreach (int address in new[] { 0x908000, 0x90c480, 0x90c4b5, 0x90ffff })
+        foreach (int address in new[] { 0x908000, 0x90c486, 0x90c4b5, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => ChargeFlareAnimationDefinitions.ReadByte(address),
+                () => ChargeFlareAnimationDefinitions.ReadByte(address - SamusCartridgeTables.ChargeFlarePrograms),
                 "Unknown flare cadence address fails instead of reading arbitrary movement-bank data");
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var advance = new Action<int>(system.Animation.AdvanceFlareComponent);
@@ -64,4 +69,12 @@ internal static class ChargeFlareDefinitionsVerification
         }
     }
 
+    /// <summary>Runs the charge flare cadence definitions against the retail cartridge.</summary>
+    [VerificationCommand("--charge-flare-definitions")]
+    internal static int ChargeFlareDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyChargeFlareDefinitions), () => VerifyChargeFlareDefinitions(rom));
+        return 0;
+    }
 }

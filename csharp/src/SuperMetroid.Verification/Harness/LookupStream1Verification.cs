@@ -1778,14 +1778,17 @@ internal static class LookupStream1Verification
     private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1CadenceProgramsRomByte(rom, address), LookupStream1CadenceProgramsRomByte(rom, address + 1));
-        for (int address = 0x90c481; address < 0x90c4b5; address++)
+        for (int address = SamusCartridgeTables.ChargeFlarePrograms; address < 0x90c4b5; address++)
         {
-            AssertEqual(LookupStream1CadenceProgramsRomByte(rom, address), ChargeFlareAnimationDefinitions.ReadByte(address), "stream1 original flare pointer/cadence byte");
+            AssertEqual(LookupStream1CadenceProgramsRomByte(rom, address),
+                ChargeFlareAnimationDefinitions.ReadByte(address - SamusCartridgeTables.ChargeFlarePrograms), "stream1 original flare cadence byte");
             if (address < 0x90c4b4)
-                AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address), "stream1 original flare unaligned word");
+                AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address - SamusCartridgeTables.ChargeFlarePrograms),
+                    "stream1 original flare unaligned word");
         }
-        foreach (int invalid in new[] { int.MinValue, 0x90c480, 0x90c4b5, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid), "stream1 flare byte domain");
+        foreach (int invalid in new[] { int.MinValue, 0x90c486, 0x90c4b5, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid - SamusCartridgeTables.ChargeFlarePrograms),
+                "stream1 flare byte domain");
     }
 
     /// <summary>Reads native charge-flare and animation cadence instructions.</summary>

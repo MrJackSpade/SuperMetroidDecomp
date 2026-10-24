@@ -21,6 +21,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -194,11 +195,11 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The title's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleMode7(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>
-        ComposeMode7Pixels(Ensure.NotNull(graphics).FloorCharacters[..TitleSequenceRomData.Transfers.FloorCharacterByteCount], TitleColours(palette));
+        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).FloorCharacters[..TitleSequenceRomData.Transfers.FloorCharacterByteCount], TitleColours(palette));
 
     /// <summary>The title's Baby Metroid animation pages under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleBaby(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>
-        ComposeMode7Pixels(Ensure.NotNull(graphics).BabyCharacters, TitleColours(palette));
+        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).BabyCharacters, TitleColours(palette));
 
     /// <summary>The Ceres flight's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtworkCatalog flight) =>

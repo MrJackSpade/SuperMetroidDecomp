@@ -22,6 +22,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -113,7 +114,7 @@ public static class MapPresentationFiles
         CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
         TitleGraphicsPresentation titleGraphics = MultiFileResource<TitleGraphicsPresentation>(
             [TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.FloorMapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
-            "title graphics", (s, _) => TitleGraphicsPresentation.Load(s[0], s[1], s[2], s[3]));
+            "title graphics", (s, _) => TitleGraphicsCharacters.Read(s[0], s[1], s[2], s[3]));
         TitlePalettePresentation titlePalette = Resource(TitlePaletteFormat.FileName, "title palette", s => TitlePalettePresentation.Load(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFormat.FileName, "title gradient", s => TitleGradientPresentation.Load(s));
         // Version-seventeen overrides predate the Samus-in-heat rows. Preserve

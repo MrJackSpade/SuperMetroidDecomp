@@ -52,10 +52,10 @@ internal static class AudioVerification
             () => MusicQueueDelay.FromEffectiveUpdates(7),
             "invalid effective music delay fails loudly");
         AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueMusicDelayed8), [typeof(MusicRequest)]),
+            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusicDelayed8), [typeof(MusicRequest)]),
             "music queue accepts typed commands");
         AssertTrue(
-            !MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueMusicDelayed8), [typeof(ushort)]),
+            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusicDelayed8), [typeof(ushort)]),
             "music queue exposes no raw-word overload");
 
         byte[] rom = new byte[0x10_0000];
@@ -74,7 +74,7 @@ internal static class AudioVerification
         Suite(nameof(VerifySoundQueueAccumulator), () => VerifySoundQueueAccumulator());
         Suite(nameof(VerifyGameplayAudioPublication), () => VerifyGameplayAudioPublication());
 
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
         audio.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
 
@@ -136,7 +136,7 @@ internal static class AudioVerification
 
         // Ceres post-battle rooms use `(0, 0)` specifically to retain track seven.
         // `$82:E071/$E0D5` return on each zero field; zero is not a stop command.
-        var inheritedRoomMusic = new CartridgeAudioState();
+        var inheritedRoomMusic = new AudioQueues();
         inheritedRoomMusic.AdvanceFrame(default);
         inheritedRoomMusic.QueueMusicDelayed8(MusicRequest.SelectTrack(7));
         // The first handler call copies the newly queued entry into the active timer;
@@ -163,7 +163,7 @@ internal static class AudioVerification
                     $"room track ${roomTrack:X2} is not one retail room states hold");
                 continue;
             }
-            var roomMusic = new CartridgeAudioState();
+            var roomMusic = new AudioQueues();
             roomMusic.AdvanceFrame(default);
             roomMusic.QueueRoomMusic(RoomMusicCodec.Decode(0, (byte)roomTrack));
             var portWrites = new List<AudioRequest>();
@@ -180,7 +180,7 @@ internal static class AudioVerification
         // The Zebes approach interstitial and Landing Site both call their song "track
         // five", but use different SPC data banks. `$82:E0E6-$E104` compares the packed
         // bank/track pair, so the latter track must be resent after bank six uploads.
-        var postCeresLandingMusic = new CartridgeAudioState();
+        var postCeresLandingMusic = new AudioQueues();
         postCeresLandingMusic.AdvanceFrame(default);
         postCeresLandingMusic.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
         for (int frame = 0; frame < 9; frame++)
@@ -198,7 +198,7 @@ internal static class AudioVerification
                 command == AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5))),
             "Landing Site restarts same-numbered track after SPC data-bank change");
 
-        var sfx = new CartridgeAudioState();
+        var sfx = new AudioQueues();
         sfx.AdvanceFrame(default); // consume reset upload/port writes
         sfx.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, maximumQueued: 6);
         IReadOnlyList<AudioRequest> request = sfx.AdvanceFrame(default);
@@ -213,7 +213,7 @@ internal static class AudioVerification
             sfx.AdvanceFrame(default).Single(),
             "SFX request clear");
 
-        var cancellation = new CartridgeAudioState();
+        var cancellation = new AudioQueues();
         cancellation.AdvanceFrame(default);
         cancellation.QueueCancelSoundEffects();
         IReadOnlyList<AudioRequest> cancelWrites =
@@ -251,10 +251,10 @@ internal static class AudioVerification
         AssertEqual(SoundEffectLibrary.Library2, libraryTwoUnknown.Library,
             "unknown cartridge sound retains its library");
         AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueSound), [typeof(SoundEffectId), typeof(byte)]),
+            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(byte)]),
             "QueueSound accepts one indivisible sound identity");
         AssertTrue(
-            !MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueSound), [typeof(SoundEffectLibrary), typeof(byte), typeof(byte)]),
+            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectLibrary), typeof(byte), typeof(byte)]),
             "QueueSound exposes no reversible library-and-ID argument list");
         AssertThrows<InvalidDataException>(
             () => SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0100),

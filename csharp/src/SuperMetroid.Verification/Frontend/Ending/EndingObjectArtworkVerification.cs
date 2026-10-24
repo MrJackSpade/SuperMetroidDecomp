@@ -202,8 +202,8 @@ internal static class EndingObjectArtworkVerification
 
         var guard = NewEndingObjectSourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-        var nativeAudio = new CartridgeAudioState();
-        var installedAudio = new CartridgeAudioState();
+        var nativeAudio = new AudioQueues();
+        var installedAudio = new AudioQueues();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
         installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
@@ -262,7 +262,7 @@ internal static class EndingObjectArtworkVerification
             EndingCloudSpritePresentation.Write(output, cloudDocument);
         byte[] editedCloudSpriteBytes = File.ReadAllBytes(cloudSpriteOverride);
         EndingObjectArtworkCatalog editedCloudSprites = installation.LoadEndingObjectArt();
-        var cloudAudio = new CartridgeAudioState();
+        var cloudAudio = new AudioQueues();
         var cloudScene = CreateRetailEndingFixture(cloudAudio, 0, 0);
         cloudScene.InstalledArtwork.BindFixtureObjectArtwork(stock);
         for (int frame = 0; frame < 2000 &&
@@ -323,7 +323,7 @@ internal static class EndingObjectArtworkVerification
             };
             var sceneBus = NewEndingObjectSourceReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             var scene = CreateRetailEndingFixture(audio, 0, 0);
             scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
             EndingCreditsPhase target = resource == 0

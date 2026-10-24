@@ -46,11 +46,11 @@ internal static class ScreenTilePicturesVerification
             layers += AssertDrawnFromTiles(scene, vram, name);
             screens++;
         }
-        var gameOver = new GameOverMenuState(new CartridgeAudioState(), maps, InstalledFixtures.SpriteSheets);
+        var gameOver = new GameOverMenuState(new AudioQueues(), maps, InstalledFixtures.SpriteSheets);
         Check(gameOver.CaptureRenderSnapshot(), gameOver.ShownVram(), "game over");
         var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: InstalledFixtures.SpriteSheets);
         Check(options.CaptureRenderSnapshot(), options.ShownVram(), "options");
-        var fileSelect = new FileSelectMenuState(new SaveSlotStore(maps), new CartridgeAudioState(), maps, InstalledFixtures.SpriteSheets);
+        var fileSelect = new FileSelectMenuState(new SaveSlotStore(maps), new AudioQueues(), maps, InstalledFixtures.SpriteSheets);
         Check(fileSelect.CaptureRenderSnapshot(), fileSelect.ShownVram(), "file select");
         var explored = new Bank80SystemState();
         explored.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
@@ -82,7 +82,7 @@ internal static class ScreenTilePicturesVerification
                 && sampled.Add(name))
                 layers += AssertDrawnFromTiles(scene, vram, name);
         }
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         IntroCinematicState intro = CreateRetailIntroFixture(audio);
         for (int tick = 0; !intro.CeresFlightFinished; tick++)
         {
@@ -114,7 +114,7 @@ internal static class ScreenTilePicturesVerification
         foreach (ushort hours in new ushort[] { 2, 10 })
         {
             // The ending waits on its music queue, which the game drains after every dispatch.
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             EndingCreditsState ending = CreateRetailEndingFixture(audio, hours, 59);
             while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
             {
@@ -135,7 +135,7 @@ internal static class ScreenTilePicturesVerification
     /// </summary>
     internal static void VerifyTitleScreenTilePictures()
     {
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         TitleSequenceState title = InstalledFixtures.CreateTitle(audio);
         var sampled = new HashSet<string>();
         for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)

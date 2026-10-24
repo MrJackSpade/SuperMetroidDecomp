@@ -22,7 +22,7 @@ public sealed class SamusHealthWarningState
     /// Executes one admitted check. The caller owns handler admission and ordering;
     /// frozen gameplay alone is not a reason to omit the automatic-reserve external call.
     /// </summary>
-    public void Update(int health, CartridgeAudioState audio, bool soundSuppressed = false)
+    public void Update(int health, AudioQueues audio, bool soundSuppressed = false)
     {
         Ensure.NotNull(audio);
         bool critical = health < HealthyThreshold;

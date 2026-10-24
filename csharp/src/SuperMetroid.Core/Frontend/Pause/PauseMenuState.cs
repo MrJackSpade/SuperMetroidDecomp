@@ -46,7 +46,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
 
     /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>Advances the map highlight colors once per accepted menu update.</summary>
     internal readonly MapPaletteAnimation paletteAnimation;
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>

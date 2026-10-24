@@ -787,7 +787,7 @@ internal static class LookupStream4Verification
         foreach (bool fast in new[] { true, false })
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
-            var state = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
+            var state = new EndingCreditsState(new SuperMetroid.Core.Audio.AudioQueues(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(100).WithFractionX(0xC000);
             state.Stage.FloorZoom = 0xC00; state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;

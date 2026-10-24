@@ -34,7 +34,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Receives menu sound requests when audio is available.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
     private readonly SaveSlotStore saves;
     /// <summary>The menu screen file select draws: its artwork, tilemaps, palette and sprite entries.</summary>
@@ -59,7 +59,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private FileSelectPage currentPresentationPage = FileSelectPage.MainEmpty;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
-    public FileSelectMenuState(SaveSlotStore saves, CartridgeAudioState? audio = null,
+    public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
         AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;

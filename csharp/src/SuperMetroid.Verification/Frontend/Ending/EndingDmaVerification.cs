@@ -26,7 +26,7 @@ internal static class EndingDmaVerification
         Suite(nameof(VerifyEndingCloudPlacement), () => VerifyEndingCloudPlacement());
         Suite(nameof(VerifyEndingExplosionSlotOrder), () => VerifyEndingExplosionSlotOrder());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
         // The setup's NMI waits each end a dispatcher call; the call after the last runs the scene setup.
         for (int call = 0; call <= EndingCreditsRomData.SetupFrameWaits; call++)

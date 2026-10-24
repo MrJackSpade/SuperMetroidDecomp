@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingEscapeScenes
 {
     /// <summary>Queues the authored ending music transitions.</summary>
-    private readonly CartridgeAudioState audio;
+    private readonly AudioQueues audio;
     /// <summary>Saved clear-time hours, as the game clock or the configured override supplies them, used to select the post-credits reward.</summary>
     private readonly int gameTimeHours;
     /// <summary>Saved clear-time minutes displayed with the clear time.</summary>
@@ -24,7 +24,7 @@ internal sealed class EndingEscapeScenes
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingEscapeScenes(CartridgeAudioState audio, int gameTimeHours, int gameTimeMinutes, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
+    internal EndingEscapeScenes(AudioQueues audio, int gameTimeHours, int gameTimeMinutes, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
     {
         this.audio = audio;
         this.gameTimeHours = gameTimeHours;

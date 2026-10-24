@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// session's port model to the emulated driver (#1304). Since #1305 the game session plays
 /// clips; synthesis fixtures compose the same event source with the offline synthesizer.
 /// </summary>
-internal static class CartridgeAudioSessionAccess
+internal static class AudioSessionAccess
 {
     /// <summary>A synthesizing harness over <paramref name="assets"/>, so every update renders PCM.</summary>
     internal static SynthesizingAudioSession CreateSynthesizing(ExtractedAudioAssetCatalog assets) => new(assets);

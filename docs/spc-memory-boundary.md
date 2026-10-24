@@ -12,12 +12,14 @@ no port by number.
 
 Within the renderer, the driver port never indexes APU RAM or uses raw port numbers in its music, sound-effect,
 instrument, echo or upload logic. APU RAM addresses, byte order and 16-bit wrapping live in the typed
-driver-memory views in `ManagedSpcPlayer.Memory.cs`; the CPU/APU ports are the `ApuPort` enum end to end.
+driver-memory views in `ManagedSpcPlayer.Memory.cs`. The game never names a port: it asks for music and sounds by
+identity (`AudioRequest`, #1410), and only the renderer turns a request into a port write.
 
 ## Boundary and enforcement
 
-- `[SpcMemoryAccess]`: the player's APU RAM array, the stored debugger byte
-  `CartridgeAudioCommand.Port`, and the verification reader `ReadApuByteForVerification`.
+- `[SpcMemoryAccess]`: the player's APU RAM array and the verification reader `ReadApuByteForVerification`. The
+  attribute and `[SpcMemoryBoundary]` are declared in `SuperMetroid.AssetExtraction/Audio/Synthesis`, beside the
+  driver they mark (#1410).
 - `[SpcMemoryBoundary("reason")]`: the driver-memory views, the DSP's shared view of APU RAM, the
   port-command codec, and exact APU memory tests.
 - **SME6320** (raw access outside a boundary) and **SME6321** (raw contract implemented outside a
@@ -37,7 +39,7 @@ driver-memory views in `ManagedSpcPlayer.Memory.cs`; the CPU/APU ports are the `
 | Uploads and compiled definitions | `WriteBytes`, `WriteByte` | 16-bit wrapping copy |
 | Driver reset work regions | `ClearDriverWorkRegions()` | the regions the native reset clears |
 | DSP sample/echo memory | `CreateDsp()` | the DSP shares APU RAM |
-| CPU→APU / APU→CPU ports | `CartridgeAudioCommand.InputPort`, translated to a library by `ApuPorts.LibraryAt`; requests, acknowledgements and the check timing owned by `SoundAcceptanceClock`, which the game session's `CartridgeAudioSession` advances every update. The player receives only the music command (`WriteMusicPort`) and the tick schedule, as semantic `AudioEvent`s through `ManagedSpcAudioBackend` | $2140-$2143 |
+| CPU→APU / APU→CPU ports | none in the game: each `AudioRequest` names a sound library; requests, acknowledgements and the check timing owned by `SoundAcceptanceClock`, which the game session's `AudioSession` advances every update. The player receives only the music command (`WriteMusicPort`) and the tick schedule, as semantic `AudioEvent`s through `ManagedSpcAudioBackend` | $2140-$2143 |
 
 **Alias:** pan indices from 21 read past the 21 pan samples ($1E1D + 21 = $1E32) into the echo FIR
 preset table. `ReadPanVolumePair` and `ReadFirCoefficient` are separate views of those bytes.

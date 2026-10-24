@@ -1,7 +1,11 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// C# translation of bank $80's music queue and bank $82's three SFX dispatchers.
+/// The game's music queue and its three sound queues (#1410), a compatibility behaviour whose timing gameplay observes:
+/// each music request waits its delay and plays on the update the original plays it; a data set change withdraws every
+/// library's sound request for <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; a
+/// full music queue drops or overwrites a request as the caller chose; and a sound queue admits a request only below its
+/// caller's limit, keeps each library's request until the library accepts it, then withdraws it.
 /// </summary>
 /// <remarks>
 /// The queues end in <see cref="AudioRequest"/>s: play or stop a track, change the music data
@@ -9,7 +13,7 @@ namespace SuperMetroid.Core.Audio;
 /// delays and acknowledgement states visible to a C# debugger without inventing
 /// gameplay-specific host sounds.
 /// </remarks>
-public sealed class CartridgeAudioState
+public sealed class AudioQueues
 {
     /// <summary>Requests awaiting music dispatch in the circular queue; an empty position holds the stop request.</summary>
     private readonly MusicRequest[] _musicEntries =
@@ -55,7 +59,7 @@ public sealed class CartridgeAudioState
     private int _soundHandlerDowntime;
 
     /// <summary>Creates empty music and sound queues and zeroed acknowledgement state, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
-    public CartridgeAudioState() => Reset();
+    public AudioQueues() => Reset();
 
     /// <summary>
     /// Door-owned part of native DisableSounds ($05F5): set after the entry stop

@@ -18,8 +18,8 @@ internal static class RetailCinematicTests
     {
         // Each owner keeps its own music queue, which the Ceres flight waits on; the game runs
         // the queue handler after every dispatch.
-        var legacyAudio = new CartridgeAudioState();
-        var capturedAudio = new CartridgeAudioState();
+        var legacyAudio = new AudioQueues();
+        var capturedAudio = new AudioQueues();
         var legacy = RenderRetailFixture.CreateIntro(legacyAudio);
         var captured = RenderRetailFixture.CreateIntro(capturedAudio);
         var phases = new HashSet<IntroCinematicPhase>();

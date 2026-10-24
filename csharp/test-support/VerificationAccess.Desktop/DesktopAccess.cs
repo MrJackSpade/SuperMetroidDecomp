@@ -76,7 +76,7 @@ internal static class DesktopAccess
 
     /// <summary>A standalone synthesizing session over that audio, for fixtures that drive the cartridge audio types directly.</summary>
     internal static SynthesizingAudioSession CreateAudioSession(string? audioDirectory = null) =>
-        CartridgeAudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
+        AudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
 
     /// <summary>
     /// A game control over the installation beside a ROM path, importing it on first use, or over

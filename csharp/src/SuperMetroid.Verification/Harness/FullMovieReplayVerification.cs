@@ -568,7 +568,7 @@ internal static class FullMovieReplayVerification
         int cries = 0, nativeCries = 0;
         int lastWrite = -1;
         byte nativeCurrent = 0;
-        CartridgeAudioState? audio = null;
+        AudioQueues? audio = null;
         IEnumerable<string> CountCries(SuperMetroidGame game, int update, NativeCheckpointMemory native)
         {
             // $064E is the library-two sound the cartridge last sent to the APU.

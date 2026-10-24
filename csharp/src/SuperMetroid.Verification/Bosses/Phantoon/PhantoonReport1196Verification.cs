@@ -23,10 +23,10 @@ internal static class PhantoonReport1196Verification
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         enemies.CollectLegacyEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
-        var audio = new CartridgeAudioState();
-        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
+        var audio = new AudioQueues();
+        var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         // The handshake rewrites a request each update until the driver echoes it ($82:8A55), so

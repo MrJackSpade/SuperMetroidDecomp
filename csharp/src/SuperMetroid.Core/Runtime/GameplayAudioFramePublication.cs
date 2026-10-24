@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Once-only publication of the sound producers preceding Samus's echo call.
 /// One instance belongs to one frontend Step, never to the serialized game graph.
 /// </summary>
-internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
+internal sealed class GameplayAudioFramePublication(AudioQueues audio)
 {
     /// <summary>Per-producer cursors prevent replaying requests when prefix publication runs more than once.</summary>
     private int roomSounds, paletteSounds, paletteMusic, liquidSounds;

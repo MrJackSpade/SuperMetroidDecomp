@@ -49,10 +49,10 @@ internal static class EtecoonFanfareVerification
         AssertEqual(15, request.MaximumQueued, "native wake request uses Max15");
         AssertEqual((ushort)256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).FunctionTimer.RawValue, "wake begins flexing timer");
 
-        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
-        var queue = new CartridgeAudioState();
+        var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
+        var queue = new AudioQueues();
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
-        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         queue.QueueSound(request.SoundEffect, request.MaximumQueued);
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });

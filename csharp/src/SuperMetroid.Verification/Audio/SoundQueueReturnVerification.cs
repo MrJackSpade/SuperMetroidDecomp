@@ -19,7 +19,7 @@ internal static class SoundQueueReturnVerification
             ushort expectedAccumulator = ushort.Parse(fields[2], NumberStyles.HexNumber);
             int expectedCount = int.Parse(fields[3], CultureInfo.InvariantCulture);
             int expectedNewSound = int.Parse(fields[4], CultureInfo.InvariantCulture);
-            var queue = new CartridgeAudioState();
+            var queue = new AudioQueues();
             queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
                 queue.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x22), 15);

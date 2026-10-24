@@ -166,8 +166,8 @@ internal static class MapScreensVerification
         data.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, data);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
-        var changed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, edited, MenuSheetFixtures.For(edited));
+        var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
+        var changed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, edited, MenuSheetFixtures.For(edited));
         for (int tick = 0; tick < 104; tick++)
         {
             SnesButton input = tick == 48 ? SnesButton.Start : 0;

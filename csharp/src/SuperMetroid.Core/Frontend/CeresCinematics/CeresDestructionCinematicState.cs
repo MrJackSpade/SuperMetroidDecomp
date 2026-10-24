@@ -88,7 +88,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>The scene's graphics transfers in the order the phases made them; the capture replays them over the bound artwork (#1358).</summary>
     internal List<CeresDestructionUpload> Uploads { get; } = [];
     /// <summary>The scene's colors: the Ceres base palette and later engine-flicker program (#1358).</summary>
@@ -177,7 +177,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </param>
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     public CeresDestructionCinematicState(
-        CartridgeAudioState? audio = null,
+        AudioQueues? audio = null,
         PowerBombFixedColorCatalog? fixedColors = null,
         IntroCinematicArtworkCatalog? artwork = null,
         IPaletteFxColorSource? paletteFxColors = null,

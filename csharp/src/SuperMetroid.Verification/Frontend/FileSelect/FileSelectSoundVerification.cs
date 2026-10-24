@@ -19,9 +19,9 @@ internal static class FileSelectSoundVerification
     internal static void VerifyFileSelectSound()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var menu = new FileSelectMenuState(new SuperMetroid.Core.Saves.SaveSlotStore(), audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
-        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
+        var renderer = AudioSessionAccess.CreateSynthesizing(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
         int writes = 0, nonzero = 0;
         bool accepted = false;
         for (int frame = 0; frame < 180; frame++)
@@ -58,9 +58,9 @@ internal static class FileSelectSoundVerification
         var game = CreateRetailGameFixture(saves);
         var assets = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(assets);
-        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var pcm = new short[AudioSession.PcmSamplesPerFrame];
         var withoutSwoosh = new ClipAudioBackend(assets);
-        var control = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var control = new short[AudioSession.PcmSamplesPerFrame];
         int starts = 0, differentSamples = 0;
         int firstSoundTick = -1, firstDifferenceTick = -1;
         bool reachedSavedMap = false;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Hardware;
@@ -107,13 +108,13 @@ try
             "ROM-only extraction matches every reference file, with no missing or extra files");
     }
 
-    var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(catalog);
+    var renderer = AudioSessionAccess.CreateSynthesizing(catalog);
     long audible = 0;
     for (int frame = 0; frame < 120; frame++)
     {
         AudioRequest[] commands = frame == 0
-            ? [new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet),
-               new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Music[0].AudioSet),
+            ? [new AudioRequest.ChangeMusicDataSet(null),
+               new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Music[0].DataSet),
                AudioRequest.ForTrack(MusicTrack.NumberedOrNone(AudioRomDataMusicTracks.Title))] : [];
         foreach (short sample in renderer.RenderFrame(commands)) if (sample != 0) audible++;
     }

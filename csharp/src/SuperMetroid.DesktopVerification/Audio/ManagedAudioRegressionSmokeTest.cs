@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core;
@@ -121,8 +122,8 @@ public static class ManagedAudioRegressionSmokeTest
             IReadOnlyList<AudioRequest> commands = frame == 0
                 ?
                 [
-                    new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet),
-                    new AudioRequest.ChangeMusicDataSet(bank.AudioSet),
+                    new AudioRequest.ChangeMusicDataSet(null),
+                    new AudioRequest.ChangeMusicDataSet(bank.DataSet),
                     AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)),
                 ]
                 : Array.Empty<AudioRequest>();
@@ -144,7 +145,7 @@ public static class ManagedAudioRegressionSmokeTest
             List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(null));
                 commands.AddRange(startSounds.Select(sound => new AudioRequest.RequestSound(sound)));
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
@@ -170,8 +171,8 @@ public static class ManagedAudioRegressionSmokeTest
             List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet));
-                commands.Add(new AudioRequest.ChangeMusicDataSet(first.AudioSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(null));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(first.DataSet));
                 commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
             }
             else if (frame == 120)
@@ -180,7 +181,7 @@ public static class ManagedAudioRegressionSmokeTest
             }
             else if (frame == 150)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(second.AudioSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(second.DataSet));
                 commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
             }
             else if (frame == 270)

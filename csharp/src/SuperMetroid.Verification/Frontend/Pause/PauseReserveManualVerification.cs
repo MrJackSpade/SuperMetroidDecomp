@@ -61,7 +61,7 @@ internal static class PauseReserveManualVerification
         {
             var samus = new SamusState { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);
             pause.Step(0, SnesButton.Up);

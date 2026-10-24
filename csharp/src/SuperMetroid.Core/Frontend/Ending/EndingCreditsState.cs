@@ -45,7 +45,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             InstalledArtwork.BindSpriteSheets(artwork.SpriteSheets);
     }
     /// <summary>Queues the authored ending music transitions.</summary>
-    private readonly CartridgeAudioState audio;
+    private readonly AudioQueues audio;
     /// <summary>Collected-item snapshot displayed with the final result.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Chooses the localized post-credits text asset.</summary>
@@ -96,7 +96,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal EndingCreditsRoll CreditsRoll { get; }
 
     /// <summary>Initializes state-$27 from the saved clear-time and ending setup snapshot.</summary>
-    public EndingCreditsState(CartridgeAudioState audio, EndingCreditsSetup setup)
+    public EndingCreditsState(AudioQueues audio, EndingCreditsSetup setup)
     {
         this.audio = Ensure.NotNull(audio);
         this.inventory = setup.Inventory;

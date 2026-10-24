@@ -81,8 +81,8 @@ internal static class DoorTransitionAutosaveVerification
             InstalledFixtures.BindGame(loaded.Game);
             // The player is restored inside the game graph; the host rebinds only the catalog.
             loaded.Game.BindAudio(assets);
-            var expectedPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-            var actualPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+            var expectedPcm = new short[AudioSession.PcmSamplesPerFrame];
+            var actualPcm = new short[AudioSession.PcmSamplesPerFrame];
             for (int frame = 0; frame < 6; frame++)
             {
                 SnesButton input = frame < 3 ? SnesButton.Left : SnesButton.None;

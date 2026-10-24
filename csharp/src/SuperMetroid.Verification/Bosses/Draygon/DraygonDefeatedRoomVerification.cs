@@ -30,7 +30,7 @@ internal static class DraygonDefeatedRoomVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.SpaceJump);
         runtime.Room.LoadedLevelData.ResolveDoorCollision(0, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         transition.Begin(runtime);
         for (int frame = 0; transition.Phase != DoorTransitionPhase.HandleTransition && frame < 600; frame++)
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);

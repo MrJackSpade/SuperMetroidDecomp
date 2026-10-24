@@ -17,6 +17,9 @@ public sealed class ClipAudioCatalog
     /// <summary>Bytes of the minimal RIFF/WAVE header the exporter writes before the samples.</summary>
     internal const int WaveHeaderBytes = 44;
 
+    /// <summary>Game updates per second; the clips' rate is one update's samples this many times.</summary>
+    private const int UpdatesPerSecond = 60;
+
     /// <summary>Bytes per 16-bit stereo frame.</summary>
     internal const int BytesPerFrame = PcmSampleFormat.StereoChannelCount * sizeof(short);
 
@@ -110,7 +113,7 @@ public sealed class ClipAudioCatalog
             throw new InvalidDataException(
                 $"Audio clip manifest '{manifestPath}' uses format {manifest.FormatVersion}; expected {AudioClipManifest.CurrentFormatVersion}.");
         }
-        if (manifest.SampleRate != SpcPortDefinitions.NativeStereoFramesPerVideoFrame * 60)
+        if (manifest.SampleRate != SoundAcceptanceClock.SamplesPerUpdate * UpdatesPerSecond)
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' has rate {manifest.SampleRate}.");
         if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' names no source content identity.");

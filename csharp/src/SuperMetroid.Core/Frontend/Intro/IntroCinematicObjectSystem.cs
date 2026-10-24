@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroCinematicObjectSystem
 {
     /// <summary>Queues alternating non-space typewriter sounds when audio is present.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>The shown portrait and narration tilemaps: eye-frame rectangles and narration uploads land here.</summary>
     private readonly IntroTilemaps tilemaps;
     /// <summary>Receives narration glyph words at their authored row and column.</summary>
@@ -58,7 +58,7 @@ internal sealed class IntroCinematicObjectSystem
         IntroTilemaps tilemaps,
         ushort[] textTilemap,
         IntroJapaneseSubtitles subtitles,
-        CartridgeAudioState? audio = null,
+        AudioQueues? audio = null,
         IntroNarrationPresentation? narrationPresentation = null,
         IntroEyeTilemapPresentation? eyeArtwork = null)
     {

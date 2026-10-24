@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 

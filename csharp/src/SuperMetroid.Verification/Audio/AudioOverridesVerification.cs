@@ -57,8 +57,8 @@ internal static class AudioOverridesVerification
             () => AudioAssetOverrideInstaller.Initialize(installation),
             "audio override initialization refuses to overwrite user content");
         AssertEqual(
-            stock.GetMusic(AudioBank.GreenBrinstar, ReplacedTrack).Clip,
-            installation.LoadAudioClips().GetMusic(AudioBank.GreenBrinstar, ReplacedTrack).Clip,
+            stock.GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack).Clip,
+            installation.LoadAudioClips().GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack).Clip,
             "an empty override selects the stock clips");
         AssertEqual(stock.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "an empty override keeps the stock identity");
 
@@ -71,14 +71,14 @@ internal static class AudioOverridesVerification
         AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
 
         ClipAudioCatalog selected = installation.LoadAudioClips();
-        MusicClipEntry song = selected.GetMusic(AudioBank.GreenBrinstar, ReplacedTrack);
+        MusicClipEntry song = selected.GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack);
         AssertEqual(ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
         AssertEqual<long?>(ToneLoop, song.LoopStart, "the replacement's loop selects the song");
         AssertSequenceEqual(tone, selected.ReadClip(song.Clip), "the session plays the replacement's samples");
         AssertTrue(selected.ContentIdentity != stock.ContentIdentity, "a replacement changes the selected audio identity");
         AssertSequenceEqual(
-            stock.GetSoundEffect(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
-            selected.GetSoundEffect(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
+            stock.GetSoundEffect(MusicDataSet.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
+            selected.GetSoundEffect(MusicDataSet.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
             "unreplaced sounds stay stock");
 
         // A stock repair replaces only game/audio; the persistent override remains selected.

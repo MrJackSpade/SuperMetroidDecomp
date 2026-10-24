@@ -28,7 +28,7 @@ internal static class SoundAcceptanceClockVerification
     /// <summary>
     /// Confirms the session's port model and its semantic events reproduce the emulated driver
     /// (#1304 stages 1 and 3). One scripted sequence runs through two dispatchers: one fed by the
-    /// game session's <see cref="CartridgeAudioSession"/>, whose bound backend renders the
+    /// game session's <see cref="AudioSession"/>, whose bound backend renders the
     /// session's events, and one fed by a standalone port model. Every frame must publish the same
     /// commands and acknowledgement bytes; the session's driver ticks and sound-effect starts must
     /// equal the standalone model's schedule and changed nonzero polls, so nothing starts during
@@ -37,13 +37,13 @@ internal static class SoundAcceptanceClockVerification
     /// </summary>
     internal static void VerifySoundAcceptanceClockMatchesEmulatedDriver()
     {
-        var session = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
-        var rendered = new CartridgeAudioState();
+        var session = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
+        var rendered = new AudioQueues();
         SoundAcceptanceClock ports = new SoundAcceptanceClock();
-        var modeled = new CartridgeAudioState();
+        var modeled = new AudioQueues();
         var acknowledgementBytes = new List<byte>();
         using var pcm = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var samples = new short[AudioSession.PcmSamplesPerFrame];
         SoundAcknowledgements modeledAcknowledgements = default;
         var starts = new List<StartValue>();
         int uploadFrame = -1, trackFrame = -1, downtimeRequestFrame = -1;
@@ -166,7 +166,7 @@ internal static class SoundAcceptanceClockVerification
     /// Brinstar data upload followed by a track select, and library-3 requests timed around
     /// the eight-call music downtime that zeroes every SFX port.
     /// </summary>
-    private static void QueueScenarioRequests(CartridgeAudioState audio, int frame)
+    private static void QueueScenarioRequests(AudioQueues audio, int frame)
     {
         switch (frame)
         {

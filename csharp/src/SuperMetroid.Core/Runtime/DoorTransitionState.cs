@@ -72,7 +72,7 @@ internal sealed class DoorTransitionState
     /// <summary>Advances exactly one coroutine function selected by <see cref="Phase"/>.</summary>
     public void Step(
         SuperMetroidRuntime runtime,
-        CartridgeAudioState audio,
+        AudioQueues audio,
         SnesButton controllerInput,
         IRoomLoadProgress loaderProgress,
         Action? publishSoundWaitAudio = null)

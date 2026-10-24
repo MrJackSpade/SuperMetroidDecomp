@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>Verification access to <see cref="CartridgeAudioState"/> queues, which production reads only to dispatch.</summary>
-internal static class CartridgeAudioStateQueueAccess
+/// <summary>Verification access to <see cref="AudioQueues"/> queues, which production reads only to dispatch.</summary>
+internal static class AudioQueuesAccess
 {
     /// <summary>Exposes music timing and per-library SFX queue positions from cartridge audio state.</summary>
-    extension(CartridgeAudioState self)
+    extension(AudioQueues self)
     {
         /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
         internal string MusicQueueForVerification() =>

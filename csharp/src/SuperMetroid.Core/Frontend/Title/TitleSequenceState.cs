@@ -61,7 +61,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>The title's colors: the installed palette and live console palette-FX changes (#1358).</summary>
     internal readonly ScreenPalette palette = new();
     /// <summary>The floor's cells as the bound artwork lays them out, until it is rebound.</summary>
@@ -116,7 +116,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <param name="titleGraphicsPresentation">Required installed title graphics.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the title's compositions draw from.</param>
     public TitleSequenceState(
-        CartridgeAudioState? audio = null,
+        AudioQueues? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null,
@@ -128,7 +128,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Builds the initial title VRAM and palette state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
-        CartridgeAudioState? audio,
+        AudioQueues? audio,
         TitleOpeningMusic openingMusic,
         TitleGradientPresentation? titleGradientPresentation,
         TitlePalettePresentation? titlePalettePresentation,
@@ -174,7 +174,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>State $2C's player-cancelled return skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
-        CartridgeAudioState audio,
+        AudioQueues audio,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null,

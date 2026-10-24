@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// acknowledgements the next update's sound handlers read. The game session and the offline clip renderer (#1305)
 /// share it, so both drive a backend with identical event streams.
 /// </summary>
-internal sealed class CartridgeAudioEventSource
+internal sealed class AudioEventSource
 {
     /// <summary>The clock that decides when each library accepts and acknowledges a request.</summary>
     private readonly SoundAcceptanceClock clock = new();

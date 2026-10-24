@@ -63,9 +63,9 @@ internal sealed class FrontendSession
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
     internal readonly int bootDemoSetCount;
     /// <summary>Native music and SFX queues shared across menus and gameplay.</summary>
-    internal readonly CartridgeAudioState audio = new();
+    internal readonly AudioQueues audio = new();
     /// <summary>Core-owned SPC port model and synthesizer advanced at the end of every update.</summary>
-    internal readonly CartridgeAudioSession audioSession = new();
+    internal readonly AudioSession audioSession = new();
     /// <summary>The frontend screen showing now: the one menu or cinematic the current state runs, or none.</summary>
     internal IFrontendScreen? Screen { get; private set; }
     /// <summary>Shows <paramref name="screen"/> in place of whatever screen was showing.</summary>

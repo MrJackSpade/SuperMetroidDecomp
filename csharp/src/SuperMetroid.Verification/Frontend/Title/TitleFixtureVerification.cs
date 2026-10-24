@@ -11,7 +11,7 @@ internal static class TitleFixtureVerification
 {
     /// <summary>Extracts graphics, palette, and optional gradient from the fixture's own source so patched-ROM visual assertions remain observable.</summary>
     internal static TitleSequenceState CreateTitleFixture(ISnesAddressSpace source,
-        CartridgeAudioState? audio = null, TitleGradientPresentation? titleGradientPresentation = null)
+        AudioQueues? audio = null, TitleGradientPresentation? titleGradientPresentation = null)
     {
         var files = TitleGraphicsExtractor.Extract(source);
         var graphics = TitleGraphicsCharacters.Read(

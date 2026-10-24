@@ -379,7 +379,7 @@ internal static void VerifyEndingCreditsState()
     }
 
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
+    var audio = new SuperMetroid.Core.Audio.AudioQueues();
     var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
     ending.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus))));

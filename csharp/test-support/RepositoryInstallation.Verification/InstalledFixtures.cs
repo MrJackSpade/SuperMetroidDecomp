@@ -156,12 +156,12 @@ internal static class InstalledFixtures
     internal static SamusState CreateSamus() => BindSamus(new SamusState());
 
     /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
+    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
         new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
-    internal static IntroCinematicState CreateIntro(CartridgeAudioState? audio = null,
+    internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamPaletteCatalog? beamPalettes = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
     {
@@ -180,7 +180,7 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates ending credits with installed flight, Mode 7, object, palette, and staff art.</summary>
-    internal static EndingCreditsState CreateEnding(CartridgeAudioState audio,
+    internal static EndingCreditsState CreateEnding(AudioQueues audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
         var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
@@ -199,7 +199,7 @@ internal static class InstalledFixtures
         FileSelectAreaMapGraphics.FromPresentation(selectedArea, Maps, SpriteSheets);
 
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
-    internal static TitleSequenceState CreateTitle(CartridgeAudioState? audio = null,
+    internal static TitleSequenceState CreateTitle(AudioQueues? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null) =>

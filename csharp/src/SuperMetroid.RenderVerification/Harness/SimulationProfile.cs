@@ -46,7 +46,7 @@ internal static class SimulationProfile
         var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
         game.BindAudio(DesktopAccess.LoadAudioClips());
-        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var pcm = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0;
         long nonzeroPcmSamples = 0;
         SimulationStepCost Step(SnesButton input)
@@ -90,7 +90,7 @@ internal static class SimulationProfile
         if (nonzeroPcmSamples == 0) throw new InvalidOperationException("Audio timing baseline contained only silence.");
         Console.WriteLine($"Room {room.Name}, paused={paused}: simulation+audio p50/p95/p99 {combined.P50:F3}/{combined.P95:F3}/{combined.P99:F3}ms; allocation p50 {Distribution(allocated).P50:F0} bytes/frame.");
         return new { Room = room.Name, Paused = paused, CaptureMs = Distribution(capture), AudioMs = Distribution(mixing),
-            TotalMs = combined, AllocationBytes = Distribution(allocated), PcmSamples = 600 * CartridgeAudioSession.PcmSamplesPerFrame,
+            TotalMs = combined, AllocationBytes = Distribution(allocated), PcmSamples = 600 * AudioSession.PcmSamplesPerFrame,
             NonzeroPcmSamples = nonzeroPcmSamples };
     }
 

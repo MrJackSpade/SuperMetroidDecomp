@@ -189,7 +189,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
 
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>The portrait and narration tilemaps the intro shows across narration and flashback scenes (#1358).</summary>
     internal readonly IntroTilemaps tilemaps = new();
     /// <summary>The intro's colors, including the palette ranges changed by scene crossfades (#1358).</summary>
@@ -289,7 +289,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="japaneseText">The options menu's Japanese text setting (native <c>AltText</c>).</param>
     public IntroCinematicState(
 
-        CartridgeAudioState? audio = null,
+        AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamPaletteCatalog? beamPalettes = null,

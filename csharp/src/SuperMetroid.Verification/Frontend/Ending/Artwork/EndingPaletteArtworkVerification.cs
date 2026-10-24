@@ -244,8 +244,8 @@ internal static class EndingPaletteArtworkVerification
         var guardedBus = NewEndingPaletteSourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
             maps.RoomPaletteFx, () => rejectAllCartridgeReads);
-        var nativeAudio = new CartridgeAudioState();
-        var installedAudio = new CartridgeAudioState();
+        var nativeAudio = new AudioQueues();
+        var installedAudio = new AudioQueues();
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
         var installedState = CreateRetailEndingFixture(installedAudio, 2, 59);
         installedState.InstalledArtwork.BindPaletteArtwork(stock);
@@ -348,11 +348,11 @@ internal static class EndingPaletteArtworkVerification
                 $"ending {id} override changes only its selected RGB5 color");
             if (id == EndingPaletteId.Escape)
             {
-                var editedAudio = new CartridgeAudioState();
+                var editedAudio = new AudioQueues();
                 var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
                 editedState.InstalledArtwork.BindPaletteArtwork(edited);
                 editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
-                var stockAudio = new CartridgeAudioState();
+                var stockAudio = new AudioQueues();
                 var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
                 // The ending's setup dispatch loads the escape palette only after its own NMI
                 // waits; step through them so both images show the installed palette.
@@ -447,8 +447,8 @@ internal static class EndingPaletteArtworkVerification
         RoomPaletteFxPresentation editedColors = RoomPaletteFxPresentationFile.Read(
             new MemoryStream(editedFile, writable: false));
 
-        var editedAudio = new CartridgeAudioState();
-        var stockAudio = new CartridgeAudioState();
+        var editedAudio = new AudioQueues();
+        var stockAudio = new AudioQueues();
         var editedScene = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockScene = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedScene.InstalledArtwork.BindPaletteArtwork(installation.LoadEndingPalettes());
@@ -549,8 +549,8 @@ internal static class EndingPaletteArtworkVerification
         using (var output = File.Create(overridePath))
             EndingPaletteFile.Write(output, EndingPaletteId.Credits, document);
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
-        var editedAudio = new CartridgeAudioState();
-        var stockAudio = new CartridgeAudioState();
+        var editedAudio = new AudioQueues();
+        var stockAudio = new AudioQueues();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
@@ -601,8 +601,8 @@ internal static class EndingPaletteArtworkVerification
         using (var output = File.Create(overridePath))
             EndingPaletteFile.Write(output, EndingPaletteId.LogoCrossfade, document);
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
-        var editedAudio = new CartridgeAudioState();
-        var stockAudio = new CartridgeAudioState();
+        var editedAudio = new AudioQueues();
+        var stockAudio = new AudioQueues();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);

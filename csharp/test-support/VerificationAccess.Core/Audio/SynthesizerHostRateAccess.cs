@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Audio;
 internal static class SynthesizerHostRateAccess
 {
     /// <summary>Host stereo frames per 60-Hz update.</summary>
-    private const int HostStereoFramesPerVideoFrame = CartridgeAudioSession.StereoFramesPerVideoFrame;
+    private const int HostStereoFramesPerVideoFrame = AudioSession.StereoFramesPerVideoFrame;
 
     /// <summary>Host-rate constants the driver definitions no longer carry.</summary>
     extension(SpcDriverDefinitions)
@@ -25,7 +25,7 @@ internal static class SynthesizerHostRateAccess
         /// <summary>Renders the update natively and resamples it to 48-kHz interleaved stereo.</summary>
         internal void Render(in AudioFrameEvents frame, Span<short> stereo48k)
         {
-            short[] native = new short[SpcPortDefinitions.NativeStereoFramesPerVideoFrame * 2];
+            short[] native = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
             self.RenderNative(frame, native);
             PcmFrameResampler.ResampleStereoLinear(native, stereo48k[..(HostStereoFramesPerVideoFrame * 2)]);
         }
@@ -39,7 +39,7 @@ internal static class SynthesizerHostRateAccess
         {
             if (destination.Length < HostStereoFramesPerVideoFrame * 2)
                 throw new ArgumentException($"Audio destination requires {HostStereoFramesPerVideoFrame * 2} samples.", nameof(destination));
-            short[] native = new short[SpcPortDefinitions.NativeStereoFramesPerVideoFrame * 2];
+            short[] native = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
             self.GenerateNativeFrame(schedule, native);
             PcmFrameResampler.ResampleStereoLinear(native, destination[..(HostStereoFramesPerVideoFrame * 2)]);
         }
@@ -53,7 +53,7 @@ internal static class SynthesizerHostRateAccess
         {
             if (stereoFrameCount <= 0 || destination.Length < stereoFrameCount * 2)
                 throw new ArgumentOutOfRangeException(nameof(stereoFrameCount));
-            short[] native = new short[SpcPortDefinitions.NativeStereoFramesPerVideoFrame * 2];
+            short[] native = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
             self.CopyNativeSamples(native);
             PcmFrameResampler.ResampleStereoLinear(native, destination[..(stereoFrameCount * 2)]);
         }

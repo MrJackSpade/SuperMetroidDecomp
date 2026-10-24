@@ -23,7 +23,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
-    private readonly CartridgeAudioState audio;
+    private readonly AudioQueues audio;
     /// <summary>The menu screen game over draws: its artwork, tilemaps, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
@@ -56,7 +56,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// publishing the Ceres loader immediately instead of fading into the area map.
     /// </param>
     public GameOverMenuState(
-        CartridgeAudioState audio,
+        AudioQueues audio,
         AreaMapPresentationCatalog? mapPresentation,
         InstalledSpriteSheets? spriteSheets,
         bool continueLoadsCeresArrival = false)

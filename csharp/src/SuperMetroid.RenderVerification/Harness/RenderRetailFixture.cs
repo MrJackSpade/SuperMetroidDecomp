@@ -26,5 +26,5 @@ internal static class RenderRetailFixture
         InstalledFixtures.CreateDestruction();
 
     /// <summary>Creates the intro cinematic from the shared retail fixture installation, queueing its music on <paramref name="audio"/>.</summary>
-    internal static IntroCinematicState CreateIntro(CartridgeAudioState audio) => InstalledFixtures.CreateIntro(audio);
+    internal static IntroCinematicState CreateIntro(AudioQueues audio) => InstalledFixtures.CreateIntro(audio);
 }

@@ -646,14 +646,14 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     SoundEffectId expectedHurtCry = Library2Sound.ShotRipper;
     AssertEqual<SoundEffectId?>(expectedHurtCry, ripper.Definition.HurtSoundEffect, "Ripper header cry decodes to the Ripper hit sound");
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
-        request.SoundEffect == expectedHurtCry && request.MaximumQueued == 3);
+        request.SoundEffect == expectedHurtCry && request.MaximumQueued.Requests == 3);
     for (int hit = 0; hit < 2; hit++)
     {
         ArmProjectile(shot, ripper, type: 0x0200, damage: 100);
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
-            request.SoundEffect == expectedHurtCry && request.MaximumQueued == 3),
+            request.SoundEffect == expectedHurtCry && request.MaximumQueued.Requests == 3),
             "common shot queues the header cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
@@ -989,8 +989,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "Ceres Ridley becomes tangible after body fade");
     AssertTrue(enemies.Audio.MusicRequests.Contains(new DelayedMusicRequest(
-            MusicCommand.SelectTrack(5),
-            MusicCommandDelay.EightFrames)),
+            MusicRequest.SelectTrack(5),
+            MusicQueueDelay.Shortest)),
         "Ceres Ridley final body fade queues battle/escape track five");
 
     // Finish the 5-frame pre-roar and 253-frame pre-liftoff countdowns, then let the real

@@ -29,9 +29,9 @@ internal static class FileSelectCaptureComparison
             SaveRamCodec.Decode(recording.InitialSaveRam, RepositoryInstallation.Installation.LoadMaps()), recording.GameOptions);
         ClipAudioCatalog clips = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(clips);
-        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var pcm = new short[AudioSession.PcmSamplesPerFrame];
         var muted = new ClipAudioBackend(clips);
-        var suppressed = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var suppressed = new short[AudioSession.PcmSamplesPerFrame];
         var expected = new List<double>();
         var control = new List<double>();
         int requests = 0, firstDifference = -1;

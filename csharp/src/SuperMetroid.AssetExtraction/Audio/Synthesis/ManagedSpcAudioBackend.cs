@@ -50,7 +50,7 @@ public sealed class ManagedSpcAudioBackend
             {
                 case AudioEvent.ChangeMusicDataSet change:
                     RequireBeforeTicks(ticks, audioEvent);
-                    LoadBank(change.DataSet);
+                    LoadBank(AudioAssetCatalogDefinitions.BankOf(change.DataSet));
                     break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);

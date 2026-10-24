@@ -24,7 +24,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
-    private readonly CartridgeAudioState audio;
+    private readonly AudioQueues audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
     private readonly int area;
     /// <summary>Per-area used-station words restored from the selected save slot.</summary>
@@ -66,7 +66,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <param name="spriteSheets">Required installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets or the sprite sheets are absent.</exception>
-    public FileSelectMapMenuState(CartridgeAudioState audio,
+    public FileSelectMapMenuState(AudioQueues audio,
         SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
     {

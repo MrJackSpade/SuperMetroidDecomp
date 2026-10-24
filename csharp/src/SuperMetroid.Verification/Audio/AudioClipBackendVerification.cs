@@ -53,17 +53,17 @@ internal static class AudioClipBackendVerification
     /// <summary>Feeds one event stream to both backends: uploads on update 0, <paramref name="request"/> on update 1.</summary>
     private static void VerifyEquivalence(ClipAudioCatalog clips, ExtractedAudioAssetCatalog extracted, AudioRequest request, int updates, string name)
     {
-        var source = new CartridgeAudioEventSource();
+        var source = new AudioEventSource();
         var clipBackend = new ClipAudioBackend(clips);
         var synthesis = new ManagedSpcAudioBackend(extracted);
-        short[] fromClips = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        short[] fromSynthesis = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        short[] fromClips = new short[AudioSession.PcmSamplesPerFrame];
+        short[] fromSynthesis = new short[AudioSession.PcmSamplesPerFrame];
         bool audible = false;
         for (int update = 0; update < updates; update++)
         {
             IReadOnlyList<AudioRequest> commands = update switch
             {
-                0 => [new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine), new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)],
+                0 => [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)],
                 1 => [request],
                 _ => [],
             };
@@ -80,11 +80,11 @@ internal static class AudioClipBackendVerification
     private static void VerifyMusicCommands(ClipAudioCatalog clips)
     {
         var script = new Script(clips);
-        script.Advance([new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine), new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
+        script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
         long start = script.State.MusicStart;
-        AssertEqual(clips.GetMusic(AudioBank.GreenBrinstar, RoomTrack), script.State.Music, "the room track's clip starts");
+        AssertEqual(clips.GetMusic(MusicDataSet.GreenBrinstar, RoomTrack), script.State.Music, "the room track's clip starts");
 
         script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack))]);
         script.Advance(60);
@@ -94,7 +94,7 @@ internal static class AudioClipBackendVerification
         script.AdvanceUntil(() => script.State.Music is null, MusicTickUpdates);
         AssertEqual(0, script.State.MusicPort, "stop returns the port to zero");
 
-        MusicClipEntry ending = clips.GetMusic(AudioBank.GreenBrinstar, EndingTrack);
+        MusicClipEntry ending = clips.GetMusic(MusicDataSet.GreenBrinstar, EndingTrack);
         AssertTrue(ending.LoopStart is null, "track 2 ends");
         script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(EndingTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
@@ -111,14 +111,14 @@ internal static class AudioClipBackendVerification
     private static void VerifySoundCommands(ClipAudioCatalog clips)
     {
         SoundEffectClipEntry high = clips.Manifest.SoundEffects.First(entry =>
-            entry.Context == AudioBank.GreenBrinstar && entry.Library == SoundEffectLibrary.Library2 &&
+            entry.Context == MusicDataSet.GreenBrinstar && entry.Library == SoundEffectLibrary.Library2 &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.High, IgnoresPriority: false } &&
             entry.ActiveFrames > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
         SoundEffectClipEntry low = clips.Manifest.SoundEffects.First(entry =>
-            entry.Context == AudioBank.GreenBrinstar && entry.Library == SoundEffectLibrary.Library2 &&
+            entry.Context == MusicDataSet.GreenBrinstar && entry.Library == SoundEffectLibrary.Library2 &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Command != high.Command);
         var script = new Script(clips);
-        script.Advance([new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine), new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
+        script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         ClipLibraryState library2 = script.State.Libraries[1];
 
         script.Advance([AudioRequest.ForSound(SoundEffectLibrary.Library2, high.Command)]);
@@ -141,7 +141,7 @@ internal static class AudioClipBackendVerification
         AssertEqual<int?>(Library3Sound.LowHealthBeep.Value, library3.Sound?.Command, "low-health mode rejects another library-3 sound");
 
         long position = script.State.Sample - library3.Start;
-        script.Advance([new AudioRequest.ChangeMusicDataSet(AudioBank.GreenBrinstar)]);
+        script.Advance([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         SoundEffectClipLayer beep = library3.Sound?.Layers[0] ?? throw new InvalidOperationException("The beep has a layer.");
         AssertTrue(library3.SilencedUntil[0] > position && beep.KeyOnFrames.Count != 0, "an upload silences the looping beep until a later key-on");
 
@@ -155,11 +155,11 @@ internal static class AudioClipBackendVerification
     private sealed class Script(ClipAudioCatalog clips)
     {
         /// <summary>The port model producing the events.</summary>
-        private readonly CartridgeAudioEventSource source = new();
+        private readonly AudioEventSource source = new();
         /// <summary>The backend under test.</summary>
         private readonly ClipAudioBackend backend = new(clips);
         /// <summary>Reusable PCM output.</summary>
-        private readonly short[] pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        private readonly short[] pcm = new short[AudioSession.PcmSamplesPerFrame];
         /// <summary>Absolute frame of each library's most recent start event.</summary>
         private readonly long[] lastStarts = new long[3];
 

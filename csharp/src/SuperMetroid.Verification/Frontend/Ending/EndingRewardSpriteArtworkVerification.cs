@@ -72,7 +72,7 @@ internal static class EndingRewardSpriteArtworkVerification
             using (var output = File.Create(overridePath))
                 EndingRewardSpritePresentation.Write(output, document);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             var scene = CreateRetailEndingFixture(audio, 2, 0);
             scene.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
                 CreditsPresentationExtractor.Extract(

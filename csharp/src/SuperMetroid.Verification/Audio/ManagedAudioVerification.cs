@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Hardware;
 using System.Runtime.InteropServices;
 using static SuperMetroid.Verification.Audio.AudioBankTransitionVerification;

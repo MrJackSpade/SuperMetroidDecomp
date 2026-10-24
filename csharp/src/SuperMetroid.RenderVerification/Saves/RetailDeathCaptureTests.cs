@@ -32,8 +32,8 @@ internal static class RetailDeathCaptureTests
         var audioAssets = DesktopAccess.LoadAudioClips();
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
-        var legacyAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var capturedAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var legacyAudio = new short[AudioSession.PcmSamplesPerFrame];
+        var capturedAudio = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0;
         void Step(SnesButton input, bool comparePixels)
         {

@@ -191,7 +191,7 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         var game = new SuperMetroidGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
-        var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var samples = new short[AudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();
         PauseAccumulator? active = null;
 

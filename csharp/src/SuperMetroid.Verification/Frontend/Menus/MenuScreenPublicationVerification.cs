@@ -74,7 +74,7 @@ internal static class MenuScreenPublicationVerification
             options.Step(0);
         AssertPublished(options.screen, options.CaptureRenderSnapshot(), "options");
 
-        var gameOver = new GameOverMenuState(new CartridgeAudioState(), maps, MenuSheetFixtures.For(maps));
+        var gameOver = new GameOverMenuState(new AudioQueues(), maps, MenuSheetFixtures.For(maps));
         for (int frame = 0; frame < 30; frame++)
             gameOver.Step(0);
         AssertPublished(gameOver.screen, gameOver.CaptureRenderSnapshot(), "game over");

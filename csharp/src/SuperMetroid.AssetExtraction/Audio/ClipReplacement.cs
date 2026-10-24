@@ -1,5 +1,6 @@
+using SuperMetroid.Core.Audio;
 
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>A replacement audio clip and the file it was read from.</summary>
 /// <param name="Clip">The clip.</param>

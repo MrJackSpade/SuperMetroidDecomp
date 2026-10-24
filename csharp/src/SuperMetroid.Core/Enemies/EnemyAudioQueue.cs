@@ -41,23 +41,23 @@ internal sealed class EnemyAudioQueue
 
     /// <summary>Transient room-load music calls consumed in the same update outside EnemyMain's frame window.</summary>
     /// <remarks>The requests do not survive an update boundary or enter debugger snapshots.</remarks>
-    [NonSerialized] private List<MusicCommand>? _initializationMusicDelayed8;
+    [NonSerialized] private List<MusicRequest>? _initializationMusicDelayed8;
 
     /// <summary>
     /// Records an enemy initialization's <c>QueueMusicDataOrTrack_8FrameDelay</c> ($80:8FC1)
     /// call, which room loading performs after queuing the room's own music data.
     /// </summary>
-    internal void QueueInitializationMusicDelayed8(MusicCommand command) =>
-        (_initializationMusicDelayed8 ??= []).Add(command);
+    internal void QueueInitializationMusicDelayed8(MusicRequest request) =>
+        (_initializationMusicDelayed8 ??= []).Add(request);
 
     /// <summary>Returns and clears the initialization music calls of the room just loaded.</summary>
-    internal IReadOnlyList<MusicCommand> ConsumeInitializationMusicDelayed8()
+    internal IReadOnlyList<MusicRequest> ConsumeInitializationMusicDelayed8()
     {
         if (_initializationMusicDelayed8 is not { Count: > 0 } pending)
             return [];
-        MusicCommand[] commands = [.. pending];
+        MusicRequest[] requests = [.. pending];
         pending.Clear();
-        return commands;
+        return requests;
     }
 
     /// <summary>
@@ -80,10 +80,10 @@ internal sealed class EnemyAudioQueue
             QueueEnemySound(value, maximumQueued);
     }
 
-    /// <summary>Retains a legacy music request only when both command and native delay are present.</summary>
-    internal void QueueLegacyMusic(MusicCommand? command, MusicCommandDelay? delay)
+    /// <summary>Retains a music request only when both the request and its delay are present.</summary>
+    internal void QueueLegacyMusic(MusicRequest? request, MusicQueueDelay? delay)
     {
-        if (command is MusicCommand value && delay is MusicCommandDelay wait)
+        if (request is MusicRequest value && delay is MusicQueueDelay wait)
             _musicRequests.Add(new DelayedMusicRequest(value, wait));
     }
 }

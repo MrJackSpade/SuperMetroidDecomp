@@ -151,7 +151,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets this enemy frame's death-explosion sound request for the outer audio consumer, or null when none was made.</summary>
     public SoundEffectId? LastDeathSoundEffect { get; internal set; }
     /// <summary>Gets the typed music request published by Lower Norfair death or Ceres self-destruct for the outer music queue.</summary>
-    public MusicCommand? MusicRequest { get; internal set; }
+    public MusicRequest? MusicRequest { get; internal set; }
 
     /// <summary>The Ceres Baby's typed cutscene program, positioned after its current pose; owned separately from Ridley's body.</summary>
     internal AnimationProgramCursor<CeresBabyProgram> BabyProgram { get; set; }

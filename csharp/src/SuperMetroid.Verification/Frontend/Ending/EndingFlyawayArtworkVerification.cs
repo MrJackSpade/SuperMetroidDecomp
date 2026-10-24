@@ -20,8 +20,8 @@ internal static class EndingFlyawayArtworkVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var guard = NewIntroArtworkSourceReadGuard(installedBus);
-        var nativeAudio = new CartridgeAudioState();
-        var installedAudio = new CartridgeAudioState();
+        var nativeAudio = new AudioQueues();
+        var installedAudio = new AudioQueues();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
         installed.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
@@ -77,7 +77,7 @@ internal static class EndingFlyawayArtworkVerification
 
         var rebindBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var rebindGuard = NewIntroArtworkSourceReadGuard(rebindBus);
-        var rebindAudio = new CartridgeAudioState();
+        var rebindAudio = new AudioQueues();
         var restored = CreateRetailEndingFixture(rebindAudio, 0, 0);
         restored.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < 10000 &&

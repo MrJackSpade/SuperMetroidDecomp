@@ -23,7 +23,7 @@ internal static class EndingCloudPlacementVerification
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: true));
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: false));
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
         {
@@ -88,7 +88,7 @@ internal static class EndingCloudPlacementVerification
     /// <summary>Checks that the takeoff scene's floor wraps beyond its edges, or that it adds the floor to the frame's main pixels.</summary>
     internal static void VerifyEndingTakeoffColorMath(bool checkWrapping)
     {
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {

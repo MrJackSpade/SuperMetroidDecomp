@@ -18,7 +18,7 @@ internal static class EndingExplosionSlotOrderVerification
     internal static void VerifyEndingExplosionSlotOrder()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {

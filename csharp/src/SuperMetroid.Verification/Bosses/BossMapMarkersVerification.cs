@@ -76,7 +76,7 @@ internal static class BossMapMarkersVerification
                     "JSON/SRAM reload preserves the complete defeated pause image");
                 // The existing-save menu creates its own progression owner from the
                 // slot. Compare that actual constructor path with the live source.
-                var savedMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
+                var savedMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), slot, 0,
                     RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
                 var savedGraphics = savedMenu.roomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(system, (AreaId)area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));

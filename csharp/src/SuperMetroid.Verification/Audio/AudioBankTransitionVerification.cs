@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -51,12 +52,12 @@ internal static class AudioBankTransitionVerification
         var assets = ExtractedAudioAssetCatalog.Load(directory);
         foreach (var bank in AudioAssetCatalogDefinitions.Music)
         {
-            var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(assets);
-            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.SpcEngine)]);
-            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(bank.AudioSet)]);
+            var renderer = AudioSessionAccess.CreateSynthesizing(assets);
+            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(null)]);
+            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(bank.DataSet)]);
             renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5))]);
             for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
-            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(AudioBank.LastMetroidInCaptivity)]);
+            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.LastMetroidInCaptivity)]);
             renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5))]);
             bool audible = false;
             for (int frame = 0; frame < 600; frame++)

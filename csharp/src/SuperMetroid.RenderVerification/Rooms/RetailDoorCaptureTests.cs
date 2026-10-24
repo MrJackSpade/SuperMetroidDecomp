@@ -44,7 +44,7 @@ internal static class RetailDoorCaptureTests
     {
             PublishDoor(runtime, doorCase.Door);
             var transition = new DoorTransitionState();
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             transition.Begin(runtime);
             int frames = 0, scrollFrames = 0;
             while (transition.IsActive && frames < 320)

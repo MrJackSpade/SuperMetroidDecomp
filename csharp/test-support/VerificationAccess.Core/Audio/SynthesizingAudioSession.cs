@@ -3,20 +3,20 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// The game session's audio path with the emulated driver as its backend, for synthesizer
-/// verification (#1305): one update's commands go through <see cref="CartridgeAudioEventSource"/>
+/// verification (#1305): one update's commands go through <see cref="AudioEventSource"/>
 /// to a <see cref="ManagedSpcAudioBackend"/>, exactly as a session's do to its bound backend.
 /// </summary>
 /// <param name="assets">The extracted catalog the synthesizer installs on bank loads.</param>
 internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets)
 {
     /// <summary>The port model producing each update's events and acknowledgements.</summary>
-    private readonly CartridgeAudioEventSource events = new();
+    private readonly AudioEventSource events = new();
 
     /// <summary>The emulated driver rendering the events.</summary>
     private readonly ManagedSpcAudioBackend backend = new(assets);
 
     /// <summary>The most recent update's interleaved 48-kHz PCM; silence before the first.</summary>
-    private readonly short[] lastPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+    private readonly short[] lastPcm = new short[AudioSession.PcmSamplesPerFrame];
 
     /// <summary>The acknowledgement bytes the most recent update published.</summary>
     internal SoundAcknowledgements<SoundEffectId> Acknowledgements => events.Acknowledgements;

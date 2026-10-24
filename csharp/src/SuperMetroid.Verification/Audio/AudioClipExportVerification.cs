@@ -54,7 +54,7 @@ internal static class AudioClipExportVerification
             foreach (SoundEffectId effect in effects)
                 VerifySoundEffect(catalog, clips, effect);
             AssertThrows<InvalidDataException>(
-                () => clips.GetSoundEffect(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, Library2Sound.EtecoonTheme.Value),
+                () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, SoundEffectLibrary.Library2, Library2Sound.EtecoonTheme.Value),
                 "an effect whose sample the bank context lacks fails loudly");
             VerifyLoaderRejections(scratch.FullName, clips);
             Console.WriteLine(
@@ -73,13 +73,13 @@ internal static class AudioClipExportVerification
     /// </summary>
     private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioCatalog clips, int track, bool loopRepeatsExactly)
     {
-        MusicClipEntry entry = clips.GetMusic(AudioBank.GreenBrinstar, track);
+        MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, track);
         long loopStart = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
         short[] clip = clips.ReadClip(entry.Clip);
         long frames = entry.Clip.Frames;
         short[] independent = RenderIndependently(
             catalog,
-            AudioBank.GreenBrinstar,
+            MusicDataSet.GreenBrinstar,
             AudioRequest.ForTrack(MusicTrack.NumberedOrNone(unchecked((byte)track))),
             player => player.Music.musicPortToSnes == track,
             byte.MaxValue,
@@ -93,7 +93,7 @@ internal static class AudioClipExportVerification
     /// <summary>Each layer of an effect against the independent render of its voices, including the next pass of a looping layer.</summary>
     private static void VerifySoundEffect(ExtractedAudioAssetCatalog catalog, ClipAudioCatalog clips, SoundEffectId effect)
     {
-        SoundEffectClipEntry entry = clips.GetSoundEffect(AudioBank.GreenBrinstar, effect.Library, effect.Value);
+        SoundEffectClipEntry entry = clips.GetSoundEffect(MusicDataSet.GreenBrinstar, effect.Library, effect.Value);
         int libraryIndex = SoundEffectLibraries.ToQueueIndex(effect.Library);
         foreach (SoundEffectClipLayer layer in entry.Layers)
         {
@@ -102,7 +102,7 @@ internal static class AudioClipExportVerification
             long rendered = layer.LoopStart is long loop ? frames + (frames - loop) : frames;
             short[] independent = RenderIndependently(
                 catalog,
-                AudioBank.GreenBrinstar,
+                MusicDataSet.GreenBrinstar,
                 AudioRequest.ForSound(effect.Library, effect.Value),
                 player => player.soundLibraries[libraryIndex].CurrentSound == effect.Value,
                 layer.Voices.ToVoiceMask(),
@@ -150,13 +150,13 @@ internal static class AudioClipExportVerification
     /// </summary>
     private static short[] RenderIndependently(
         ExtractedAudioAssetCatalog catalog,
-        AudioBank context,
+        MusicDataSet context,
         AudioRequest request,
         Func<ManagedSpcPlayer, bool> started,
         byte voices,
         long frames)
     {
-        var events = new CartridgeAudioEventSource();
+        var events = new AudioEventSource();
         var backend = new ManagedSpcAudioBackend(catalog);
         backend.Player.dsp.OutputVoices = voices;
         var observer = new StartObserver(backend.Player, started);
@@ -165,7 +165,7 @@ internal static class AudioClipExportVerification
         var pcm = new List<short>();
         IReadOnlyList<AudioRequest>[] script =
         [
-            [new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Common.AudioSet), new AudioRequest.ChangeMusicDataSet(context)],
+            [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(context)],
             [request],
         ];
         for (int index = 0; pcm.Count < frames * 2; index++)

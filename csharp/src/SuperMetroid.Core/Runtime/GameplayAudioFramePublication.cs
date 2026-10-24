@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Once-only publication of the sound producers preceding Samus's echo call.
 /// One instance belongs to one frontend Step, never to the serialized game graph.
 /// </summary>
-internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
+internal sealed class GameplayAudioFramePublication(AudioQueues audio)
 {
     /// <summary>Per-producer cursors prevent replaying requests when prefix publication runs more than once.</summary>
     private int roomSounds, paletteSounds, paletteMusic, liquidSounds;
@@ -23,21 +23,19 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (roomSounds < room.Count)
         {
             var request = room[roomSounds++];
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
         var palette = runtime.Room.LoadedScope.PaletteFx.SoundRequests;
         while (paletteSounds < palette.Count)
         {
             var request = palette[paletteSounds++];
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
         var music = runtime.Room.LoadedScope.PaletteFx.MusicRequests;
         while (paletteMusic < music.Count)
         {
             var request = music[paletteMusic++];
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+            audio.QueueMusicDelayed(request.Request, request.Delay);
         }
         if (runtime.Player.Samus is not { } samus)
             return;
@@ -53,8 +51,7 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (liquidSounds < liquid.Count)
         {
             var request = liquid[liquidSounds++];
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued,
-                soundSuppressed: request.SoundSuppressed);
+            audio.QueueSound(request);
         }
     }
 

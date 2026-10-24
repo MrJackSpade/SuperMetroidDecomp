@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="ClipAudioBackend"/> whose PCM the host copies out (#1305). The backend is never
 /// read back by gameplay.
 /// </remarks>
-public sealed class CartridgeAudioSession
+public sealed class AudioSession
 {
     /// <summary>Host PCM output rate of 48,000 stereo frames per second, after resampling the native 32-kHz DSP output.</summary>
     public const int SampleRate = 48_000;
@@ -25,7 +25,7 @@ public sealed class CartridgeAudioSession
     public const int PcmSamplesPerFrame = StereoFramesPerVideoFrame * ChannelCount;
 
     /// <summary>Synthesis-free command-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
-    private readonly CartridgeAudioEventSource eventSource = new();
+    private readonly AudioEventSource eventSource = new();
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
     /// <summary>The clip backend's playback state, kept with the session so a restored session continues its PCM.</summary>

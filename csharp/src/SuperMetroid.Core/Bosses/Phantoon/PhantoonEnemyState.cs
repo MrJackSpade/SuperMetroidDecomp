@@ -63,7 +63,7 @@ public sealed class PhantoonEnemyState
     public int StartingFlamesSpawned { get; internal set; }
 
     /// <summary>Last delayed music request issued by Phantoon's private AI.</summary>
-    public MusicCommand? MusicRequest { get; internal set; }
+    public MusicRequest? MusicRequest { get; internal set; }
 
     /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
     public int MaterializationSoundIndex { get; internal set; }

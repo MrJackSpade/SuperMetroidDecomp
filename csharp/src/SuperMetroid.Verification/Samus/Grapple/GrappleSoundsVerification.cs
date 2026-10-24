@@ -48,9 +48,9 @@ internal static class GrappleSoundsVerification
         Console.WriteLine("  Grapple sounds: fire, silent extension, attachment, cancellation, swing release and drop queues agree.");
         foreach (SoundRequest request in new[] { GrappleBeamDefinitions.Sounds.Fire, GrappleBeamDefinitions.Sounds.Attach, GrappleBeamDefinitions.Sounds.Stop })
         {
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             audio.AdvanceFrame(default);
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued.Requests);
             AssertEqual(AudioRequest.ForSound(SoundEffectLibrary.Library1, request.SoundEffect.Value),
                 audio.AdvanceFrame(default).Single(), "grapple command reaches the actual APU sound port");
         }

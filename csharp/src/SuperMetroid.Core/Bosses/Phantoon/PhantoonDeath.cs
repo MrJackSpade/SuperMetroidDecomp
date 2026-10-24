@@ -242,7 +242,7 @@ internal sealed class PhantoonDeath
             state.BossDefeatPersisted = true;
         }
         state.BossDoorPlmRequest = PlmHeaderId.RestorePhantoonDoorAfterBossFight;
-        state.MusicRequest = MusicCommand.SelectTrack(3);
+        state.MusicRequest = MusicRequest.SelectTrack(3);
         state.WreckedShipPowerPaletteComplete = true;
     }
 

@@ -29,8 +29,15 @@ public sealed class ClipPlaybackState
     /// <summary>The tempo accumulator; each overflow is a music tick.</summary>
     internal TickAccumulator TempoAccumulator { get; private set; }
 
-    /// <summary>The tempo in force while no track plays, 0 through 255: the driver's power-on tempo, then each track's last.</summary>
-    internal int Tempo { get; private set; } = SpcPortDefinitions.InitialTempo;
+    /// <summary>
+    /// The tempo music ticks run at before any track has played: the rate the clips' tempo timelines were rendered
+    /// against before a track set its own. The clip manifest records each track's tempo from its first frame, but not
+    /// this one.
+    /// </summary>
+    internal const int PowerOnTempo = 16;
+
+    /// <summary>The tempo in force while no track plays, 0 through 255: <see cref="PowerOnTempo"/>, then each track's last.</summary>
+    internal int Tempo { get; private set; } = PowerOnTempo;
 
     /// <summary>The playing music clip, or null.</summary>
     internal MusicClipEntry? Music { get; private set; }

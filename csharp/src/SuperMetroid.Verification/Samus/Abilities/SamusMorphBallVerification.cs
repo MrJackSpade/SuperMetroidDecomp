@@ -1195,7 +1195,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "shot-block head queues one sound request");
     AssertEqual(0x0a, shotPlms.Sounds.SoundRequests[0].SoundEffect.Value,
         "shot-block head queues crumble sound $0A");
-    AssertEqual(1, shotPlms.Sounds.SoundRequests[0].MaximumQueued,
+    AssertEqual(1, shotPlms.Sounds.SoundRequests[0].MaximumQueued.Requests,
         "$84:8C79 uses sound-library-two maximum one");
     StepFrames(12, _ => shotPlms.Step(shotLevel));
     AssertEqual(0x00ff,

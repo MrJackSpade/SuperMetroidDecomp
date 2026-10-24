@@ -119,9 +119,9 @@ internal sealed class MotherBrainRainbowAndDeath
             if (dust.SoundEffectQueued)
                 _audio.QueueEnemySound(dust.SoundEffect, maximumQueued: 3);
         }
-        if (step.MusicStopQueued) state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
-        if (step.EscapeMusicQueued) state.RequestMusic(MusicCommand.LoadData(MotherBrainDeathRomData.EscapeMusicData), MusicCommandDelay.EightFrames);
-        if (step.EscapeMusicTrackQueued) state.RequestMusic(MusicCommand.SelectTrack(MotherBrainDeathRomData.EscapeMusicTrack), MusicCommandDelay.EightFrames);
+        if (step.MusicStopQueued) state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
+        if (step.EscapeMusicQueued) state.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.BossFight1), MusicQueueDelay.Shortest);
+        if (step.EscapeMusicTrackQueued) state.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathRomData.EscapeMusicTrack), MusicQueueDelay.Shortest);
         foreach (MotherBrainSpritePage page in step.EscapeSequencePages) _motherBrainEncounter.ShowSpritePage(page);
         if (step.EscapeTypewriterSetupRequested)
         {

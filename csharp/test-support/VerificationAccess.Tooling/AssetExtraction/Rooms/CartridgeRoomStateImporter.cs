@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 [CpuBusBoundary("codec: ROM bank-$8F 26-byte room-state payload → CartridgeRoomState")]
 public static class CartridgeRoomStateImporter
 {
-    /// <summary>Decodes one 26-byte bank-$8F room-state payload, including its 24-bit level-data address and native graphics, audio, population, and setup fields.</summary>
+    /// <summary>Decodes one 26-byte bank-$8F room-state payload, including its 24-bit level-data address and native graphics, music (decoded by <see cref="RoomMusicCodec"/>), population, and setup fields.</summary>
     /// <param name="bus">Address space implementing the import-only cartridge-source capability.</param>
     /// <param name="statePointer">Sixteen-bit payload address within bank $8F, not the room header or state-selection list.</param>
     /// <returns>The decoded definition, named by the import map; no room selection or runtime setup is performed.</returns>
@@ -26,7 +26,7 @@ public static class CartridgeRoomStateImporter
         byte Byte(int offset) => cartridge.ReadCartridgeByte(address + offset);
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge, address + offset);
         int Long(int offset) => RomDataReader.ReadLongFixedBank(cartridge, address + offset);
-        return new CartridgeRoomState(RoomStateSourcesConstants.State(statePointer).Name, Long(0), Byte(3), Byte(4), Byte(5),
+        return new CartridgeRoomState(RoomStateSourcesConstants.State(statePointer).Name, Long(0), Byte(3), RoomMusicCodec.Decode(Byte(4), Byte(5)),
             Word(6) == 0 ? null : SuperMetroid.Core.Fx.RoomFxDefinitions.Get(Word(6)), SuperMetroid.Core.Enemies.RoomEnemyPopulationDefinitions.Get(Word(8)),
             SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions.Get(Word(10)), SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(Byte(12), Byte(13)),
             SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Get(Word(14)), Word(16) == 0 ? null : XrayRoomOverlaySources.Overlay(Word(16)),

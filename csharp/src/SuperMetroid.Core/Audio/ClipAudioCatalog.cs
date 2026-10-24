@@ -17,6 +17,9 @@ public sealed class ClipAudioCatalog
     /// <summary>Bytes of the minimal RIFF/WAVE header the exporter writes before the samples.</summary>
     internal const int WaveHeaderBytes = 44;
 
+    /// <summary>Game updates per second; the clips' rate is one update's samples this many times.</summary>
+    private const int UpdatesPerSecond = 60;
+
     /// <summary>Bytes per 16-bit stereo frame.</summary>
     internal const int BytesPerFrame = PcmSampleFormat.StereoChannelCount * sizeof(short);
 
@@ -83,19 +86,43 @@ public sealed class ClipAudioCatalog
     /// </summary>
     public string ContentIdentity { get; }
 
+    /// <summary>The validated stock clips: their audio root, their manifest and the manifest file's identity.</summary>
+    /// <param name="Root">The audio root the manifest's paths are relative to.</param>
+    /// <param name="Manifest">The validated stock manifest.</param>
+    /// <param name="Identity">SHA-256 of the stock manifest file, which names every clip's hash.</param>
+    internal sealed record StockClips(string Root, AudioClipManifest Manifest, string Identity);
+
     /// <summary>Loads and validates the stock clips beneath <paramref name="audioDirectory"/>.</summary>
     /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
     /// <exception cref="InvalidDataException">The format, rate, an identity, a path, a duplicate key, loop bounds or a file size is invalid.</exception>
-    public static ClipAudioCatalog Load(string audioDirectory) => Load(audioDirectory, null);
+    public static ClipAudioCatalog Load(string audioDirectory)
+    {
+        StockClips stock = ReadStock(audioDirectory);
+        return new ClipAudioCatalog(stock.Root, stock.Manifest, stock.Identity, new Dictionary<AudioClipFile, string>());
+    }
 
     /// <summary>
-    /// Loads the stock clips, validates them, then selects the persistent override in
-    /// <paramref name="overrideDirectory"/> when that directory exists (#1305 Q3). Corrupt stock fails
-    /// even with a valid override, and an invalid override never falls back to stock.
+    /// A catalog over the stock clips with a persistent override applied (#1305 Q3): <paramref name="manifest"/> is the
+    /// stock manifest with the replacements in place, <paramref name="contentIdentity"/> the selected audio's identity and
+    /// <paramref name="overrideFiles"/> each replacement clip's absolute path. The installed-file reader that applies the
+    /// override lives in the import pipeline, which knows the identities the override names clips by.
     /// </summary>
-    /// <exception cref="FileNotFoundException">A manifest or a clip file is missing.</exception>
-    /// <exception cref="InvalidDataException">The stock or the override is invalid.</exception>
-    public static ClipAudioCatalog Load(string audioDirectory, string? overrideDirectory)
+    /// <exception cref="InvalidDataException">The selected manifest repeats an identity.</exception>
+    internal static ClipAudioCatalog Select(
+        StockClips stock,
+        AudioClipManifest manifest,
+        string contentIdentity,
+        IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
+    {
+        Ensure.NotNull(stock);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
+        return new ClipAudioCatalog(stock.Root, Ensure.NotNull(manifest), contentIdentity, Ensure.NotNull(overrideFiles));
+    }
+
+    /// <summary>Reads and validates the stock clip manifest beneath <paramref name="audioDirectory"/> and every clip file's size.</summary>
+    /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
+    /// <exception cref="InvalidDataException">The format, rate, an identity, a path, loop bounds or a file size is invalid.</exception>
+    internal static StockClips ReadStock(string audioDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
         string root = Path.GetFullPath(audioDirectory);
@@ -110,7 +137,7 @@ public sealed class ClipAudioCatalog
             throw new InvalidDataException(
                 $"Audio clip manifest '{manifestPath}' uses format {manifest.FormatVersion}; expected {AudioClipManifest.CurrentFormatVersion}.");
         }
-        if (manifest.SampleRate != SpcPortDefinitions.NativeStereoFramesPerVideoFrame * 60)
+        if (manifest.SampleRate != SoundAcceptanceClock.SamplesPerUpdate * UpdatesPerSecond)
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' has rate {manifest.SampleRate}.");
         if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' names no source content identity.");
@@ -137,15 +164,7 @@ public sealed class ClipAudioCatalog
                 }
             }
         }
-        string stockIdentity = Convert.ToHexString(SHA256.HashData(manifestBytes));
-        if (overrideDirectory is null || !Directory.Exists(overrideDirectory))
-            return new ClipAudioCatalog(root, manifest, stockIdentity, new Dictionary<AudioClipFile, string>());
-        ClipAudioOverrides.Selection selection = ClipAudioOverrides.Apply(manifest, overrideDirectory);
-        // An override without replacements is audibly stock and keeps the stock identity.
-        string identity = selection.Files.Count == 0
-            ? stockIdentity
-            : Convert.ToHexString(SHA256.HashData(Convert.FromHexString(stockIdentity + selection.Identity)));
-        return new ClipAudioCatalog(root, selection.Manifest, identity, selection.Files);
+        return new StockClips(root, manifest, Convert.ToHexString(SHA256.HashData(manifestBytes)));
     }
 
     /// <summary>Loads the catalog and reads every clip, checking every file's SHA-256: the installer's stock validation.</summary>

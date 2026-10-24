@@ -74,7 +74,7 @@ internal sealed class PhantoonOpening
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
         state.Parts[state.Mouth.SlotIndex].WaveAmplitudeShrinking = false;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
-        state.MusicRequest = MusicCommand.SelectTrack(5);
+        state.MusicRequest = MusicRequest.SelectTrack(5);
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveRomData.IntroMode;
         state.Wave.Begin(PhantoonWaveRomData.IntroMode);

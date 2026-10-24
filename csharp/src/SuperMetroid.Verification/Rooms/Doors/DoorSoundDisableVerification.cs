@@ -7,7 +7,7 @@ internal static class DoorSoundDisableVerification
     internal static void VerifyDoorSoundDisableGuard()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         audio.AdvanceFrame(default);
         audio.QueueSound(Library1Sound.SpinJumpEnd, 15);
         audio.DoorTransitionSoundsDisabled = true;
@@ -18,7 +18,7 @@ internal static class DoorSoundDisableVerification
         AssertTrue(commands.Any(c => c == new AudioRequest.RequestSound(Library1Sound.SpinJumpEnd)),
             "Disabling new sounds still submits an already queued request");
         AssertTrue(!audio.HasQueuedSounds, "Rejected request does not refill the drained ring");
-        audio.QueueMusicDelayed8(MusicCommand.Stop);
+        audio.QueueMusicDelayed8(MusicRequest.Stop);
         AssertTrue(audio.HasQueuedMusic, "Door disable flag does not reject music commands");
         audio.DoorTransitionSoundsDisabled = false;
         audio.QueueSound(Library1Sound.Silence, 15);

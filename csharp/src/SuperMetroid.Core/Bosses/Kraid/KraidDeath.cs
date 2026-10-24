@@ -148,7 +148,7 @@ internal sealed class KraidDeath
             case KraidAiFunction.DeathFadeInBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
                     return;
-                state.MusicRequest = MusicCommand.SelectTrack(3);
+                state.MusicRequest = MusicRequest.SelectTrack(3);
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFinishedWasDead;

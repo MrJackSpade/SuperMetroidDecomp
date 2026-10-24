@@ -20,7 +20,7 @@ internal static class RetailEndingTests
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var leftBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-            var leftAudio = new CartridgeAudioState(); var rightAudio = new CartridgeAudioState();
+            var leftAudio = new AudioQueues(); var rightAudio = new AudioQueues();
             var legacy = InstalledFixtures.CreateEnding(leftAudio, hours, 59);
             var captured = InstalledFixtures.CreateEnding(rightAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(

@@ -157,7 +157,7 @@ internal sealed class NorfairRidleyDeath
             yBase: 320,
             yMask: SnesLittleEndian.Word(0, 63));
         RidleyDeathDropRequested = true;
-        state.MusicRequest = MusicCommand.SelectTrack(3);
+        state.MusicRequest = MusicRequest.SelectTrack(3);
         body.Properties = body.Properties.With(EnemyProperties.Deleted);
         state.Function = RidleyAiFunction.NorfairDeathComplete;
     }

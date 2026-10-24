@@ -29,7 +29,7 @@ internal static class HiddenSoakTests
             var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
             game.BindAudio(DesktopAccess.LoadAudioClips());
-            var audio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+            var audio = new short[AudioSession.PcmSamplesPerFrame];
             long sequence = 0;
             CapturedFrontendFrame Step(SnesButton input)
             {

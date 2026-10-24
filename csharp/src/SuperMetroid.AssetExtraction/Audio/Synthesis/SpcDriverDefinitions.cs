@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -79,7 +78,7 @@ internal static class SpcDriverDefinitions
         /// <summary>The seven bits of a note byte or pitch whole byte that hold the note number; bit 7 is not part of it.</summary>
         internal const byte NoteNumberMask = 0x7f;
         /// <summary>Driver tempo word initialized before a track's own tempo effect runs.</summary>
-        internal const byte InitialTempo = SpcPortDefinitions.InitialTempo;
+        internal const byte InitialTempo = 0x10;
         /// <summary>Per-track tempo value when a new track has no explicit override yet.</summary>
         internal const byte DefaultTrackTempo = 0x20;
         /// <summary>Initial master volume before track effects change it.</summary>
@@ -145,6 +144,6 @@ internal static class SpcDriverDefinitions
         /// <summary>A note-packet note byte of $F6 keeps the channel's previous note instead of setting one.</summary>
         internal const byte RetainedNote = 0xf6;
         /// <summary>Library 3's low-health mode value, in which it rejects every request except the clearing one.</summary>
-        internal const byte LowHealthMode = SpcPortDefinitions.LowHealthMode;
+        internal const byte LowHealthMode = 2;
     }
 }

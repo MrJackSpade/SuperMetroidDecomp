@@ -47,7 +47,7 @@ internal static class SaveStationSoundVerification
             SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random);
         game.AdoptRuntime(runtime);
         game.GameState = SuperMetroidGameState.MainGameplay;
-        CartridgeAudioState audio = game.Session.audio;
+        AudioQueues audio = game.Session.audio;
         long hostSequence = 0;
         int messageFrame = -1, soundFrame = -1;
         for (int frame = 0; frame < 900 && soundFrame < 0; frame++)

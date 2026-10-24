@@ -31,8 +31,8 @@ internal static class GameOverPresentationVerification
         AssertEqual(60, GameOverBabyAnimationDefinitions.InstructionCount,
             "compiled game-over Baby instruction count");
 
-        var nativeAudio = new CartridgeAudioState();
-        var installedAudio = new CartridgeAudioState();
+        var nativeAudio = new AudioQueues();
+        var installedAudio = new AudioQueues();
         var native = new GameOverMenuState(nativeAudio, original, MenuSheetFixtures.For(original));
         var installed = new GameOverMenuState(installedAudio, original, MenuSheetFixtures.For(original));
         bool choseNo = false;
@@ -108,8 +108,8 @@ internal static class GameOverPresentationVerification
         AssertEqual(document.BabyAnchor, edited.GameOver.BabyAnchor,
             "edited game-over Baby anchor reaches compiled presentation");
 
-        var originalEditAudio = new CartridgeAudioState();
-        var editedAudio = new CartridgeAudioState();
+        var originalEditAudio = new AudioQueues();
+        var editedAudio = new AudioQueues();
         var originalMenu = new GameOverMenuState(
             originalEditAudio, original, MenuSheetFixtures.For(original));
         var editedMenu = new GameOverMenuState(

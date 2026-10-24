@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>One native <c>QueueMusic_Delayed*</c> publication, whichever system made it.</summary>
-/// <param name="Command">The lossless bank-$80 command published by the original caller.</param>
-/// <param name="Delay">The validated delay before bank $80 handles the command.</param>
-public readonly record struct DelayedMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
+/// <summary>One music request a game system publishes for the music queue, with how long it waits there.</summary>
+/// <param name="Request">The music request.</param>
+/// <param name="Delay">How long the request waits on the queue before it plays.</param>
+public readonly record struct DelayedMusicRequest(MusicRequest Request, MusicQueueDelay Delay);

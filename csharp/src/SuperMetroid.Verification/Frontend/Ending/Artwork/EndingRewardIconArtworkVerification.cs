@@ -37,8 +37,8 @@ internal static class EndingRewardIconArtworkVerification
 
         var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-        var nativeAudio = new CartridgeAudioState();
-        var installedAudio = new CartridgeAudioState();
+        var nativeAudio = new AudioQueues();
+        var installedAudio = new AudioQueues();
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         nativeScene.InstalledArtwork.BindStaffCredits(credits);
@@ -128,7 +128,7 @@ internal static class EndingRewardIconArtworkVerification
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
                     $"{name} partial upload never reads compressed ROM icon art");
                 var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-                var sceneAudio = new CartridgeAudioState();
+                var sceneAudio = new AudioQueues();
                 var scene = CreateRetailEndingFixture(sceneAudio, 3, 0);
                 scene.InstalledArtwork.BindStaffCredits(credits);
                 scene.Stage.BindFloorArtwork(stock);

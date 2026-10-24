@@ -114,8 +114,8 @@ internal static class FileSelectRoomMapVerification
         snapshot.UsedSaveStationBytes[8] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var cancel = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
-        var control = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
+        var cancel = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
+        var control = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), slot, 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         foreach (var menu in new[] { cancel, control })
         {
             for (int i = 0; i < 48; i++) menu.Step(0);

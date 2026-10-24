@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
-    internal readonly CartridgeAudioState audio;
+    internal readonly AudioQueues audio;
     /// <summary>The flight's colors, loaded from the installed palette (#1358).</summary>
     internal readonly ScreenPalette palette = new();
     /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
@@ -71,7 +71,7 @@ internal sealed class IntroCeresFlightState
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
     /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's tiles; required.</param>
-    public IntroCeresFlightState(CartridgeAudioState audio,
+    public IntroCeresFlightState(AudioQueues audio,
         CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false, InstalledSpriteSheets? sheets = null)
     {
         this.japaneseText = japaneseText;
@@ -135,10 +135,10 @@ internal sealed class IntroCeresFlightState
         {
             case IntroCeresFlightPhase.Initial:
                 // $8B:BDD2-$BDDF: the flight's music data, then its track, on the shared queue.
-                audio.QueueMusicDelayed8(MusicCommand.LoadData(CeresFlightRomData.Music.DataIndex));
+                audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
                 audio.QueueMusicDelayed(
-                    MusicCommand.SelectTrack(CeresFlightRomData.Music.Track),
-                    MusicCommandDelay.FromDelayedYArgument(CeresFlightRomData.Music.TrackDelayArgument));
+                    MusicRequest.SelectTrack(CeresFlightRomData.Music.Track),
+                    MusicQueueDelay.AtLeastShortest(CeresFlightRomData.Music.TrackDelayArgument));
                 Phase = IntroCeresFlightPhase.WaitForMusicQueue;
                 break;
 

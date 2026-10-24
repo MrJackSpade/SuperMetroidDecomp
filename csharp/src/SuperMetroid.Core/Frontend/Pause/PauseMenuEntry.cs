@@ -23,7 +23,7 @@ internal sealed record PauseMenuEntry
     public required Position16<MapTiles> RoomMapPosition { get; init; }
 
     /// <summary>Audio.</summary>
-    public CartridgeAudioState? Audio { get; init; } = null;
+    public AudioQueues? Audio { get; init; } = null;
 
     /// <summary>The BG3 plane gameplay displayed at its last NMI (#1351), whose HUD rows pause keeps resident.</summary>
     public Layer3Plane? GameplayLayer3 { get; init; } = null;

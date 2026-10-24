@@ -69,7 +69,7 @@ internal sealed class MotherBrainEncounter
         {
             foreach (DelayedMusicRequest request in MotherBrain.MusicRequests)
             {
-                audio.QueueMusic(new DelayedMusicRequest(request.Command, request.Delay));
+                audio.QueueMusic(new DelayedMusicRequest(request.Request, request.Delay));
             }
         }
     }

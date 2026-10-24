@@ -21,8 +21,8 @@ internal static class InstalledFileSelectMapVerification
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
-        var installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
+        var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
+        var installed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
 
         // One raster per side: the two captured renders are compared with each other.
         void StepBoth(SnesButton input)
@@ -77,8 +77,8 @@ internal static class InstalledFileSelectMapVerification
             AssertTrue(installed.LoadRequested, "ROM-free map reaches gameplay-load handoff after full fade");
             // Exercise the other exit from a fresh area view as well. The test
             // ends at the handoff; gameplay/options retain separate dependencies.
-            control = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
-            installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original, MenuSheetFixtures.For(original));
+            control = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
+            installed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
             for (int tick = 0; tick < 48; tick++) StepBoth(0);
             StepBoth(SnesButton.B);
             for (int tick = 0; tick < 32 && !installed.OptionsRequested; tick++) StepBoth(0);

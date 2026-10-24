@@ -19,7 +19,7 @@ internal static class GameplayAudioPublicationVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.LiquidPhysics.CinematicFunctionActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         audio.AdvanceFrame(default);
         var publication = new GameplayAudioFramePublication(audio);
 
@@ -56,7 +56,7 @@ internal static class GameplayAudioPublicationVerification
 
         samus.LiquidPhysics.BeginFrameSoundRequests();
         runtime.PowerBombExplosionStatus = 0x8000;
-        var suppressedAudio = new CartridgeAudioState();
+        var suppressedAudio = new AudioQueues();
         var suppressedPublication = new GameplayAudioFramePublication(suppressedAudio);
         AssertEqual(3, suppressedPublication.QueueEcho(runtime),
             "active Power Bomb preserves native accumulator on suppressed echo");

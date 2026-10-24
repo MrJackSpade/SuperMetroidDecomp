@@ -109,7 +109,7 @@ internal sealed class AndroidGameSession
             using var data = new AndroidSessionData(root);
             var rasterBuffer = new SuperMetroid.Core.Hardware.Rgba32[FrontendFrame.Width * FrontendFrame.Height];
             // Host-owned PCM storage; the session copies each update's samples into it.
-            var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+            var samples = new short[AudioSession.PcmSamplesPerFrame];
             RefreshEffectiveOptions(data);
             HostOptions options = data.Options;
             long sequence = 0;

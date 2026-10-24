@@ -94,8 +94,6 @@ public static class GameOverRomData
     /// <summary>Game-over music data set and track selected by the state machine.</summary>
     public static class Music
     {
-        /// <summary>Music data-set selector three loaded through a delayed-eight command during game-over initialization, after requesting that current music stop.</summary>
-        public const byte DataIndex = 0x03;
         /// <summary>Track selector four, the pre-statue-hall music requested once the initial music-command queue drains at $81:93E8.</summary>
         public const byte TrackIndex = 4;
     }

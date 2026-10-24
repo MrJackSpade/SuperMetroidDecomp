@@ -68,8 +68,8 @@ internal static class CeresFlightArtworkVerification
         CeresFlightCharacters reference = CeresFlightCharacters.Read(
             referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette),
             referenceSprites, referenceActors);
-        var native = new IntroCeresFlightState(new CartridgeAudioState(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
-        var installed = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+        var native = new IntroCeresFlightState(new AudioQueues(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
+        var installed = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         var phases = new HashSet<IntroCeresFlightPhase>();
         for (int tick = 0; tick < 4000 && !native.Finished; tick++)
         {
@@ -139,11 +139,11 @@ internal static class CeresFlightArtworkVerification
 
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
             bool isRearMap = name == CeresFlightArtworkFormat.MapFileName;
-            var fresh = new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
+            var fresh = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
             AssertTrue(fresh.ShownVram().SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: false)),
                 $"edited {name} reaches exact front-view VRAM without changing other bytes");
-            var restored = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+            var restored = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
             for (int tick = 0; tick < 100 && restored.Phase != IntroCeresFlightPhase.FlyingTowardCeres; tick++)
                 restored.StepFrame();
             AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, restored.Phase,
@@ -229,8 +229,8 @@ internal static class CeresFlightArtworkVerification
         using (var output = File.Create(overridePath))
             CeresFlightActorLayout.Write(output, document);
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var original = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
-        var changed = new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
+        var original = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+        var changed = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
         for (int frame = 0; frame < 4000 &&
             original.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
         {
@@ -293,8 +293,8 @@ internal static class CeresFlightArtworkVerification
             CeresFlightPaletteFile.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var native = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
-        var changed = new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
+        var native = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+        var changed = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
         for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
         {
             native.StepFrame();
@@ -312,10 +312,10 @@ internal static class CeresFlightArtworkVerification
                 DisplayRendering.Render(editedFrame)),
             "Ceres palette edit changes visible approach pixels");
 
-        var restored = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+        var restored = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         restored.BindFixtureFlightArtwork(edited);
         AssertTrue(restored.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(
-                new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited)).CaptureRenderSnapshot().Paint.Colors),
+                new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited)).CaptureRenderSnapshot().Paint.Colors),
             "restored Ceres flight rebinds current palette without restarting phase");
 
         IntroCinematicArtworkCatalog stockParent = IntroCinematicArtworkFiles.Load(
@@ -367,9 +367,9 @@ internal static class CeresFlightArtworkVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
             CeresFlightArtworkCatalog stockArtwork = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight;
-            var stockFlight = new IntroCeresFlightState(new CartridgeAudioState(),
+            var stockFlight = new IntroCeresFlightState(new AudioQueues(),
                 stockArtwork, sheets: CinematicSheetFixtures.WithFlight(stockArtwork));
-            var editedFlight = new IntroCeresFlightState(new CartridgeAudioState(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
+            var editedFlight = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
             for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
             {
                 stockFlight.StepFrame();
@@ -399,9 +399,9 @@ internal static class CeresFlightArtworkVerification
             CeresFlightArtworkCatalog.WriteMap(output, map);
         CeresFlightArtworkCatalog originalArtwork = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null).CeresFlight;
         CeresFlightArtworkCatalog changedArtwork = installation.LoadIntroCinematicArt().CeresFlight;
-        var original = new IntroCeresFlightState(new CartridgeAudioState(),
+        var original = new IntroCeresFlightState(new AudioQueues(),
             originalArtwork, sheets: CinematicSheetFixtures.WithFlight(originalArtwork));
-        var changed = new IntroCeresFlightState(new CartridgeAudioState(),
+        var changed = new IntroCeresFlightState(new AudioQueues(),
             changedArtwork, sheets: CinematicSheetFixtures.WithFlight(changedArtwork));
         for (int tick = 0; tick < CeresFrontApproachTicks; tick++)
         {

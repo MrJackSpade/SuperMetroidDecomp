@@ -30,7 +30,7 @@ public static class PauseAudioSmokeTest
         // A bare game draws the title and file screens from installed artwork, as the hosts bind it.
         InstalledGameBindings.Create(RepositoryInstallation.Installation)(game);
         game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips());
-        var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var samples = new short[AudioSession.PcmSamplesPerFrame];
         FrontendFrame frame = default;
         int frames = 0;
         int pauseFrames = 0;

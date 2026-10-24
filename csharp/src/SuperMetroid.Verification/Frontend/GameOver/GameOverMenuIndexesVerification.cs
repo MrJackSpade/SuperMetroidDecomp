@@ -17,7 +17,7 @@ internal static class GameOverMenuIndexesVerification
     /// </summary>
     internal static void VerifyGameOverMenuNativeIndexes(AreaMapPresentationCatalog presentation)
     {
-        var audio = new CartridgeAudioState();
+        var audio = new AudioQueues();
         var menu = new GameOverMenuState(audio, presentation, MenuSheetFixtures.For(presentation));
         GameOverMenuIndexesExpected[] expected =
         [
@@ -50,7 +50,7 @@ internal static class GameOverMenuIndexesVerification
 
         foreach (bool ceres in new[] { true, false })
         {
-            var answered = new GameOverMenuState(new CartridgeAudioState(), presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: ceres);
+            var answered = new GameOverMenuState(new AudioQueues(), presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: ceres);
             answered.Phase = GameOverMenuPhase.Main;
             answered.Step(0);
             answered.Step(SnesButton.A);

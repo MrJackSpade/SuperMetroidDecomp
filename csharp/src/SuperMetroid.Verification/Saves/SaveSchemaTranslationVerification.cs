@@ -124,7 +124,7 @@ internal static class SaveSchemaTranslationVerification
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
-        var ending = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
+        var ending = new EndingCreditsState(new SuperMetroid.Core.Audio.AudioQueues(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
         ending.InstalledArtwork.BindPaletteFxColors(RoomPaletteFxPresentationFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         // The game binds the installed sheets with the ending, which draws its stars from them.

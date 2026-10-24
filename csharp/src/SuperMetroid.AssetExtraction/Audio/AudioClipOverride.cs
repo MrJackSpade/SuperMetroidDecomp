@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// One user replacement clip (#1305 Q3): a finished 16-bit stereo WAV at the native rate that

@@ -41,8 +41,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         playing.BindAudio(assets);
         SuperMetroidGame[] subjects = [silent, playing];
         SuperMetroidGame[] sessions = subjects;
-        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var expectedPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var pcm = new short[AudioSession.PcmSamplesPerFrame];
+        var expectedPcm = new short[AudioSession.PcmSamplesPerFrame];
         int update = 0;
 
         void StepAll()

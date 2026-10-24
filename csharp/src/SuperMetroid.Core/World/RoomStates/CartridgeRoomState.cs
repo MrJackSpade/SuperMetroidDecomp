@@ -7,8 +7,7 @@ public sealed record CartridgeRoomState(
     string Name,
     int CompressedLevelDataAddress,
     int GraphicsSet,
-    int MusicDataIndex,
-    int MusicTrackIndex,
+    RoomMusic Music,
     SuperMetroid.Core.Fx.RoomFxDefinition? Fx,
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
     Enemies.RoomEnemyGraphicsSetDefinition EnemyGraphicsSet,
@@ -26,9 +25,6 @@ public sealed record CartridgeRoomState(
     /// <summary>The room state's graphics theme, 0 through 255.</summary>
     public int GraphicsSet { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, GraphicsSet);
 
-    /// <summary>The music data set the room state selects, 0 through 255.</summary>
-    public int MusicDataIndex { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, MusicDataIndex);
-
-    /// <summary>The music track the room state selects within its data set, 0 through 255.</summary>
-    public int MusicTrackIndex { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, MusicTrackIndex);
+    /// <summary>The music data set and track the room state selects.</summary>
+    public RoomMusic Music { get; init; } = Ensure.NotNull(Music);
 }

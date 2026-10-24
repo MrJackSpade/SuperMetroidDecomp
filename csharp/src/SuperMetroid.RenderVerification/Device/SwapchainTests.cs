@@ -307,9 +307,9 @@ internal static partial class SwapchainTests
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
         headless.BindAudio(audioAssets);
-        var left = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var right = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var silentDisplay = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var left = new short[AudioSession.PcmSamplesPerFrame];
+        var right = new short[AudioSession.PcmSamplesPerFrame];
+        var silentDisplay = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0, pcmSamples = 0, nonzero = 0;
         CapturedFrontendFrame Step(SnesButton input)
         {

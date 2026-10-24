@@ -23,7 +23,7 @@ internal static class EndingPostCreditsScrollVerification
     /// </summary>
     internal static void VerifyEndingPostCreditsScroll()
     {
-        EndingCreditsState ending = CreateRetailEndingFixture(new CartridgeAudioState(), gameTimeHours: 2, gameTimeMinutes: 0);
+        EndingCreditsState ending = CreateRetailEndingFixture(new AudioQueues(), gameTimeHours: 2, gameTimeMinutes: 0);
         var installation = RepositoryInstallation.Installation;
 
         // A leftover scroll from an earlier scroll-down must not survive the white flash.

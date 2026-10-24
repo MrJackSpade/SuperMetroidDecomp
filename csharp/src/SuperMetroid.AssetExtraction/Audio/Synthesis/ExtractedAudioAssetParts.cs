@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Audio;
-
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The extracted audio streams, sample banks, metadata and identity an audio asset catalog is built from (#633).</summary>

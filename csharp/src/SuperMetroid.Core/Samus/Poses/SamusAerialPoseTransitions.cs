@@ -362,7 +362,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // `$9B:C9CE` uses generic QueueSound: library one, sound seven, maximum fifteen.
         // It also tears down the active beam flare so the wall-jump's charged-contact path
         // cannot inherit charge accumulated before grapple became active.
-        samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.MaximumQueued);
+        samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.MaximumQueued.Requests);
         samus.ProjectileFlareCounter = 0;
 
         SamusAerialMovement.InitializeWallJump(samus);

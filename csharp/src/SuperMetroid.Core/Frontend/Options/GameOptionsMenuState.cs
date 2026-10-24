@@ -24,7 +24,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     [NonSerialized] private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
-    private readonly CartridgeAudioState? audio;
+    private readonly AudioQueues? audio;
     /// <summary>The menu screen the options menu draws: its artwork, tilemaps, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Holds the heading and animated selection missile for rendering.</summary>
@@ -65,7 +65,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <param name="spriteSheets">Required installed sprite sheets, which the headings and cursor draw from.</param>
     [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
-        CartridgeAudioState? audio = null,
+        AudioQueues? audio = null,
         ControllerBindings? controllerBindings = null,
         bool iconCancelEnabled = false,
         bool moonwalkEnabled = false,

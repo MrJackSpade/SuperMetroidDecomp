@@ -44,8 +44,8 @@ internal static class EndingMode7ArtworkVerification
 
         var guardedBus = NewEndingMode7SourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-        var nativeAudio = new CartridgeAudioState();
-        var installedAudio = new CartridgeAudioState();
+        var nativeAudio = new AudioQueues();
+        var installedAudio = new AudioQueues();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
         installed.Stage.BindFloorArtwork(stock);
@@ -96,7 +96,7 @@ internal static class EndingMode7ArtworkVerification
             };
             var sceneBus = NewEndingMode7SourceReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-            var audio = new CartridgeAudioState();
+            var audio = new AudioQueues();
             var state = CreateRetailEndingFixture(audio, 0, 0);
             state.Stage.BindFloorArtwork(stock);
             for (int frame = 0; frame < 10000 && state.Stage.Phase != target; frame++)
@@ -142,7 +142,7 @@ internal static class EndingMode7ArtworkVerification
             {
                 var partialBus = NewEndingMode7SourceReadGuard(
                     SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-                var partialAudio = new CartridgeAudioState();
+                var partialAudio = new AudioQueues();
                 var partial = CreateRetailEndingFixture(partialAudio, 0, 0);
                 partial.Stage.BindFloorArtwork(stock);
                 for (int frame = 0; frame < 2000 &&

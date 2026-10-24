@@ -8,23 +8,14 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingVramDestinations
 {
-    /// <summary>The subtitle's VRAM word, from the first record at <c>$8B:E45A</c>.</summary>
-    private const ushort SubtitleWord = 0x4800;
-
-    /// <summary>The first logo chunk's VRAM word, from the second record; later chunks follow it.</summary>
-    private const ushort FirstLogoTileWord = 0x6000;
-
-    /// <summary>The logo map's VRAM word, from the sixth record.</summary>
-    private const ushort LogoMapWord = 0x5400;
-
     /// <summary>The VRAM word post-shot part <paramref name="transfer"/> lands at.</summary>
     /// <exception cref="InvalidOperationException">The part names no defined source.</exception>
     internal static ushort PostShotWordOf(EndingPostShotUploadDefinition transfer) => transfer.Source switch
     {
-        EndingPostShotUploadSource.Subtitle => SubtitleWord,
-        EndingPostShotUploadSource.LogoTiles => checked((ushort)(FirstLogoTileWord +
+        EndingPostShotUploadSource.Subtitle => EndingVramDestinationDefinitions.SubtitleWord,
+        EndingPostShotUploadSource.LogoTiles => checked((ushort)(EndingVramDestinationDefinitions.FirstLogoTileWord +
             (transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource) / sizeof(ushort))),
-        EndingPostShotUploadSource.LogoMap => LogoMapWord,
+        EndingPostShotUploadSource.LogoMap => EndingVramDestinationDefinitions.LogoMapWord,
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
     };
 

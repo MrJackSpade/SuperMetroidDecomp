@@ -48,7 +48,7 @@ internal static class DefinitionAudit
                 EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));
         // This is an explicit zero-part definition, not a missing art fallback.
         exports.Add(ResourceDomains.EnemyProjectileSprite,
-            ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileCompositionSources.BlankSpritemap));
+            ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileCompositionDefinitions.BlankSpritemap));
         foreach (ProjectileSpriteId sprite in ProjectileSpriteDefinitions.All)
             exports.Add(ResourceDomains.SamusProjectile, sprite.Name);
 

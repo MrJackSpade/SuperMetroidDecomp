@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.AssetExtraction.Audio.SpcExtractionAddresses;
+using static SuperMetroid.AssetExtraction.Audio.SpcSampleExtractionDefinitions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 

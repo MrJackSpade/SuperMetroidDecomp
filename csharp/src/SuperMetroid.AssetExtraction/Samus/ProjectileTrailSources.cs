@@ -6,15 +6,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class ProjectileTrailSources
 {
     /// <summary>The bank-$90 address of <paramref name="program"/>'s first step.</summary>
-    internal static ushort Start(ProjectileTrailProgram program) => program switch
-    {
-        ProjectileTrailProgram.Empty => 0xb4c9,
-        ProjectileTrailProgram.LeftIce => 0xb4cb,
-        ProjectileTrailProgram.RightIce => 0xb52d,
-        ProjectileTrailProgram.Wave => 0xb58f,
-        ProjectileTrailProgram.Missile => 0xb5a1,
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined trail program."),
-    };
+    internal static ushort Start(ProjectileTrailProgram program) =>
+        ProjectileTrailSourceDefinitions.Starts.TryGetValue(program, out ushort start)
+            ? start
+            : throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined trail program.");
 
     /// <summary>The bank-$90 address of the step <paramref name="cursor"/> names: a pose takes four bytes, other steps two.</summary>
     internal static ushort Address(ProjectileTrailCursor cursor)

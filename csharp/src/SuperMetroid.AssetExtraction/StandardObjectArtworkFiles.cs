@@ -13,8 +13,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM standard 4-bpp OBJ sheet → standard object artwork")]
 public static class StandardObjectArtworkFiles
 {
-    /// <summary>The standard sprite sheet at $9A:D200, shared by gameplay and cinematics.</summary>
-    private const int Source = 0x9ad200;
 
     /// <summary>Exports the selected $2E00-byte standard OBJ span as an indexed PNG, verifies its exact planar-byte round-trip, writes its hashed manifest, and validates stock.</summary>
     /// <param name="bus">Cartridge import source for the standard OBJ artwork beginning at $9A:D200.</param>
@@ -27,7 +25,7 @@ public static class StandardObjectArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), Source,
+        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), StandardObjectArtworkSourceDefinitions.Sheet,
             StandardObjectArtworkFormat.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);

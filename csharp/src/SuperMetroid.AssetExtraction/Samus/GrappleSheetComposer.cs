@@ -24,9 +24,6 @@ internal static class GrappleSheetComposer
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
 
-    /// <summary>The attribute-word bits that mirror a sprite horizontally and vertically.</summary>
-    private const ushort HorizontalFlip = 0x4000, VerticalFlip = 0x8000;
-
     /// <summary>What the grapple sheet composes.</summary>
     /// <exception cref="InvalidDataException">The endpoint names a rope character, or a rope segment the endpoint's.</exception>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)
@@ -54,10 +51,10 @@ internal static class GrappleSheetComposer
                 foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
                 {
                     // `$94:AFDE` ORs the rope direction's flips into the segment's own attributes.
-                    ushort flips = (ushort)(((mirror & SpriteMirror.Horizontal) != 0 ? HorizontalFlip : 0) |
-                        ((mirror & SpriteMirror.Vertical) != 0 ? VerticalFlip : 0));
+                    SnesTileFlipFlags flips = ((mirror & SpriteMirror.Horizontal) != 0 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
+                        ((mirror & SpriteMirror.Vertical) != 0 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None);
                     frames.Add(new(GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror),
-                        ObjPartFrames.SmallObject(new SnesObjAttributeWord((ushort)(appearance | flips)), 0), page));
+                        ObjPartFrames.SmallObject(new SnesObjAttributeWord(appearance).Or(SnesObjAttributeWord.Create(0, 0, 0, flips)), 0), page));
                 }
             }
         }

@@ -87,12 +87,12 @@ internal static class RoomCharacterInstallationVerification
             string ghostName = RoomCharacterAtlasFormat.SourceFileName(ghostSource);
             string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
             byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                ghostSource, LibraryBackgroundRomData.TourianStatueGhostByteCount);
+                ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
             AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
                 "installed statue-ghost PNG preserves every native character byte");
             LibraryBackgroundSource ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(entry => entry.SourceAddress == ghostSource);
-            AssertEqual(LibraryBackgroundRomData.TourianStatueGhostByteCount,
+            AssertEqual(LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount,
                 (ghostTransfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires ghostTransfer.TransferByteCount.")), "statue-ghost library upload length");
             AssertEqual(RoomAssetRomData.LibraryBackground.TourianStatueGhost.VramDestinationWord,
                 (ghostTransfer.VramDestination ?? throw new InvalidOperationException("Verification requires ghostTransfer.VramDestination.")), "statue-ghost library VRAM destination");

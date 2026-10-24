@@ -174,7 +174,7 @@ internal static class EnemyDefinitionBoundaryVerification
             for (int i = 0; i < records.Length; i++)
             {
                 var record = records[i];
-                ushort[] words = [record.SizeInBytes, record.SourceBankWord, record.SourceOffset, record.DestinationWord];
+                int[] words = [record.SizeInBytes, record.SourceBankWord, record.SourceOffset, record.DestinationWord];
                 for (int w = 0; w < words.Length; w++)
                     AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 8 + w * 2))), words[w], "corpse transfer descriptor");
             }

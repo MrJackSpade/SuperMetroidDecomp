@@ -253,13 +253,13 @@ public static class XrayRevealVisualFiles
         for (int entry = SamusSourceDefinitions.XrayRevealBlockTypeTable; ; entry += 4)
         {
             ushort key = ReadWord(bus, entry);
-            if (key == TableEnd) return null;
+            if ((RevealTableMarker)key == RevealTableMarker.TableEnd) return null;
             if (key != typeWord) continue;
             for (int match = ReadWord(bus, entry + 2); ; match += 4)
             {
                 ushort value = ReadWord(bus, match);
-                if (value == TableEnd) return null;
-                if (value != AnyBts && value != bts) continue;
+                if ((RevealTableMarker)value == RevealTableMarker.TableEnd) return null;
+                if ((RevealTableMarker)value != RevealTableMarker.AnyBts && value != bts) continue;
                 int pointer = ReadWord(bus, match + 2);
                 XrayRevealCommand command = SamusIdentityWords.XrayRevealCommands.Decode(
                     ReadWord(bus, pointer), "native X-ray reveal command");
@@ -290,11 +290,15 @@ public static class XrayRevealVisualFiles
         return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SamusSourceDefinitions.XrayRevealTableBank.Value | pointer);
     }
 
-    /// <summary>The reveal tables' end marker, closing both the block-type and BTS tables.</summary>
-    private const ushort TableEnd = 0xffff;
+    /// <summary>The marker words of the reveal tables, beside the block types and BTS values they hold.</summary>
+    private enum RevealTableMarker : ushort
+    {
+        /// <summary>The BTS wildcard: matches any BTS in the selected block family.</summary>
+        AnyBts = 0xff00,
 
-    /// <summary>The BTS wildcard: matches any BTS in the selected block family.</summary>
-    private const ushort AnyBts = 0xff00;
+        /// <summary>The end marker, closing both the block-type and BTS tables.</summary>
+        TableEnd = 0xffff,
+    }
 
     /// <summary>Reads ordered block-coordinate/metatile pairs from bank $8F until the required zero terminator.</summary>
     private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)

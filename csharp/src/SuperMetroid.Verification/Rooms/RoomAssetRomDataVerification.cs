@@ -25,8 +25,8 @@ internal static class RoomAssetRomDataVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for tileset definition pointers and compressed graphics streams")]
     internal static void VerifyRoomAssetRomData()
     {
-        ValidateLibraryBackgroundClear(LibraryBackgroundRomData.ClearFx, "clear FX");
-        ValidateLibraryBackgroundClear(LibraryBackgroundRomData.ClearBg2, "clear BG2");
+        ValidateLibraryBackgroundClear(LibraryBackgroundStagingDefinitions.ClearFx, "clear FX");
+        ValidateLibraryBackgroundClear(LibraryBackgroundStagingDefinitions.ClearBg2, "clear BG2");
         AssertEqual(
             RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionsByteCount,
             RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionCount *
@@ -180,7 +180,7 @@ internal static class RoomAssetRomDataVerification
         {
             byte[] native = sourceAddress == ghostSource
                 ? RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
-                    LibraryBackgroundRomData.TourianStatueGhostByteCount)
+                    LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount)
                 : RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];
             RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(new MemoryStream(png), native.Length);

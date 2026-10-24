@@ -14,9 +14,6 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 [CpuBusBoundary("codec: ROM escape-timer spritemaps, characters and palette row → pre-coloured timer sheet")]
 internal static class EscapeTimerSheetComposer
 {
-    /// <summary>OBJ character $1E0, where the timer's first character lands; timer artwork character 0.</summary>
-    private const int FirstCharacter = 0x1e0;
-
     /// <summary>The OBJ palette row the timer is drawn with.</summary>
     internal const int PaletteRow = 5;
 
@@ -56,7 +53,7 @@ internal static class EscapeTimerSheetComposer
             ushort size = x.IsLarge ? (ushort)16 : (ushort)8;
             parts[index] = new SpriteFramePart(
                 new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)bus.ReadCartridgeByte(source + 2))),
-                new Extent16<ScreenPixels>(size, size), attributes.TileNumber - FirstCharacter,
+                new Extent16<ScreenPixels>(size, size), attributes.TileNumber - EscapeTextArtworkDefinitions.TimerFirstCharacter,
                 (attributes.FlipHorizontally ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
                 (attributes.FlipVertically ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None),
                 null, attributes.Priority);

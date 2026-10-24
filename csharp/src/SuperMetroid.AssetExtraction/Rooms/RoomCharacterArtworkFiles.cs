@@ -42,7 +42,7 @@ public static class RoomCharacterArtworkFiles
             byte[] png = pngs[name];
             // The ghost sheet is stored uncompressed, so its length is the library background's.
             int nativeByteCount = source.Set == RoomCharacterSet.TourianStatueGhost
-                ? LibraryBackgroundRomData.TourianStatueGhostByteCount
+                ? LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount
                 : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source.Set is { } set
                     ? tilesets.Characters[set]
                     : SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreCharactersAddress)).Length;

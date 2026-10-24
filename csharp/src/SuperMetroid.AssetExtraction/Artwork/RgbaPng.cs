@@ -133,7 +133,9 @@ public static class RgbaPng
                 int at = column * PixelBytes;
                 pixels[row * width + column] = new Rgba32(current[at], current[at + 1], current[at + 2], current[at + 3]);
             }
-            (previous, current) = (current, previous);
+            byte[] filtered = previous;
+            previous = current;
+            current = filtered;
         }
         return pixels;
     }
@@ -197,5 +199,5 @@ public static class RgbaPng
     }
 
     /// <summary>The CRC-32 polynomial PNG uses, bit-reversed.</summary>
-    private const uint ReflectedPolynomial = 0xedb88320;
+    private const uint ReflectedPolynomial = 0xedb88320; // cartridge-encoding: allow(WireFormat) - PNG's reflected CRC-32 polynomial
 }

@@ -37,10 +37,10 @@ internal static void VerifyLibraryBackgroundSourceInventory()
         .Select(source => source.SourceAddress).Distinct().Count();
     LibraryBackgroundSource[] romTransfers = sources
         .Where(source => source.Command != LibraryBackgroundCommand.DecompressToWorkRam &&
-            source.SourceAddress >= LibraryBackgroundRomData.RomSourceAddressFloor).ToArray();
+            source.SourceAddress >= (int)LibraryBackgroundStagingDefinitions.RomSourceAddressFloor).ToArray();
     LibraryBackgroundSource[] workRamTransfers = sources
         .Where(source => source.Command != LibraryBackgroundCommand.DecompressToWorkRam &&
-            source.SourceAddress < LibraryBackgroundRomData.RomSourceAddressFloor).ToArray();
+            source.SourceAddress < (int)LibraryBackgroundStagingDefinitions.RomSourceAddressFloor).ToArray();
     AssertEqual(190, sources.Count, "retail library-background source operand count");
     AssertEqual(66, listCount, "retail source-bearing background list count");
     AssertEqual(RoomBackgroundTilemapFormat.RetailCompressedSourceCount, compressedCount,

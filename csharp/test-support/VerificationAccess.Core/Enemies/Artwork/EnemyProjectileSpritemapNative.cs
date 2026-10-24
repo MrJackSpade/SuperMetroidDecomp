@@ -12,7 +12,7 @@ internal static class EnemyProjectileSpritemapNative
     extension(EnemyProjectileSpritemapDefinitions)
     {
         /// <summary>The empty bank-$8D projectile spritemap, which draws nothing.</summary>
-        internal static ushort BlankSpritemap => EnemyProjectileCompositionSources.BlankSpritemap;
+        internal static ushort BlankSpritemap => EnemyProjectileCompositionDefinitions.BlankSpritemap;
 
         /// <summary>Each composition's bank-$8D spritemap and installed name, in schema order.</summary>
         internal static SpritemapFrameDefinition[] Frames => [.. EnemyProjectileSpritemapDefinitions.FrameNames.Select(name =>
@@ -20,7 +20,7 @@ internal static class EnemyProjectileSpritemapNative
     }
 
     /// <summary>The composition frame stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
-    internal static EnemyProjectileFrameId FrameAt(ushort spritemap) => spritemap == EnemyProjectileCompositionSources.BlankSpritemap
+    internal static EnemyProjectileFrameId FrameAt(ushort spritemap) => spritemap == EnemyProjectileCompositionDefinitions.BlankSpritemap
         ? EnemyProjectileFrameId.Blank
         : EnemyProjectileSpritemapDefinitions.FrameNames.Select(EnemyProjectileFrames.Identity)
             .Single(frame => EnemyProjectileCompositionSources.Spritemap(frame) == spritemap);

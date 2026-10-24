@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
@@ -9,10 +11,10 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// <param name="SourceBankWord">The descriptor's bank word, whose high byte is the work-memory bank.</param>
 /// <param name="SourceOffset">The work-memory offset the row is read from.</param>
 /// <param name="DestinationWord">The descriptor's destination word.</param>
-internal readonly record struct CorpseRowUpload(ushort SizeInBytes, ushort SourceBankWord, ushort SourceOffset, ushort DestinationWord)
+internal readonly record struct CorpseRowUpload(int SizeInBytes, int SourceBankWord, int SourceOffset, int DestinationWord)
 {
     /// <summary>The work-memory address the row is read from: the bank word's bank byte with the offset.</summary>
-    internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
+    internal int SourceAddress => (int)new SnesAddress(SnesLittleEndian.HighByte(SourceBankWord), checked((ushort)SourceOffset));
 
     /// <summary>The OBJ character table byte the row lands at.</summary>
     internal int FirstTableByte => (DestinationWord - CorpseSheetDefinitions.ObjCharacterTableWord) * sizeof(ushort);

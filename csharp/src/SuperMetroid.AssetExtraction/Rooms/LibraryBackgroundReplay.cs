@@ -31,7 +31,7 @@ internal static class LibraryBackgroundReplay
         Ensure.NotNull(vram);
         Ensure.NotNull(program);
         Ensure.NotNull(artwork);
-        if (enemyBg2Staging.Length > LibraryBackgroundRomData.EnemyBg2StagingByteCount)
+        if (enemyBg2Staging.Length > LibraryBackgroundStagingDefinitions.EnemyBg2StagingByteCount)
             throw new ArgumentOutOfRangeException(nameof(enemyBg2Staging), enemyBg2Staging.Length, "The enemy BG2 staging is 4 KiB.");
         var staging = new Staging(enemyBg2Staging);
         LibraryBackgroundCharacterArtwork characters = artwork.CharactersOver(artwork.Backgrounds ?? new BgArtworkBindings());
@@ -49,20 +49,20 @@ internal static class LibraryBackgroundReplay
                         instruction.SourceAddress);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
-                    FillAndTransfer(staging, vram, LibraryBackgroundRomData.ClearFx);
+                    FillAndTransfer(staging, vram, LibraryBackgroundStagingDefinitions.ClearFx);
                     break;
                 case LibraryBackgroundCommand.TransferToVramForKraid:
                     Transfer(staging, vram, instruction, artwork, characters);
                     selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.ClearBg2:
-                    FillAndTransfer(staging, vram, LibraryBackgroundRomData.ClearBg2);
+                    FillAndTransfer(staging, vram, LibraryBackgroundStagingDefinitions.ClearBg2);
                     break;
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
                     // Kraid's list repeats the filled staging at his own page before BG2's.
-                    LibraryBackgroundClear clear = LibraryBackgroundRomData.ClearBg2;
+                    LibraryBackgroundClear clear = LibraryBackgroundStagingDefinitions.ClearBg2;
                     staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue);
-                    vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), LibraryBackgroundRomData.KraidBg2VramDestinationWord);
+                    vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), LibraryBackgroundStagingDefinitions.KraidBg2VramDestinationWord);
                     vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestinationWord);
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
@@ -96,7 +96,7 @@ internal static class LibraryBackgroundReplay
             return;
         else if (artwork.SkyArt is { } skies && skies.TryResolve(transfer.SourceAddress, transfer.ByteCount, out ReadOnlyMemory<byte> sky))
             vram.ExecuteQueuedAssetWrite(sky.Span, destination);
-        else if (transfer.SourceAddress >= LibraryBackgroundRomData.RomSourceAddressFloor && artwork.SkyArt is not null && artwork.HudArt is not null
+        else if (transfer.SourceAddress >= (int)LibraryBackgroundStagingDefinitions.RomSourceAddressFloor && artwork.SkyArt is not null && artwork.HudArt is not null
             && artwork.CharacterArt is not null)
             // Every installed catalog is bound: a source none of them owns must not fall back to the cartridge's bytes.
             throw new InvalidDataException(
@@ -117,7 +117,7 @@ internal static class LibraryBackgroundReplay
     private sealed class Staging(ReadOnlyMemory<byte> enemyBg2)
     {
         /// <summary>The tilemap staging's bytes in address order.</summary>
-        private readonly byte[] tilemap = new byte[LibraryBackgroundRomData.TilemapStagingByteCount];
+        private readonly byte[] tilemap = new byte[LibraryBackgroundStagingDefinitions.TilemapStagingByteCount];
 
         /// <summary>The enemy BG2 staging's bytes in address order.</summary>
         private readonly byte[] enemy = Copied(enemyBg2);
@@ -131,14 +131,14 @@ internal static class LibraryBackgroundReplay
         /// <summary>Whether <paramref name="address"/> and its <paramref name="byteCount"/> bytes lie in one staging, and those bytes.</summary>
         public bool TryRead(int address, int byteCount, out ReadOnlySpan<byte> bytes)
         {
-            if (Within(address, byteCount, LibraryBackgroundRomData.TilemapStagingAddress, LibraryBackgroundRomData.TilemapStagingByteCount))
+            if (Within(address, byteCount, (int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress, LibraryBackgroundStagingDefinitions.TilemapStagingByteCount))
             {
-                bytes = tilemap.AsSpan(address - LibraryBackgroundRomData.TilemapStagingAddress, byteCount);
+                bytes = tilemap.AsSpan(address - (int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress, byteCount);
                 return true;
             }
-            if (Within(address, byteCount, LibraryBackgroundRomData.EnemyBg2StagingAddress, LibraryBackgroundRomData.EnemyBg2StagingByteCount))
+            if (Within(address, byteCount, (int)LibraryBackgroundStagingDefinitions.EnemyBg2StagingAddress, LibraryBackgroundStagingDefinitions.EnemyBg2StagingByteCount))
             {
-                bytes = enemy.AsSpan(address - LibraryBackgroundRomData.EnemyBg2StagingAddress, byteCount);
+                bytes = enemy.AsSpan(address - (int)LibraryBackgroundStagingDefinitions.EnemyBg2StagingAddress, byteCount);
                 return true;
             }
             bytes = default;
@@ -169,8 +169,8 @@ internal static class LibraryBackgroundReplay
         /// <summary>The staging offset of bank-$7E <paramref name="destination"/>, whose range must lie in the tilemap staging.</summary>
         private static int Offset(int destination, int byteCount, string failure)
         {
-            int first = destination - LibraryBackgroundRomData.TilemapStagingBankOffset;
-            return first >= 0 && first + byteCount <= LibraryBackgroundRomData.TilemapStagingByteCount ? first : throw new InvalidDataException(failure);
+            int first = destination - LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset;
+            return first >= 0 && first + byteCount <= LibraryBackgroundStagingDefinitions.TilemapStagingByteCount ? first : throw new InvalidDataException(failure);
         }
 
         /// <summary>Whether <paramref name="byteCount"/> bytes from <paramref name="address"/> lie in the staging at <paramref name="first"/>.</summary>
@@ -180,7 +180,7 @@ internal static class LibraryBackgroundReplay
         /// <summary>A 4 KiB staging holding <paramref name="leading"/> first.</summary>
         private static byte[] Copied(ReadOnlyMemory<byte> leading)
         {
-            var bytes = new byte[LibraryBackgroundRomData.EnemyBg2StagingByteCount];
+            var bytes = new byte[LibraryBackgroundStagingDefinitions.EnemyBg2StagingByteCount];
             leading.Span.CopyTo(bytes);
             return bytes;
         }

@@ -112,11 +112,11 @@ internal static class LibraryBackgroundProgramImporter
                         source.WriteByte(RoomAssetRomData.LibraryBackground.WorkRamBank | (instruction.StagingOffset + i), expanded[i]);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
-                    ClearAndTransfer(LibraryBackgroundRomData.ClearFx, false);
+                    ClearAndTransfer(LibraryBackgroundStagingDefinitions.ClearFx, false);
                     break;
                 case LibraryBackgroundCommand.ClearBg2:
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    ClearAndTransfer(LibraryBackgroundRomData.ClearBg2,
+                    ClearAndTransfer(LibraryBackgroundStagingDefinitions.ClearBg2,
                         instruction.Command == LibraryBackgroundCommand.ClearBg2ForKraid);
                     break;
                 case LibraryBackgroundCommand.End:
@@ -136,7 +136,7 @@ internal static class LibraryBackgroundProgramImporter
             }
             ISnesMutableMemory memory = source as ISnesMutableMemory ?? throw new InvalidOperationException("Import staging requires WRAM.");
             if (includeKraidPage) vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress,
-                transfer.ByteCount, LibraryBackgroundRomData.KraidBg2VramDestinationWord);
+                transfer.ByteCount, LibraryBackgroundStagingDefinitions.KraidBg2VramDestinationWord);
             vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress, transfer.ByteCount, transfer.VramDestinationWord);
         }
     }

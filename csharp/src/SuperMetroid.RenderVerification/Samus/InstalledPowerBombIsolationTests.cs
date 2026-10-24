@@ -25,7 +25,7 @@ internal static class InstalledPowerBombIsolationTests
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and software/D3D pixels.</summary>
+    /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and WARP/D3D pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(string installationRoot)
     {
@@ -125,7 +125,7 @@ internal static class InstalledPowerBombIsolationTests
                     PixelComparison.Verify(restored, DisplayRendering.Render(restored),
                         renderer.RenderForReadback(restored), $"{kind}: {sample.Context}");
                 }
-                Console.WriteLine($"{kind}: {framesToRender.Count} edited explosion frames match software.");
+                Console.WriteLine($"{kind}: {framesToRender.Count} edited explosion frames match the WARP reference.");
             }
             Console.WriteLine($"Power Bomb/Crystal Flash isolation: {comparisons} full mutable-state/window comparisons, " +
                 $"{changedColors} changed color observations; disk selection/removal verified. No ROM or player data used.");

@@ -66,7 +66,7 @@ internal static class BackgroundMosaicTests
                 if (actual[y * 256 + x] != cgram.GetRgba(expectedColor))
                     throw new InvalidDataException($"Mosaic size {size}, mode {mode}: wrong pixel ({x},{y}).");
             }
-            PixelComparison.Verify(packet, actual, DisplayRendering.Render(packet), "mosaic software rendering");
+            PixelComparison.Verify(packet, actual, DisplayRendering.Render(packet), "mosaic WARP reference");
             PixelComparison.Verify(packet, actual, renderer.RenderForReadback(packet), $"{device.Kind}: mosaic size {size}, mode {mode}");
         }
         Console.WriteLine($"{device.Kind}: {cases} mosaic frames match independent pixels (ordinary, main BG2, additive BG2; HUD/OBJ/BG1 unaffected).");

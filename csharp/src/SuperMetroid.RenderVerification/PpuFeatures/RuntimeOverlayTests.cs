@@ -64,7 +64,7 @@ internal static class RuntimeOverlayTests
         {
             Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var packet = new DisplayPacket(new(++sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-            PixelComparison.Verify(packet, expected, DisplayRendering.Render(packet), $"software: {context}");
+            PixelComparison.Verify(packet, expected, DisplayRendering.Render(packet), $"WARP: {context}");
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");
             return new RenderedFrame(packet, expected);
         }

@@ -51,7 +51,7 @@ internal static class RetailLoadAppearanceTests
             if (sawMap)
             {
                 PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), DisplayRendering.Render(actual.Snapshot),
-                    $"saved-file load software capture frame {tick}");
+                    $"saved-file load WARP capture frame {tick}");
                 PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), renderer.RenderForReadback(actual.Snapshot),
                     $"{device.Kind}: saved-file load frame {tick}, {expected.GameState}");
                 samples++;

@@ -7,7 +7,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Compares D3D11 and software windowed-scene rendering across native PPU geometry and brightness cases.</summary>
+/// <summary>Compares D3D11 on the graphics device and the WARP reference's windowed-scene rendering across native PPU geometry and brightness cases.</summary>
 internal static class WindowSceneSmokeTests
 {
     /// <summary>Checks parent/child window pixels and exact upload counts, including clipped empty windows and a child reused twice.</summary>

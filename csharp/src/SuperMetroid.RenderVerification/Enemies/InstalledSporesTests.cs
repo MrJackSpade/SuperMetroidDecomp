@@ -54,7 +54,7 @@ internal static class InstalledSporesTests
                     PixelComparison.Verify(packet, DisplayRendering.Render(packet),
                         renderer.RenderForReadback(packet), $"{kind}: spores case {packet.Identity}");
                 }
-                Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match software exactly.");
+                Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match the WARP reference exactly.");
             }
             CheckFileFailures(maps, overrides);
             foreach (string file in Directory.GetFiles(overrides)) File.Delete(file);

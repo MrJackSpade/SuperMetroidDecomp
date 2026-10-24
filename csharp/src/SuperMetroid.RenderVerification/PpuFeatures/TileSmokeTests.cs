@@ -6,7 +6,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Compares Direct3D tile and color-math output with the software PPU renderer.</summary>
+/// <summary>Compares Direct3D tile and color-math output with the WARP reference.</summary>
 internal static class TileSmokeTests
 {
     /// <summary>Checks background geometry, priority, scrolling, transparency, brightness, and plane selection.</summary>

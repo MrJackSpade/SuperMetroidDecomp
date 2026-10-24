@@ -176,7 +176,7 @@ internal sealed class AcceptedFrameBoundary
             // Before the first room no FX record is selected and no blending is configured.
             _room.Layer3Fx?.Type ?? RoomFxType.None,
             _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
-            ScrollingSkyRegisterSnapshot.Capture(_room.ScrollingSky),
+            LatchedScrollingSky.Capture(_room.ScrollingSky),
             room?.Definition,
             // Before the first room no boss is loaded.
             _room.Enemies?.RoomStatus.BossId ?? 0);

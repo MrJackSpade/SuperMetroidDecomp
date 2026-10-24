@@ -99,7 +99,7 @@ public static class GameplayDisplayCapture
             // register. Type 13 also gives the statue OBJ zero quake displacement.
             bg2Scroll = bg2Scroll.WithY(unchecked((ushort)(ppu.Layer1Position.Y + latched.TourianStatueVerticalOffset)));
         RoomLayer3FxRenderSnapshot? fx = latched.RoomLayer3Fx;
-        ScrollingSkyRegisterSnapshot? sky = scene.ScrollingSky;
+        LatchedScrollingSky? sky = scene.ScrollingSky;
         ushort[]? skyX = SkyHorizontalScrolls(live, shake);
 
         ushort[]? waterX = fx is { } water
@@ -119,10 +119,10 @@ public static class GameplayDisplayCapture
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
                 kraidBody is { } kraidY ? Add(kraidY.Scroll.Y, shake.Bg2.Y)
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
-                : sky is { } skyRegisters ? Add(skyRegisters.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
+                : sky is { } latchedSky ? Add(latchedSky.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBody is { } kraidMap ? kraidMap.Tilemap.Size
                 : bosses.MotherBrainBody is { Scroll: not null } ? new Extent16<TilemapCells>(32, 32)
-                : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
+                : sky?.ShowsBands != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }

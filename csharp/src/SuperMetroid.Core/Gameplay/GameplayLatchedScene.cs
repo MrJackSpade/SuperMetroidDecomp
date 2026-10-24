@@ -17,6 +17,6 @@ public readonly record struct GameplayLatchedScene(
     BgCharacterSet Layer3Characters,
     RoomFxType FxType,
     LayerBlendingConfiguration LayerBlendConfiguration,
-    ScrollingSkyRegisterSnapshot? ScrollingSky,
+    LatchedScrollingSky? ScrollingSky,
     RoomHeaderDefinition? Room,
     int BossId);

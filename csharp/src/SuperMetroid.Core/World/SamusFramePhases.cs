@@ -366,7 +366,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // `$91:E231-$E23D` disables enemy room.Projectiles, PLMs, animated tiles,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
             // advanced through this translated producer during the X-ray interval.
-            BombProjectileFrameResult bombFrame = room.BombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, _controller1.Current, _controller1.NewlyPressed, overlap: BombJumpOverlapPublication.Deferred, powerBombHdma: PowerBombHdmaStep.Skip);
+            BombProjectileFrameResult bombFrame = room.BombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, _controller1.Current, _controller1.NewlyPressed, overlap: BombJumpOverlapPublication.Deferred, explosion: PowerBombExplosionStep.Skip);
 
             if (bombFrame.BeamChargeConsumed)
             {

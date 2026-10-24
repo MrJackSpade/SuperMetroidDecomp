@@ -11,10 +11,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [PpuLayoutBoundary("codec: Kraid's 64x64 BG2 map in the hardware's screen order")]
 internal static class KraidBodyTilemap
 {
-    /// <summary>Kraid's BG2 map size selected by native BG2SC size bits $03.</summary>
-    internal static Extent16<TilemapCells> Size { get; } =
-        new(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles);
-
     /// <summary>The first word of the lower-left screen, where the lower page shows.</summary>
     private const int LowerScreenWord = 2 * KraidBackgroundRomData.VisiblePageWords;
 
@@ -62,14 +58,15 @@ internal static class KraidBodyTilemap
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(art);
-        var words = new ushort[Size.X * Size.Y];
+        Extent16<TilemapCells> size = KraidBackgroundRomData.BodyPlaneSize;
+        var words = new ushort[size.X * size.Y];
         words.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
         Page(frame.Top, working[..KraidBackgroundRomData.VisiblePageWords], words.AsSpan(0, KraidBackgroundRomData.VisiblePageWords));
         if (frame.Head is { } head)
             art.HeadWords(head).CopyTo(words);
         Page(frame.Bottom, working.Slice(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords),
             words.AsSpan(LowerScreenWord, KraidBackgroundRomData.VisiblePageWords));
-        return new BossBg2Tilemap(ImmutableArray.Create(words), Size);
+        return new BossBg2Tilemap(ImmutableArray.Create(words), size);
     }
 
     /// <summary>Writes what <paramref name="page"/> shows of <paramref name="body"/> into <paramref name="destination"/>.</summary>

@@ -52,7 +52,7 @@ internal static class CeresRidleyBodyPublicationVerification
             previousAngle = ridley.FloorAngle;
             PerspectiveFloor floor = runtime.Display.Latched.PerspectiveFloor
                 ?? throw new InvalidOperationException("Ridley's getaway publishes his floor.");
-            AssertEqual(CeresPerspectiveFloors.RidleyGetaway(CeresRidleyMode7Snapshot.Capture(ridley)
+            AssertEqual(CeresPerspectiveFloors.RidleyGetaway(CeresRidleyGetaway.FloorTransform(ridley)
                 ?? throw new InvalidOperationException("Ridley flies his getaway.")), floor, $"angle {ridley.FloorAngle} publishes Ridley's floor");
             AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");

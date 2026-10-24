@@ -85,17 +85,15 @@ internal static class MorphBallEyeBehaviorVerification
             beam.AngularHalfWidth, "a full beam keeps the fraction it overshot with");
 
         beam.Phase = MorphBallEyeBeamPhase.Deactivating;
-        beam.Red = MorphBallEyeBeamDefinitions.InitialRed;
-        beam.Green = MorphBallEyeBeamDefinitions.InitialGreen;
-        beam.Blue = MorphBallEyeBeamDefinitions.Blue;
-        int fadeUpdates = MorphBallEyeBeamDefinitions.InitialGreen - MorphBallEyeBeamDefinitions.FadedGreen;
+        beam.Color = MorphBallEyeBeamDefinitions.InitialColor;
+        int fadeUpdates = MorphBallEyeBeamDefinitions.InitialColor.Green;
         for (int update = 1; update <= fadeUpdates; update++)
         {
             enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
-            AssertEqual(Math.Max(MorphBallEyeBeamDefinitions.InitialRed - update, MorphBallEyeBeamDefinitions.FadedRed), beam.Red,
-                $"eye beam red after fading update {update}");
-            AssertEqual(MorphBallEyeBeamDefinitions.InitialGreen - update, beam.Green, $"eye beam green after fading update {update}");
-            AssertEqual(MorphBallEyeBeamDefinitions.Blue, beam.Blue, $"eye beam blue after fading update {update}");
+            AssertEqual(Math.Max(MorphBallEyeBeamDefinitions.InitialColor.Red - update, 0), beam.Color.Red,
+                $"eye beam red intensity after fading update {update}");
+            AssertEqual(MorphBallEyeBeamDefinitions.InitialColor.Green - update, beam.Color.Green, $"eye beam green intensity after fading update {update}");
+            AssertEqual(0, beam.Color.Blue, $"eye beam blue intensity after fading update {update}");
             AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Phase, $"eye beam still fading after update {update}");
         }
         enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();

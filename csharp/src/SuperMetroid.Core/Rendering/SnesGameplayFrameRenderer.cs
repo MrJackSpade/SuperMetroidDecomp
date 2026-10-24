@@ -426,7 +426,7 @@ public static class SnesGameplayFrameRenderer
         ushort[] nativeWindows = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        byte red = ExpandFiveBit(beam.Red), green = ExpandFiveBit(beam.Green), blue = ExpandFiveBit(beam.Blue);
+        byte red = ExpandFiveBit(beam.Color.Red), green = ExpandFiveBit(beam.Color.Green), blue = ExpandFiveBit(beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
             int left = SnesLittleEndian.LowByte(nativeWindows[y]), right = SnesLittleEndian.HighByte(nativeWindows[y]);
@@ -443,7 +443,7 @@ public static class SnesGameplayFrameRenderer
     public static ScanlineColorAddRenderLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam)
     {
         if (!beam.Active) return null;
-        ushort[] nativeWindows = RainbowBeamWindowBuilder.Build(beam.Geometry);
+        MotherBrainBeamLine[] lines = RainbowBeamWindowBuilder.Build(beam.Geometry);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
         byte red = ExpandFiveBit((byte)beam.Color.Red);
@@ -451,9 +451,8 @@ public static class SnesGameplayFrameRenderer
         byte blue = ExpandFiveBit((byte)beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
-            ushort word = nativeWindows[y];
-            byte left = (byte)word, right = SnesLittleEndian.HighByte(word);
-            if (left <= right) windows[y] = new(left, right, red, green, blue);
+            MotherBrainBeamLine line = lines[y];
+            if (line.Crosses) windows[y] = new(line.Left, line.Right, red, green, blue);
         }
         return new(windows);
     }

@@ -10,7 +10,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Phantoon HDMA wave, palette fade, and blending state across display latches.</summary>
+/// <summary>Checks Phantoon's wave effect, palette fade, and blending state across display latches.</summary>
 internal static class PhantoonWaveVerification
 {
     /// <summary>Checks setup cadence, native scroll progression, deletion, and debugger state restoration.</summary>
@@ -24,9 +24,9 @@ internal static class PhantoonWaveVerification
         boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
         wave.Begin(PhantoonWaveRomData.IntroMode);
-        AssertTrue(!wave.Active, "wave spawn waits for HDMA setup");
+        AssertTrue(!wave.Active, "a requested wave waits for its setup update");
         wave.Step(boss);
-        AssertEqual(2, boss.Parts[boss.Eye.SlotIndex].WaveMode, "HDMA setup copies pending mode to eye");
+        AssertEqual(2, boss.Parts[boss.Eye.SlotIndex].WaveMode, "the wave's setup copies the pending mode to the eye");
         AssertEqual(65534, wave.Phase, "native setup-only phase");
         AssertTrue(wave.ScrollCycle.All(word => word == 0), "setup does not run the scroll pre-instruction");
         // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8.
@@ -39,11 +39,11 @@ internal static class PhantoonWaveVerification
         wave.LatchDisplay();
         ushort[] savedDisplay = (wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).ToArray();
         wave.Step(boss);
-        AssertTrue(savedDisplay.SequenceEqual(wave.DisplayedWave?.GameplayScrolls().ToArray()), "live HDMA step leaves latched display immutable");
+        AssertTrue(savedDisplay.SequenceEqual(wave.DisplayedWave?.GameplayScrolls().ToArray()), "a live wave update leaves the latched display unchanged");
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, wave);
         stream.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonWaveHdmaState>(stream);
+        var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonWaveEffect>(stream);
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertTrue(wave.ScrollCycle.SequenceEqual(restored.ScrollCycle), "wave data survives exact debugger state");
         AssertTrue(savedDisplay.SequenceEqual(restored.DisplayedWave?.GameplayScrolls().ToArray()), "latched wave survives debugger state");

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -178,6 +179,17 @@ internal sealed class CeresRidleyGetaway
     /// </summary>
     internal static SnesSignedEightEight NegateMode7Coefficient(SnesSignedEightEight coefficient) =>
         SnesSignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
+
+    /// <summary>
+    /// The perspective floor's transform as the getaway last turned and moved it, before room shake, or null while the
+    /// getaway does not show the floor: the zoom-scaled rotation, the floor point it turns about, and the getaway's
+    /// scroll across the floor.
+    /// </summary>
+    internal static AffineTransform? FloorTransform(RidleyEnemyState? ridley) => ridley is { Mode7Active: true } getaway
+        ? new AffineTransform(getaway.Mode7MatrixA.SignedRawValue, getaway.Mode7MatrixB.SignedRawValue,
+            getaway.Mode7MatrixC.SignedRawValue, getaway.Mode7MatrixD.SignedRawValue,
+            getaway.Mode7Center.AsSignedRegister(), getaway.Mode7Offset)
+        : null;
 
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
     private static void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)

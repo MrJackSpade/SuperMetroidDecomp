@@ -19,9 +19,6 @@ internal static class CeresPerspectiveFloors
         ShowsLayer2Below: false);
 
     /// <summary>The floor Ceres Ridley's getaway flies over, with the room's layer 2 below it.</summary>
-    /// <param name="ridley">The getaway's transform as its room main last wrote it.</param>
-    internal static PerspectiveFloor RidleyGetaway(CeresRidleyMode7Snapshot ridley) => new(
-        new AffineTransform(ridley.MatrixA, ridley.MatrixB, ridley.MatrixC, ridley.MatrixD, ridley.Center.AsSignedRegister(),
-            ridley.Offset),
-        ShowsLayer2Below: true);
+    /// <param name="ridley">The getaway's transform as its room main last wrote it (<see cref="CeresRidleyGetaway.FloorTransform"/>).</param>
+    internal static PerspectiveFloor RidleyGetaway(AffineTransform ridley) => new(ridley, ShowsLayer2Below: true);
 }

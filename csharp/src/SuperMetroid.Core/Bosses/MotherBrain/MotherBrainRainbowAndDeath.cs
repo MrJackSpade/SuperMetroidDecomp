@@ -343,9 +343,9 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         state.DroolGenerationEnabled = sequence.State.DroolGenerationEnabled;
 
-        // These words are the renderer-facing output of the bank-$88 HDMA object. The beam
-        // renderer is deliberately fed from this single translated aim calculation.
-        state.RainbowBeamHdmaActive = sequence.RainbowAttack.HdmaActive;
+        // These values drive the rainbow beam effect. The beam renderer is deliberately fed
+        // from this single translated aim calculation.
+        state.RainbowBeamActive = sequence.RainbowAttack.BeamActive;
         state.RainbowBeamAngle = sequence.RainbowBeamAngle;
         state.RainbowBeamAngularWidth = sequence.RainbowAttack.AngularWidth;
 

@@ -19,6 +19,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.World;
 
@@ -189,7 +190,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     /// <param name="layer1Scroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>
     private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> layer1Scroll) =>
-        CeresRidleyMode7Snapshot.Capture(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
+        CeresRidleyGetaway.FloorTransform(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
         : _display.ActiveSamusMode7Transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, layer1Scroll)
         : null;
 
@@ -351,7 +352,7 @@ internal sealed class AcceptedFrameBoundary
             _roomFx.FixedColors.Color,
             powerBomb,
             _suitPickup.FixedColor,
-            Displays?.MotherBrain?.RainbowBeamHdma.Color);
+            Displays?.MotherBrain?.RainbowBeam.Color);
     }
 
     /// <summary>
@@ -393,8 +394,6 @@ internal sealed class AcceptedFrameBoundary
             body.Position.Whole,
             eyeState.Angle,
             beam.AngularWidth,
-            checked((byte)beam.Red),
-            checked((byte)beam.Green),
-            checked((byte)beam.Blue));
+            beam.Color);
     }
 }

@@ -244,15 +244,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Seeds the beam's fixed colors and zero angular width, then marks its body activated.</summary>
+    /// <summary>Seeds the beam's colour and zero angular width, then marks its body activated.</summary>
     private void InitializeMorphBallEyeBeamObject()
     {
         RoomEnemySlot body = RequireMorphBallEyeBeamBody();
         MorphBallEyeEnemyState state = body.RequireSpeciesState<MorphBallEyeEnemyState>();
 
-        MorphBallEyeBeam.Red = MorphBallEyeBeamDefinitions.InitialRed;
-        MorphBallEyeBeam.Green = MorphBallEyeBeamDefinitions.InitialGreen;
-        MorphBallEyeBeam.Blue = MorphBallEyeBeamDefinitions.Blue;
+        MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
         MorphBallEyeBeam.AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
         MorphBallEyeBeam.AngularHalfWidthGrowth = SnesSignedSixteenSixteen.Zero;
         MorphBallEyeBeam.ColorIndex = 0;
@@ -286,20 +284,16 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int colorIndex = MorphBallEyeBeam.ColorIndex & MorphBallEyeBeamDefinitions.ColorIndexBits;
-        (int red, int green) = MorphBallEyeGeometryDefinitions.BeamColor(colorIndex);
-        MorphBallEyeBeam.Red = red;
-        MorphBallEyeBeam.Green = green;
-        MorphBallEyeBeam.Blue = MorphBallEyeBeamDefinitions.Blue;
+        MorphBallEyeBeam.Color = MorphBallEyeGeometryDefinitions.BeamColor(colorIndex);
         MorphBallEyeBeam.ColorIndex = (colorIndex + 1) & MorphBallEyeBeamDefinitions.ColorIndexBits;
     }
 
-    /// <summary>Steps the beam's colour levels toward their faded levels and removes the beam once green has faded.</summary>
+    /// <summary>Darkens the beam's colour one step and removes the beam once green has faded to black.</summary>
     private void FadeMorphBallEyeBeam()
     {
-        // $88:EAD6 tests green before updating the table or decrementing any component.
-        // Once green reaches selector/component $40, it clears the table and deletes the
-        // object on this pass. Reset publishes the same fixed-color base values.
-        if (MorphBallEyeBeam.Green == MorphBallEyeBeamDefinitions.FadedGreen)
+        // $88:EAD6 tests green before updating the cone or darkening any channel. Once green
+        // has reached zero intensity, the beam is removed on this pass, its colour black.
+        if (MorphBallEyeBeam.Color.Green == 0)
         {
             MorphBallEyeBeam.Reset();
             return;

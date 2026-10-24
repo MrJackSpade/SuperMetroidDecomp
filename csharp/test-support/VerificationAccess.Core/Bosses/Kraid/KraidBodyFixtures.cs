@@ -19,7 +19,7 @@ internal static class KraidBodyFixtures
     /// </summary>
     internal static ushort[] Tilemap(ReadOnlySpan<ushort> top, ReadOnlySpan<ushort> head, ReadOnlySpan<ushort> bottom)
     {
-        var words = new ushort[KraidBackgroundRomData.TilemapWidthInTiles * KraidBackgroundRomData.TilemapHeightInTiles];
+        var words = new ushort[KraidBackgroundRomData.BodyPlaneSize.X * KraidBackgroundRomData.BodyPlaneSize.Y];
         words.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
         top.CopyTo(words);
         head.CopyTo(words);

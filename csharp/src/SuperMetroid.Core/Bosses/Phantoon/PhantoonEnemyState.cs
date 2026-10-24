@@ -100,8 +100,8 @@ public sealed class PhantoonEnemyState
     /// </summary>
     public PlmHeaderId? BossDoorPlmRequest { get; internal set; }
 
-    /// <summary>Gets the encounter's lazily created bank-$88 wave owner, which advances scanline scroll mechanics separately from accepted-NMI display latching.</summary>
-    public PhantoonWaveHdmaState Wave => field ??= new();
+    /// <summary>Gets the encounter's lazily created wave effect, which advances the per-line ripple separately from accepted-NMI display latching.</summary>
+    public PhantoonWaveEffect Wave => field ??= new();
 
     /// <summary>Gets the encounter's lazily created bank-$88 blending owner, retaining live transparency control and separately latched blending/mosaic display state.</summary>
     public PhantoonBlendingState Blending => field ??= new();

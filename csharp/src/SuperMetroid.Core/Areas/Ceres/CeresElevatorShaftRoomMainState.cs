@@ -128,7 +128,7 @@ public sealed class CeresElevatorShaftRoomMainState
             MatrixA: unchecked((short)cosine),
             MatrixB: unchecked((short)sine),
             MatrixC: unchecked((short)-sine),
-            Center: CeresShaftMode7Center);
+            Center: CeresShaftRotationCenter);
 
         // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes the
         // reversing phase 68. Reversing phases decrement until reversing phase 1 maps to
@@ -167,8 +167,8 @@ public sealed class CeresElevatorShaftRoomMainState
         MatrixA: (short)SnesEightEight.FromWhole(1),
         MatrixB: 0,
         MatrixC: 0,
-        Center: CeresShaftMode7Center);
+        Center: CeresShaftRotationCenter);
 
-    /// <summary>The shaft's fixed M7X/M7Y rotation centre, written by both <c>$8F:E4E0</c> and room main.</summary>
-    internal static readonly Position16<RoomPixels> CeresShaftMode7Center = new(128, 1008);
+    /// <summary>The room point the shaft's turning floor always rotates about, set by both <c>$8F:E4E0</c> and room main.</summary>
+    internal static readonly Position16<RoomPixels> CeresShaftRotationCenter = new(128, 1008);
 }

@@ -51,7 +51,7 @@ internal static class AbsoluteTangentDefinitionsVerification
             _ = EyeBeamWindowBuilder.Build(new Offset16<ScreenPixels>(100, 100), angle, 0);
             _ = EyeBeamWindowBuilder.Build(new Offset16<ScreenPixels>(-16, 100), angle, 1);
         }
-        var beam = new MotherBrainRainbowBeamHdmaState
+        var beam = new MotherBrainRainbowBeamEffect
         {
             PresentationColors = RetailPresentationFixture().MotherBrainRainbowPalette,
         };

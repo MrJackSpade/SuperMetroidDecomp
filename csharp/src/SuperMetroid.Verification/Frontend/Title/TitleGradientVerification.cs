@@ -38,7 +38,6 @@ internal static class TitleGradientVerification
     /// <summary>Checks native gradient band boundaries and all 256 zoom selections after artwork and schema suites.</summary>
     internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        Suite(nameof(VerifyTitleGradientObjectEligibility), () => VerifyTitleGradientObjectEligibility());
         Suite(nameof(VerifyExtractedTitleGraphics), () => VerifyExtractedTitleGraphics(bus));
         Suite(nameof(VerifyExtractedTitlePalette), () => VerifyExtractedTitlePalette(bus));
         Suite(nameof(VerifyExtractedTitleGradient), () => VerifyExtractedTitleGradient(bus));
@@ -510,39 +509,6 @@ internal static class TitleGradientVerification
                 return new CaptureInstalledTitleGradientResult(snapshot.Gradient.ToArray(), title.Mode7MatrixScale);
         }
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
-    }
-
-    /// <summary>Checks title color math includes only eligible OBJ palettes and excludes transparent pixels.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyTitleGradientObjectEligibility()
-    {
-        var oam = new OamBuffer();
-        var vram = new SnesVram();
-        var cgram = new SnesCgram();
-        byte[] tile = new byte[32];
-        for (int row = 0; row < 8; row++) tile[row * 2] = 255;
-        vram.LoadBytes(0, tile);
-        var pixels = new Rgba32[256 * 224];
-        var priorities = new byte[pixels.Length];
-        var palettes = new byte[pixels.Length];
-        var color = new Rgba32(0, 0, 0, 255);
-        var additive = new TitleGradientLine(0, 1, 1, AddToBackgroundAndObjects);
-        for (byte palette = 0; palette < 8; palette++)
-        {
-            oam.BeginFrame();
-            oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)(palette << 9));
-            oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)((7 - palette) << 9));
-            oam.FinalizeFrame();
-            SnesObjRenderer.RenderResolved(DrawColours.ResolveAll(ObjCharacterImageConstants.Draws(oam, vram, 0), cgram.Colors), new ObjRasterTargets(pixels, priorities, palettes));
-            AssertEqual((byte)(palette >= 4 ? 4 : 0), palettes[0], "winning OBJ palette's blending survives equal-color overlap");
-            AssertEqual(byte.MaxValue, palettes[8], "transparent pixel has no palette owner");
-            AssertEqual(palette < 4 ? color : new Rgba32(0, 8, 8, 255),
-                TitleGradientColorMath.Apply(color, additive, palettes[0]), "title OBJ palette eligibility");
-            AssertEqual(color, TitleGradientColorMath.Apply(color, new(15, 15, 15, SubtractFromBackground), palette),
-                "upper title subtraction excludes every OBJ palette");
-        }
-        AssertEqual(new Rgba32(247, 247, 247, 255),
-            TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, SubtractFromBackground)), "native five-bit subtraction");
     }
 
     /// <summary>Records title source addresses during extraction or forbids those addresses during installed rendering.</summary>

@@ -273,6 +273,19 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   emulation, follow the normal issue-fix and regression-test workflow. Keep any
   separable bounded behavior in scope, using a separate issue when appropriate.
 
+## Agent use
+
+- At most three agents may run at once. Spawn them only for work that splits intelligently into
+  independent, long-running pieces; never fire off short-lived agents repeatedly.
+- Every agent works in its own git worktree on its own branch and commits its work there. Agents
+  never spawn further agents or forks.
+- Agents do not build and do not run verification, tests, replays or scripts that check behaviour.
+  They only edit code and commit to their branches.
+- While agents are running, the main session acts only as coordinator, not as a developer: it
+  assigns and divides work, merges agent branches (`--no-ff`), builds, runs the focused
+  verification, fixes integration breakage, commits, pushes and drains the Discord queue.
+- Every agent prompt includes the manifesto's section 8 rules and this section.
+
 ## Batch handoff summaries
 
 - At the end of every batch containing multiple fixes, provide a self-contained summary before returning control to the user. The user must not need to reconstruct the results from intermediate progress messages or earlier conversation history.

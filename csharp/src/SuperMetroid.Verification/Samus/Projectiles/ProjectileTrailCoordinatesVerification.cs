@@ -31,14 +31,16 @@ internal static class ProjectileTrailCoordinatesVerification
     /// </summary>
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
+        Dictionary<ProjectileTrailPlacementList, ushort> starts = Enum.GetValues<ProjectileTrailPlacementList>().ToDictionary(
+            list => list, list => ProjectileTrailPlacementSources.Start(CartridgeImportSource.Require(bus), list).Offset);
         int records = 0;
         foreach ((ProjectileTrailPlacementList list, ProjectileTrailPlacement[] placements) in ProjectileTrailPlacementDefinitions.Records)
             for (int frame = 0; frame < placements.Length; frame++, records++)
-                AssertEqual(NativePlacement(bus, ProjectileTrailPlacementSources.Addresses[list] + frame * RecordByteCount), placements[frame],
+                AssertEqual(NativePlacement(bus, starts[list] + frame * RecordByteCount), placements[frame],
                     $"{list} placement {frame} matches the cartridge");
         AssertEqual(1660, records, "The eighty lists read 1660 placements up to the end of their runs of records");
 
-        Dictionary<ushort, ProjectileTrailPlacementList> lists = ProjectileTrailPlacementSources.Addresses.ToDictionary(pair => pair.Value, pair => pair.Key);
+        Dictionary<ushort, ProjectileTrailPlacementList> lists = starts.ToDictionary(pair => pair.Value, pair => pair.Key);
         int selections = 0;
         foreach ((ProjectileTrailFamilyGroup group, int table) in SelectorTables)
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
@@ -54,7 +56,7 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
         foreach (int frame in ProjectileTrailPlacements.OverrunFrames(list, InstalledFixtures.SamusOverreads.ProjectileLists))
         {
-            int record = (ProjectileTrailPlacementSources.Addresses[list] + frame * RecordByteCount) & ushort.MaxValue;
+            int record = (starts[list] + frame * RecordByteCount) & ushort.MaxValue;
             ProjectileTrailPlacement? expected = RecordIsCartridge(record) ? NativePlacement(bus, record) : null;
             AssertEqual(expected, ProjectileTrailPlacements.Start(list, frame, InstalledFixtures.SamusOverreads),
                 $"{list} at frame {frame} reads what the cartridge holds past its placements");

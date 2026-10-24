@@ -49,9 +49,9 @@ internal static class CeresRidleyBodyPublicationVerification
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertTrue(previousAngle is not { } previous || ridley.FloorAngle != previous, "the getaway turns Ridley between the two frames");
             previousAngle = ridley.FloorAngle;
-            CeresRidleyMode7Snapshot transform = runtime.Display.Latched.Bosses.CeresRidleyMode7
-                ?? throw new InvalidOperationException("Ridley's getaway publishes his Mode 7 transform.");
-            AssertEqual(CeresRidleyMode7Snapshot.Capture(ridley), transform, $"angle {ridley.FloorAngle} publishes Ridley's transform");
+            AffineTransform transform = runtime.Display.Latched.Bosses.CeresRidleyMode7
+                ?? throw new InvalidOperationException("Ridley's getaway publishes the floor's transform.");
+            AssertEqual(CeresRidleyGetaway.FloorTransform(ridley), transform, $"angle {ridley.FloorAngle} publishes the getaway floor's transform");
             AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");
             foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(wings))

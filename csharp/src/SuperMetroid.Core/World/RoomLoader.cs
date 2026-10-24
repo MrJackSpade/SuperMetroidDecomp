@@ -825,7 +825,7 @@ internal sealed class RoomLoader
                 MatrixA: 256, // 1.0 in Mode 7's 8.8 fixed point.
                 MatrixB: 0,
                 MatrixC: 0,
-                Center: CeresElevatorShaftRoomMainState.CeresShaftMode7Center)
+                Center: CeresElevatorShaftRoomMainState.CeresShaftRotationCenter)
             : null;
         _display.ActiveSamusMode7Transform = initialMode7Transform;
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is

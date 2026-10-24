@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// The five live PPU Mode 7 words consumed by <c>Samus_CalcPos_Mode7</c> at
-/// <c>$8B:8A52</c> while Ceres status has its high bit set.
+/// The Ceres elevator shaft's rotation: how far the shaft's turning floor has rotated Samus's surroundings about its
+/// centre, which <c>Samus_CalcPos_Mode7</c> at <c>$8B:8A52</c> applies to her drawing while Ceres status has its high
+/// bit set.
 /// </summary>
 /// <remarks>
 /// This is deliberately a presentation value, not part of Samus's kinematics. Retail
@@ -10,13 +11,13 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// spritemap origin, and restores both world coordinates immediately afterward. Keeping
 /// the transform immutable makes it difficult for drawing code to accidentally rotate
 /// collision, camera tracking, or the following gameplay frame's starting position.
-/// Matrix D is absent because this particular cartridge routine uses A for both diagonal
+/// The second diagonal term is absent because this particular cartridge routine uses A for both diagonal
 /// terms; B and C provide the two cross terms exactly as written by bank <c>$8B</c>.
 /// </remarks>
-/// <param name="MatrixA">M7A, also used for M7D: a signed 8.8 fixed-point coefficient (256 is 1.0).</param>
-/// <param name="MatrixB">M7B: a signed 8.8 fixed-point coefficient.</param>
-/// <param name="MatrixC">M7C: a signed 8.8 fixed-point coefficient.</param>
-/// <param name="Center">M7X/M7Y: the room point the shaft's layer-one Mode 7 plane rotates about.</param>
+/// <param name="MatrixA">The rotation's step through room X per room X, also its step through room Y per room Y: a signed 8.8 fixed-point coefficient (256 is 1.0).</param>
+/// <param name="MatrixB">The rotation's step through room X per room Y: a signed 8.8 fixed-point coefficient.</param>
+/// <param name="MatrixC">The rotation's step through room Y per room X: a signed 8.8 fixed-point coefficient.</param>
+/// <param name="Center">The room point the shaft's turning floor rotates about.</param>
 /// <remarks>
 /// The coefficients are signed sixteen-bit 8.8 values: every product below treats them as signed and truncates
 /// to sixteen bits, so their width is part of the transform, and they are stored signed exactly as they are
@@ -35,7 +36,7 @@ public readonly record struct SamusMode7Transform(
     public Position16<RoomPixels> Transform(Position16<RoomPixels> world)
     {
         // `$8B:8A52` forms both distances with 16-bit subtraction before treating the
-        // products as signed. In particular, vertical distance points upward: M7Y - Y.
+        // products as signed. In particular, vertical distance points upward: centre Y - Y.
         ushort horizontalDistance = unchecked((ushort)(world.X - Center.X));
         ushort verticalDistance = unchecked((ushort)(Center.Y - world.Y));
 

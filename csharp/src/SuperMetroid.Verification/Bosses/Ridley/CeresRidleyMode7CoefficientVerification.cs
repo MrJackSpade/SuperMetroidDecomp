@@ -5,7 +5,7 @@ using SuperMetroid.Verification.Harness;
 
 /// <summary>
 /// Confirms the Ceres getaway's typed Mode 7 coefficients keep the native word arithmetic: the C coefficient negates B
-/// with the sixteen-bit two's-complement wrap, and the published snapshot carries each coefficient's signed value.
+/// with the sixteen-bit two's-complement wrap, and the published floor transform carries each coefficient's signed value.
 /// </summary>
 internal static class CeresRidleyMode7CoefficientVerification
 {
@@ -31,13 +31,13 @@ internal static class CeresRidleyMode7CoefficientVerification
             Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(-33),
             Mode7MatrixD = SnesSignedEightEight.FromSignedRaw(short.MinValue),
         };
-        CeresRidleyMode7Snapshot snapshot = CeresRidleyMode7Snapshot.Capture(getaway)
-            ?? throw new InvalidOperationException("An active getaway publishes a Mode 7 snapshot.");
-        AssertEqual((short)240, snapshot.MatrixA, "snapshot A coefficient");
-        AssertEqual((short)33, snapshot.MatrixB, "snapshot B coefficient");
-        AssertEqual((short)-33, snapshot.MatrixC, "snapshot C coefficient");
-        AssertEqual(short.MinValue, snapshot.MatrixD, "snapshot D coefficient keeps the wrapped minimum");
-        Console.WriteLine("Ceres Ridley Mode 7 coefficients: all 65536 negations and the snapshot's signed values match the native words.");
+        var floor = CeresRidleyGetaway.FloorTransform(getaway)
+            ?? throw new InvalidOperationException("An active getaway publishes the floor's transform.");
+        AssertEqual((short)240, floor.MatrixA, "floor transform A coefficient");
+        AssertEqual((short)33, floor.MatrixB, "floor transform B coefficient");
+        AssertEqual((short)-33, floor.MatrixC, "floor transform C coefficient");
+        AssertEqual(short.MinValue, floor.MatrixD, "floor transform D coefficient keeps the wrapped minimum");
+        Console.WriteLine("Ceres Ridley floor coefficients: all 65536 negations and the floor transform's signed values match the native words.");
     }
 
     /// <summary>Runs the focused Ceres getaway coefficient check from its command-line switch.</summary>

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -163,12 +162,6 @@ public static class GameplayDisplayCapture
     private static Layer3Cells Bg3(GameplayNmiDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
 
-    /// <summary>The Mode 7 registers Ceres Ridley's latched shadows program, before room shake.</summary>
-    internal static AffineTransform CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(
-        unchecked(ridley.MatrixA), unchecked(ridley.MatrixB),
-        unchecked(ridley.MatrixC), unchecked(ridley.MatrixD),
-        ridley.Center.AsSignedRegister(), ridley.Offset);
-
     /// <summary>The sky's HDMA BG2HOFS per gameplay line with the latched room shake added, or null without one.</summary>
     internal static ushort[]? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake)
     {
@@ -239,9 +232,8 @@ public static class GameplayDisplayCapture
         RoomShakeFrameResult shake = ppu.RoomShake;
         AffineTransform registers;
         Mode1FloorBand? floor = null;
-        if (latched.Bosses.CeresRidleyMode7 is { } ridley)
+        if (latched.Bosses.CeresRidleyMode7 is { } getaway)
         {
-            AffineTransform getaway = CeresRidleyRegisters(ridley);
             registers = getaway with
             {
                 Scroll = new Offset16<Mode7Pixels>(

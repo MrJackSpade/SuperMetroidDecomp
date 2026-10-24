@@ -20,8 +20,8 @@ public sealed record CartridgeDoorHeader(
     public int SamusDistance { get; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SamusDistance);
 
     /// <summary>
-    /// True only for the verified setup routine that writes BGMODE=7, A=D=$0100,
-    /// B=C=0, M7X=$0080, and M7Y=$03F0 at $8F:E4E0.
+    /// True only for the door into the Ceres elevator shaft, whose verified setup routine at $8F:E4E0 shows the room as a
+    /// turning floor, unrotated, about room point (128, 1008).
     /// </summary>
     public bool UsesCeresElevatorMode7 =>
         SetupCode == DoorSetupCode.DoorASM_ToCeresElevatorShaft;

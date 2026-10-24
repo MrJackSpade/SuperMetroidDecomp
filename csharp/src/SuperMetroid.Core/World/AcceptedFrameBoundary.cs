@@ -18,6 +18,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.World;
 
@@ -190,7 +191,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
-        CeresRidleyMode7Snapshot? ridley = CeresRidleyMode7Snapshot.Capture(Displays?.CeresRidley);
+        AffineTransform? ridley = CeresRidleyGetaway.FloorTransform(Displays?.CeresRidley);
         var motherBrain = Displays?.MotherBrain;
         return new(
             ridley,

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="SnesVram"/> members production does not use.</summary>

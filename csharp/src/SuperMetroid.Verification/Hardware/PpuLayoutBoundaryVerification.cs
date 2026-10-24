@@ -208,7 +208,7 @@ internal static class PpuLayoutBoundaryVerification
         AssertThrows<ArgumentOutOfRangeException>(() => hud.ReadWord(-1), "a region rejects a negative word");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.Load(new byte[hud.ByteCount + 2]), "a load cannot run past the region");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.Write(new ushort[2], hud.WordCount - 1), "a row write cannot run past the region");
-        AssertThrows<ArgumentOutOfRangeException>(() => hud.Write(new ushort[2], hud.WordCount - 32, VramIncrement.Column),
+        AssertThrows<ArgumentOutOfRangeException>(() => hud.Write(new ushort[2], hud.WordCount - 32, 32),
             "a column write's second word lands past the region");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.Slice(1, hud.WordCount), "a slice cannot outgrow its region");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7Vram(vram).LoadMap(new byte[2], Mode7VramLayout.PlaneWordCount - 1),
@@ -238,7 +238,7 @@ internal static class PpuLayoutBoundaryVerification
         var vram = new SnesVram();
         VramRegion bg2 = new VramRegion(vram, GameplayVramLayout.Bg2Tilemap);
         ReadOnlySpan<ushort> column3 = [0x1111, 0x2222, 0x3333];
-        bg2.Write(column3, wordOffset: 5, VramIncrement.Column);
+        bg2.Write(column3, wordOffset: 5, 32);
         AssertEqual((ushort)0x1111, bg2.ReadWord(5), "column increment: first word");
         AssertEqual((ushort)0x2222, bg2.ReadWord(5 + 32), "column increment: VMADD +32");
         AssertEqual((ushort)0x3333, bg2.ReadWord(5 + 64), "column increment: VMADD +64");
@@ -343,7 +343,7 @@ internal static class PpuLayoutBoundaryVerification
                 {
                     row.AsSpan().Fill((ushort)(frame + line));
                     bg1.Write(row, line * 32);
-                    bg1.Write(row, line, VramIncrement.Column);
+                    bg1.Write(row, line, 32);
                 }
                 int sum = 0;
                 for (int word = 0; word < bg1.WordCount; word++)

@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Video;
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="VramWriteQueue"/> members production does not use.</summary>
 internal static class VramWriteQueueAccess

@@ -1,9 +1,17 @@
-﻿namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Video;
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="ObjCharacterUploads"/> members production does not use.</summary>
 internal static class ObjCharacterUploadsAccess
 {
     /// <summary>Exposes <see cref="ObjCharacterUploads"/> state that only verification reads.</summary>
+    extension(ObjCharacterUploads)
+    {
+        /// <summary>The table byte an upload to <paramref name="destination"/> starts at, which lies outside the table for one that misses it.</summary>
+        internal static int TableByte(VramDmaDestination destination) =>
+            (destination.Word - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
+    }
+
     extension(ObjCharacterUploads self)
     {
         /// <summary>The uploads in order.</summary>
@@ -18,7 +26,7 @@ internal static class ObjCharacterUploadsAccess
         /// <exception cref="InvalidDataException">The upload reaches the table with a non-linear word increment.</exception>
         public void RecordUpload(VramDmaDestination destination, int byteCount, ObjCharacterSource source)
         {
-            int uploadStart = ObjCharacterUploads.TableByte(destination);
+            int uploadStart = TableByte(destination);
             int shownStart = Math.Max(uploadStart, 0);
             int shownEnd = Math.Min(uploadStart + byteCount, ObjCharacterUploads.TableByteCount);
             if (shownStart >= shownEnd)

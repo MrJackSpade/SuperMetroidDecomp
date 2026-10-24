@@ -144,15 +144,17 @@ public sealed class SnesVram
         }
     }
 
-    /// <summary>Runs the same mode-1 VRAM port sequence from compiled artwork, without synthesizing a CPU address space.</summary>
-    public void ExecuteQueuedAssetWrite(ReadOnlySpan<byte> bytes, ushort encodedDestination)
+    /// <summary>
+    /// Writes <paramref name="bytes"/> low byte then high byte of each word from <paramref name="firstWord"/>, advancing
+    /// <paramref name="wordStep"/> words after each high byte.
+    /// </summary>
+    public void WriteThroughPort(ReadOnlySpan<byte> bytes, int firstWord, int wordStep)
     {
         writeGeneration++;
         uint stamp = BeginWrite();
         if (bytes.Length is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
-        VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
-        int destinationWord = destination.Word;
-        int increment = destination.WordIncrement;
+        int destinationWord = firstWord & WordAddressMask;
+        int increment = wordStep;
         for (int i = 0; i < bytes.Length; i++)
         {
             bool high = (i & 1) != 0;

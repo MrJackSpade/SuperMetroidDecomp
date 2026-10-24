@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Where a queued VRAM DMA lands (#630): a VMADD word and the VMAIN increment. Super Metroid's
@@ -25,11 +28,11 @@ public readonly record struct VramDmaDestination
 
     /// <summary>The native queue word: VMADD in bits 0-14, bit 15 set for the column increment.</summary>
     [PpuLayoutAccess]
-    public ushort Encoded { get; }
+    internal ushort Encoded { get; }
 
     /// <summary>The destination <paramref name="wordOffset"/> words into the VRAM described by <paramref name="cell"/>.</summary>
     [PpuLayoutAccess]
-    public static VramDmaDestination At(PpuLayoutCell cell, int wordOffset = 0, VramIncrement increment = VramIncrement.Row)
+    internal static VramDmaDestination At(PpuLayoutCell cell, int wordOffset = 0, VramIncrement increment = VramIncrement.Row)
     {
         Ensure.NotNull(cell);
         if (cell.Region != PpuLayoutRegion.Vram)
@@ -47,7 +50,7 @@ public readonly record struct VramDmaDestination
 
     /// <summary>Decodes a native queue word read from cartridge or WRAM data.</summary>
     [PpuLayoutAccess]
-    public static VramDmaDestination FromNative(ushort encoded) => new(encoded);
+    internal static VramDmaDestination FromNative(ushort encoded) => new(encoded);
 
     /// <summary>The destination at physical VMADD <paramref name="word"/>.</summary>
     internal static VramDmaDestination At(int word, VramIncrement increment) =>

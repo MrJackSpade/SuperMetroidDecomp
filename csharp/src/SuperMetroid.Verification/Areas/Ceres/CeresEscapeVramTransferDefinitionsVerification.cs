@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

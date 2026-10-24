@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hardware;

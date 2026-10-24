@@ -9,14 +9,4 @@ namespace SuperMetroid.Core.Hardware;
 /// <param name="ByteCount">The bytes it shows.</param>
 public sealed record RuntimeCharacterUpload(ObjCharacterSource Source, int FirstByte, int ByteCount)
 {
-    /// <summary>The upload of <paramref name="byteCount"/> bytes of <paramref name="source"/> to <paramref name="destination"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The upload does not lie wholly inside the OBJ character table.</exception>
-    public static RuntimeCharacterUpload To(VramDmaDestination destination, int byteCount, ObjCharacterSource source)
-    {
-        int firstByte = ObjCharacterUploads.TableByte(destination);
-        if (firstByte < 0 || byteCount <= 0 || firstByte + byteCount > ObjCharacterUploads.TableByteCount)
-            throw new ArgumentOutOfRangeException(nameof(destination), destination.Word,
-                $"{byteCount} bytes at VRAM word ${destination.Word:X4} do not lie inside the OBJ character table.");
-        return new(Ensure.NotNull(source), firstByte, byteCount);
-    }
 }

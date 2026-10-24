@@ -46,24 +46,16 @@ public readonly struct VramRegion
     }
 
     /// <summary>
-    /// Writes a word stream through the VMDATA port starting <paramref name="wordOffset"/> words in,
-    /// advancing VMADD by <paramref name="increment"/> after each word.
+    /// Writes a word stream starting <paramref name="wordOffset"/> words in, advancing <paramref name="wordStep"/> words
+    /// after each word: one along a row, a row's width down a column.
     /// </summary>
-    public void Write(ReadOnlySpan<ushort> words, int wordOffset = 0, VramIncrement increment = VramIncrement.Row)
+    public void Write(ReadOnlySpan<ushort> words, int wordOffset = 0, int wordStep = 1)
     {
-        int step = Step(increment);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(wordStep);
         if (words.Length > 0)
-            CheckWords(wordOffset, (words.Length - 1) * step + 1);
-        vram.ExecuteWordTransfer(words, (ushort)(first + wordOffset), step);
+            CheckWords(wordOffset, (words.Length - 1) * wordStep + 1);
+        vram.ExecuteWordTransfer(words, (ushort)(first + wordOffset), wordStep);
     }
-
-    /// <summary>The VMADD step for <paramref name="increment"/>.</summary>
-    internal static int Step(VramIncrement increment) => increment switch
-    {
-        VramIncrement.Row => 1,
-        VramIncrement.Column => 32,
-        _ => throw new ArgumentOutOfRangeException(nameof(increment), increment, "Undefined VRAM increment."),
-    };
 
     /// <summary>Rejects a word span that crosses this region's physical allocation.</summary>
     internal void CheckWords(int wordOffset, int wordCount)

@@ -49,10 +49,6 @@ public sealed class ObjCharacterUploads
         _stamps.Add(Recorded);
     }
 
-    /// <summary>The table byte an upload to <paramref name="destination"/> starts at, which lies outside the table for one that misses it.</summary>
-    public static int TableByte(VramDmaDestination destination) =>
-        (destination.Word - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort);
-
     /// <summary>Records an encounter's upload over the characters after its room loads (#1392).</summary>
     public void Record(RuntimeCharacterUpload upload) =>
         Record(Ensure.NotNull(upload).FirstByte, upload.ByteCount, upload.Source);

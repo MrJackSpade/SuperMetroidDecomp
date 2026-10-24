@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>The installed Samus overread file: each byte range as base-64 text, in cartridge order.</summary>
@@ -7,10 +9,12 @@ namespace SuperMetroid.Core.Samus;
 /// <param name="HudPrecedingPostureBytes">The bytes before the HUD's posture-transition flags.</param>
 /// <param name="HudFollowingPostureBytes">The bytes after the HUD's posture-transition flags.</param>
 /// <param name="TrailOverruns">What a trail reads past each placement list's records, by list name, as base-64 entries in frame order.</param>
+/// <param name="ProjectileLists">Where each projectile program's list stands, by program name.</param>
 public sealed record SamusOverreadDocument(
     int Version,
     string SpacetimeCopySource,
     string SpeedBoosterGrappleCode,
     string HudPrecedingPostureBytes,
     string HudFollowingPostureBytes,
-    IReadOnlyDictionary<string, string> TrailOverruns);
+    IReadOnlyDictionary<string, string> TrailOverruns,
+    IReadOnlyDictionary<string, SamusProjectileListPosition> ProjectileLists);

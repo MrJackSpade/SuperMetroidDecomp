@@ -77,7 +77,7 @@ internal sealed class CrocomireMelting
             "Crocomire melting requires installed tilemap artwork.")).Tilemap(tilemapAddress);
 
     /// <summary>Starts the selected body melting list and synchronizes actor state with the new BG2 map.</summary>
-    private void StartCrocomireMeltingTilemap(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
+    private static void StartCrocomireMeltingTilemap(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
     {
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, bodyProgram);

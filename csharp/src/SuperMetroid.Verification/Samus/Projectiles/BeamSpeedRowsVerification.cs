@@ -44,9 +44,9 @@ internal static class BeamSpeedRowsVerification
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
             short ax = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.XAccelerations + direction * 2));
+                SamusFiringTables.BeamXAccelerations + direction * 2));
             short ay = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
-                SamusProjectileRomData.Beams.YAccelerations + direction * 2));
+                SamusFiringTables.BeamYAccelerations + direction * 2));
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
             AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
         }
@@ -55,11 +55,11 @@ internal static class BeamSpeedRowsVerification
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var stationary = new ProjectileInheritanceRecords();
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address),
+            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusCartridgeTables.FiringTables),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
         foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d2, 0x90c37b, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => SamusProjectileMotionDefinitions.ReadWord(address),
+                () => SamusProjectileMotionDefinitions.ReadWord(address - SamusCartridgeTables.FiringTables),
                 "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)

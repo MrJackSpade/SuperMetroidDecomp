@@ -157,7 +157,7 @@ internal static class DeadTorizoArtworkVerification
 
         RoomEnemySystem installed = InitializeDeadTorizo(stock);
         DeadTorizoEnemyState state = installed.DeadTorizo ?? throw new InvalidOperationException("Verification requires installed.DeadTorizo.");
-        Action<DeadTorizoEnemyState> showInstalled = installed.DeadTorizoBehavior.ShowNextRotHalf;
+        Action<DeadTorizoEnemyState> showInstalled = SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.ShowNextRotHalf;
         // $A9:D4CF increments the phase before selecting a table, so the first call uploads the odd half, the next the even.
         showInstalled(state);
         AssertTrue(state.ShowsOddHalf && state.OddHalfStep == 0 && state.EvenHalfStep is null,

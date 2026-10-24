@@ -138,8 +138,10 @@ public sealed class RoomBlockSheetCatalog
         foreach ((TilesetDefinition tileset, RoomAnimatedCharacters animations) in Animations.OrderBy(entry => RoomBlockSheet.NameOf(entry.Key), StringComparer.Ordinal))
         {
             content.AppendName("animated", RoomBlockSheet.NameOf(tileset));
-            foreach ((string page, AnimatedCharacters characters) in new[] { ("blocks", animations.Blocks), ("objects", animations.ObjectPage), ("bg3", animations.Bg3) })
+            foreach (AnimatedPage animated in new AnimatedPage[] { new("blocks", animations.Blocks), new("objects", animations.ObjectPage), new("bg3", animations.Bg3) })
             {
+                string page = animated.Name;
+                AnimatedCharacters characters = animated.Characters;
                 foreach (AnimatedCharacterRun run in characters.Runs)
                 {
                     content.AppendName(page, run.Animation.Name);
@@ -174,4 +176,7 @@ public sealed class RoomBlockSheetCatalog
     /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
     public RoomBlockSheet Get(TilesetDefinition tileset) =>
         Sheets.TryGetValue(tileset, out RoomBlockSheet? sheet) ? sheet : throw new InvalidDataException($"No block sheet is installed for {tileset}.");
+
+    /// <summary>One of a tileset's animated character pages, by the name its runs are written under.</summary>
+    private sealed record AnimatedPage(string Name, AnimatedCharacters Characters);
 }

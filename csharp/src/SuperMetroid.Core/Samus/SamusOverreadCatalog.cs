@@ -33,8 +33,12 @@ public sealed class SamusOverreadCatalog
             nameof(document.HudPrecedingPostureBytes));
         _hudFollowingPostureBytes = Decode(document.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount,
             nameof(document.HudFollowingPostureBytes));
-        _trailOverruns = DecodeTrailOverruns(document.TrailOverruns);
+        ProjectileLists = DecodeProjectileLists(document.ProjectileLists);
+        _trailOverruns = DecodeTrailOverruns(document.TrailOverruns, ProjectileLists);
     }
+
+    /// <summary>Where each projectile program's list stands, which the glitch paths' list arithmetic and fresh trails read.</summary>
+    internal SamusProjectileListLayout ProjectileLists { get; }
 
     /// <summary>The SpaceTime palette-copy overrun's source byte <paramref name="offset"/> bytes past the first one it reads.</summary>
     internal byte SpacetimeCopySourceByte(int offset) => Read(_spacetimeCopySource, offset, "SpaceTime copy source");
@@ -93,7 +97,7 @@ public sealed class SamusOverreadCatalog
 
     /// <summary>Decodes every list's reads past its placements, requiring one entry for each frame a trail can read there.</summary>
     private static FrozenDictionary<ProjectileTrailRead, ProjectileTrailPlacement?> DecodeTrailOverruns(
-        IReadOnlyDictionary<string, string>? lists)
+        IReadOnlyDictionary<string, string>? lists, SamusProjectileListLayout layout)
     {
         if (lists is null)
             throw new InvalidDataException("Samus overread file has no trail overruns.");
@@ -105,13 +109,26 @@ public sealed class SamusOverreadCatalog
         {
             if (!lists.TryGetValue(list.ToString(), out string? text))
                 throw new InvalidDataException($"Samus overread file has no trail overruns for {list}.");
-            IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list);
+            IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list, layout);
             byte[] bytes = Decode(text, frames.Count * SamusOverreadDefinitions.TrailOverrunEntryByteCount, $"{list} trail overruns");
             for (int index = 0; index < frames.Count; index++)
                 result.Add(new(list, frames[index]), DecodeTrailOverrun(bytes.AsSpan(
                     index * SamusOverreadDefinitions.TrailOverrunEntryByteCount, SamusOverreadDefinitions.TrailOverrunEntryByteCount), list));
         }
         return result.ToFrozenDictionary();
+    }
+
+    /// <summary>Decodes every program's list position, requiring one for each program.</summary>
+    private static SamusProjectileListLayout DecodeProjectileLists(IReadOnlyDictionary<string, SamusProjectileListPosition>? lists)
+    {
+        if (lists is null)
+            throw new InvalidDataException("Samus overread file has no projectile lists.");
+        SamusProjectileProgram[] known = Enum.GetValues<SamusProjectileProgram>();
+        if (lists.Count != known.Length)
+            throw new InvalidDataException($"Samus overread file holds {lists.Count} projectile lists, not {known.Length}.");
+        return new(known.ToDictionary(program => program, program => lists.TryGetValue(program.ToString(), out SamusProjectileListPosition position)
+            ? position
+            : throw new InvalidDataException($"Samus overread file has no projectile list for {program}.")));
     }
 
     /// <summary>Decodes one entry: its kind, then for a placement the left and right sparkles' signed X and Y offsets.</summary>

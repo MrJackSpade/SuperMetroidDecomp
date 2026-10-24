@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -56,8 +57,8 @@ internal static class PoseProjectileOriginVerification
             bool beamRunning = running || pose is 0x75 or 0x76;
             slot.Direction = direction;
             initialize(samus, slot);
-            AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
-            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
+            AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusCartridgeTables.FiringTables + SamusFiringTables.RunningXOrigins : SamusCartridgeTables.FiringTables + SamusFiringTables.DefaultXOrigins) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusCartridgeTables.FiringTables + SamusFiringTables.RunningYOrigins : SamusCartridgeTables.FiringTables + SamusFiringTables.DefaultYOrigins) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
             AssertEqual(unchecked((sbyte)art), SamusPoseMetadata.ReadGraphicsYOffset(samus), "Visual body offset remains replaceable");
 
             var g = samus.Grapple;

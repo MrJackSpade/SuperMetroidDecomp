@@ -89,7 +89,7 @@ internal sealed class BeamCombos
                     : kind == SamusComboKind.Spazer && i >= 2 ? BeamComboData.Echo : BeamComboData.Combo);
             }
             _slotTable.ProjectileCounter = 4;
-            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable.Slots[0].Type & 63)));
+            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTables.UnchargedCooldowns + (_slotTable.Slots[0].Type & 63)));
             ComboState = kind == SamusComboKind.Spazer ? 0
                 : kind == SamusComboKind.Wave || SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? 4 : -4;
             sound = kind switch
@@ -230,7 +230,8 @@ internal sealed class BeamCombos
         ushort inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
                 SamusProjectileRomData.Beams.InitialSpeedRowBytes))
-            : unchecked((ushort)(SamusProjectileProgramAddresses.Address(slot.Cursor) -
+            : unchecked((ushort)((overreads ?? throw new InvalidOperationException(
+                "The SpaceTime palette copy needs the installed Samus overread catalog.")).ProjectileLists.Address(slot.Cursor) -
                 SpacetimeBeamCorruptionLayout.AnimationRecordByteCount));
         ushort x = unchecked((ushort)(slot.NativeByteIndex + sizeof(ushort)));
         ushort y = unchecked((ushort)(inheritedY + sizeof(ushort)));

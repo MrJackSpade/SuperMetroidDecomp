@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -322,7 +321,7 @@ public sealed class SamusSuitPickupState
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
-        if (new WindowEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
+        if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.
@@ -408,7 +407,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Starts a column stage at the authored edge pair.</summary>
-    private void SetLightBeamEdges(WindowEdges edges)
+    private void SetLightBeamEdges(SuitPickupBeamEdges edges)
     {
         _lightBeamLeft = ScreenColumn(edges.Left);
         _lightBeamRight = ScreenColumn(edges.Right);

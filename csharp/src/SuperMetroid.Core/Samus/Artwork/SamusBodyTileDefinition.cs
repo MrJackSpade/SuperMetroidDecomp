@@ -11,8 +11,6 @@ public sealed class SamusBodyTileDefinition
     internal readonly Dictionary<int, byte>? contourEdits;
     /// <summary>Combined byte count of both native VRAM transfers in this definition.</summary>
     internal int PayloadLength { get; }
-    /// <summary>Explicit source address when it differs from the native transfer mapping.</summary>
-    internal readonly int? sourceAddressOverride;
     /// <summary>Explicit first-transfer size when the selected frames do not derive it.</summary>
     internal readonly ushort? firstSizeOverride;
     /// <summary>
@@ -50,7 +48,7 @@ public sealed class SamusBodyTileDefinition
         byte[] planar)
     {
         Ensure.NotNull(planar);
-        sourceAddressOverride = sourceAddress;
+        SourceAddress = sourceAddress;
         firstSizeOverride = firstSize;
         SecondSize = secondSize;
         standalonePlanar = (byte[])planar.Clone();
@@ -105,9 +103,8 @@ public sealed class SamusBodyTileDefinition
             System.Buffers.ArrayPool<int>.Shared.Return(scratchIndexes);
             System.Buffers.ArrayPool<byte>.Shared.Return(scratchValues);
         }
-        int source = supplied.SourceAddress;
         ushort first = supplied.FirstSize;
-        sourceAddressOverride = source == SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position) ? null : source;
+        SourceAddress = supplied.SourceAddress;
         if (SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, poseFirstFrames, frames, out ushort calculated))
             calculatedFirstSize = calculated;
         firstSizeOverride = calculatedFirstSize == first ? null : first;
@@ -119,7 +116,7 @@ public sealed class SamusBodyTileDefinition
         new(this, body, upper, set, position, poseFirstFrames, frames);
 
     /// <summary>Gets the SNES source address of the definition's first payload.</summary>
-    public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(BoundCatalog, upper, set, position);
+    public int SourceAddress { get; }
     /// <summary>Gets the byte count of the first VRAM transfer.</summary>
     public ushort FirstSize => firstSizeOverride ?? calculatedFirstSize ??
         throw new InvalidDataException("Installed body composition no longer supplies its transfer row.");

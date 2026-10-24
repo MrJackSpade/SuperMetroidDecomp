@@ -108,18 +108,13 @@ internal sealed class EnemyPresentation
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
-    /// <param name="enemy">The enemy whose sheet is drawn.</param>
-    /// <param name="frame">The sheet frame's name.</param>
-    /// <param name="origin">The frame origin on screen.</param>
-    /// <param name="paletteBits">The draw's palette selection.</param>
-    /// <param name="tileBase">The draw's packed tile base, which must be the one its sheet was composed at.</param>
-    /// <param name="rot">The rot the enemy selected, which a frame drawn over a rotting corpse's rows shows; none for an enemy that shows none.</param>
+    /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, palette selection, tile base and rot.</param>
     /// <exception cref="InvalidDataException">
     /// The enemy draws at another tile base than its sheet's, or a frame showing a corpse's rot is drawn without that rot.
     /// </exception>
-    internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyDefinitionId enemy, string frame,
-        Position16<ScreenPixels> origin, int paletteBits, int tileBase, CorpseRotView? rot = null)
+    internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
+        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, int paletteBits, int tileBase, CorpseRotView? rot) = draw;
         EnemyGraphicsIndexes composed = _graphicsSet.DrawIndexes(enemy);
         if (tileBase != composed.TileIndex)
             throw new InvalidDataException($"{enemy} draws at tile base ${tileBase:X3}; its sheet was composed at ${composed.TileIndex:X3}.");

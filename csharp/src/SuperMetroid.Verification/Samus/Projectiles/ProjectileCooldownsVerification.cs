@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -23,15 +24,15 @@ internal static class ProjectileCooldownsVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bus = NewProjectileCooldownReadGuard(retail);
         for (int address = 0x90c254; address < 0x90c28f; address++)
-            AssertEqual(retail.ReadCartridgeByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),
+            AssertEqual(retail.ReadCartridgeByte(address), SamusProjectileCooldownDefinitions.ReadByte(address - SamusCartridgeTables.FiringTables),
                 "Compiled cooldown byte matches native address identity");
-        AssertEqual(retail.ReadCartridgeByte(SamusProjectileCooldownDefinitions.SpacetimeBeamCooldownAddress),
+        AssertEqual(retail.ReadCartridgeByte(SamusCartridgeTables.FiringTables + SamusFiringTables.SpacetimeBeamCooldown),
             SamusProjectileCooldownDefinitions.ReadByte(
-                SamusProjectileCooldownDefinitions.SpacetimeBeamCooldownAddress),
+                SamusFiringTables.SpacetimeBeamCooldown),
             "bounded SpaceTime setup retains its exact adjacent native cooldown observation");
         foreach (int address in new[] { 0x908000, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => SamusProjectileCooldownDefinitions.ReadByte(address),
+                () => SamusProjectileCooldownDefinitions.ReadByte(address - SamusCartridgeTables.FiringTables),
                 "Unknown cooldown address fails instead of reading adjacent presentation data");
         var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
         for (ushort beam = 0; beam < 12; beam++)

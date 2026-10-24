@@ -15,7 +15,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.World;
 

@@ -70,7 +70,7 @@ public static class RoomFxRomData
         {
             if ((uint)selection >= 4)
                 throw new ArgumentOutOfRangeException(nameof(selection));
-            int speed = (6 - (selection & 2)) << 8;
+            int speed = SnesEightEight.FromWhole(6 - (selection & 2));
             return unchecked((ushort)((selection & 1) == 0 ? -speed : speed));
         }
     }

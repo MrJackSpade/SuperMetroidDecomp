@@ -106,6 +106,10 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;
 
+    /// <summary>The runtime's installed projectile list layout, whose instruction pointers the rows print.</summary>
+    private SamusProjectileListLayout Lists => (Runtime.Artwork.SamusOverreads ?? throw new InvalidOperationException(
+        "The bomb-spread trace needs the installed Samus overread catalog.")).ProjectileLists;
+
     /// <summary>One row per bomb slot. Inactive native slots retain scratch words that are overwritten
     /// at allocation, so an inactive slot records only its ownership, not dead bytes.</summary>
     internal IEnumerable<string> BombRows()
@@ -115,7 +119,7 @@ internal sealed class BombSpreadTransitionScenario
             var slot = Runtime.Room.LoadedScope.BombProjectiles.Slots[slotIndex];
             string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
             if (slot.IsActive)
-                bomb += $",{slot.Type:X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{slot.BombSpreadDirectionMagnitude:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer.RawValue:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{slot.InstructionPointer:X4},{slot.InstructionTimer.RawValue:X4},{slot.Sprite?.Name}";
+                bomb += $",{slot.Type:X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{slot.BombSpreadDirectionMagnitude:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer.RawValue:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{Lists.Address(slot.Cursor):X4},{slot.InstructionTimer.RawValue:X4},{slot.Sprite?.Name}";
             yield return bomb;
         }
     }

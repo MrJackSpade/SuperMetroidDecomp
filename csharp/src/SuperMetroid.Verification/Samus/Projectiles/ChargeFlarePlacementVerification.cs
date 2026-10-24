@@ -69,8 +69,8 @@ internal static class ChargeFlarePlacementVerification
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
             var native = new OamBuffer();
-            int xTable = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
-            int yTable = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
+            int xTable = running ? SamusCartridgeTables.ChargeFlareRunningXOffsets : SamusCartridgeTables.ChargeFlareDefaultXOffsets;
+            int yTable = running ? SamusCartridgeTables.ChargeFlareRunningYOffsets : SamusCartridgeTables.ChargeFlareDefaultYOffsets;
             short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
             var world = new Position16<RoomPixels>(coordinate, coordinate);
             var point = transform is { } selectedTransform ? selectedTransform.Transform(world) : world;

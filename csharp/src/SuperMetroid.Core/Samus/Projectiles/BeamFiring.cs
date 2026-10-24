@@ -300,11 +300,11 @@ internal sealed class BeamFiring
         // conditions uses the longer held-fire delay.
         byte cooldown = charged
             ? SamusProjectileCooldownDefinitions.ReadByte(
-                SamusProjectileRomData.Beams.UnchargedCooldowns +
+                SamusFiringTables.UnchargedCooldowns +
                 SamusProjectileRomData.Beams.ChargedRowOffset + beamType.TableIndex)
             : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != 0
-                ? SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + beamType.TableIndex)
-                : SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType.TableIndex);
+                ? SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTables.UnchargedCooldowns + beamType.TableIndex)
+                : SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTables.AutoFireCooldowns + beamType.TableIndex);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
         SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType));
@@ -525,8 +525,8 @@ internal sealed class BeamFiring
         int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
             (diagonal
-                ? SamusProjectileRomData.Beams.DiagonalSpeeds
-                : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds) + rowOffset));
+                ? SamusFiringTables.DiagonalSpeeds
+                : SamusFiringTables.HorizontalVerticalSpeeds) + rowOffset));
 
         InitializeDirectionalVelocity(inheritance, slot, speed);
     }

@@ -189,8 +189,8 @@ internal sealed class MotherBrainHead
             return;
 
         // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
-        _presentation.PublishSheetFrame(sprites, source, EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen,
-            frame.PaletteIndex, frame.VramTilesIndex);
+        _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen,
+            frame.PaletteIndex, frame.VramTilesIndex));
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>

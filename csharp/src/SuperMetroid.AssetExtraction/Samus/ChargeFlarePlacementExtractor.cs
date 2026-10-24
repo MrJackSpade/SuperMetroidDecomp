@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
@@ -18,8 +19,8 @@ public static class ChargeFlarePlacementExtractor
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
-            int x = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
-            int y = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
+            int x = running ? SamusCartridgeTables.ChargeFlareRunningXOffsets : SamusCartridgeTables.ChargeFlareDefaultXOffsets;
+            int y = running ? SamusCartridgeTables.ChargeFlareRunningYOffsets : SamusCartridgeTables.ChargeFlareDefaultYOffsets;
             offsets.Add(ChargeFlarePlacementDefinitions.Key(running, direction), new()
             {
                 X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + direction * 2)),

@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
@@ -23,6 +24,7 @@ public static class SamusOverreadFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
+        SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         var document = new SamusOverreadDocument(
             SamusOverreadFormat.Version,
             Range(cartridge, SamusOverreadSourceDefinitions.SpacetimeCopySource, SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
@@ -30,7 +32,8 @@ public static class SamusOverreadFiles
                 SamusOverreadDefinitions.SpeedBoosterGrappleCodeColorCount * sizeof(ushort)),
             Range(cartridge, SamusOverreadSourceDefinitions.HudPrecedingPostureBytes, SamusOverreadDefinitions.HudPrecedingPostureByteCount),
             Range(cartridge, SamusOverreadSourceDefinitions.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount),
-            TrailOverruns(cartridge));
+            TrailOverruns(cartridge, lists),
+            lists.Positions.ToDictionary(position => position.Key.ToString(), position => position.Value));
         byte[] bytes = SamusOverreadCatalog.Write(document);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.ManifestFileName),
@@ -84,12 +87,12 @@ public static class SamusOverreadFiles
     /// record's four bytes from there; a record below the cartridge half of the bank, or running into the next bank, lies
     /// in direct-page scratch and draws no trail (#1318).
     /// </summary>
-    private static Dictionary<string, string> TrailOverruns(IImportCartridgeSource cartridge)
+    private static Dictionary<string, string> TrailOverruns(IImportCartridgeSource cartridge, SamusProjectileListLayout layout)
     {
         var lists = new Dictionary<string, string>();
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
         {
-            IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list);
+            IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list, layout);
             var bytes = new byte[frames.Count * SamusOverreadDefinitions.TrailOverrunEntryByteCount];
             for (int index = 0; index < frames.Count; index++)
             {

@@ -34,14 +34,14 @@ internal static class SamusProjectileRomDataVerification
         Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(bus));
         foreach (int originTable in new[]
         {
-            SamusProjectileRomData.Origins.DefaultX,
-            SamusProjectileRomData.Origins.DefaultY,
-            SamusProjectileRomData.Origins.RunningX,
-            SamusProjectileRomData.Origins.RunningY,
-            SamusProjectileRomData.Origins.FlareDefaultX,
-            SamusProjectileRomData.Origins.FlareDefaultY,
-            SamusProjectileRomData.Origins.FlareRunningX,
-            SamusProjectileRomData.Origins.FlareRunningY,
+            SamusCartridgeTables.FiringTables + SamusFiringTables.DefaultXOrigins,
+            SamusCartridgeTables.FiringTables + SamusFiringTables.DefaultYOrigins,
+            SamusCartridgeTables.FiringTables + SamusFiringTables.RunningXOrigins,
+            SamusCartridgeTables.FiringTables + SamusFiringTables.RunningYOrigins,
+            SamusCartridgeTables.ChargeFlareDefaultXOffsets,
+            SamusCartridgeTables.ChargeFlareDefaultYOffsets,
+            SamusCartridgeTables.ChargeFlareRunningXOffsets,
+            SamusCartridgeTables.ChargeFlareRunningYOffsets,
         })
         {
             TouchRange(bus, originTable,
@@ -49,11 +49,11 @@ internal static class SamusProjectileRomDataVerification
                 $"projectile origin table ${originTable:X6}");
         }
 
-        TouchRange(bus, SamusProjectileRomData.Beams.UnchargedCooldowns,
+        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.UnchargedCooldowns,
             SamusProjectileRomData.Beams.ChargedRowOffset +
                 SamusProjectileRomData.Beams.CombinationCount,
             "uncharged beam cooldown rows");
-        TouchRange(bus, SamusProjectileRomData.Beams.AutoFireCooldowns,
+        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.AutoFireCooldowns,
             SamusProjectileRomData.Beams.CombinationCount, "beam auto-fire cooldowns");
         TouchRange(bus, SamusProjectileRomData.Beams.UnchargedSounds,
             SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
@@ -61,10 +61,10 @@ internal static class SamusProjectileRomDataVerification
         TouchRange(bus, SamusProjectileRomData.Beams.ChargedSounds,
             SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
             "charged beam sounds");
-        TouchRange(bus, SamusProjectileRomData.Beams.XAccelerations,
+        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.BeamXAccelerations,
             SamusProjectileRomData.Origins.DirectionCount * sizeof(ushort),
             "beam X accelerations");
-        TouchRange(bus, SamusProjectileRomData.Beams.YAccelerations,
+        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.BeamYAccelerations,
             SamusProjectileRomData.Origins.DirectionCount * sizeof(ushort),
             "beam Y accelerations");
         TouchRange(bus, SamusCartridgeTables.TilePointers,
@@ -116,11 +116,11 @@ internal static class SamusProjectileRomDataVerification
             (SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers -
                 SamusProjectileRomData.NonBeam.DataPointers),
             "non-beam data-pointer table");
-        TouchRange(bus, SamusProjectileRomData.NonBeam.MissileAccelerations,
+        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.MissileAccelerations,
             SamusProjectileRomData.Origins.DirectionCount *
                 SamusProjectileRomData.NonBeam.AccelerationRecordByteCount,
             "missile acceleration records");
-        TouchRange(bus, SamusProjectileRomData.NonBeam.SuperMissileAccelerations,
+        TouchRange(bus, SamusCartridgeTables.FiringTables + SamusFiringTables.SuperMissileAccelerations,
             SamusProjectileRomData.Origins.DirectionCount *
                 SamusProjectileRomData.NonBeam.AccelerationRecordByteCount,
             "Super Missile acceleration records");

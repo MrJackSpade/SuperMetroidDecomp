@@ -45,11 +45,14 @@ public sealed class FloorUpdateResidue : IFloorUpdateResidue
             throw new InvalidOperationException($"{updates.Count} floor updates exceed the {UpdateCapacity} descriptors the residue holds.");
         for (int position = 0; position < updates.Count; position++)
         {
-            descriptors[position] = new Descriptor(updates[position], MarkerCleared: false, SourceLowCleared: false);
+            descriptors[position] = new Descriptor(updates[position], DescriptorClearing.None);
             if (position + 1 < UpdateCapacity && descriptors[position + 1] is { } following)
-                descriptors[position + 1] = following with { MarkerCleared = true };
+                descriptors[position + 1] = following.WithMarkerCleared();
         }
-        descriptors[0] = descriptors[0]! with { MarkerCleared = true, SourceLowCleared = true };
+        descriptors[0] = (descriptors[0] ?? throw new InvalidOperationException("A floor update run leaves no first descriptor.")) with
+        {
+            Clearing = DescriptorClearing.MarkerAndSourceLow,
+        };
     }
 
     /// <inheritdoc/>
@@ -63,8 +66,8 @@ public sealed class FloorUpdateResidue : IFloorUpdateResidue
         FloorUpdate update = descriptor.Update;
         return (index % UpdateBytes) switch
         {
-            0 => descriptor.MarkerCleared ? (byte)0 : Marker,
-            1 => descriptor.SourceLowCleared ? (byte)0 : Low(update.TileSource),
+            0 => descriptor.Clearing == DescriptorClearing.None ? Marker : (byte)0,
+            1 => descriptor.Clearing == DescriptorClearing.MarkerAndSourceLow ? (byte)0 : Low(update.TileSource),
             2 => High(update.TileSource),
             3 => TileSourceGroup,
             4 => Low(update.TileCount),
@@ -76,14 +79,30 @@ public sealed class FloorUpdateResidue : IFloorUpdateResidue
     }
 
     /// <summary>The low eight bits of <paramref name="value"/>.</summary>
-    private static byte Low(int value) => (byte)(value & 0xff);
+    private static byte Low(int value) => SnesLittleEndian.LowByte(unchecked((ushort)value));
 
     /// <summary>The high eight bits of a sixteen-bit <paramref name="value"/>.</summary>
-    private static byte High(int value) => (byte)(value >> 8 & 0xff);
+    private static byte High(int value) => SnesLittleEndian.HighByte(unchecked((ushort)value));
 
     /// <summary>What one descriptor position holds.</summary>
     /// <param name="Update">The floor update written there last.</param>
-    /// <param name="MarkerCleared">Whether its leading byte has since been cleared.</param>
-    /// <param name="SourceLowCleared">Whether its tile source's low byte has since been cleared.</param>
-    private sealed record Descriptor(FloorUpdate Update, bool MarkerCleared, bool SourceLowCleared);
+    /// <param name="Clearing">Which of its bytes have since been cleared.</param>
+    private sealed record Descriptor(FloorUpdate Update, DescriptorClearing Clearing)
+    {
+        /// <summary>This descriptor with its leading byte cleared, keeping whatever else was cleared.</summary>
+        internal Descriptor WithMarkerCleared() => Clearing == DescriptorClearing.None ? this with { Clearing = DescriptorClearing.Marker } : this;
+    }
+
+    /// <summary>Which bytes of a descriptor a later run has cleared.</summary>
+    private enum DescriptorClearing
+    {
+        /// <summary>None: the descriptor is as its update wrote it.</summary>
+        None,
+
+        /// <summary>Its leading byte, which the next run's first descriptor clears.</summary>
+        Marker,
+
+        /// <summary>Its leading byte and its tile source's low byte, which a run clears in its first descriptor.</summary>
+        MarkerAndSourceLow,
+    }
 }

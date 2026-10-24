@@ -33,21 +33,21 @@ internal static class SamusProjectileOriginDefinitions
     internal static Offset16<RoomPixels> Read(bool running, ushort direction)
     {
         int offset = (direction & 0x0f) * sizeof(ushort);
-        int x = running ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX;
-        int y = running ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY;
+        int x = running ? SamusFiringTables.RunningXOrigins : SamusFiringTables.DefaultXOrigins;
+        int y = running ? SamusFiringTables.RunningYOrigins : SamusFiringTables.DefaultYOrigins;
         return new Offset16<RoomPixels>(ReadWord(x + offset), ReadWord(y + offset));
     }
 
     /// <summary>Resolves authored muzzle words first, then reproduces adjacent cooldown bytes reached by out-of-range low-nibble directions.</summary>
-    private static short ReadWord(int address)
+    private static short ReadWord(int offset)
     {
-        int offset = address - SamusProjectileRomData.Origins.DefaultX;
-        if (offset >= 0 && offset < 40 * sizeof(ushort) && (offset & 1) == 0)
+        int originOffset = offset - SamusFiringTables.DefaultXOrigins;
+        if (originOffset >= 0 && originOffset < 40 * sizeof(ushort) && (originOffset & 1) == 0)
         {
-            int word = offset / sizeof(ushort);
+            int word = originOffset / sizeof(ushort);
             var muzzle = Muzzle(word >= 20, SamusProjectileDirections.At(word % 10));
             return word % 20 < 10 ? muzzle.X : muzzle.Y;
         }
-        return unchecked((short)(SnesLittleEndian.Word(SamusProjectileCooldownDefinitions.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address + 1))));
+        return unchecked((short)(SnesLittleEndian.Word(SamusProjectileCooldownDefinitions.ReadByte(offset), SamusProjectileCooldownDefinitions.ReadByte(offset + 1))));
     }
 }

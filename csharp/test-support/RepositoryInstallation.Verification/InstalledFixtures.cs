@@ -127,7 +127,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a Samus projectile system with installed frame bindings.</summary>
     internal static SamusProjectileSystem CreateProjectileSystem() =>
-        new(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = Projectiles.FrameBindings } };
+        new(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = Projectiles.FrameBindings }, Overreads = SamusOverreads };
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>

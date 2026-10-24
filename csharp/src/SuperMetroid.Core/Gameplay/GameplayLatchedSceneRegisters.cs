@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Gameplay;

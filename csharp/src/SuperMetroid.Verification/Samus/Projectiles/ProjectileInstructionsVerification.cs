@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -102,7 +103,7 @@ internal static class ProjectileInstructionsVerification
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1816, words.Count, "All authored duration/trail/control words inventoried");
-        var trailFrame = new Func<SamusProjectileSlot, ushort>(ProjectileTrails.GetTrailAnimationFrame);
+        var trailFrame = new Func<SamusProjectileSlot, ushort>(slot => ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads));
         var trailSlot = new SamusProjectileSlot(0);
         // A trail reads the word just before the shot's next list position: the last record's animation frame, or the
         // word preceding a freshly installed list.

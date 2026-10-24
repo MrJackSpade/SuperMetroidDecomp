@@ -52,12 +52,12 @@ public sealed class SpriteCharacters
     }
 
     /// <summary>The sources shown, newest first, each with its place among all placements ever shown.</summary>
-    public IEnumerable<(ObjCharacterSource Source, long Stamp)> NewestFirst
+    public IEnumerable<ShownSpriteCharacters> NewestFirst
     {
         get
         {
             for (int index = placements.Count - 1; index >= 0; index--)
-                yield return (placements[index].Source, _stamps[index]);
+                yield return new ShownSpriteCharacters(placements[index].Source, _stamps[index]);
         }
     }
 }

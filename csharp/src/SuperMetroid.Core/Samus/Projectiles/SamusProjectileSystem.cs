@@ -498,7 +498,8 @@ public sealed class SamusProjectileSystem
                     samus,
                     slot,
                     sharedProjectiles,
-                    terrain.Plms);
+                    terrain.Plms,
+                    Overreads);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.PreInstruction ==

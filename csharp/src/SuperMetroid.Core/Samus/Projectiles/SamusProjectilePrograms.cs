@@ -53,10 +53,12 @@ internal static class SamusProjectilePrograms
     /// The word just before the projectile's next list position, which $93:81D8 reads as the trail's animation frame: the
     /// animation frame of the record last installed, or for a freshly installed list the word preceding it.
     /// </summary>
-    internal static ushort PrecedingAnimationFrame(AnimationProgramCursor<SamusProjectileProgram> cursor)
+    /// <exception cref="InvalidOperationException">The cursor stands at a list's start and no overread catalog is installed.</exception>
+    internal static ushort PrecedingAnimationFrame(AnimationProgramCursor<SamusProjectileProgram> cursor, SamusOverreadCatalog? overreads)
     {
         if (cursor.Position == 0)
-            return SamusProjectileProgramAddresses.Prefix(cursor.Program);
+            return (overreads ?? throw new InvalidOperationException(
+                $"A trail spawned at the start of {cursor.Program}'s list needs the installed Samus overread catalog.")).ProjectileLists.Prefix(cursor.Program);
         var previous = SamusProjectileAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1];
         if (previous is not AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep show)
             throw new InvalidOperationException($"Samus projectile program {cursor.Program} continues past a non-record step.");

@@ -34,15 +34,13 @@ internal static class ProjectileTrailPlacements
     /// The frames a trail can read <paramref name="list"/> at past its placements, ascending: every Samus projectile
     /// record's animation frame and every word before a projectile list, which a trail spawned at a list's start reads.
     /// </summary>
-    internal static IReadOnlyList<int> OverrunFrames(ProjectileTrailPlacementList list) =>
-        [.. FrameDomain.Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length)];
+    internal static IReadOnlyList<int> OverrunFrames(ProjectileTrailPlacementList list, SamusProjectileListLayout layout) =>
+        [.. FrameDomain(layout).Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length)];
 
     /// <summary>Every frame a trail can read: each record's animation frame and each list-start word, ascending.</summary>
-    private static readonly int[] FrameDomain =
-    [
-        .. SamusProjectileRecordDefinitions.Records.Select(record => record.AnimationFrame)
-            .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)SamusProjectileProgramAddresses.Prefix(program)))
+    private static IEnumerable<int> FrameDomain(SamusProjectileListLayout layout) =>
+        SamusProjectileRecordDefinitions.Records.Select(record => record.AnimationFrame)
+            .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)layout.Prefix(program)))
             .Distinct()
-            .Order(),
-    ];
+            .Order();
 }

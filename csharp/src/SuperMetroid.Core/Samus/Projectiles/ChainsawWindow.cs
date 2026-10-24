@@ -56,12 +56,15 @@ internal sealed class ChainsawWindow
         SamusState samus,
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms)
+        ISamusRoomPlms? roomPlms,
+        SamusOverreadCatalog? overreads)
     {
+        SamusProjectileListLayout Lists() => (overreads ?? throw new InvalidOperationException(
+            "The chainsaw window store needs the installed Samus overread catalog.")).ProjectileLists;
         ushort inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
                 SamusProjectileRomData.Beams.InitialSpeedRowBytes))
-            : unchecked((ushort)(SamusProjectileProgramAddresses.Address(slot.Cursor) -
+            : unchecked((ushort)(Lists().Address(slot.Cursor) -
                 SamusProjectileRomData.Instructions.AnimationRecordByteCount));
         ChainsawWindowRegisters.StoreProjectileIndexedWord(slot.NativeByteIndex, inheritedY);
 
@@ -72,7 +75,7 @@ internal sealed class ChainsawWindow
         // On a beam the fuse's fast-list switch adds its offset to the beam's own list pointer, so where it lands is
         // the native list layout's: a glitch the port reproduces through that layout.
         if (fuse.FastAnimation && slot.Cursor is { } live)
-            slot.Cursor = SamusProjectileProgramAddresses.Offset(live, SamusPowerBombFuseData.FastAnimationOffset);
+            slot.Cursor = Lists().Offset(live, SamusPowerBombFuseData.FastAnimationOffset);
 
         if (fuse.SpawnExplosion)
             sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.Whole);

@@ -22,7 +22,7 @@ internal static class SamusProjectileProgramsVerification
         ushort Word(int address) => cartridge.ReadCartridgeWord(SamusProjectileRomData.Banks.Projectile | (ushort)address);
 
         Dictionary<ushort, SamusProjectileProgram> byEntry = Enum.GetValues<SamusProjectileProgram>()
-            .ToDictionary(SamusProjectileProgramAddressesConstants.Entry, program => program);
+            .ToDictionary(SamusProjectileProgramAddresses.Entry, program => program);
         var records = new SortedSet<ushort>();
         int steps = 0;
         foreach ((ushort entry, SamusProjectileProgram program) in byEntry)
@@ -48,7 +48,7 @@ internal static class SamusProjectileProgramsVerification
                     var show = AssertIs<AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep>(step, $"{at}: timed record");
                     AssertEqual(word, show.Duration, $"{at}: duration");
                     SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Frame);
-                    AssertEqual(cursor, record.Address, $"{at}: record address");
+                    AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Frame.Record), $"{at}: record address");
                     AssertEqual(Word(cursor + 2), record.Spritemap, $"{at}: spritemap");
                     ushort radii = Word(cursor + 4);
                     AssertEqual(new Extent16<RoomPixels>(SnesLittleEndian.LowByte(radii), SnesLittleEndian.HighByte(radii)), record.Radius, $"{at}: radii");
@@ -107,7 +107,7 @@ internal static class SamusProjectileProgramsVerification
         if (HeaderListField(address) is not { } field)
             return SamusProjectileSelectionDefinitions.ReadWord(address);
         return SamusProjectileHeaderDefinitions.Program(field.Header, field.Index) is { } program
-            ? SamusProjectileProgramAddressesConstants.Entry(program) : (ushort)0;
+            ? SamusProjectileProgramAddresses.Entry(program) : (ushort)0;
     }
 
     /// <summary>The header and list field <paramref name="address"/> lies in, or null outside the headers' list fields.</summary>

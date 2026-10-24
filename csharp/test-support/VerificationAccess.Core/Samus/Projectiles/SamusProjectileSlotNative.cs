@@ -9,4 +9,11 @@ internal static class SamusProjectileSlotNative
         /// <summary>The bank-$93 instruction pointer the cursor stands for; zero marks the slot inactive.</summary>
         internal int InstructionPointer => SamusProjectileProgramAddresses.Address(slot.Cursor);
     }
+
+    /// <summary>Exposes the native program address a bomb slot's cursor stands for to verification.</summary>
+    extension(SamusBombProjectileSlot slot)
+    {
+        /// <summary>The bank-$93 instruction pointer at <c>$0C4A + 2*Index</c> the cursor stands for; zero marks an inactive slot.</summary>
+        internal int InstructionPointer => SamusProjectileProgramAddresses.Address(slot.Cursor);
+    }
 }

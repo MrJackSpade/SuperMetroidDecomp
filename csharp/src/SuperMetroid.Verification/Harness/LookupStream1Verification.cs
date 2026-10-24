@@ -1706,10 +1706,10 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Gravity(invalid), "stream1 invalid gravity medium");
         }
         for (int address = 0x90c254; address <= 0x90c28e; address++)
-            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldownDefinitions.ReadByte(address), "stream1 all native cooldown bytes including padding");
-        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291), "stream1 bounded spacetime beam cooldown");
+            AssertEqual(LookupStream1RomByte(rom, address), SamusProjectileCooldownDefinitions.ReadByte(address - SamusCartridgeTables.FiringTables), "stream1 all native cooldown bytes including padding");
+        AssertEqual(LookupStream1RomByte(rom, 0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291 - SamusCartridgeTables.FiringTables), "stream1 bounded spacetime beam cooldown");
         foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid), "stream1 invalid cooldown address");
+            AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid - SamusCartridgeTables.FiringTables), "stream1 invalid cooldown address");
     }
 
     /// <summary>Reads source bytes for the broad pose and gameplay lookup comparison.</summary>
@@ -1796,9 +1796,9 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => SnesLittleEndian.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address), "stream1 all native projectile motion words");
+            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address - SamusCartridgeTables.FiringTables), "stream1 all native projectile motion words");
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid), "stream1 exact projectile motion address domain");
+            AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid - SamusCartridgeTables.FiringTables), "stream1 exact projectile motion address domain");
         var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var stationary = new ProjectileInheritanceRecords();
         for (ushort combination = 0; combination < 16; combination++)
@@ -2816,7 +2816,7 @@ internal static class LookupStream1Verification
                     new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.InstructionTimer.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
-                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot), "Actual trail consumer reads prior record, not next phase or cached frame");
+                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads), "Actual trail consumer reads prior record, not next phase or cached frame");
                 slot.AnimationFrame = trail;
                 if (looped) { loops++; finished = true; break; }
             }
@@ -3126,13 +3126,12 @@ internal static class LookupStream1Verification
                 int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
                 int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), Word(address));
                 ushort first = Word(address + 3), second = Word(address + 5);
-                AssertEqual(source, SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position), "Direct native packed allocation source");
                 AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out ushort calculated), "Every native record has a direct row calculation");
                 AssertEqual(first, calculated, $"Direct native row geometry {upper}/{set:X}/{position:X}");
                 AssertEqual(source, value.SourceAddress, "Installed native source");
                 AssertEqual(first, value.FirstSize, "Installed native first row");
                 AssertEqual(second, value.SecondSize, "Installed native remaining row");
-                AssertTrue(value.sourceAddressOverride is null && value.firstSizeOverride is null, "Zero stock metadata overrides");
+                AssertTrue(value.firstSizeOverride is null, "Zero stock metadata overrides");
                 byte[] pixels = value.Planar.ToArray();
                 for (int index = 0; index < pixels.Length; index++) AssertEqual(LookupStream1BodyTransfersRomByte(rom, source + index), pixels[index], "Separate native pixel payload preserved");
                 // Preserve schema-valid non-tile-aligned individual row splits too.
@@ -3260,6 +3259,15 @@ internal static class LookupStream1Verification
     internal static int LookupStream1HudPostureCommand()
     {
         Suite(nameof(VerifyLookupStream1HudPosture), () => VerifyLookupStream1HudPosture(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the charge flare cadence program lookups against the retail cartridge.</summary>
+    [VerificationCommand("--lookup-stream-1-cadence-programs")]
+    internal static int LookupStream1CadenceProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
         return 0;
     }
 

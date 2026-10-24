@@ -1629,7 +1629,7 @@ internal static class LookupStream2Verification
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 }, new CorpseRotTable(1));
-        Action<DeadTorizoEnemyState> show = enemies.DeadTorizoBehavior.ShowNextRotHalf;
+        Action<DeadTorizoEnemyState> show = SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.ShowNextRotHalf;
         for (ushort phase = 0; phase < 2; phase++)
         {
             var rows = DeadTorizoRowUploadDefinitions.ForHalf(odd: phase == 1);

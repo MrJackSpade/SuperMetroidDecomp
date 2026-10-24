@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 

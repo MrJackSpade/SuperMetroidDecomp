@@ -32,22 +32,6 @@ public static class SamusProjectileRomData
     /// <summary>Pose-relative projectile and charge-flare origins.</summary>
     public static class Origins
     {
-        /// <summary>Ten direction-indexed X origins for non-running poses.</summary>
-        public const int DefaultX = 0x90c204;
-        /// <summary>Ten direction-indexed Y origins for non-running poses.</summary>
-        public const int DefaultY = 0x90c218;
-        /// <summary>Ten direction-indexed X origins for running poses.</summary>
-        public const int RunningX = 0x90c22c;
-        /// <summary>Ten direction-indexed Y origins for running poses.</summary>
-        public const int RunningY = 0x90c240;
-        /// <summary>Charge-flare X offsets for non-running poses.</summary>
-        public const int FlareDefaultX = 0x90c1a8;
-        /// <summary>Charge-flare Y offsets for non-running poses.</summary>
-        public const int FlareDefaultY = 0x90c1c2;
-        /// <summary>Charge-flare X offsets for running poses.</summary>
-        public const int FlareRunningX = 0x90c1dc;
-        /// <summary>Charge-flare Y offsets for running poses.</summary>
-        public const int FlareRunningY = 0x90c1f0;
         /// <summary>Number of projectile directions represented by each origin table.</summary>
         public const int DirectionCount = 10;
     }
@@ -61,22 +45,10 @@ public static class SamusProjectileRomData
         public const ushort FullyChargedCounter = 60;
         /// <summary>Flare-counter clamp at which bank $90 begins testing special beam attacks.</summary>
         public const ushort SpecialAttackCounter = 120;
-        /// <summary>Uncharged and charged delays indexed by beam combination.</summary>
-        public const int UnchargedCooldowns = 0x90c254;
         /// <summary>Offset from uncharged delays to the charged-shot delay row.</summary>
         public const int ChargedRowOffset = 0x10;
-        /// <summary>Held-Shot repeat delays indexed by beam combination.</summary>
-        public const int AutoFireCooldowns = 0x90c283;
-        /// <summary>Speed word for horizontal and vertical power-beam travel.</summary>
-        public const int HorizontalVerticalSpeeds = 0x90c2d1;
-        /// <summary>Speed word for diagonal power-beam travel.</summary>
-        public const int DiagonalSpeeds = 0x90c2d3;
         /// <summary>$90:B197 indexes $C2D1 by four times the low-nibble beam combination: two speed words per row.</summary>
         public const int InitialSpeedRowBytes = 2 * sizeof(ushort);
-        /// <summary>Direction-indexed X acceleration words.</summary>
-        public const int XAccelerations = 0x90c353;
-        /// <summary>Direction-indexed Y acceleration words.</summary>
-        public const int YAccelerations = 0x90c367;
         /// <summary>Number of beam combinations present in each complete pointer table.</summary>
         public const int CombinationCount = 12;
     }
@@ -93,10 +65,6 @@ public static class SamusProjectileRomData
     {
         /// <summary>$90:AC86, Samus_CanFireSuperMissile: reject at four live projectiles, reserving the fifth slot for the collision link.</summary>
         public const int SuperMissileAdmissionLimit = 4;
-        /// <summary>Direction-indexed missile acceleration records.</summary>
-        public const int MissileAccelerations = 0x90c303;
-        /// <summary>Direction-indexed Super Missile acceleration records.</summary>
-        public const int SuperMissileAccelerations = 0x90c32b;
         /// <summary>$93:8125, KillProjectileInner: one-pixel diagonal quake affecting both BGs and enemies.</summary>
         public const ushort SuperMissileEarthquakeType = 20;
         /// <summary>$93:812B, KillProjectileInner: thirty room-shaking calls after Super Missile impact.</summary>

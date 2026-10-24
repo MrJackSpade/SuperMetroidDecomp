@@ -437,14 +437,14 @@ internal static class SamusBodyPlacementDefinitions
         bool drawBottom, out int bottom)
     {
         // The window reaches one whole definition past the start of the last half row a definition's part fills.
-        int windowBytes = BodyPartByteOffset(upper: false, secondPart: true) + SamusBodyArtworkCatalog.BytesPerDefinitionSlot;
+        int windowBytes = BodyPartByteOffset(SamusBodyHalf.Bottom, BodyTilePart.Second) + SamusBodyArtworkCatalog.BytesPerDefinitionSlot;
         Span<byte> pixels = stackalloc byte[windowBytes];
         Span<bool> defined = stackalloc bool[windowBytes];
         pixels.Clear(); defined.Clear();
         SamusBodyFrameSelection selected = art.Frame(pose, frame);
-        Lay(art.GetDefinition(true, selected.TopSet, selected.TopPosition), upper: true, pixels, defined);
+        Lay(art.GetDefinition(true, selected.TopSet, selected.TopPosition), SamusBodyHalf.Top, pixels, defined);
         if (selected.NamesBottom)
-            Lay(art.GetDefinition(false, selected.BottomSet, selected.BottomPosition), upper: false, pixels, defined);
+            Lay(art.GetDefinition(false, selected.BottomSet, selected.BottomPosition), SamusBodyHalf.Bottom, pixels, defined);
         bottom = int.MinValue;
         for (int half = 0; half < (drawBottom ? 2 : 1); half++)
         {
@@ -480,10 +480,10 @@ internal static class SamusBodyPlacementDefinitions
 
         // Copy both planar parts of a definition to the body characters they fill and mark
         // their bytes available for opacity sampling in this local calculation.
-        static void Lay(SamusBodyTileDefinition definition, bool upper, Span<byte> data, Span<bool> coverage)
+        static void Lay(SamusBodyTileDefinition definition, SamusBodyHalf half, Span<byte> data, Span<bool> coverage)
         {
             ReadOnlySpan<byte> source = definition.Planar.Span;
-            int first = BodyPartByteOffset(upper, secondPart: false), second = BodyPartByteOffset(upper, secondPart: true);
+            int first = BodyPartByteOffset(half, BodyTilePart.First), second = BodyPartByteOffset(half, BodyTilePart.Second);
             source[..definition.FirstSize].CopyTo(data[first..]);
             coverage.Slice(first, definition.FirstSize).Fill(true);
             source[definition.FirstSize..].CopyTo(data[second..]);
@@ -495,9 +495,19 @@ internal static class SamusBodyPlacementDefinitions
     /// <see cref="SamusBodyArtworkCatalog.BodyArtwork"/> lays them out: the first part fills a half row, the top's from
     /// character 0 and the bottom's from the middle of the row, and the second part the half row one full row below.
     /// </summary>
-    private static int BodyPartByteOffset(bool upper, bool secondPart) =>
-        ((upper ? 0 : SpriteArtwork.CharactersPerRow / 2) + (secondPart ? SpriteArtwork.CharactersPerRow : 0)) *
+    private static int BodyPartByteOffset(SamusBodyHalf half, BodyTilePart part) =>
+        ((half == SamusBodyHalf.Top ? 0 : SpriteArtwork.CharactersPerRow / 2) + (part == BodyTilePart.Second ? SpriteArtwork.CharactersPerRow : 0)) *
         SpriteArtwork.CharacterByteCount;
+
+    /// <summary>One of the two transfers a body tile definition's characters arrive in.</summary>
+    private enum BodyTilePart
+    {
+        /// <summary>The first transfer, filling a half row.</summary>
+        First,
+
+        /// <summary>The second transfer, filling the half row one full row below.</summary>
+        Second,
+    }
 
     /// <summary>Transition left-facing copies use their right-facing row; source defaults derive from selected support geometry.</summary>
     internal static int PostureSourceIndex(int index)

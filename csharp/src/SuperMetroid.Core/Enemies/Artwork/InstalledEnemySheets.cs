@@ -34,14 +34,14 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// each of their frames drawn over uploaded characters draws as, the kind of corpse whose rot each of their frames drawn
     /// over a rotting corpse's rows shows, and the uploads the pictures show.
     /// </summary>
-    public InstalledEnemySheets(IReadOnlyDictionary<EnemySheetKey, SpriteSheet> sheets,
-        IReadOnlyDictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned,
-        IReadOnlyDictionary<EnemySheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>> pictures,
-        IReadOnlyDictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CharacterRegion[][]>> spawnedPictures,
-        IReadOnlyDictionary<EnemySheetKey, IReadOnlyDictionary<string, string>> rotPictures,
-        IReadOnlyDictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures,
+    public InstalledEnemySheets(EnemySheetGroup<EnemySheetKey, SpriteSheet> enemies,
+        EnemySheetGroup<SpawnedObjectSheetKey, SpawnedObjectSheet> spawnedObjects,
         EncounterCharacterCatalog uploads, IReadOnlyDictionary<string, SetCharacterCoverage> coverage)
     {
+        Ensure.NotNull(enemies);
+        Ensure.NotNull(spawnedObjects);
+        var (sheets, pictures, rotPictures) = enemies;
+        var (spawned, spawnedPictures, spawnedRotPictures) = spawnedObjects;
         this.coverage = new Dictionary<string, SetCharacterCoverage>(Ensure.NotNull(coverage), StringComparer.Ordinal);
         Encounters = Ensure.NotNull(uploads);
         this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));

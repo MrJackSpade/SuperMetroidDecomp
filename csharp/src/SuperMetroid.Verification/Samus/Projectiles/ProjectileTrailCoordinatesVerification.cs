@@ -52,7 +52,7 @@ internal static class ProjectileTrailCoordinatesVerification
 
         int overruns = 0;
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
-        foreach (int frame in ProjectileTrailPlacements.OverrunFrames(list))
+        foreach (int frame in ProjectileTrailPlacements.OverrunFrames(list, InstalledFixtures.SamusOverreads.ProjectileLists))
         {
             int record = (ProjectileTrailPlacementSources.Addresses[list] + frame * RecordByteCount) & ushort.MaxValue;
             ProjectileTrailPlacement? expected = RecordIsCartridge(record) ? NativePlacement(bus, record) : null;
@@ -100,9 +100,11 @@ internal static class ProjectileTrailCoordinatesVerification
         // For each animation frame, the list position just past the first record that installs it: a trail spawned there
         // reads that frame.
         var records = Enumerable.Range(0, SamusProjectileRecordDefinitionsConstants.RecordCount)
-            .Select(index => SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(index))).OrderBy(record => record.Address).ToArray();
+            .OrderBy(SamusProjectileProgramAddresses.RecordAddress).ToArray();
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
-            records.First(record => record.AnimationFrame == frame).Address + SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();
+            SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
+                SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(record)).AnimationFrame == frame)) +
+            SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;

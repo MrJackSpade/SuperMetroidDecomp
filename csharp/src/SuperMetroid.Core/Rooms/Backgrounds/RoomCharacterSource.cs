@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 

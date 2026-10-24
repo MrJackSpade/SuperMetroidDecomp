@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Artwork;
 

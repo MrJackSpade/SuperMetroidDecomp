@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.AssetExtraction.CartridgeTables.ProjectileSpriteCartridgeLayout;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
@@ -15,9 +16,13 @@ internal static class ProjectileSpriteLocations
 {
 
     /// <summary>The bank-$93 address of the composition each timed projectile record draws, by record.</summary>
-    internal static ushort[] RecordSprites(ISnesAddressSpace bus) =>
-        [.. SamusProjectileRecordDefinitions.Records.Select(record => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-            SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(record.Address + 2))))];
+    internal static ushort[] RecordSprites(ISnesAddressSpace bus)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
+        return [.. Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length).Select(record => RomDataReader.ReadWordFixedBank(cartridge,
+            SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(lists.RecordAddress(record) + 2))))];
+    }
 
     /// <summary>The bank-$93 address of each projectile composition.</summary>
     internal static Dictionary<ProjectileSpriteId, ushort> Projectiles() =>

@@ -245,7 +245,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// shows (#1406). The cartridge uploads one half each main-AI call, while the corpse is intact, rotting or finished, so
     /// the half's pictures show the step from this update on.
     /// </summary>
-    internal void ShowNextRotHalf(DeadTorizoEnemyState state)
+    internal static void ShowNextRotHalf(DeadTorizoEnemyState state)
     {
         state.ShowsOddHalf = !state.ShowsOddHalf;
         int step = checked((int)state.ProcessCallCount);

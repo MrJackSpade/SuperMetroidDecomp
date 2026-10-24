@@ -70,7 +70,8 @@ internal static class ProjectileSpriteNative
     /// <summary>The timed record stored at bank-$93 <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No timed record is stored there.</exception>
     internal static SamusProjectileFrame Frame(int address) =>
-        Array.FindIndex(SamusProjectileRecordDefinitions.Records, record => record.Address == address) is int record and >= 0
+        Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length)
+            .FirstOrDefault(record => SamusProjectileProgramAddresses.RecordAddress(record) == address, -1) is int record and >= 0
             ? new SamusProjectileFrame(record)
             : throw new InvalidDataException($"No timed projectile record is stored at $93:{address:X4}.");
 
@@ -98,7 +99,7 @@ internal static class ProjectileSpriteNative
     {
         /// <summary>Every timed record's bank-$93 address, in address order.</summary>
         internal static IReadOnlyList<ushort> TimedRecordAddresses =>
-            [.. SamusProjectileRecordDefinitions.Records.Select(record => checked((ushort)record.Address)).Order()];
+            [.. Enumerable.Range(0, SamusProjectileRecordDefinitions.Records.Length).Select(SamusProjectileProgramAddresses.RecordAddress).Order()];
     }
 
     /// <summary>A timed record's stock composition by address.</summary>

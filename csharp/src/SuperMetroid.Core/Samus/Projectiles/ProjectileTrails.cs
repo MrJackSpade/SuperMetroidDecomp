@@ -44,7 +44,7 @@ internal sealed class ProjectileTrails
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
-        ushort animationFrame = GetTrailAnimationFrame(projectile);
+        ushort animationFrame = GetTrailAnimationFrame(projectile, Overreads);
         ProjectileTrailFamilyGroup group = (projectile.Type & 1 << 5) != 0
             ? ProjectileTrailFamilyGroup.SpecialBeamAttack
             : projectile.PackedType.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
@@ -84,12 +84,12 @@ internal sealed class ProjectileTrails
     }
 
     /// <summary>Reads the native word immediately before the shot's next instruction pointer.</summary>
-    internal static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
+    internal static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile, SamusOverreadCatalog? overreads)
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
         // The upstream C port's timer-one lookahead is absent from the pinned ROM.
         return SamusProjectilePrograms.PrecedingAnimationFrame(projectile.Cursor
-            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."));
+            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."), overreads);
     }
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with 16-bit position wrap.</summary>

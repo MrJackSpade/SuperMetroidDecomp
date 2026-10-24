@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;

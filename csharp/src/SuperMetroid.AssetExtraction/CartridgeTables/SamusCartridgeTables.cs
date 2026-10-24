@@ -6,6 +6,21 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 [CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTables
 {
+    /// <summary>$90:C204, where the firing tables <see cref="SuperMetroid.Core.Samus.Projectiles.SamusFiringTables"/> lays out start.</summary>
+    internal const int FiringTables = 0x90c204;
+
+    /// <summary>$90:C1A8: the charge flare's DefaultX offsets, by direction.</summary>
+    internal const int ChargeFlareDefaultXOffsets = 0x90c1a8;
+
+    /// <summary>$90:C1C2: the charge flare's DefaultY offsets, by direction.</summary>
+    internal const int ChargeFlareDefaultYOffsets = 0x90c1c2;
+
+    /// <summary>$90:C1DC: the charge flare's RunningX offsets, by direction.</summary>
+    internal const int ChargeFlareRunningXOffsets = 0x90c1dc;
+
+    /// <summary>$90:C1F0: the charge flare's RunningY offsets, by direction.</summary>
+    internal const int ChargeFlareRunningYOffsets = 0x90c1f0;
+
     /// <summary>$9A:D900 contains OBJ tiles $38..$3F: ice and wave trail frames.</summary>
     internal const int ProjectileTrailIceWaveTiles = 0x9ad900;
 

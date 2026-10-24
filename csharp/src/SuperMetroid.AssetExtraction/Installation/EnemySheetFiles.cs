@@ -117,7 +117,7 @@ public static class EnemySheetFiles
                     spawnedRotPictures.Add(new SpawnedObjectSheetKey(set, tileBase), frameRots);
             }
         }
-        return new InstalledEnemySheets(sheets, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures,
+        return new InstalledEnemySheets(new(sheets, pictures, rotPictures), new(spawned, spawnedPictures, spawnedRotPictures),
             SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog, coverage);
     }
 

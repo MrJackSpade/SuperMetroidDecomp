@@ -86,7 +86,7 @@ internal static class DraygonPrebattleXrayVerification
         {
             var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
             var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.Subscreen, math.SubscreenUsesBg2);
-            return DisplayRendering.Render(new(scene.Paint, new RenderLayer[] { changed }, scene.Brightness));
+            return DisplayRendering.Render(new LayeredScene(scene.Paint, new RenderLayer[] { changed }, scene.Brightness));
         }
     }
 

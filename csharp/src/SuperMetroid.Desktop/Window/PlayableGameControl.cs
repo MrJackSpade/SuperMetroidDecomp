@@ -240,7 +240,7 @@ public sealed class PlayableGameControl : UserControl
         {
             return installation.LoadAudioClips();
         }
-        return ClipAudioCatalog.Load(installedAudioDirectory);
+        return InstalledAudioClips.Load(installedAudioDirectory);
     }
 
     /// <summary>Starts a new display generation before resetting a software-rendered session.</summary>

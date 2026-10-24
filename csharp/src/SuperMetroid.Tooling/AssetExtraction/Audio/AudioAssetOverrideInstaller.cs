@@ -28,7 +28,7 @@ public static class AudioAssetOverrideInstaller
             throw new IOException(
                 $"Audio override directory '{destination}' already exists; refusing to overwrite user edits.");
         }
-        _ = ClipAudioCatalog.Load(installation.AudioDirectory);
+        _ = InstalledAudioClips.Load(installation.AudioDirectory);
         Publish(installation, staging =>
             WriteManifest(staging, new AudioClipOverrideManifest(AudioClipOverrideManifest.CurrentFormatVersion, [])));
         return destination;

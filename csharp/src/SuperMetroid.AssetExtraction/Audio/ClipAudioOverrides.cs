@@ -39,7 +39,7 @@ internal static class ClipAudioOverrides
     /// <exception cref="InvalidDataException">The stock or the override is invalid.</exception>
     internal static ClipAudioCatalog Load(string audioDirectory, string? overrideDirectory)
     {
-        ClipAudioCatalog.StockClips stock = ClipAudioCatalog.ReadStock(audioDirectory);
+        ClipAudioCatalog.StockClips stock = ClipAudioCatalog.ReadStock(audioDirectory, InstalledAudioClips.ManifestOptions);
         if (overrideDirectory is null || !Directory.Exists(overrideDirectory))
             return ClipAudioCatalog.Select(stock, stock.Manifest, stock.Identity, new Dictionary<AudioClipFile, string>());
         Selection selection = Apply(stock.Manifest, overrideDirectory);
@@ -102,9 +102,12 @@ internal static class ClipAudioOverrides
     internal static string MusicId(MusicDataSet dataSet, int track) =>
         $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(dataSet).DataIndex:x2}-track-{track:00}";
 
-    /// <summary>The sound-effect identity of <paramref name="library"/>'s <paramref name="command"/>, as the override names it.</summary>
-    internal static string SoundEffectId(SoundEffectLibrary library, int command) =>
-        $"{SoundEffectPrefix}{SoundEffectLibraries.ToQueueIndex(library) + 1}-{command:x2}";
+    /// <summary>
+    /// The identity an override names <paramref name="sound"/> by: its library number and its request number in
+    /// hexadecimal, <c>sfx-{library}-{command:x2}</c>, as the installed clips have always named it.
+    /// </summary>
+    internal static string SoundEffectId(Core.Audio.SoundEffectId sound) =>
+        $"{SoundEffectPrefix}{SoundEffectLibraries.ToQueueIndex(sound.Library) + 1}-{SoundEffectCommands.Command(sound):x2}";
 
     /// <summary>Reads and checks one replacement WAV beneath the override directory.</summary>
     private static ClipReplacement ReadReplacement(string root, AudioClipOverride replacement, int sampleRate)
@@ -145,7 +148,7 @@ internal static class ClipAudioOverrides
         for (int index = 0; index < soundEffects.Count; index++)
         {
             SoundEffectClipEntry entry = soundEffects[index];
-            if (SoundEffectId(entry.Library, entry.Command) != replacement.Id)
+            if (SoundEffectId(entry.Sound) != replacement.Id)
                 continue;
             found = true;
             if ((entry.ActiveFrames is null) != (replacement.LoopStart is not null))

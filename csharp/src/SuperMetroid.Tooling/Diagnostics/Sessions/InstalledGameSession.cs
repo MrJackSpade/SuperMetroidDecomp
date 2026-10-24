@@ -60,7 +60,7 @@ internal sealed class InstalledGameSession : IDisposable
         Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         ClipAudioCatalog assets = audioDirectory is null
             ? installation.LoadAudioClips()
-            : ClipAudioCatalog.Load(audioDirectory);
+            : InstalledAudioClips.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
             assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork));
         Console.WriteLine(

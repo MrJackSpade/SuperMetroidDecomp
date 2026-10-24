@@ -7,8 +7,9 @@ name. `--packet-input` in `SuperMetroid.RenderVerification` checks that the rend
 none of its code names a hardware type.
 
 The backend is an intermediate step. v1.0.0 ports each rule below into Godot's own rendering, one by one; this page is
-the list to port. Every rule reproduces a visible result of the game exactly, and the GPU checks in
-`SuperMetroid.RenderVerification` compare each one with the software adapter's output until #1409 removes it.
+the list to port. Every rule reproduces a visible result of the game exactly: each was proven against the software
+renderer before #1409 deleted it, and the GPU checks in `SuperMetroid.RenderVerification` now hold the hardware device
+to the WARP reference.
 
 ## Resources
 

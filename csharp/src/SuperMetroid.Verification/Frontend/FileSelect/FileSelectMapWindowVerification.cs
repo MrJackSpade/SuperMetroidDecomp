@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectMapEntryVerification;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectRoomMapVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVerification;

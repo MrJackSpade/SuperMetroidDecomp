@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;

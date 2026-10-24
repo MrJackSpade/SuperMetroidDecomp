@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -12,8 +11,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 public sealed class XrayRevealPlane
 {
-    /// <summary>Pixels along a block's side.</summary>
-    private const int BlockPixels = RoomLevelPlane.BlockPixels;
 
     /// <summary>The blocks, row by row, <see cref="XrayTilemapLayout.MetatileColumns"/> to a row; null beyond the room.</summary>
     private readonly RevealedBlock?[] blocks;

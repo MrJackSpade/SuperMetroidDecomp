@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
@@ -6,7 +5,6 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using System.Text.Json;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
@@ -84,7 +83,7 @@ internal static class TreadmillVisualVerification
     private static byte[] NativeFloorCharacters(ISnesAddressSpace bus, int source)
     {
         var expected = new SnesVram();
-        int destination = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
+        ushort destination = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
         ImportedVramOracle.ExecuteHardware(expected, bus, source, WreckedShipTreadmillRomData.FrameByteCount, destination);
         return expected.Bytes.Slice(destination * 2, WreckedShipTreadmillRomData.FrameByteCount).ToArray();
     }

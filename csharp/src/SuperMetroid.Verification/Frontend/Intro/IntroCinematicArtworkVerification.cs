@@ -865,12 +865,12 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             (state.CurrentFlashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
         }
-        Rgba32[] stockPixels = stockState.Render();
-        Rgba32[] editedPixels = editedState.Render();
+        Rgba32[] stockPixels = stockState.RenderArtwork();
+        Rgba32[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!editedPixels.SequenceEqual(stockPixels),
             "intro Mother Brain palette override changes visible production scene pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.Render().SequenceEqual(editedPixels),
+        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored intro Mother Brain scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro Mother Brain rendering avoids all three native spritemap records");
@@ -947,12 +947,12 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             state.FlashbackMotherBrainExplosions = explosions;
         }
-        Rgba32[] stockPixels = stockState.Render();
-        Rgba32[] editedPixels = editedState.Render();
+        Rgba32[] stockPixels = stockState.RenderArtwork();
+        Rgba32[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro explosion art override changes visible production flashback pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.Render().SequenceEqual(editedPixels),
+        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored intro explosion scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro explosion render avoids all twelve native compositions");

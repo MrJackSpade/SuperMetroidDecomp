@@ -1,4 +1,3 @@
-using SuperMetroid.Diagnostics.Configuration;
 using static SuperMetroid.DesktopVerification.Audio.AudioEndpointRecoveryTests;
 using static SuperMetroid.DesktopVerification.Audio.AudioQueueHealthTests;
 using static SuperMetroid.DesktopVerification.Startup.CloseDuringLoadTests;

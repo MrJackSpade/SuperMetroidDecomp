@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;

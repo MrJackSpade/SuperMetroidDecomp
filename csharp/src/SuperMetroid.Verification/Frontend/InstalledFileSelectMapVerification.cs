@@ -1,8 +1,6 @@
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;

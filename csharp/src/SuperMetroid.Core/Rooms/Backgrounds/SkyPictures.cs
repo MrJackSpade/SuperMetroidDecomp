@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Rooms.Scrolling;
 

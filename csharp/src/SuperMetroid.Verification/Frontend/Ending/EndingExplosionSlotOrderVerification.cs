@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Ending;
 

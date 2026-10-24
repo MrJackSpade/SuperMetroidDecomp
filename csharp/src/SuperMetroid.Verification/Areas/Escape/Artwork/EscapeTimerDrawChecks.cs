@@ -6,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.FrameCapture;
 
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;

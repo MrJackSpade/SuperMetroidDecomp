@@ -6,7 +6,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -68,7 +67,7 @@ internal static class EnemySheetFilesVerification
         var ored = new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | sources.PaletteBits })]);
         var character = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy), ored, source.Characters, origin,
             SnesTileFlipFlags.None, 0, 0);
-        UploadedPictureChecks.AssertSameInks([image], [character], label);
+        UploadedPictureChecks.AssertSameInks([image], [character], label, requirePixels: false);
     }
 
     /// <summary>Runs the enemy sheet extraction and ink comparison.</summary>

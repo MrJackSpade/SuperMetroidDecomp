@@ -88,21 +88,12 @@ The host uses a 256x224 game framebuffer and scales it by an integer factor when
 allows. Click the game image if keyboard focus has moved to the toolbar. Gamepad polling does
 not depend on window focus.
 
-### Renderer selection and diagnostics
+### Renderer and diagnostics
 
-The normal Windows host defaults to `Auto`: Direct3D11 hardware first, with a
-console-reported software fallback if hardware initialization fails. To select
-explicitly, add this section in `%LOCALAPPDATA%/SuperMetroid/SuperMetroid.ini`:
-
-```ini
-[Video]
-Renderer=Auto
-```
-
-`Software` selects the reference renderer. `Direct3D11` requires hardware and fails
-loudly on startup errors. Neither GPU selection hides missing scene support behind
-a CPU raster fallback. WARP is an explicit verification-tool option, not the normal
-game's hardware fallback. The console reports the selected backend and adapter.
+The Windows host draws with Direct3D 11, its only renderer. A startup failure is reported as an error; there is no
+fallback renderer. An older INI's `[Video] Renderer=Auto` or `Renderer=Direct3D11` line still loads;
+`Renderer=Software` names the removed software renderer and is rejected. WARP is a verification-tool device, not the
+game's fallback. The console reports the adapter.
 
 Simulation/audio and GPU presentation rates are separate: low displayed FPS over
 RDP does not by itself mean slow gameplay. The GPU worker uses a bounded latest-frame
@@ -373,12 +364,9 @@ state family itself.
 
 ### Rendering and audio
 
-Rendering is a software composition of modeled VRAM, CGRAM, OAM, BG tilemaps, Mode 7, windows,
-and the translated color-math/HDMA effects. It is sufficient for the implemented frontend,
-playable route, and diagnostic captures, but it is CPU-heavy and is not a complete
-cycle-accurate SNES PPU. Arbitrary room FX/HDMA, mosaic, window, priority, and special-background
-combinations remain to be implemented as they are encountered. A GPU-backed compositor is a
-separate performance task.
+Each frame publishes a display packet (its layers, placed images, colours and effect descriptions), and the
+Direct3D 11 backend draws it from the installed pre-coloured images; `docs/display-backend.md` lists each pass's
+composition rule.
 
 Audio is a C# translation of Super Metroid's SPC sequencer and eight-voice S-DSP mixer. It
 implements pitch, pan/volume, ADSR and gain envelopes, Gaussian interpolation, noise, pitch

@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 [PpuLayoutBoundary("backend: samples a boss body's cells in the hardware's screen order")]
 public sealed class BossBodyPictures
 {
-    /// <summary>The tilemap's screen arrangement.</summary>
-    private readonly BgTilemapGeometry geometry;
 
     /// <summary>Holds the picture of each cell of a tilemap of <paramref name="size"/>, the first of <paramref name="pictures"/>.</summary>
     /// <exception cref="ArgumentException">A cell has no picture.</exception>
@@ -24,7 +22,6 @@ public sealed class BossBodyPictures
             shown[cell] = pictures[cell] ?? throw new ArgumentException($"The boss body's cell {cell} has no picture.", nameof(pictures));
         Size = size;
         Pictures = [.. shown];
-        geometry = new BgTilemapGeometry(size);
     }
 
     /// <summary>The tilemap's size in cells.</summary>

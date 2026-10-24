@@ -409,7 +409,6 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
-        ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, door: null);
         var vram = new SnesVram();
         var cgram = new GameplayColours(new SpriteColourSets());
         var fxSession = CreateRetailFxSession(bus);
@@ -818,7 +817,6 @@ internal static class RoomFxRetailInventoryVerification
     {
         var fxSession = CreateRetailFxSession(bus);
         RoomLayer3FxState fx;
-        var vram = new SnesVram();
         fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(),
             room.State.Fx,
             EntryDoor(doorPointer),

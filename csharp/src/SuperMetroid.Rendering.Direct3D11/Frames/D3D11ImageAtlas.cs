@@ -31,8 +31,11 @@ internal sealed class D3D11ImageAtlas : IDisposable
 
     /// <summary>The device context that copies images in.</summary>
     private readonly ID3D11DeviceContext context;
-    /// <summary>Where each image the texture holds starts.</summary>
-    private readonly Dictionary<SpriteSheetFrame, Position16<ImagePixels>> places = new(ReferenceEqualityComparer.Instance);
+    /// <summary>
+    /// Where each image region the texture holds starts, by sheet and region: a capture that names the same region of a
+    /// sheet through a new frame finds the place the region already has.
+    /// </summary>
+    private readonly Dictionary<(SpriteImage Sheet, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size), Position16<ImagePixels>> places = [];
     /// <summary>
     /// The texture's skyline: left to right, runs of columns each with the row below the lowest image placed in it, which
     /// together span the texture's width.
@@ -70,7 +73,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
     {
         foreach (SpriteSheetFrame image in images)
         {
-            if (!places.ContainsKey(image) && !TryPlace(image))
+            if (!places.ContainsKey(Region(image)) && !TryPlace(image))
             {
                 places.Clear();
                 skyline.Clear();
@@ -82,7 +85,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
                 refill.Sort((left, right) => right.Size.Y.CompareTo(left.Size.Y));
                 foreach (SpriteSheetFrame shown in refill)
                 {
-                    if (!places.ContainsKey(shown) && !TryPlace(shown))
+                    if (!places.ContainsKey(Region(shown)) && !TryPlace(shown))
                         throw new InvalidOperationException($"A scene's {images.Count} images, {images.Sum(image => image.Size.X * image.Size.Y)} "
                             + $"pixels, the tallest {images.Max(image => image.Size.Y)} and widest {images.Max(image => image.Size.X)}, "
                             + $"do not fit a {Edge}x{Edge} texture.");
@@ -94,7 +97,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
 
     /// <summary>Where <paramref name="image"/> starts in the texture, x below y.</summary>
     /// <exception cref="InvalidOperationException">The texture does not hold the image.</exception>
-    internal uint Place(SpriteSheetFrame image) => places.TryGetValue(image, out Position16<ImagePixels> place)
+    internal uint Place(SpriteSheetFrame image) => places.TryGetValue(Region(image), out Position16<ImagePixels> place)
         ? D3D11ConstantPacking.Halves(place.X, place.Y)
         : throw new InvalidOperationException($"The image texture does not hold {image}.");
 
@@ -169,8 +172,12 @@ internal sealed class D3D11ImageAtlas : IDisposable
         fixed (uint* source = texels)
             context.UpdateSubresource(Texture, 0, new Box(left, top, 0, left + width, top + height, 1), (nint)source,
                 (uint)(TexelWords * sizeof(uint) * width), 0);
-        places[image] = new Position16<ImagePixels>((ushort)left, (ushort)top);
+        places[Region(image)] = new Position16<ImagePixels>((ushort)left, (ushort)top);
     }
+
+    /// <summary>The sheet and region <paramref name="image"/> shows.</summary>
+    private static (SpriteImage Sheet, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size) Region(SpriteSheetFrame image) =>
+        (image.Sheet, image.Corner, image.Size);
 
     /// <summary>Releases the texture and its view.</summary>
     public void Dispose()

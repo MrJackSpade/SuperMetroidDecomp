@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Hud.Artwork;
 namespace SuperMetroid.Verification.Hud;
 
 /// <summary>Checks gameplay message snapshots, reveal geometry and frame ownership.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;

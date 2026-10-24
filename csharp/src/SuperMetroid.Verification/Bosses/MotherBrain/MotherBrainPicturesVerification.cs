@@ -7,7 +7,6 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
@@ -17,7 +16,6 @@ using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;

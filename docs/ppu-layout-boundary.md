@@ -75,9 +75,8 @@ boundary on a local function or lambda has no effect.
   (`Bgr555` reads and writes, CGDATA port streams, banks and rows) stay in
   `SuperMetroid.Core.Hardware`. Their cell-binding constructors are `[PpuLayoutAccess]`: only a
   domain view binds a cell, and callers use its properties.
-- The software rasterizers (`SnesBgTilemapRenderer`, `SnesObjRenderer`, `SnesMode7Renderer`,
-  `SnesGameplayFrameRenderer`, …), the GPU dispatch and render-packet producers model BGnSC/NBA
-  and OBSEL register values and the snapshot images; they are backend or codec boundaries.
+- The GPU dispatch and render-packet producers model BGnSC/NBA and OBSEL register values and the snapshot images;
+  they are backend or codec boundaries. (The software rasterizers that did too are deleted, #1409.)
 - Data-driven destinations (a native transfer record's VRAM word, a PLM write-table record, a
   library-background command) are decoded by narrow codec members such as
   `PlmVramWriteRequest.Destination`.

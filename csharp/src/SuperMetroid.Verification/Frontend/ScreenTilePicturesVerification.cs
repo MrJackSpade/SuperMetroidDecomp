@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -24,7 +23,6 @@ using SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 
 namespace SuperMetroid.Verification.Frontend;
 

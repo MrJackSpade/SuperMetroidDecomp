@@ -7,7 +7,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Harness.VerificationAssert;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -32,14 +31,16 @@ internal static class UploadedPictureChecks
 
     /// <summary>
     /// Asserts <paramref name="images"/> show exactly the inks <paramref name="parts"/> show over their characters at every
-    /// on-screen pixel: the frontmost inked pixel's palette entry and priority, with at least one pixel inked.
+    /// on-screen pixel: the frontmost inked pixel's palette entry and priority, with at least one pixel inked where
+    /// <paramref name="requirePixels"/> asks for it (a sheet may hold a frame that draws nothing).
     /// </summary>
-    internal static void AssertSameInks(IReadOnlyList<ImageSpriteDraw> images, IReadOnlyList<CharacterSpriteDraw> parts, string message)
+    internal static void AssertSameInks(IReadOnlyList<ImageSpriteDraw> images, IReadOnlyList<CharacterSpriteDraw> parts, string message,
+        bool requirePixels = true)
     {
         Dictionary<(int X, int Y), (int Entry, int Priority)> expected = [], actual = [];
         foreach (CharacterSpriteDraw draw in parts)
         {
-            for (int part = 0; part < draw.Frame.Parts.Count; part++)
+            for (int part = 0; part < draw.Frame.Parts.Length; part++)
             {
                 SpriteScreenPart placed = draw.Place(part);
                 for (ushort y = 0; y < placed.Size.Y; y++)
@@ -59,6 +60,9 @@ internal static class UploadedPictureChecks
             {
                 var cell = new Position16<ScreenPixels>(x, y);
                 int entry = image.PaletteIndexAt(cell);
+                // A draw's palette override shows each part in its part row with the override ORed in, as the frame does.
+                if (entry != 0 && image.PaletteOverride is int overriding)
+                    entry = SpriteImage.OverriddenRow(image.PartRowAt(cell), overriding) * 16 + entry % 16;
                 if (entry != 0)
                     Ink(actual, image.Corner.X + x, image.Corner.Y + y, entry, image.PriorityAt(cell));
             }
@@ -70,7 +74,8 @@ internal static class UploadedPictureChecks
                 throw new InvalidOperationException($"{message}: the picture differs from the frame over the live characters at screen pixel " +
                     $"({pixel.X},{pixel.Y}): ink {got?.ToString() ?? "none"} for {want?.ToString() ?? "none"}.");
         }
-        AssertTrue(expected.Count > 0, $"{message}: paints pixels");
+        if (requirePixels)
+            AssertTrue(expected.Count > 0, $"{message}: paints pixels");
 
         // The frontmost ink at an on-screen pixel; a later, further-back draw does not replace it.
         static void Ink(Dictionary<(int X, int Y), (int Entry, int Priority)> inks, int x, int y, int entry, int priority)

@@ -8,12 +8,10 @@ scene verification and live performance/recovery qualification are still pending
 Desktop selection and a dedicated GPU/presentation owner are implemented.
 The console verification project never substitutes the CPU reference for GPU work.
 
-The portable INI contract now accepts `[Video] Renderer=Software|Direct3D11|Auto`
-(case-insensitive names; numbers, combinations, duplicates and unknown keys fail).
-Auto is the default, including existing INIs without a Video section. Direct3D11 selects the hardware
-worker; Auto logs hardware startup failure before selecting software. Neither mode
-silently substitutes CPU raster output for an unsupported GPU scene. Existing local
-INI files are unchanged.
+Direct3D 11 is the only renderer (#1409): the software renderer and the host's fallback to it are deleted, and a
+Direct3D 11 startup failure is the host's error. Installed INIs written with `[Video] Renderer=Auto` or
+`Renderer=Direct3D11` still load, as both name it; `Renderer=Software` fails with a message that the software renderer
+was removed. Existing local INI files are unchanged.
 
 `D3D11FrameRenderer.Render` submits composition without readback or staging allocation.
 `Readback` is an explicit diagnostic operation; `RenderForReadback` combines them for
@@ -122,7 +120,7 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 The replacement cycles every nonzero four-bit index while preserving transparent zero,
 palette metadata and unused cells. An independent pixel substitution oracle checks
 the precise change, not merely a different image or a successful render. Both hardware
-Direct3D11 and WARP then compare complete frames against the software renderer,
+Direct3D11 then compares complete frames against the WARP reference device,
 including reuse of retained stock packets after replacement uploads.
 
 On the current extracted stock data, each backend passes 435 split body DMA definitions,
@@ -179,7 +177,8 @@ no CPU sprite raster is supplied. These remain correctness checks, not GPU timin
 including signed matrix/offset extremes, transparent overflow, character-zero fill,
 disabled background, OBJ composition and ordered-layer composition. Projection and
 interleaved tile/character sampling execute on GPU from raw memory/registers. These
-comparisons establish software-reference parity, not independent cartridge fidelity.
+comparisons established parity with the software reference before #1409 deleted it, and now hold hardware to
+WARP; they are not independent cartridge fidelity.
 This includes 48 mixed-mode gameplay HUD/floor cases. Physical scanline clipping
 keeps projection coordinates intact; the floor composites from backdrop with its
 own BG/OBJ ordering, and HUD color zero is opaque. Retail scene-matrix coverage

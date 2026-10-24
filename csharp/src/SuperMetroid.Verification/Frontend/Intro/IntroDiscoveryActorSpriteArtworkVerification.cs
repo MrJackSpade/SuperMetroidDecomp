@@ -81,12 +81,12 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             var discovery = state.CurrentBabyDiscovery;
             (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
         }
-        Rgba32[] stockPixels = stockState.Render();
-        Rgba32[] editedPixels = editedState.Render();
+        Rgba32[] stockPixels = stockState.RenderArtwork();
+        Rgba32[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg visual override changes visible production discovery pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.Render().SequenceEqual(editedPixels),
+        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored discovery scene rebinds selected egg and baby visual compositions");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production discovery actors never reread twenty native spritemaps");

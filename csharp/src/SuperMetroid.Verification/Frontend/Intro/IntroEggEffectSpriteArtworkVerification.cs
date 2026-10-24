@@ -109,12 +109,12 @@ internal static class IntroEggEffectSpriteArtworkVerification
             var particles = (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).eggParticles;
             particles.Add(fragment);
         }
-        Rgba32[] stockPixels = stockState.Render();
-        Rgba32[] editedPixels = editedState.Render();
+        Rgba32[] stockPixels = stockState.RenderArtwork();
+        Rgba32[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg-fragment override changes visible production discovery pixels");
         stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.Render().SequenceEqual(editedPixels),
+        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored egg-discovery scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production egg effects never reread eleven native spritemaps");

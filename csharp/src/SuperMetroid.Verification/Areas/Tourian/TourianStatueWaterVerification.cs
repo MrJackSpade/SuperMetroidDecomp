@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;

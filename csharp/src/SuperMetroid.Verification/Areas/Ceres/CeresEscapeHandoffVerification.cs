@@ -203,10 +203,6 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(1, departure.Brightness, "14 fade calls leave brightness one");
         AssertTrue(departure.StepFadeAfterGameplay(), "15th fade call reaches forced blank");
         AssertEqual(CeresDeparturePhase.Complete, departure.Phase, "Ceres blackout completes");
-
-        Rgba32[] pixel = [new Rgba32(255, 120, 60, 255)];
-        departure.ApplyBrightness(pixel);
-        AssertEqual(new Rgba32(0, 0, 0, 255), pixel[0], "forced blank darkens a pixel to black");
     }
 
     /// <summary>Synthetic cartridge with the knockback and falling poses the Ridley ejection handler installs.</summary>

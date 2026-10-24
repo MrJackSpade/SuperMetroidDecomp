@@ -97,8 +97,8 @@ C#. It aims to preserve the cartridge's behavior while making the game's systems
 to inspect, debug, and understand. The original ROM supplies the graphics, room data,
 tables, and audio resources used by the translated code.
 
-The Windows and Android applications share the same managed game core. Windows uses
-a Direct3D11 renderer with a software fallback; Android uses the software renderer.
+The Windows application draws with Direct3D 11. The Android application, which shared the same managed game core,
+is dormant until the Godot port supplies it.
 Music and sound effects run through a managed C# audio engine, with resources extracted
 from the player's ROM during setup.
 

@@ -43,7 +43,6 @@ internal static class InvalidBeamSelectionVerification
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");
-        var before = pause.CaptureRenderSnapshot();
         byte[] beforeVram = pause.ShownVram();
         pause.Step(0, (scenario == 0 ? SnesButton.Left | SnesButton.A : SnesButton.Left));
         if (scenario == 1) pause.Step(0, SnesButton.A);

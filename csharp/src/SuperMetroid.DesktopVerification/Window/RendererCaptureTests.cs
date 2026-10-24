@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Diagnostics.Configuration;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
 using static SuperMetroid.DesktopVerification.Startup.AsyncLoadBoundaryTests;

@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Frontend.Pause.PauseHudLocationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;

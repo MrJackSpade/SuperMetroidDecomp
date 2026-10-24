@@ -48,3 +48,4 @@ SME6441 | Design | Error | AddressIdentityAnalyzer
 SME6442 | Design | Error | FrameCompositionAnalyzer
 SME6443 | Design | Error | DisplayPacketAnalyzer
 SME6444 | Design | Error | PaletteLayoutAnalyzer
+SME6446 | Design | Error | AudioRequestAnalyzer

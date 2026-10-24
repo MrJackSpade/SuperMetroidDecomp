@@ -27,7 +27,7 @@ internal enum SamusBeamCallback
     /// the preceding JSL, so it stores Y to the cached PPU register pair at $60+X and
     /// falls through to the Power Bomb pre-instruction at $90:B0AE.
     /// </summary>
-    ChainsawWindowStoreThenPowerBomb,
+    ChainsawPowerBomb,
     /// <summary>
     /// Charged combination thirteen overruns the callback table at <c>$90:BA3E..BA55</c> and
     /// reads callback <c>$0A0A</c> at <c>$90:BA58</c>. JSR therefore enters the bank-$90 low-WRAM mirror at

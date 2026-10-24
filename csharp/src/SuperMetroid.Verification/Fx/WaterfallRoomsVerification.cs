@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
@@ -34,12 +33,10 @@ internal static class WaterfallRoomsVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
             if (runtime.RoomLayer3Fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
-            runtime.GameplayWindows.PrepareGameplayWindowRegisters(runtime.Room.LoadedScope);
+            runtime.ScreenLayers.Choose(runtime.Room.LoadedScope);
             runtime.RoomLayer3Fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            var registers = runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
-            AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj, registers.MainScreen, "waterfall native TM");
-            AssertEqual((byte)0x06, runtime.CachedGameplaySubscreen, "waterfall native TS");
+            AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj, runtime.ScreenLayers.Displayed, "waterfall main-screen layers");
             var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");
             var math = snapshot.Layers[0] as GameplayColorMathRenderLayer

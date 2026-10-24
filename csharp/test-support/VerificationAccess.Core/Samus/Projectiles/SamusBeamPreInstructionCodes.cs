@@ -32,7 +32,7 @@ internal static class SamusBeamPreInstructionCodes
     /// the preceding JSL, so it stores Y to the cached PPU register pair at $60+X and
     /// falls through to the Power Bomb pre-instruction at $90:B0AE.
     /// </summary>
-    public const ushort ChainsawWindowStoreThenPowerBomb = 0xb0ac;
+    public const ushort ChainsawPowerBomb = 0xb0ac;
     /// <summary>
     /// Charged combination thirteen overruns the callback table at <c>$90:BA3E..BA55</c> and
     /// reads callback <c>$0A0A</c> at <c>$90:BA58</c>. JSR therefore enters the bank-$90 low-WRAM mirror at
@@ -66,7 +66,7 @@ internal static class SamusBeamPreInstructionCodes
         SamusBeamCallback.WaveFourFrameTrail => WaveFourFrameTrail,
         SamusBeamCallback.UnchargedCombinationTwelveAdjacentWord => UnchargedCombinationTwelveAdjacentWord,
         SamusBeamCallback.SpacetimePaletteCopyTail => SpacetimePaletteCopyTail,
-        SamusBeamCallback.ChainsawWindowStoreThenPowerBomb => ChainsawWindowStoreThenPowerBomb,
+        SamusBeamCallback.ChainsawPowerBomb => ChainsawPowerBomb,
         SamusBeamCallback.ChargedChainsawLowWramExecution => ChargedChainsawLowWramExecution,
         SamusBeamCallback.UnchargedCombinationFifteenAdjacentWord => UnchargedCombinationFifteenAdjacentWord,
         SamusBeamCallback.ChargedCombinationTwelveAdjacentWord => ChargedCombinationTwelveAdjacentWord,

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// leaves the previous latch in place. Arrays are owned copies; simulation cannot change them.
 /// </summary>
 /// <param name="Ppu">Ordinary BG scroll registers, room shake, and Draygon's BG2 window.</param>
-/// <param name="Windows">Window and screen-selection bytes.</param>
+/// <param name="MainScreen">The layers gameplay shows on the main screen.</param>
 /// <param name="SamusMode7Transform">Ceres elevator shaft Mode 7 matrix, when BGMODE is Mode 7.</param>
 /// <param name="RoomLayer3Fx">Room-FX BG3 state.</param>
 /// <param name="MorphBallEyeBeam">Morph Ball eye beam geometry and color.</param>
@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Layer3">The BG3 plane's words this NMI latched, which its pictures are resolved from and the pause screen keeps; null before the first room.</param>
 public sealed record GameplayNmiDisplayLatch(
     GameplayPpuRenderSnapshot Ppu,
-    GameplayWindowRegisterSnapshot Windows,
+    SnesMainScreenLayers MainScreen,
     SamusMode7Transform? SamusMode7Transform,
     RoomLayer3FxRenderSnapshot? RoomLayer3Fx,
     MorphBallEyeBeamRenderSnapshot? MorphBallEyeBeam,

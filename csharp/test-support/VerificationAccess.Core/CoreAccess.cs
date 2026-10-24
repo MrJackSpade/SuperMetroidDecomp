@@ -434,16 +434,6 @@ internal static class CoreAccess
         ];
     }
 
-    /// <summary>Reads the gameplay window cache's last accepted TS subscreen byte.</summary>
-    extension(SuperMetroidRuntime self)
-    {
-        /// <summary>Cached gameplay TS byte the last accepted NMI uploaded with the window registers.</summary>
-        [PpuLayoutBoundary("exact hardware test: reads the cached TS register byte")]
-        internal byte CachedGameplaySubscreen =>
-            (self.GameplayWindows.Cache
-                ?? throw new InvalidOperationException("Runtime has no gameplay window register cache."))
-            .ReadByte(GameplayWindowRegisterAddresses.Subscreen);
-    }
 
     /// <summary>Visits active physical PLM slots in native slot order.</summary>
     private static IEnumerable<PlmSlot> Group4ActivePlmSlots(RoomPlmSystem plms) =>

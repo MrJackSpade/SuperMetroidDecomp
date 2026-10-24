@@ -28,8 +28,8 @@ internal static class SamusBeamCallbackDefinitions
         SamusBeamCombination.SpazerPlasmaWave => charged
             ? Translated(SamusBeamCallback.ChargedChainsawLowWramExecution,
                 SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
-            : Translated(SamusBeamCallback.ChainsawWindowStoreThenPowerBomb,
-                SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb),
+            : Translated(SamusBeamCallback.ChainsawPowerBomb,
+                SamusProjectilePreInstruction.ChainsawPowerBomb),
         SamusBeamCombination.SpazerPlasmaIce => charged
             ? Translated(SamusBeamCallback.ChargedChainsawLowWramExecution,
                 SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)

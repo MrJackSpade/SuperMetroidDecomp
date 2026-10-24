@@ -105,8 +105,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
 
-    /// <summary>The <see cref="GameplayWindowRegisters"/> owner of this SuperMetroidRuntime.</summary>
-    internal GameplayWindowRegisters GameplayWindows { get; }
+    /// <summary>The main-screen layers gameplay chooses and the accepted frame shows.</summary>
+    internal GameplayScreenLayers ScreenLayers { get; }
 
     /// <summary>The <see cref="EscapeRoomEffects"/> owner of this SuperMetroidRuntime.</summary>
     internal EscapeRoomEffects EscapeEffects { get; }
@@ -153,9 +153,9 @@ internal sealed class SuperMetroidRuntime
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Cgram, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Backgrounds = BgArtwork, Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
-        GameplayWindows = new GameplayWindowRegisters(Room);
+        ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
@@ -164,7 +164,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Backgrounds = BgArtwork});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Backgrounds = BgArtwork});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -493,7 +493,6 @@ internal sealed class SuperMetroidRuntime
         // Routing references are deliberately not serialized as duplicate native state.
         // Reattach before any producer executes, including after loading an older snapshot.
         Artwork.BindGrapplePresentation();
-        GameplayWindows.BindGameplayWindowRegisters(Room.LoadedScope.Projectiles);
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
@@ -502,13 +501,13 @@ internal sealed class SuperMetroidRuntime
         EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms, scope.Layer3Fx, Room.LoadedScope.Enemies);
     }
 
-    /// <summary>Opens the frame's impact-audio window, runs the accepted-frame boundary and the host's post-boundary work, and prepares the window registers.</summary>
+    /// <summary>Opens the frame's impact-audio window, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
     private void BeginAcceptedGameplayFrame(SnesButton controller1Input, RuntimeFrameRequest frameRequest)
     {
         Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Gameplay);
         FrameBoundary.BeginAcceptedFrame(controller1Input);
         frameRequest.AfterAcceptedNmi();
-        GameplayWindows.PrepareGameplayWindowRegisters(Room.LoadedScope);
+        ScreenLayers.Choose(Room.LoadedScope);
     }
 
     /// <summary>Runs the bank-$88 HDMA-object pre-instructions and the power-bomb HDMA before the main loop's RNG call.</summary>

@@ -84,7 +84,6 @@ internal sealed class RoomLoader
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>The shared window-register cache each room's Chainsaw callback writes.</summary>
-    private readonly GameplayWindowRegisters _gameplayWindows;
     /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork each room's layer-3 FX reads.</summary>
     private readonly RoomFxSession _roomFx;
     /// <summary>The palette-FX handler state each room's palette FX reads.</summary>
@@ -122,7 +121,6 @@ internal sealed class RoomLoader
         _shotBlockVisuals = dependencies.ShotBlockVisuals;
         _beamCharge = dependencies.BeamCharge;
         _room = dependencies.Room;
-        _gameplayWindows = dependencies.GameplayWindows;
         _roomFx = dependencies.RoomFx;
         _paletteFxSession = dependencies.PaletteFxSession;
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
@@ -951,7 +949,6 @@ internal sealed class RoomLoader
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
-        _gameplayWindows.BindGameplayWindowRegisters(projectiles);
         _player.Samus?.Shinespark.BindProjectileOwners(_beamCharge, bombs.PowerBombExplosion);
 
         // `$82:EB6C` walks this zero-terminated list once. Each six-byte record allocates

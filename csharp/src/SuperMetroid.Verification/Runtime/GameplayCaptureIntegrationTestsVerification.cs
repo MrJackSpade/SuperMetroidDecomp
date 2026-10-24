@@ -31,22 +31,6 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
-        // Chainsaw slot four stores a word at $68: WOBJLOG receives the low byte and TM
-        // receives the high byte. Prove this is the runtime's shared cache rather than a
-        // projectile-private diagnostic copy, and that only an accepted NMI publishes it.
-        runtime.Projectiles.Chainsaw.ChainsawWindowRegisters.WriteWord(
-            GameplayWindowRegisterAddresses.ObjectColorLogic,
-            0x0412);
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        OrdinaryGameplayView acceptedRegisters =
-            ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame())
-                .Layers[0]).View;
-        AssertEqual(0x12, acceptedRegisters.Windows.ObjectColorLogic,
-            "accepted NMI publishes Chainsaw WOBJLOG store");
-        AssertEqual(SnesMainScreenLayers.Bg3, acceptedRegisters.MainScreenLayers,
-            "accepted NMI publishes slot-four Chainsaw TM overwrite");
-        runtime.Projectiles.Chainsaw.ChainsawWindowRegisters.InitializeWindowAndScreenSelection();
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Rendering.WindowRegisterCacheVerification;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 
@@ -10,7 +9,6 @@ internal static class HardwareWindowsVerification
     /// <summary>Compares enable, invert, logic, interval edge, and empty-window behavior across all pixel columns.</summary>
     internal static void VerifyHardwareWindows()
     {
-        Suite(nameof(VerifyWindowRegisterCache), () => VerifyWindowRegisterCache());
         // Independent truth-table oracle for pinned ppu_getWindowState (ppu.c).
         // Bit index is first*2+second; do not call production's Boolean branches.
         int[] operations = [0b1110, 0b1000, 0b0110, 0b1001];

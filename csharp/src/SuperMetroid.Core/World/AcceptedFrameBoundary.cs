@@ -45,8 +45,8 @@ internal sealed class AcceptedFrameBoundary
     /// runtime's first room, when no enemy is displayed.
     /// </summary>
     private IEnemyDisplaySources? Displays => _room.Enemies?.DisplaySources;
-    /// <summary>Window register cache latched with the accepted frame.</summary>
-    private readonly GameplayWindowRegisters _gameplayWindows;
+    /// <summary>The main-screen layers latched with the accepted frame.</summary>
+    private readonly GameplayScreenLayers _screenLayers;
     /// <summary>Sprite frame the main loop finalized for the next NMI.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus graphics DMA for accepted NMI transfers.</summary>
@@ -74,7 +74,7 @@ internal sealed class AcceptedFrameBoundary
         _display = dependencies.Display;
         _displayedSprites = dependencies.DisplayedSprites;
         _enemySession = dependencies.EnemySession;
-        _gameplayWindows = dependencies.GameplayWindows;
+        _screenLayers = dependencies.ScreenLayers;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
@@ -125,7 +125,7 @@ internal sealed class AcceptedFrameBoundary
         // $211B..$2120. Retain both displayed values so software rendering sees one
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
-        _gameplayWindows.Cache.LatchNmi();
+        _screenLayers.Latch();
         var ppu = new GameplayPpuRenderSnapshot(
             _backgroundScroll.Layer1Position,
             _backgroundScroll.Bg1Scroll,
@@ -141,7 +141,7 @@ internal sealed class AcceptedFrameBoundary
         ImmutableArray<ushort>? reveal = CaptureXrayRevealTilemap(scene);
         _display.Latched = new GameplayNmiDisplayLatch(
             ppu,
-            _gameplayWindows.DisplayedGameplayWindowRegisters,
+            _screenLayers.Displayed,
             _display.ActiveSamusMode7Transform,
             roomLayer3Fx,
             CaptureMorphBallEyeBeamForDisplay(),

@@ -119,9 +119,7 @@ public static class GameplayDisplayCapture
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
-        GameplayWindowRegisterSnapshot displayedWindows = latched.Windows;
-        SnesMainScreenLayers displayedMainScreen =
-            displayedWindows.MainScreen & TmLayerBits;
+        SnesMainScreenLayers displayedMainScreen = latched.MainScreen & TmLayerBits;
         var registers = new OrdinaryGameplayView(bg1Scroll,
             new Position16<Bg2Pixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
@@ -137,9 +135,6 @@ public static class GameplayDisplayCapture
                     ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
                     : displayedMainScreen),
             bg2Lines.First, bg2Lines.End,
-            Windows: displayedWindows.Windows,
-            MainScreenWindowMask:
-                displayedWindows.MainScreenWindow & TmLayerBits,
             Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.

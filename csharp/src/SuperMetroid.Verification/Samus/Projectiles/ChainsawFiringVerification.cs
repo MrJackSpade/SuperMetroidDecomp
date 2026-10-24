@@ -60,10 +60,6 @@ internal static class ChainsawFiringVerification
         AssertEqual(0, projectiles.SlotTable.ProjectileCounter, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Slots[0].InstructionPointer, "deleted Chainsaw has no animation list");
         AssertEqual(0, projectiles.Slots[0].Damage, "deleted Chainsaw releases its damage sentinel");
-        AssertEqual((byte)0x34, projectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
-            GameplayWindowRegisterAddresses.Window12Selection), "first callback stores inherited Y low byte");
-        AssertEqual((byte)0x00, projectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
-            GameplayWindowRegisterAddresses.Window34Selection), "first callback stores inherited Y high byte");
 
         // PowerBomb_Func3 clears the inactive shot, but the native callback still falls
         // through to the bank-$94 boundary dispatcher. A bombable origin with no PLM owner
@@ -121,7 +117,6 @@ internal static class ChainsawFiringVerification
         ushort[] nextLists = [0x902f, 0x9037, 0x903f, 0x9047, 0x904f, 0x9057, 0x905f, 0x9067];
         ushort[] spritemaps = [0xaf4c, 0xaf62, 0xaf78, 0xafa2, 0xafcc, 0xaff6, 0xb020, 0xb04a];
         ushort[] yRadii = [12, 12, 16, 16, 20, 20, 23, 23];
-        ushort[] inheritedY = [0x0034, 0x9027, 0x902f, 0x9037, 0x903f, 0x9047, 0x904f, 0x9057];
         for (int update = 0; update < nextLists.Length; update++)
         {
             activeProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : 0, ControllerNewInput = update == 0 ? SnesButton.X : 0 }, new(0, 0), activeShared);
@@ -133,10 +128,6 @@ internal static class ChainsawFiringVerification
             AssertEqual(spritemaps[update], slot.SpritemapPointer, $"active Chainsaw spritemap {update}");
             AssertEqual((ushort)8, slot.Radius.X, $"active Chainsaw X radius {update}");
             AssertEqual(yRadii[update], slot.Radius.Y, $"active Chainsaw Y radius {update}");
-            AssertEqual((byte)inheritedY[update], activeProjectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
-                GameplayWindowRegisterAddresses.Window12Selection), $"active Chainsaw inherited Y low {update}");
-            AssertEqual(SnesLittleEndian.HighByte(inheritedY[update]), activeProjectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
-                GameplayWindowRegisterAddresses.Window34Selection), $"active Chainsaw inherited Y high {update}");
         }
 
         // Combination thirteen indexes the same vulnerability byte as Super Missiles.

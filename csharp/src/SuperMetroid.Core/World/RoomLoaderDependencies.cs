@@ -84,9 +84,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>The shared window-register cache each room's Chainsaw callback writes.</summary>
-    public required GameplayWindowRegisters GameplayWindows { get; init; }
-
     /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork each room's layer-3 FX reads.</summary>
     public required RoomFxSession RoomFx { get; init; }
 

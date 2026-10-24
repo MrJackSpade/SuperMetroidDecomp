@@ -36,7 +36,7 @@ public enum SamusProjectilePreInstruction : byte
     /// <summary>Represents execution that reaches the spacetime palette-copy tail.</summary>
     SpacetimePaletteCopyTail,
     /// <summary>Represents the chainsaw window-store path before Power Bomb execution.</summary>
-    ChainsawWindowStoreThenPowerBomb,
+    ChainsawPowerBomb,
     /// <summary>Represents charged chainsaw execution through low WRAM.</summary>
     ChargedChainsawLowWramExecution,
     /// <summary>Represents the Murder Beam's misaligned native execution path.</summary>

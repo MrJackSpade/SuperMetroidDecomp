@@ -26,7 +26,7 @@ namespace SuperMetroid.Verification.Runtime;
 internal static class GameplayDisplayFrameTestsVerification
 {
     /// <summary>A WOBJLOG value used to mark which accepted NMI published a frame's latch.</summary>
-    private const byte LatchMarker = 90;
+
 
 
     /// <summary>A layer-one Y position the scrolling sky mirrors into BG2VOFS.</summary>
@@ -97,7 +97,6 @@ internal static class GameplayDisplayFrameTestsVerification
         OrdinaryGameplayView before = Registers(runtime);
         var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<Bg2Pixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
-        MarkMainLoopWrite(runtime);
         AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
             registers.Bg2Scroll == before.Bg2Scroll, "Kraid's body on BG2");
         AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(64, 64) &&
@@ -110,7 +109,6 @@ internal static class GameplayDisplayFrameTestsVerification
         before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { HasBg2ScrollOverride = true, DeathBg2Hidden = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
-        MarkMainLoopWrite(runtime);
         AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
             registers.MainScreenLayers == before.MainScreenLayers, "Mother Brain BG2SC and TM BG2 bit");
         AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(32, 32) &&
@@ -129,7 +127,6 @@ internal static class GameplayDisplayFrameTestsVerification
         OrdinaryGameplayView before = Registers(runtime);
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
         runtime.RoomLayer3Fx.Type = RoomFxType.TourianEntranceStatue;
-        MarkMainLoopWrite(runtime);
         AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize, "FX-selected BG2SC");
         AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(32, 64), "FX-selected BG2SC");
         runtime.RoomLayer3Fx.Type = originalFx;
@@ -143,7 +140,6 @@ internal static class GameplayDisplayFrameTestsVerification
         before = Registers(runtime);
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("The Landing Site installs its scrolling sky.");
         sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false);
-        MarkMainLoopWrite(runtime);
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null,
             "sky bands are read live during display");
         AssertPending(runtime, registers => registers.Bg2Scroll.Y == before.Bg2Scroll.Y &&
@@ -163,13 +159,11 @@ internal static class GameplayDisplayFrameTestsVerification
         FixedColorState fixedColor = runtime.RoomLayer3Fx.FixedColors;
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
         fixedColor.Red = 32 + 9; fixedColor.Green = 64 + 9; fixedColor.Blue = 128 + 9;
-        MarkMainLoopWrite(runtime);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(9, darkness.FixedRed, "Fireflea COLDATA publishes with its blend selector");
-        AssertEqual(LatchMarker, darkness.Gameplay.View.Windows.ObjectColorLogic, "Fireflea COLDATA publishes with the frame's window latch");
         fixedColor.Red = 32 + 4;
         AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
             "a main-loop COLDATA write waits for the next accepted NMI");
@@ -248,10 +242,6 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
-    /// <summary>Writes a WOBJLOG marker as the same main loop's write, so publication can be tied to one NMI latch.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
-    private static void MarkMainLoopWrite(SuperMetroidRuntime runtime) =>
-        runtime.GameplayWindows.Cache.WriteByte(GameplayWindowRegisterAddresses.ObjectColorLogic, LatchMarker);
 
     /// <summary>Asserts a main-loop write is not yet displayed.</summary>
     private static void AssertPending(SuperMetroidRuntime runtime, Func<OrdinaryGameplayView, bool> unchanged, string input)
@@ -259,16 +249,15 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(unchanged(Registers(runtime)), $"{input} written by the main loop waits for the NMI");
     }
 
-    /// <summary>Asserts an accepted NMI publishes the write in the same latch as the marked window register.</summary>
+    /// <summary>Asserts an accepted NMI publishes the write.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void AssertPublished(SuperMetroidRuntime runtime, Func<OrdinaryGameplayView, bool> published, string input)
     {
-        AssertTrue(Registers(runtime).Windows.ObjectColorLogic != LatchMarker, $"{input}: marker is not yet displayed");
+
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         OrdinaryGameplayView registers = Registers(runtime);
         AssertTrue(published(registers), $"the accepted NMI publishes {input}");
-        AssertEqual(LatchMarker, registers.Windows.ObjectColorLogic, $"{input} publishes with the same NMI's window latch");
-        runtime.GameplayWindows.Cache.WriteByte(GameplayWindowRegisterAddresses.ObjectColorLogic, 0);
+
     }
 
     /// <summary>The ordinary gameplay registers of a freshly published frame.</summary>

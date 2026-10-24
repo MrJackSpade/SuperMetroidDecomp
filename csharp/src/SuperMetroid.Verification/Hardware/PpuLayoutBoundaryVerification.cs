@@ -43,10 +43,11 @@ internal static class PpuLayoutBoundaryVerification
         AssertTrue(entries.Count > 0, "production catalogs declare PPU layout cells");
         foreach (PpuLayoutRegion region in Enum.GetValues<PpuLayoutRegion>())
         {
-            // OAM is no longer production state (#1358): frontends publish sprite entries and gameplay sprite draws.
-            bool oam = region is PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh;
-            AssertEqual(!oam, entries.Any(entry => entry.Cell.Region == region),
-                oam ? $"the catalogs name no {region} location" : $"the catalogs name at least one {region} location");
+            // OAM is no longer production state (#1358): frontends publish sprite entries and gameplay sprite draws. Nor
+            // are the window registers (#1407): gameplay publishes the main-screen layers it shows.
+            bool retired = region is PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh or PpuLayoutRegion.Register;
+            AssertEqual(!retired, entries.Any(entry => entry.Cell.Region == region),
+                retired ? $"the catalogs name no {region} location" : $"the catalogs name at least one {region} location");
         }
         IReadOnlyList<string> violations = PpuLayoutCatalogInventory.Violations(entries);
         AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
@@ -75,8 +76,6 @@ internal static class PpuLayoutBoundaryVerification
                     CgramRoundTrip(target, entry.Cell, seed: 17, $"alias target -> {entry.Reference}");
                     break;
                 case PpuLayoutRegion.Register:
-                    RegisterRoundTrip(entry.Cell, target, entry.Reference);
-                    break;
                 case PpuLayoutRegion.OamLow:
                 case PpuLayoutRegion.OamHigh:
                 default:
@@ -137,17 +136,6 @@ internal static class PpuLayoutBoundaryVerification
             new((slot + seed) & Bgr555.MaxChannel, (slot * 3 + seed) & Bgr555.MaxChannel, (slot * 7 + seed) & Bgr555.MaxChannel);
     }
 
-    /// <summary>gameplay_TM is TM's IRQ copy: an accepted NMI publishes TM into it.</summary>
-    [PpuLayoutBoundary("exact hardware test: register shadow alias coherence")]
-    private static void RegisterRoundTrip(PpuLayoutCell alias, PpuLayoutCell register, string context)
-    {
-        AssertTrue(alias == GameplayWindowRegisterLayout.GameplayMainScreen && register == GameplayWindowRegisterLayout.MainScreen,
-            $"{context} is the one register alias with a modeled coherence rule");
-        var cache = new GameplayWindowRegisterCache();
-        cache.MainScreen = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
-        cache.LatchNmi();
-        AssertEqual((byte)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj), cache.Read(alias), $"{context}: accepted NMI copies TM");
-    }
 
     /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>
     [PpuLayoutBoundary("exact hardware test: inventory matches the catalogs")]
@@ -192,10 +180,6 @@ internal static class PpuLayoutBoundaryVerification
         AssertEqual(new OamEntry(new Position16<OamPixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
             "an object's position and attributes round-trip through OAM");
 
-        var registers = new GameplayWindowRegisterCache();
-        registers.Subscreen = SnesMainScreenLayers.Bg3 | SnesMainScreenLayers.Obj;
-        AssertEqual(SnesMainScreenLayers.Bg3 | SnesMainScreenLayers.Obj, registers.Subscreen, "a TS designation round-trips");
-        AssertEqual((byte)0x14, registers.ReadByte(GameplayWindowRegisterAddresses.Subscreen), "TS is cached at $7E:006B");
     }
 
     /// <summary>Views and cells reject indexes and ranges outside their declared location.</summary>
@@ -227,8 +211,6 @@ internal static class PpuLayoutBoundaryVerification
         AssertThrows<ArgumentException>(() => new CgramPalette(cgram, GameplayVramLayoutConstants.Bg1Tilemap), "a palette view rejects a VRAM cell");
         AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestinationConstants.At(GameplayVramLayoutConstants.HudTilemap, GameplayVramLayoutConstants.HudTilemap.Count),
             "a queued destination must start inside its cell");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameplayWindowRegisterLayout.ShadowAddress(PpuMemoryLayout.Cgram),
-            "only window-cache registers have a WRAM shadow");
     }
 
     /// <summary>VMAIN's one- and 32-word increments, the queue's bit-15 encoding and the 15-bit VMADD wrap.</summary>

@@ -192,31 +192,8 @@
       "encoding": "4-bpp BG characters (16 words each)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/Video/RoomGraphicsLayout.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.AssetExtraction.Video.GameplayVramLayout",
-      "name": "Bg2Tilemap",
-      "region": "Vram",
-      "offset": "$4800",
-      "count": 2048,
-      "encoding": "BG tilemap words (64x32)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.AssetExtraction.Video.GameplayVramLayout",
-      "name": "HudCharacterUpload",
-      "region": "Vram",
-      "offset": "$4000",
-      "count": 4096,
-      "encoding": "2-bpp BG3 characters then zeroed BG2 tilemap words",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/test-support/VerificationAccess.Core/Hud/Artwork/HudTileAtlasAccess.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Video/RoomGraphicsLayout.cs",
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Video/RoomGraphicsToolingLayout.cs"
       ]
     },
     {
@@ -229,32 +206,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomBlockUploads.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/Video/BgCharacterWords.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.AssetExtraction.Video.GameplayVramLayout",
-      "name": "ObjectCharacters",
-      "region": "Vram",
-      "offset": "$6000",
-      "count": 8192,
-      "encoding": "4-bpp OBJ characters (16 words each)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.RenderVerification/Samus/InstalledSamusArtworkTests.cs",
-        "csharp/src/SuperMetroid.Verification/Areas/Ceres/Artwork/CeresEscapeTileArtworkVerification.cs",
-        "csharp/src/SuperMetroid.Verification/Areas/Escape/Artwork/EscapeTimerPresentationVerification.cs",
-        "csharp/src/SuperMetroid.Verification/Bosses/BossSpriteEntriesVerification.cs",
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainSpecialSpriteArtworkVerification.cs",
-        "csharp/src/SuperMetroid.Verification/Bosses/Torizo/Artwork/TorizoSwapArtworkVerification.cs",
-        "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkGunshipLiftoffVerification.cs",
-        "csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs",
-        "csharp/src/SuperMetroid.Verification/Rooms/Artwork/RoomBlockPicturesVerification.cs",
-        "csharp/test-support/VerificationAccess.Core/Areas/Escape/Artwork/EscapeNativePageWords.cs",
-        "csharp/test-support/VerificationAccess.Core/Assets/ObjCharacterNativeWords.cs",
-        "csharp/test-support/VerificationAccess.Core/Hardware/ObjCharacterUploadsAccess.cs",
-        "csharp/test-support/VerificationAccess.Core/Samus/Drawing/SamusBodyFrameStateAccess.cs",
-        "csharp/test-support/VerificationOracles/ObjCharacterVramImage.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Video/BgCharacterWords.cs",
+        "csharp/test-support/VerificationAccess.Core/Video/BgCharacterWordsConstants.cs"
       ]
     },
     {
@@ -294,21 +247,12 @@
       "consumers": [
         "csharp/src/SuperMetroid.AssetExtraction/Video/BgCharacterWords.cs",
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
-        "csharp/src/SuperMetroid.Verification/Rooms/BgArtworkBindingsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Rooms/BgArtworkBindingsVerification.cs",
+        "csharp/test-support/VerificationAccess.Core/Video/BgCharacterWordsConstants.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.Video.RoomGraphicsLayout",
-      "name": "CollectibleCharacters",
-      "region": "Vram",
-      "offset": "$3E00",
-      "count": 512,
-      "encoding": "4-bpp BG characters, four 8-character slots",
-      "aliasOf": "GameplayVramLayout.BackgroundCharacters",
-      "consumers": []
-    },
-    {
-      "owner": "SuperMetroid.AssetExtraction.Video.RoomGraphicsLayout",
+      "owner": "SuperMetroid.AssetExtraction.Video.RoomGraphicsToolingLayout",
       "name": "CommonRoomElementCharacters",
       "region": "Vram",
       "offset": "$2800",
@@ -319,176 +263,6 @@
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
         "csharp/src/SuperMetroid.Verification/Rooms/BgArtworkBindingsVerification.cs",
         "csharp/src/SuperMetroid.Verification/Rooms/RoomArtworkRenderParityVerification.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "BackgroundLogic",
-      "region": "Register",
-      "offset": "$212A",
-      "count": 1,
-      "encoding": "SnesWindowLogic x4 (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "FirstLeft",
-      "region": "Register",
-      "offset": "$2126",
-      "count": 1,
-      "encoding": "screen X (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "FirstRight",
-      "region": "Register",
-      "offset": "$2127",
-      "count": 1,
-      "encoding": "screen X (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "GameplayMainScreen",
-      "region": "Register",
-      "offset": "$212C",
-      "count": 1,
-      "encoding": "SnesMainScreenLayers (u8), NMI-latched IRQ copy",
-      "aliasOf": "GameplayWindowRegisterLayout.MainScreen",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs",
-        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "MainScreen",
-      "region": "Register",
-      "offset": "$212C",
-      "count": 1,
-      "encoding": "SnesMainScreenLayers (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs",
-        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "MainScreenWindow",
-      "region": "Register",
-      "offset": "$212E",
-      "count": 1,
-      "encoding": "SnesMainScreenLayers (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "ObjectColorLogic",
-      "region": "Register",
-      "offset": "$212B",
-      "count": 1,
-      "encoding": "SnesWindowLogic x2 (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "ObjectColorSelection",
-      "region": "Register",
-      "offset": "$2125",
-      "count": 1,
-      "encoding": "SnesWindowSelection pair (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "SecondLeft",
-      "region": "Register",
-      "offset": "$2128",
-      "count": 1,
-      "encoding": "screen X (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "SecondRight",
-      "region": "Register",
-      "offset": "$2129",
-      "count": 1,
-      "encoding": "screen X (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "Subscreen",
-      "region": "Register",
-      "offset": "$212D",
-      "count": 1,
-      "encoding": "SnesMainScreenLayers (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "SubscreenWindow",
-      "region": "Register",
-      "offset": "$212F",
-      "count": 1,
-      "encoding": "SnesMainScreenLayers (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "Window12Selection",
-      "region": "Register",
-      "offset": "$2123",
-      "count": 1,
-      "encoding": "SnesWindowSelection pair (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
-      "name": "Window34Selection",
-      "region": "Register",
-      "offset": "$2124",
-      "count": 1,
-      "encoding": "SnesWindowSelection pair (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
       ]
     },
     {
@@ -514,7 +288,6 @@
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Hardware/CgramPalettes.cs",
-        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs",
         "csharp/test-support/VerificationAccess.Core/Hardware/PpuMemoryLayoutConstants.cs"
       ]
     },

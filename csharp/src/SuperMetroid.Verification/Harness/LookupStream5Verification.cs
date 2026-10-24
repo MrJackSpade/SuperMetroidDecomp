@@ -67,6 +67,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -1923,7 +1924,7 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
         AssertThrows<ArgumentException>(() => stock.CopyColorWordsTo(new byte[CeresFlightPalette.ColorWordBytes - 1]), "Ceres palette output extent");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
-        var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.FloorFileName),
+        var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFormat.FloorFileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
             Open(CeresFlightPaletteFormat.FileName), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
         byte[] nativeBytes = new byte[CgramPalettes.ByteCount];

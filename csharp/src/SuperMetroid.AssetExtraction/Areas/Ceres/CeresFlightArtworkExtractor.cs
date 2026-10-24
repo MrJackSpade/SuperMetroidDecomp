@@ -117,7 +117,7 @@ internal static class CeresFlightArtworkExtractor
             Actors = placements,
         });
         byte[] actorsFile = actorsJson.ToArray();
-        CeresFlightArtworkCatalog roundTrip = CeresFlightArtworkCatalog.Load(
+        CeresFlightCharacters roundTrip = CeresFlightCharacters.Read(
             new MemoryStream(floorPng, writable: false),
             new MemoryStream(mapFile, writable: false),
             new MemoryStream(objectPng, writable: false),

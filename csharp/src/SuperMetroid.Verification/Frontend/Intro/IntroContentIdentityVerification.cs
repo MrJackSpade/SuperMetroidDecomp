@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Checks the canonical selected-content digest for the opening and Ceres presentation bundle.</summary>
 internal static class IntroContentIdentityVerification
@@ -165,7 +166,7 @@ internal static class IntroContentIdentityVerification
             if (edit == name) cells[^1] = 1;
             return cells;
         }
-        var flight = CeresFlightArtworkCatalog.Load(
+        var flight = CeresFlightCharacters.Read(
             Png("flight-mode7", CeresFlightArtworkFormat.FloorWidth, CeresFlightArtworkFormat.FloorHeight, 256),
             Json(new CeresFlightMapDocument
             {

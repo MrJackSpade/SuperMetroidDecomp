@@ -22,6 +22,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -153,7 +154,7 @@ internal static class ScreenTileSheetComposer
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
             SpriteSheetId.EndingPlanetExplosionMode7Tiles => ComposeMode7Pixels(sources.EndingMode7[EndingFloorSceneId.PlanetExplosion].Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Explosion)),
-            SpriteSheetId.EndingFlyawayMode7Tiles => ComposeMode7Pixels(sources.Intro.CeresFlight.FloorCharacters.Span[..EndingCreditsRomData.Rendering.FloorBytes],
+            SpriteSheetId.EndingFlyawayMode7Tiles => ComposeMode7Pixels(CeresFlightCharacters.Of(sources.Intro.CeresFlight).FloorCharacters.Span[..EndingCreditsRomData.Rendering.FloorBytes],
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
             SpriteSheetId.EndingRewardIconMode7Tiles => ComposeRewardIcon(sources.EndingMode7, sources.EndingPalettes),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
@@ -203,7 +204,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The Ceres flight's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtworkCatalog flight) =>
-        ComposeMode7Pixels(Ensure.NotNull(flight).FloorCharacters.Span[..CeresFlightRomData.Transfers.FloorCharacterByteCount], FlightColours(flight));
+        ComposeMode7Pixels(CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span[..CeresFlightRomData.Transfers.FloorCharacterByteCount], FlightColours(flight));
 
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
@@ -263,7 +264,7 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
     internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtworkCatalog flight) =>
-        Compose(Ensure.NotNull(flight).ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount], BgBitDepth.FourBpp, FlightColours(flight));
+        Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightRomData.Transfers.ObjectCharacterByteCount], BgBitDepth.FourBpp, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
     private static ReadOnlySpan<Bgr555> IntroColours(IntroCinematicArtworkCatalog intro)

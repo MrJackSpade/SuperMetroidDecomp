@@ -64,7 +64,7 @@ internal static class CeresFlightArtworkVerification
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
-        CeresFlightArtworkCatalog reference = CeresFlightArtworkCatalog.Load(
+        CeresFlightCharacters reference = CeresFlightCharacters.Read(
             referenceCharacters, referenceMaps, referenceObjects, referencePalette,
             referenceSprites, referenceActors);
         var native = new IntroCeresFlightState(new CartridgeAudioState(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -44,7 +45,7 @@ internal static class IntroSpriteSheetComposer
     internal static SpriteSheetSources CeresFlightSources(CeresFlightArtworkCatalog flight)
     {
         Ensure.NotNull(flight);
-        return Compose([flight.Sprites], flight.ObjectPage, flight.Palette.LoadTo);
+        return Compose([flight.Sprites], CeresFlightCharacters.Of(flight).ObjectPage, flight.Palette.LoadTo);
     }
 
     /// <summary>

@@ -467,7 +467,7 @@ public static class IntroCinematicArtworkFiles
             (string actorsPath, byte[] actors) = ReadSelected(CeresFlightActorLayoutFormat.FileName);
             try
             {
-                return CeresFlightArtworkCatalog.Load(
+                return CeresFlightCharacters.Read(
                     new MemoryStream(mode7, writable: false),
                     new MemoryStream(map, writable: false),
                     new MemoryStream(objects, writable: false),

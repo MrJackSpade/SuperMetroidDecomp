@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -91,7 +92,7 @@ internal static class EndingScreenImage
         var floor = new Mode7Vram(vram);
         if (index < chunksPerLane)
         {
-            floor.LoadCharacters(flight.FloorCharacters.Span.Slice(offset, chunkBytes), offset);
+            floor.LoadCharacters(CeresFlightCharacters.Of(flight).FloorCharacters.Span.Slice(offset, chunkBytes), offset);
             return;
         }
         // The map lane is the flight's map data padded with the blank tile to the full lane.

@@ -2,7 +2,6 @@ using Android.Content;
 using Android.Graphics;
 using Android.Views;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
 using System.Diagnostics;
 using SuperMetroid.Diagnostics.Android;
 using SuperMetroid.Core.Hardware;
@@ -101,7 +100,7 @@ internal sealed class AndroidGameView : View
         canvas.DrawColor(Color.Black);
         if (frames.Consume(uploadFrame))
             Interlocked.Increment(ref paintCount);
-        DisplayViewport viewport = DisplayViewport.IntegerPixels(DisplayViewport.ClientSize(Width, Height));
+        AndroidDisplayViewport viewport = AndroidDisplayViewport.IntegerPixels(AndroidDisplayViewport.ClientSize(Width, Height));
         int left = viewport.Offset.X, top = viewport.Offset.Y;
         int right = left + viewport.Size.X, bottom = top + viewport.Size.Y;
         if (viewport.Size.X != 0)

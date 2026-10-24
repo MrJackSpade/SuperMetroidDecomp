@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Rendering;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+
+namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// A single pending visual packet, with explicit replacement and invalidation counts.

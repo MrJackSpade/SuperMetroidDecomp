@@ -1,22 +1,18 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Host-selected behavior for a complete <see cref="SuperMetroidGame"/> session.
+/// The option values a <see cref="SuperMetroidGame"/> session reads: startup and testing conveniences around the
+/// retail game, supplied by the host when it composes the session.
 /// </summary>
 /// <remarks>
-/// These are deliberately not SNES registers or translated WRAM fields. They describe the
-/// few conveniences supplied by the C# host around the cartridge-authentic state machine.
-/// Keeping them in one named type makes every departure from normal retail startup visible
-/// at the point where a game session is constructed.
+/// Keeping them in one named type makes every departure from normal retail startup visible at the point where a game
+/// session is constructed. How a host stores them (an options file, a settings menu, a recording) is the host's.
 /// </remarks>
 public sealed record SuperMetroidGameOptions
 {
-    /// <summary>Prefer hardware rendering; report startup failure before selecting the software reference backend.</summary>
-    public RendererSelection Renderer { get; init; } = RendererSelection.Auto;
     /// <summary>
     /// Skips the story sequence between accepting the options screen and arriving at Ceres.
     /// </summary>
@@ -54,14 +50,11 @@ public sealed record SuperMetroidGameOptions
     /// <summary>Resets bosses and persistent enemy encounters outside Tourian when loading a regular save.</summary>
     public bool ResetBossesOnLoad { get; init; }
 
-    /// <summary>Preserves a separate recovery state after each completed door transition.</summary>
-    public bool DoorTransitionAutosave { get; init; } = true;
-
     /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
     public bool PreventEscapeTimeout { get; init; }
 
     /// <summary>
-    /// Optional total minutes, 0 through 65535 (the INI and recording formats accept up to 5999), used only for ending
+    /// Optional total minutes, 0 through 65535 (the hosts' options file and recordings accept up to 5999), used only for ending
     /// time/reward selection; null preserves actual playtime and SRAM is never changed.
     /// </summary>
     public int? EndingTimeOverrideMinutes { get; init => field = value is { } minutes ? Ensure.BetweenInclusive(0, ushort.MaxValue, minutes) : null; }
@@ -73,24 +66,6 @@ public sealed record SuperMetroidGameOptions
     /// immediately restores the cartridge's saved visibility.
     /// </remarks>
     public MapRevealMode MapReveal { get; init; }
-
-    /// <summary>Whether the desktop host creates the SPC/DSP mixer and Windows device.</summary>
-    public bool AudioEnabled { get; init; } = true;
-
-    /// <summary>Host PCM gain after cartridge mixing, from zero (mute) to 100.</summary>
-    public int MasterVolumePercent { get; init; } = 100;
-
-    /// <summary>Whether recoverable desktop-host errors are filed as GitHub issues.</summary>
-    /// <remarks>
-    /// This development convenience is deliberately disabled by default. When enabled, the
-    /// desktop host prints the complete failure locally, queues a deduplicated issue through
-    /// the authenticated GitHub CLI, and attempts the next emulated frame. It is not part of
-    /// cartridge state and is therefore not serialized into deterministic input recordings.
-    /// </remarks>
-    public bool ReportErrorsToGitHub { get; init; }
-
-    /// <summary>GitHub <c>owner/repository</c> receiving automatic private error reports.</summary>
-    public string GitHubErrorRepository { get; init; } = "MrJackSpade/SuperMetroidDecomp";
 
     /// <summary>
     /// The runtime's share of these options. Attract playback is retail behavior, so it receives

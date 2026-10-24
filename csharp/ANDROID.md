@@ -58,7 +58,7 @@ and a portable debugger-state handoff are not implemented by that pause alone.
 
 ## Display and input
 
-Integer square-pixel scaling is the default. `DisplayViewport.IntegerPixels` uses the
+Integer square-pixel scaling is the default. `AndroidDisplayViewport.IntegerPixels` uses the
 largest whole equal scale fitting the available view, with centered black borders and
 nearest-neighbor filtering. It deliberately does not apply the Windows 4:3 TV correction.
 Diagnostics are overlays and cannot move the canvas when their text changes.

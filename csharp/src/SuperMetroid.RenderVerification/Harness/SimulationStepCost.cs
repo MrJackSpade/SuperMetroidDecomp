@@ -5,6 +5,4 @@ namespace SuperMetroid.RenderVerification.Harness;
 /// <param name="Audio">The audio.</param>
 /// <param name="Total">The total.</param>
 /// <param name="Allocation">The allocation.</param>
-/// <param name="Publication">The publication.</param>
-/// <param name="PublicationAllocation">The publication allocation.</param>
-internal readonly record struct SimulationStepCost(double Capture, double Audio, double Total, long Allocation, double Publication, long PublicationAllocation);
+internal readonly record struct SimulationStepCost(double Capture, double Audio, double Total, long Allocation);

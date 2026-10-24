@@ -1,7 +1,9 @@
-namespace SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
+
+namespace SuperMetroid.Desktop.Input;
 
 /// <summary>Converts a conventional physical gamepad layout into one SNES controller word.</summary>
-public static class GenericGamepadInput
+internal static class GenericGamepadInput
 {
     /// <summary>POV value returned by Windows while a directional hat is centered.</summary>
     public const uint CenteredPointOfView = WindowsGamepadCodes.CenteredPointOfView;
@@ -74,7 +76,7 @@ public static class GenericGamepadInput
         // WinMM button one occupies bit zero. Standard DirectInput pads number the diamond
         // by position (south/east/west/north), but the explicitly supported 0079:0011 SNES
         // adapter reports the printed labels X/A/B/Y. Keeping the two translations here
-        // ensures the core receives the same authentic SNES word from either device; the
+        // ensures the game receives the same SNES word from either device; the
         // cartridge's separate options bindings still decide what those SNES buttons do.
         // The SNES buttons host face buttons 0 to 3 report.
         SnesButton[] faceButtons =

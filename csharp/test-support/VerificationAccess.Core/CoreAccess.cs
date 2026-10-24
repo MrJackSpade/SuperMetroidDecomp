@@ -2,7 +2,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Areas.Ceres;
@@ -171,19 +170,6 @@ internal static class CoreAccess
             oam.LowTable.CopyTo(payload);
             oam.HighTable.CopyTo(payload.AsSpan(OamBuffer.LowTableByteCount));
             return payload;
-        }
-    }
-
-    /// <summary>Resets render publication counters to a baseline for frame-path verification.</summary>
-    extension(RenderPublicationProfile profile)
-    {
-        /// <summary>Validates the profile owner and clears ticks, allocations, and publications.</summary>
-        internal void Reset()
-        {
-            profile.VerifyOwner();
-            profile.Ticks = 0L;
-            profile.AllocatedBytes = 0L;
-            profile.Publications = (int)0L;
         }
     }
 
@@ -448,28 +434,6 @@ internal static class CoreAccess
         ];
     }
 
-    /// <summary>Snapshots mailbox publication counters and pending-frame state under its synchronization lock.</summary>
-    extension(LatestRenderFrameMailbox self)
-    {
-        /// <summary>Reads every private counter under the mailbox's own lock.</summary>
-        internal RenderMailboxCounterView VerificationCounters
-        {
-            get
-            {
-                lock (self.sync)
-                {
-                    return new RenderMailboxCounterView(
-                        self.Generation,
-                        self.Published,
-                        self.Taken,
-                        self.Replaced,
-                        self.Invalidated,
-                        self.Pending is not null);
-                }
-            }
-        }
-    }
-
     /// <summary>Reads the gameplay window cache's last accepted TS subscreen byte.</summary>
     extension(SuperMetroidRuntime self)
     {
@@ -488,14 +452,4 @@ internal static class CoreAccess
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectiblePlms.CollectiblePlmState> Group4CollectibleItems(RoomPlmSystem plms) =>
         Group4ActivePlmSlots(plms).Select(slot => slot.Family).OfType<CollectiblePlms.CollectiblePlmState>();
-
-    /// <summary>Reads the mailbox generation used to reject stale frame publications.</summary>
-    extension(LatestRenderFrameMailbox mailbox)
-    {
-        /// <summary>
-        /// The mailbox's current load/reset generation: publications must carry it, and a
-        /// consumer-held packet is current only while its identity matches it.
-        /// </summary>
-        internal long Generation => mailbox.Generation;
-    }
 }

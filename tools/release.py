@@ -16,7 +16,7 @@ TAG = re.compile(r"v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z]+(?:
 RECEIPT = re.compile(r"\n?<!-- discord-release: (\{[^\n]*\}) -->")
 GUILD_ID = "1547270817312809112"
 DEFAULT_INI_NAME = "SuperMetroid.defaults.ini"
-DEFAULT_INI = Path(__file__).resolve().parents[1] / "csharp/src/SuperMetroid.Core/Frontend" / DEFAULT_INI_NAME
+DEFAULT_INI = Path(__file__).resolve().parents[1] / "csharp/src/SuperMetroid.Diagnostics/Configuration" / DEFAULT_INI_NAME
 
 
 def check_default_ini(contents):

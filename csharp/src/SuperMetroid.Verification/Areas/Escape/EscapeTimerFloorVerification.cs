@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Verification.Areas.Escape;
@@ -10,14 +10,14 @@ internal static class EscapeTimerFloorVerification
     /// <summary>Confirms configuration bounds and that the one-second floor preserves normal countdown state until reached, then prevents expiration.</summary>
     internal static void VerifyEscapeTimerFloor()
     {
-        AssertTrue(SuperMetroidGameOptionsIni.Parse("").EndingTimeOverrideMinutes is null, "ending override defaults off");
-        AssertEqual(0, SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=0").EndingTimeOverrideMinutes, "fastest ending override");
-        AssertEqual(5999, SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=5999").EndingTimeOverrideMinutes, "maximum ending time");
-        AssertTrue(SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=None").EndingTimeOverrideMinutes is null, "ending override can be disabled");
-        AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=6000"), "invalid ending time rejected");
-        AssertTrue(!SuperMetroidGameOptionsIni.Parse("").PreventEscapeTimeout, "escape floor defaults off");
-        AssertTrue(SuperMetroidGameOptionsIni.Parse("[Game]\nPreventEscapeTimeout=true").PreventEscapeTimeout, "escape floor INI enabled");
-        AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nPreventEscapeTimeout=maybe"), "escape floor rejects invalid boolean");
+        AssertTrue(HostOptionsIni.Parse("").Game.EndingTimeOverrideMinutes is null, "ending override defaults off");
+        AssertEqual(0, HostOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=0").Game.EndingTimeOverrideMinutes, "fastest ending override");
+        AssertEqual(5999, HostOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=5999").Game.EndingTimeOverrideMinutes, "maximum ending time");
+        AssertTrue(HostOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=None").Game.EndingTimeOverrideMinutes is null, "ending override can be disabled");
+        AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=6000"), "invalid ending time rejected");
+        AssertTrue(!HostOptionsIni.Parse("").Game.PreventEscapeTimeout, "escape floor defaults off");
+        AssertTrue(HostOptionsIni.Parse("[Game]\nPreventEscapeTimeout=true").Game.PreventEscapeTimeout, "escape floor INI enabled");
+        AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Game]\nPreventEscapeTimeout=maybe"), "escape floor rejects invalid boolean");
 
         foreach (bool ceres in new[] { true, false })
         {

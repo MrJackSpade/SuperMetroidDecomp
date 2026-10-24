@@ -22,7 +22,7 @@ presentation-only consumers do not allocate CPU-readable textures. Solid smoke t
 cover 64 submissions before readback, repeated readback and the uninitialized guard
 on both devices in Debug/Release. The desktop uses Render without normal readback.
 
-The portable `RenderPresentationGate` provides atomic generation-check/presentation
+The renderer's `RenderPresentationGate` provides atomic generation-check/presentation
 ordering relative to load/reset. Its lock is separate from `LatestRenderFrameMailbox`:
 ordinary publication never waits on presentation. Desktop load/reset asynchronously
 awaits a presentation already inside the gate, then rejects that generation before

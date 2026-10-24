@@ -64,7 +64,6 @@ internal sealed class FrontendDisplay
     /// </summary>
     internal DisplayPacket CompleteCapture(RenderFrameIdentity identity)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = Reframe(capturedDisplay, identity, capturedDisplay.Fades);
         return capturedDisplay;
     }
@@ -75,63 +74,54 @@ internal sealed class FrontendDisplay
     /// <summary>Publishes the title scene as a packet during capture or as legacy pixels otherwise.</summary>
     internal void PublishMenu(TitleSequenceState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the file-select menu using its current render snapshot when capturing.</summary>
     internal void PublishMenu(FileSelectMenuState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the game options menu using its current render snapshot when capturing.</summary>
     internal void PublishMenu(GameOptionsMenuState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the paused room and menu composition without advancing the scene.</summary>
     internal void PublishMenu(PauseMenuState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the current game-over menu composition.</summary>
     internal void PublishMenu(GameOverMenuState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the Ceres destruction cinematic's captured scene or software raster.</summary>
     internal void PublishCeresDestruction(CeresDestructionCinematicState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the ending credits presentation owned by the active scene.</summary>
     internal void PublishEnding(EndingCreditsState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), EndingCreditsPresentation.CaptureRenderSnapshot(scene));
     }
 
     /// <summary>Publishes the file-select map after its selection and animation state updates.</summary>
     internal void PublishFileMap(FileSelectMapMenuState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Requires a translated intro packet during capture and otherwise renders the intro raster.</summary>
     internal void PublishIntro(IntroCinematicState scene)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = new(NextIdentity(), scene.CaptureTranslatedRenderSnapshot()
             ?? throw new InvalidOperationException("Intro publication omitted its render snapshot."));
     }
@@ -139,7 +129,6 @@ internal sealed class FrontendDisplay
     /// <summary>Publishes a gameplay update through the session's gameplay-frame policy.</summary>
     internal void PublishGameplay(SuperMetroidRuntime activeRuntime)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         capturedDisplay = gameplayFrames.Publish(activeRuntime, capturedDisplay, NextIdentity);
     }
 
@@ -149,7 +138,6 @@ internal sealed class FrontendDisplay
     /// <summary>Applies one write of the brightness register $51 to the published display.</summary>
     internal void ApplyBrightness(byte brightness)
     {
-        using var publicationTiming = RenderPublicationProfile.Measure();
         DisplayPacket frame = capturedDisplay;
         capturedDisplay = Reframe(frame, frame.Identity, frame.Fades.Add(new FadeLevel(brightness)));
     }

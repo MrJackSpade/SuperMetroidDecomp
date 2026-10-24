@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Configuration;
 
 using static SuperMetroid.DesktopVerification.Harness.DesktopVerificationSupport;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -17,7 +16,7 @@ internal static class RendererStartupTests
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        using var control = DesktopAccess.CreateGameControl(rom, new SuperMetroidGameOptions { Renderer = selection, AudioEnabled = false });
+        using var control = DesktopAccess.CreateGameControl(rom, new HostOptions { Renderer = selection, AudioEnabled = false });
         _ = control.Handle;
         control.SetPlaying(false);
         var game = control.game;

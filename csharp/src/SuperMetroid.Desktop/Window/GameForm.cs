@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.Recording;
 using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Diagnostics.Configuration;
 
 namespace SuperMetroid.Desktop.Window;
 
@@ -18,10 +18,10 @@ internal sealed class GameForm : Form
     /// <summary>The normal ROM-independent host path after asset installation.</summary>
     public GameForm(
         GameInstallation installation,
-        SuperMetroidGameOptions gameOptions,
+        HostOptions hostOptions,
         ControllerInputRecording? replay = null,
         GitHubErrorReporter? errorReporter = null)
-        : this(new PlayableGameControl(installation, gameOptions, replay, errorReporter))
+        : this(new PlayableGameControl(installation, hostOptions, replay, errorReporter))
     {
     }
 

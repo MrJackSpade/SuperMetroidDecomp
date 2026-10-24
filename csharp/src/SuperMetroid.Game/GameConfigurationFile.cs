@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 using System.Text;
 
 namespace SuperMetroid.Game;
@@ -6,7 +6,7 @@ namespace SuperMetroid.Game;
 /// <summary>Loads player settings from the installation data root (or legacy ROM directory).</summary>
 internal sealed record GameConfigurationFile(
     string Path,
-    SuperMetroidGameOptions Options,
+    HostOptions Options,
     string Source)
 {
     /// <summary>Player settings filename used for both installed data and executable-local overrides.</summary>
@@ -39,8 +39,8 @@ internal sealed record GameConfigurationFile(
             string templatePath = System.IO.Path.Combine(defaultsDirectory ?? AppContext.BaseDirectory,
                 DefaultsFileName);
             string initialContents = File.Exists(templatePath)
-                ? File.ReadAllText(templatePath) : SuperMetroidGameOptionsIni.DefaultFileContents;
-            _ = SuperMetroidGameOptionsIni.Parse(initialContents, templatePath);
+                ? File.ReadAllText(templatePath) : HostOptionsIni.DefaultFileContents;
+            _ = HostOptionsIni.Parse(initialContents, templatePath);
             // UTF-8 without a byte-order mark remains readable in ordinary text editors and
             // avoids putting an invisible character in front of the first INI comment.
             // CreateNew also prevents a concurrent launch from overwriting a new user file.
@@ -50,8 +50,7 @@ internal sealed record GameConfigurationFile(
         }
 
         string contents = File.ReadAllText(configurationPath);
-        SuperMetroidGameOptions options =
-            SuperMetroidGameOptionsIni.Parse(contents, configurationPath);
+        HostOptions options = HostOptionsIni.Parse(contents, configurationPath);
         return new GameConfigurationFile(configurationPath, options,
             localOverride ? "executable-directory override" : source);
     }

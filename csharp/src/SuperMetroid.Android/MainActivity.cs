@@ -9,6 +9,7 @@ using Android.Media;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.SaveStates;
 using AndroidX.Activity;
 using AndroidX.Activity.Result;
@@ -559,7 +560,7 @@ public sealed class MainActivity : ComponentActivity
         try
         {
             string path = Path.Combine(PrivateFilesPath, "SuperMetroid.ini");
-            var saved = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(path), path);
+            var saved = HostOptionsIni.Parse(File.ReadAllText(path), path);
             var definitions = AndroidSettingDefinitions.All;
             var dialog4 = new AlertDialog.Builder(this);
             dialog4.SetTitle("Settings — apply on next app launch");
@@ -577,7 +578,7 @@ public sealed class MainActivity : ComponentActivity
                                 {
                                     // Re-read just before editing. Preserve all unrelated settings;
                                     // validate before replacing the durable file atomically.
-                                    string updated = SuperMetroidGameOptionsIni.WithValue(File.ReadAllText(path),
+                                    string updated = HostOptionsIni.WithValue(File.ReadAllText(path),
                                         definition.Section, definition.Key, definition.Values[choice.Which]);
                                     File.WriteAllText(path + ".tmp", updated);
                                     File.Move(path + ".tmp", path, overwrite: true);

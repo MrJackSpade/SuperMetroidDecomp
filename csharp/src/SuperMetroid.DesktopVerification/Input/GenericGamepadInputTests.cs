@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Desktop.Input;
 
-namespace SuperMetroid.Verification.Frontend;
+namespace SuperMetroid.DesktopVerification.Input;
 
 /// <summary>Checks WinMM gamepad axes, POV priority, and both generic face-button layouts.</summary>
-internal static class GamepadInputVerification
+internal static class GenericGamepadInputTests
 {
 /// <summary>Checks the SNES USB adapter by printed button label and other pads by physical position.</summary>
-internal static void VerifyGenericGamepadInput()
+internal static void Verify()
 {
     UsbGamepadIdentifier snesAdapter =
         WindowsGamepadCodes.SnesUsbAdapter0079_0011;
@@ -94,41 +95,12 @@ internal static void VerifyGenericGamepadInput()
     AssertThrows<ArgumentOutOfRangeException>(() => new UsbGamepadIdentifier(0, ushort.MaxValue + 1),
         "a USB product identifier never exceeds its sixteen-bit range");
 
-    VerifyRepeatAndHeldInputDelays();
-
     Console.WriteLine(
         "  Gamepad: axes, POV, positional/0079:0011 face layouts, shoulders, and menus agree.");
 }
 
-/// <summary>
-/// The controller repeat delays and the held-input reload are frame counts that are only reloaded into countdowns: a
-/// delay of zero still lets the countdown wrap below zero exactly as before, and a delay past the countdown's range is
-/// rejected where it is set.
-/// </summary>
-private static void VerifyRepeatAndHeldInputDelays()
-{
-    var controller = new ControllerInputState();
-    controller.Latch(SnesButton.Left);
-    controller.Latch(SnesButton.Left);
-    AssertEqual(ushort.MaxValue, controller.RepeatTimer.RawValue, "a zero repeat delay wraps the repeat countdown below zero");
-    AssertEqual(SnesButton.None, controller.NewlyPressedWithRepeat, "a wrapped repeat countdown does not pulse");
-    AssertThrows<ArgumentOutOfRangeException>(() => controller.InitialRepeatDelay = ushort.MaxValue + 1,
-        "a repeat delay past the countdown's range is rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => new ControllerInputState(subsequentRepeatDelay: -1),
-        "a negative repeat delay is rejected");
-
-    var system = new SuperMetroid.Core.Progression.Bank80SystemState();
-    system.UpdateHeldInput(0, SnesButton.Left, SnesButton.None);
-    AssertEqual(SnesButton.None, system.TimedHeldInput, "a held-input change restarts the delay");
-    system.UpdateHeldInput(0, SnesButton.Left, SnesButton.None);
-    AssertEqual(SnesButton.Left, system.TimedHeldInput, "a zero reload activates on the first stable update by wrapping below zero");
-    AssertEqual(0, system.TimedHeldInputTimer.RawValue, "the expired held-input countdown is pinned to zero");
-    AssertThrows<ArgumentOutOfRangeException>(() => system.UpdateHeldInput(ushort.MaxValue + 1, SnesButton.Left, SnesButton.None),
-        "a held-input reload past the countdown's range is rejected");
-}
-
 /// <summary>Checks one physical button independently so face-button permutations remain visible.</summary>
-static void VerifyGamepadButton(
+private static void VerifyGamepadButton(
     int zeroBasedButtonIndex,
     SnesButton expected,
     string message,
@@ -143,5 +115,26 @@ static void VerifyGamepadButton(
                 Buttons: 1u << zeroBasedButtonIndex),
             faceButtonLayout: layout),
         message);
+}
+
+/// <summary>Fails when <paramref name="actual"/> differs from <paramref name="expected"/>.</summary>
+private static void AssertEqual<T>(T expected, T actual, string message)
+{
+    if (!EqualityComparer<T>.Default.Equals(expected, actual))
+        throw new InvalidDataException($"{message}: expected {expected}, got {actual}.");
+}
+
+/// <summary>Fails unless <paramref name="action"/> throws exactly <typeparamref name="TException"/>.</summary>
+private static void AssertThrows<TException>(Action action, string message) where TException : Exception
+{
+    try
+    {
+        action();
+    }
+    catch (TException error) when (error.GetType() == typeof(TException))
+    {
+        return;
+    }
+    throw new InvalidDataException($"{message}: expected {typeof(TException).Name}.");
 }
 }

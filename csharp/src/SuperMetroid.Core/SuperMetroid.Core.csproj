@@ -2,8 +2,5 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Frontend/SuperMetroid.defaults.ini" LogicalName="SuperMetroid.defaults.ini" />
-  </ItemGroup>
   <Import Project="../../tools/RuntimeCartridgeBoundary.targets" />
 </Project>

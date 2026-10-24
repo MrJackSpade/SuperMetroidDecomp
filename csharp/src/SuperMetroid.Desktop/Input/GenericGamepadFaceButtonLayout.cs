@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Input;
+namespace SuperMetroid.Desktop.Input;
 
 /// <summary>
 /// Identifies how a host driver numbers the four physical face buttons before they are
@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Input;
 /// bindings afterward. Some generic SNES USB adapters enumerate buttons by their printed
 /// labels instead of by the conventional DirectInput diamond positions.
 /// </remarks>
-public enum GenericGamepadFaceButtonLayout
+internal enum GenericGamepadFaceButtonLayout
 {
     /// <summary>WinMM buttons 1-4 are south, east, west, north: SNES B, A, Y, X.</summary>
     Positional,

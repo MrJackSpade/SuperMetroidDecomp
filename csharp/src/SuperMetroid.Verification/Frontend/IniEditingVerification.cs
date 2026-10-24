@@ -1,5 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Diagnostics.Configuration;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 
@@ -10,23 +10,23 @@ internal static class IniEditingVerification
     internal static void VerifyIniEditing()
     {
         string original = "; preserved comment\r\n[Audio]\r\nMasterVolumePercent=37\r\n[Game]\r\nInvincibility=false\r\n";
-        string edited = SuperMetroidGameOptionsIni.WithValue(original, "Game", "Invincibility", "true");
-        AssertTrue(SuperMetroidGameOptionsIni.Parse(edited).Invincibility, "edited boolean is effective after parsing");
+        string edited = HostOptionsIni.WithValue(original, "Game", "Invincibility", "true");
+        AssertTrue(HostOptionsIni.Parse(edited).Game.Invincibility, "edited boolean is effective after parsing");
         AssertEqual(original.Replace("Invincibility=false", "Invincibility=true"), edited, "unrelated lines and CRLF preserved exactly");
-        edited = SuperMetroidGameOptionsIni.WithValue(edited, "game", "InfiniteAmmo", "true");
-        AssertTrue(SuperMetroidGameOptionsIni.Parse(edited).InfiniteAmmo, "missing key inserted into case-insensitive section");
-        AssertEqual(37, SuperMetroidGameOptionsIni.Parse(edited).MasterVolumePercent, "unrelated audio setting retained");
-        string added = SuperMetroidGameOptionsIni.WithValue("", "Game", "MapReveal", "Secret");
-        AssertEqual("Secret", SuperMetroidGameOptionsIni.Parse(added).MapReveal.ToString(), "missing section added");
-        AssertThrows<System.IO.InvalidDataException>(() => SuperMetroidGameOptionsIni.WithValue(original, "Audio", "MasterVolumePercent", "101"), "invalid value rejected before write");
-        AssertThrows<ArgumentException>(() => SuperMetroidGameOptionsIni.WithValue(original, "Game", "Invincibility", "true\nInfiniteAmmo=true"), "multiline injection rejected");
+        edited = HostOptionsIni.WithValue(edited, "game", "InfiniteAmmo", "true");
+        AssertTrue(HostOptionsIni.Parse(edited).Game.InfiniteAmmo, "missing key inserted into case-insensitive section");
+        AssertEqual(37, HostOptionsIni.Parse(edited).MasterVolumePercent, "unrelated audio setting retained");
+        string added = HostOptionsIni.WithValue("", "Game", "MapReveal", "Secret");
+        AssertEqual("Secret", HostOptionsIni.Parse(added).Game.MapReveal.ToString(), "missing section added");
+        AssertThrows<System.IO.InvalidDataException>(() => HostOptionsIni.WithValue(original, "Audio", "MasterVolumePercent", "101"), "invalid value rejected before write");
+        AssertThrows<ArgumentException>(() => HostOptionsIni.WithValue(original, "Game", "Invincibility", "true\nInfiniteAmmo=true"), "multiline injection rejected");
         foreach (var definition in SuperMetroid.Diagnostics.Android.AndroidSettingDefinitions.All)
         {
             foreach (string value in definition.Values)
             {
-                string changed = SuperMetroidGameOptionsIni.WithValue(original,
+                string changed = HostOptionsIni.WithValue(original,
                     definition.Section, definition.Key, value);
-                var parsed = SuperMetroidGameOptionsIni.Parse(changed);
+                var parsed = HostOptionsIni.Parse(changed);
                 AssertEqual(value, definition.Read(parsed), $"Android menu {definition.Key}={value} round trip");
                 AssertTrue(changed.Contains("; preserved comment\r\n"), "Android menu retains comments");
                 if (definition.Key != "MasterVolumePercent")

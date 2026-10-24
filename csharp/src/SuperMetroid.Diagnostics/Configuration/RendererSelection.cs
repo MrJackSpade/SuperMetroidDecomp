@@ -1,6 +1,6 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Diagnostics.Configuration;
 
-/// <summary>Exclusive host backend request, never part of cartridge PPU state.</summary>
+/// <summary>The desktop host's backend request from its options file; the game never sees it.</summary>
 public enum RendererSelection
 {
     /// <summary>Use the portable software renderer explicitly.</summary>

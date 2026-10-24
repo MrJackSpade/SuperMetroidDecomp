@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -29,15 +30,15 @@ internal static class DoorTransitionAutosaveVerification
     /// <summary>Drives retail Ceres and Landing Site door transitions and checks save timing, atomic replacement, replay exclusion, and restored state.</summary>
     internal static void VerifyDoorTransitionAutosave()
     {
-        AssertTrue(new SuperMetroidGameOptions().DoorTransitionAutosave, "new sessions enable door recovery");
-        AssertTrue(SuperMetroidGameOptionsIni.Parse("[Game]\nInfiniteAmmo=false").DoorTransitionAutosave,
+        AssertTrue(new HostOptions().DoorTransitionAutosave, "new sessions enable door recovery");
+        AssertTrue(HostOptionsIni.Parse("[Game]\nInfiniteAmmo=false").DoorTransitionAutosave,
             "existing INIs without the key enable recovery");
-        AssertTrue(SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents).DoorTransitionAutosave,
+        AssertTrue(HostOptionsIni.Parse(HostOptionsIni.DefaultFileContents).DoorTransitionAutosave,
             "shipped default enables recovery");
-        AssertTrue(!SuperMetroidGameOptionsIni.Parse("[Game]\nDoorTransitionAutosave=false").DoorTransitionAutosave,
+        AssertTrue(!HostOptionsIni.Parse("[Game]\nDoorTransitionAutosave=false").DoorTransitionAutosave,
             "explicit disable is honored");
-        AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nDoorTransitionAutosave=maybe"), "invalid autosave value");
-        AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nDoorTransitionAutosave=true\nDoorTransitionAutosave=false"), "duplicate autosave key");
+        AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Game]\nDoorTransitionAutosave=maybe"), "invalid autosave value");
+        AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Game]\nDoorTransitionAutosave=true\nDoorTransitionAutosave=false"), "duplicate autosave key");
 
         string parent = Path.GetFullPath("csharp/test-temp");
         Directory.CreateDirectory(parent);

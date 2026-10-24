@@ -326,7 +326,7 @@ task completion order must not become gameplay order.
 
 Treat callback selection and host cadence as decisions to establish for the
 target build. The inspected desktop runs at 60 frames per second with a four-frame
-catch-up cap, while `HostFrameTimingDefinitions` specifies a two-frame cap. Godot
+catch-up cap, while the dormant Android host's `AndroidFrameTimingDefinitions` specifies a two-frame cap. Godot
 also has its own physics rate, maximum steps per rendered frame, and timing
 adjustment settings. Record the chosen baseline, catch-up behavior, long-stall
 policy, pause/resume behavior, and audio relationship. Do not combine migration

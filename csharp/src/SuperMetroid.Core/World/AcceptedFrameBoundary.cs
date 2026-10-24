@@ -64,8 +64,6 @@ internal sealed class AcceptedFrameBoundary
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
     private readonly XrayReveal _xray;
-    /// <summary>Executes the queued video transfers, whose address-sourced entries read live memory.</summary>
-    private readonly Action _drainQueuedVramWrites;
 
     /// <summary>Connects controller, PPU, sprite, video-queue, and frame-clock owners to the NMI boundary.</summary>
     internal AcceptedFrameBoundary(AcceptedFrameBoundaryDependencies dependencies)
@@ -85,7 +83,6 @@ internal sealed class AcceptedFrameBoundary
         _hud = dependencies.Hud;
         _suitPickup = dependencies.SuitPickup;
         _xray = dependencies.Xray;
-        _drainQueuedVramWrites = dependencies.DrainQueuedVramWrites;
     }
 
     /// <summary>
@@ -159,12 +156,10 @@ internal sealed class AcceptedFrameBoundary
             CaptureRoomBackgrounds(),
             _room.Scope is null ? null : CaptureLayer3Plane());
         _artwork.PublishReboundHudArtwork(_backgrounds);
-        _drainQueuedVramWrites();
-        // The planes' blocks show what this NMI's uploads bound, as the characters they read did (#1392).
+        // The planes' blocks show what this NMI's pictures bound, as the characters they read did (#1392).
         if (_display.Latched.Rooms is { } rooms)
             _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
-        // A rebound snapshot may retain old CGRAM and legacy queued transfers.
-        // Apply current content only at this accepted NMI, after those writes.
+        // A rebound snapshot may retain old CGRAM; apply current content only at this accepted NMI.
         _artwork.PublishReboundBeamPalette();
     }
 

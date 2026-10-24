@@ -33,8 +33,6 @@ internal sealed class EnemyFramePhase
     private readonly SamusFrameState _player;
     /// <summary>Provides active room geometry and camera and receives enemy camera requests.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Collects VRAM writes produced during the enemy pass.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
 
     /// <summary>Binds gameplay owners that exchange state at the native EnemyMain frame boundary.</summary>
@@ -49,7 +47,6 @@ internal sealed class EnemyFramePhase
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _vramWrites = dependencies.VramWrites;
 
     }
     /// <summary>Publishes prior-frame elevator contact and clears Samus's external displacement before enemies add platform motion.</summary>
@@ -87,7 +84,7 @@ internal sealed class EnemyFramePhase
     {
         if (_room.Camera is not null && room.Enemies.IsLoaded)
         {
-            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = room.BombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms.BreakableTerrain, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = room.BombProjectiles, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms.BreakableTerrain, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.Layer3Fx, room.PaletteFx, room.Enemies);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {

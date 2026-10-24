@@ -23,8 +23,7 @@ namespace SuperMetroid.Core.World;
 /// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation)
 /// and the VRAM asset and installed-artwork transfer source the runtime's VRAM queue resolves through.
 /// </summary>
-internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver,
-    IInstalledObjCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
+internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledObjCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
 {
     /// <summary>Resolves an OBJ binding's installed VRAM asset.</summary>
     ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveVramAsset(asset);
@@ -49,9 +48,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     RoomFxAnimatedTileAtlas IInstalledObjCharacterArtwork.AnimatedTiles =>
         MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("No map presentation is installed.");
 
-    /// <summary>Resolves a legacy native-source DMA record from currently installed artwork.</summary>
-    bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
-        TryResolveInstalledArtwork(sourceAddress, byteCount, out data);
 
     /// <summary>Resolves a typed VRAM asset from its currently bound artwork catalog.</summary>
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) => ResolveVramAsset(asset);
@@ -76,8 +72,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     private readonly SamusFrameState _player;
     /// <summary>Receives animated tile, layer-three map, and blend-color catalogs for every room's FX.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>Pending DMA records rebound from native source addresses to installed assets.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
     /// <summary>
     /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
@@ -105,7 +99,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _messageBox = dependencies.MessageBox;
         _player = dependencies.Player;
         _roomFx = dependencies.RoomFx;
-        _vramWrites = dependencies.VramWrites;
     }
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     [field: NonSerialized]
@@ -136,33 +129,9 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
             _bossArtwork.CeresRidleyFloorColors = value?.CeresRidleyFloorColors;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
-            // A HUD whose upload is still queued shows nothing yet; that upload resolves to the new artwork itself.
-            pendingHudTiles = value is not null && _hud.IsInitialized && !_vramWrites.Queues(VramAssetId.StandardHudTiles)
-                ? value.HudTiles : null;
-            if (value is not null)
-                RebindLegacyArtworkTransfers();
+            // An initialized HUD shows the new characters again at the next accepted NMI.
+            pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
         }
-    }
-
-    /// <summary>
-    /// Points pending transfers a restored legacy queue still sources from the cartridge bus at the
-    /// installed Kraid BG3 and escape-timer artwork, matched by their native source and size.
-    /// </summary>
-    [SuperMetroid.Core.Hardware.PpuLayoutBoundary("codec: legacy queued VRAM DMA records rebound from native bus sources to installed artwork")]
-    private void RebindLegacyArtworkTransfers()
-    {
-        for (int quarter = 0; quarter < SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3QuarterCount;
-             quarter++)
-            _vramWrites.RebindBusSource(
-                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3QuarterAddress(quarter),
-                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3QuarterBytes,
-                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
-        _vramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,
-            EscapeTimerTileAtlasFormat.FirstByteCount,
-            SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles);
-        _vramWrites.RebindBusSource(EscapeTimerTileRomData.SecondSourceAddress,
-            EscapeTimerTileAtlasFormat.SecondByteCount,
-            SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerSecondTiles);
     }
 
     /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
@@ -282,11 +251,11 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     [field: NonSerialized]
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
 
-    /// <summary>Current Grapple artwork and visual definitions. Rebinding legacy pending transfers preserves their NMI order and destination.</summary>
+    /// <summary>Current Grapple artwork and visual definitions.</summary>
     [field: NonSerialized]     public GrappleTileAtlas? GrappleArtwork
     {
         get;
-        set { field = value; value?.RebindPendingWrites(_vramWrites); BindGrapplePresentation(); }
+        set { field = value; BindGrapplePresentation(); }
     }
     /// <summary>Rebinds current Grapple flare and swing visuals to an active Samus actor.</summary>
     internal void BindGrapplePresentation()

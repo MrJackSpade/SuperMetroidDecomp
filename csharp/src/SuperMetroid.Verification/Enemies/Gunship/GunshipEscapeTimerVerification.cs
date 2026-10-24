@@ -47,9 +47,10 @@ internal static class GunshipEscapeTimerVerification
         samus.Presentation.PrimeGraphics(samus);
         runtime.EscapeTimer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
         runtime.EscapeTimer.SetTime(PackedBcd.FromDecimal(2), PackedBcd.FromDecimal(59), PackedBcd.FromDecimal(50));
-        runtime.QueueEscapeTimerSpriteTiles();
+        runtime.ShowEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
-        var timerTilesBefore = runtime.Vram.Bytes.Slice(0xfc00, 0x400).ToArray();
+        var timerTilesBefore = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.ObjCharacters, runtime.Artwork)
+            .Characters.Slice(0x3c00, 0x400).ToArray();
         AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.Gunship, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;

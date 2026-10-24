@@ -22,8 +22,6 @@ internal sealed class RoomMainRoutines
     private readonly ActiveRoomState _room;
     /// <summary>Boss bits and RNG word sampled by room-main callbacks.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Queued tile transfers consumed at the next accepted NMI.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
     /// <summary>Binds the room, enemy, tile, and memory owners used by room-main callbacks.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
@@ -32,7 +30,6 @@ internal sealed class RoomMainRoutines
         _player = dependencies.Player;
         _room = dependencies.Room;
         _system = dependencies.System;
-        _vramWrites = dependencies.VramWrites;
     }
     /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking at $8F:E8CD/$E942.</summary>
     internal void RunCrocomireComebackRoomMain(RoomScope room)

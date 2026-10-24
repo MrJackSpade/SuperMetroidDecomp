@@ -45,9 +45,6 @@ public sealed record RoomEnemyFrame
     /// <summary>Shared bomb and power-bomb state used by native collision order and actor effects.</summary>
     public SamusBombProjectileSystem? SharedProjectiles { get; init; } = null;
 
-    /// <summary>Optional destination for corpse-row graphics transfers produced during this pass.</summary>
-    public VramWriteQueue? VramWriteQueue { get; init; } = null;
-
     /// <summary>Whether to perform the configured projectile, bomb, and player-contact pass against each actor's pre-AI state.</summary>
     public bool ResolveSamusContactBeforeAi { get; init; } = false;
 

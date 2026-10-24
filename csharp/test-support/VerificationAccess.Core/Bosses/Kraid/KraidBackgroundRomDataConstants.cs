@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -16,4 +17,9 @@ internal static class KraidBackgroundRomDataConstants
         /// <inheritdoc cref="KraidBackgroundRomDataConstants.PreservedLowerTailFirstWord"/>
         internal static int PreservedLowerTailFirstWord => KraidBackgroundRomDataConstants.PreservedLowerTailFirstWord;
     }
+    /// <summary>
+    /// <c>Tiles_Standard_BG3</c> at <c>$9A:B200</c>, restored by Kraid death functions
+    /// <c>$A7:C777-$C7EF</c> after the private BG2 map has overwritten VRAM word $4000.
+    /// </summary>
+    public const int StandardBg3TilesAddress = 0x9ab200;
 }

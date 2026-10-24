@@ -170,7 +170,7 @@ internal static class EnemyTileArtworkKraidVerification
         MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(mapDirectory, null);
         byte[] native = RomDataReader.ReadFixedBank(rom,
-            KraidBackgroundRomData.StandardBg3TilesAddress,
+            KraidBackgroundRomDataConstants.StandardBg3TilesAddress,
             HudTileAtlasFormat.CharacterByteCount);
         AssertTrue(stock.HudTiles.Bytes.Span[..native.Length].SequenceEqual(native),
             "shared installed HUD PNG preserves all Kraid BG3 restoration source bytes");
@@ -202,25 +202,6 @@ internal static class EnemyTileArtworkKraidVerification
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }
-        var restored = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
-             quarter++)
-            restored.VramWrites.Enqueue(
-                KraidBackgroundRomData.StandardBg3QuarterBytes,
-                KraidBackgroundRomData.StandardBg3TilesAddress +
-                    quarter * KraidBackgroundRomData.StandardBg3QuarterBytes,
-                checked(VramDmaDestination.FromNative((ushort)(KraidBackgroundRomData.StandardBg3VramWord +
-                    quarter * (KraidBackgroundRomData.StandardBg3QuarterBytes / 2)))));
-        restored.Artwork.MapPresentation = stock;
-        for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3QuarterCount;
-             quarter++)
-            AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
-                restored.VramWrites.Entries[quarter].AssetId,
-                $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
-        restored.VramWrites.DrainTo(restored.Vram, restored.Artwork, null, BgArtworkFixtures.For(restored.Vram));
-        AssertTrue(restored.Vram.ImageEquals(baselineQueued),
-            "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
-
         string overrides = Path.Combine(directory, "kraid-bg3-map-overrides");
         Directory.CreateDirectory(overrides);
         string stockPng = Path.Combine(mapDirectory, HudTileAtlasFormat.FileName);

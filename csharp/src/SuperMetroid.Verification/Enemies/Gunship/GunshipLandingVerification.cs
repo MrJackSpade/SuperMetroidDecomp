@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
@@ -162,8 +163,7 @@ internal static class GunshipLandingVerification
         // Re-entering after Mother Brain's event takes the native function-17 branch at
         // RestoreSamusInGunship: there is no refill wait, save prompt, or ordinary exit.
         zebesTimebombSet = true;
-        var takeoffWrites = new VramWriteQueue();
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = SnesButton.Down, VramWriteQueue = takeoffWrites });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = SnesButton.Down });
         AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastEnemyFrame.Gunship,
             "endgame Down input begins ordinary gunship entry");
         AssertEqual(1, enemies.Audio.SoundRequests.Count(request => request == openingSound),
@@ -186,7 +186,7 @@ internal static class GunshipLandingVerification
             ushort takeoffCameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, takeoffCameraY), TimeIsFrozen = false, Samus = samus, VramWriteQueue = takeoffWrites });
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, takeoffCameraY), TimeIsFrozen = false, Samus = samus });
             observedTakeoffStart |=
                 enemies.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffStarted;
             maximumLiftoffDustActors = Math.Max(
@@ -201,8 +201,9 @@ internal static class GunshipLandingVerification
             "event $0E bypasses restoration and publishes takeoff start");
         AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, enemies.LastEnemyFrame.Gunship,
             "accelerating gunship publishes frontend state-$26 boundary");
-        AssertEqual(5, takeoffWrites.Entries.Count,
-            "takeoff queues all five cartridge dust-cloud tile chunks");
+        AssertEqual(GunshipLiftoffTransferDefinitions.Uploads.Count, GunshipLiftoffTransferDefinitions.Uploads.Count(page =>
+                enemies.Room.Session.ObjCharacters.Uploads.Any(shown => shown.Source == page.Source && shown.FirstByte == page.FirstByte)),
+            "takeoff shows all five cartridge dust-cloud pages");
         AssertEqual(6, maximumLiftoffDustActors,
             "takeoff frame 64 spawns all six room-graphics dust actors");
         AssertTrue(top.Position.Y.Whole < 0x0100,

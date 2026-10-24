@@ -26,8 +26,8 @@ try {
         throw 'The ROM does not match the pinned Japan/USA NTSC v1.0 cartridge.'
     }
 
-    $programFile = [IO.File]::ReadAllText([IO.Path]::Combine($workspace, 'csharp', 'src',
-        'SuperMetroid.Tooling', 'AssetExtraction', 'Rooms', 'LibraryBackgroundSourceDefinitions.cs'))
+    $programFile = [IO.File]::ReadAllText([IO.Path]::Combine($workspace, 'csharp', 'test-support',
+        'VerificationAccess.Core', 'AssetExtraction', 'Rooms', 'LibraryBackgroundSourceDefinitions.cs'))
     $programNames = @{}
     foreach ($match in [regex]::Matches($programFile, '\[0x([0-9a-f]{4})\] = LibraryBackgroundProgramDefinitions\.(\w+),')) {
         $programNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value

@@ -46,7 +46,5 @@ internal sealed record EnemyFramePhaseDependencies
     public required ActiveRoomState Room { get; init; }
 
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 
 }

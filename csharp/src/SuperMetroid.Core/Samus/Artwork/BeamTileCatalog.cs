@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Immutable beam sheets resolved at NMI; pending state stores identities, never PNG bytes.</summary>
-public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTransferSource
+public sealed class BeamTileCatalog : IVramAssetProvider
 {
     /// <summary>Selected 256-byte beam atlases, with native aliases sharing matching tile pixels.</summary>
     internal readonly BeamTileAtlas[] sheets;

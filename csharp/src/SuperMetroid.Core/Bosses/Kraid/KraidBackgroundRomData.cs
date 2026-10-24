@@ -35,12 +35,6 @@ public static class KraidBackgroundRomData
     /// <summary>Number of animated head words copied by <c>$A7:AF3D</c>.</summary>
     public const int HeadTilemapWords = 0x0160;
 
-    /// <summary>
-    /// <c>Tiles_Standard_BG3</c> at <c>$9A:B200</c>, restored by Kraid death functions
-    /// <c>$A7:C777-$C7EF</c> after the private BG2 map has overwritten VRAM word $4000.
-    /// </summary>
-    public const int StandardBg3TilesAddress = 0x9ab200;
-
     /// <summary>The bytes of one of the four standard-BG3 character quarters Kraid's death restores.</summary>
     public const ushort StandardBg3QuarterBytes = HudTileAtlasFormat.RestoreQuarterBytes;
 
@@ -49,9 +43,6 @@ public static class KraidBackgroundRomData
 
     /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
     public const int StandardBg3QuarterCount = HudTileAtlasFormat.RestoreQuarterCount;
-
-    /// <summary>The cartridge source of standard-BG3 quarter <paramref name="quarter"/>.</summary>
-    public static int StandardBg3QuarterAddress(int quarter) => StandardBg3TilesAddress + quarter * StandardBg3QuarterBytes;
 
     /// <summary>The installed art of each of the four cartridge-authored restoration phases, indexed by quarter.</summary>
     private static readonly VramAssetId[] StandardBg3QuarterAssets =

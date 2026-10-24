@@ -64,7 +64,7 @@ internal static class DmaArtworkBoundaryVerification
             {
                 restore(body, state, quarter, KraidAiFunction.DeathFadeInBackground);
                 ImportedVramOracle.ExecuteQueued(expected, reference,
-                    KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3QuarterBytes,
+                    KraidBackgroundRomDataConstants.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3QuarterBytes,
                     KraidBackgroundRomData.StandardBg3QuarterBytes,
                     (ushort)(KraidBackgroundRomData.StandardBg3VramWord + quarter * KraidBackgroundRomData.StandardBg3QuarterBytes / 2));
                 AssertTrue(BgArtworkFixtures.ComposedVram(actual).ImageEquals(expected),

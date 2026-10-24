@@ -3,7 +3,6 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 using SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 using SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
-using SuperMetroid.ResourceAudit.VramDma;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -33,7 +32,7 @@ internal static class ClosedPresentationContractDefinitions
         .. BackgroundTransferClosedContractDefinitions.All,
         .. RoomArtworkClosedContractDefinitions.All,
         .. AreaMapClosedContractDefinitions.All,
-        .. VramDmaPresentationContractDefinitions.All,
+        .. NativeArtworkAliasContractDefinitions.All,
         .. RoomRevealClosedContractDefinitions.All,
         .. LibraryBackgroundClosedContractDefinitions.All,
         .. RoomLayoutClosedContractDefinitions.All,

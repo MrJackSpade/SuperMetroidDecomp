@@ -123,8 +123,6 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
     internal RuntimeArtwork Artwork { get; }
 
-    /// <summary>Executes the queued video transfers from the installed artwork.</summary>
-    private void DrainQueuedVramWrites() => VramWrites.DrainTo(Vram, Artwork, EnemySession.ObjCharacters, BgArtwork);
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
@@ -152,16 +150,16 @@ internal sealed class SuperMetroidRuntime
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
         Tester = new TesterTools(Cgram, Player, System);
-        TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Cgram, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze, VramWrites = VramWrites };
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player, VramWrites = VramWrites });
+        TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Cgram, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Backgrounds = BgArtwork, Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         GameplayWindows = new GameplayWindowRegisters(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
-        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         HdmaPhase = new HdmaObjectPhase(Freeze, System);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
@@ -171,7 +169,7 @@ internal sealed class SuperMetroidRuntime
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Cgram = Cgram, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
-        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System, VramWrites = VramWrites});
+        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Cgram = Cgram, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System });
 
         Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
@@ -313,8 +311,6 @@ internal sealed class SuperMetroidRuntime
         set => EnemySession.JapaneseText = value;
     }
 
-    /// <summary>Ordinary seven-byte-record VRAM write table.</summary>
-    public VramWriteQueue VramWrites { get; } = new();
 
     /// <summary>PPU video RAM receiving accepted-NMI transfers.</summary>
     public SnesVram Vram { get; } = new();

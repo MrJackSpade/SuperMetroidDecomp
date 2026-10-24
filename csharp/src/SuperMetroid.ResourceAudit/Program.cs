@@ -6,7 +6,6 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 using SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.ResourceAudit.VramDma;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -66,16 +65,6 @@ internal static class Program
                 Console.WriteLine("Extended display admission, generated-source guards and selector projection contracts passed.");
                 return 0;
             }
-            if (args is ["--vram-dma-self-check"])
-            {
-                VramDmaContractChecks.Run();
-                return 0;
-            }
-            if (args is ["--vram-dma-artwork-check", string mapDirectory])
-            {
-                VramDmaArtworkChecks.Run(mapDirectory);
-                return 0;
-            }
             if (args is ["--work-robot-resource-check"])
             {
                 WorkRobotResourceChecks.Run();
@@ -118,26 +107,22 @@ internal static class Program
             }
             string root = Directory.GetCurrentDirectory();
             string? jsonPath = null;
-            bool vramDma = false;
             for (int index = 0; index < args.Length; index++)
             {
                 switch (args[index])
                 {
                     case "--root" when index + 1 < args.Length: root = args[++index]; break;
                     case "--json" when index + 1 < args.Length: jsonPath = args[++index]; break;
-                    case "--vram-dma-audit": vramDma = true; break;
                     default: throw new ArgumentException("Usage: --root REPOSITORY [--json REPORT] | " +
                         "--self-check | --enemy-visual-program-audit REPOSITORY REPORT_JSON | --enemy-visual-audit-self-check | " +
                         "--bg2-catalog-contract-check | --extended-display-contract-check | " +
                         "--work-robot-resource-check | --mama-turtle-resource-check | --zero-resource-check | " +
                         "--friendly-animal-resource-check FAMILY | --ordinary-enemy-resource-check FAMILY | " +
                         "--crocomire-skeleton-resource-check | --kraid-part-resource-check Foot|Lint | " +
-                        "--nuclear-waffle-resource-check | " +
-                        "--vram-dma-audit [--root REPOSITORY] [--json REPORT] | --vram-dma-self-check | --vram-dma-artwork-check MAP_DIRECTORY");
+                        "--nuclear-waffle-resource-check");
                 }
             }
             root = Path.GetFullPath(root);
-            if (vramDma) return VramDmaAudit.Run(root, jsonPath);
             var report = new AuditReport();
             ResourceIndex exports = DefinitionAudit.Collect(root, report);
             ConsumerAudit.Run(root, exports, report);

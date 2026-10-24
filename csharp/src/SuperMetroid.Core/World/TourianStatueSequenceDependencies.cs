@@ -32,6 +32,4 @@ internal sealed record TourianStatueSequenceDependencies
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 }

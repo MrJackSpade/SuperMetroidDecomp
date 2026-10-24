@@ -10,5 +10,7 @@ internal static class VramStagingBufferAccess
         internal Span<byte> WritableBytes() =>
             System.Runtime.InteropServices.MemoryMarshal.CreateSpan(
                 ref System.Runtime.InteropServices.MemoryMarshal.GetReference(self.Bytes), self.Length);
+        /// <summary>The buffer's current bytes, as a drained transfer reads them.</summary>
+        public ReadOnlySpan<byte> Bytes => self._bytes;
     }
 }

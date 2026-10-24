@@ -38,8 +38,6 @@ public sealed class TourianStatueSequence
     private readonly TesterTools _tester;
     /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Queues the selected bank-$87 animated tile art for VRAM transfer.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
     /// <summary>Builds one room's statue sequence over the session services that run its tile and BG2 descent programs.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
@@ -60,7 +58,6 @@ public sealed class TourianStatueSequence
         _system = dependencies.System;
         _tester = dependencies.Tester;
         _freeze = dependencies.Freeze;
-        _vramWrites = dependencies.VramWrites;
         Begin(Ensure.NotNull(plms));
     }
 

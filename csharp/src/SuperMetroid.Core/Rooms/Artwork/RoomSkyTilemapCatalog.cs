@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Seven contiguous native scrolling-sky tilemap pages, selected by host artwork.</summary>
-public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
+public sealed class RoomSkyTilemapCatalog
 {
     /// <summary>Owned contiguous bytes of the seven selected bank-$8A sky pages.</summary>
     private readonly byte[] pages;

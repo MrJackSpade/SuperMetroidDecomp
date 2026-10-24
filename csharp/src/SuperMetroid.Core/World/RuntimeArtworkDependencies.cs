@@ -44,6 +44,4 @@ internal sealed record RuntimeArtworkDependencies
     /// <summary>The session that holds every room's installed FX catalogs.</summary>
     public required RoomFxSession RoomFx { get; init; }
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 }

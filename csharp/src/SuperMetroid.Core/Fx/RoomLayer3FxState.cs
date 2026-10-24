@@ -32,9 +32,6 @@ public sealed class RoomLayer3FxState
     /// <summary>The shared COLDATA shadows. They are session-lived, so they keep the last writer's values across rooms.</summary>
     public FixedColorState FixedColors => _session.FixedColors;
 
-    /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
-    public RoomFxAnimatedTileAtlas? AnimatedTileArtwork => _session.AnimatedTileArtwork;
-
     /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
     public RoomFxLayer3TilemapCatalog? Layer3Tilemaps => _session.Layer3Tilemaps;
 

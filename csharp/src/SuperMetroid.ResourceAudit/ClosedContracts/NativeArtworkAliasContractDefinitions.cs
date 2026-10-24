@@ -1,9 +1,8 @@
-using SuperMetroid.ResourceAudit.ClosedContracts;
 
-namespace SuperMetroid.ResourceAudit.VramDma;
+namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
 /// <summary>Exact native aliases added for #1163; query false does not imply unowned artwork exists.</summary>
-internal static class VramDmaPresentationContractDefinitions
+internal static class NativeArtworkAliasContractDefinitions
 {
     /// <summary>Closed source sets for the HUD, escape timer, and grapple native DMA address aliases.</summary>
     internal static readonly ClosedPresentationContract[] All =

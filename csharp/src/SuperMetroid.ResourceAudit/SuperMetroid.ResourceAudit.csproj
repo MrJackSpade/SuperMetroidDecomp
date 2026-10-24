@@ -13,9 +13,6 @@
   <Target Name="AuditResourceReferences" AfterTargets="Build" Condition="'$(RunResourceAudit)' == 'true'">
     <Exec Command="dotnet &quot;$(TargetPath)&quot; --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
   </Target>
-  <Target Name="AuditQueuedVramDma" AfterTargets="Build" Condition="'$(RunQueuedVramDmaAudit)' == 'true'">
-    <Exec Command="dotnet &quot;$(TargetPath)&quot; --vram-dma-audit --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
-  </Target>
   <Target Name="AuditEnemyVisualPrograms" AfterTargets="Build" Condition="'$(RunEnemyVisualProgramAudit)' == 'true'">
     <Exec Command="dotnet &quot;$(TargetPath)&quot; --enemy-visual-program-audit &quot;$(MSBuildProjectDirectory)/../../..&quot; &quot;$(MSBuildProjectDirectory)/../../../out/enemy-visual-program-audit.json&quot;" />
   </Target>

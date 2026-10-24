@@ -19,6 +19,4 @@ internal sealed record RoomMainRoutinesDependencies
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 }

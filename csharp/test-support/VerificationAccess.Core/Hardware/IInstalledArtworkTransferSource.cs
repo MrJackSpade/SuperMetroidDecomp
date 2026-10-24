@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// Resolves known visual-transfer identities against current installed artwork.

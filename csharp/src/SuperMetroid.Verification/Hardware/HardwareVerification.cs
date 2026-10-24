@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hud;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.DmaSourceRoutingVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeTimerFloorVerification;
@@ -517,9 +518,9 @@ internal static void VerifyFrameRuntime()
         "idempotent loan reconciliation preserves ammunition collected during the frame");
 
     var runtime = CreateRetailRuntimeFixture();
-    // Gameplay frames run in a loaded room; its queued transfers drain ahead of this one.
+    // Gameplay frames run in a loaded room, entered after the HUD initializes as new-game setup does.
+    runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
     runtime.RoomLoader.InitializeStartingCeresRoom();
-    runtime.VramWrites.EnqueueWords(2, 0x7e1234, [0xfeca], VramDmaDestination.FromNative(0x0020));
     runtime.EscapeTimer.RequestCeresStart();
 
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
@@ -531,9 +532,6 @@ internal static void VerifyFrameRuntime()
     AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
     AssertEqual(SnesButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
-    AssertEqual(0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
-    AssertEqual(0xfe, runtime.Vram.ReadByte(0x41), "runtime NMI drains VRAM high byte");
-    AssertEqual(0, runtime.VramWrites.TailInBytes, "runtime NMI clears VRAM queue");
     AssertEqual(firstMode7, runtime.Display.DisplayedSamusMode7Transform,
         "accepted NMI publishes Mode 7 shadow registers");
 

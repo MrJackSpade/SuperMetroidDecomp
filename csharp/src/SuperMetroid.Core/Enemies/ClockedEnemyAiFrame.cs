@@ -36,8 +36,5 @@ internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters cl
     public SamusBombProjectileSystem? SharedProjectiles => frame.SharedProjectiles;
 
     /// <inheritdoc/>
-    public VramWriteQueue? VramWriteQueue => frame.VramWriteQueue;
-
-    /// <inheritdoc/>
     public FrameCounters Clock => clock;
 }

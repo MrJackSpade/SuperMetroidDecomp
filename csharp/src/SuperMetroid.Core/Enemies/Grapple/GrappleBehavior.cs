@@ -170,8 +170,6 @@ internal sealed class GrappleBehavior : IGrappleTargets
         public SamusMode7Transform? Mode7Transform => null;
         /// <summary>Unavailable shared bomb service in the common grapple wrapper.</summary>
         public SamusBombProjectileSystem? SharedProjectiles => null;
-        /// <summary>Unavailable VRAM queue in the common grapple wrapper.</summary>
-        public VramWriteQueue? VramWriteQueue => null;
 
         /// <inheritdoc/>
         public FrameCounters Clock => frame.Clock;

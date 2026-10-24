@@ -203,24 +203,13 @@ internal static class SuperMetroidRuntimeAccess
         }
 
         /// <summary>
-        /// Queues the two number/label tile transfers in the Ceres table at
-        /// <c>$A6:C4CB-$A6:C4D8</c>. The following entries are typewriter BG text and are not
-        /// needed by the OAM escape-timer renderer.
+        /// Shows the escape timer's number and label pages over the OBJ characters, as the escape's setup does (#1406).
         /// </summary>
-        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-        internal void QueueEscapeTimerSpriteTiles()
+        internal void ShowEscapeTimerSpriteTiles()
         {
-            if (self.Artwork.MapPresentation is null)
-            {
-                self.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
-                    EscapeTimerTileRomData.FirstSourceAddress,
-                    VramDmaDestination.FromNative(EscapeNativePageWords.TimerFirst));
-                self.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
-                    EscapeTimerTileRomData.SecondSourceAddress,
-                    VramDmaDestination.FromNative(EscapeNativePageWords.TimerSecond));
-            }
-            else
-                self.Artwork.MapPresentation.EscapeTimerTiles.QueueTo(self.VramWrites);
+            foreach (EscapeTimerTilePage page in Enum.GetValues<EscapeTimerTilePage>())
+                self.EnemySession.ObjCharacters.Record(new RuntimeCharacterUpload(new AssetObjCharacters(EscapeTimerTilePages.AssetOf(page)),
+                    EscapeTimerTilePages.FirstCharacterOf(page) * 32, EscapeTimerTilePages.ByteCountOf(page)));
         }
     }
 }

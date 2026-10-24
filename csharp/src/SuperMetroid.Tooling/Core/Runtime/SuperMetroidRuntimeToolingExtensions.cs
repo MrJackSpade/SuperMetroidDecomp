@@ -70,7 +70,6 @@ internal static class SuperMetroidRuntimeToolingExtensions
             // room, where his tilemap covers them, would not (#1392).
             if (self.Hud.IsInitialized)
                 self.HudSetup.ShowHudCharacters();
-            self.DrainSetupUploads();
             InitialViewportResult viewport = self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,
@@ -95,7 +94,6 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 
             CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(door.DestinationRoom);
-            self.DrainSetupUploads();
             return self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,
@@ -104,11 +102,5 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 new RoomEntry { RunDoorClosingPlm = true });
         }
 
-        /// <summary>
-        /// Uploads what setup queued, the HUD's characters among it, as the NMIs a game runs before reaching any room do;
-        /// otherwise the first NMI after a direct load would bind them over what the room's load wrote (#1392).
-        /// </summary>
-        private void DrainSetupUploads() =>
-            self.VramWrites.DrainTo(self.Vram, self.Artwork, self.EnemySession.ObjCharacters, self.BgArtwork);
     }
 }

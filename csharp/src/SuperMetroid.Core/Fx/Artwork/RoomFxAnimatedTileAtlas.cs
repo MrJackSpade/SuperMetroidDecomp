@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Editable two-bit characters for simple room-FX and Wrecked Ship treadmill frames.</summary>
-public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
+public sealed class RoomFxAnimatedTileAtlas
 {
     /// <summary>Concatenated edited tile bytes in the native segment order.</summary>
     internal readonly byte[] characters;
@@ -96,10 +96,4 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
         data = default;
         return false;
     }
-
-    /// <summary>Publishes a selected installed frame through the synchronous liquid/rain owner.</summary>
-    [PpuLayoutBoundary("codec: executes a native room-FX transfer record's encoded VRAM destination")]
-    public ReadOnlyMemory<byte> Frame(int sourceAddress, ushort byteCount) =>
-        TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
-            : throw new InvalidDataException($"Room-FX frame ${sourceAddress:X6} is missing from installed artwork.");
 }

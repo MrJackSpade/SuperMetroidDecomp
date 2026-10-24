@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Editable four-bit OBJ characters used by the Ceres and Zebes escape timers.</summary>
-public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
+public sealed class EscapeTimerTileAtlas
 {
     /// <summary>Independent fill sites of the native timer typeface beyond the calculated defaults.</summary>
     internal readonly HashSet<int> fillPixels;

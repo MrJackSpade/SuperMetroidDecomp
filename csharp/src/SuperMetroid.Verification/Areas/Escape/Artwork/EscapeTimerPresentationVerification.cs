@@ -50,25 +50,6 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerSecondTiles).Span),
             "second timer PNG page compiles to exact native characters");
 
-        var queued = new VramWriteQueue();
-        tileAtlas.QueueTo(queued);
-        AssertEqual(2, queued.Entries.Count, "timer PNG retains two native transfer records");
-        AssertEqual(VramAssetId.EscapeTimerFirstTiles, queued.Entries[0].AssetId,
-            "timer PNG first record uses typed installed artwork");
-        AssertEqual(VramAssetId.EscapeTimerSecondTiles, queued.Entries[1].AssetId,
-            "timer PNG second record uses typed installed artwork");
-        AssertEqual(EscapeNativePageWords.TimerFirst, queued.Entries[0].Destination.Encoded,
-            "timer PNG first record retains native destination");
-        AssertEqual(EscapeNativePageWords.TimerSecond, queued.Entries[1].Destination.Encoded,
-            "timer PNG second record retains native destination");
-        var timerVram = new SnesVram();
-        queued.DrainTo(timerVram, original, null, BgArtworkFixtures.For(timerVram));
-        AssertTrue(nativeFirstTiles.SequenceEqual(ReadVram(timerVram,
-            EscapeNativePageWords.TimerFirst * 2, nativeFirstTiles.Length)),
-            "typed first timer record publishes exact stock VRAM");
-        AssertTrue(nativeSecondTiles.SequenceEqual(ReadVram(timerVram,
-            EscapeNativePageWords.TimerSecond * 2, nativeSecondTiles.Length)),
-            "typed second timer record publishes exact stock VRAM");
         var synchronous = new ObjCharacterUploads();
         AssertTrue(tileAtlas.TryRecordNativeTransfer(synchronous,
             EscapeTimerTileRomData.FirstSourceAddress,
@@ -89,17 +70,6 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).ToArray()) &&
                 nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerSecondTiles).ToArray()),
             "Mother Brain synchronous timer pages hold the installed artwork");
-
-        var restoredQueueRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
-        restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
-            EscapeTimerTileRomData.FirstSourceAddress, VramDmaDestination.FromNative(EscapeNativePageWords.TimerFirst));
-        restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
-            EscapeTimerTileRomData.SecondSourceAddress, VramDmaDestination.FromNative(EscapeNativePageWords.TimerSecond));
-        restoredQueueRuntime.Artwork.MapPresentation = original;
-        AssertEqual(VramAssetId.EscapeTimerFirstTiles, restoredQueueRuntime.VramWrites.Entries[0].AssetId,
-            "content rebind upgrades pending first timer transfer");
-        AssertEqual(VramAssetId.EscapeTimerSecondTiles, restoredQueueRuntime.VramWrites.Entries[1].AssetId,
-            "content rebind upgrades pending second timer transfer");
 
         var presentation = EscapeTimerPresentation.Load(new MemoryStream(extracted));
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(bus);

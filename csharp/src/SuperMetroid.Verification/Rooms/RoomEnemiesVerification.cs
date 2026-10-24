@@ -1191,7 +1191,6 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0x6200, cgram.Colors[0xf1],
         "Ceres Ridley retreat copies OBJ palette-seven colors");
 
-    var escapeWrites = new VramWriteQueue();
     using (var timerPng = new MemoryStream())
     {
         IndexedPng.Write(timerPng,
@@ -1206,7 +1205,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     void GetawayFrame()
     {
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         enemies.CeresRidleyBehavior.Getaway.RunCeresRidleyGetawayRoomMain(samus, 0);
     }
     ushort expectedX = 0xff80, expectedY = 0x20;
@@ -1237,7 +1236,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int pagesBefore = shownPages.Uploads.Count;
     for (int record = 0; record < spriteTransfers.Count; record++)
     {
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalSprite = record == spriteTransfers.Count - 1;
         AssertEqual(pagesBefore + record + 1, shownPages.Uploads.Count,
             "Ceres sprite pages show one per frame");
@@ -1245,7 +1244,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     }
     for (int record = 1; record < backgroundTransfers.Count; record++)
     {
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalBackground = record == backgroundTransfers.Count - 1;
         AssertEqual(pagesBefore + spriteTransfers.Count, shownPages.Uploads.Count, "Ceres background pages show nothing over the OBJ characters");
         AssertEqual(finalBackground, ceresOverlay.Words.Any(word => word != RoomTilemapOverlay.Unwritten),
@@ -1286,11 +1285,11 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     for (int frame = 0; frame < 127; frame++)
     {
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
             $"Ceres escape does not publish early on hold frame {frame}");
     }
-    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
         "Ceres escape does not skip the English warning after its 128-frame title hold");
     AssertEqual(10, state.FunctionTimer.RawValue,
@@ -1299,7 +1298,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int typewriterFrames = 0;
     while (!enemies.LastEnemyFrame.CeresEscapeStarted && typewriterFrames < 512)
     {
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         typewriterFrames++;
     }
     AssertTrue(enemies.LastEnemyFrame.CeresEscapeStarted,

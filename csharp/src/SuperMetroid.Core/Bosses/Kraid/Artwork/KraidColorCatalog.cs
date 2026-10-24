@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
@@ -34,17 +32,14 @@ public sealed class KraidColorCatalog
     internal readonly IReadOnlyList<Bgr555> deathArm;
 
     /// <summary>Compiles five authored sources, sharing health-band storage only when secondary colors match exactly.</summary>
-    private KraidColorCatalog(KraidColorDocument document)
+    internal KraidColorCatalog(Bgr555[] roomBackdrop, Bgr555[] initialTarget, Bgr555[] health,
+        Bgr555[] secondary, Bgr555[] deathArm)
     {
-        roomBackdrop = new StockBand(KraidPaletteSource.RoomBackdrop,
-            Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop));
-        initialTarget = new StockBand(KraidPaletteSource.InitialTarget,
-            Compile(document.InitialTarget, KraidPaletteSource.InitialTarget));
-        health = new HealthPalette(Compile(document.Health, KraidPaletteSource.Health));
-        Bgr555[] suppliedSecondary = Compile(document.Secondary, KraidPaletteSource.Secondary);
-        secondary = suppliedSecondary.SequenceEqual(health) ? health : new HealthPalette(suppliedSecondary);
-        deathArm = new StockBand(KraidPaletteSource.DeathArm,
-            Compile(document.DeathArm, KraidPaletteSource.DeathArm));
+        this.roomBackdrop = new StockBand(KraidPaletteSource.RoomBackdrop, roomBackdrop);
+        this.initialTarget = new StockBand(KraidPaletteSource.InitialTarget, initialTarget);
+        this.health = new HealthPalette(health);
+        this.secondary = secondary.SequenceEqual(this.health) ? this.health : new HealthPalette(secondary);
+        this.deathArm = new StockBand(KraidPaletteSource.DeathArm, deathArm);
     }
 
     /// <summary>
@@ -176,53 +171,4 @@ public sealed class KraidColorCatalog
         /// <summary>Exposes the same health-band order to non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>Validates and compiles all five Kraid RGB5 sources, preserving independent authored edits while leaving health-band selection and fade timing to the boss mechanics.</summary>
-    /// <param name="json">UTF-8 JSON source consumed from its current position and left open; property names are matched case-insensitively.</param>
-    /// <returns>Compiled packed-color catalog detached from the document arrays.</returns>
-    /// <exception cref="ArgumentNullException">The source stream is null.</exception>
-    /// <exception cref="InvalidDataException">The JSON has duplicate or unknown properties, an unsupported version, incorrect source lengths, null colors, or RGB5 channels outside 0..31.</exception>
-    public static KraidColorCatalog Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        KraidColorDocument document;
-        document = JsonAssetDocument.Read<KraidColorDocument>(json, JsonOptions, "Kraid colors");
-        if (document.Version != KraidColorFormat.Version)
-            throw new InvalidDataException("Kraid colors require the supported version.");
-        return new(document);
-    }
-
-    /// <summary>Serializes the five editable sources to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Load"/>.</summary>
-    /// <param name="document">Complete palette sources to serialize; the writer does not retain their arrays.</param>
-    /// <returns>Validated JSON bytes for <see cref="KraidColorFormat.FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, palette-length, or RGB5-channel validation.</exception>
-    public static byte[] Write(KraidColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, JsonOptions, json => _ = Load(json));
-
-    /// <summary>Validates one source's native length and RGB5 channels before packing its colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
-    {
-        int expected = KraidPaletteRomData.ColorCount(kind);
-        if (source is null || source.Length != expected)
-            throw new InvalidDataException($"Kraid {kind} requires {expected} colors.");
-        var result = new Bgr555[expected];
-        for (int index = 0; index < expected; index++)
-        {
-            PaletteRgb5? rgb = source[index];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException(
-                    $"Kraid {kind} color {index} requires RGB5 channels 0..31.");
-            result[index] = rgb.ToBgr555();
-        }
-        return result;
-    }
-
-    /// <summary>Writes indented camel-case JSON while accepting case-insensitive property names and rejecting unknown fields.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 }

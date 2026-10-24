@@ -19,6 +19,7 @@ using SuperMetroid.Core.Samus.Death;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
 internal static class SamusSpecialStatesVerification
@@ -102,9 +103,9 @@ internal static void VerifySamusCrystalFlash()
 
     SeedCrystalFlashCartridge(bus);
 
-    var crystalColors = CrystalFlashColorCatalog.Load(new MemoryStream(
+    var crystalColors = CrystalFlashColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(bus)));
-    var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(
+    var beamPalettes = BeamPaletteFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.BeamPaletteExtractor.Extract(bus)));
     const SnesButton chord = (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     var samus = new SamusState
@@ -207,7 +208,7 @@ internal static void VerifySamusCrystalFlash()
 
     var crystalWindow = new SamusPowerBombExplosionState
     {
-        PresentationColors = PowerBombFixedColorCatalog.Load(new MemoryStream(
+        PresentationColors = PowerBombFixedColorFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.PowerBombFixedColorExtractor.Extract(bus))),
     };
     crystalWindow.Arm();
@@ -404,9 +405,9 @@ internal static void VerifySamusXray()
     SeedXrayCartridge(bus);
 
     var cgram = new SamusColourRig();
-    var xrayColors = SamusVisorColorCatalog.Load(new MemoryStream(
+    var xrayColors = SamusVisorColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
-    var xraySuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+    var xraySuitColors = SamusSuitColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var standing = new SamusState
     {

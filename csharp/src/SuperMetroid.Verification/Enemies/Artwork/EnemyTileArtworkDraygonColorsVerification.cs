@@ -10,6 +10,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -56,7 +58,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         string overrides = Path.Combine(stockDirectory, "draygon-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, DraygonColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, DraygonColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, DraygonColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         DraygonColorCatalog colors = edited.Bosses.DraygonColors ??
             throw new InvalidDataException("Edited enemy art has no Draygon colors.");
@@ -157,7 +159,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Draygon color property fails loudly");
         visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => DraygonColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => DraygonColorFile.Write(visual),
             "Draygon RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

@@ -37,7 +37,7 @@ public sealed class CrocomireColorCatalog
     internal readonly Dictionary<CrocomireColorKey, Bgr555> edits = [];
 
     /// <summary>Retains only colors that differ from their calculated native material paint.</summary>
-    private CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
+    internal CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
         Bgr555[] initialProjectile, Bgr555[] skeletonArm, Bgr555[] wallSpikes)
     {
         Bgr555[][] supplied = [fightBody, initialWall, initialProjectile, skeletonArm, wallSpikes];
@@ -94,32 +94,6 @@ public sealed class CrocomireColorCatalog
     public void ApplyWallSpikes(GameplayColours cgram) =>
         Apply(new BossColours(cgram).CrocomireWallSpikes, Band.WallSpikes);
 
-    /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>
-    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Selected compiled inks, preserving independent supplied edits even where stock source transfers overlap.</returns>
-    public static CrocomireColorCatalog Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        CrocomireColorDocument document;
-        document = JsonAssetDocument.Read<CrocomireColorDocument>(json, ArtworkJson.Options, "Crocomire color");
-        if (document.Version != CrocomireColorFormat.Version)
-            throw new InvalidDataException("Crocomire colors require the supported version.");
-        return new(
-            Compile(document.FightBody, CrocomirePaletteRomData.FightBodyCount, "fight body"),
-            Compile(document.InitialWall, CrocomirePaletteRomData.InitialWallCount,
-                "initial wall"),
-            Compile(document.InitialProjectile, CrocomirePaletteRomData.InitialProjectileCount,
-                "initial projectile"),
-            Compile(document.SkeletonArm, CrocomirePaletteRomData.SkeletonArmCount,
-                "skeleton arm"),
-            Compile(document.WallSpikes, CrocomirePaletteRomData.WallSpikesCount,
-                "wall spikes"));
-    }
-
-    /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON, validating version, transfer lengths, and RGB5 channels before returning the bytes.</summary>
-    public static byte[] Write(CrocomireColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
-
     /// <summary>Returns an edited color or calculates the corresponding native stock paint.</summary>
     internal Bgr555 Get(Band band, int index)
     {
@@ -133,8 +107,4 @@ public sealed class CrocomireColorCatalog
         for (int color = 0; color < Count(band); color++)
             destination.Write(color, Get(band, color));
     }
-    /// <summary>Validates a band's length and RGB5 range before packing its color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
-        Rgb5Rows.Compile(source, count, $"Crocomire {name}");
-
 }

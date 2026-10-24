@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -149,13 +150,13 @@ public static class IntroCinematicArtworkFiles
                 };
             }
             using var json = new MemoryStream();
-            IntroCinematicPalette.Write(json, new IntroCinematicPaletteDocument
+            IntroCinematicPaletteFile.Write(json, new IntroCinematicPaletteDocument
             {
                 Version = IntroCinematicPaletteFormat.Version,
                 Colors = colors,
             });
             byte[] encoded = json.ToArray();
-            if (!IntroCinematicPalette.Load(new MemoryStream(encoded, writable: false))
+            if (!IntroCinematicPaletteFile.Read(new MemoryStream(encoded, writable: false))
                 .ColorWords.Span.SequenceEqual(native))
                 throw new InvalidDataException("Opening palette JSON did not round-trip cartridge colors.");
             string name = IntroCinematicPaletteFormat.FileName;
@@ -472,7 +473,7 @@ public static class IntroCinematicArtworkFiles
                     new MemoryStream(mode7, writable: false),
                     new MemoryStream(map, writable: false),
                     new MemoryStream(objects, writable: false),
-                    new MemoryStream(palette, writable: false),
+                    CeresFlightPaletteFile.Read(new MemoryStream(palette, writable: false)),
                     new MemoryStream(sprites, writable: false),
                     new MemoryStream(actors, writable: false));
             }
@@ -488,7 +489,7 @@ public static class IntroCinematicArtworkFiles
             (string path, byte[] selected) = ReadSelected(IntroCinematicPaletteFormat.FileName);
             try
             {
-                return IntroCinematicPalette.Load(new MemoryStream(selected, writable: false));
+                return IntroCinematicPaletteFile.Read(new MemoryStream(selected, writable: false));
             }
             catch (InvalidDataException error)
             {

@@ -48,7 +48,7 @@ internal static void VerifySamusRenderingSlice()
     var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
 
-    SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+    SamusSuitColorCatalog suitColors = SamusSuitColorFile.Read(
         new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     SamusPresentation.LoadPowerSuitPalette(cgram.Samus.Suit, suitColors);
     AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
@@ -658,7 +658,7 @@ internal static void VerifySamusVisorPalette()
     ushort[] colors = [0x1000, 0x1001, 0x1002, 0x2000, 0x2001, 0x2002];
     WriteVisorColors(bus, colors);
 
-    var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
+    var visorColors = SamusVisorColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
     cgram.SetColor(196, Bgr555.FromWord(0x7777));
     state.Update(
@@ -750,13 +750,13 @@ internal static void VerifySamusHurtFlashPalette()
 
     SeedHurtFlashPalettes(bus);
 
-    var hurtColors = SamusHurtColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
+    var hurtColors = SamusHurtColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         EquippedItems = (SamusEquipmentFlags)0x0021, // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
-        Presentation = { SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus))) },
+        Presentation = { SuitColors = SamusSuitColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus))) },
     };
 
     int hurtPaletteCalls = 0;

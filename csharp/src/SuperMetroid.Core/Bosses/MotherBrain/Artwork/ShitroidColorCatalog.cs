@@ -41,7 +41,7 @@ public sealed class ShitroidColorCatalog
     internal readonly SidehopperCorpsePalette deadSidehopper;
 
     /// <summary>Separates the transparent Shitroid palette word before constructing the visible-ink resolver.</summary>
-    private ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
+    internal ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
         Bgr555[] shitroid, Bgr555[] deadSidehopper)
     {
         this.shitroid = new BabyMetroidInitialPalette(shitroid.AsSpan(1).ToArray());
@@ -70,36 +70,6 @@ public sealed class ShitroidColorCatalog
         return target == ShitroidColorTarget.DeadSidehopper ? deadSidehopper.Resolve(color) :
             throw new ArgumentOutOfRangeException(nameof(target));
     }
-
-    /// <summary>Loads <c>shitroid-colors.json</c>, requiring version 1, eight four-color pulse frames, three sixteen-color targets, and RGB5 channels from 0 through 31.</summary>
-    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
-    /// <returns>Compiled colors retaining independently edited frames and targets exactly, sharing the calculated stock pulse only when all samples agree.</returns>
-    public static ShitroidColorCatalog Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        ShitroidColorDocument document;
-        document = JsonAssetDocument.Read<ShitroidColorDocument>(json, ArtworkJson.Options, "Shitroid color");
-        if (document.Version != ShitroidColorFormat.Version)
-            throw new InvalidDataException("Shitroid colors require the supported version.");
-        if (document.Normal is null ||
-            document.Normal.Length != ShitroidColorRomData.NormalFrameCount)
-            throw new InvalidDataException("Shitroid normal cycle requires eight frames.");
-        return new(document.Normal.Select((frame, index) =>
-                Compile(frame, ShitroidColorRomData.NormalColorsPerFrame,
-                    $"normal frame {index}")).ToArray(),
-            Compile(document.Sidehopper, ShitroidColorRomData.TargetColorCount, "sidehopper"),
-            Compile(document.Shitroid, ShitroidColorRomData.TargetColorCount, "Shitroid"),
-            Compile(document.DeadSidehopper, ShitroidColorRomData.TargetColorCount,
-                "dead sidehopper"));
-    }
-
-    /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON and validates the serialized schema, dimensions, and channel bounds before returning it.</summary>
-    public static byte[] Write(ShitroidColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
-
-    /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name) =>
-        Rgb5Rows.Compile(source, required, $"Shitroid {name}");
 
     /// <summary>Shares the target's symmetric dimming curve only when it matches all eight supplied pulse phases.</summary>
     internal sealed class ColorPulse

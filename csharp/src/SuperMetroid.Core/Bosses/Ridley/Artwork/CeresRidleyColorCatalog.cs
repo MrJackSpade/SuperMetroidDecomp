@@ -23,8 +23,28 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Private Baby draw shades retain their link to the body fade family.</summary>
     internal readonly CeresBabyPaintDefinitions baby;
 
+    /// <summary>Builds the selected Ceres Ridley colours from their rows; a missing alarm or Baby family, which older overrides predate, is taken from <paramref name="stock"/>.</summary>
+    /// <param name="rows">The selected colour rows.</param>
+    /// <param name="stock">The current stock colours a missing family is inherited from.</param>
+    internal static CeresRidleyColorCatalog Create(CeresRidleyColorRows rows, CeresRidleyColorCatalog? stock)
+    {
+        Ensure.NotNull(rows);
+        var compiledBody = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, rows.BodyFade);
+        return new(new CeresRidleyColorParts
+        {
+            Start = rows.Start,
+            EyeFade = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, rows.EyeFade),
+            BodyFade = compiledBody,
+            Health = rows.Health,
+            Alarm = rows.Alarm is null ? Ensure.NotNull(stock).alarm : new CeresRidleyAlarmColorDefinitions(rows.Alarm),
+            RetreatBg = rows.RetreatBg,
+            RetreatShared = rows.RetreatShared,
+            Baby = rows.Baby is null ? Ensure.NotNull(stock).baby : new CeresBabyPaintDefinitions(rows.Baby, compiledBody),
+        });
+    }
+
     /// <summary>Retains independent palette edits and collapses unchanged retreat colors onto their startup and fade owners.</summary>
-    private CeresRidleyColorCatalog(CeresRidleyColorParts parts)
+    internal CeresRidleyColorCatalog(CeresRidleyColorParts parts)
     {
         this.start = new(parts.Start, parts.Baby);
         this.eyeFade = parts.EyeFade;
@@ -126,53 +146,4 @@ public sealed class CeresRidleyColorCatalog
         for (int color = 0; color < CeresRidleyPaletteRomData.BabyColorCount; color++)
             new RidleyColours(cgram).CeresBaby.Write(color, baby.Resolve(row, color));
     }
-
-    /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>
-    /// <param name="json">JSON input read from its current position; the caller retains ownership of the stream.</param>
-    /// <param name="stockForLegacyOverride">Optional stock catalog required for versions one and two: supplies missing alarm colors and, for version one, missing Baby colors.</param>
-    /// <returns>A catalog retaining independent supplied color edits while calculating unchanged shared paint and fade relationships.</returns>
-    public static CeresRidleyColorCatalog Load(Stream json,
-        CeresRidleyColorCatalog? stockForLegacyOverride = null)
-    {
-        Ensure.NotNull(json);
-        CeresRidleyColorDocument document;
-        document = JsonAssetDocument.Read<CeresRidleyColorDocument>(json, ArtworkJson.Options, "Ceres Ridley color");
-        var version = (CeresRidleyColorVersion)document.Version;
-        if (!Enum.IsDefined(version) ||
-            version != CeresRidleyColorVersion.Current && stockForLegacyOverride is null)
-            throw new InvalidDataException("Ceres Ridley colors require the supported version.");
-        var compiledBody = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
-                CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade"));
-        return new(new CeresRidleyColorParts { Start = Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"), EyeFade = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
-                CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade")), BodyFade = compiledBody, Health = CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
-                CeresRidleyPaletteRomData.HealthColorCount, "health"), Alarm = version != CeresRidleyColorVersion.Current
-                ? (stockForLegacyOverride ?? throw new InvalidDataException("A legacy Ceres Ridley color override requires the current stock catalog.")).alarm
-                : new CeresRidleyAlarmColorDefinitions(CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
-                    CeresRidleyPaletteRomData.AlarmColorCount, "alarm")), RetreatBg = Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"), RetreatShared = Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
-                "retreat shared"), Baby = version == CeresRidleyColorVersion.PreBaby
-                ? (stockForLegacyOverride ?? throw new InvalidDataException("A legacy Ceres Ridley color override requires the current stock catalog.")).baby
-                : new CeresBabyPaintDefinitions(CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
-                    CeresRidleyPaletteRomData.BabyColorCount, "Baby"), compiledBody) });
-    }
-
-    /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON, then reloads it to enforce the same schema, dimension, and RGB5 validation as asset loading.</summary>
-    public static byte[] Write(CeresRidleyColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
-
-    /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
-    private static Bgr555[][] CompileRows(PaletteRgb5[][]? rows, int count,
-        int colorsPerRow, string name)
-    {
-        if (rows is null || rows.Length != count)
-            throw new InvalidDataException($"Ceres Ridley {name} requires {count} rows.");
-        var compiled = new Bgr555[count][];
-        for (int row = 0; row < count; row++)
-            compiled[row] = Compile(rows[row], colorsPerRow, $"{name} row {row}");
-        return compiled;
-    }
-
-    /// <summary>Converts an exact-width RGB5 row to BGR555 after rejecting missing colors and channels outside five-bit range.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name) =>
-        Rgb5Rows.Compile(colors, count, $"Ceres Ridley {name}");
-
 }

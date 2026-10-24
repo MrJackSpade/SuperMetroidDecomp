@@ -21,6 +21,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -169,7 +171,7 @@ internal static class EnemyTileArtworkKraidVerification
             "new Kraid quarter IDs append after existing debugger-state IDs");
         string mapDirectory = Path.Combine(directory, "kraid-bg3-map-art");
         MapPresentationExtractor.Extract(rom, mapDirectory, SupportedCartridge.Sha256);
-        AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(mapDirectory, null);
+        AreaMapPresentationCatalog stock = AreaMapPresentationFiles.Load(mapDirectory, null);
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidBackgroundRomDataConstants.StandardBg3TilesAddress,
             HudTileAtlasFormat.CharacterByteCount);
@@ -185,7 +187,7 @@ internal static class EnemyTileArtworkKraidVerification
         // Supply the constructor's explicit palette dependency; never revive its ROM fallback.
         PaletteRgb5[] Colors(int count) => Enumerable.Range(0, count)
             .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray();
-        GameplayBasePaletteCatalog initial = GameplayBasePaletteCatalog.Load(new EnemyIdentityFixture().Json(
+        GameplayBasePaletteCatalog initial = GameplayBasePaletteFiles.Read(new EnemyIdentityFixture().Json(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version, Colors(SnesCgram.ColorCount),
                 Colors(GameplayBasePaletteFormat.SpriteColorCount))));
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
@@ -213,7 +215,7 @@ internal static class EnemyTileArtworkKraidVerification
         using (var output = File.Create(Path.Combine(overrides, HudTileAtlasFormat.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(mapDirectory, overrides);
         SnesVram changed = RunKraidBg3Restoration(enemyArtwork, edited.HudTiles);
         int destination = KraidBackgroundRomData.StandardBg3VramWord * sizeof(ushort);
         AssertEqual((byte)(baselineQueued.ReadByte(destination) ^ 0x80),
@@ -222,7 +224,7 @@ internal static class EnemyTileArtworkKraidVerification
         AssertTrue(baselineQueued.Bytes[(destination + 1)..]
                 .SequenceEqual(changed.Bytes[(destination + 1)..]),
             "edited Kraid BG3 character leaves all other VRAM bytes unchanged");
-        AreaMapPresentationCatalog reloaded = AreaMapPresentationCatalog.Load(mapDirectory, overrides);
+        AreaMapPresentationCatalog reloaded = AreaMapPresentationFiles.Load(mapDirectory, overrides);
         AssertTrue(RunKraidBg3Restoration(enemyArtwork, reloaded.HudTiles)
             .Bytes.SequenceEqual(changed.Bytes),
             "Kraid BG3 uses the current HUD PNG override after catalog reload");

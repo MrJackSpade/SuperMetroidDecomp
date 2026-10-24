@@ -18,6 +18,9 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks installed full-body palette cycles and editable shade components against the retail color tables.</summary>
@@ -27,7 +30,7 @@ internal static class SamusFullBodyCycleColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
-        var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted));
+        var native = SamusFullBodyCycleColorFile.Read(new MemoryStream(extracted));
         var originalPointers = new SortedSet<ushort>();
         var originalBases = new Dictionary<ushort, ushort>();
         var stored = native.colors;
@@ -281,7 +284,7 @@ internal static class SamusFullBodyCycleColorsVerification
         foreach (var row in suit)
         for (int color = 0; color < 16; color++, ordinal++)
             row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-        var edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        var edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
         ordinal = 0;
         foreach (int first in new[] { 0x9b20, 0x9ca0, 0x9ba0, 0x9c20 })
         for (int suit = 0; suit < 3; suit++)
@@ -295,7 +298,7 @@ internal static class SamusFullBodyCycleColorsVerification
             int word = 2000 + suit * 16 + color;
             (document ?? throw new InvalidOperationException("Verification requires document.")).SpeedBooster[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
@@ -310,7 +313,7 @@ internal static class SamusFullBodyCycleColorsVerification
         foreach (var row in family[0])
         for (int color = 0; color < 16; color++, ordinal++)
             row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
@@ -325,7 +328,7 @@ internal static class SamusFullBodyCycleColorsVerification
             int word = 4000 + suit * 16 + color;
             (document ?? throw new InvalidOperationException("Verification requires document.")).StoredShine[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
@@ -341,7 +344,7 @@ internal static class SamusFullBodyCycleColorsVerification
             int word = 5000 + suit * 16 + color;
             (document ?? throw new InvalidOperationException("Verification requires document.")).SpeedBooster[suit][1][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
@@ -353,7 +356,7 @@ internal static class SamusFullBodyCycleColorsVerification
         document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
         (document ?? throw new InvalidOperationException("Verification requires document.")).SpeedBooster[0][3][9] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
         document.SpeedBooster[1][3][10] = new PaletteRgb5 { Red = 4, Green = 5, Blue = 6 };
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
@@ -372,7 +375,7 @@ internal static class SamusFullBodyCycleColorsVerification
             int word = 6000 + suit * 16 + color;
             (document ?? throw new InvalidOperationException("Verification requires document.")).ActiveShinespark[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
@@ -388,7 +391,7 @@ internal static class SamusFullBodyCycleColorsVerification
             int word = 7000 + suit * 16 + color;
             (document ?? throw new InvalidOperationException("Verification requires document.")).ScrewAttack[suit][0][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write((document ?? throw new InvalidOperationException("Verification requires document.")))));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
         {
@@ -399,7 +402,7 @@ internal static class SamusFullBodyCycleColorsVerification
         }
         document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
         (document ?? throw new InvalidOperationException("Verification requires document.")).ScrewAttack[1][3][2] = new PaletteRgb5 { Red = 3, Green = 4, Blue = 5 };
-        edited = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorCatalog.Write(document)));
+        edited = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorFile.Write(document)));
         foreach (ushort pointer in originalPointers)
         for (int color = 0; color < 16; color++)
             AssertEqual(pointer == 0x9f00 && color == 2 ? (ushort)(3 | 4 << 5 | 5 << 10) :
@@ -426,8 +429,8 @@ internal static class SamusFullBodyCycleColorsVerification
         Paint(document.StoredShine[2][3]);
         Paint(document.ActiveShinespark[0][1]);
         string replacement = Path.Combine(overrideDirectory, SamusFullBodyCycleColorFormat.FileName);
-        File.WriteAllBytes(replacement, SamusFullBodyCycleColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        File.WriteAllBytes(replacement, SamusFullBodyCycleColorFile.Write(document));
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "full-body cycle edit changes installed-content identity");
 
@@ -517,7 +520,7 @@ internal static class SamusFullBodyCycleColorsVerification
         PaletteRgb5 originalColor = document.SpeedBooster[0][0][1];
         document.SpeedBooster[0][0][1] = originalColor with { Blue = 32 };
         byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(() => SamusFullBodyCycleColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusFullBodyCycleColorFile.Read(
             new MemoryStream(malformed, writable: false)),
             "full-body cycle colors reject out-of-range RGB5 values");
 
@@ -526,7 +529,7 @@ internal static class SamusFullBodyCycleColorsVerification
             "cycle-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog afterRepair = AreaMapPresentationCatalog.Load(
+        AreaMapPresentationCatalog afterRepair = AreaMapPresentationFiles.Load(
             replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
             "stock re-extraction preserves selected full-body cycle override");
@@ -534,7 +537,7 @@ internal static class SamusFullBodyCycleColorsVerification
             "stock re-extraction never rewrites the user's cycle colors");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing cycle-color override restores stock identity");
         Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash, ROM guard, rebind, strict values and override removal pass.");

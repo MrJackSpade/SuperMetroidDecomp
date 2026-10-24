@@ -84,9 +84,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     var nativeProjectileRom = SeedNativeProjectileFixture(bus);
     var fixtureTrails = ProjectileTrailCatalog.Load(
         new MemoryStream(ProjectileTrailExtractor.Extract(bus)));
-    var fixtureChargeColors = SamusChargeColorCatalog.Load(
+    var fixtureChargeColors = SamusChargeColorFile.Read(
         new MemoryStream(SamusChargeColorExtractor.Extract(bus)));
-    var fixtureSuitColors = SamusSuitColorCatalog.Load(
+    var fixtureSuitColors = SamusSuitColorFile.Read(
         new MemoryStream(SamusSuitColorExtractor.Extract(bus)));
     var fixtureFlarePlacement = ChargeFlarePlacementCatalog.Load(
         new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
@@ -105,7 +105,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Update_Beam_Tiles_and_Palette writes sprite palette six; the projectile page the power beam
     // binds shows its $100 bytes where the native DMA to VRAM word $6300 placed them.
     var beamCgram = new SamusColourRig();
-    var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
+    var beamPalettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
     var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
     SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus.Beam, equippedBeams: 0, beamPalettes);
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,

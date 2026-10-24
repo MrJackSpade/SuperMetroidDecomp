@@ -14,9 +14,10 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.Verification.Assets;
 
@@ -31,8 +32,8 @@ internal static class PaletteJsonContractsVisibleVerification
         JsonObject title = documents["title"];
         var editedTitle = (JsonObject)title.DeepClone();
         InvertPaletteContractColors(editedTitle);
-        var original = ReadPaletteContract(title, json => TitlePalettePresentation.Load(json));
-        var replacement = ReadPaletteContract(editedTitle, json => TitlePalettePresentation.Load(json));
+        var original = ReadPaletteContract(title, json => TitlePaletteFile.Read(json));
+        var replacement = ReadPaletteContract(editedTitle, json => TitlePaletteFile.Read(json));
         var stockBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var stockFxSession = new PaletteFxSessionState();
@@ -69,8 +70,8 @@ internal static class PaletteJsonContractsVisibleVerification
         InvertPaletteContractColors(editedCycle);
         var stockMap = new MapPaletteAnimation();
         var editedMap = new MapPaletteAnimation();
-        stockMap.Bind(ReadPaletteContract(cycle, MapPaletteCycle.Load));
-        editedMap.Bind(ReadPaletteContract(editedCycle, MapPaletteCycle.Load));
+        stockMap.Bind(ReadPaletteContract(cycle, MapPaletteCycleFile.Read));
+        editedMap.Bind(ReadPaletteContract(editedCycle, MapPaletteCycleFile.Read));
         for (int tick = 0; tick < 90; tick++)
         {
             AssertEqual(stockMap.Step(stockCgram), editedMap.Step(editedCgram), "map cycle sound/wrap timing unchanged");

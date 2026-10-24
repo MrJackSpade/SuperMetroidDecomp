@@ -66,7 +66,7 @@ internal static class CeresFlightArtworkVerification
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
         CeresFlightArtworkCatalog reference = CeresFlightArtworkCatalog.Load(
-            referenceCharacters, referenceMaps, referenceObjects, referencePalette,
+            referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette),
             referenceSprites, referenceActors);
         var native = new IntroCeresFlightState(new CartridgeAudioState(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
         var installed = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
@@ -290,7 +290,7 @@ internal static class CeresFlightArtworkVerification
             Red = (document.Colors[0].Red + 17) & 31,
         };
         using (var output = File.Create(overridePath))
-            CeresFlightPalette.Write(output, document);
+            CeresFlightPaletteFile.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
         var native = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));

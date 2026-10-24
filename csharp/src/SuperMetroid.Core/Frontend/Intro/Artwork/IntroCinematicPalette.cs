@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -11,7 +9,18 @@ public sealed class IntroCinematicPalette
     /// <summary>Decoded sixteen-color rows; empty when the installed bytes match compiled stock paint.</summary>
     internal readonly PaletteRow[] rows;
 
+    /// <summary>Keeps the opening's 256 selected colours, recognising stock, neutral-cycle and shared cross-fade rows.</summary>
+    /// <param name="colours">The selected colours in screen-palette order.</param>
+    internal static IntroCinematicPalette FromColours(ReadOnlySpan<Bgr555> colours)
+    {
+        var transfer = new byte[colours.Length * Bgr555.ByteCount];
+        for (int index = 0; index < colours.Length; index++)
+            BinaryPrimitives.WriteUInt16LittleEndian(transfer.AsSpan(index * Bgr555.ByteCount), colours[index].ToWord());
+        return new IntroCinematicPalette(transfer);
+    }
+
     /// <summary>Retains exact supplied colors while recognizing stock, neutral-cycle, and shared cross-fade rows.</summary>
+    /// <param name="transfer">The 256 selected colours as the palette transfer packs them.</param>
     private IntroCinematicPalette(byte[] transfer)
     {
         if (IntroCinematicPaintDefinitions.Matches(transfer)) { rows = []; return; }
@@ -142,42 +151,5 @@ public sealed class IntroCinematicPalette
                 IntroCinematicPaletteFormat.NeutralCycleStep;
             return foreground.Map((_, a) => Math.Max(0, a - decrease));
         }
-    }
-    /// <summary>Validates 256 ordered RGB5 colors and compiles their little-endian BGR555 image, calculating stock/shared shade relationships only when supplied colors match them.</summary>
-    /// <param name="json">Caller-owned stream containing the supported editable opening-palette document.</param>
-    /// <returns>The installed palette used for opening setup and subsequent cinematic fade targets, without changing fade scheduling.</returns>
-    /// <exception cref="InvalidDataException">The schema version, complete color count, or RGB components are invalid.</exception>
-    public static IntroCinematicPalette Load(Stream json)
-    {
-        IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(
-            json, ArtworkJson.Options, "opening palette");
-        if (document.Version != IntroCinematicPaletteFormat.Version ||
-            document.Colors is not { Length: ScreenPalette.ColorCount })
-            throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");
-
-        var image = new byte[ScreenPalette.ColorCount * Bgr555.ByteCount];
-        for (int index = 0; index < document.Colors.Length; index++)
-        {
-            PaletteRgb5? color = document.Colors[index];
-            if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
-                (uint)color.Blue > 31)
-                throw new InvalidDataException(
-                    $"Opening palette color {index} requires red, green and blue in 0..31.");
-            BinaryPrimitives.WriteUInt16LittleEndian(image.AsSpan(index * Bgr555.ByteCount),
-                color.ToBgr555().ToWord());
-        }
-        return new IntroCinematicPalette(image);
-    }
-
-    /// <summary>Serializes the complete opening palette as UTF-8 JSON and validates it through <see cref="Load"/> before writing any destination bytes.</summary>
-    /// <param name="json">Caller-owned destination stream.</param>
-    /// <param name="document">Complete ordered RGB5 palette to validate and serialize.</param>
-    public static void Write(Stream json, IntroCinematicPaletteDocument document)
-    {
-        Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
     }
 }

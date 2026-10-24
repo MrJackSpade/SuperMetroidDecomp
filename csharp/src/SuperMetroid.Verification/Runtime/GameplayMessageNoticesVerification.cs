@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>
 internal static class GameplayMessageNoticesVerification
@@ -101,7 +102,7 @@ internal static class GameplayMessageNoticesVerification
             overrideDirectory, GameplayMessageNoticeDefinitions.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels,
@@ -115,7 +116,7 @@ internal static class GameplayMessageNoticesVerification
 
         File.WriteAllText(replacement, "{ broken gameplay-message notice");
         AssertThrows<InvalidDataException>(() =>
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory),
+            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory),
             "corrupt gameplay-message notice override fails loudly");
         Console.WriteLine(
             "Gameplay-message notice catalog: deterministic stock, override selection/identity and corruption failure pass.");

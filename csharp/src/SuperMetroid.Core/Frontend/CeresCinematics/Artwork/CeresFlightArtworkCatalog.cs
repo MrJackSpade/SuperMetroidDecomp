@@ -57,7 +57,7 @@ public sealed class CeresFlightArtworkCatalog
     /// <param name="floorPng">128-by-128 indexed PNG with 256 palette entries, supplying 256 chunky 8-bpp characters.</param>
     /// <param name="mapJson">Version-one document containing both ordered 768-byte front/rear map slices.</param>
     /// <param name="objectPng">256-by-128 indexed PNG with sixteen palette entries, supplying 512 planar 4-bpp characters.</param>
-    /// <param name="paletteJson">Full approach palette document with 256 RGB5 colors.</param>
+    /// <param name="palette">The approach's 256 selected colours, read from the installed palette document.</param>
     /// <param name="spritesJson">Document containing the six required named OAM compositions.</param>
     /// <param name="actorsJson">Document containing the five required ordered rear-view actor identities and initial coordinates.</param>
     /// <returns>A catalog owning newly compiled transfer bytes and loaded presentation resources.</returns>
@@ -65,12 +65,12 @@ public sealed class CeresFlightArtworkCatalog
     /// <exception cref="ArgumentNullException">Any resource stream is null.</exception>
     /// <exception cref="InvalidDataException">A resource has an invalid format, dimensions, palette size, schema, map index, actor identity, composition, or compiled transfer length.</exception>
     public static CeresFlightArtworkCatalog Load(Stream floorPng, Stream mapJson,
-        Stream objectPng, Stream paletteJson, Stream spritesJson, Stream actorsJson)
+        Stream objectPng, CeresFlightPalette palette, Stream spritesJson, Stream actorsJson)
     {
         Ensure.NotNull(floorPng);
         Ensure.NotNull(mapJson);
         Ensure.NotNull(objectPng);
-        Ensure.NotNull(paletteJson);
+        Ensure.NotNull(palette);
         Ensure.NotNull(spritesJson);
         Ensure.NotNull(actorsJson);
         IndexedPngImage floorImage = IndexedPng.Read(floorPng,
@@ -95,7 +95,7 @@ public sealed class CeresFlightArtworkCatalog
             objectCharacters.Length != CeresFlightArtworkFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
         return new CeresFlightArtworkCatalog(characters, map, objectCharacters,
-            CeresFlightPalette.Load(paletteJson),
+            palette,
             CeresFlightSpritePresentation.Load(spritesJson),
             CeresFlightActorLayout.Load(actorsJson));
     }

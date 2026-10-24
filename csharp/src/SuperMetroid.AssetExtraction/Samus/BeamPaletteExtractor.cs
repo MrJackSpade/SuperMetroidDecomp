@@ -1,10 +1,10 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -30,6 +30,6 @@ public static class BeamPaletteExtractor
             }
             palettes.Add(BeamPaletteDefinitions.Key(selection), colors);
         }
-        return BeamPaletteCatalog.Write(new() { Version = BeamPaletteDefinitions.Version, Palettes = palettes });
+        return BeamPaletteFile.Write(new() { Version = BeamPaletteDefinitions.Version, Palettes = palettes });
     }
 }

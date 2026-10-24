@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -27,7 +27,7 @@ public static class TourianStatueColorExtractor
                 TourianStatuePaletteRomData.EyeColors + row *
                     TourianStatuePaletteRomData.EyeColorCount * sizeof(ushort),
                 TourianStatuePaletteRomData.EyeColorCount);
-        return TourianStatueColorCatalog.Write(new TourianStatueColorDocument
+        return TourianStatueColorFile.Write(new TourianStatueColorDocument
         {
             Version = TourianStatueColorFormat.Version,
             Base = Read(bus, TourianStatuePaletteRomData.BaseColors,

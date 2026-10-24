@@ -19,6 +19,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Compares installed escape-timer artwork, tile transfers, and digit layout with the cartridge.</summary>
 internal static class EscapeTimerPresentationVerification
@@ -101,7 +102,7 @@ internal static class EscapeTimerPresentationVerification
         string replacement = Path.Combine(overrides, EscapeTimerPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             EscapeTimerPresentation.Write(output, document);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "timer override changes catalog identity");
 
@@ -114,7 +115,7 @@ internal static class EscapeTimerPresentationVerification
             "edited minute anchor reaches the minute ones draw");
 
         File.WriteAllText(replacement, "{ broken timer JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
             "corrupt timer override fails loudly");
         using (var output = File.Create(replacement))
             EscapeTimerPresentation.Write(output, document);
@@ -129,7 +130,7 @@ internal static class EscapeTimerPresentationVerification
         string tileReplacement = Path.Combine(overrides, EscapeTimerTileAtlasFormat.FileName);
         using (var output = File.Create(tileReplacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var editedArtwork = AreaMapPresentationCatalog.Load(stock, overrides);
+        var editedArtwork = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(!original.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span.SequenceEqual(
             editedArtwork.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
             "timer PNG edit changes the first compiled transfer");
@@ -139,7 +140,7 @@ internal static class EscapeTimerPresentationVerification
 
         using (var output = File.Create(tileReplacement))
             IndexedPng.Write(output, new(EscapeTimerTileAtlasFormat.Width - 8, EscapeTimerTileAtlasFormat.Height), image.Pixels.AsSpan(0, image.Pixels.Length - 64), image.Colours);
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides),
             "wrong-size timer PNG fails loudly");
 
         Console.WriteLine("Escape timer presentation: native-equivalent draws, exact PNG transfers, ROM-free drawing/uploads, edits, rebind and strict failures pass.");

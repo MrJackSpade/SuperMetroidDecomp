@@ -1,9 +1,9 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -20,7 +20,7 @@ public static class SamusSuitColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return SamusSuitColorCatalog.Write(new SamusSuitColorDocument
+        return SamusSuitColorFile.Write(new SamusSuitColorDocument
         {
             Version = SamusSuitColorFormat.Version,
             Power = Read(SamusSourceDefinitions.PowerSuitPalette.Value),

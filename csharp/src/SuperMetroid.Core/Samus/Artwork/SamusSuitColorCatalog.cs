@@ -30,7 +30,7 @@ public sealed class SamusSuitColorCatalog
     /// replace the palette roster. Comparing supplied values preserves arbitrary
     /// independent player edits. This removes duplicated words; the remaining
     /// base-ink disposition is documented on the catalog.</remarks>
-    private SamusSuitColorCatalog(Bgr555[] power, Bgr555[] varia, Bgr555[] gravity)
+    internal SamusSuitColorCatalog(Bgr555[] power, Bgr555[] varia, Bgr555[] gravity)
     {
         this.power = power;
         this.varia = Differences(varia, power);
@@ -72,42 +72,4 @@ public sealed class SamusSuitColorCatalog
             suit.Write(index,
                 Resolve(suitTableOffset, index));
     }
-
-    /// <summary>Loads and validates the three complete normal-suit palettes from JSON.</summary>
-    /// <param name="json">Caller-owned stream containing the suit-color document.</param>
-    /// <returns>The compiled suit-color catalog.</returns>
-    public static SamusSuitColorCatalog Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        SamusSuitColorDocument document;
-        document = JsonAssetDocument.Read<SamusSuitColorDocument>(json, ArtworkJson.Options, "Samus suit color");
-        if (document.Version != SamusSuitColorFormat.Version)
-            throw new InvalidDataException("Samus suit colors require the supported version.");
-        return new(Compile(document.Power, "Power"), Compile(document.Varia, "Varia"),
-            Compile(document.Gravity, "Gravity"));
-    }
-
-    /// <summary>Validates and serializes a suit-color document as UTF-8 JSON.</summary>
-    /// <param name="document">Document containing all three 16-color palettes.</param>
-    /// <returns>A new caller-owned JSON byte array.</returns>
-    public static byte[] Write(SamusSuitColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
-
-    /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
-    {
-        if (source is null || source.Length != SamusSuitColorFormat.ColorsPerSuit)
-            throw new InvalidDataException($"Samus {name} suit requires sixteen RGB5 colors.");
-        var result = new Bgr555[source.Length];
-        for (int index = 0; index < source.Length; index++)
-        {
-            PaletteRgb5? color = source[index];
-            if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
-                (uint)color.Blue > 31)
-                throw new InvalidDataException($"Samus {name} color {index} requires RGB components 0..31.");
-            result[index] = color.ToBgr555();
-        }
-        return result;
-    }
-
 }

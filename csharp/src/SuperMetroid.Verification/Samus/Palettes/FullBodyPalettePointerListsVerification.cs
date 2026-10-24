@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks suit-indexed full-body palette lists and their live CGRAM cycles.</summary>
 internal static class FullBodyPalettePointerListsVerification
@@ -25,7 +26,7 @@ internal static class FullBodyPalettePointerListsVerification
                 (uint)(address - SamusPaletteDefinitions.FullBodyCycles.StoredShineLists) < 0x2a ||
                 (uint)(address - SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkLists) < 0x1e,
             address => $"Runtime read of compiled full-body palette pointer ${address:X6}.");
-        SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
+        SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom)));
         SamusEquipmentFlags[] equipment =
         [

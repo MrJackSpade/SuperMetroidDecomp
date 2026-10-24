@@ -21,6 +21,7 @@ namespace SuperMetroid.RenderVerification.Enemies;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
@@ -33,7 +34,7 @@ internal static class InstalledSporesTests
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(maps, null);
+        AreaMapPresentationCatalog stock = AreaMapPresentationFiles.Load(maps, null);
         CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
         using var overridesScratch = new TestScratchDirectory("installed-spores");
@@ -42,7 +43,7 @@ internal static class InstalledSporesTests
         {
             Directory.CreateDirectory(overrides);
             WriteOverrides(maps, overrides);
-            AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(maps, overrides);
+            AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(maps, overrides);
             Require(stock.ContentIdentity != edited.ContentIdentity, "Spore overrides did not affect selected content identity.");
             CheckOwners(stock, edited, packets);
             CheckPixels(packets);
@@ -59,7 +60,7 @@ internal static class InstalledSporesTests
             }
             CheckFileFailures(maps, overrides);
             foreach (string file in Directory.GetFiles(overrides)) File.Delete(file);
-            Require(AreaMapPresentationCatalog.Load(maps, overrides).ContentIdentity == stock.ContentIdentity,
+            Require(AreaMapPresentationFiles.Load(maps, overrides).ContentIdentity == stock.ContentIdentity,
                 "Removing the overrides did not restore stock content identity.");
         }
         finally
@@ -327,7 +328,7 @@ internal static class InstalledSporesTests
         void Reject(string expectedPath)
         {
             bool rejected = false;
-            try { _ = AreaMapPresentationCatalog.Load(maps, overrides); }
+            try { _ = AreaMapPresentationFiles.Load(maps, overrides); }
             catch (Exception error) when (error is IOException or InvalidDataException)
             {
                 rejected = true;

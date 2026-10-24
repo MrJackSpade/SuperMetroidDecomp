@@ -25,6 +25,8 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>
 internal static class SamusVisorColorsVerification
@@ -40,7 +42,7 @@ internal static class SamusVisorColorsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        SamusVisorColorCatalog catalog = SamusVisorColorCatalog.Load(
+        SamusVisorColorCatalog catalog = SamusVisorColorFile.Read(
             new MemoryStream(SamusVisorColorExtractor.Extract(rom)));
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
         {
@@ -53,9 +55,9 @@ internal static class SamusVisorColorsVerification
         Suite(nameof(VerifyInstalledXrayVisorCycle), () => VerifyInstalledXrayVisorCycle(rom, catalog));
         AssertTrue(!catalog.TryResolveByteOffset(1, out _), "odd visor offsets are outside the installed color domain");
         AssertTrue(!catalog.TryResolveByteOffset(12, out _), "adjacent visor bytes are outside the installed color domain");
-        AssertThrows<InvalidDataException>(() => SamusVisorColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt visor JSON fails loudly");
-        AssertThrows<InvalidDataException>(() => SamusVisorColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate visor color property fails loudly");
         Console.WriteLine("  Samus visor: all six native colors and guarded room/X-ray cycles pass.");
@@ -77,7 +79,7 @@ internal static class SamusVisorColorsVerification
                 Blue = (word >> 10) & 31,
             };
         }
-        return SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(
+        return SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(
             new SamusVisorColorDocument { Version = SamusVisorColorFormat.Version, Colors = colors })));
     }
 
@@ -186,8 +188,8 @@ internal static class SamusVisorColorsVerification
         PaletteRgb5 originalXray = document.Colors[0];
         document.Colors[0] = originalXray with { Red = (originalXray.Red + 1) % 32 };
         document.Colors[3] = original with { Red = (original.Red + 1) % 32 };
-        File.WriteAllBytes(path, SamusVisorColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        File.WriteAllBytes(path, SamusVisorColorFile.Write(document));
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
@@ -218,12 +220,12 @@ internal static class SamusVisorColorsVerification
         AssertEqual(edited.SamusVisorColors.Resolve(0), xrayCgram.Colors[196],
             "edited visor color reaches X-ray CGRAM");
         AssertEqual(0, guardedXray.ForbiddenReadAttempts, "edited X-ray color avoids native table");
-        AssertThrows<InvalidDataException>(() => SamusVisorColorCatalog.Write(document with
+        AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Write(document with
         {
             Colors = [.. document.Colors.Take(3), original with { Red = 32 }, .. document.Colors.Skip(4)],
         }), "out-of-range visor color fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing visor override restores stock content identity");
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames, reconstruction rules and editable JSON inputs.</summary>
@@ -22,7 +23,7 @@ internal static class HyperBeamFxColorArtworkVerification
     internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);
-        var catalog = HyperBeamFxColorCatalog.Load(new MemoryStream(json));
+        var catalog = HyperBeamFxColorFile.Read(new MemoryStream(json));
         AssertEqual(HyperBeamPaletteFxColorDefinitionsConstants.FrameCount,
             HyperBeamFxColorFormat.FrameCount, "Extracted Hyper Beam frame count matches compiled control");
         AssertEqual(HyperBeamPaletteFxColorDefinitions.ColorsPerFrame,
@@ -185,7 +186,7 @@ internal static class HyperBeamFxColorArtworkVerification
         var edit = RequiredJson.Parse(json);
         JsonNode red = edit.Required("frames").Required(3).Required(2).Required("red");
         edit.Required("frames").Required(3).Required(2)["red"] = red.GetValue<int>() ^ 1;
-        var edited = HyperBeamFxColorCatalog.Load(
+        var edited = HyperBeamFxColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(edit.ToJsonString())));
         var nativeRig = new SamusColourRig();
         var extractedRig = new SamusColourRig();
@@ -217,7 +218,7 @@ internal static class HyperBeamFxColorArtworkVerification
                 int value = 1000 + frame * 8 + color;
                 document.Frames[frame][color] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
             }
-            var modified = HyperBeamFxColorCatalog.Load(new MemoryStream(HyperBeamFxColorCatalog.Write(document)));
+            var modified = HyperBeamFxColorFile.Read(new MemoryStream(HyperBeamFxColorFile.Write(document)));
             var result = new SamusColourRig();
             for (int frame = 0; frame < 10; frame++)
             {
@@ -243,7 +244,7 @@ internal static class HyperBeamFxColorArtworkVerification
             }
         }
         string source = Encoding.UTF8.GetString(json);
-        AssertThrows<InvalidDataException>(() => HyperBeamFxColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => HyperBeamFxColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(source.Insert(1, "\"version\":1,")))),
             "Duplicate Hyper Beam FX metadata rejected");
         var invalid = RequiredJson.Parse(json);
@@ -261,7 +262,7 @@ internal static class HyperBeamFxColorArtworkVerification
         Console.WriteLine("Hyper Beam FX colors: 80 ROM words, all ten timed frames and loop, full-CGRAM parity, ROM-free live cycle, isolated edit and strict JSON pass.");
 
         static void Reject(JsonNode document, string message) => AssertThrows<InvalidDataException>(
-            () => HyperBeamFxColorCatalog.Load(
+            () => HyperBeamFxColorFile.Read(
                 new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
     }
 }

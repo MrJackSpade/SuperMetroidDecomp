@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -26,7 +26,7 @@ public static class ShitroidColorExtractor
             normal[frame] = Read(ShitroidColorRomData.NormalCycle +
                 frame * ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort),
                 ShitroidColorRomData.NormalColorsPerFrame);
-        return ShitroidColorCatalog.Write(new ShitroidColorDocument
+        return ShitroidColorFile.Write(new ShitroidColorDocument
         {
             Version = ShitroidColorFormat.Version,
             Normal = normal,

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -14,7 +13,7 @@ public sealed class CeresFlightPalette
     internal readonly Dictionary<ColourCell, Bgr555> edits = [];
 
     /// <summary>Separates the supplied CGRAM image into independent colors and edited exceptions.</summary>
-    private CeresFlightPalette(Bgr555[] supplied)
+    internal CeresFlightPalette(Bgr555[] supplied)
     {
         for (int index = 0; index < supplied.Length; index++)
         {
@@ -72,42 +71,6 @@ public sealed class CeresFlightPalette
         int step = source - RampStart;
         Bgr555 first = colors[new ColourCell(0, RampStart)], last = colors[new ColourCell(0, RampEnd)];
         return first.Zip(last, (_, start, end) => (start * (7 - step) + end * step + 3) / 7);
-    }
-
-    /// <summary>Loads the supported palette schema with exactly 256 non-null RGB5 colors, rejecting malformed or duplicate JSON properties and channels outside 0..31; supplied edits remain independent of calculated stock repeats and ramps.</summary>
-    /// <param name="json">Caller-owned UTF-8 JSON stream containing the complete Ceres approach palette in CGRAM order.</param>
-    /// <returns>The immutable selected palette corresponding to compiled <c>Palettes_SpaceGunshipCeres</c> at <c>$8C:E5E9</c>.</returns>
-    public static CeresFlightPalette Load(Stream json)
-    {
-        CeresFlightPaletteDocument document = JsonAssetDocument.Read<CeresFlightPaletteDocument>(
-            json, ArtworkJson.Options, "Ceres flight palette");
-        if (document.Version != CeresFlightPaletteFormat.Version ||
-            document.Colors is not { Length: ScreenPalette.ColorCount })
-            throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");
-
-        var compiled = new Bgr555[ScreenPalette.ColorCount];
-        for (int index = 0; index < document.Colors.Length; index++)
-        {
-            PaletteRgb5? color = document.Colors[index];
-            if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
-                (uint)color.Blue > 31)
-                throw new InvalidDataException(
-                    $"Ceres flight palette color {index} requires red, green and blue in 0..31.");
-            compiled[index] = color.ToBgr555();
-        }
-        return new CeresFlightPalette(compiled);
-    }
-
-    /// <summary>Serializes a palette document with the presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
-    /// <param name="json">Caller-owned destination stream for the validated UTF-8 JSON.</param>
-    /// <param name="document">Document containing the supported version and all 256 RGB5 colors.</param>
-    public static void Write(Stream json, CeresFlightPaletteDocument document)
-    {
-        Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
     }
 
     /// <summary>The bytes of the colours as little-endian words.</summary>

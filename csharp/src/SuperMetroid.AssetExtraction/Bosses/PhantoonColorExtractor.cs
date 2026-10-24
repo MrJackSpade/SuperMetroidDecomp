@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -22,7 +22,7 @@ public static class PhantoonColorExtractor
             bands[band] = Read(PhantoonColorRomData.HealthBandsSource +
                 band * PhantoonColorRomData.HealthBandColorCount * sizeof(ushort),
                 PhantoonColorRomData.HealthBandColorCount);
-        return PhantoonColorCatalog.Write(new PhantoonColorDocument
+        return PhantoonColorFile.Write(new PhantoonColorDocument
         {
             Version = PhantoonColorFormat.Version,
             HealthBands = bands,

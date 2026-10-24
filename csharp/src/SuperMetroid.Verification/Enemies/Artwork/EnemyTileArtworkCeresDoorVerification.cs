@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -112,7 +113,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         document.Mode7DoorFrames[0][0] ^= 1;
         File.WriteAllBytes(Path.Combine(overrides,
             CeresDoorVisualFormat.ColorsFileName),
-            CeresDoorVisualCatalog.Write(document));
+            CeresDoorVisualFiles.Write(document));
         CeresDoorVisualCatalog edited = (EnemyTileArtworkFiles.Load(directory,
             overrides).Areas.CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
         AssertEqual((byte)(nativeTiles[0] ^ 0x80), edited.Characters.Span[0],

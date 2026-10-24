@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -44,7 +45,7 @@ internal static class MapAtlasVerification
         for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % MapTileAtlasFormat.ColorCount);
         using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         byte[] replacementBytes = File.ReadAllBytes(replacement);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "PNG edit changes selected catalog identity");
         edited.Tiles.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         byte[] planar = Enumerable.Range(0, source.Length).Select(vram.ReadByte).ToArray();
@@ -68,22 +69,22 @@ internal static class MapAtlasVerification
         AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "PNG override survives stock re-extraction");
+        AssertEqual(edited.ContentIdentity, AreaMapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "PNG override survives stock re-extraction");
         AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(replacement)), "PNG override bytes never rewritten");
         File.WriteAllText(replacement, "invalid PNG");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad PNG override fails without stock fallback");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "bad PNG override fails without stock fallback");
         AssertEqual("invalid PNG", File.ReadAllText(replacement), "bad PNG override retained for repair");
         using (var output = File.Create(replacement)) IndexedPng.Write(output, new(1, 1), [0], image.Colours);
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "wrong native atlas dimensions rejected");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "wrong native atlas dimensions rejected");
         File.WriteAllBytes(replacement, replacementBytes);
         var tooManyColors = SnesGraphics.DiagnosticPalette(17);
         image.Pixels[0] = 16;
         using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, tooManyColors);
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "PNG index outside 4-bpp atlas rejected");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "PNG index outside 4-bpp atlas rejected");
         File.WriteAllBytes(replacement, replacementBytes);
         string rebuiltAtlas = Path.Combine(rebuilt, MapTileAtlasFormat.FileName);
         File.Delete(rebuiltAtlas);
-        AssertThrows<FileNotFoundException>(() => AreaMapPresentationCatalog.Load(rebuilt, overrides), "missing stock atlas rejected even with valid override");
+        AssertThrows<FileNotFoundException>(() => AreaMapPresentationFiles.Load(rebuilt, overrides), "missing stock atlas rejected even with valid override");
         Console.WriteLine("Map PNG atlas: exact stock bytes/pause pixels; PNG edits reach both rendered menus, rebind and survive stock replacement.");
     }
 }

@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks installed opening narration and font artwork through the cinematic's live tilemap and VRAM paths.</summary>
 internal static class IntroNarrationPresentationVerification
@@ -202,7 +203,7 @@ internal static class IntroNarrationPresentationVerification
             overrideDirectory, IntroNarrationDefinitions.FileName);
         File.WriteAllText(replacement,
             document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
             edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].TilemapWord.Raw,
@@ -212,7 +213,7 @@ internal static class IntroNarrationPresentationVerification
 
         File.WriteAllText(replacement, "{ broken opening narration");
         AssertThrows<InvalidDataException>(() =>
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory),
+            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory),
             "corrupt opening-narration override fails loudly");
         Console.WriteLine(
             "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
@@ -237,7 +238,7 @@ internal static class IntroNarrationPresentationVerification
         string replacement = Path.Combine(overrideDirectory, IntroFontAtlasFormat.FileName);
         using (var output = File.Create(replacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
+        AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(!edited.IntroFont.Characters.Span.SequenceEqual(
             stockCatalog.IntroFont.Characters.Span),
@@ -246,7 +247,7 @@ internal static class IntroNarrationPresentationVerification
             "opening-font override changes catalog content identity");
         File.WriteAllText(replacement, "not a PNG");
         AssertThrows<InvalidDataException>(() =>
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory),
+            AreaMapPresentationFiles.Load(stockDirectory, overrideDirectory),
             "corrupt opening-font override fails loudly");
         Console.WriteLine(
             "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");

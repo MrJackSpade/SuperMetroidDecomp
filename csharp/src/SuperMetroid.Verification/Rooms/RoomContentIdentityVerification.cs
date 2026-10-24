@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks canonical content identities for selected room art and their compatibility warnings.</summary>
 internal static class RoomContentIdentityVerification
@@ -72,7 +73,7 @@ internal static class RoomContentIdentityVerification
             png.Position = 0;
             return RoomCharacterAtlas.Load(png, RoomCharacterAtlasFormat.BytesPerTile);
         }
-        RoomStaticPalette Palette(bool change) => RoomStaticPalette.Load(Json(new RoomStaticPaletteDocument
+        RoomStaticPalette Palette(bool change) => RoomStaticPaletteFile.Read(Json(new RoomStaticPaletteDocument
         {
             Version = RoomStaticPaletteFormat.Version,
             Colors = Enumerable.Range(0, RoomStaticPaletteFormat.ColorCount).Select(index =>

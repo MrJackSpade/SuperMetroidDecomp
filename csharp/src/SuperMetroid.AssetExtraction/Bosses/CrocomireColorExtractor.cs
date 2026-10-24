@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -21,7 +21,7 @@ public static class CrocomireColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return CrocomireColorCatalog.Write(new CrocomireColorDocument
+        return CrocomireColorFile.Write(new CrocomireColorDocument
         {
             Version = CrocomireColorFormat.Version,
             FightBody = Read(CrocomirePaletteRomData.FightBodySource,

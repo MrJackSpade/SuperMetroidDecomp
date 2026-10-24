@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -16,7 +16,7 @@ internal static class MotherBrainHealthPaletteExtractor
     {
         Ensure.NotNull(bus);
         using var json = new MemoryStream();
-        MotherBrainHealthPalettePresentation.Write(json, new MotherBrainHealthPaletteDocument
+        MotherBrainHealthPaletteFile.Write(json, new MotherBrainHealthPaletteDocument
         {
             Version = MotherBrainHealthPaletteFormat.Version,
             Body = ReadTable(MotherBrainHealthPaletteRomData.BrainTable),

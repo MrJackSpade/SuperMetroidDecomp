@@ -1,8 +1,8 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
@@ -15,7 +15,7 @@ internal static class RoomPaletteFxPresentationExtractor
     {
         Ensure.NotNull(bus);
         using var json = new MemoryStream();
-        RoomPaletteFxPresentation.Write(json, new RoomPaletteFxPresentationDocument
+        RoomPaletteFxPresentationFile.Write(json, new RoomPaletteFxPresentationDocument
         {
             Version = RoomPaletteFxPresentationFormat.Version,
             SamusHeatPowerSuit = ExtractFrames(HeatPaletteColorDefinitions.Rows(PaletteFxHeatSuit.Power)),

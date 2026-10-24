@@ -27,6 +27,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -417,7 +418,7 @@ public sealed record GameInstallation(string Root)
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
     /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
-    public AreaMapPresentationCatalog LoadMaps() => AreaMapPresentationCatalog.Load(MapDirectory, MapOverrideDirectory);
+    public AreaMapPresentationCatalog LoadMaps() => AreaMapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps and projectile

@@ -27,7 +27,7 @@ internal static class BeamPaletteArtworkVerification
     internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
-        var catalog = BeamPaletteCatalog.Load(new MemoryStream(bytes));
+        var catalog = BeamPaletteFile.Read(new MemoryStream(bytes));
         Suite(nameof(VerifyBeamPaletteOwnership), () => VerifyBeamPaletteOwnership(bus, catalog));
         for (ushort selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
@@ -44,7 +44,7 @@ internal static class BeamPaletteArtworkVerification
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
-            var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
+            var edited = BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
             SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusColourDefinitions.BeamFirstColour + 3 ? 1 : 0)),
@@ -53,7 +53,7 @@ internal static class BeamPaletteArtworkVerification
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Previously loaded palette remains immutable after editing input");
         }
         string json = Encoding.UTF8.GetString(bytes);
-        AssertThrows<InvalidDataException>(() => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
+        AssertThrows<InvalidDataException>(() => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
         var invalid = RequiredJson.Parse(bytes);
         invalid.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 32;
         Reject(invalid, "Out-of-range RGB rejected");
@@ -69,7 +69,7 @@ internal static class BeamPaletteArtworkVerification
         Console.WriteLine("Beam palettes: twelve native full-CGRAM matches, exact isolated RGB edits, ROM-free queue path and strict JSON validation pass.");
 
         static void Reject(JsonNode document, string message) => AssertThrows<InvalidDataException>(
-            () => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
+            () => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
     }
 
     /// <summary>Checks NMI rebinding respects Crystal Flash and Hyper owners and uses edited Grapple colors.</summary>
@@ -116,7 +116,7 @@ internal static class BeamPaletteArtworkVerification
         var editedDocument = RequiredJson.Parse(BeamPaletteExtractor.Extract(bus));
         var editedColor = editedDocument.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombination.Ice)).Required(3);
         editedColor["red"] = editedColor.Required("red").GetValue<int>() ^ 1;
-        var editedPalettes = BeamPaletteCatalog.Load(
+        var editedPalettes = BeamPaletteFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
         nativeRuntime.Artwork.BeamPalettes = editedPalettes;
         nativeRuntime.LoadDebugGrapplePalette();

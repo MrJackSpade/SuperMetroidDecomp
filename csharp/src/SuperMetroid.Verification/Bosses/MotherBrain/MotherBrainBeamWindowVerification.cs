@@ -10,6 +10,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain's rainbow beam lines, colour cycling, and captured render data.</summary>
 internal static class MotherBrainBeamWindowVerification
@@ -29,7 +30,7 @@ internal static class MotherBrainBeamWindowVerification
         paletteDocument["beamCycle"] = cycle;
         var beam = new MotherBrainRainbowBeamEffect
         {
-            PresentationColors = MotherBrainRainbowPalettePresentation.Load(new MemoryStream(
+            PresentationColors = MotherBrainRainbowPaletteFile.Read(new MemoryStream(
                 System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString()))),
         };
         AssertTrue(beam.Geometry is null, "no geometry is published before the first build");

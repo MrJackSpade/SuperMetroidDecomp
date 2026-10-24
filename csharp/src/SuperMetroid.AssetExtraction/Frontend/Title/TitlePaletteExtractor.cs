@@ -1,11 +1,11 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -21,7 +21,7 @@ internal static class TitlePaletteExtractor
         CartridgePaletteImporter.LoadToCgram(source, bus, TitleSequenceRomData.Assets.PaletteAddress);
         PaletteRgb5[] colors = new CgramPalettes(source).Image.SelectToArray(PaletteRgb5.From);
         using var json = new MemoryStream();
-        TitlePalettePresentation.Write(json, new TitlePaletteDocument
+        TitlePaletteFile.Write(json, new TitlePaletteDocument
         {
             Version = TitlePaletteFormat.Version,
             Colors = colors,

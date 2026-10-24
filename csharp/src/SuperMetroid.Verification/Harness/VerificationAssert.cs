@@ -296,11 +296,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -1913,7 +1913,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending gunship color oracle revision");
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        Suite(nameof(VerifyExtractedEndingGunshipPaletteFxPresentation), () => VerifyExtractedEndingGunshipPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
+        Suite(nameof(VerifyExtractedEndingGunshipPaletteFxPresentation), () => VerifyExtractedEndingGunshipPaletteFxPresentation(rom, RoomPaletteFxPresentationFile.Read(new MemoryStream(json))));
         Console.WriteLine("Ending gunship colors: all256 original words,239 calculated colors, complete pointer domain, guarded effect and independent edits pass.");
         return 0;
     }
@@ -1938,7 +1938,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Logo glare oracle revision");
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        Suite(nameof(VerifyExtractedLogoGlarePaletteFxPresentation), () => VerifyExtractedLogoGlarePaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
+        Suite(nameof(VerifyExtractedLogoGlarePaletteFxPresentation), () => VerifyExtractedLogoGlarePaletteFxPresentation(rom, RoomPaletteFxPresentationFile.Read(new MemoryStream(json))));
         Console.WriteLine("Logo glare: all224 native colors, full pointer domain, guarded program and independent edits pass.");
         return 0;
     }
@@ -2831,7 +2831,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Loading colors oracle revision");
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
+        Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(rom, RoomPaletteFxPresentationFile.Read(new MemoryStream(json))));
         foreach (int editMode in new[] { 0, 1, 2 })
         {
             var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
@@ -2841,7 +2841,7 @@ internal static class VerificationAssert
             for (int color = 0; color < 16; color++, ordinal++)
                 if (editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7))
                     frames[frame][color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-            var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var edited = RoomPaletteFxPresentationFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             ordinal = 1000;
             foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
             for (int frame = 0; frame < 9; frame++)
@@ -2865,7 +2865,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Heat color oracle revision");
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        var presentation = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        var presentation = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
         Suite(nameof(VerifyExtractedSamusHeatPaletteFxPresentation), () => VerifyExtractedSamusHeatPaletteFxPresentation(rom, presentation));
         var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json,
             ArtworkJson.Options);
@@ -2874,7 +2874,7 @@ internal static class VerificationAssert
         foreach (var row in (frames ?? throw new InvalidOperationException("Verification requires frames.")))
         for (int color = 0; color < row.Length; color++, ordinal++)
             row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-        var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
+        var edited = RoomPaletteFxPresentationFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options)));
         ordinal = 1000;
         foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
@@ -2889,7 +2889,7 @@ internal static class VerificationAssert
         foreach (var frames in new[] { (document ?? throw new InvalidOperationException("Verification requires document.")).SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
         for (int color = 0; color < 16; color++)
             frames[0][color] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
-        var loadingEdited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
+        var loadingEdited = RoomPaletteFxPresentationFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options)));
         foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
         for (int phase = 0; phase < 16; phase++)

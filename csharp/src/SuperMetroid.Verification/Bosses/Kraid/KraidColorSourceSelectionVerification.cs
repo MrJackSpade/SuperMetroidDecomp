@@ -1,9 +1,10 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Checks that Kraid's five named editable palette sources retain separate values and identities.</summary>
 internal static class KraidColorSourceSelectionVerification
@@ -25,7 +26,7 @@ internal static class KraidColorSourceSelectionVerification
             DeathArm = original[KraidPaletteSource.DeathArm],
         };
         using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document));
-        var catalog = KraidColorCatalog.Load(json);
+        var catalog = KraidColorFile.Read(json);
         ushort Encode(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         foreach (var (source, row) in original)
         {

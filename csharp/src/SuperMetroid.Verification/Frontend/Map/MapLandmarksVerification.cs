@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -55,7 +56,7 @@ internal static class MapLandmarksVerification
         string path = Path.Combine(overrides, MapLandmarkFormat.FileName);
         using (var stream = File.Create(path)) MapLandmarkLayout.Write(stream, document with { Markers = points });
         byte[] bytes = File.ReadAllBytes(path);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "landmark edit changes content identity");
         // An undiscovered living boss remains invisible even after its visual is moved.
         var unknown = new Bank80SystemState();
@@ -94,19 +95,19 @@ internal static class MapLandmarksVerification
         }
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "landmarks survive stock replacement");
+        AssertEqual(edited.ContentIdentity, AreaMapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "landmarks survive stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
         foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })
             AssertThrows<InvalidDataException>(() => MapLandmarkLayout.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
         File.WriteAllText(path, "{bad landmarks");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad landmark override cannot fall back");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "bad landmark override cannot fall back");
         AssertEqual("{bad landmarks", File.ReadAllText(path), "bad landmark override preserved for repair");
         string rebuiltPath = Path.Combine(rebuilt, MapLandmarkFormat.FileName);
         File.Delete(rebuiltPath);
-        AssertThrows<FileNotFoundException>(() => AreaMapPresentationCatalog.Load(rebuilt, null), "missing stock landmarks rejected");
+        AssertThrows<FileNotFoundException>(() => AreaMapPresentationFiles.Load(rebuilt, null), "missing stock landmarks rejected");
         File.WriteAllText(rebuiltPath, "corrupt landmarks");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(rebuilt, null), "corrupt stock landmarks rejected");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(rebuilt, null), "corrupt stock landmarks rejected");
         Console.WriteLine($"Map landmarks: {cases} boss/download states match native OAM; pause/file-select edited pixels, restored rebind and override validation pass.");
 
         static byte[] Draw(FileSelectMapIcons icons, AreaId area)

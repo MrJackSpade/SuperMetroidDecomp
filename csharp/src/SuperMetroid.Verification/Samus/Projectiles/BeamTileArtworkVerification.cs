@@ -29,7 +29,7 @@ internal static class BeamTileArtworkVerification
         Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));
         Suite(nameof(VerifyProjectileTrailArtwork), () => VerifyProjectileTrailArtwork(bus));
         var files = BeamTileExtractor.Extract(bus);
-        var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
+        var palettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
         var catalog = BeamTileCatalog.Load(files, palettes);
         Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(bus));
         AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");

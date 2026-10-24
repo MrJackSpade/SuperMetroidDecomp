@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Checks installed Norfair Ridley palette rows against native CGRAM writes and reveal cadence.</summary>
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification
@@ -128,7 +129,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             "Duplicate Norfair Ridley JSON property fails loudly");
         JsonNode invalid = RequiredJson.Parse(stockBytes);
         invalid.Required("reveal").Required(0).Required(0)["green"] = 32;
-        AssertThrows<InvalidDataException>(() => NorfairRidleyColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => NorfairRidleyColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Norfair Ridley RGB5 component rejected");
         File.Delete(overridePath);

@@ -59,6 +59,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
@@ -1331,7 +1332,7 @@ internal static class LookupStream1Verification
         ushort[] native = Enumerable.Range(0, 32).Select(index =>
             SnesLittleEndian.Word(LookupStream1HurtBlendRomByte(rom, 0x9ba380 + index * 2), LookupStream1HurtBlendRomByte(rom, 0x9ba381 + index * 2))).ToArray();
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
-        SamusHurtColorCatalog Create(ushort[] supplied) => SamusHurtColorCatalog.Load(new MemoryStream(SamusHurtColorCatalog.Write(
+        SamusHurtColorCatalog Create(ushort[] supplied) => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(
             new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
         Dictionary<int, byte> Levels(SamusHurtColorCatalog catalog) => catalog.introLevels;
         var stock = Create(native);
@@ -2537,7 +2538,7 @@ internal static class LookupStream1Verification
         var document = RequiredJson.Deserialize<SamusVisorColorDocument>(
             SamusVisorColorExtractor.Extract(rom), new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SamusVisorColorCatalog Load(SamusVisorColorDocument value) =>
-            SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(value)));
+            SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(value)));
         var stock = Load(document);
         Dictionary<ColourCell, Bgr555> Stored(SamusVisorColorCatalog value) => value.colors;
         ushort Native(int index)

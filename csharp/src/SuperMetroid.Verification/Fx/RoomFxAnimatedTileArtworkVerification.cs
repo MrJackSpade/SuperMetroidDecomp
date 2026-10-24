@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -120,7 +121,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), editedPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
-        AreaMapPresentationCatalog changed = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog changed = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(changed.ContentIdentity != baseline.ContentIdentity,
             "room-FX PNG edit changes installed content identity");
         int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource;
@@ -169,7 +170,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             !editedStatue.Span.SequenceEqual(stockStatue.Span),
             "edited Tourian statue pixels compile to a distinct installed frame");
         File.Delete(file);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = AreaMapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX override restores stock identity");
 
@@ -188,7 +189,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.PreStatueWidth, RoomFxAnimatedTileAtlasFormat.Height), preStatuePixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
         AreaMapPresentationCatalog migratedPreStatue =
-            AreaMapPresentationCatalog.Load(stock, overrides);
+            AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(migratedPreStatue.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
                 out ReadOnlyMemory<byte> migratedPreStatueSimple) &&
             !migratedPreStatueSimple.Span.SequenceEqual(original.Span),
@@ -213,7 +214,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write))
             IndexedPng.Write(output, new(RoomFxAnimatedTileAtlasFormat.LegacyWidth, RoomFxAnimatedTileAtlasFormat.Height), legacyPixels,
                 SnesGraphics.DiagnosticPalette(RoomFxAnimatedTileAtlasFormat.ColorCount));
-        AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog migrated = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
                 out ReadOnlyMemory<byte> migratedSimple) &&
             !migratedSimple.Span.SequenceEqual(original.Span),

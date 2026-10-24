@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
 internal static class EndingContentIdentityVerification
@@ -275,7 +276,7 @@ internal static class EndingContentIdentityVerification
         var mode7 = new EndingFloorArtworkCatalog(scenes[0], scenes[1], scenes[2],
             EndingRewardIconArtwork.Load(FloorMap("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
 
-        EndingPalette[] colors = Enum.GetValues<EndingPaletteId>().Select(id => EndingPalette.Load(Json(new EndingPaletteDocument
+        EndingPalette[] colors = Enum.GetValues<EndingPaletteId>().Select(id => EndingPaletteFile.Read(Json(new EndingPaletteDocument
         {
             Version = EndingPaletteDefinitions.Version,
             Colors = Enumerable.Range(0, EndingPaletteDefinitions.ColorCount(id)).Select(index => new PaletteRgb5

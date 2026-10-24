@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -21,7 +21,7 @@ internal static class MapPaletteCycleExtractor
             if (duration == byte.MaxValue)
             {
                 using var json = new MemoryStream();
-                MapPaletteCycle.Write(json, new() { Version = MapPaletteCycleFormat.Version, Frames = frames.ToArray() });
+                MapPaletteCycleFile.Write(json, new() { Version = MapPaletteCycleFormat.Version, Frames = frames.ToArray() });
                 return json.ToArray();
             }
             if (frame == MapPaletteCycleFormat.MaximumFrames)

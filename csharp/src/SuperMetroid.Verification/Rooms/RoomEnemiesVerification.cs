@@ -34,7 +34,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -49,6 +48,8 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -146,8 +147,8 @@ internal static void VerifyRoomEnemyLoading()
                 Blue = word >> 10 & 31,
             };
         }
-        stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
-            EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
+        stockColors.Add(pointer, EnemyPaletteSheetFile.Read(new MemoryStream(
+            EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
     var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
@@ -882,8 +883,8 @@ internal static void VerifyCeresRidleyRoomEntry()
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
-                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
+                [definitionPointer] = EnemyPaletteSheetFile.Read(new MemoryStream(
+                    EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
             DmaSources = new Dictionary<EnemyDefinitionId, int>
@@ -892,9 +893,9 @@ internal static void VerifyCeresRidleyRoomEntry()
             } }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
-            CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
+            CeresRidleyColors = CeresRidleyColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
-            CeresRidleyFloorColors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
+            CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
         },
     };

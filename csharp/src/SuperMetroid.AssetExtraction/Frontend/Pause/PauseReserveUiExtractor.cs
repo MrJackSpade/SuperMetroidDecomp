@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -44,7 +44,7 @@ public static class PauseReserveUiExtractor
                 Color11 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.ArrowColor11Source + frame * 2)),
             };
         using var output = new MemoryStream();
-        PauseReserveUiPresentation.Write(output, new()
+        PauseReserveUiFile.Write(output, new()
         {
             Version = PauseReserveUiDefinitions.Version,
             Labels = labels,

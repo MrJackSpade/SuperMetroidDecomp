@@ -16,6 +16,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause backdrops, labels, and button tiles through live page transitions.</summary>
@@ -44,7 +45,7 @@ internal static class PauseBackdropsVerification
         for (int i = 0; i < buttons.Length; i++) buttons[i] = buttons[i] with
             { TileColumn = (buttons[i].TileColumn + 1) % 32, Palette = 7, FlipX = !buttons[i].FlipX };
         using (var output = File.Create(path)) PauseBackdropPresentation.Write(output, document with { Areas = editedAreas, Buttons = buttons });
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = AreaMapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "backdrop/button-only edits change catalog identity");
         AssertTrue(original.PauseBackdrops.CreateButtonTilemap().SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400)), "all native mutable button words survive extraction");
@@ -148,16 +149,16 @@ internal static class PauseBackdropsVerification
             Reject(document with { Areas = invalidAreas }, "invalid atlas, coordinates or palette rejected");
         }
         File.WriteAllText(path, "{\"version\":1,\"gameplay\":true}");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "unknown fields or missing required content fail loudly");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "unknown fields or missing required content fail loudly");
         File.WriteAllText(path, "broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override cannot silently fall back");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "corrupt override cannot silently fall back");
         File.WriteAllBytes(path, stockBytes);
         try
         {
             File.Delete(stockPath);
-            AssertThrows<IOException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override cannot conceal missing stock backdrop");
+            AssertThrows<IOException>(() => AreaMapPresentationFiles.Load(stock, overrides), "override cannot conceal missing stock backdrop");
             File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override cannot conceal failed stock hash");
+            AssertThrows<InvalidDataException>(() => AreaMapPresentationFiles.Load(stock, overrides), "override cannot conceal failed stock hash");
         }
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Pause backdrops: seven native frames/labels, button artwork, 532 guarded transition/rebind frames, visible edits, restore, native equipment overrun preservation and strict resource failures pass.");

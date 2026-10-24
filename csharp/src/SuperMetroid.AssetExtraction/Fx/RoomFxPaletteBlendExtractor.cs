@@ -1,10 +1,10 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
@@ -43,12 +43,12 @@ public static class RoomFxPaletteBlendExtractor
             }
             blends.Add(RoomFxPaletteBlendDefinitions.Key(id), colors);
         }
-        return RoomFxPaletteBlendCatalog.Write(new RoomFxPaletteBlendDocument
+        return RoomFxPaletteBlendFile.Write(new RoomFxPaletteBlendDocument
         {
             Version = RoomFxPaletteBlendDefinitions.Version,
             Blends = blends,
-            CeresHazeBlue = RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
-            CeresHazeRed = RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
+            CeresHazeBlue = PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeBlue),
+            CeresHazeRed = PaletteRgb5.From(RoomFxPaletteBlendDefinitions.StockCeresHazeRed),
         });
     }
 }

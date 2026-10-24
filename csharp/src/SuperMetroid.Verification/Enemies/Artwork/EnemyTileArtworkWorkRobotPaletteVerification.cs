@@ -1,11 +1,11 @@
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -47,7 +47,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         string overrides = Path.Combine(stockDirectory, "work-robot-cycle-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, WorkRobotPaletteCycleFormat.FileName);
-        File.WriteAllBytes(overrideFile, WorkRobotPaletteCycle.Write(visual));
+        File.WriteAllBytes(overrideFile, WorkRobotPaletteCycleFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         WorkRobotPaletteCycle cycle = edited.Enemies.WorkRobotPaletteCycle ??
             throw new InvalidDataException("Edited enemy art has no Work Robot palette cycle.");
@@ -73,7 +73,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Work Robot color property fails loudly");
         visual.Frames[2][1] = prior with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => WorkRobotPaletteCycle.Write(visual),
+        AssertThrows<InvalidDataException>(() => WorkRobotPaletteCycleFile.Write(visual),
             "Work Robot RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
 

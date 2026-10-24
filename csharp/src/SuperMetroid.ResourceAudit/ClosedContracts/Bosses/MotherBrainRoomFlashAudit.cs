@@ -17,7 +17,7 @@ internal static class MotherBrainRoomFlashAudit
         // loader validates every row and exposes its actual timed-entry key.
         // Synthetic pointers/colors exercise only this declaration contract.
         byte[] document = ExtractDeclarationDocument();
-        MotherBrainRoomColorPresentation installed = MotherBrainRoomColorPresentation.Load(new MemoryStream(document));
+        MotherBrainRoomColorPresentation installed = MotherBrainRoomColorFile.Read(new MemoryStream(document));
         foreach (ushort pointer in installed.FlashEntryPointers)
             exports.Add(ResourceDomains.MotherBrainRoomFlash, Key(pointer));
     }

@@ -64,7 +64,7 @@ internal static class GameplayBasePalettesVerification
                 document.CommonSprites[1].Blue == 31 ? 30 : 31 };
             Directory.CreateDirectory(overrides);
             string overridePath = Path.Combine(overrides, GameplayBasePaletteFormat.ArtworkFileName);
-            File.WriteAllBytes(overridePath, GameplayBasePaletteCatalog.Write(document));
+            File.WriteAllBytes(overridePath, GameplayBasePaletteFiles.Write(document));
             GameplayBasePaletteCatalog edited = GameplayBasePaletteFiles.Load(stock, overrides);
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: edited);
             AssertEqual(edited.Initial[1], editedRuntime.Cgram.Colors[1],

@@ -54,6 +54,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
@@ -747,8 +749,8 @@ internal static class LookupStream2Verification
                 var labels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
                 labels[name] = label with { Cells = cells };
                 using var output = new MemoryStream();
-                PauseReserveUiPresentation.Write(output, document with { Labels = labels });
-                var selected = PauseReserveUiPresentation.Load(new MemoryStream(output.ToArray()));
+                PauseReserveUiFile.Write(output, document with { Labels = labels });
+                var selected = PauseReserveUiFile.Read(new MemoryStream(output.ToArray()));
                 byte[] selectedWords = PauseTileGrid.Compile(cells, "Edited reserve label");
                 foreach (bool preserve in new[] { false, true })
                 {
@@ -767,8 +769,8 @@ internal static class LookupStream2Verification
             var movedLabels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
             movedLabels[name] = label with { Anchor = label.Anchor with { Column = label.Anchor.Column + 1 } };
             using var movedJson = new MemoryStream();
-            PauseReserveUiPresentation.Write(movedJson, document with { Labels = movedLabels });
-            var moved = PauseReserveUiPresentation.Load(new MemoryStream(movedJson.ToArray()));
+            PauseReserveUiFile.Write(movedJson, document with { Labels = movedLabels });
+            var moved = PauseReserveUiFile.Read(new MemoryStream(movedJson.ToArray()));
             byte[] movedActual = new byte[32 * 32 * 2];
             byte[] movedExpected = movedActual.ToArray();
             native.CopyTo(movedExpected, nativeOffset + 2);
@@ -776,7 +778,7 @@ internal static class LookupStream2Verification
             AssertTrue(movedExpected.SequenceEqual(movedActual), "Independent reserve label placement edit");
         }
         AssertEqual(22, words, "All native reserve label words");
-        var stock = PauseReserveUiPresentation.Load(new MemoryStream(json));
+        var stock = PauseReserveUiFile.Read(new MemoryStream(json));
         AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new byte[2048], (PauseReserveLabel)byte.MaxValue), "Unknown reserve label rejected");
         AssertThrows<ArgumentException>(() => stock.ApplyLabel(new byte[1], PauseReserveLabel.Manual), "Short reserve destination rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelWord(PauseReserveLabel.Auto, 4), "Reserve glyph upper bound rejected");
@@ -1020,8 +1022,8 @@ internal static class LookupStream2Verification
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlas.Load(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheet.Load(new MemoryStream(
-                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
+                [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheetFile.Read(new MemoryStream(
+                    EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
                     {
                         Version = 1,
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
@@ -1536,7 +1538,7 @@ internal static class LookupStream2Verification
             WreckedShip = Read(ChozoAndTubeColorRomData.WreckedShipSource),
             LowerNorfair = Read(ChozoAndTubeColorRomData.LowerNorfairSource) };
         ChozoAndTubeColorCatalog Load(ChozoAndTubeColorDocument document) =>
-            ChozoAndTubeColorCatalog.Load(new MemoryStream(ChozoAndTubeColorCatalog.Write(document), writable: false));
+            ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
         AssertEqual(8, stock.tubeColorSeeds.Length,
@@ -1698,7 +1700,7 @@ internal static class LookupStream2Verification
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
-        var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
+        var stock = PauseReserveUiFile.Read(new MemoryStream(source));
         var edits = stock.arrowColorEdits;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
         var cgram = new ScreenPalette();
@@ -1724,9 +1726,9 @@ internal static class LookupStream2Verification
             frames[frame] = color == 0 ? frames[frame] with { Color6 = rgb } : frames[frame] with { Color11 = rgb };
             var changed = document with { Arrow = document.Arrow with { Frames = frames } };
             using var encoded = new MemoryStream();
-            PauseReserveUiPresentation.Write(encoded, changed);
+            PauseReserveUiFile.Write(encoded, changed);
             encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changed);
+            Check(PauseReserveUiFile.Read(encoded), changed);
         }
         for (int selected = 0; selected < 2; selected++)
         for (int channel = 0; channel < 3; channel++)
@@ -1736,8 +1738,8 @@ internal static class LookupStream2Verification
                 Green = channel == 1 ? original.Green ^ 31 : original.Green, Blue = channel == 2 ? original.Blue ^ 31 : original.Blue };
             var arrow = selected == 0 ? document.Arrow with { SolidColor6 = changedColor } : document.Arrow with { SolidColor11 = changedColor };
             var changed = document with { Arrow = arrow };
-            using var encoded = new MemoryStream(); PauseReserveUiPresentation.Write(encoded, changed); encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changed);
+            using var encoded = new MemoryStream(); PauseReserveUiFile.Write(encoded, changed); encoded.Position = 0;
+            Check(PauseReserveUiFile.Read(encoded), changed);
         }
         Console.WriteLine("Reserve arrow ramps: all64 native colors,192 independent frame-channel edits,6 solid-color edits,zero stock color overrides,actual CGRAM and wrapping pass; mixed source paint/hold disposition documented.");
 
@@ -1762,7 +1764,7 @@ internal static class LookupStream2Verification
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
-        var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
+        var stock = PauseReserveUiFile.Read(new MemoryStream(source));
         AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
         AssertTrue(stock.arrowOffsets is null, "Stock arrow discards stored offsets");
         Check(stock, document);
@@ -1772,16 +1774,16 @@ internal static class LookupStream2Verification
             digits[index] = digits[index] with { FlipY = !digits[index].FlipY };
             var changedDocument = document with { Digits = document.Digits with { Cells = digits, Anchor = new() { Column = 18, Row = 20 } } };
             using var encoded = new MemoryStream();
-            PauseReserveUiPresentation.Write(encoded, changedDocument);
+            PauseReserveUiFile.Write(encoded, changedDocument);
             encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changedDocument);
+            Check(PauseReserveUiFile.Read(encoded), changedDocument);
             var cells = document.Arrow.Cells.ToArray();
             cells[index] = new() { Column = 20 + index, Row = 22 };
             changedDocument = document with { Arrow = document.Arrow with { Cells = cells, EnabledPalette = 3, DisabledPalette = 4 } };
             encoded.SetLength(0);
-            PauseReserveUiPresentation.Write(encoded, changedDocument);
+            PauseReserveUiFile.Write(encoded, changedDocument);
             encoded.Position = 0;
-            Check(PauseReserveUiPresentation.Load(encoded), changedDocument);
+            Check(PauseReserveUiFile.Read(encoded), changedDocument);
         }
         Console.WriteLine("Reserve geometry: all10 stock digits/10 arrow cells, actual tilemap writes, all20 independent edits, supplied anchors/palettes and unrelated tile fields pass.");
 
@@ -1899,7 +1901,7 @@ internal static class LookupStream2Verification
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CrystalFlashColorDocument>(
             source, ArtworkJson.Options);
-        var stock = CrystalFlashColorCatalog.Load(new MemoryStream(source));
+        var stock = CrystalFlashColorFile.Read(new MemoryStream(source));
         AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
         var cgram = new SamusColourRig();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
@@ -1914,7 +1916,7 @@ internal static class LookupStream2Verification
                 var rows = document.Body.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
                 rows[frame][color] = rows[frame][color] with { Red = (rows[frame][color].Red + 1) % 32 };
                 var changedDocument = document with { Body = rows };
-                var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
+                var changed = CrystalFlashColorFile.Read(new MemoryStream(CrystalFlashColorFile.Write(changedDocument)));
                 AssertTrue(changed.body is not null, "Independent supplied body edit retains its rows");
                 for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
                 {
@@ -1945,7 +1947,7 @@ internal static class LookupStream2Verification
             var rows = document.Bubble.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
             rows[frame][color] = rows[frame][color] with { Green = (rows[frame][color].Green + 1) % 32 };
             var changedDocument = document with { Bubble = rows };
-            var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
+            var changed = CrystalFlashColorFile.Read(new MemoryStream(CrystalFlashColorFile.Write(changedDocument)));
             for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
             {
                 changed.ApplyBubble(cgram.Samus, verifyFrame);
@@ -1988,7 +1990,7 @@ internal static class LookupStream2Verification
             Secondary = ReadSource(KraidPaletteSource.Secondary),
             DeathArm = ReadSource(KraidPaletteSource.DeathArm),
         };
-        var stock = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(document)));
+        var stock = KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(document)));
         object health = stock.health;
         object secondary = stock.secondary;
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
@@ -2031,7 +2033,7 @@ internal static class LookupStream2Verification
                 KraidPaletteSource.DeathArm => document with { DeathArm = editedColors },
                 _ => document with { DeathArm = editedColors },
             };
-            var edited = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(editedDocument)));
+            var edited = KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(editedDocument)));
             Check(edited, editedDocument);
             AssertTrue(edited.ContentIdentity != stock.ContentIdentity, "Every independent Kraid color edit changes content identity");
         }

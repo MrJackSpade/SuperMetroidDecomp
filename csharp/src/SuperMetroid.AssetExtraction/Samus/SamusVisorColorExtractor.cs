@@ -1,9 +1,9 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -34,7 +34,7 @@ public static class SamusVisorColorExtractor
                 Blue = (word >> 10) & 31,
             };
         }
-        return SamusVisorColorCatalog.Write(new SamusVisorColorDocument
+        return SamusVisorColorFile.Write(new SamusVisorColorDocument
         {
             Version = SamusVisorColorFormat.Version,
             Colors = colors,

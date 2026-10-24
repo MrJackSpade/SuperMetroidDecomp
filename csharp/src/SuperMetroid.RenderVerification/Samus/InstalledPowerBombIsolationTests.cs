@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities;
@@ -14,6 +13,9 @@ namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// Finite production-owner tests of the source-identified color/lifetime coupling in
@@ -34,7 +36,7 @@ internal static class InstalledPowerBombIsolationTests
         var options = CamelCaseJson;
         var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, options)
             ?? throw new InvalidDataException($"Null color document: {path}");
-        AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(stockDirectory, null);
+        AreaMapPresentationCatalog stock = AreaMapPresentationFiles.Load(stockDirectory, null);
         CheckCompiledLifetimeOperands(stock.PowerBombFixedColors);
         CheckStateRestoration(stock.PowerBombFixedColors);
         var framesToRender = new List<ContextFrame>();
@@ -56,9 +58,9 @@ internal static class InstalledPowerBombIsolationTests
                     _ => new PaletteRgb5 { Red = index % 32, Green = (index * 3) % 32, Blue = (index * 7) % 32 },
                 }).ToArray();
                 File.WriteAllBytes(Path.Combine(overrides, PowerBombFixedColorFormat.FileName),
-                    PowerBombFixedColorCatalog.Write(document with
+                    PowerBombFixedColorFile.Write(document with
                     { PreExplosion = Replace(document.PreExplosion), Explosion = Replace(document.Explosion) }));
-                AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrides);
+                AreaMapPresentationCatalog edited = AreaMapPresentationFiles.Load(stockDirectory, overrides);
                 Require(stock.ContentIdentity != edited.ContentIdentity, edit + ": override identity did not change");
                 foreach (bool crystalFlash in new[] { false, true })
                 {
@@ -112,7 +114,7 @@ internal static class InstalledPowerBombIsolationTests
             Require(changedColors > 0, "The edits never reached live fixed colors.");
             Require(File.ReadAllBytes(path).SequenceEqual(original), "Stock colors were modified.");
             File.Delete(Path.Combine(overrides, PowerBombFixedColorFormat.FileName));
-            Require(AreaMapPresentationCatalog.Load(stockDirectory, overrides).ContentIdentity == stock.ContentIdentity,
+            Require(AreaMapPresentationFiles.Load(stockDirectory, overrides).ContentIdentity == stock.ContentIdentity,
                 "Removing the override did not restore stock content identity.");
             foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
             {

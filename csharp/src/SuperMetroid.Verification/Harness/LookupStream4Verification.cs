@@ -53,8 +53,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Botwoon.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -78,6 +76,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
@@ -156,7 +155,7 @@ internal static class LookupStream4Verification
     {
         ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
         byte[] json = TitlePaletteExtractor.Extract(rom);
-        TitlePalettePresentation stock = TitlePalettePresentation.Load(new MemoryStream(json));
+        TitlePalettePresentation stock = TitlePaletteFile.Read(new MemoryStream(json));
         var native = new Dictionary<ushort, ushort>();
         foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
@@ -181,9 +180,9 @@ internal static class LookupStream4Verification
         document.BabyMetroidTubeLight[7][3] = document.BabyMetroidTubeLight[7][3] with { Blue = 9 };
         document.FlickeringDisplays[1][1] = document.FlickeringDisplays[1][1] with { Red = 17 };
         using var changedJson = new MemoryStream();
-        TitlePalettePresentation.Write(changedJson, document);
+        TitlePaletteFile.Write(changedJson, document);
         changedJson.Position = 0;
-        TitlePalettePresentation changed = TitlePalettePresentation.Load(changedJson);
+        TitlePalettePresentation changed = TitlePaletteFile.Read(changedJson);
         foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
@@ -272,8 +271,8 @@ internal static class LookupStream4Verification
         static TitlePalettePresentation Load(TitlePaletteDocument document)
         {
             using var output = new MemoryStream();
-            TitlePalettePresentation.Write(output, document);
-            return TitlePalettePresentation.Load(new MemoryStream(output.ToArray()));
+            TitlePaletteFile.Write(output, document);
+            return TitlePaletteFile.Read(new MemoryStream(output.ToArray()));
         }
         void Confirm(TitlePaletteDocument document, TitlePalettePresentation selected)
         {
@@ -422,7 +421,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
     {
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
         var stored = stock.colors;
         var sites = new List<LookupStream4Site>();
         for (int owner = 0; owner < 3; owner++)
@@ -451,7 +450,7 @@ internal static class LookupStream4Verification
             var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
             var rows = edit.Owner == 0 ? document.MaridiaSandPits : edit.Owner == 1 ? document.MaridiaSandFalls : document.MaridiaBackgroundWaterfalls;
             rows[edit.Frame][edit.Color] = rows[edit.Frame][edit.Color] with { Red = rows[edit.Frame][edit.Color].Red ^ 1 };
-            var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             foreach (var site in sites)
             {
                 AssertTrue(changed.TryReadColor(site.Pointer, out Bgr555 actual), "edited environmental pointer resolves");
@@ -496,7 +495,7 @@ internal static class LookupStream4Verification
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (all[owner].ProgramStart + 2)), all[owner].ColorByteIndex, "native text color destination");
         }
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
         var stored = stock.colors;
         int storedCount = 0;
         for (int owner = 0; owner < 2; owner++)
@@ -523,7 +522,7 @@ internal static class LookupStream4Verification
             var rows = edit < 24 ? document.PlanetZebesTextFadeIn : document.PlanetZebesTextFadeOut;
             int selected = edit % 24;
             rows[selected / 3][selected % 3] = rows[selected / 3][selected % 3] with { Red = rows[selected / 3][selected % 3].Red ^ 1 };
-            var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             for (int owner = 0; owner < 2; owner++)
             for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 3; color++)
@@ -568,7 +567,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         foreach (bool eyes in new[] { true, false })
         {
             int count = eyes ? 3 : 11, start = eyes ? 0xA6E2AA : 0xA6E30A;
@@ -607,7 +606,7 @@ internal static class LookupStream4Verification
                         _ => original with { Blue = original.Blue ^ 1 },
                     };
                     var changed = eyes ? document with { EyeFade = rows } : document with { BodyFade = rows };
-                    selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(changed)));
+                    selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(changed)));
                 }
                 for (int row = 0; row < 16; row++)
                 {
@@ -645,7 +644,7 @@ internal static class LookupStream4Verification
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var definition = stock.alarm;
         var inputs = definition.edits;
         AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
@@ -665,7 +664,7 @@ internal static class LookupStream4Verification
                 int word = edit / 3, channel = edit % 3;
                 var original = rows[word / 3][word % 3];
                 rows[word / 3][word % 3] = channel switch { 0 => original with { Red = original.Red ^ 1 }, 1 => original with { Green = original.Green ^ 1 }, _ => original with { Blue = original.Blue ^ 1 } };
-                selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Alarm = rows })));
+                selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Alarm = rows })));
             }
             if (edit is -1 or 0 or 143)
             {
@@ -711,7 +710,7 @@ internal static class LookupStream4Verification
         foreach (int version in new[] { 1, 2 })
         {
             byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = version, Alarm = null }, ArtworkJson.Options);
-            var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
+            var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
             for (int row = 0; row < 16; row++)
             for (int color = 0; color < 3; color++)
                 AssertEqual(Native(row, color), legacy.ResolveAlarm(row, color), "legacy alarm fallback preserves immutable calculated source");
@@ -853,7 +852,7 @@ internal static class LookupStream4Verification
             AssertEqual(native[frame][color], Expected(native, frame, color), $"Native health row {frame} color {color} follows the interpolation");
 
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
         var rows = stock.health;
         var edits = rows.intermediateEdits;
         AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
@@ -865,7 +864,7 @@ internal static class LookupStream4Verification
             var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             document.Health[frame][color] = document.Health[frame][color] with { Red = document.Health[frame][color].Red ^ 1 };
-            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
             ushort[][] expected = native.Select(row => (ushort[])row.Clone()).ToArray();
             expected[frame][color] ^= 1;
             // Every supplied cell resolves exactly; cells that no longer follow the (edited)
@@ -896,7 +895,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
         var values = stock.spores;
         AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
         for (int color = 0; color < 16; color++)
@@ -908,7 +907,7 @@ internal static class LookupStream4Verification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             if (editSpore) document.Spores[5] = document.Spores[5] with { Red = document.Spores[5].Red ^ 1 };
             else document.Health[0][5] = document.Health[0][5] with { Red = document.Health[0][5].Red ^ 1 };
-            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
             Verify(edited, editSpore, !editSpore);
             Verify(stock, false, false);
         }
@@ -951,7 +950,7 @@ internal static class LookupStream4Verification
         Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
         AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
         var values = stock.deathLevel;
         AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
         for (int color = 0; color < 16; color++)
@@ -979,7 +978,7 @@ internal static class LookupStream4Verification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var old = document.DeathLevel[selected.Frame][selected.Color];
             document.DeathLevel[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
-            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
             Verify(edited, selected.Frame, selected.Color);
             Verify(stock, -1, -1);
         }
@@ -1028,7 +1027,7 @@ internal static class LookupStream4Verification
                 SporeSpawnDeathColorDefinitions.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
         var values = stock.deathBackground;
         AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
         for (int frame = 0; frame < 7; frame++)
@@ -1046,7 +1045,7 @@ internal static class LookupStream4Verification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var old = document.DeathBackground[selected.Frame][selected.Color];
             document.DeathBackground[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
-            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
             Verify(edited, selected.Frame, selected.Color);
             Verify(stock, -1, -1);
         }
@@ -1088,7 +1087,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
         var values = stock.deathSprite;
         AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
         for (int frame = 0; frame < 8; frame++)
@@ -1104,7 +1103,7 @@ internal static class LookupStream4Verification
         var criticalDocument = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         criticalDocument.Health[3][1] = criticalDocument.Health[3][1] with { Red = criticalDocument.Health[3][1].Red ^ 1 };
-        var criticalEdit = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(criticalDocument)));
+        var criticalEdit = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(criticalDocument)));
         Verify(criticalEdit, -1, -1, criticalEdit: true);
         Verify(stock, -1, -1);
         foreach (var selected in new[] { new Coordinate(Frame:0, Color:1), new Coordinate(Frame:7, Color:15), new Coordinate(Frame:3, Color:6) })
@@ -1113,7 +1112,7 @@ internal static class LookupStream4Verification
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var old = document.DeathSprite[selected.Frame][selected.Color];
             document.DeathSprite[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
-            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
             Verify(edited, selected.Frame, selected.Color);
             Verify(stock, -1, -1);
         }
@@ -1317,7 +1316,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), (ushort)CeresMode7TransferDefinitions.BabyFrameForPhase(phase), "Baby reflected phase preserves native transfer identity");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
-        var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
+        var colors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         // The getaway patches the room's Mode 7 map, which each NMI publishes; it no longer writes VRAM (#1349).
         byte[] untouchedCells = new byte[FloorMap.Cells];
         Array.Fill(untouchedCells, (byte)0x5a);
@@ -1760,7 +1759,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
-        var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
+        var stock = BeamPaletteFile.Read(new MemoryStream(source));
         var stored = stock.palettes;
         AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
@@ -1774,7 +1773,7 @@ internal static class LookupStream4Verification
                 var color = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(word / 16))).Required(word % 16);
                 string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
                 color[component] = color.Required(component).GetValue<int>() ^ 1;
-                selected = BeamPaletteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+                selected = BeamPaletteFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
             }
             for (int selection = 0; selection < 12; selection++)
             {
@@ -2113,7 +2112,7 @@ internal static class LookupStream4Verification
         var program = CrateriaLightningColorDefinitions.DarkProgram;
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentation.Load(originalStream);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
         var stored = original.colors;
         for (int frame = 0; frame < 14; frame++)
         for (int index = 0; index < 7; index++)
@@ -2131,7 +2130,7 @@ internal static class LookupStream4Verification
             var source = document.CrateriaUnusedDarkLightning[frame][index];
             document.CrateriaUnusedDarkLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentation.Load(json);
+            var edited = RoomPaletteFxPresentationFile.Read(json);
             for (int row = 0; row < 14; row++)
             for (int color = 0; color < 7; color++)
             {
@@ -2155,7 +2154,7 @@ internal static class LookupStream4Verification
         var program = CrateriaLightningColorDefinitions.SurfaceProgram;
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentation.Load(originalStream);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
         var stored = original.colors;
         for (int frame = 0; frame < 13; frame++)
         for (int index = 0; index < 8; index++)
@@ -2173,7 +2172,7 @@ internal static class LookupStream4Verification
             var source = document.CrateriaSurfaceLightning[frame][index];
             document.CrateriaSurfaceLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentation.Load(json);
+            var edited = RoomPaletteFxPresentationFile.Read(json);
             for (int row = 0; row < 13; row++)
             for (int color = 0; color < 8; color++)
             {
@@ -2251,7 +2250,7 @@ internal static class LookupStream4Verification
         }
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentation.Load(originalStream);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
         var stored = original.colors;
         int storedStatueColors = 0;
         foreach (var pair in native)
@@ -2270,7 +2269,7 @@ internal static class LookupStream4Verification
             var source = document.TourianStatueGrey[edit.Frame][edit.Index];
             document.TourianStatueGrey[edit.Frame][edit.Index] = source with { Red = (source.Red + 9) & 31, Blue = (source.Blue + 5) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentation.Load(json);
+            var edited = RoomPaletteFxPresentationFile.Read(json);
             for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 8; color++)
             {
@@ -2322,7 +2321,7 @@ internal static class LookupStream4Verification
     private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
-        var catalog = PowerBombFixedColorCatalog.Load(new MemoryStream(original));
+        var catalog = PowerBombFixedColorFile.Read(new MemoryStream(original));
         AssertEqual(0, catalog.preExplosion.Count, "stock pre-explosion colors are entirely calculated");
         AssertEqual(11, catalog.explosion.Count, "only unresolved explosion tail remains stored");
         foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
@@ -2349,7 +2348,7 @@ internal static class LookupStream4Verification
             var rows = edit.First == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
             var before = rows[edit.Second];
             rows[edit.Second] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
-            var installed = PowerBombFixedColorCatalog.Load(new MemoryStream(PowerBombFixedColorCatalog.Write(document)));
+            var installed = PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document)));
             foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
             for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
             {
@@ -2429,7 +2428,7 @@ internal static class LookupStream4Verification
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
-        var stock = DraygonColorCatalog.Load(new MemoryStream(json));
+        var stock = DraygonColorFile.Read(new MemoryStream(json));
         var intro = stock.intro;
         var primary = intro.primary;
         var surface = intro.surface;
@@ -2444,7 +2443,7 @@ internal static class LookupStream4Verification
                 var rgb=document.Intro[edit/3]; document.Intro[edit/3]=(edit%3) switch
                 {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
             }
-            var selected=DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
             string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
             {
                 content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
@@ -2497,7 +2496,7 @@ internal static class LookupStream4Verification
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
-        var stock = DraygonColorCatalog.Load(new MemoryStream(json));
+        var stock = DraygonColorFile.Read(new MemoryStream(json));
         var material = stock.sprite;
         AssertEqual(0,material.edits.Count,"Shared native sprite material has zero overrides");
         for(int edit=-1;edit<48;edit++)
@@ -2508,7 +2507,7 @@ internal static class LookupStream4Verification
                 var rgb=document.Sprite[edit/3]; document.Sprite[edit/3]=(edit%3) switch
                 {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
             }
-            var selected=DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
             string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
             {
                 content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
@@ -2560,7 +2559,7 @@ internal static class LookupStream4Verification
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
-        var stock = DraygonColorCatalog.Load(new MemoryStream(json));
+        var stock = DraygonColorFile.Read(new MemoryStream(json));
         var material = stock.background;
         AssertEqual(0,material.edits.Count,"All16 background colors calculate without unexplained stock overrides");
         for (int edit = -1; edit < 48; edit++)
@@ -2572,7 +2571,7 @@ internal static class LookupStream4Verification
                 document.Background[edit / 3] = (edit % 3) switch
                 { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
             }
-            var selected = DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            var selected = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
             string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1",content =>
             {
                 content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
@@ -2635,7 +2634,7 @@ internal static class LookupStream4Verification
                 document.HealthBands[word / 4][word % 4] = (edit % 3) switch
                 { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
             }
-            var selected = DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            var selected = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
             string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
             {
                 content.AppendWords("intro", document.Intro.Select(Pack).ToArray()); content.AppendWords("background", document.Background.Select(Pack).ToArray());
@@ -2690,7 +2689,7 @@ internal static class LookupStream4Verification
     {
         byte[] original = DraygonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var stock = DraygonColorCatalog.Load(new MemoryStream(original));
+        var stock = DraygonColorFile.Read(new MemoryStream(original));
         AssertEqual(0, stock.whiteFlash.Count, "Draygon stock flash is calculated without stored colors");
         var health = stock.healthBands;
         AssertEqual(0, health.edits.Count, "All native Draygon health colors calculate without overrides");
@@ -2702,7 +2701,7 @@ internal static class LookupStream4Verification
             if (variation == 1) document.WhiteFlash[9] = edited;
             if (variation == 2) document.HealthBands[3][2] = edited;
             if (variation == 3) document.HealthBands[0][1] = edited;
-            var catalog = DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            var catalog = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
             ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
             string identity = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
             {
@@ -2748,7 +2747,7 @@ internal static class LookupStream4Verification
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
-        var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
         var definition = stock.reveal;
         AssertEqual(0, definition.edits.Count,
             "All210 native reveal words calculate without residual samples");
@@ -2770,7 +2769,7 @@ internal static class LookupStream4Verification
                 document.Reveal[word / 14][word % 14] = (edit % 3) switch
                 { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
             }
-            var selected = NorfairRidleyColorCatalog.Load(new MemoryStream(NorfairRidleyColorCatalog.Write(document)));
+            var selected = NorfairRidleyColorFile.Read(new MemoryStream(NorfairRidleyColorFile.Write(document)));
             string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
             {
                 content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
@@ -2843,7 +2842,7 @@ internal static class LookupStream4Verification
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
         var initial = stock.initial;
         var armor = initial.armor;
         var organ = initial.organ;
@@ -2864,7 +2863,7 @@ internal static class LookupStream4Verification
                 document.Initial[color] = (edit % 3) switch
                 { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
             }
-            var selected = NorfairRidleyColorCatalog.Load(new MemoryStream(NorfairRidleyColorCatalog.Write(document)));
+            var selected = NorfairRidleyColorFile.Read(new MemoryStream(NorfairRidleyColorFile.Write(document)));
             string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
             {
                 content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
@@ -2934,7 +2933,7 @@ internal static class LookupStream4Verification
     {
         byte[] original = BotwoonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var stock = BotwoonColorCatalog.Load(new MemoryStream(original));
+        var stock = BotwoonColorFile.Read(new MemoryStream(original));
         var paint = stock.health;
         int stored = paint.edits.Count;
         AssertEqual(0, stored, "Botwoon all stock channels calculate with zero overrides");
@@ -2954,7 +2953,7 @@ internal static class LookupStream4Verification
                     _ => rgb with { Blue = rgb.Blue ^ 1 },
                 };
             }
-            var catalog = BotwoonColorCatalog.Load(new MemoryStream(BotwoonColorCatalog.Write(document)));
+            var catalog = BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(document)));
             ushort Expected(int band, int color) => (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2))
                 ^ (edit >= 0 && band * 16 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
             ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
@@ -3111,7 +3110,7 @@ internal static class LookupStream4Verification
         AssertEqual(16, SpazerCompositionGeometryDefinitions.DiagonalStripWidth, "two adjacent small cells form the strip width");
         AssertEqual(2, BeamTileAtlasDefinitions.SpazerRibbonThickness, "required horizontal artwork thickness stays explicit");
         var files = BeamTileExtractor.Extract(rom);
-        var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
+        var palettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
         var catalog = BeamTileCatalog.Load(files, palettes);
         int derivedTotal = 0;
         int runtimeBasisTotal = 0;
@@ -3226,7 +3225,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         for (int color = 0; color < 32; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + color * 2)), stock.ResolveStart(color), "Complete native additional palette");
         for (int color = 0; color < 16; color++)
@@ -3252,7 +3251,7 @@ internal static class LookupStream4Verification
                 };
                 if (edit < 32) starts[edit] = changed; else babies[0][edit - 32] = changed;
             }
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, Baby = babies })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, Baby = babies })));
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyStart(cgram);
@@ -3282,7 +3281,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         ushort Native(int row, int color)
         {
             int a = 0xa6e1f1 + (row * 15 + color) * 2;
@@ -3299,7 +3298,7 @@ internal static class LookupStream4Verification
         foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, Baby = null }, ArtworkJson.Options);
-        var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
+        var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
             AssertEqual(Native(row, color), legacy.ResolveBaby(row, color), "Legacy document preserves the independently installed Baby owner");
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
@@ -3319,7 +3318,7 @@ internal static class LookupStream4Verification
                 };
                 if (edit < 60) rows[edit / 15][edit % 15] = replacement; else body[15][8 + edit - 60] = replacement;
             }
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = rows, BodyFade = body })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Baby = rows, BodyFade = body })));
             for (int row = 0; row < 4; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
@@ -3342,7 +3341,7 @@ internal static class LookupStream4Verification
             var babyRows = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
             if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             enemies.Presentation.BindCgram(cgram.Gameplay);
@@ -3374,7 +3373,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var stored = stock.retreatShared;
         AssertEqual(0, stored.Count, "No native retreat shared paints retained");
         for (int color = 0; color < 8; color++)
@@ -3392,7 +3391,7 @@ internal static class LookupStream4Verification
                 var replacement = channel switch { 0 => old with { Red = old.Red ^ 1 }, 1 => old with { Green = old.Green ^ 1 }, _ => old with { Blue = old.Blue ^ 1 } };
                 if (edit < 8) shared[edit] = replacement; else starts[edit - 7] = replacement;
             }
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, RetreatShared = shared })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, RetreatShared = shared })));
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
@@ -3416,7 +3415,7 @@ internal static class LookupStream4Verification
     {
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
         var zoomDocument = RequiredJson.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, ArtworkJson.Options);
-        var zoomStock = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(zoomJson));
+        var zoomStock = CeresRidleyMode7ColorFile.Read(new MemoryStream(zoomJson));
         var zoomDefinition = zoomStock.rows;
         var zoomEdits = zoomDefinition.edits;
         AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
@@ -3432,7 +3431,7 @@ internal static class LookupStream4Verification
         {
             var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
             if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
-            var selected = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorCatalog.Write(zoomDocument with { ZoomRows = rows })));
+            var selected = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(zoomDocument with { ZoomRows = rows })));
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
             enemies.Presentation.BindCgram(cgram.Gameplay);
@@ -3453,7 +3452,7 @@ internal static class LookupStream4Verification
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var retreatEdits = stock.retreatBg;
         AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
@@ -3464,7 +3463,7 @@ internal static class LookupStream4Verification
             if (edit is >= 0 and < 15) retreat[edit] = Change(retreat[edit], channel);
             else if (edit is >= 15 and < 26) body[1][edit - 15] = Change(body[1][edit - 15], channel);
             else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
@@ -3496,7 +3495,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         ushort Native(int row, int color)
         {
             int a = 0xa6e46a + (row * 14 + color) * 2;
@@ -3515,7 +3514,7 @@ internal static class LookupStream4Verification
             if (edit is >= 0 and < 42) rows[edit / 14][edit % 14] = Change(rows[edit / 14][edit % 14], channel);
             else if (edit is >= 42 and < 53) body[15][edit - 42] = Change(body[15][edit - 42], channel);
             else if (edit >= 53) eyes[0][edit - 53] = Change(eyes[0][edit - 53], channel);
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
             for (int row = 0; row < 3; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
@@ -3535,7 +3534,7 @@ internal static class LookupStream4Verification
             var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
             if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
             if (variation == 1) body[15][9] = Change(body[15][9], 1);
-            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body })));
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             var cgram = new SamusColourRig();
             enemies.Presentation.BindCgram(cgram.Gameplay);

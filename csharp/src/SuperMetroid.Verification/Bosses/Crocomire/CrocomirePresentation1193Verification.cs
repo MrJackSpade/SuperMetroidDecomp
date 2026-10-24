@@ -16,8 +16,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -31,11 +29,8 @@ internal static class CrocomirePresentation1193Verification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
-        var installation = RepositoryInstallation.Installation;
-        var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var maps = InstalledFixtures.Maps;
-        var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
@@ -78,7 +73,7 @@ internal static class CrocomirePresentation1193Verification
         {
             ArtworkAnimation spikeTiles = AnimatedTileFrames.Of(AnimatedTileObject.HorizontalSpikes);
             ArtworkFrame? before = runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame previous) ? previous : null;
-            var result = game.Step(0);
+            game.Step(0);
             if (spikes)
             {
                 AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame shown),

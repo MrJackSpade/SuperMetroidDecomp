@@ -7,6 +7,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>New-game Ceres arrival through the real frontend: fade, moving pad, landing and release.</summary>
 internal static class RetailElevatorCaptureTests

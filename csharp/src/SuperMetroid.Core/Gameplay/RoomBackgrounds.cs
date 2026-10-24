@@ -26,6 +26,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Characters">Which character page BG1 and BG2 draw from (#1357).</param>
 /// <param name="XrayReveal">The X-ray reveal BG2 shows in place of the room's own BG2, or null (#1392).</param>
 /// <param name="Bg2Image">The room's library background drawn from its image, where BG2 shows the tilemap it loaded (#1392).</param>
+[ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyPictures? Sky = null,
     RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Mode7 = null, BossBodyPictures? BossBg2 = null,

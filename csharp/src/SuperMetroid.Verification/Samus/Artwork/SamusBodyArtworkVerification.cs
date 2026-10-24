@@ -307,7 +307,7 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition),
                 frames.Shown.Top ?? -1, $"Samus pose {pose:X2} shows its frame-zero top definition");
             AssertEqual(selection.NamesBottom
-                    ? stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition) : (int?)null,
+                    ? stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition) : null,
                 frames.Shown.Bottom, $"Samus pose {pose:X2} shows its frame-zero bottom definition, or none before any is named");
         }
 

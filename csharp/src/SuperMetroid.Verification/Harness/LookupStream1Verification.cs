@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
@@ -21,7 +20,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositions
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Samus.Artwork.SamusBodyArtworkVerification;
 using static SuperMetroid.Verification.Samus.SamusContentIdentityVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape;
@@ -52,7 +50,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Enemies;
@@ -3199,10 +3196,10 @@ internal static class LookupStream1Verification
             AssertEqual(topAddress, state.TopDefinitionAddress, "Native physical upper selection including cross-group position");
             bool namesBottom = LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) != 255;
             if (namesBottom)
-                AssertEqual((int?)(0x920000 | (Word(0x92d938 + LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 3) * 7)),
+                AssertEqual(0x920000 | (Word(0x92d938 + LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 3) * 7),
                     state.BottomDefinitionAddress, "Native physical lower selection including cross-group position");
             else
-                AssertEqual((int?)null, state.BottomDefinitionAddress, "A first selection naming no lower half shows none");
+                AssertEqual(null, state.BottomDefinitionAddress, "A first selection naming no lower half shows none");
             // The shown body characters equal the native split copies: each definition's first part fills a half row
             // (top from character 0, bottom from character 8) and its second part the half row a full row below.
             var expected = new byte[SamusBodyArtworkCatalog.BodyCharacterCount * SpriteArtwork.CharacterByteCount];

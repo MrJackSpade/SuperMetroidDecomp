@@ -31,9 +31,6 @@ public sealed class BackgroundColours
     /// <summary>The colour shown where nothing is drawn.</summary>
     public Bgr555 Backdrop => colours[0];
 
-    /// <summary>The colour ink <paramref name="ink"/> shows.</summary>
-    public Bgr555 Colour(int ink) => colours[Ensure.BetweenInclusive(0, Inks - 1, ink)];
-
     /// <summary>These colours with the backdrop shown in <paramref name="backdrop"/>.</summary>
     public BackgroundColours WithBackdrop(Bgr555 backdrop) => With(0, backdrop);
 

@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Progression;
-
-namespace SuperMetroid.Core.Samus.Projectiles;
+﻿namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Cartridge values and helpers of <see cref="SpacetimeBeamGraphicsDefinitions"/> that only verification reads.</summary>
 internal static class SpacetimeBeamGraphicsDefinitionsConstants

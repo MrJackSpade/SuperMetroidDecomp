@@ -20,13 +20,14 @@ internal static class UploadedPictureChecks
     /// <summary>
     /// Asserts <paramref name="pictures"/> show exactly the inks <paramref name="parts"/> show over their characters: at
     /// every on-screen pixel the same palette entry, which decides the colour and whether it blends (#1405), and the same
-    /// priority, with at least one pixel inked.
+    /// priority, with at least one pixel inked where <paramref name="requirePixels"/> asks for it.
     /// </summary>
-    internal static void AssertPaintsLikeParts(ImmutableArray<SpriteDraw> pictures, ImmutableArray<CharacterSpriteDraw> parts,
-        string message)
+    /// <returns>The on-screen pixels the parts ink.</returns>
+    internal static int AssertPaintsLikeParts(ImmutableArray<SpriteDraw> pictures, ImmutableArray<CharacterSpriteDraw> parts,
+        string message, bool requirePixels = true)
     {
         AssertTrue(pictures.Length > 0 && pictures.All(draw => draw is ImageSpriteDraw), $"{message}: draws from a sheet");
-        AssertSameInks([.. pictures.Cast<ImageSpriteDraw>()], parts, message);
+        return AssertSameInks([.. pictures.Cast<ImageSpriteDraw>()], parts, message, requirePixels);
     }
 
     /// <summary>
@@ -34,7 +35,8 @@ internal static class UploadedPictureChecks
     /// on-screen pixel: the frontmost inked pixel's palette entry and priority, with at least one pixel inked where
     /// <paramref name="requirePixels"/> asks for it (a sheet may hold a frame that draws nothing).
     /// </summary>
-    internal static void AssertSameInks(IReadOnlyList<ImageSpriteDraw> images, IReadOnlyList<CharacterSpriteDraw> parts, string message,
+    /// <returns>The on-screen pixels the parts ink.</returns>
+    internal static int AssertSameInks(IReadOnlyList<ImageSpriteDraw> images, IReadOnlyList<CharacterSpriteDraw> parts, string message,
         bool requirePixels = true)
     {
         Dictionary<(int X, int Y), (int Entry, int Priority)> expected = [], actual = [];
@@ -76,6 +78,7 @@ internal static class UploadedPictureChecks
         }
         if (requirePixels)
             AssertTrue(expected.Count > 0, $"{message}: paints pixels");
+        return expected.Count;
 
         // The frontmost ink at an on-screen pixel; a later, further-back draw does not replace it.
         static void Ink(Dictionary<(int X, int Y), (int Entry, int Priority)> inks, int x, int y, int entry, int priority)

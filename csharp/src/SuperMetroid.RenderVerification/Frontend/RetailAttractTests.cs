@@ -9,6 +9,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks D3D11 capture of the stock attract-demo sequence and its return to the title.</summary>
 internal static class RetailAttractTests

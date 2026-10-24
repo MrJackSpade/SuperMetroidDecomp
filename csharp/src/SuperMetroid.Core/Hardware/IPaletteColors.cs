@@ -12,9 +12,6 @@ public interface IPaletteColors
     /// <summary>Writes the colour at <paramref name="index"/>.</summary>
     void SetColor(int index, Bgr555 color);
 
-    /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
-    Rgba32 GetRgba(int index);
-
     /// <summary>Loads consecutive little-endian colour words from <paramref name="destinationIndex"/> onward.</summary>
     void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0);
 }

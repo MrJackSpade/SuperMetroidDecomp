@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using System.Reflection;

@@ -9,6 +9,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.SaveMapFixtures;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares legacy and captured rendering through saved-file map, Samus appearance, and control release.</summary>
 internal static class RetailLoadAppearanceTests

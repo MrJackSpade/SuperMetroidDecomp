@@ -41,8 +41,8 @@ public sealed class SamusChargeColorCatalog
     internal SamusChargeColorCatalog(Bgr555[][][] chargedBeam,
         Bgr555[][][] pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
     {
-        this.chargedBeam = new(chargedBeam, pseudo: false);
-        this.pseudoScrew = new(pseudoScrew, pseudo: true);
+        this.chargedBeam = new(chargedBeam, SamusChargeKind.ChargedBeam);
+        this.pseudoScrew = new(pseudoScrew, SamusChargeKind.PseudoScrew);
         this.hyperShot = hyperShot;
     }
 
@@ -92,9 +92,9 @@ public sealed class SamusChargeColorCatalog
         internal readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
         /// <summary>Reduces each supplied row to its independent colors and channel differences while preserving divergent repeated phases.</summary>
-        internal ChargeInputs(Bgr555[][][] source, bool pseudo)
+        internal ChargeInputs(Bgr555[][][] source, SamusChargeKind kind)
         {
-            this.pseudo = pseudo;
+            pseudo = kind == SamusChargeKind.PseudoScrew;
             for (int suit = 0; suit < source.Length; suit++)
             for (int phase = 0; phase < source[suit].Length; phase++)
             for (int color = 0; color < source[suit][phase].Length; color++)

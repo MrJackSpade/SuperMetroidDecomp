@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Samus.Death;
 

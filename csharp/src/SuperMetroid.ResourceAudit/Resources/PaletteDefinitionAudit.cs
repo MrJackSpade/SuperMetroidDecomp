@@ -10,6 +10,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 

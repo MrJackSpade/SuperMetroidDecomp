@@ -6,22 +6,14 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Artwork.ProjectileTrailAtlasVerification;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Gameplay;
 
 /// <summary>Retail OAM, compiled program, live override, and mutable-memory checks for projectile trails.</summary>
 internal static class ProjectileTrailArtworkVerification

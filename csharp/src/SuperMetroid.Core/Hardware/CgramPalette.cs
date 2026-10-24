@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Hardware;
 public readonly struct CgramPalette
 {
     /// <summary>Underlying colour table to which writes must propagate: CGRAM or a screen palette.</summary>
-    private readonly IPaletteColors cgram;
+    internal readonly IPaletteColors cgram;
     /// <summary>First CGRAM color slot represented by this bounded view.</summary>
-    private readonly int first;
+    internal readonly int first;
 
     /// <summary>Binds the CGRAM colours described by <paramref name="cell"/>.</summary>
     [PpuLayoutAccess]
@@ -39,9 +39,6 @@ public readonly struct CgramPalette
 
     /// <summary>Writes one colour.</summary>
     public void Write(int index, Bgr555 color) => cgram.SetColor(first + Index(index), color);
-
-    /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
-    public Rgba32 Rgba(int index) => cgram.GetRgba(first + Index(index));
 
     /// <summary>Writes <paramref name="colors"/> starting at <paramref name="start"/>.</summary>
     public void CopyFrom(ReadOnlySpan<Bgr555> colors, int start = 0)
@@ -71,7 +68,7 @@ public readonly struct CgramPalette
     }
 
     /// <summary>Rejects a color index outside this view before adding its CGRAM base offset.</summary>
-    private int Index(int index) => (uint)index < (uint)Count
+    internal int Index(int index) => (uint)index < (uint)Count
         ? index
         : throw new ArgumentOutOfRangeException(nameof(index), index, $"The palette range holds {Count} colours.");
 

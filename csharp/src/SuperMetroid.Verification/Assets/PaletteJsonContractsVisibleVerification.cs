@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Tooling;
 using System.Reflection;
@@ -18,6 +17,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Assets;
 

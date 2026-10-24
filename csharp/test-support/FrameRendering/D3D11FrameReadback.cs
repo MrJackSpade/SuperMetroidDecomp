@@ -4,7 +4,7 @@ using Vortice.Direct3D11;
 using Vortice.DXGI;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 
-namespace SuperMetroid.TestSupport.FrameCapture;
+namespace SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
 /// CPU readback of a renderer's last completed frame, for the debug runner and render verification;

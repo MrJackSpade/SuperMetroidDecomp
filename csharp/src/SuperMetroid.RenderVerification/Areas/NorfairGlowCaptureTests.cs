@@ -10,6 +10,7 @@ namespace SuperMetroid.RenderVerification.Areas;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks D3D11 capture of Norfair's animated foreground glow against production rendering.</summary>
 internal static class NorfairGlowCaptureTests

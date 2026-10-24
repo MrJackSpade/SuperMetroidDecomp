@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;

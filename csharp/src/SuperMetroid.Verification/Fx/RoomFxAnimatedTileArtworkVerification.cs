@@ -1,14 +1,12 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Fx;
@@ -103,8 +101,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
     /// <summary>Checks that installed animated-tile overrides change the intended VRAM frames without changing mechanics.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
-        string stock, string overrides, AreaMapPresentationCatalog baseline,
-        GameplayBasePaletteCatalog initialPalettes)
+        string stock, string overrides, AreaMapPresentationCatalog baseline)
     {
         string file = Path.Combine(overrides, RoomFxAnimatedTileAtlasFormat.FileName);
         byte[] source = File.ReadAllBytes(Path.Combine(stock, RoomFxAnimatedTileAtlasFormat.FileName));

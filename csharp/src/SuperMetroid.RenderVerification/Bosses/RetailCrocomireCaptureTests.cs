@@ -12,6 +12,7 @@ namespace SuperMetroid.RenderVerification.Bosses;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks GPU capture through Crocomire's ordinary fight and full death sequence.</summary>
 internal static class RetailCrocomireCaptureTests

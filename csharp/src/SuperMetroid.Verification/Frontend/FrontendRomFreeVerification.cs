@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Video;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;

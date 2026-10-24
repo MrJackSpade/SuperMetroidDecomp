@@ -22,7 +22,6 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -233,7 +232,6 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Invokes each death-phase BG3 quarter restoration through the live Kraid behavior.</summary>
     private static SnesVram RunKraidBg3Restoration(InstalledEnemyArtwork enemyArtwork, HudTileAtlas hud)
     {
-        var bus = SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = enemyArtwork.Enemies, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,

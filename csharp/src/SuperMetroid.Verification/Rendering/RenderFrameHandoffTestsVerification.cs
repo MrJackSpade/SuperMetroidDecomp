@@ -1,8 +1,8 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Rendering;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -12,6 +11,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares ending scene B's cloud placement and motion with independently stepped actors.</summary>
 internal static class EndingCloudPlacementVerification

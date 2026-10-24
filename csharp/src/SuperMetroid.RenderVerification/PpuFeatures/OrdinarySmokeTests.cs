@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares ordinary gameplay rendering across native geometry, layer, and HDMA settings.</summary>
 internal static class OrdinarySmokeTests

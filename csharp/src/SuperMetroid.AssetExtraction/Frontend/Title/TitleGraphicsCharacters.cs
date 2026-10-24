@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -35,9 +36,6 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
 
     /// <summary>Eight-bit Mode-7 character lane uploaded for the title backdrop.</summary>
     public ReadOnlySpan<byte> FloorCharacters => floorCharacters;
-
-    /// <summary>Four-bit title OBJ character graphics selected by sprite compositions.</summary>
-    public ReadOnlySpan<byte> ObjectCharacters => objectCharacters;
 
     /// <summary>Separate eight-bit Mode-7 character page for the baby Metroid scene.</summary>
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;

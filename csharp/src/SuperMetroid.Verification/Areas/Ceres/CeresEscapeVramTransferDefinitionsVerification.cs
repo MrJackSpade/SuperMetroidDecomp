@@ -20,7 +20,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks Ceres escape VRAM descriptors and installed timer and Japanese overlay transfers.</summary>

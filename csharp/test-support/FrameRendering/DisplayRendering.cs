@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 
-namespace SuperMetroid.TestSupport.FrameCapture;
+namespace SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
 /// Frames drawn for verification by the game's only renderer, Direct3D 11, on the WARP device (#1409): the same software
@@ -21,13 +21,10 @@ internal static class DisplayRendering
     internal static Rgba32[] Render(DisplayPacket packet) => Renderer().RenderForReadback(packet);
 
     /// <summary>The pixels a packet of <paramref name="scene"/> alone shows.</summary>
-    internal static Rgba32[] Render(LayeredScene scene) => Render(new DisplayPacket(Next(), scene));
-
-    /// <summary>The pixels a packet of <paramref name="scene"/> alone shows.</summary>
-    internal static Rgba32[] Render(FloorScene scene) => Render(new DisplayPacket(Next(), scene));
+    internal static Rgba32[] Render(LayeredScene scene) => Render(new DisplayPacket(NextFrame(), scene));
 
     /// <summary>The identity of this thread's next frame.</summary>
-    private static RenderFrameIdentity Next() => new(++sequence, 1, 0);
+    internal static RenderFrameIdentity NextFrame() => new(++sequence, 1, 0);
 
     /// <summary>This thread's renderer, made with its WARP device on first use.</summary>
     private static D3D11FrameRenderer Renderer() => renderer ??= new D3D11FrameRenderer(new D3D11RenderDevice(D3D11DeviceKind.Warp));

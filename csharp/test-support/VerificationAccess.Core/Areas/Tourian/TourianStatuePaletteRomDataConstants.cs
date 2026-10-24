@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
-
+﻿
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Cartridge values and helpers of <see cref="TourianStatuePaletteRomData"/> that only verification reads.</summary>

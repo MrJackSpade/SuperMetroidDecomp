@@ -39,7 +39,7 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     }
 
     /// <summary>The installed escape timer characters at <paramref name="path"/>.</summary>
-    private static EscapeTimerTileAtlas LoadEscapeTimer(string path)
+    private static EscapeTimerCharacters LoadEscapeTimer(string path)
     {
         using FileStream png = File.OpenRead(path);
         return EscapeTimerCharacters.Read(png);

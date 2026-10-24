@@ -15,6 +15,7 @@ namespace SuperMetroid.RenderVerification.Rooms;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Focused downward ride, staged on the carrier rather than reached by a multi-room trace.</summary>
 internal static class RetailElevatorDepartureTests

@@ -7,6 +7,7 @@ namespace SuperMetroid.RenderVerification.Bosses;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks Mother Brain ascent's per-line layer mask, floor occlusion, and CPU/GPU packet parity.</summary>
 internal static class MotherBrainAscentMaskTests

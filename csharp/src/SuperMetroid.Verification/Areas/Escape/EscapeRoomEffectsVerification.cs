@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -11,6 +10,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks escape-room explosion sprites, earthquake offsets, and rescue exit behavior.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using static SuperMetroid.Verification.Bosses.BossMapMarkersVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PausePaletteSoundVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
@@ -18,6 +17,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks pause-menu render packets through map, equipment, and fade states.</summary>
 internal static class PauseSnapshotTestsVerification

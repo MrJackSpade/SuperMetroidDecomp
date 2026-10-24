@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
-
+﻿
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Cartridge values and helpers of <see cref="CeresRidleyPaletteRomData"/> that only verification reads.</summary>

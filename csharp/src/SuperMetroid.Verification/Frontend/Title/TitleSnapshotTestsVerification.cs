@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks that title-scene render snapshots draw the scene, stay repeatable and are retained across its advancement.</summary>
 internal static class TitleSnapshotTestsVerification
@@ -43,8 +43,8 @@ internal static class TitleSnapshotTestsVerification
                     FloorScene packet = scene.CaptureRenderSnapshot();
                     Match(expected, DisplayRendering.Render(
                         new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
-                    Match(expected, DisplayRendering.Render(packet), frame, phase);
-                    Match(expected, DisplayRendering.Render(packet), frame, phase);
+                    Match(expected, DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), packet)), frame, phase);
+                    Match(expected, DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), packet)), frame, phase);
                     FloorScene repeat = scene.CaptureRenderSnapshot();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
                     Match(control.Render(), expected, frame, phase);
@@ -54,7 +54,7 @@ internal static class TitleSnapshotTestsVerification
                     SnesButton input = phase == TitleSequencePhase.TitleScreen ? SnesButton.Start : 0;
                     scene.Step(input);
                     control.Step(input);
-                    Match(expected, DisplayRendering.Render(packet), frame, phase);
+                    Match(expected, DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), packet)), frame, phase);
                 }
                 else
                 {

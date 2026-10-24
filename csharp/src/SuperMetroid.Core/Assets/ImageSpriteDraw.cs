@@ -58,31 +58,6 @@ public sealed record ImageSpriteDraw : SpriteDraw
         }
     }
 
-    /// <summary>The image pixel shown at <paramref name="cell"/>, a position inside the frame rectangle on screen.</summary>
-    public Rgba32 PixelAt(Position16<ScreenPixels> cell)
-    {
-        int sourceX = (Mirror & SpriteMirror.Horizontal) != 0 ? Image.Size.X - 1 - cell.X : cell.X;
-        int sourceY = (Mirror & SpriteMirror.Vertical) != 0 ? Image.Size.Y - 1 - cell.Y : cell.Y;
-        return Image.Sheet.Pixels[(Image.Corner.Y + sourceY) * Image.Sheet.Size.X + Image.Corner.X + sourceX];
-    }
-
-    /// <summary>The palette row times sixteen plus colour of the image pixel shown at <paramref name="cell"/>.</summary>
-    public int PaletteIndexAt(Position16<ScreenPixels> cell) => Image.Sheet.Inks[SheetIndex(cell)].PaletteIndex;
-
-    /// <summary>The part palette row of the image pixel shown at <paramref name="cell"/>, with its fixed-row flag.</summary>
-    public int PartRowAt(Position16<ScreenPixels> cell) => Image.Sheet.Inks[SheetIndex(cell)].PartRow;
-
-    /// <summary>The priority against the backgrounds 0..3 of the image pixel shown at <paramref name="cell"/>.</summary>
-    public int PriorityAt(Position16<ScreenPixels> cell) => Image.Sheet.Inks[SheetIndex(cell)].Priority;
-
-    /// <summary>Where on the sheet the pixel shown at <paramref name="cell"/> lies.</summary>
-    private int SheetIndex(Position16<ScreenPixels> cell)
-    {
-        int sourceX = (Mirror & SpriteMirror.Horizontal) != 0 ? Image.Size.X - 1 - cell.X : cell.X;
-        int sourceY = (Mirror & SpriteMirror.Vertical) != 0 ? Image.Size.Y - 1 - cell.Y : cell.Y;
-        return (Image.Corner.Y + sourceY) * Image.Sheet.Size.X + Image.Corner.X + sourceX;
-    }
-
     /// <summary>Names the draw for debugger watches: source, image and signed origin.</summary>
     public override string ToString() =>
         $"{Source.Kind}#{Source.Instance} {Image.Sheet.Name} at ({unchecked((short)Origin.X)}, {unchecked((short)Origin.Y)})";

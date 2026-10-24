@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using SuperMetroid.AssetExtraction.Frontend.Title;
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -14,7 +12,7 @@ internal static class TitleGraphicsPresentationAccess
         public ReadOnlySpan<byte> FloorCharacters => TitleGraphicsCharacters.Of(self).FloorCharacters;
 
         /// <summary>Four-bit title OBJ character graphics selected by sprite compositions.</summary>
-        public ReadOnlySpan<byte> ObjectCharacters => TitleGraphicsCharacters.Of(self).ObjectCharacters;
+        public ReadOnlySpan<byte> ObjectCharacters => TitleGraphicsCharacters.Of(self).ObjectPage.Characters;
 
         /// <summary>Separate eight-bit Mode-7 character page for the baby Metroid scene.</summary>
         public ReadOnlySpan<byte> BabyCharacters => TitleGraphicsCharacters.Of(self).BabyCharacters;

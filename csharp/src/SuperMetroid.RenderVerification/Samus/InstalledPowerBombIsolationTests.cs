@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
 /// Finite production-owner tests of the source-identified color/lifetime coupling in

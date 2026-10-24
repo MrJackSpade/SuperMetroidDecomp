@@ -12,9 +12,6 @@ public sealed class RoomTilemapOverlay
     /// <summary>Tilemap words in a two-screen tilemap.</summary>
     public const int WordCount = 2 * SnesPpuLayout.TilemapPageWordCount;
 
-    /// <summary>Rows, and cells per row, in a tilemap screen.</summary>
-    private const int ScreenCells = SnesPpuLayout.TilemapPageWidthInTiles;
-
     /// <summary>Marks a tilemap word the overlay leaves to the level data.</summary>
     public const int Unwritten = -1;
 
@@ -39,14 +36,5 @@ public sealed class RoomTilemapOverlay
         for (int index = 0; index < written.Length; index++)
             copy[firstWord + index] = written[index];
         return new([.. copy]);
-    }
-
-    /// <summary>The tilemap word at a scrolled position of a tilemap laid out as <paramref name="mapSize"/>, past the overlay beyond two screens.</summary>
-    internal static int IndexAt(Position16<BgPlanePixels> scrolled, Extent16<TilemapCells> mapSize)
-    {
-        int column = scrolled.X / SnesPpuLayout.BackgroundTileSizePixels % mapSize.X;
-        int row = scrolled.Y / SnesPpuLayout.BackgroundTileSizePixels % mapSize.Y;
-        int screen = row / ScreenCells * (mapSize.X / ScreenCells) + column / ScreenCells;
-        return screen * SnesPpuLayout.TilemapPageWordCount + row % ScreenCells * ScreenCells + column % ScreenCells;
     }
 }

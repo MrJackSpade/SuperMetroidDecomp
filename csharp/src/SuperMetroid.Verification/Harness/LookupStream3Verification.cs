@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Verification.Bosses.Botwoon;
@@ -1455,7 +1453,7 @@ internal static class LookupStream3Verification
             int entry = 0xa9e1f4 + row * 8;
             MotherBrainCorpseRotRow rotRow = rotRows[row];
             AssertEqual(row, rotRow.Row, "stream 3 corpse rot rows in row order");
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), rotRow.ByteCount, "stream 3 native corpse rot row bytes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), rotRow.ByteCount, "stream 3 native corpse rot row bytes");
             int nativeStaging = (int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
             AssertEqual(nativeStaging, EnemyStagingDefinitions.RottingHeapNativeAddress + rotRow.RottingOffset, "stream 3 native corpse rot row source");
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
@@ -1466,7 +1464,7 @@ internal static class LookupStream3Verification
             SpriteCharacterPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");
         }
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)

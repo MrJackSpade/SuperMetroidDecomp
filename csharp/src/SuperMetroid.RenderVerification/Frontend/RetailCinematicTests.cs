@@ -8,6 +8,7 @@ namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares translated intro snapshots with direct retail-frame rendering on a D3D device.</summary>
 internal static class RetailCinematicTests

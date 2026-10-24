@@ -1,9 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using System.Collections.Immutable;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Diagnostics.Configuration;
@@ -8,6 +7,7 @@ using static SuperMetroid.DesktopVerification.Startup.AsyncLoadBoundaryTests;
 using static SuperMetroid.DesktopVerification.Harness.DesktopVerificationSupport;
 namespace SuperMetroid.DesktopVerification.Window;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Hidden-HWND renderer capture: retained display across debugger load, restart and resize.</summary>
 internal static class RendererCaptureTests

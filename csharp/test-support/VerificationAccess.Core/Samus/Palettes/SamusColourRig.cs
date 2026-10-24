@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Palettes;
@@ -12,35 +11,32 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </summary>
 internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
 {
-    /// <summary>Routes Samus's positions to <see cref="Samus"/>.</summary>
-    private readonly GameplayColours colours;
-
     /// <summary>Creates fresh colours, Samus's black like the rest.</summary>
     public SamusColourRig()
     {
         var spriteSets = new SpriteColourSets();
         Samus = new SamusColours(spriteSets);
-        colours = new GameplayColours(spriteSets, Samus);
+        Gameplay = new GameplayColours(spriteSets, Samus);
     }
 
     /// <summary>Samus's colours, which her effects write.</summary>
     public SamusColours Samus { get; }
 
     /// <inheritdoc />
-    public ColourRun Colours(PaletteFxColourOwner owner) => new GameplayPaletteFxColours(colours, Samus).Colours(owner);
+    public ColourRun Colours(PaletteFxColourOwner owner) => new GameplayPaletteFxColours(Gameplay, Samus).Colours(owner);
 
-    /// <summary>The router, for what takes gameplay's colours.</summary>
-    public GameplayColours Gameplay => colours;
-
-    /// <inheritdoc />
-    public ReadOnlySpan<Bgr555> Colors => colours.Colors;
+    /// <summary>The router, for what takes gameplay's colours: it routes Samus's positions to <see cref="Samus"/>.</summary>
+    public GameplayColours Gameplay { get; }
 
     /// <inheritdoc />
-    public void SetColor(int index, Bgr555 color) => colours.AsPaletteColors().SetColor(index, color);
+    public ReadOnlySpan<Bgr555> Colors => Gameplay.Colors;
 
     /// <inheritdoc />
-    public Rgba32 GetRgba(int index) => colours.AsPaletteColors().GetRgba(index);
+    public void SetColor(int index, Bgr555 color) => Gameplay.AsPaletteColors().SetColor(index, color);
+
+    /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
+    public Rgba32 GetRgba(int index) => Gameplay.AsPaletteColors().GetRgba(index);
 
     /// <inheritdoc />
-    public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0) => colours.AsPaletteColors().LoadBytes(bytes, destinationIndex);
+    public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0) => Gameplay.AsPaletteColors().LoadBytes(bytes, destinationIndex);
 }

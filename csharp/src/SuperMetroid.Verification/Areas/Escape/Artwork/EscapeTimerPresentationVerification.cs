@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Assets;
@@ -11,12 +10,10 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -144,14 +141,6 @@ internal static class EscapeTimerPresentationVerification
             "wrong-size timer PNG fails loudly");
 
         Console.WriteLine("Escape timer presentation: native-equivalent draws, exact PNG transfers, ROM-free drawing/uploads, edits, rebind and strict failures pass.");
-
-        static byte[] ReadVram(SnesVram vram, int byteAddress, int count)
-        {
-            var result = new byte[count];
-            for (int index = 0; index < count; index++)
-                result[index] = vram.ReadByte(byteAddress + index);
-            return result;
-        }
     }
 
     /// <summary>Checks the compiled digit pointer table and confirms the timer sheet is composed without rereading it.</summary>

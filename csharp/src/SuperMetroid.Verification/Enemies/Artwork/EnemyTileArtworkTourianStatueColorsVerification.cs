@@ -264,7 +264,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 
     /// <summary>Requires an edited CGRAM image to differ only at the specified RGB5 channel bits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void CheckOnlyDifferences(IPaletteColors reference, IPaletteColors edited,
+    private static void CheckOnlyDifferences(SamusColourRig reference, IPaletteColors edited,
         IReadOnlyList<Difference> differences, string context)
     {
         for (int color = 0; color < SnesCgram.ColorCount; color++)

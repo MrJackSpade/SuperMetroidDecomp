@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
-
+﻿
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>How VMADD advances after each word of a VRAM port transfer (VMAIN bit 0-1).</summary>

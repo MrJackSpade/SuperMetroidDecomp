@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Bosses.Torizo.TorizoLandingLifetimeVerifi
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -89,7 +88,7 @@ internal static class TorizoPaletteShakeVerification
     /// <summary>Compares the faded body colors and every cataloged Torizo palette row with bank $AA.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Torizo palette tables in bank $AA")]
-    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(IPaletteColors cgram)
+    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SamusColourRig cgram)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int i = 0; i < 32; i++)

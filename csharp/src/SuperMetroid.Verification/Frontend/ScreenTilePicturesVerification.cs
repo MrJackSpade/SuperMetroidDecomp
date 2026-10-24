@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
@@ -23,6 +22,7 @@ using SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend;
 
@@ -143,9 +143,9 @@ internal static class ScreenTilePicturesVerification
             FloorScene scene = title.CaptureRenderSnapshot();
             if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
             {
-                Rgba32[] pictured = DisplayRendering.Render(scene).ToArray();
-                Rgba32[] characters = DisplayRendering.Render(new FloorScene(scene.Paint, scene.Background, scene.Brightness,
-                    scene.Gradient, AffineFloorFixtures.Floor(title.ShownVram(), scene.Paint.Colors))).ToArray();
+                Rgba32[] pictured = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), scene)).ToArray();
+                Rgba32[] characters = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), new FloorScene(scene.Paint,
+                    scene.Background, scene.Brightness, scene.Gradient, AffineFloorFixtures.Floor(title.ShownVram(), scene.Paint.Colors)))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);

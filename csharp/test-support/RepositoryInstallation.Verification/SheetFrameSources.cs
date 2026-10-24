@@ -1,10 +1,8 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

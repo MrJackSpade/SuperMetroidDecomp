@@ -10,6 +10,7 @@ namespace SuperMetroid.RenderVerification.Frontend;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks post-credits Samus wave HDMA, its visible color addition, and repeatable rendering.</summary>
 internal static class EndingWavySamusTests

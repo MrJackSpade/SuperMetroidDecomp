@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Verification access to <see cref="BeamTileCatalog"/> members production does not use.</summary>

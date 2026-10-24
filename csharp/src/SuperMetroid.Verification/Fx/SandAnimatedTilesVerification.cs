@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>
 internal static class SandAnimatedTilesVerification
@@ -20,8 +19,6 @@ internal static class SandAnimatedTilesVerification
     internal static void VerifySandAnimatedTiles()
     {
         var bus = new TestAddressSpace();
-        var vram = new SnesVram();
-        var queue = new VramWriteQueue();
         const ushort sandFxRecord = 0x9e44;
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual((byte)0x0c, rom.ReadCartridgeByte(0x830000 | (sandFxRecord + 14)),
@@ -41,9 +38,6 @@ internal static class SandAnimatedTilesVerification
                         definition.FrameByteCount).ToArray());
             }
         }
-        var atlas = RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
-            SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
-        var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
         var sand = new RoomSandAnimatedTilesState(RoomFxDefinitions.Suffix(sandFxRecord), null, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");

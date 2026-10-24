@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -9,6 +8,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>

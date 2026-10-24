@@ -13,6 +13,7 @@ namespace SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Room-local upward elevator handoff using the existing Blue Brinstar regression route.</summary>
 internal static class RetailElevatorReturnTests

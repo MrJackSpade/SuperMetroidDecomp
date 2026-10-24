@@ -11,6 +11,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Production capture and legacy composition agree through combined effect updates.</summary>
 internal static class RuntimeOverlayTests

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -12,6 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Fireflea;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks Lower Norfair Fireflea darkness around a retail Fune eye sprite.</summary>
 internal static class FirefleaEyeVerification

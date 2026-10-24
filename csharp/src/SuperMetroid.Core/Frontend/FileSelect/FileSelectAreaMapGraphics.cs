@@ -180,6 +180,14 @@ public sealed class FileSelectAreaMapGraphics
     public LayeredScene CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
     {
         PrepareLabels(usedStationMasks);
+        LayeredScene backgrounds = CaptureBackgrounds(colorMath);
+        return new(backgrounds.Paint, [.. backgrounds.Layers, new ObjRenderLayer()], FadeLevel.Full);
+    }
+
+    /// <summary>The area map's BG1 foreground with its additive BG3 background, without the labels.</summary>
+    /// <param name="colorMath">Whether the background is also added to the backdrop.</param>
+    internal LayeredScene CaptureBackgrounds(AreaMapColorMath colorMath)
+    {
         // The foreground and the area's background draw from the area's pre-coloured tiles (#1392).
         AreaMapTiles tiles = screen.AreaMapTiles((AreaId)SelectedArea);
         var foreground = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(32, 32),
@@ -188,7 +196,6 @@ public sealed class FileSelectAreaMapGraphics
             foreground,
             new TileAddRenderLayer(ScreenTileMap.Of(screen.Tilemaps.AreaBackground, TileViewportRenderLayer.MapSize,
                     tiles.Background),
-                colorMath == AreaMapColorMath.WithBackdrop ? null : foreground),
-            new ObjRenderLayer() }, FadeLevel.Full);
+                colorMath == AreaMapColorMath.WithBackdrop ? null : foreground) }, FadeLevel.Full);
     }
 }

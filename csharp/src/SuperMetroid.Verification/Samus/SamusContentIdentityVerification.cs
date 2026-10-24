@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Samus.Artwork;

@@ -57,7 +57,7 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.PrimeGraphics(samus);
     AssertEqual(0x92d0b0, samus.Presentation.BodyFrames.TopDefinitionAddress, "pose 1 frame 0 top tile definition");
-    AssertEqual((int?)0x92d1c8, samus.Presentation.BodyFrames.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
+    AssertEqual(0x92d1c8, samus.Presentation.BodyFrames.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
 
     samus.Presentation.BodyFrames.LoadShownInto(vram);
     AssertEqual(0x10, vram.ReadByte(0xc000), "Samus top part 1 is the shown body's character 0");

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,6 +14,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks Norfair Ridley's shared FX acid rise and death drain through room rendering.</summary>
 internal static class RidleyAcidVerification

@@ -14,6 +14,7 @@
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
   <Import Project="../../test-support/FrameCapture.projitems" />
+  <Import Project="../../test-support/FrameRendering.projitems" />
   <Import Project="../../test-support/AudioFixtures.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/RoomHeaderImport.projitems" />

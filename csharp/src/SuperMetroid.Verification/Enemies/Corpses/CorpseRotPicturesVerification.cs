@@ -60,7 +60,7 @@ internal static class CorpseRotPicturesVerification
             runtime.Enemies.BossArtworkBinding.Artwork ?? throw new InvalidOperationException("The runtime loads the boss art."), [enemy])
             .Single(corpse => corpse.Flesh == rot.Kind.Name);
         var camera = new Position16<RoomPixels>(unchecked((ushort)(slot.Position.X.Whole - 128)), unchecked((ushort)(slot.Position.Y.Whole - 112)));
-        int updates = 0, rotted = 0;
+        int updates = 0, rotted = 0, painted = 0;
         for (int after = 0; after < 2; updates++)
         {
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
@@ -68,7 +68,7 @@ internal static class CorpseRotPicturesVerification
             if (!rot.Rotting())
                 after++;
             rotted = Math.Max(rotted, checked((int)rot.Steps()));
-            SpriteArtwork rotting = Rotted(runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
+            SpriteArtwork rottingArt = Rotted(runtime.Artwork.GameplayObjectPage(runtime.EnemySession.SpriteCharacters), simulation, expected,
                 $"{context} after update {updates}");
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
@@ -79,19 +79,21 @@ internal static class CorpseRotPicturesVerification
             EnemyFrameId frame = slot.Frame ?? throw new InvalidOperationException($"{context} shows a frame.");
             string name = EnemySheetDefinitions.FrameName(frame);
             AssertEqual(rot.Kind.Name, sheets.RotCorpse(set, enemy, name), $"{context}: frame {name} shows its kind's rot");
-            AssertSelected(runtime, sheets.For(set, enemy), expected.PictureName(name), sprites, new SpriteSource(SpriteSourceKind.Enemy, slot.SlotIndex),
-                new EnemySpritemapDraw { Frame = frame, Origin = default, PaletteBits = slot.PaletteIndex, BaseTileIndex = slot.VramTilesIndex }, rotting,
+            painted += AssertSelected(runtime, sheets.For(set, enemy), expected.PictureName(name), sprites, new SpriteSource(SpriteSourceKind.Enemy, slot.SlotIndex),
+                new EnemySpritemapDraw { Frame = frame, Origin = default, PaletteBits = slot.PaletteIndex, BaseTileIndex = slot.VramTilesIndex }, rottingArt,
                 $"{context} after update {updates}");
             if (enemy == EnemyDefinitionId.CorpseTorizo)
             {
                 string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.HookFrame);
                 AssertEqual(rot.Kind.Name, sheets.SpawnedRotCorpse(set, 0, hook), $"{context}: its hook shows its rot");
-                AssertSelected(runtime, sheets.Spawned(set, 0).Sheet, expected.PictureName(hook), sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook),
-                    new EnemySpritemapDraw { Frame = DeadTorizoArtworkDefinitions.HookFrame, Origin = default, PaletteBits = 0, BaseTileIndex = 0 }, rotting,
+                painted += AssertSelected(runtime, sheets.Spawned(set, 0).Sheet, expected.PictureName(hook), sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook),
+                    new EnemySpritemapDraw { Frame = DeadTorizoArtworkDefinitions.HookFrame, Origin = default, PaletteBits = 0, BaseTileIndex = 0 }, rottingArt,
                     $"{context}'s hook after update {updates}");
             }
         }
         AssertTrue(rotted > 0, $"{context} rots");
+        // A rot step may leave every row rotted away, so a frame may draw nothing; the corpse paints before it is gone.
+        AssertTrue(painted > 0, $"{context} paints while it rots");
         Console.WriteLine($"  {context}: {updates} updates through {rotted} rot steps each select the picture of the rot the update leaves.");
     }
 
@@ -99,7 +101,7 @@ internal static class CorpseRotPicturesVerification
     /// Checks the draw of <paramref name="source"/> is <paramref name="sheet"/>'s picture <paramref name="picture"/>, painting
     /// as <paramref name="frame"/> at its origin over <paramref name="rotting"/>.
     /// </summary>
-    private static void AssertSelected(SuperMetroidRuntime runtime, SpriteSheet sheet, string picture, SpriteFrameBuffer sprites, SpriteSource source,
+    private static int AssertSelected(SuperMetroidRuntime runtime, SpriteSheet sheet, string picture, SpriteFrameBuffer sprites, SpriteSource source,
         EnemySpritemapDraw frame, SpriteArtwork rotting, string context)
     {
         ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
@@ -107,7 +109,7 @@ internal static class CorpseRotPicturesVerification
         CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(rotting, source, runtime.EnemySession.TileArtwork?.Spritemaps
             ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), frame with { Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y) })
             ?? throw new InvalidOperationException($"{context}: the frame has parts.");
-        UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], context);
+        return UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], context, requirePixels: false);
     }
 
     /// <summary>

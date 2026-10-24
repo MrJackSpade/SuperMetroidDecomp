@@ -10,6 +10,7 @@ namespace SuperMetroid.RenderVerification.Areas;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares Ceres escape-room quake snapshots with direct frame rendering.</summary>
 internal static class RetailCeresQuakeTests

@@ -10,6 +10,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks D3D11 rendering across Ceres destruction, Zebes transition, and game-over menu outcomes.</summary>
 internal static class RetailTransitionTests

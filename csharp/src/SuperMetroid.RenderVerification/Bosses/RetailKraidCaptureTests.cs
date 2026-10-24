@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RenderFixtures;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares GPU captures through Kraid's rise, growth, death, and defeated-room exits.</summary>
 internal static class RetailKraidCaptureTests

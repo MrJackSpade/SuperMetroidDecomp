@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares captured death and reserve-recovery frames with the legacy raster and audio path.</summary>
 internal static class RetailDeathCaptureTests

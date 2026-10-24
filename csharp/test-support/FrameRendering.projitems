@@ -1,0 +1,6 @@
+<Project>
+  <!-- Direct3D frame drawing and readback on the WARP device, shared by verification and development tools. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)FrameRendering/**/*.cs" LinkBase="TestSupport/FrameRendering" />
+  </ItemGroup>
+</Project>

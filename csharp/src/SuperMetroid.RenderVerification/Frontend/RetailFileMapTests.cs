@@ -11,6 +11,7 @@ namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.SaveMapFixtures;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares file-map scenes drawn on this device with the WARP reference device throughout map navigation.</summary>
 internal static class RetailFileMapTests

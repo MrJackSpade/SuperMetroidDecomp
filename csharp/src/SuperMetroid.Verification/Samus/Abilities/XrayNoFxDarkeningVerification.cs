@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
@@ -19,6 +18,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks X-ray color math in a room without visible layer-three FX.</summary>
 internal static class XrayNoFxDarkeningVerification
 {

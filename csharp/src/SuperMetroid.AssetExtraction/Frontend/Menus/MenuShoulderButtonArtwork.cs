@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 

@@ -12,6 +12,7 @@ namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks post-credits shooting-star motion, OAM, phase masks, and rendering on this device against the WARP reference device.</summary>
 internal static class EndingShootingStarsTests

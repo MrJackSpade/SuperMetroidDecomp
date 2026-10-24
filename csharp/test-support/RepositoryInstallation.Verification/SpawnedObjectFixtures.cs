@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -43,7 +42,7 @@ internal static class SpawnedObjectFixtures
     {
         ArgumentNullException.ThrowIfNull(enemies);
         RoomEnemyGraphicsSetDefinition set = SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(frame)
-            ? RoomEnemyGraphicsSetDefinitions.All.First()
+            ? RoomEnemyGraphicsSetDefinitions.All[0]
             : RoomEnemyGraphicsSetDefinitions.All.FirstOrDefault(candidate => candidate.Records.ToArray().Any(record =>
                 SpawnedObjectFrameDefinitions.ByEnemy.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame)))
             ?? throw new InvalidOperationException($"No retail graphics set spawns projectile frame {frame}.");

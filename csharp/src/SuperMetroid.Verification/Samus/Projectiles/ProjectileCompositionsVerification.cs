@@ -44,7 +44,7 @@ internal static class ProjectileCompositionsVerification
             VerifyHyperBeamFxColorArtwork(rom);
         }
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
-        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners(content));
+        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners());
         int draws = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
@@ -126,7 +126,7 @@ internal static class ProjectileCompositionsVerification
 
     /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM, flicker, and projectile state without ROM reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyProjectileCompositionOwners(ProjectileSpriteCatalog content)
+    private static void VerifyProjectileCompositionOwners()
     {
         int comparisons = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)

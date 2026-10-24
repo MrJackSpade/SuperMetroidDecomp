@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Bosses;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 

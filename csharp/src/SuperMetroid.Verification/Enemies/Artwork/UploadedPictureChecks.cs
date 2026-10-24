@@ -108,7 +108,7 @@ internal static class UploadedPictureChecks
             foreach (CharacterRegion region in regions)
             {
                 RuntimeCharacterUpload? expected = made.LastOrDefault(upload => RuntimeCharacterUploadCatalog.Over([upload], region).Any());
-                AssertEqual(expected, sheets.Uploads.Showing(runtime.EnemySession.ObjCharacters, setUploads, region).Upload,
+                AssertEqual(expected, sheets.Uploads.Showing(runtime.EnemySession.ObjCharacters, setUploads, region, new SuperMetroid.Core.Assets.ArtworkFrameSelections()).Upload,
                     $"{message}: after {step} uploads the draw selects the upload made last over table byte {region.FirstByte:X4}");
                 ReadOnlySpan<byte> composed = expected is null ? loaded.AsSpan(region.FirstByte, region.ByteCount)
                     : expected.Source.Resolve(runtime.Artwork).Span.Slice(region.FirstByte - expected.FirstByte, region.ByteCount);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.World;
 
@@ -17,4 +18,7 @@ public interface IRoomEnemyLoad : IRoomEnemyPopulationSource, IRoomEnemyActorCon
 
     /// <summary>The room's background artwork bindings, over the VRAM its enemies load into (#1352).</summary>
     BgArtworkBindings Backgrounds { get; }
+
+    /// <summary>The frame each of the room's animations shows (#1406), which its enemies select their pictures into.</summary>
+    ArtworkFrameSelections ArtworkFrames { get; }
 }

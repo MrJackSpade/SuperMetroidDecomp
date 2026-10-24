@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -9,17 +10,19 @@ internal static class Layer3PictureResolution
 {
     /// <summary>
     /// The picture of each word of the BG3 <paramref name="plane"/> over what <paramref name="bindings"/> show now at its
-    /// characters from <paramref name="characterBase"/>, the HUD character base BG3 shows.
+    /// characters from <paramref name="characterBase"/>, the HUD character base BG3 shows, or over the frame
+    /// <paramref name="animated"/> says an animation that paints a word's character selected (#1406).
     /// </summary>
     /// <exception cref="InvalidOperationException">The resolver's sheet pictures another layer's words.</exception>
     /// <exception cref="InvalidDataException">The sheet pictures a word over nothing its character shows.</exception>
     internal static ImmutableArray<BgTilePicture?> Resolve(this TileWordPictureResolver resolver, Layer3Plane plane,
-        BgArtworkBindings bindings, int characterBase)
+        BgArtworkBindings bindings, int characterBase, AnimatedCharacterView animated)
     {
         Ensure.NotNull(resolver);
         Ensure.NotNull(plane);
         if (resolver.Sheet.Layer != TileWordLayer.Bg3)
             throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no BG3 words.");
-        return resolver.ResolveWords(plane, Layer3Plane.Columns * Layer3Plane.Rows, index => plane.Words[index], bindings, characterBase);
+        return resolver.ResolveWords(plane, Layer3Plane.Columns * Layer3Plane.Rows, index => plane.Words[index], bindings, characterBase,
+            animated);
     }
 }

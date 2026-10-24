@@ -259,7 +259,10 @@ internal sealed class AcceptedFrameBoundary
             revealed = XrayRevealPlane.BlocksOf(words.AsSpan(), _revealIndex);
         }
         // The Ceres Ridley arena's backgrounds read the OBJ character table's uploads (#1392).
-        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.ObjCharacters);
+        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, _backgrounds, _enemySession.ObjCharacters,
+            scope.AnimatedCharacters, scope.ArtworkFrames);
+        // A background image's and the sky's tiles read the room tileset's characters, which its animations paint too (#1406).
+        var animatedBlocks = new AnimatedCharacterView(scope.AnimatedCharacters.Blocks, scope.ArtworkFrames);
         // The planes the latch shows are the level data's, which nothing changes before this NMI's pictures resolve.
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
             rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, characters,
@@ -274,7 +277,7 @@ internal sealed class AcceptedFrameBoundary
             SkyTilemap rows = (_artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException("A sky room has no installed sky rows."))
                 .Tilemap(scrollingSky.Variant);
             skyImage.Image.AssertPictures(rows.Words);
-            sky = new SkyPictures(skyImage.Resolve(_backgrounds), rows);
+            sky = new SkyPictures(skyImage.Resolve(_backgrounds, animatedBlocks), rows);
         }
         // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
         // streaming layer-2 plane, the sky's rows or a boss body that owns BG2.
@@ -283,7 +286,7 @@ internal sealed class AcceptedFrameBoundary
             && scope.BackgroundImage is { } background)
         {
             background.Image.AssertLoadedIntoBg2(_backgrounds);
-            image = background.Resolve(_backgrounds);
+            image = background.Resolve(_backgrounds, animatedBlocks);
         }
         // A boss body that owns BG2 draws each word from its body sheet's picture over what the word's character shows.
         ImmutableArray<ushort>? body = latched.Bosses.KraidBody?.Tilemap.Words ?? latched.Bosses.EnemyBg2?.Words;
@@ -314,7 +317,7 @@ internal sealed class AcceptedFrameBoundary
                 Bg1Overlay = bg1Overlay,
                 // The HUD and the room effect's page draw from the BG3 sheet's pictures at the HUD character base BG3 shows.
                 Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's NMI latches its BG3 words."),
-                    _backgrounds, latched.Scene.HudCharacterWord)),
+                    _backgrounds, latched.Scene.HudCharacterWord, new AnimatedCharacterView(scope.AnimatedCharacters.Bg3, scope.ArtworkFrames))),
             },
             XrayReveal = revealed is null ? null : new XrayRevealPlane(revealed, pictures),
         };

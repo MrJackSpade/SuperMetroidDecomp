@@ -1,3 +1,5 @@
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Hardware;
@@ -63,7 +65,8 @@ internal static class CrocomireMeltPublicationVerification
                 $"melt frame {frame} writes no characters into VRAM");
             ImmutableArray<ushort> words = [.. death.Bg2WorkingTilemap];
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(words,
-                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters));
+                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters,
+                RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
             for (int tile = 0; tile < words.Length; tile++)
             {
                 BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"melt frame {frame}: tile {tile} has no picture.");
@@ -88,4 +91,8 @@ internal static class CrocomireMeltPublicationVerification
         Suite(nameof(VerifyCrocomireMeltPublication), () => VerifyCrocomireMeltPublication());
         return 0;
     }
+
+    /// <summary>The room scope <paramref name="runtime"/> has loaded.</summary>
+    private static RoomScope RoomScopeOf(SuperMetroidRuntime runtime) =>
+        runtime.Room.Scope ?? throw new InvalidOperationException("No room is loaded.");
 }

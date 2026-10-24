@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
@@ -199,7 +200,8 @@ internal static class RoomBlockPicturesVerification
                 overlay = overlay.With(typed.Destination - GameplayVramLayout.Bg2TilemapWord, [typed.Tile.Raw]);
         }
         ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay,
-            RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters));
+            RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters,
+                RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
         int glyphs = 0;
         for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
         {
@@ -240,7 +242,8 @@ internal static class RoomBlockPicturesVerification
         foreach ((string name, ImmutableArray<ushort> words) in bodies(runtime))
         {
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(words,
-                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters));
+                RoomCharacterSource.Of(RoomBackgroundCharacters.Tileset, runtime.BgArtwork, runtime.EnemySession.ObjCharacters,
+                RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames));
             for (int tile = 0; tile < words.Length; tile++)
             {
                 BgTilePicture picture = pictures[tile] ?? throw new InvalidOperationException($"{sheet.Name} {name}: tile {tile} draws from its character.");
@@ -285,7 +288,8 @@ internal static class RoomBlockPicturesVerification
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             int characterBase = latched.Scene.HudCharacterWord;
             ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope
-                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, characterBase);
+                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, runtime.BgArtwork, characterBase,
+                new AnimatedCharacterView(RoomScopeOf(runtime).AnimatedCharacters.Bg3, RoomScopeOf(runtime).ArtworkFrames));
             for (int index = 0; index < Layer3Plane.Columns * Layer3Plane.Rows; index++)
             {
                 BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
@@ -439,7 +443,8 @@ internal static class RoomBlockPicturesVerification
     {
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
         RoomBlockPictureTable table = rooms.Bg1.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
-        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession.ObjCharacters);
+        RoomCharacterSource characters = RoomCharacterSource.Of(rooms.Characters, runtime.BgArtwork, runtime.EnemySession.ObjCharacters,
+                RoomScopeOf(runtime).AnimatedCharacters, RoomScopeOf(runtime).ArtworkFrames);
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         ReadOnlySpan<byte> definitions = runtime.Room.LoadedLevelData.ForegroundPlane.Definitions.AsSpan();
         int pictures = 0, uploaded = 0;
@@ -526,4 +531,8 @@ internal static class RoomBlockPicturesVerification
         Suite(nameof(VerifyMode7TilePictures), VerifyMode7TilePictures);
         return 0;
     }
+
+    /// <summary>The room scope <paramref name="runtime"/> has loaded.</summary>
+    private static RoomScope RoomScopeOf(SuperMetroidRuntime runtime) =>
+        runtime.Room.Scope ?? throw new InvalidOperationException("No room is loaded.");
 }

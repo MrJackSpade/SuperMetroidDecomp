@@ -50,7 +50,24 @@ internal static class RoomBlockSheetComposer
             words, tilesets.ToDictionary(entry => entry.Key, entry => TileWordSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value, bg3Uploads)),
             messages, tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset, messages)),
             tilesets.Where(entry => entry.Value.Ceres).ToDictionary(entry => entry.Key,
-                entry => Mode7TileSheetComposer.Compose(inputs, entry.Key, RoomBlockUploads.Loaded(inputs, entry.Key))));
+                entry => Mode7TileSheetComposer.Compose(inputs, entry.Key, RoomBlockUploads.Loaded(inputs, entry.Key))),
+            Animations(tilesets));
+    }
+
+    /// <summary>
+    /// The characters each tileset's rooms' animations paint (#1406): its own rooms' runs of the BG1 and BG2 characters and
+    /// the OBJ character page, and every room's runs of BG3's, whose words are pictured over every room's effects.
+    /// </summary>
+    private static Dictionary<TilesetDefinition, RoomAnimatedCharacters> Animations(
+        IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads> tilesets)
+    {
+        AnimatedCharacters bg3 = Sorted(tilesets.Values.SelectMany(uploads => uploads.Bg3Runs).Distinct());
+        return tilesets.ToDictionary(entry => entry.Key, entry => new RoomAnimatedCharacters(Sorted(entry.Value.BlockRuns),
+            Sorted(entry.Value.ObjectPageRuns), bg3));
+
+        // The runs in a stable order: by animation, then by first character.
+        static AnimatedCharacters Sorted(IEnumerable<AnimatedCharacterRun> runs) => new(runs
+            .OrderBy(run => run.Animation.Name, StringComparer.Ordinal).ThenBy(run => run.FirstCharacter).ThenBy(run => run.CharacterCount));
     }
 
     /// <summary>

@@ -51,7 +51,7 @@ internal sealed class SpcSoundLibraries
     /// current write, so a request is echoed one service after the service that reads it.
     /// </remarks>
     internal void HandleSoundLibraryCommand(int libraryIndex, SoundRequestCheck<byte> poll) =>
-        ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Request ?? 0);
+        ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Request ?? (byte)0);
 
     /// <summary>Applies native library priority/cancellation gates, then selects a new sound stream or advances the active one.</summary>
     private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)

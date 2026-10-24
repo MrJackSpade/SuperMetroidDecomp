@@ -47,7 +47,7 @@ internal static class PauseMenuFixtureVerification
         var backdrops = PauseBackdropPresentation.FromTilemaps(
             Enum.GetValues<AreaId>().Select(_ => Read(0xb6e000, 0x0800)).ToArray(),
             Read(PauseMenuCartridgeTables.PauseButtonTilemap, PauseBackdropDefinitions.ButtonCells * 2));
-        var hud = new byte[HudTileAtlasFormat.TransferByteCount];
+        var hud = new byte[HudTileAtlasFormat.ByteCount];
         Read(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
 
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,

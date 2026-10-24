@@ -51,18 +51,18 @@ internal static class LibraryBackgroundProgramImporter
                 case LibraryBackgroundCommand.TransferToVram:
                 case LibraryBackgroundCommand.TransferToVramForKraid:
                 case LibraryBackgroundCommand.TransferForDoor:
-                    instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)),
+                    instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)), 0,
                         Word((ushort)(cursor + 5)), door == 0 ? null : DoorHeaderSources.Door(door)));
                     cursor = (ushort)(cursor + 7);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
-                    instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)), 0, null));
+                    instructions.Add(new(command, Long(cursor), 0, Word((ushort)(cursor + 3)), 0, null));
                     cursor = (ushort)(cursor + 5);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                 case LibraryBackgroundCommand.ClearBg2:
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    instructions.Add(new(command, 0, 0, 0, null));
+                    instructions.Add(new(command, 0, 0, 0, 0, null));
                     break;
                 case LibraryBackgroundCommand.End:
                 default:
@@ -99,16 +99,16 @@ internal static class LibraryBackgroundProgramImporter
                     var bytes = new byte[instruction.ByteCount];
                     SnesAddress start = SnesAddress.FromBusAddress(instruction.SourceAddress);
                     for (int i = 0; i < bytes.Length; i++) bytes[i] = ReadImportByte(source, (int)start.AddWithinBank(i));
-                    vram.ExecuteQueuedAssetWrite(bytes, checked((ushort)instruction.Destination));
+                    vram.ExecuteQueuedAssetWrite(bytes, checked((ushort)instruction.FirstWord));
                     if (instruction.Command == LibraryBackgroundCommand.TransferToVramForKraid)
                         selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
                     byte[] expanded = RomDataReader.Decompress(CartridgeImportSource.Require(source), instruction.SourceAddress);
-                    if (instruction.Destination + expanded.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
+                    if (instruction.StagingOffset + expanded.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
                         throw new InvalidDataException("Imported background decompression crosses bank $7E.");
                     for (int i = 0; i < expanded.Length; i++)
-                        source.WriteByte(RoomAssetRomData.LibraryBackground.WorkRamBank | (instruction.Destination + i), expanded[i]);
+                        source.WriteByte(RoomAssetRomData.LibraryBackground.WorkRamBank | (instruction.StagingOffset + i), expanded[i]);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                     ClearAndTransfer(LibraryBackgroundRomData.ClearFx, false);

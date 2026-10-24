@@ -31,8 +31,8 @@ public static class RoomFxLiquidTilemapDefinitions
             type == RoomFxType.Water && !blank, 0);
     }
 
-    /// <summary>Creates the requested transfer buffer on demand; no generated page is cached.</summary>
-    public static byte[] CreateTransfer(RoomFxType type)
+    /// <summary>Composes the requested page on demand; no generated page is cached.</summary>
+    public static byte[] ComposePage(RoomFxType type)
     {
         ValidateType(type);
         var bytes = new byte[RoomFxLayer3TilemapFormat.PageByteCount];

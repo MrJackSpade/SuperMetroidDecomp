@@ -43,7 +43,7 @@ internal static class LibraryBackgroundReplay
                     Transfer(staging, vram, instruction, artwork, characters);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
-                    staging.WriteDecompressed(instruction.Destination, (artwork.TilemapArt ?? throw new InvalidOperationException(
+                    staging.WriteDecompressed(instruction.StagingOffset, (artwork.TilemapArt ?? throw new InvalidOperationException(
                         "Library-background decompression requires installed tilemaps.")).Get(instruction.SourceAddress).Bytes.Span,
                         instruction.SourceAddress);
                     break;
@@ -88,7 +88,7 @@ internal static class LibraryBackgroundReplay
         if (transfer.ByteCount == 0)
             throw new InvalidDataException($"Library-background transfer from ${transfer.SourceAddress:X6} uses unsupported DMA size zero.");
         // The destination is an encoded VRAM word with the increment in its top bit, as the DMA's VMADD/VMAIN take it.
-        ushort destination = checked((ushort)transfer.Destination);
+        ushort destination = checked((ushort)transfer.FirstWord);
         if (staging.TryRead(transfer.SourceAddress, transfer.ByteCount, out ReadOnlySpan<byte> staged))
             vram.ExecuteQueuedAssetWrite(staged, destination);
         else if (LibraryBackgroundLoader.TryBindTransferredCharacters(transfer, characters))

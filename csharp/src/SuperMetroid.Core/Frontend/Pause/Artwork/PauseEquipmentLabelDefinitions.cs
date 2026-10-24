@@ -28,8 +28,8 @@ public static class PauseEquipmentLabelDefinitions
     public const string HyperKey = "Beam.Hyper";
     /// <summary>Hyper mode's pointer table places its only nonblank patch in the Wave slot.</summary>
     public const int HyperBeamItem = 2;
-    /// <summary>The Plasma label's destination, equipment-page cell $284.</summary>
-    public const int PlasmaDestinationCell = 0x284;
+    /// <summary>The equipment-page cell the Plasma label starts at, $284.</summary>
+    public const int PlasmaCell = 0x284;
     /// <summary>The ninth Boots-length Plasma word is subsequently owned by the wireframe at cell $28C.</summary>
     public const int PlasmaWireframeOverlapCell = 0x28c;
 
@@ -156,12 +156,12 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>Uses five source words for ordinary beams and nine for other labels, including stored Hyper.</summary>
     internal static int StockWordCount(PauseEquipmentLabelId label)
     {
-        _ = StockDestinationByte(label);
+        _ = StockPageByte(label);
         return IsOrdinaryBeam(label) ? BeamWords : EquipmentWords;
     }
 
     /// <summary>$82:C06C-C086: label columns4/21 and category rows16/9/19, with the suit-to-misc gap.</summary>
-    internal static int StockDestinationByte(PauseEquipmentLabelId label)
+    internal static int StockPageByte(PauseEquipmentLabelId label)
     {
         if (label == PauseEquipmentLabelId.Hyper) label = Label(PauseEquipmentCategory.Beams, HyperBeamItem);
         return destinations.Value.TryGetValue(label, out int destination) ? destination

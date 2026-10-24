@@ -39,8 +39,8 @@ internal sealed class RoomFxAtmosphereTilemap
         }
     }
 
-    /// <summary>Composes an output transfer without storing the calculated fields in a cache.</summary>
-    public byte[] CreateTransfer()
+    /// <summary>Composes the page without storing the calculated fields in a cache.</summary>
+    public byte[] ComposePage()
     {
         var bytes = new byte[RoomFxLayer3TilemapFormat.PageByteCount];
         for (int index = 0; index < preservedBits.Length; index++)

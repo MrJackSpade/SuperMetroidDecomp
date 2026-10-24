@@ -34,7 +34,7 @@ internal static class HudAtlasVerification
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.TransferByteCount);
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
         AssertTrue(source.SequenceEqual(original.Resolve(VramAssetId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native bytes");
         var guard = NewMapDataGuard(bus, rules);
         var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -90,7 +90,7 @@ internal static class HudAtlasVerification
         restored.Artwork.MapPresentation = edited;
         restored.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span.SequenceEqual(
-            restored.ComposedVram().AsSpan(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.TransferByteCount)),
+            restored.ComposedVram().AsSpan(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.ByteCount)),
             "a HUD set up before its first accepted NMI shows the newly bound PNG, not captured old pixels");
         Rgba32[] modified = Render(restored);
         Rgba32[] rebound = Render(displayed);

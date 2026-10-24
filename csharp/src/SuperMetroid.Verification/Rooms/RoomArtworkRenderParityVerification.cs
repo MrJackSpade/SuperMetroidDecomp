@@ -50,7 +50,7 @@ internal static class RoomArtworkRenderParityVerification
                     skyTransfer.SourceAddress, skyTransfer.ByteCount);
                 AssertTrue(native.Room.ActiveDoor?.Pointer == landingDoor &&
                     native.Room.ScrollingSky is not null &&
-                    native.Vram.Bytes.Slice(skyTransfer.Destination * 2, sky.Length)
+                    native.Vram.Bytes.Slice(skyTransfer.FirstWord * 2, sky.Length)
                         .SequenceEqual(sky),
                     "Landing Site frame contains its real door-selected sky page");
             }

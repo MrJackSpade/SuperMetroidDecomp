@@ -204,7 +204,7 @@ internal sealed class IntroCinematicObjectSystem
 
         // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
         // Applying it immediately is the desktop equivalent of observing the following NMI.
-        textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount).CopyTo(tilemaps.Narration);
+        textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextCellCount).CopyTo(tilemaps.Narration);
     }
 
     /// <summary>Rebinds host-owned narration content after override reload or state restore.</summary>

@@ -44,9 +44,9 @@ public static class PauseEquipmentBaseDefinitions
     {
         if (IsEquipmentLabelCell(cell)) return true;
         if (IsReserveCell(cell)) return true;
-        int wireframeRelative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);
-        return wireframeRelative >= 0 && wireframeRelative / (PauseWireframeDefinitions.DestinationStride / sizeof(ushort)) < PauseWireframeDefinitions.Rows &&
-            wireframeRelative % (PauseWireframeDefinitions.DestinationStride / sizeof(ushort)) < PauseWireframeDefinitions.Columns;
+        int wireframeRelative = cell - PauseWireframeDefinitions.FirstPageByte / sizeof(ushort);
+        return wireframeRelative >= 0 && wireframeRelative / (PauseWireframeDefinitions.PageRowBytes / sizeof(ushort)) < PauseWireframeDefinitions.Rows &&
+            wireframeRelative % (PauseWireframeDefinitions.PageRowBytes / sizeof(ushort)) < PauseWireframeDefinitions.Columns;
     }
 
     /// <summary>Returns whether reserve or wireframe composition owns a cell outside the equipment-label footprints.</summary>
@@ -130,8 +130,8 @@ public static class PauseEquipmentBaseDefinitions
     private static PanelShape InventoryPanel(PauseEquipmentCategory category, int firstItem, int lastItem,
         int titleWidth, int titleGlyph, int titlePalette)
     {
-        int first = PauseEquipmentLabelDefinitions.StockDestinationByte(PauseEquipmentLabelDefinitions.Label(category, firstItem)) / sizeof(ushort);
-        int last = PauseEquipmentLabelDefinitions.StockDestinationByte(PauseEquipmentLabelDefinitions.Label(category, lastItem)) / sizeof(ushort);
+        int first = PauseEquipmentLabelDefinitions.StockPageByte(PauseEquipmentLabelDefinitions.Label(category, firstItem)) / sizeof(ushort);
+        int last = PauseEquipmentLabelDefinitions.StockPageByte(PauseEquipmentLabelDefinitions.Label(category, lastItem)) / sizeof(ushort);
         int left = first % Columns - 1, right = first % Columns + PauseEquipmentLabelDefinitions.WordCount(category);
         return new(left, first / Columns - 1, right, last / Columns + 1,
             (left + right - titleWidth + 1) / 2, titleWidth, titleGlyph, titlePalette, true);
@@ -145,7 +145,7 @@ public static class PauseEquipmentBaseDefinitions
         int row = cell / Columns, column = cell % Columns;
         foreach (var label in PauseEquipmentLabelDefinitions.Labels())
         {
-            int first = PauseEquipmentLabelDefinitions.StockDestinationByte(label.Label) / sizeof(ushort);
+            int first = PauseEquipmentLabelDefinitions.StockPageByte(label.Label) / sizeof(ushort);
             int index = cell - first;
             if ((uint)index >= PauseEquipmentLabelDefinitions.StockWordCount(label.Label)) continue;
             ushort word = PauseEquipmentLabelDefinitions.StockWord(label.Label, index);

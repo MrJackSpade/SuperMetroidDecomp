@@ -3078,7 +3078,7 @@ internal static class LookupStream3Verification
                 "actual opening constructor transfers calculated narration to native VRAM destination");
             intro.SetupFirstIllustratedPage();
             var subtitleUpload = intro.ShownVram().AsSpan(
-                (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicRomData.Text.FinalLineDestinationStart * 2,
+                (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicRomData.Text.FinalLineFirstCell * 2,
                 IntroFinalLineTilemapFormat.CellCount * 2);
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
                 AssertEqual(ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + index * 2),

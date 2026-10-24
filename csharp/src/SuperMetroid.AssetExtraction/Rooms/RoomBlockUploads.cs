@@ -198,7 +198,7 @@ internal static class RoomBlockUploads
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
             if (transfer.Command is not (LibraryBackgroundCommand.TransferToVram or LibraryBackgroundCommand.TransferToVramForKraid
-                or LibraryBackgroundCommand.TransferForDoor) || transfer.Destination >= BlockCharacterWords)
+                or LibraryBackgroundCommand.TransferForDoor) || transfer.FirstWord >= BlockCharacterWords)
                 continue;
             // The library binds the Tourian statue ghost's characters and the HUD's (Kraid's room moves them under BG1).
             ReadOnlyMemory<byte> characters = transfer.SourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress
@@ -207,7 +207,7 @@ internal static class RoomBlockUploads
                     ? inputs.Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]
                     : throw new InvalidDataException(
                         $"{state.Name}'s library background transfers ${transfer.SourceAddress:X6} over the block characters, which no installed character artwork names.");
-            yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination, characters);
+            yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.SourceAddress), transfer.FirstWord, characters);
         }
     }
 
@@ -321,8 +321,8 @@ internal static class RoomBlockUploads
         {
             if (transfer.Command is not (LibraryBackgroundCommand.TransferToVram or LibraryBackgroundCommand.TransferToVramForKraid
                 or LibraryBackgroundCommand.TransferForDoor)
-                || transfer.Destination + transfer.ByteCount / sizeof(ushort) <= GameplayVramLayout.HudCharacters.Offset
-                || transfer.Destination >= GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count
+                || transfer.FirstWord + transfer.ByteCount / sizeof(ushort) <= GameplayVramLayout.HudCharacters.Offset
+                || transfer.FirstWord >= GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count
                 || SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(transfer.SourceAddress)) == SnesDmaSourceKind.WorkRam
                 || inputs.Skies.TryResolve(transfer.SourceAddress, transfer.ByteCount, out _))
                 continue;
@@ -330,7 +330,7 @@ internal static class RoomBlockUploads
                 ? inputs.Hud.Bytes[..transfer.ByteCount]
                 : throw new InvalidDataException(
                     $"{state.Name}'s library background transfers ${transfer.SourceAddress:X6} over BG3's characters, which no installed character artwork names.");
-            yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination, characters);
+            yield return new BgCharacterUpload(RoomBgArtwork.Library(transfer.SourceAddress), transfer.FirstWord, characters);
         }
     }
 

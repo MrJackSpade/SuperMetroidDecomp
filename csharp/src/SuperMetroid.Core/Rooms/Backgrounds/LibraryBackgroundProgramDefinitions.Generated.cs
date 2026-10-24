@@ -8,467 +8,467 @@ public static partial class LibraryBackgroundProgramDefinitions
 {
     /// <summary>The ScrollingSkyTilemapsLandingSite library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyTilemapsLandingSite { get; } = new(nameof(ScrollingSkyTilemapsLandingSite), [
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, CrateriaDoorDefinitions.GauntletEntrance0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0800, CrateriaDoorDefinitions.Parlor1),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0800, CrateriaDoorDefinitions.CrateriaPowerBombs0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0800, CrateriaDoorDefinitions.CrateriaTube0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0800, CrateriaDoorDefinitions.LandingSiteLandingCutscene),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, DoorDefinitions.DemoSet3024),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0000, 0x0800, CrateriaDoorDefinitions.GauntletEntrance0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0000, 0x0800, CrateriaDoorDefinitions.Parlor1),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0000, 0x0800, CrateriaDoorDefinitions.CrateriaPowerBombs0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD180, 0x4800, 0x0000, 0x0800, CrateriaDoorDefinitions.CrateriaTube0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0000, 0x0800, CrateriaDoorDefinitions.LandingSiteLandingCutscene),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0000, 0x0800, DoorDefinitions.DemoSet3024),
     ]);
 
     /// <summary>The ScrollingSkyTilemapsWreckedShipEntrance library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyTilemapsWreckedShipEntrance { get; } = new(nameof(ScrollingSkyTilemapsWreckedShipEntrance), [
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0800, CrateriaDoorDefinitions.BowlingAlleyPath0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, CrateriaDoorDefinitions.Moat1),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0800, WreckedShipDoorDefinitions.BowlingAlley0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, WreckedShipDoorDefinitions.WreckedShipEntrance0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0800, WreckedShipDoorDefinitions.Attic2),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC980, 0x4C00, 0x0800, WreckedShipDoorDefinitions.GravitySuit0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC180, 0x4800, 0x0000, 0x0800, CrateriaDoorDefinitions.BowlingAlleyPath0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0000, 0x0800, CrateriaDoorDefinitions.Moat1),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB980, 0x4C00, 0x0000, 0x0800, WreckedShipDoorDefinitions.BowlingAlley0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0000, 0x0800, WreckedShipDoorDefinitions.WreckedShipEntrance0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AB180, 0x4800, 0x0000, 0x0800, WreckedShipDoorDefinitions.Attic2),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AC980, 0x4C00, 0x0000, 0x0800, WreckedShipDoorDefinitions.GravitySuit0),
     ]);
 
     /// <summary>The ScrollingSkyTilemapsEastOcean library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyTilemapsEastOcean { get; } = new(nameof(ScrollingSkyTilemapsEastOcean), [
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, CrateriaDoorDefinitions.ForgottenHighwayKagos0),
-        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0800, WreckedShipDoorDefinitions.ElectricDeath0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0000, 0x0800, CrateriaDoorDefinitions.ForgottenHighwayKagos0),
+        new(LibraryBackgroundCommand.TransferForDoor, 0x8AD980, 0x4800, 0x0000, 0x0800, WreckedShipDoorDefinitions.ElectricDeath0),
     ]);
 
     /// <summary>The ScrollingSkyTilemapsBowlingAlley library-background program.</summary>
     public static LibraryBackgroundProgram ScrollingSkyTilemapsBowlingAlley { get; } = new(nameof(ScrollingSkyTilemapsBowlingAlley), [
-        new(LibraryBackgroundCommand.TransferToVram, 0x8AC180, 0x4800, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x8AC180, 0x4800, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar1AKraidUpperLower library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar1AKraidUpperLower { get; } = new(nameof(Brinstar1AKraidUpperLower), [
-        new(LibraryBackgroundCommand.TransferToVramForKraid, 0x9AB200, 0x2000, 0x1000, null),
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9FA38, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4000, 0x1000, null),
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9FE3E, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.TransferToVramForKraid, 0x9AB200, 0x2000, 0x0000, 0x1000, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9FA38, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4000, 0x0000, 0x1000, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9FE3E, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The KraidDead library-background program.</summary>
     public static LibraryBackgroundProgram KraidDead { get; } = new(nameof(KraidDead), [
-        new(LibraryBackgroundCommand.TransferToVramForKraid, 0x9AB200, 0x2000, 0x1000, null),
-        new(LibraryBackgroundCommand.ClearBg2ForKraid, 0x000000, 0x0000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVramForKraid, 0x9AB200, 0x2000, 0x0000, 0x1000, null),
+        new(LibraryBackgroundCommand.ClearBg2ForKraid, 0x000000, 0x0000, 0x0000, 0x0000, null),
     ]);
 
     /// <summary>The CrocomireState0 library-background program.</summary>
     public static LibraryBackgroundProgram CrocomireState0 { get; } = new(nameof(CrocomireState0), [
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The CrocomireState1 library-background program.</summary>
     public static LibraryBackgroundProgram CrocomireState1 { get; } = new(nameof(CrocomireState1), [
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The Crateria0VerticalPatternRocks library-background program.</summary>
     public static LibraryBackgroundProgram Crateria0VerticalPatternRocks { get; } = new(nameof(Crateria0VerticalPatternRocks), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA807E, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA807E, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria0HorizontalPatternRocks library-background program.</summary>
     public static LibraryBackgroundProgram Crateria0HorizontalPatternRocks { get; } = new(nameof(Crateria0HorizontalPatternRocks), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA82C4, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA82C4, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria0Rocks library-background program.</summary>
     public static LibraryBackgroundProgram Crateria0Rocks { get; } = new(nameof(Crateria0Rocks), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8437, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8437, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria2PurpleRocks library-background program.</summary>
     public static LibraryBackgroundProgram Crateria2PurpleRocks { get; } = new(nameof(Crateria2PurpleRocks), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA85BA, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA85BA, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria2BrickRoomWallArtDark library-background program.</summary>
     public static LibraryBackgroundProgram Crateria2BrickRoomWallArtDark { get; } = new(nameof(Crateria2BrickRoomWallArtDark), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA86FC, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA86FC, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria23Mechanical library-background program.</summary>
     public static LibraryBackgroundProgram Crateria23Mechanical { get; } = new(nameof(Crateria23Mechanical), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8780, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8780, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria2BrickRoomWallArt library-background program.</summary>
     public static LibraryBackgroundProgram Crateria2BrickRoomWallArt { get; } = new(nameof(Crateria2BrickRoomWallArt), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8A49, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8A49, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria2Elevator library-background program.</summary>
     public static LibraryBackgroundProgram Crateria2Elevator { get; } = new(nameof(Crateria2Elevator), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8ACD, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8ACD, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Crateria2BrickRoom library-background program.</summary>
     public static LibraryBackgroundProgram Crateria2BrickRoom { get; } = new(nameof(Crateria2BrickRoom), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8DBD, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8DBD, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6VerticalGlowPatches library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6VerticalGlowPatches { get; } = new(nameof(Brinstar6VerticalGlowPatches), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9C972, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9C972, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6HorizontalGlowPatches library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6HorizontalGlowPatches { get; } = new(nameof(Brinstar6HorizontalGlowPatches), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9CD01, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9CD01, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6LargeHorizontalPattern library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6LargeHorizontalPattern { get; } = new(nameof(Brinstar6LargeHorizontalPattern), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9CE9F, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9CE9F, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6MediumHorizontalPattern library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6MediumHorizontalPattern { get; } = new(nameof(Brinstar6MediumHorizontalPattern), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9CFF8, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9CFF8, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6ThinHorizontalPattern library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6ThinHorizontalPattern { get; } = new(nameof(Brinstar6ThinHorizontalPattern), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D1FB, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D1FB, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6SmallPattern library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6SmallPattern { get; } = new(nameof(Brinstar6SmallPattern), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D38F, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D38F, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6SpheresPattern library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6SpheresPattern { get; } = new(nameof(Brinstar6SpheresPattern), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D3C5, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D3C5, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6SmallPatternVariety0 library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6SmallPatternVariety0 { get; } = new(nameof(Brinstar6SmallPatternVariety0), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D3FB, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D3FB, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar6DarkPattern library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar6DarkPattern { get; } = new(nameof(Brinstar6DarkPattern), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D5D8, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D5D8, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Tourian15Statues library-background program.</summary>
     public static LibraryBackgroundProgram Tourian15Statues { get; } = new(nameof(Tourian15Statues), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAC4BC, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x1000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x87AD64, 0x6D00, 0x0600, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAC4BC, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x1000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x87AD64, 0x6D00, 0x0000, 0x0600, null),
     ]);
 
     /// <summary>The Brinstar7WideVerticalTowerBrick0 library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7WideVerticalTowerBrick0 { get; } = new(nameof(Brinstar7WideVerticalTowerBrick0), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D715, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9D715, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar7VerticalTower library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7VerticalTower { get; } = new(nameof(Brinstar7VerticalTower), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9E1B3, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9E1B3, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar7NarrowVerticalTowerBrick library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7NarrowVerticalTowerBrick { get; } = new(nameof(Brinstar7NarrowVerticalTowerBrick), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9E61C, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9E61C, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar7VerticalBrick0 library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7VerticalBrick0 { get; } = new(nameof(Brinstar7VerticalBrick0), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9E885, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9E885, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar7MechanicalRoomSpikeFloor library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7MechanicalRoomSpikeFloor { get; } = new(nameof(Brinstar7MechanicalRoomSpikeFloor), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9EA80, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9EA80, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar7MechanicalRoom library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7MechanicalRoom { get; } = new(nameof(Brinstar7MechanicalRoom), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9EBC7, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9EBC7, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar7NarrowVerticalTowerBrickVines0 library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7NarrowVerticalTowerBrickVines0 { get; } = new(nameof(Brinstar7NarrowVerticalTowerBrickVines0), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9EE52, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9EE52, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Brinstar8NarrowVerticalTowerBrickGrey0 library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar8NarrowVerticalTowerBrickGrey0 { get; } = new(nameof(Brinstar8NarrowVerticalTowerBrickGrey0), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9F1C8, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9F1C8, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The Brinstar7BlueGridBlocks library-background program.</summary>
     public static LibraryBackgroundProgram Brinstar7BlueGridBlocks { get; } = new(nameof(Brinstar7BlueGridBlocks), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9F94F, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9F94F, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9ASmallPatternBrownPurpleBright library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9ASmallPatternBrownPurpleBright { get; } = new(nameof(Norfair9ASmallPatternBrownPurpleBright), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A634, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A634, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9ASmallPatternBrownPurple0 library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9ASmallPatternBrownPurple0 { get; } = new(nameof(Norfair9ASmallPatternBrownPurple0), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A714, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A714, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9HorizontalPatternBrick library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9HorizontalPatternBrick { get; } = new(nameof(Norfair9HorizontalPatternBrick), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A7A8, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A7A8, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9VerticalPatternBrick library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9VerticalPatternBrick { get; } = new(nameof(Norfair9VerticalPatternBrick), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A83A, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9A83A, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9ACavernStalactites library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9ACavernStalactites { get; } = new(nameof(Norfair9ACavernStalactites), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9AC83, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9AC83, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9ACavernVertical library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9ACavernVertical { get; } = new(nameof(Norfair9ACavernVertical), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9AEFF, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9AEFF, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9CavernHorizontalRuins library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9CavernHorizontalRuins { get; } = new(nameof(Norfair9CavernHorizontalRuins), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9B2F0, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9B2F0, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9CavernVerticalRuins library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9CavernVerticalRuins { get; } = new(nameof(Norfair9CavernVerticalRuins), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9B6BB, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9B6BB, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9CavernRoomPillars library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9CavernRoomPillars { get; } = new(nameof(Norfair9CavernRoomPillars), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9BBA5, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9BBA5, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9RoomStatues library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9RoomStatues { get; } = new(nameof(Norfair9RoomStatues), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9BF3B, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9BF3B, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9PurplePatches library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9PurplePatches { get; } = new(nameof(Norfair9PurplePatches), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9C26F, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9C26F, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The Norfair9Bubbles library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9Bubbles { get; } = new(nameof(Norfair9Bubbles), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9C5C8, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xB9C5C8, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The PhantoonState0 library-background program.</summary>
     public static LibraryBackgroundProgram PhantoonState0 { get; } = new(nameof(PhantoonState0), [
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The DraygonState0 library-background program.</summary>
     public static LibraryBackgroundProgram DraygonState0 { get; } = new(nameof(DraygonState0), [
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E2000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The PhantoonDraygonState1 library-background program.</summary>
     public static LibraryBackgroundProgram PhantoonDraygonState1 { get; } = new(nameof(PhantoonDraygonState1), [
-        new(LibraryBackgroundCommand.ClearBg2, 0x000000, 0x0000, 0x0000, null),
+        new(LibraryBackgroundCommand.ClearBg2, 0x000000, 0x0000, 0x0000, 0x0000, null),
     ]);
 
     /// <summary>The WreckedShip45EntranceHall library-background program.</summary>
     public static LibraryBackgroundProgram WreckedShip45EntranceHall { get; } = new(nameof(WreckedShip45EntranceHall), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8DE7, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA8DE7, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The WreckedShip45ColumnsTubes library-background program.</summary>
     public static LibraryBackgroundProgram WreckedShip45ColumnsTubes { get; } = new(nameof(WreckedShip45ColumnsTubes), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA9386, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA9386, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The WreckedShip45ExperimentRoom library-background program.</summary>
     public static LibraryBackgroundProgram WreckedShip45ExperimentRoom { get; } = new(nameof(WreckedShip45ExperimentRoom), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA988D, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA988D, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The WreckedShip45PanelsVents library-background program.</summary>
     public static LibraryBackgroundProgram WreckedShip45PanelsVents { get; } = new(nameof(WreckedShip45PanelsVents), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA9C35, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA9C35, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The WreckedShip45PanelsVentsHorizontal library-background program.</summary>
     public static LibraryBackgroundProgram WreckedShip45PanelsVentsHorizontal { get; } = new(nameof(WreckedShip45PanelsVentsHorizontal), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA9F12, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBA9F12, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The WreckedShip45PanelsVentsVertical library-background program.</summary>
     public static LibraryBackgroundProgram WreckedShip45PanelsVentsVertical { get; } = new(nameof(WreckedShip45PanelsVentsVertical), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAA119, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAA119, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The CeresElevatorState01 library-background program.</summary>
     public static LibraryBackgroundProgram CeresElevatorState01 { get; } = new(nameof(CeresElevatorState01), [
-        new(LibraryBackgroundCommand.ClearBg2, 0x000000, 0x0000, 0x0000, null),
+        new(LibraryBackgroundCommand.ClearBg2, 0x000000, 0x0000, 0x0000, 0x0000, null),
     ]);
 
     /// <summary>The MaridiaBBrownWall library-background program.</summary>
     public static LibraryBackgroundProgram MaridiaBBrownWall { get; } = new(nameof(MaridiaBBrownWall), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAA475, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAA475, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The MaridiaCGreenWall library-background program.</summary>
     public static LibraryBackgroundProgram MaridiaCGreenWall { get; } = new(nameof(MaridiaCGreenWall), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAA69F, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x1000, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAA69F, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x1000, null),
     ]);
 
     /// <summary>The TourianDMechanicalRoom library-background program.</summary>
     public static LibraryBackgroundProgram TourianDMechanicalRoom { get; } = new(nameof(TourianDMechanicalRoom), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAAA78, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAAA78, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The TourianDMechanicalRoomLetterbox library-background program.</summary>
     public static LibraryBackgroundProgram TourianDMechanicalRoomLetterbox { get; } = new(nameof(TourianDMechanicalRoomLetterbox), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAADF0, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAADF0, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The TourianDVerticalStructures library-background program.</summary>
     public static LibraryBackgroundProgram TourianDVerticalStructures { get; } = new(nameof(TourianDVerticalStructures), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAAFE6, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAAFE6, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The TourianDPipeRoomLetterbox library-background program.</summary>
     public static LibraryBackgroundProgram TourianDPipeRoomLetterbox { get; } = new(nameof(TourianDPipeRoomLetterbox), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAB36B, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAB36B, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The TourianDPipeRoomVerticalSeparation library-background program.</summary>
     public static LibraryBackgroundProgram TourianDPipeRoomVerticalSeparation { get; } = new(nameof(TourianDPipeRoomVerticalSeparation), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAB5D8, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAB5D8, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The TourianDPipeRoom library-background program.</summary>
     public static LibraryBackgroundProgram TourianDPipeRoom { get; } = new(nameof(TourianDPipeRoom), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAB9A3, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAB9A3, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The TourianEPipeRoomDark library-background program.</summary>
     public static LibraryBackgroundProgram TourianEPipeRoomDark { get; } = new(nameof(TourianEPipeRoomDark), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBABDD9, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBABDD9, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The TourianDEStatueHall library-background program.</summary>
     public static LibraryBackgroundProgram TourianDEStatueHall { get; } = new(nameof(TourianDEStatueHall), [
-        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAC22A, 0x4000, 0x0000, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0800, null),
-        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0800, null),
+        new(LibraryBackgroundCommand.DecompressToWorkRam, 0xBAC22A, 0x0000, 0x4000, 0x0000, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4800, 0x0000, 0x0800, null),
+        new(LibraryBackgroundCommand.TransferToVram, 0x7E4000, 0x4C00, 0x0000, 0x0800, null),
     ]);
 
     /// <summary>The retail programs in the cartridge's list order.</summary>

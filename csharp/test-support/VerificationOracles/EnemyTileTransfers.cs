@@ -53,7 +53,7 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
 
     /// <summary>Resolves a recorded native enemy tile transfer.</summary>
-    public ReadOnlyMemory<byte> ResolveTransfer(int sourceAddress, int byteCount) =>
+    public ReadOnlyMemory<byte> ResolveCartridgeSource(int sourceAddress, int byteCount) =>
         TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
             : throw new InvalidOperationException($"No enemy tiles at ${sourceAddress:X6}.");
 

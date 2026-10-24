@@ -708,11 +708,11 @@ internal static class LookupStream2Verification
 
         static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, byte[] words, string context)
         {
-            byte[] actual = Enumerable.Repeat((byte)0xaa, PauseWireframeDefinitions.DestinationSize).ToArray();
+            byte[] actual = Enumerable.Repeat((byte)0xaa, PauseWireframeDefinitions.PageBytes).ToArray();
             byte[] expected = actual.ToArray();
             for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
                 words.AsSpan(row * PauseWireframeDefinitions.Columns * 2, PauseWireframeDefinitions.Columns * 2)
-                    .CopyTo(expected.AsSpan(PauseWireframeDefinitions.DestinationByte + row * PauseWireframeDefinitions.DestinationStride));
+                    .CopyTo(expected.AsSpan(PauseWireframeDefinitions.FirstPageByte + row * PauseWireframeDefinitions.PageRowBytes));
             presentation.ApplyTo(actual, kind);
             AssertTrue(expected.SequenceEqual(actual), context);
         }
@@ -795,7 +795,7 @@ internal static class LookupStream2Verification
             PauseEquipmentLabel label = document.Labels[key];
             byte[] native = PauseTileGrid.Compile(label.Cells, key);
             AssertEqual((label.Row * 32 + label.Column) * 2,
-                PauseEquipmentLabelDefinitions.StockDestinationByte(id), "Native semantic label placement");
+                PauseEquipmentLabelDefinitions.StockPageByte(id), "Native semantic label placement");
             for (int cell = 0; cell < label.Cells.Length; cell++)
             {
                 AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(cell * 2)),
@@ -1611,9 +1611,9 @@ internal static class LookupStream2Verification
                 int start = (ReadVerificationWord(rom, 0x82c068 + 2 * index) - 0x3800) / 2;
                 reserve |= (uint)(cell - start) < 7;
             }
-            int relative = cell - PauseWireframeDefinitions.DestinationByte / 2;
-            bool wireframe = relative >= 0 && relative / (PauseWireframeDefinitions.DestinationStride / 2) < PauseWireframeDefinitions.Rows &&
-                relative % (PauseWireframeDefinitions.DestinationStride / 2) < PauseWireframeDefinitions.Columns;
+            int relative = cell - PauseWireframeDefinitions.FirstPageByte / 2;
+            bool wireframe = relative >= 0 && relative / (PauseWireframeDefinitions.PageRowBytes / 2) < PauseWireframeDefinitions.Rows &&
+                relative % (PauseWireframeDefinitions.PageRowBytes / 2) < PauseWireframeDefinitions.Columns;
             AssertEqual(equipment, PauseEquipmentBaseDefinitions.IsEquipmentLabelCell(cell), "native equipment ownership footprint");
             AssertEqual(equipment || reserve || wireframe, PauseEquipmentBaseDefinitions.IsLiveOwnedCell(cell), "native live ownership footprint");
             AssertEqual((reserve || wireframe) && !equipment, PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell), "native noninventory footprint");

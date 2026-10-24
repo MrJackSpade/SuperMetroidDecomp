@@ -42,8 +42,8 @@ public static class AudioRomData
         public const ushort DataCommandPrefix = 0xff00;
         /// <summary>High-byte mask used to recognize canonical $FFxx data commands, distinct from the native sign-bit upload test.</summary>
         public const ushort DataCommandKindMask = 0xff00;
-        /// <summary>Native command sign bit tested by <c>HandleMusicQueue</c> at <c>$80:8F1B</c>; any set value takes the data-upload path, including noncanonical words.</summary>
-        public const ushort UploadPathBit = 0x8000;
+        /// <summary>Native command sign bit tested by <c>HandleMusicQueue</c> at <c>$80:8F1B</c>; any set value makes the word a data command, including noncanonical words.</summary>
+        public const ushort DataCommandBit = 0x8000;
         /// <summary>Low-seven-bit mask applied at <c>$80:8F1F</c> before a track command is written to APU port zero.</summary>
         public const ushort TrackMask = 0x007f;
         /// <summary>Largest canonical track selector, $7F; zero instead denotes stopping music.</summary>

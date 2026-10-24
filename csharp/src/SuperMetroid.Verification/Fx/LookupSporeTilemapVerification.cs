@@ -54,10 +54,10 @@ internal static class LookupSporeTilemapVerification
             byte bit = (index % 4) switch { 0 => 4, 1 => 32, 2 => 64, _ => 128 };
             changed[index * 2 + 1] ^= bit;
             var custom = new RoomFxSporeTilemap(changed);
-            byte[] transfer = custom.CreateTransfer();
+            byte[] transfer = custom.ComposePage();
             AssertTrue(changed.SequenceEqual(transfer), "An attribute edit at every cell survives exactly");
             Array.Clear(changed);
-            AssertTrue(transfer.SequenceEqual(custom.CreateTransfer()), "Page owns custom values independently of input");
+            AssertTrue(transfer.SequenceEqual(custom.ComposePage()), "Page owns custom values independently of input");
         }
         foreach (int index in new[] { int.MinValue, -1, 1056, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxSporeTilemapDefinitions.Attributes(index),

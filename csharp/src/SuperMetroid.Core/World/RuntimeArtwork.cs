@@ -31,7 +31,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
 
     /// <summary>Resolves an OBJ binding's native upload through the installed artwork that served it.</summary>
     /// <exception cref="InvalidOperationException">No bound artwork serves the upload any more.</exception>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveTransfer(int sourceAddress, int byteCount) =>
+    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveCartridgeSource(int sourceAddress, int byteCount) =>
         TryResolveInstalledArtwork(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
             : throw new InvalidOperationException($"No bound artwork serves the OBJ upload from ${sourceAddress:X6} ({byteCount} bytes).");
 

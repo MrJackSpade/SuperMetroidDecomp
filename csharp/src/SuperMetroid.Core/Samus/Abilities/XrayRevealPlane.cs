@@ -53,7 +53,7 @@ public sealed class XrayRevealPlane : IBgSource
         {
             for (int column = 0; column < XrayTilemapLayout.MetatileColumns; column++)
             {
-                int first = XrayRevealTilemap.Destination(column, row);
+                int first = XrayRevealTilemap.FirstCellOf(column, row);
                 found[row * XrayTilemapLayout.MetatileColumns + column] = index.Find(words[first], words[first + 1],
                     words[first + SnesPpuLayout.TilemapPageWidthInTiles], words[first + SnesPpuLayout.TilemapPageWidthInTiles + 1]);
             }

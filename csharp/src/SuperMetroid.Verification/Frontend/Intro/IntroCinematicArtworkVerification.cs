@@ -283,7 +283,7 @@ internal static class IntroCinematicArtworkVerification
             editedDividerState.SetupFirstIllustratedPage();
             byte[] expectedDividerVram = stockDividerVram.ToArray();
             int dividerByte = (IntroCinematicRomDataLayersConstants.NarrationTilemapWord +
-                IntroCinematicRomData.Text.FinalLineDestinationStart + changedCell) * sizeof(ushort);
+                IntroCinematicRomData.Text.FinalLineFirstCell + changedCell) * sizeof(ushort);
             BinaryPrimitives.WriteUInt16LittleEndian(expectedDividerVram.AsSpan(dividerByte),
                 editedDivider.FinalLine.Words.Span[changedCell]);
             AssertTrue(!expectedDividerVram.SequenceEqual(stockDividerVram) &&

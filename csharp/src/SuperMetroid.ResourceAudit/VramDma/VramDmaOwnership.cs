@@ -43,7 +43,7 @@ internal static class VramDmaOwnership
     /// <summary>Recognizes a typed installed VRAM asset only with its reviewed transfer length, including separate ice/wave and missile trail ranges.</summary>
     internal static bool OwnsTyped(VramAssetId asset, int count)
     {
-        if (asset == VramAssetId.StandardHudTiles) return count == HudTileAtlasFormat.TransferByteCount;
+        if (asset == VramAssetId.StandardHudTiles) return count == HudTileAtlasFormat.ByteCount;
         if (asset == VramAssetId.EscapeTimerFirstTiles) return count == EscapeTimerTileAtlasFormat.FirstByteCount;
         if (asset == VramAssetId.EscapeTimerSecondTiles) return count == EscapeTimerTileAtlasFormat.SecondByteCount;
         if (asset is >= VramAssetId.BeamPowerTiles and <= VramAssetId.BeamPlasmaIceWaveTiles or VramAssetId.BeamChainsawTiles or VramAssetId.BeamSpacetimeTiles)

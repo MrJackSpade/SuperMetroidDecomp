@@ -49,7 +49,7 @@ public sealed class HudTileAtlas
     {
         var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
         byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 2);
-        var bytes = new byte[HudTileAtlasFormat.TransferByteCount];
+        var bytes = new byte[HudTileAtlasFormat.ByteCount];
         planar.CopyTo(bytes, 0);
         return new(bytes);
     }

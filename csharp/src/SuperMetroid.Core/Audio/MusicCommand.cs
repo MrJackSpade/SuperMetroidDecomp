@@ -104,7 +104,7 @@ public abstract record MusicCommand
     public sealed record Unresolved(int Word) : MusicCommand
     {
         /// <inheritdoc />
-        public override bool UsesDataUploadPath => (Word & AudioRomData.MusicWireFormat.UploadPathBit) != 0;
+        public override bool UsesDataUploadPath => (Word & AudioRomData.MusicWireFormat.DataCommandBit) != 0;
 
         /// <inheritdoc />
         public override int DataIndex => SnesLittleEndian.LowByte((ushort)Word);

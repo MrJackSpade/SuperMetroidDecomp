@@ -7,8 +7,8 @@ public interface IObjCharacterSourceResolver
     /// <param name="asset">The asset.</param>
     ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset);
 
-    /// <summary>The installed artwork a native upload from <paramref name="sourceAddress"/> of <paramref name="byteCount"/> bytes selects.</summary>
+    /// <summary>The installed artwork the cartridge source <paramref name="sourceAddress"/> of <paramref name="byteCount"/> bytes names.</summary>
     /// <param name="sourceAddress">The native upload's source address.</param>
     /// <param name="byteCount">The native upload's byte count.</param>
-    ReadOnlyMemory<byte> ResolveTransfer(int sourceAddress, int byteCount);
+    ReadOnlyMemory<byte> ResolveCartridgeSource(int sourceAddress, int byteCount);
 }

@@ -59,8 +59,8 @@ public static class CeresDestructionRomData
         public const int MapHalfBytes = 0x0300;
         /// <summary>Source byte offset of the blank map half used to clear the scene.</summary>
         public const int ClearMapSourceOffset = 0x0c00;
-        /// <summary>Mode 7 map word destination of the cleared lower half.</summary>
-        public const ushort ClearMapDestinationWord = 0x0300;
+        /// <summary>The Mode 7 map cell the cleared lower half starts at.</summary>
+        public const ushort ClearMapFirstCell = 0x0300;
         /// <summary>Byte count of the shared cinematic OBJ character transfer.</summary>
         public const int SharedObjectCharacterBytes = 0x1a00;
         /// <summary>Initial character index written across the Mode 7 map.</summary>

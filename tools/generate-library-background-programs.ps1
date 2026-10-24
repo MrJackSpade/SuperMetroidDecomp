@@ -54,7 +54,8 @@ try {
     $doorFile = [IO.File]::ReadAllText([IO.Path]::Combine($workspace, 'csharp', 'src',
         'SuperMetroid.Tooling', 'AssetExtraction', 'Rooms', 'DoorHeaderSourceDefinitions.cs'))
     $doorNames = @{}
-    foreach ($match in [regex]::Matches($doorFile, '\[0x([0-9a-f]{4})\] = (DoorDefinitions|DoorToolingDefinitions)\.(\w+),')) {
+    # Core defines doors per area (CrateriaDoorDefinitions, ...) and in DoorDefinitions; DoorToolingDefinitions is tooling's.
+    foreach ($match in [regex]::Matches($doorFile, '\[0x([0-9a-f]{4})\] = (\w*DoorDefinitions|DoorToolingDefinitions)\.(\w+),')) {
         $doorNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value + '.' + $match.Groups[3].Value
     }
     if ($doorNames.Count -ne 597) { throw "Expected 597 door names, found $($doorNames.Count)." }
@@ -62,7 +63,7 @@ try {
         if ($door -eq 0) { return 'null' }
         if (-not $doorNames.ContainsKey($door)) { throw ('Library transfer names unknown door ${0:X4}.' -f $door) }
         $qualified = $doorNames[$door]
-        if (-not $qualified.StartsWith('DoorDefinitions.')) {
+        if ($qualified.StartsWith('DoorToolingDefinitions.')) {
             throw ('Library transfer names door ${0:X4}, which only tooling defines ({1}).' -f $door, $qualified)
         }
         return $qualified
@@ -89,30 +90,31 @@ try {
             $cursor += 2
             if ($command -eq 0) { $terminated = $true; break }
             $source = 0
-            $destination = 0
+            $firstWord = 0
+            $stagingOffset = 0
             $byteCount = 0
             $door = 0
             switch ($command) {
                 2 { $name = 'TransferToVram'; $source = Read-Long $cursor;
-                    $destination = Read-Word ($cursor + 3); $byteCount = Read-Word ($cursor + 5);
+                    $firstWord = Read-Word ($cursor + 3); $byteCount = Read-Word ($cursor + 5);
                     $cursor += 7 }
                 4 { $name = 'DecompressToWorkRam'; $source = Read-Long $cursor;
-                    $destination = Read-Word ($cursor + 3); $cursor += 5 }
+                    $stagingOffset = Read-Word ($cursor + 3); $cursor += 5 }
                 6 { $name = 'ClearFxTilemap' }
                 8 { $name = 'TransferToVramForKraid'; $source = Read-Long $cursor;
-                    $destination = Read-Word ($cursor + 3); $byteCount = Read-Word ($cursor + 5);
+                    $firstWord = Read-Word ($cursor + 3); $byteCount = Read-Word ($cursor + 5);
                     $cursor += 7 }
                 10 { $name = 'ClearBg2' }
                 12 { $name = 'ClearBg2ForKraid' }
                 14 { $name = 'TransferForDoor'; $door = Read-Word $cursor;
                     $source = Read-Long ($cursor + 2);
-                    $destination = Read-Word ($cursor + 5); $byteCount = Read-Word ($cursor + 7);
+                    $firstWord = Read-Word ($cursor + 5); $byteCount = Read-Word ($cursor + 7);
                     $cursor += 9 }
                 default { throw ('Unknown bank-$8F library command ${0:X4} at ${1:X4}.' -f
                         $command, ($cursor - 2)) }
             }
-            $lines.Add(('        new(LibraryBackgroundCommand.{0}, 0x{1:X6}, 0x{2:X4}, 0x{3:X4}, {4}),' -f
-                $name, $source, $destination, $byteCount, (Format-Door $door)))
+            $lines.Add(('        new(LibraryBackgroundCommand.{0}, 0x{1:X6}, 0x{2:X4}, 0x{3:X4}, 0x{4:X4}, {5}),' -f
+                $name, $source, $firstWord, $stagingOffset, $byteCount, (Format-Door $door)))
             $instructionCount++
         }
         if (-not $terminated) { throw ('Unterminated library list ${0:X4}.' -f $pointer) }

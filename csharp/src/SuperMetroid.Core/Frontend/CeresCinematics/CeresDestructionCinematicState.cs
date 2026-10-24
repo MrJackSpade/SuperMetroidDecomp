@@ -53,36 +53,36 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         uploadedFloorTiles = null;
     }
 
-    /// <summary>What the uploads' Mode 7 characters show (#1392), read at <see cref="uploadedFloorTilesCount"/> uploads; artwork, never saved.</summary>
+    /// <summary>What the uploads' Mode 7 characters show (#1392), read when <see cref="floorTilesReadAt"/> uploads were recorded; artwork, never saved.</summary>
     [NonSerialized] private Mode7TilePictures? uploadedFloorTiles;
 
-    /// <summary>The uploads <see cref="uploadedFloorTiles"/> was read at.</summary>
-    [NonSerialized] private int uploadedFloorTilesCount;
+    /// <summary>How many uploads were recorded when <see cref="uploadedFloorTiles"/> was read.</summary>
+    [NonSerialized] private int floorTilesReadAt;
 
     /// <summary>What the Mode 7 characters the uploads leave show, read again only once another upload is made.</summary>
     private Mode7TilePictures UploadedFloorTiles()
     {
-        if (uploadedFloorTiles is null || uploadedFloorTilesCount != Uploads.Count)
+        if (uploadedFloorTiles is null || floorTilesReadAt != Uploads.Count)
         {
             uploadedFloorTiles = CeresScreenTiles.DestructionFloor(spriteSheets, Uploads);
-            uploadedFloorTilesCount = Uploads.Count;
+            floorTilesReadAt = Uploads.Count;
         }
         return uploadedFloorTiles;
     }
 
-    /// <summary>What the uploads' characters show (#1392), read at <see cref="uploadedTilesCount"/> uploads; artwork, never saved.</summary>
+    /// <summary>What the uploads' characters show (#1392), read when <see cref="tilesReadAt"/> uploads were recorded; artwork, never saved.</summary>
     [NonSerialized] private ScreenLayerPictures? uploadedTiles;
 
-    /// <summary>The uploads <see cref="uploadedTiles"/> was read at.</summary>
-    [NonSerialized] private int uploadedTilesCount;
+    /// <summary>How many uploads were recorded when <see cref="uploadedTiles"/> was read.</summary>
+    [NonSerialized] private int tilesReadAt;
 
     /// <summary>What the characters the uploads leave show, read again only once another upload is made, so the frame's tiles keep their packing.</summary>
     private ScreenLayerPictures UploadedTiles()
     {
-        if (uploadedTiles is null || uploadedTilesCount != Uploads.Count)
+        if (uploadedTiles is null || tilesReadAt != Uploads.Count)
         {
             uploadedTiles = CeresScreenTiles.Destruction(spriteSheets, Uploads);
-            uploadedTilesCount = Uploads.Count;
+            tilesReadAt = Uploads.Count;
         }
         return uploadedTiles;
     }

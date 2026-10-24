@@ -18,12 +18,12 @@ public sealed class PauseWireframePresentation
     public void ApplyTo(Span<byte> equipmentPage, PauseWireframeKind kind)
     {
         if ((uint)kind >= PauseWireframeDefinitions.Count) throw new ArgumentOutOfRangeException(nameof(kind));
-        Ensure.LengthEqual(equipmentPage, PauseWireframeDefinitions.DestinationSize);
+        Ensure.LengthEqual(equipmentPage, PauseWireframeDefinitions.PageBytes);
         Wireframe source = frames[(int)kind];
         for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
         for (int column = 0; column < PauseWireframeDefinitions.Columns; column++)
             BinaryPrimitives.WriteUInt16LittleEndian(equipmentPage.Slice(
-                PauseWireframeDefinitions.DestinationByte + row * PauseWireframeDefinitions.DestinationStride + column * sizeof(ushort)),
+                PauseWireframeDefinitions.FirstPageByte + row * PauseWireframeDefinitions.PageRowBytes + column * sizeof(ushort)),
                 source.Word(row * PauseWireframeDefinitions.Columns + column));
     }
 

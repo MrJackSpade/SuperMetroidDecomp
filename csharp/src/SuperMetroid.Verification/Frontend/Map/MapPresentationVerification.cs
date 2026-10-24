@@ -1535,7 +1535,7 @@ internal static class MapPresentationVerification
                 (address >= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors &&
                     address < SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
             address => $"Live presentation read map palette-cycle ROM at {address:X6}.");
-        guard.Forbid(address => address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.TransferByteCount),
+        guard.Forbid(address => address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.ByteCount),
             address => $"Live presentation read HUD atlas ROM at {address:X6}.");
         guard.Forbid(address => address is >= MapTileAtlasFormat.SourceAddress and < (MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount),
             address => $"Live presentation read map atlas ROM at {address:X6}.");

@@ -154,7 +154,7 @@ internal sealed class SuperMetroidRuntime
         Tester = new TesterTools(Cgram, Player, System);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Cgram, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze, VramWrites = VramWrites };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, Room = Room, RoomFx = RoomFx, Cgram = Cgram, Display = Display, Hud = Hud, MessageBox = MessageBox, Player = Player, VramWrites = VramWrites });
-        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room, VramWrites = VramWrites });
+        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Backgrounds = BgArtwork, Artwork = Artwork, Display = Display, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room, VramWrites = VramWrites });
         GameplayWindows = new GameplayWindowRegisters(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), Backgrounds = BgArtwork, EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });

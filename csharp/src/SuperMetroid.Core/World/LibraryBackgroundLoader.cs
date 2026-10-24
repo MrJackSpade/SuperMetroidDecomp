@@ -79,14 +79,14 @@ public static class LibraryBackgroundLoader
             if (transfer.ByteCount != ghost.Length)
                 throw new InvalidDataException(
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, not its {ghost.Length}.");
-            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination, ghost.Span);
+            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), transfer.FirstWord, ghost.Span);
             return true;
         }
         else if (transfer.SourceAddress == HudTileAtlasFormat.SourceAddress && transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
         {
             HudTileAtlas hud = artwork.HudArt
                 ?? throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
-            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), transfer.Destination,
+            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), transfer.FirstWord,
                 hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]);
             return true;
         }

@@ -1814,7 +1814,7 @@ internal sealed class SeededEnemyTileTransfers(IReadOnlyDictionary<int, byte[]> 
     public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
 
     /// <summary>Resolves a recorded seeded transfer.</summary>
-    public ReadOnlyMemory<byte> ResolveTransfer(int sourceAddress, int byteCount) =>
+    public ReadOnlyMemory<byte> ResolveCartridgeSource(int sourceAddress, int byteCount) =>
         TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
             : throw new InvalidOperationException($"The loading fixture seeded no {byteCount} tile bytes at ${sourceAddress:X6}.");
 

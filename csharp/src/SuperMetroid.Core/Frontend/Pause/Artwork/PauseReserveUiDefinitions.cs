@@ -22,10 +22,6 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:AB47 preserves priority, palette and flip fields while replacing MANUAL/AUTO characters.</summary>
     public const ushort TileAttributeMask = 0xfc00;
 
-    /// <summary>$82:C068, native destinations for MODE/MANUAL and RESERVE TANK labels.</summary>
-    public const int LabelDestinations = 0x82c068;
-    /// <summary>$82:C088, native source pointers for MODE/MANUAL and RESERVE TANK labels.</summary>
-    public const int LabelSources = 0x82c088;
     /// <summary>$82:BF22, MANUAL replacement text.</summary>
     public const int ManualSource = 0x82bf22;
     /// <summary>$82:BF2A, AUTO replacement text.</summary>

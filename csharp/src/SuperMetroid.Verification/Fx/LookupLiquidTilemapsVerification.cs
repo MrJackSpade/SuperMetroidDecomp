@@ -34,7 +34,7 @@ internal static class LookupLiquidTilemapsVerification
         foreach (RoomFxType type in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water })
         {
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
-            byte[] transfer = RoomFxLiquidTilemapDefinitions.CreateTransfer(type);
+            byte[] transfer = RoomFxLiquidTilemapDefinitions.ComposePage(type);
             ReadOnlySpan<byte> installed = catalog.Resolve(type).Span;
             AssertEqual(0x840, transfer.Length, "Calculated full native transfer length");
             AssertEqual(0x840, installed.Length, "Installed full native transfer length");
@@ -60,7 +60,7 @@ internal static class LookupLiquidTilemapsVerification
             if (valid.Contains(type)) continue;
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.Cell(type, 0),
                 "Only three liquid identities have stock layout algorithms");
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.ComposePage(type),
                 "Transfer rejects unsupported type without expanding domain");
         }
         foreach (RoomFxType type in valid)

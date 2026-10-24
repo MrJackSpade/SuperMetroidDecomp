@@ -14,7 +14,7 @@ public static class HudTileAtlasFormat
     /// <summary>Bytes in one restore quarter of the standard BG3 characters.</summary>
     public const ushort RestoreQuarterBytes = CharacterByteCount / RestoreQuarterCount;
     /// <summary>$2000 bytes: the character data plus the equal-sized all-zero half that clears BG2's words.</summary>
-    public const ushort TransferByteCount = CharacterByteCount * 2;
+    public const ushort ByteCount = CharacterByteCount * 2;
     /// <summary>$9A:B200, Tiles_Standard_BG3, where Kraid's library background reads the HUD's characters from.</summary>
     public const int SourceAddress = MapTileAtlasRomData.HudCharacterData;
 }

@@ -7,7 +7,7 @@ public sealed record TransferObjCharacters(int SourceAddress, int ByteCount) : O
 {
     /// <inheritdoc/>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        Ensure.NotNull(resolver).ResolveTransfer(SourceAddress, ByteCount);
+        Ensure.NotNull(resolver).ResolveCartridgeSource(SourceAddress, ByteCount);
 
     /// <summary>Names the source for diagnostics.</summary>
     public override string ToString() => $"transfer ${SourceAddress:X6}+{ByteCount}";

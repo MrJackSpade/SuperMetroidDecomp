@@ -89,12 +89,12 @@ public sealed class RoomFxLayer3TilemapCatalog
     /// </summary>
     public ReadOnlyMemory<byte> Resolve(RoomFxType type) => type switch
     {
-        RoomFxType.Lava => lava ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
-        RoomFxType.Acid => acid ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
-        RoomFxType.Water or RoomFxType.TourianEntranceStatue => water ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(RoomFxType.Water),
-        RoomFxType.Spores => spores.CreateTransfer(),
-        RoomFxType.Rain => rain.CreateTransfer(),
-        RoomFxType.Fog => fog.CreateTransfer(),
+        RoomFxType.Lava => lava ?? RoomFxLiquidTilemapDefinitions.ComposePage(type),
+        RoomFxType.Acid => acid ?? RoomFxLiquidTilemapDefinitions.ComposePage(type),
+        RoomFxType.Water or RoomFxType.TourianEntranceStatue => water ?? RoomFxLiquidTilemapDefinitions.ComposePage(RoomFxType.Water),
+        RoomFxType.Spores => spores.ComposePage(),
+        RoomFxType.Rain => rain.ComposePage(),
+        RoomFxType.Fog => fog.ComposePage(),
         RoomFxType.None or
             RoomFxType.ScrollingSky or
             RoomFxType.UnusedScrollingSky or

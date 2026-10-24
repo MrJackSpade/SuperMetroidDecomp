@@ -34,7 +34,7 @@ public static class XrayRevealTilemap
         {
             int sourceX = ((bg1Scroll.X >> 4) + col) * 2;
             int sourceY = ((bg1Scroll.Y >> 4) + row) * 2;
-            int destination = Destination(col, row);
+            int destination = FirstCellOf(col, row);
             Write(destination, ReadBg1(sourceX, sourceY));
             Write(destination + 1, ReadBg1(sourceX + 1, sourceY));
             Write(destination + 32, ReadBg1(sourceX, sourceY + 1));
@@ -49,15 +49,15 @@ public static class XrayRevealTilemap
             if (first != 0 && Lookup(first - 1) is { } predecessor)
             {
                 if (predecessor.Command == XrayRevealCommand.CopySquare)
-                    CopyMetatile(Destination(0, row) + XrayTilemapLayout.MetatileRowStride, predecessor.BottomRight);
+                    CopyMetatile(FirstCellOf(0, row) + XrayTilemapLayout.MetatileRowStride, predecessor.BottomRight);
                 if (predecessor.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
-                    CopyMetatile(Destination(0, row), predecessor.TopRight);
+                    CopyMetatile(FirstCellOf(0, row), predecessor.TopRight);
             }
             for (int col = 0; col < XrayTilemapLayout.MetatileColumns; col++)
             {
                 int index = first + col;
                 if (Lookup(index) is not { } reveal) continue;
-                int destination = Destination(col, row);
+                int destination = FirstCellOf(col, row);
                 if (reveal.Command is XrayRevealCommand.HorizontalExtension or XrayRevealCommand.VerticalExtension)
                 {
                     if (XrayRevealExtensions.Resolve(level, index, visuals) is { } replacement)
@@ -112,7 +112,7 @@ public static class XrayRevealTilemap
         }
     }
 
-    /// <summary>Maps the final reveal column into the second copied BG screen rather than past screen one's edge.</summary>
-    internal static int Destination(int column, int row) => row * XrayTilemapLayout.MetatileRowStride +
+    /// <summary>The first cell of the reveal's block at <paramref name="column"/>, <paramref name="row"/>: the final column maps into the second copied BG screen rather than past screen one's edge.</summary>
+    internal static int FirstCellOf(int column, int row) => row * XrayTilemapLayout.MetatileRowStride +
         (column == XrayTilemapLayout.MetatileColumns - 1 ? XrayTilemapLayout.ScreenWords : column * 2);
 }

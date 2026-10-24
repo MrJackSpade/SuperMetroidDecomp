@@ -34,7 +34,7 @@ internal static class CeresDestructionScreenMemory
                     int upperSource = withSamus ? CeresDestructionRomData.Transfers.ClearMapSourceOffset : 0;
                     mode7.LoadMap(maps.AsSpan(upperSource, CeresDestructionRomData.Transfers.MapHalfBytes));
                     mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.ClearMapSourceOffset, CeresDestructionRomData.Transfers.MapHalfBytes),
-                        cell: CeresDestructionRomData.Transfers.ClearMapDestinationWord);
+                        cell: CeresDestructionRomData.Transfers.ClearMapFirstCell);
                     break;
                 case CeresDestructionUpload.ZebesReveal:
                     mode7.LoadMap(maps.AsSpan(CeresDestructionRomData.Transfers.MapHalfBytes, CeresDestructionRomData.Transfers.MapHalfBytes));

@@ -26,6 +26,8 @@ internal sealed class GameplayHudSetup
     private readonly ActiveRoomState _room;
     /// <summary>Carries the HUD characters' and the loaded enemies' character uploads, which still go through the queue.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>The background artwork bindings the HUD's characters are shown through.</summary>
+    private readonly BgArtworkBindings _backgrounds;
 
     /// <summary>Binds the runtime owners HUD initialization selects artwork for.</summary>
     internal GameplayHudSetup(GameplayHudSetupDependencies dependencies)
@@ -37,6 +39,7 @@ internal sealed class GameplayHudSetup
         _enemySession = dependencies.EnemySession;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;
+        _backgrounds = dependencies.Backgrounds;
     }
 
     /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>
@@ -44,12 +47,18 @@ internal sealed class GameplayHudSetup
     internal void SelectGameplayHudCharacterBase() => _display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
 
     /// <summary>
-    /// Queues the standard BG3 characters' upload at the ordinary HUD base, followed by its clearing half: a game has them
+    /// Shows the standard BG3 characters at the ordinary HUD base, followed by their clearing half (#1406): a game has them
     /// there whenever it enters a room through a door, as only Kraid's room writes over them and his death restores them
-    /// before any of its doors opens.
+    /// before any of its doors opens. Every caller publishes the forced-blank uploads before a room loads, so the room's
+    /// own backgrounds still bind over them in the cartridge's order.
     /// </summary>
-    internal void QueueHudCharacters() =>
-        _vramWrites.EnqueueBackgroundAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
+    /// <exception cref="InvalidOperationException">The HUD artwork is not installed.</exception>
+    internal void ShowHudCharacters()
+    {
+        HudTileAtlas hud = (_artwork.MapPresentation ?? throw new InvalidOperationException(
+            "Showing the HUD's characters requires installed HUD artwork.")).HudTiles;
+        _backgrounds.Bind(BgArtworkIdentity.Asset(VramAssetId.StandardHudTiles), GameplayVramLayout.HudCharacterUpload.Offset, hud.Bytes.Span);
+    }
 
     /// <summary>
     /// Selects the standard sprite characters over the start of the OBJ character table, as <c>$82:8318</c>'s setup does:
@@ -68,10 +77,7 @@ internal sealed class GameplayHudSetup
     public void InitializeHud(HudSnapshot snapshot)
     {
         _hud.BindPresentation(_artwork.MapPresentation?.GameplayHud, _player.Samus);
-        // The HUD's characters are installed artwork bound at the NMI (#1350).
-        if (_artwork.MapPresentation is null)
-            throw new InvalidOperationException("Initializing the HUD requires installed HUD artwork.");
-        QueueHudCharacters();
+        ShowHudCharacters();
         ShowStandardObjectCharacters();
         // A loaded room's enemy characters show over the standard ones again from the next accepted frame.
         // Before the gameplay runtime's first room there is no enemy population.

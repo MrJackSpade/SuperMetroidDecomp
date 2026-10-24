@@ -67,10 +67,10 @@ internal static class LookupAtmosphereTilemapsVerification
                 byte[] changed = original.ToArray();
                 changed[index * 2 + 1] ^= (byte)(type == RoomFxType.Fog && (index & 1) != 0 ? 32 : 4);
                 var custom = new RoomFxAtmosphereTilemap(type, changed);
-                byte[] transfer = custom.CreateTransfer();
+                byte[] transfer = custom.ComposePage();
                 AssertTrue(changed.SequenceEqual(transfer), "A custom field edit at every cell survives");
                 Array.Clear(changed);
-                AssertTrue(transfer.SequenceEqual(custom.CreateTransfer()), "Custom input ownership is independent");
+                AssertTrue(transfer.SequenceEqual(custom.ComposePage()), "Custom input ownership is independent");
             }
             foreach (int invalid in new[] { int.MinValue, -1, 1056, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, invalid),

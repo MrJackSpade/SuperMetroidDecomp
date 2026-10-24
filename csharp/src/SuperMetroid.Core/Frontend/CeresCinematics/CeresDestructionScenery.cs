@@ -25,7 +25,7 @@ internal static class CeresDestructionScenery
                     int upperSource = withSamus ? CeresDestructionRomData.Transfers.ClearMapSourceOffset : 0;
                     maps.AsSpan(upperSource, CeresDestructionRomData.Transfers.MapHalfBytes).CopyTo(cells);
                     maps.AsSpan(CeresDestructionRomData.Transfers.ClearMapSourceOffset, CeresDestructionRomData.Transfers.MapHalfBytes)
-                        .CopyTo(cells.AsSpan(CeresDestructionRomData.Transfers.ClearMapDestinationWord));
+                        .CopyTo(cells.AsSpan(CeresDestructionRomData.Transfers.ClearMapFirstCell));
                     break;
                 case CeresDestructionUpload.ZebesReveal:
                     maps.AsSpan(CeresDestructionRomData.Transfers.MapHalfBytes, CeresDestructionRomData.Transfers.MapHalfBytes).CopyTo(cells);

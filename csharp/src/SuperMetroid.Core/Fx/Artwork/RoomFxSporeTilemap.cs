@@ -33,8 +33,8 @@ internal sealed class RoomFxSporeTilemap
         }
     }
 
-    /// <summary>Produces a transfer without caching a reconstructed attribute/page table.</summary>
-    public byte[] CreateTransfer()
+    /// <summary>Composes the page without caching a reconstructed attribute/page table.</summary>
+    public byte[] ComposePage()
     {
         var bytes = new byte[RoomFxLayer3TilemapFormat.PageByteCount];
         for (int index = 0; index < characters.Length; index++)

@@ -59,8 +59,8 @@ public static class IntroCinematicRomData
     {
         /// <summary>Word count of a complete 32-by-32 text tilemap.</summary>
         public const int TextTilemapWordCount = 0x0400;
-        /// <summary>Word count copied for the visible portion of a text tilemap.</summary>
-        public const int VisibleTextTransferWordCount = 0x03c0;
+        /// <summary>The cells of a text tilemap the narration shows: its first thirty rows.</summary>
+        public const int VisibleTextCellCount = 0x03c0;
         /// <summary>Width of an intro tilemap in tiles.</summary>
         public const int TilemapWidth = 32;
     }
@@ -82,8 +82,8 @@ public static class IntroCinematicRomData
         public const int JapaneseBlankSourceOffset = 0x0290;
         /// <summary>Tilemap-index delta from the upper to lower Japanese blank region.</summary>
         public const int JapaneseBlankBottomDelta = 896;
-        /// <summary>First tilemap word replaced by the final text line.</summary>
-        public const int FinalLineDestinationStart = 768;
+        /// <summary>First tilemap cell replaced by the final text line.</summary>
+        public const int FinalLineFirstCell = 768;
         /// <summary>Number of words copied for the final text line.</summary>
         public const int FinalLineWordCount = 128;
         /// <summary>Tilemap index blanked immediately left of the final text.</summary>

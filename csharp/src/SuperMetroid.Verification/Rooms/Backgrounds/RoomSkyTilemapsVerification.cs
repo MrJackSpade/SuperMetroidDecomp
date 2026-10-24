@@ -85,7 +85,7 @@ internal static class RoomSkyTilemapsVerification
                 $"Landing Site command {index} door");
             AssertEqual(compiled.SourceAddress, native.SourceAddress,
                 $"Landing Site command {index} sky source");
-            AssertEqual(compiled.Destination, (native.VramDestination ?? throw new InvalidOperationException("Verification requires native.VramDestination.")),
+            AssertEqual(compiled.FirstWord, (native.VramDestination ?? throw new InvalidOperationException("Verification requires native.VramDestination.")),
                 $"Landing Site command {index} VRAM destination");
             AssertEqual(compiled.ByteCount, (native.TransferByteCount ?? throw new InvalidOperationException("Verification requires native.TransferByteCount.")),
                 $"Landing Site command {index} transfer size");
@@ -97,7 +97,7 @@ internal static class RoomSkyTilemapsVerification
                     DoorDefinitions.PointerOf(compiledDoor)).SourceAddress,
                 $"Landing Site door {index} uses compiled sky selection without list ROM reads");
             var expectedVram = new SnesVram();
-            expectedVram.LoadBytes(compiled.Destination * 2,
+            expectedVram.LoadBytes(compiled.FirstWord * 2,
                 ReadRetailSkyBytes(bus, compiled.SourceAddress, compiled.ByteCount));
             var compiledVram = new SnesVram();
             LibraryBackgroundReplay.Execute(compiledVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), compiledDoor, new LibraryBackgroundArtwork { SkyArt = stock });

@@ -30,7 +30,7 @@ internal static class LibraryBackgroundProgramsVerification
                     case LibraryBackgroundCommand.DecompressToWorkRam:
                         AssertEqual(instruction.SourceAddress, ReadLong(cursor),
                             $"library BG $8F:{program.Pointer:X4} compressed source");
-                        AssertEqual(instruction.Destination,
+                        AssertEqual(instruction.StagingOffset,
                             ReadWord(unchecked((ushort)(cursor + 3))),
                             $"library BG $8F:{program.Pointer:X4} WRAM destination");
                         cursor = unchecked((ushort)(cursor + 5));
@@ -56,7 +56,7 @@ internal static class LibraryBackgroundProgramsVerification
                 {
                     AssertEqual(instruction.SourceAddress, ReadLong(cursor),
                         $"library BG $8F:{program.Pointer:X4} transfer source");
-                    AssertEqual(instruction.Destination,
+                    AssertEqual(instruction.FirstWord,
                         ReadWord(unchecked((ushort)(cursor + 3))),
                         $"library BG $8F:{program.Pointer:X4} VRAM destination");
                     AssertEqual(instruction.ByteCount,

@@ -38,7 +38,7 @@ public sealed class PauseEquipmentLabelPresentation
                 : id == PauseEquipmentLabelId.Hyper
                     ? PauseEquipmentLabelDefinitions.BeamWords
                     : label.WordCount;
-            int first = label.DestinationByte / sizeof(ushort);
+            int first = label.PageByte / sizeof(ushort);
             if ((uint)(cell - first) < words) return true;
         }
         return false;
@@ -54,11 +54,11 @@ public sealed class PauseEquipmentLabelPresentation
             for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Beams); item++)
             {
                 CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Label(PauseEquipmentCategory.Beams, item)];
-                WriteBlank(tilemap.Slice(destination.DestinationByte,
+                WriteBlank(tilemap.Slice(destination.PageByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelId.Hyper];
-            hyper.CopyTo(tilemap.Slice(hyper.DestinationByte,
+            hyper.CopyTo(tilemap.Slice(hyper.PageByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
         }
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
@@ -68,7 +68,7 @@ public sealed class PauseEquipmentLabelPresentation
 
             SuperMetroid.Core.Frontend.Pause.PauseEquipmentBit mask = SuperMetroid.Core.Frontend.Pause.PauseEquipmentRules.Mask(category, item);
             CompiledLabel label = labels[PauseEquipmentLabelDefinitions.Label(category, item)];
-            Span<byte> destination = tilemap.Slice(label.DestinationByte, label.WordCount * sizeof(ushort));
+            Span<byte> destination = tilemap.Slice(label.PageByte, label.WordCount * sizeof(ushort));
             if (!mask.IsSetIn(collectedBeams, collectedItems))
                 WriteBlank(destination);
             else
@@ -90,7 +90,7 @@ public sealed class PauseEquipmentLabelPresentation
         CompiledLabel label = labels[id];
         if (wordCount is < 0 or > PauseEquipmentLabelDefinitions.EquipmentWords)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
-        Span<byte> destination = tilemap.Slice(label.DestinationByte, wordCount * sizeof(ushort));
+        Span<byte> destination = tilemap.Slice(label.PageByte, wordCount * sizeof(ushort));
         int ordinaryBytes = Math.Min(destination.Length, label.WordCount * sizeof(ushort));
         label.CopyTo(destination[..ordinaryBytes]);
         if (ordinaryBytes < destination.Length)
@@ -150,7 +150,7 @@ public sealed class PauseEquipmentLabelPresentation
                 for (int cell = destinationCell; cell < destinationCell + footprint; cell++)
                 {
                     bool plasmaWireframeOverlap = id == PauseEquipmentLabelId.Plasma &&
-                        destinationCell == PauseEquipmentLabelDefinitions.PlasmaDestinationCell &&
+                        destinationCell == PauseEquipmentLabelDefinitions.PlasmaCell &&
                         cell == PauseEquipmentLabelDefinitions.PlasmaWireframeOverlapCell;
                     if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell) &&
                         !plasmaWireframeOverlap)
@@ -218,8 +218,8 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Stores placement and tile-word differences while resolving unchanged cells from stock label definitions.</summary>
     private sealed class CompiledLabel(PauseEquipmentLabelId id, int? destinationEdit, Dictionary<int, ushort> edits)
     {
-        /// <summary>Returns the edited byte offset or the stock selector's tilemap destination.</summary>
-        internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(id);
+        /// <summary>Returns the edited byte offset or the stock selector's equipment-page byte.</summary>
+        internal int PageByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockPageByte(id);
         /// <summary>Uses the native selector's width even when its authored strip has edited cells.</summary>
         internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(id);
 
@@ -232,7 +232,7 @@ public sealed class PauseEquipmentLabelPresentation
                 ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(cell * sizeof(ushort))..]);
                 if (value != PauseEquipmentLabelDefinitions.StockWord(id, cell)) edits.Add(cell, value);
             }
-            int? changedDestination = destination == PauseEquipmentLabelDefinitions.StockDestinationByte(id)
+            int? changedDestination = destination == PauseEquipmentLabelDefinitions.StockPageByte(id)
                 ? null : destination;
             return new(id, changedDestination, edits);
         }

@@ -50,6 +50,12 @@ internal static class PauseMenuCartridgeTables
     /// <summary>Bank $82 owns selector positions, timing and sprite-pointer data.</summary>
     internal const int PauseSelectorBank = 0x820000;
 
+    /// <summary>$82:C068, the equipment-page places of the MODE/MANUAL and RESERVE TANK labels.</summary>
+    internal const int ReserveLabelPlacements = 0x82c068;
+
+    /// <summary>$82:C088, the source pointers of the MODE/MANUAL and RESERVE TANK labels.</summary>
+    internal const int ReserveLabelSources = 0x82c088;
+
     /// <summary>$82:B25F Samus_Wireframe_Tilemaps pointer order: Power, Power/Hi-Jump, Varia, Varia/Hi-Jump.</summary>
     internal const int PauseWireframePointers = 0x82b25f;
 

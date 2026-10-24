@@ -165,9 +165,9 @@ public sealed class IntroCinematicState : IFrontendScreen
                 // The divider occupies only rows 24-27. Preserve live typewriter
                 // words and caret state in every other row on debugger rebind.
                 value.FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
-                    IntroCinematicRomData.Text.FinalLineDestinationStart,
+                    IntroCinematicRomData.Text.FinalLineFirstCell,
                     IntroCinematicRomData.Text.FinalLineWordCount));
-                value.FinalLine.Words.Span.CopyTo(tilemaps.Narration[IntroCinematicRomData.Text.FinalLineDestinationStart..]);
+                value.FinalLine.Words.Span.CopyTo(tilemaps.Narration[IntroCinematicRomData.Text.FinalLineFirstCell..]);
             }
             tilemaps.LoadScenePages(value.BackgroundPages.Span);
             tilemaps.LoadPortrait(value.PortraitTilemap.Span);
@@ -1331,7 +1331,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         (CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork."))
             .FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
-                IntroCinematicRomData.Text.FinalLineDestinationStart,
+                IntroCinematicRomData.Text.FinalLineFirstCell,
                 IntroCinematicRomData.Text.FinalLineWordCount));
 
         // `menu.menu_tilemap` begins $600 bytes into the same WRAM union. Its byte offset
@@ -1374,7 +1374,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             IntroCinematicRomData.Text.Blank.Raw,
             startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
             count: IntroCinematicRomData.Text.GameplayBlankWordCount);
-        textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount).CopyTo(tilemaps.Narration);
+        textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextCellCount).CopyTo(tilemaps.Narration);
     }
 
     /// <summary>Clears selected CGRAM spans before an incoming scene palette begins crossfading.</summary>

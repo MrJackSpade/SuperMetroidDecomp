@@ -540,7 +540,7 @@ internal static class RoomBlockPicturesVerification
         for (int y = 0; y < RoomBlockSheet.BlockPixels; y++)
         for (int x = 0; x < RoomBlockSheet.BlockPixels; x++)
         {
-            var word = new SnesBgTilemapWord(words[XrayRevealTilemap.Destination(column, row) + y / CharacterPixels * 32 + x / CharacterPixels]);
+            var word = new SnesBgTilemapWord(words[XrayRevealTilemap.FirstCellOf(column, row) + y / CharacterPixels * 32 + x / CharacterPixels]);
             int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y % CharacterPixels : y % CharacterPixels;
             int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x % CharacterPixels : x % CharacterPixels);
             int address = word.CharacterIndex * RoomBlockPictureNames.CharacterWords * sizeof(ushort) + pixelRow * 2;

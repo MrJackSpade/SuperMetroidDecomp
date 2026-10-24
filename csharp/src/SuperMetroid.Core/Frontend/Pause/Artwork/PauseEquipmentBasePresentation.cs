@@ -36,8 +36,8 @@ public sealed class PauseEquipmentBasePresentation
     /// <summary>Combines the power-suit wireframe with the equipment base outside its footprint.</summary>
     private static ushort DefaultWord(int cell)
     {
-        int relative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);
-        int stride = PauseWireframeDefinitions.DestinationStride / sizeof(ushort);
+        int relative = cell - PauseWireframeDefinitions.FirstPageByte / sizeof(ushort);
+        int stride = PauseWireframeDefinitions.PageRowBytes / sizeof(ushort);
         if (relative >= 0 && relative / stride < PauseWireframeDefinitions.Rows &&
             relative % stride < PauseWireframeDefinitions.Columns)
         {

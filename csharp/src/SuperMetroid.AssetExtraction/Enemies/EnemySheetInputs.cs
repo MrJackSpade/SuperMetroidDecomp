@@ -67,6 +67,6 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">No catalogued upload names a native transfer.</exception>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveTransfer(int sourceAddress, int byteCount) => throw new InvalidOperationException(
+    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveCartridgeSource(int sourceAddress, int byteCount) => throw new InvalidOperationException(
         $"No catalogued encounter upload names a native transfer from ${sourceAddress:X6}.");
 }

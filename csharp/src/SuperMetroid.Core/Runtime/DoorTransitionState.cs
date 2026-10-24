@@ -120,7 +120,7 @@ internal sealed class DoorTransitionState
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 // A palette step returns to MainGameLoop. Hardware stalls while it
                 // executes are not additional dispatches, but this step is one.
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 if (PaletteTransition.Step())
                 {
                     runtime.Sprites.BeginFrame();
@@ -139,21 +139,21 @@ internal sealed class DoorTransitionState
                 // header was captured by Begin; retaining this separate call preserves the
                 // coroutine boundary and its one accepted NMI.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 runtime.RoomLoader.BeginDoorTransitionIrqDisplay(sourceIsolated, destinationIsolated);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
 
             case DoorTransitionPhase.AlignSourceCamera:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 if (runtime.RoomLoader.AlignPendingDoorCameraOnePixel())
                     Phase = DoorTransitionPhase.FixDoorsMovingUp;
                 break;
 
             case DoorTransitionPhase.FixDoorsMovingUp:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 // `$80:AD1D` repairs the source room's tilemap ring for an upward door; with
                 // backgrounds drawn from level data there is no ring, only this frame.
                 Phase = DoorTransitionPhase.SetupNewRoom;
@@ -163,14 +163,14 @@ internal sealed class DoorTransitionState
                 // Room/state/FX/level setup is atomic in LoadPendingDoorDestination, but
                 // native exposes this function separately from scrolling and tile upload.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 runtime.RoomLoader.SelectDoorDestinationHudCharacterBase();
                 Phase = DoorTransitionPhase.SetupScrolling;
                 break;
 
             case DoorTransitionPhase.SetupScrolling:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 // Capture immediately before the setup call; source actors have run
                 // during the fade. The atomic loader must not apply this step twice.
                 var setupSamus = runtime.Player.Samus
@@ -182,14 +182,14 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.PlaceSamusAndLoadTiles:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 runtime.RoomLoader.PlaceSamusForDoorTileLoading();
                 Phase = DoorTransitionPhase.LoadMoreThingsAndOpenDoor;
                 break;
 
             case DoorTransitionPhase.LoadMoreThingsAndOpenDoor:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Skipped, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 // LoadMoreThings initializes enemy graphics/music/projectiles/animtiles,
                 // PLMs, FX, backgrounds, and then yields once per NMI until the IRQ raises
                 // door_transition_flag bit $8000. The host room constructor performs that
@@ -254,7 +254,7 @@ internal sealed class DoorTransitionState
                 // LoadCartridgeRoom already initialized the destination animtile owner.
                 // Native gives it one explicit call before polling the global music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 // $82:E659 runs the animated-tile objects once in the destination room.
                 runtime.RoomMains.RunAnimatedTilesObjectHandler(runtime.Room.LoadedScope);
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
@@ -262,7 +262,7 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.WaitForMusicQueue:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 if (!audio.HasQueuedMusic)
                 {
                     Phase = DoorTransitionPhase.HandleTransition;
@@ -279,7 +279,7 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.HandleTransition:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 // `$82:E6A2` applies the narrow-door X/Y nudges only after the opening IRQ
                 // and music queue are both complete. The atomic loader computed that exact
                 // endpoint, which is restored here rather than during the visible scroll.
@@ -293,7 +293,7 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.BuildDestinationOam:
             case DoorTransitionPhase.FadeInDestinationPalette:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
                 // E737 runs the animated-tile objects, then enemy/draw owners, on every
                 // fade step, without Samus's movement/animation handler or the camera streamer.
                 runtime.RoomMains.RunAnimatedTilesObjectHandler(runtime.Room.LoadedScope);

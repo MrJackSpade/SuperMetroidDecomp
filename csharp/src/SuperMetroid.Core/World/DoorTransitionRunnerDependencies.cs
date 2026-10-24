@@ -24,8 +24,8 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Enemy phase.</summary>
     public required EnemyFramePhase EnemyPhase { get; init; }
 
-    /// <summary>Hdma phase.</summary>
-    public required HdmaObjectPhase HdmaPhase { get; init; }
+    /// <summary>The per-line effect phase the door transition's frames run.</summary>
+    public required PerLineEffectPhase PerLineEffects { get; init; }
 
 
     /// <summary>Nmi.</summary>

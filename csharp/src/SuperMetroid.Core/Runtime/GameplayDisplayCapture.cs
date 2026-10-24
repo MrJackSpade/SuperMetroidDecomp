@@ -16,10 +16,6 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Resolution of one published gameplay display frame into owned PPU composition inputs.</summary>
 public static class GameplayDisplayCapture
 {
-    /// <summary>The TM and TMW bits that admit a layer: the four backgrounds and OBJ.</summary>
-    private const SnesMainScreenLayers TmLayerBits = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Bg3 |
-        SnesMainScreenLayers.Bg4 | SnesMainScreenLayers.Obj;
-
     /// <summary>
     /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
@@ -119,7 +115,7 @@ public static class GameplayDisplayCapture
         DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
-        SnesMainScreenLayers displayedMainScreen = latched.MainScreen & TmLayerBits;
+        ScreenLayers displayedMainScreen = latched.MainScreen;
         var registers = new OrdinaryGameplayView(bg1Scroll,
             new Position16<Bg2Pixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
@@ -132,7 +128,7 @@ public static class GameplayDisplayCapture
                 : new Extent16<TilemapCells>(32, 64),
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
-                    ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
+                    ? ScreenLayers.Bg1 | ScreenLayers.Sprites
                     : displayedMainScreen),
             bg2Lines.First, bg2Lines.End,
             Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
@@ -277,7 +273,7 @@ public static class GameplayDisplayCapture
             return ordinary;
         var gameplay = new OrdinaryGameplayRenderLayer(ordinary.View with
         {
-            MainScreenLayers = ordinary.View.MainScreenLayers & ~SnesMainScreenLayers.Bg2,
+            MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Bg2,
         }, ordinary.Rooms, ordinary.Bg2LineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
@@ -316,8 +312,8 @@ public static class GameplayDisplayCapture
         registers = registers with
         {
             MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
-                ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
-                : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
+                ? ScreenLayers.Bg1 | ScreenLayers.Sprites
+                : ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites,
         };
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.

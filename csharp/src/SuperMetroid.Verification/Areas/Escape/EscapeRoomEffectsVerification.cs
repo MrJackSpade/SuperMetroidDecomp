@@ -43,7 +43,7 @@ internal static class EscapeRoomEffectsVerification
                     var layer = (OrdinaryGameplayRenderLayer)capture.Layers[0];
                     var actual = SoftwareLayeredSnapshotRenderer.Render(capture);
                     var noObjects = new OrdinaryGameplayRenderLayer(layer.View with
-                    { MainScreenLayers = layer.View.MainScreenLayers & ~SnesMainScreenLayers.Obj }, layer.Rooms,
+                    { MainScreenLayers = layer.View.MainScreenLayers & ~ScreenLayers.Sprites }, layer.Rooms,
                         layer.Bg2LineScrolls);
                     var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Paint, [noObjects], capture.Brightness));
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))

@@ -87,11 +87,11 @@ public static class SnesGameplayFrameRenderer
         OrdinaryGameplayView registers = layer.View;
         Position16<RoomPixels> bg1Scroll = registers.Bg1Scroll;
         Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
-        SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;
+        ScreenLayers mainScreenLayers = registers.MainScreenLayers;
         int bg2FirstScanline = registers.Bg2FirstScanline;
         int bg2EndScanline = registers.Bg2EndScanline;
         BackgroundMosaicSampling bg2Mosaic = registers.Bg2Mosaic;
-        ReadOnlySpan<SnesMainScreenLayers> mainScreenLayersByLine = layer.MainScreenLayersByLine;
+        ReadOnlySpan<ScreenLayers> mainScreenLayersByLine = layer.MainScreenLayersByLine;
 
         // Resolve the complete Mode-1 ladder in a single destination scan. The previous
         // implementation walked the 256x192 viewport eight times (four BG insertions and
@@ -113,11 +113,11 @@ public static class SnesGameplayFrameRenderer
         var pictures = new BgPicturePixels(cgram);
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
-            SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
+            ScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
                 : mainScreenLayersByLine[screenY - HudHeight];
-            bool bg1Enabled = (activeLayers & SnesMainScreenLayers.Bg1) != 0;
-            bool bg2LayerEnabled = (activeLayers & SnesMainScreenLayers.Bg2) != 0;
-            bool objEnabled = (activeLayers & SnesMainScreenLayers.Obj) != 0;
+            bool bg1Enabled = (activeLayers & ScreenLayers.Bg1) != 0;
+            bool bg2LayerEnabled = (activeLayers & ScreenLayers.Bg2) != 0;
+            bool objEnabled = (activeLayers & ScreenLayers.Sprites) != 0;
             bool bg2Enabled = bg2LayerEnabled && screenY >= bg2FirstScanline && screenY < bg2EndScanline;
             // Output rows are zero-based, while Mode-1 BG sampling starts on
             // physical scanline one. OBJ's preceding-line evaluation is separate.

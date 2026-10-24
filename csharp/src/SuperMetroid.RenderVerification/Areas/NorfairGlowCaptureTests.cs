@@ -44,7 +44,7 @@ internal static class NorfairGlowCaptureTests
             var originalLayer = (OrdinaryGameplayRenderLayer)original.Layers[0];
             var registers = originalLayer.View;
             var foreground = new LayeredScene(memory,
-                [new OrdinaryGameplayRenderLayer(registers with { MainScreenLayers = SnesMainScreenLayers.Bg1 }, originalLayer.Rooms)], original.Brightness);
+                [new OrdinaryGameplayRenderLayer(registers with { MainScreenLayers = ScreenLayers.Bg1 }, originalLayer.Rooms)], original.Brightness);
             var isolated = new DisplayPacket(new(tick + 1, 2, (ushort)tick), foreground);
             var pixels = SoftwareFrameSnapshotRenderer.Render(isolated);
             PixelComparison.Verify(isolated, pixels, renderer.RenderForReadback(isolated),

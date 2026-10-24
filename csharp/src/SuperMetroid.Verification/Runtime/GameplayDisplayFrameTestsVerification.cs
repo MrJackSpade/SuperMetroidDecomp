@@ -112,7 +112,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
             registers.MainScreenLayers == before.MainScreenLayers, "Mother Brain BG2SC and TM BG2 bit");
         AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(32, 32) &&
-            registers.MainScreenLayers == (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj), "Mother Brain BG2SC and TM BG2 bit");
+            registers.MainScreenLayers == (ScreenLayers.Bg1 | ScreenLayers.Sprites), "Mother Brain BG2SC and TM BG2 bit");
         AssertEqual(motherBrain.RainbowBeamHdma.Color, runtime.PublishDisplayFrame().Latched.FixedColors.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
         runtime.Enemies.MotherBrainEncounter.MotherBrain = null;

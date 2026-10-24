@@ -47,7 +47,7 @@ internal static class FirefleaEyeVerification
         var palette = memory.Colors.ToArray();
         palette[0] = Bgr555.Black;
         memory = new(palette, memory.SpriteDraws);
-        var objects = new OrdinaryGameplayRenderLayer(baseLayer.View with { MainScreenLayers = SnesMainScreenLayers.Obj }, baseLayer.Rooms);
+        var objects = new OrdinaryGameplayRenderLayer(baseLayer.View with { MainScreenLayers = ScreenLayers.Sprites }, baseLayer.Rooms);
         Rgba32[]? bright = null;
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {

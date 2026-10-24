@@ -53,7 +53,7 @@ internal static class DraygonPrebattleXrayVerification
         AssertEqual(32, r.Bg2FirstScanline, "native offscreen TM table begins below HUD");
         AssertEqual(32, r.Bg2EndScanline, "native offscreen TM table hides all Draygon BG2 lines");
         var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
-        var hidden = RenderWithRegisters(r with { MainScreenLayers = r.MainScreenLayers & ~SnesMainScreenLayers.Bg2 });
+        var hidden = RenderWithRegisters(r with { MainScreenLayers = r.MainScreenLayers & ~ScreenLayers.Bg2 });
         var unmasked = RenderWithRegisters(r with { Bg2FirstScanline = 32, Bg2EndScanline = 224 });
         int exposed = pixels.Zip(hidden, (first, second) => first != second).Count(differs => differs);
         int wrapped = unmasked.Zip(hidden, (first, second) => first != second).Count(differs => differs);
@@ -76,7 +76,7 @@ internal static class DraygonPrebattleXrayVerification
         var ordinary = (OrdinaryGameplayRenderLayer)combat.Layers[0];
         var combatWithoutBg2 = new LayeredScene(combat.Paint,
             new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.View with
-                { MainScreenLayers = ordinary.View.MainScreenLayers & ~SnesMainScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) }, combat.Brightness);
+                { MainScreenLayers = ordinary.View.MainScreenLayers & ~ScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) }, combat.Brightness);
         int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");

@@ -46,7 +46,7 @@ internal static class XrayGameplayTests
             Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
             bg1 = bg1 with { Bg3 = plane };
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+                ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
             var controls = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg2 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop
                 | (half ? SnesColorMathControl.Half : 0) | (subtract ? SnesColorMathControl.Subtract : 0);
@@ -87,7 +87,7 @@ internal static class XrayGameplayTests
                         : bg1;
                     var additive = new GameplayColorMathRenderLayer(new(registers with
                     {
-                        MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
+                        MainScreenLayers = ScreenLayers.Bg1 | ScreenLayers.Sprites,
                     }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: true);
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = Bgr555.Black;
@@ -128,7 +128,7 @@ internal static class XrayGameplayTests
             ushort Word() => (ushort)random.Next(65536);
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
                 frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64),
-                (SnesMainScreenLayers)(random.Next(32) & 0x13));
+                (ScreenLayers)(random.Next(32) & 0x13));
             // Every fifth frame's planes draw from block pictures (#1392).
             var gameplay = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(),
                     frame % 2 == 0 ? registers.Bg2Scroll.AsBgPlaneScroll() : null, door: frame % 3 == 0, overlay: frame % 4 == 0,
@@ -158,7 +158,7 @@ internal static class XrayGameplayTests
             ushort Fine() => (ushort)random.Next(16);
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
                 new Position16<Bg2Pixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
-                SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+                ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new OrdinaryGameplayRenderLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();

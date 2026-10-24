@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record OrdinaryGameplayRenderLayer : RenderLayer
 {
     /// <summary>The layers each gameplay line shows, where a room effect changes them line by line.</summary>
-    private readonly SnesMainScreenLayers[] mainScreenLayersByLine;
+    private readonly ScreenLayers[] mainScreenLayersByLine;
     /// <summary>How the frame views the gameplay scene: scrolls, layers, windows and mosaic.</summary>
     public OrdinaryGameplayView View { get; }
     /// <summary>The room backgrounds BG1 and BG2 show, resolved from level data through the scroll registers (#1346).</summary>
@@ -18,7 +18,7 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
     /// <summary>BG2's per-line scrolls for physical lines 32..223; an axis no effect drives uses <see cref="OrdinaryGameplayView.Bg2Scroll"/> on every line.</summary>
     public Bg2LineScrolls Bg2LineScrolls { get; }
     /// <summary>The layers physical lines 32..223 show; nonempty entries replace the gameplay layers, not the separate window mask or fixed HUD composition.</summary>
-    public ReadOnlySpan<SnesMainScreenLayers> MainScreenLayersByLine => mainScreenLayersByLine;
+    public ReadOnlySpan<ScreenLayers> MainScreenLayersByLine => mainScreenLayersByLine;
 
     /// <summary>Captures immutable register inputs and copies optional scanline tables for the first backdrop/HUD/BG/OBJ operation; Mode-1 priority composition precedes later color-math and overlay operations.</summary>
     /// <param name="registers">Captured Mode-1 state with a 32- or 64-cell BG2 tilemap on each axis.</param>
@@ -27,7 +27,7 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
     /// <param name="mainScreenLayersByLine">Empty or exactly 192 per-line layer sets.</param>
     /// <exception cref="ArgumentException">BG2 dimensions are unsupported or a nonempty TM table does not contain exactly 192 values.</exception>
     public OrdinaryGameplayRenderLayer(OrdinaryGameplayView registers, RoomBackgrounds rooms,
-        Bg2LineScrolls bg2LineScrolls = default, ReadOnlySpan<SnesMainScreenLayers> mainScreenLayersByLine = default)
+        Bg2LineScrolls bg2LineScrolls = default, ReadOnlySpan<ScreenLayers> mainScreenLayersByLine = default)
     {
         if (registers.Bg2MapSize.X is not (32 or 64) || registers.Bg2MapSize.Y is not (32 or 64)
             || registers.Bg2MapSize.X * registers.Bg2MapSize.Y is not (1024 or 2048 or 4096))

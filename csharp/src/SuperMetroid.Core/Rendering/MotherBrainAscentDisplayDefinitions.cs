@@ -9,15 +9,15 @@ internal static class MotherBrainAscentDisplayDefinitions
     private const int FloorBandStart = 216;
 
     /// <summary>$88:E73D selects BG3 for the 32-line HUD, then $15/$13/$05 for the gameplay bands.</summary>
-    internal static SnesMainScreenLayers[] BuildGameplayLayers()
+    internal static ScreenLayers[] BuildGameplayLayers()
     {
-        var layers = new SnesMainScreenLayers[SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels];
+        var layers = new ScreenLayers[SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels];
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)
             layers[y - SnesPpuLayout.GameplayHudHeightPixels] = y < UpperBandEnd
-                ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg3 | SnesMainScreenLayers.Obj
+                ? ScreenLayers.Bg1 | ScreenLayers.Bg3 | ScreenLayers.Sprites
                 : y < FloorBandStart
-                    ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj
-                    : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg3;
+                    ? ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites
+                    : ScreenLayers.Bg1 | ScreenLayers.Bg3;
         return layers;
     }
 }

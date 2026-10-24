@@ -163,7 +163,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
     private bool usesFloor = true;
     /// <summary>Controls whether BG1 is inserted between OBJ priorities during Mode-7 rendering.</summary>
-    private SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
+    private ScreenLayers mainScreenLayers = ScreenLayers.Bg1 | ScreenLayers.Sprites;
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
 
@@ -405,7 +405,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     // The cartridge disables the ship's BG1 plane before the hold, not
                     // when the later pan starts. Planet and star OBJ remain enabled.
-                    mainScreenLayers = SnesMainScreenLayers.Obj;
+                    mainScreenLayers = ScreenLayers.Sprites;
                     phaseTimer = CeresDestructionRomData.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }
@@ -909,7 +909,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         PrepareRenderSprites();
         RenderLayer[] layers;
-        if (usesFloor && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
+        if (usesFloor && (mainScreenLayers & ScreenLayers.Bg1) == 0)
         {
             layers = [new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
                 new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];

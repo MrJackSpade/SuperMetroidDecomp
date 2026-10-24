@@ -430,8 +430,8 @@ internal sealed class RoomLoader
 
         bool suppressBg1 = sourceIsolated || destinationIsolated;
         _room.DoorTransitionMainScreenLayers = suppressBg1
-            ? SnesMainScreenLayers.Obj
-            : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
+            ? ScreenLayers.Sprites
+            : ScreenLayers.Bg1 | ScreenLayers.Sprites;
     }
 
     /// <summary>Returns main-screen ownership to the room's ordinary gameplay IRQ.</summary>

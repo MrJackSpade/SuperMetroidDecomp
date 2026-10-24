@@ -40,9 +40,9 @@ internal static class GameplaySnapshotTestsVerification
         {
             ushort[] x = (hdma & 1) == 0 ? [] : Enumerable.Range(0, 192).Select(i => (ushort)(65535 - i * 7)).ToArray();
             ushort[] y = (hdma & 2) == 0 ? [] : Enumerable.Range(0, 192).Select(i => (ushort)(i * 19)).ToArray();
-            SnesMainScreenLayers layers = (mask & 1) == 0 ? 0 : SnesMainScreenLayers.Bg1;
-            if ((mask & 2) != 0) layers |= SnesMainScreenLayers.Bg2;
-            if ((mask & 4) != 0) layers |= SnesMainScreenLayers.Obj;
+            ScreenLayers layers = (mask & 1) == 0 ? 0 : ScreenLayers.Bg1;
+            if ((mask & 2) != 0) layers |= ScreenLayers.Bg2;
+            if ((mask & 4) != 0) layers |= ScreenLayers.Sprites;
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 mapSize, layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, (hdma & 1) == 0 || mapSize == new Extent16<TilemapCells>(64, 64) ? rooms : loaded,

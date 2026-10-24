@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Layer3">The BG3 plane's words this NMI latched, which its pictures are resolved from and the pause screen keeps; null before the first room.</param>
 public sealed record GameplayNmiDisplayLatch(
     GameplayPpuRenderSnapshot Ppu,
-    SnesMainScreenLayers MainScreen,
+    ScreenLayers MainScreen,
     SamusMode7Transform? SamusMode7Transform,
     RoomLayer3FxRenderSnapshot? RoomLayer3Fx,
     MorphBallEyeBeamRenderSnapshot? MorphBallEyeBeam,

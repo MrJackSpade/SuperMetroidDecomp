@@ -315,7 +315,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
                 ? r.MainScreenLayers : layer.Gameplay.MainScreenLayersByLine[line];
             // Draygon's TM HDMA still suppresses repeated BG2 art while X-Ray owns color math.
-            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~SnesMainScreenLayers.Bg2;
+            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~ScreenLayers.Bg2;
             data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
             if (layer.Subscreen is { } bg3)
                 data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
@@ -375,7 +375,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // Preserve the Mode-1 priority ladder. Resolving OAM before these passes
         // prevents a hidden higher-index sprite from reappearing at another rank.
         int first = SnesPpuLayout.GameplayHudHeightPixels, end;
-        SnesMainScreenLayers activeLayers;
+        ScreenLayers activeLayers;
         while (first < SnesPpuLayout.ScreenHeightPixels)
         {
             activeLayers = layer.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
@@ -391,17 +391,17 @@ public sealed class D3D11FrameRenderer : IDisposable
 
         void Objects(uint priority)
         {
-            if ((activeLayers & SnesMainScreenLayers.Obj) != 0)
+            if ((activeLayers & ScreenLayers.Sprites) != 0)
                 DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background1(bool high)
         {
-            if ((activeLayers & SnesMainScreenLayers.Bg1) != 0)
+            if ((activeLayers & ScreenLayers.Bg1) != 0)
                 DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg1, Scroll = r.Bg1Scroll.AsBgPlaneScroll() + new Offset16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background2(bool high)
         {
-            if ((activeLayers & SnesMainScreenLayers.Bg2) != 0) DispatchGameplayBg2(layer, high, first, end);
+            if ((activeLayers & ScreenLayers.Bg2) != 0) DispatchGameplayBg2(layer, high, first, end);
         }
     }
 

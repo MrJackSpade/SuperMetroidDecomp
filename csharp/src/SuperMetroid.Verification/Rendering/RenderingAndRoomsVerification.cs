@@ -998,7 +998,7 @@ internal static void VerifyFourBitBackgroundRendering()
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
-                new Extent16<TilemapCells>(32, 64), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+                new Extent16<TilemapCells>(32, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites),
             // BG2 shows the tilemap just loaded, as its library background's image (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
@@ -1023,7 +1023,7 @@ internal static void VerifyFourBitBackgroundRendering()
         gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
-                new Extent16<TilemapCells>(64, 64), SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+                new Extent16<TilemapCells>(64, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites),
             // Kraid's body is the 64x64 map he loads at $4000, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with
             {

@@ -705,8 +705,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
-        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - Background.X.Whole));
-        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - Background.Y.Whole));
+        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.X - Background.X.Whole));
+        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.Y - Background.Y.Whole));
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
         stationExplosion.Spawn(new(x, y));
@@ -729,9 +729,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CeresExplosionPlacement placement)
     {
         var actor = new IntroDiscoverySprite(
-            new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX -
+            new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.X -
                     unchecked((short)Background.X.Whole) + placement.Offset.X)),
-                unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY -
+                unchecked((ushort)(CeresDestructionRomData.Rendering.CeresFloorCenter.Y -
                     unchecked((short)Background.Y.Whole) + placement.Offset.Y))),
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
             definition.Program);
@@ -916,11 +916,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         else if (usesFloor)
         {
-            var (a, b, c, d) = FloorRotationMatrix.Calculate(angle, Zoom);
-            var floor = new AffineTransform(a, b, c, d,
+            AffineTransform floor = FloorRotationMatrix.Transform(angle, Zoom,
                 Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
-                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
+                    ? CeresDestructionRomData.Rendering.CeresFloorCenter
+                    : CeresDestructionRomData.Rendering.ZebesFloorCenter,
                 Background.Whole.AsSignedRegister());
             layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
                 new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];

@@ -218,10 +218,8 @@ internal sealed class IntroCeresFlightState
         }
         else
         {
-            var (a, b, c, d) = FloorRotationMatrix.Calculate(angle, zoom);
-            layers.Add(new Mode7RenderLayer(new(a, b, c, d,
-                new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
-                background.Whole.AsSignedRegister()),
+            layers.Add(new Mode7RenderLayer(FloorRotationMatrix.Transform(angle, zoom,
+                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedRegister()),
                 AffineFloor.Of(FloorMap(), floorTiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
             layers.Add(new ObjPriorityRenderLayer(1));
         }

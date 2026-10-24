@@ -1,10 +1,8 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
-/// <summary>Display register definitions for the opening Ceres flight.</summary>
+/// <summary>How the opening Ceres flight shows its perspective floor.</summary>
 internal static class CeresFlightRenderDefinitions
 {
-    /// <summary>M7X center ($0038) used by the opening flight's Mode 7 projection.</summary>
-    internal const short CenterX = 56;
-    /// <summary>M7Y center ($0018) used by the opening flight's Mode 7 projection.</summary>
-    internal const short CenterY = 24;
+    /// <summary>The floor point, in floor pixels, that the opening flight's floor turns and zooms about.</summary>
+    internal static Offset16<Mode7Pixels> FloorCenter => new(56, 24);
 }

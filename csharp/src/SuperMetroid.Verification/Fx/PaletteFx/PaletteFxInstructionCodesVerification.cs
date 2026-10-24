@@ -907,7 +907,7 @@ internal static class PaletteFxInstructionCodesVerification
             damageSoundCount += paletteFx.SoundRequests.Count;
             foreach (SoundRequest request in paletteFx.SoundRequests)
             {
-                AssertEqual(SoundEffectLibrary3Sounds.EnvironmentalDamage,
+                AssertEqual(Library3Sound.IncrementalEnergy,
                     request.SoundEffect,
                     "retail Norfair heat owner publishes native library-three sound");
                 AssertEqual(PaletteFxHeatData.DamageSoundMaximumQueued,

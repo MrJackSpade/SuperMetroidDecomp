@@ -44,16 +44,12 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
             AssertEqual(0x5678, sprite.Position.Y.Whole,
                 $"production escape Y choice {choice}, inherited {inherited}");
 
-            bool queuesSound = choice < 8 && expected.SoundEffect != 0;
+            bool queuesSound = choice < 8 && expected.SoundEffect is not null;
             AssertEqual(queuesSound ? 1 : 0, enemies.Audio.SoundRequests.Count,
                 $"production escape sound count choice {choice}, inherited {inherited}");
             if (queuesSound)
             {
-                AssertEqual(new SoundRequest(
-                        SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2,
-                            expected.SoundEffect),
-                        6),
+                AssertEqual(new SoundRequest(expected.SoundEffect ?? throw new InvalidOperationException("A sounding choice has a sound."), 6),
                     enemies.Audio.SoundRequests.Single(),
                     $"production escape sound choice {choice}, inherited {inherited}");
             }

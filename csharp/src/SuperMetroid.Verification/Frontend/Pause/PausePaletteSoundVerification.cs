@@ -40,7 +40,7 @@ internal static class PausePaletteSoundVerification
             // beep can reach port three on consecutive frames; the driver starts it once.
             soundStarts += session.Advance(commands).Count(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect started &&
-                started.SoundEffect == SoundEffectLibrary3Sounds.MapPaletteLoop);
+                started.SoundEffect == Library3Sound.PauseBeep);
             session.CopyFrame(pcm);
             int audible = pcm.Count(sample => sample != 0);
             if (frame < 39) AssertEqual(0, audible, "isolated pause sound has no premature PCM");

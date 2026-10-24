@@ -62,7 +62,7 @@ internal static class GrappleEnemyDeathVerification
             // This focused projectile pass publishes the death sound field; the
             // full enemy-frame adapter forwards it to the queue with Max1.
             heardDeath |= fixture.System.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 ==
-                new SoundEffectId(SoundEffectLibrary.Library2, 9);
+                Library2Sound.EnemyKilled;
             if (explosion.Variable0 == (ushort)EnemyPickupKind.SmallEnergy * 2)
             {
                 AssertEqual(31, frame, "small explosion uses the cartridge's complete 31-frame animation");

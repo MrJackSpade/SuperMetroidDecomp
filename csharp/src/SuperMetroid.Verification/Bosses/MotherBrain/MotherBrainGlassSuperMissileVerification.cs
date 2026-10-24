@@ -58,7 +58,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "the glass accepts one projectile per pass");
         AssertEqual(2700, head.Health, "one Super Missile deals 300 to the glass");
         AssertEqual(1, glassHits, "the hit advances the glass PLM argument once");
-        AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.MotherBrainGlassHit),
+        AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == Library2Sound.ShotMotherBrain),
             "the hit queues library-two $6E");
         AssertTrue(shots.Slots[0].PackedDirection.HasLowByteLifecycleState, "the walker marks the first slot");
         AssertTrue(!shots.Slots[1].PackedDirection.HasLowByteLifecycleState, "the pair's second slot is not marked");

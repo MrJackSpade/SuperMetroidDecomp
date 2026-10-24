@@ -33,11 +33,11 @@ internal static class GameOverMenuIndexesVerification
             AssertEqual(expected[update].Phase, menu.Phase, $"game-over index after update {update}");
             AssertEqual(expected[update].Resumes, menu.ResumesAfterFrameWait, $"game-over NMI wait after update {update}");
         }
-        int library3 = (int)SoundEffectLibrary3Sounds.CancelAll.Library - 1;
+        int library3 = (int)Library3Sound.Silence.Library - 1;
         byte read = audio.SoundReadPositions[library3];
         AssertEqual(1, audio.SoundWritePositions[library3] - read,
             "game-over index zero queues one library-three request");
-        AssertEqual(SoundEffectLibrary3Sounds.CancelAll.Value, audio.SoundQueues[library3, read],
+        AssertEqual(Library3Sound.Silence.Value, audio.SoundQueues[library3, read],
             "game-over index zero queues library-three cancel");
         int? babyStep = menu.BabyStep;
         int babyTimer = menu.BabyInstructionTimer.RawValue;

@@ -22,9 +22,9 @@ internal static class SoundQueueReturnVerification
             var queue = new CartridgeAudioState();
             queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
-                queue.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x22), 15);
-            ushort actual = queue.QueueSoundAndGetAccumulator(
-                SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 3), 6, suppressed);
+                queue.QueueSound(Library3Sound.CrocomireAcidDamage, 15);
+            ushort actual = queue.QueueSound(
+                Library3Sound.SpeedBooster, 6, suppressed);
             AssertEqual(expectedAccumulator, actual, $"native sound return {row}");
 
             // Observe queue mutation through real dequeue/acknowledge port writes,
@@ -33,7 +33,7 @@ internal static class SoundQueueReturnVerification
             byte acknowledgement = 0;
             for (int frame = 0; frame < 256; frame++)
             {
-                foreach (var command in queue.AdvanceFrame(new SoundAcknowledgements(0, 0, acknowledgement)))
+                foreach (var command in queue.AdvanceFrame(new SoundAcknowledgements<SoundEffectId>(0, 0, acknowledgement)))
                 {
                     if (command == AudioRequest.ForSound(SoundEffectLibrary.Library3, 0)) acknowledgement = 0;
                     else if (command == AudioRequest.ForSound(SoundEffectLibrary.Library3, 0x22))

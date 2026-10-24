@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Harness;
 /// waiting state during an update; the replay reproduces exactly that outcome. Music
 /// (port 0), updates without native evidence, and normal play keep the session's SPC model.
 /// </remarks>
-internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTiming
+internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTiming<SoundEffectId>
 {
     /// <summary>$0649..$064B: APU_SoundStateLib1..3.</summary>
     private const int SoundStateLib1 = 0x0649;
@@ -53,14 +53,14 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     public void Invalidate() => captured = false;
 
     /// <inheritdoc/>
-    public SoundAcknowledgements ForNextUpdate(SoundAcknowledgements modeled, SoundAcknowledgements portWrites) =>
+    public SoundAcknowledgements<SoundEffectId> ForNextUpdate(SoundAcknowledgements<SoundEffectId> modeled, SoundAcknowledgements<SoundEffectId> portWrites) =>
         captured && expectedAfter is not null ? ForUpdate(modeled, expectedAfter) : modeled;
 
     /// <summary>
     /// Acknowledgements for the update whose native result is <paramref name="nativeAfter"/>.
     /// A waiting library that left its state saw its echo; one that stayed did not.
     /// </summary>
-    public SoundAcknowledgements ForUpdate(SoundAcknowledgements spc, NativeCheckpointMemory nativeAfter)
+    public SoundAcknowledgements<SoundEffectId> ForUpdate(SoundAcknowledgements<SoundEffectId> spc, NativeCheckpointMemory nativeAfter)
     {
         int[] ports = [spc[0], spc[1], spc[2]];
         for (int library = 0; library < LibraryCount; library++)
@@ -78,7 +78,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
                 // unless it already matches.
                 ports[library] = unchecked((byte)(compared + 1));
         }
-        return new SoundAcknowledgements(ports[0], ports[1], ports[2]);
+        return new SoundAcknowledgements<SoundEffectId>(ports[0], ports[1], ports[2]);
     }
 
     /// <summary>Records the native sound-handler state after an update.</summary>

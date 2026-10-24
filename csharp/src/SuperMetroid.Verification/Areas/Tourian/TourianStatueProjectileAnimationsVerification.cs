@@ -53,7 +53,7 @@ internal static class TourianStatueProjectileAnimationsVerification
             switch (cue)
             {
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
-                    AssertEqual(SoundEffectLibrary2Sounds.TourianStatueRelease.Value, (int)operands[0], $"{at}: sound");
+                    AssertEqual(Library2Sound.TourianStatueParticle.Value, (int)operands[0], $"{at}: sound");
                     break;
                 case TourianStatueProjectileCue.MoveDown moveDown:
                     AssertEqual((short)(operands[0] | operands[1] << 8), moveDown.Pixels, $"{at}: Y offset");

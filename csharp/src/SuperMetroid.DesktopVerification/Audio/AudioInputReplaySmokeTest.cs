@@ -62,7 +62,7 @@ public static class AudioInputReplaySmokeTest
                 ? recording.InputAt(frameIndex)
                 : SnesButton.None;
             FrontendFrame frame = game.Step(input);
-            SoundAcknowledgements acknowledgements = game.AudioAcknowledgementsForVerification;
+            SoundAcknowledgements<SoundEffectId> acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
 
             RoomHeaderDefinition? activeRoom = game.GameplayActiveRoom;
@@ -82,7 +82,7 @@ public static class AudioInputReplaySmokeTest
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
             powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
-                started == SoundEffectLibrary1Sounds.PowerBeam);
+                started == Library1Sound.UnchargedPowerBeam);
             powerBeamAcknowledged |= acknowledgements[0] == 0x0b;
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)

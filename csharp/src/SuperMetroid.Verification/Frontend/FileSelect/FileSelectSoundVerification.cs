@@ -30,7 +30,7 @@ internal static class FileSelectSoundVerification
             bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
             menu.Step(accept ? SnesButton.A : 0);
             var commands = audio.AdvanceFrame(renderer.Acknowledgements);
-            writes += commands.Count(command => command == new AudioRequest.RequestSound(SoundEffectLibrary1Sounds.FileSelectSwoosh));
+            writes += commands.Count(command => command == new AudioRequest.RequestSound(Library1Sound.FileSelected));
             var pcm = renderer.RenderFrame(commands);
             if (!accepted && !accept) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
             else nonzero += pcm.Count(value => value != 0);
@@ -70,7 +70,7 @@ internal static class FileSelectSoundVerification
             var frame = game.StepCaptured(tick % 47 == 0 ? button : SnesButton.None, tick + 1, 1).Frame;
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent is AudioEvent.StartSoundEffect started &&
-                started.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
+                started.SoundEffect == Library1Sound.FileSelected;
             starts += game.AudioEventsForVerification.Count(IsSwoosh);
             if (game.AudioEventsForVerification.Any(IsSwoosh) && firstSoundTick < 0)
             {

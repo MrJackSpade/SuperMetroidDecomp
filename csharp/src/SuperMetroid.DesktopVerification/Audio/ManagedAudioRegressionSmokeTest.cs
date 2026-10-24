@@ -65,22 +65,22 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [SoundEffectLibrary1Sounds.PowerBeam],
+            [Library1Sound.UnchargedPowerBeam],
             tally);
         RunSoundScenario(
             "library-2-door",
-            [SoundEffectLibrary2Sounds.DoorOpening],
+            [Library2Sound.DudShotOnDoor],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
-            [new SoundEffectId(SoundEffectLibrary.Library3, 0x23)],
+            [Library3Sound.BabyMetroidCry1],
             tally);
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                SoundEffectLibrary1Sounds.PowerBeam,
-                SoundEffectLibrary2Sounds.DoorOpening,
-                new SoundEffectId(SoundEffectLibrary.Library3, 0x23),
+                Library1Sound.UnchargedPowerBeam,
+                Library2Sound.DudShotOnDoor,
+                Library3Sound.BabyMetroidCry1,
             ],
             tally,
             cancelHalfway: true);
@@ -149,9 +149,9 @@ public static class ManagedAudioRegressionSmokeTest
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.CancelAll.Value));
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library2, SoundEffectLibrary2Sounds.CancelAll.Value));
-                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.CancelAll.Value));
+                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library1, Library1Sound.Silence.Value));
+                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library2, Library2Sound.Silence.Value));
+                commands.Add(AudioRequest.ForSound(SoundEffectLibrary.Library3, Library3Sound.Silence.Value));
             }
             HashFrame(name, engine, commands, tally);
         }
@@ -218,12 +218,12 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Acknowledgements.AppendData(name);
         ReadOnlySpan<short> pcm = engine.RenderFrame(commands);
         tally.Pcm.AppendData(MemoryMarshal.AsBytes(pcm));
-        SoundAcknowledgements acknowledgements = engine.Acknowledgements;
+        SoundAcknowledgements<SoundEffectId> acknowledgements = engine.Acknowledgements;
         // The corpus pinned four bytes per update: the sequencer's music echo, which the session never publishes, then
         // each library's acknowledgement in library order.
-        Span<byte> reported = stackalloc byte[1 + SoundAcceptanceClock.LibraryCount];
+        Span<byte> reported = stackalloc byte[1 + SoundClockTiming.LibraryCount];
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
-        for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++)
+        for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
             reported[1 + library] = checked((byte)acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;

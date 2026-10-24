@@ -38,9 +38,9 @@ internal static class PhantoonReport1196Verification
             IReadOnlyList<AudioEvent> events = renderer.Advance(audio.AdvanceFrame(renderer.Acknowledgements));
             starts.AddRange(events.OfType<AudioEvent.StartSoundEffect>().Select(audioEvent => audioEvent.SoundEffect));
         }
-        AssertEqual(1, starts.Count(sound => sound == new SoundEffectId(SoundEffectLibrary.Library3, 0x1d)),
+        AssertEqual(1, starts.Count(sound => sound == Library3Sound.PhantoonFlame),
             "opening blue flame starts native sound 1D in library three once");
-        AssertEqual(0, starts.Count(sound => sound == new SoundEffectId(SoundEffectLibrary.Library2, 0x1d)),
+        AssertEqual(0, starts.Count(sound => sound == Library2Sound.DachoraCry),
             "opening flame never starts materialization-library 1D");
         AssertEqual(6, enemies.Audio.SoundRequests.Single().MaximumQueued, "opening flame uses native Max6");
         Suite(nameof(VerifyPhantoonFlameSound), () => VerifyPhantoonFlameSound());

@@ -77,9 +77,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
 
         StepSpeedBoosterPlm(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Any(request =>
-                request.SoundEffect == SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library2,
-                    0x06) &&
+                request.SoundEffect == Library2Sound.ContactBlockBreak &&
                 request.MaximumQueued == 1),
             "first handler pass queues crumble sound six with cartridge maximum one");
 

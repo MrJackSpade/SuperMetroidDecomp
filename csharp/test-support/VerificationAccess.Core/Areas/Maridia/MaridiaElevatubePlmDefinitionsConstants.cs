@@ -9,7 +9,7 @@ internal static class MaridiaElevatubePlmDefinitionsConstants
     /// <summary><c>$84:B8F0</c>: sixteen-frame delay and one-block draw.</summary>
     internal const ushort InstructionList = RoomPlmInstructionListsConstants.MaridiaElevatube;
     /// <summary><c>$84:B8F6</c>: library-two elevatube sound operand.</summary>
-    internal const byte SoundId = 0x15;
+    internal static readonly SoundEffectId SoundId = Library2Sound.Elevatube;
     /// <summary>Supplies the delay, draw pointer, sound command, and deletion word at their native instruction addresses.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {

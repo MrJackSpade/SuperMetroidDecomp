@@ -44,7 +44,7 @@ internal static class EtecoonFanfareVerification
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "trio publishes one fanfare after fade");
         var request = enemies.Audio.SoundRequests[0];
-        AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x35), request.SoundEffect,
+        AssertEqual(Library2Sound.EtecoonTheme, request.SoundEffect,
             "native Etecoon fanfare identity");
         AssertEqual(15, request.MaximumQueued, "native wake request uses Max15");
         AssertEqual((ushort)256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).FunctionTimer.RawValue, "wake begins flexing timer");

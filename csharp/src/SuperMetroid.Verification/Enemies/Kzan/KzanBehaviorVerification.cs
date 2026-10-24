@@ -68,7 +68,7 @@ internal static class KzanBehaviorVerification
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
         AssertEqual(KzanEnemyFunction.WaitingToRise, state.Function, "reaching the wrapped falling target lands the top");
         AssertEqual((ushort)16, slot.Position.Y.Whole, "the top lands on the falling target");
-        AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.KzanLandingSoundEffect),
+        AssertEqual((SoundEffectId?)EnemySoundEffectDefinitions.KzanLandingSoundEffect,
             enemies.KzanBehavior.LastKzanSoundEffect, "landing queues the library-two landing sound");
 
         state.Function = KzanEnemyFunction.Rising;

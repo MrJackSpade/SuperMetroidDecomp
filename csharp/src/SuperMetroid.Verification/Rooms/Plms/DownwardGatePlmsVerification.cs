@@ -169,9 +169,7 @@ internal static class DownwardGatePlmsVerification
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
             "closed gate publishes a wake request");
         AssertTrue(plms.Sounds.SoundRequests.Any(sound =>
-                sound.SoundEffect == SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library3,
-                    DownwardGatePlmRomData.MovementSound)),
+                sound.SoundEffect == DownwardGatePlmRomData.MovementSound),
             "opening gate queues its cartridge movement sound");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(wake, level.Size.X);
 

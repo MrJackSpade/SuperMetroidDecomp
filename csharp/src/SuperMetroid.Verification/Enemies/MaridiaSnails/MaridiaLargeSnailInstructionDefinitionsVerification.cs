@@ -53,7 +53,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             AssertTrue(!state.AttackAnimationFinished, $"Oum {attack} is unfinished while its last pose holds");
             EnemyInstructionRunner.ShownFrames(slot, 1);
             AssertTrue(state.AttackAnimationFinished, $"Oum {attack} marks the attack finished");
-            AssertEqual<SoundEffectId?>(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, MaridiaLargeSnailNativeValues.SplashSound),
+            AssertEqual<SoundEffectId?>(MaridiaLargeSnailNativeValues.SplashSound,
                 enemies.MaridiaLargeSnailBehavior.LastMaridiaLargeSnailSoundEffect, $"Oum {attack} plays the library-two splash");
         }
 

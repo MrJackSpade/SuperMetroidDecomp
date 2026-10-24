@@ -105,9 +105,9 @@ public static class PauseAudioSmokeTest
             throw new InvalidDataException("Pause PCM audit did not exercise audio or pause states.");
         SoundEffectId[] expectedCancellations =
         [
-            SoundEffectLibrary1Sounds.CancelAll,
-            SoundEffectLibrary2Sounds.CancelAll,
-            SoundEffectLibrary3Sounds.CancelAll,
+            Library1Sound.Silence,
+            Library2Sound.Silence,
+            Library3Sound.Silence,
         ];
         int cancellationCursor = 0;
         foreach (SoundEffectId start in pauseSoundStarts)

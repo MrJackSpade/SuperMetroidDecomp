@@ -209,7 +209,7 @@ internal static class AudioVerification
         AssertEqual(AudioRequest.ForSound(SoundEffectLibrary.Library2, 0x57), request.Single(), "SFX request write");
         AssertEqual(
             0,
-            sfx.AdvanceFrame(new SoundAcknowledgements(0, 0x57, 0)).Count,
+            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectId>(0, 0x57, 0)).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(

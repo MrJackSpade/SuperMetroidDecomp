@@ -23,4 +23,7 @@ internal readonly record struct EnemyDefinitionFields
 
     /// <summary>Field seed.</summary>
     public required ushort FieldSeed { get; init; }
+
+    /// <summary>The +$0E hurt-cry word: a library-two request, or zero for none; the import rejects any other value.</summary>
+    public ushort HurtSound { get; init; }
 }

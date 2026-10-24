@@ -33,7 +33,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
         ushort animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, SnesButton.B,
-            0, ref animation, out _, () => queue.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6));
+            0, ref animation, out _, () => queue.QueueSound(Library3Sound.SpeedBooster, 6));
         var words = new ushort[256];
         for (int index = 160; index < 176; index++) words[index] = 0x8000;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8]);
@@ -55,7 +55,7 @@ internal static class SpeedBoosterEchoStopVerification
                     AssertEqual(15, request.MaximumQueued, "echo stop uses native Max15");
                     stopRequests++;
                 }
-                queue.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
+                queue.QueueSound(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
             }
             var commands = queue.AdvanceFrame(renderer.Acknowledgements);
             foreach (AudioRequest command in commands)
@@ -109,7 +109,7 @@ internal static class SpeedBoosterEchoStopVerification
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "negative charging latch sends no stop");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertEqual(0, speed.EchoSoundFlag, "next post-draw pass consumes the echo flag");
-        AssertEqual(SoundEffectLibrary3Sounds.StopSpeedBoosterEcho, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
+        AssertEqual(Library3Sound.SpeedBoosterEnd, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
             "deferred producer receives the same native stop");
 
         speed.EchoSoundFlag = 1;

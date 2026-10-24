@@ -180,9 +180,7 @@ internal static class EyeDoorPlmsVerification
             $"{orientation} beam collision reaches resident eye");
         StepEyeDoorPlms(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Any(request =>
-                request.SoundEffect == SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library2,
-                    EyeDoorPlmRomData.RejectedShotSound)),
+                request.SoundEffect == EyeDoorPlmRomData.RejectedShotSound),
             $"{orientation} rejected beam queues cartridge dud sound");
         AssertTrue(!system.HasOpenedDoorBit(doorBit),
             $"{orientation} beam cannot open eye door");

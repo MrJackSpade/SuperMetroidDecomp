@@ -19,7 +19,7 @@ internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets
     private readonly short[] lastPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
 
     /// <summary>The acknowledgement bytes the most recent update published.</summary>
-    internal SoundAcknowledgements Acknowledgements => events.Acknowledgements;
+    internal SoundAcknowledgements<SoundEffectId> Acknowledgements => events.Acknowledgements;
 
     /// <summary>The emulated driver the backend plays through.</summary>
     internal ManagedSpcPlayer PlayerForVerification => backend.Player;

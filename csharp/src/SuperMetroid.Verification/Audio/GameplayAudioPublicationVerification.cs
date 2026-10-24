@@ -37,7 +37,7 @@ internal static class GameplayAudioPublicationVerification
         byte acknowledgement = 0;
         for (int frame = 0; frame < 128; frame++)
         {
-            foreach (var command in audio.AdvanceFrame(new SoundAcknowledgements(0, 0, acknowledgement)))
+            foreach (var command in audio.AdvanceFrame(new SoundAcknowledgements<SoundEffectId>(0, 0, acknowledgement)))
             {
                 bool recognized = false;
                 foreach (byte value in new byte[] { 0, 3, 4, 5 })

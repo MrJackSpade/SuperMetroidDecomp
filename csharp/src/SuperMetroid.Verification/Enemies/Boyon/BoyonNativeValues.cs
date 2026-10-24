@@ -4,5 +4,5 @@ namespace SuperMetroid.Verification.Enemies.Boyon;
 internal static class BoyonNativeValues
 {
     /// <summary>Library-two sound $0E, which <c>Instruction_Boyon_88C6</c> at $A2:88C6 queues when a bounce starts.</summary>
-    internal const ushort BounceSound = 0x000e;
+    internal static readonly SoundEffectId BounceSound = Library2Sound.SplashOut;
 }

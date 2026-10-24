@@ -35,7 +35,7 @@ internal static class SynthesizerHostRateAccess
     extension(ManagedSpcPlayer self)
     {
         /// <summary>Advances one frame natively and resamples it to 48-kHz interleaved stereo.</summary>
-        internal void GenerateFrame(ReadOnlySpan<SoundClockStep> schedule, Span<short> destination)
+        internal void GenerateFrame(ReadOnlySpan<SoundClockStep<SoundEffectId>> schedule, Span<short> destination)
         {
             if (destination.Length < HostStereoFramesPerVideoFrame * 2)
                 throw new ArgumentException($"Audio destination requires {HostStereoFramesPerVideoFrame * 2} samples.", nameof(destination));

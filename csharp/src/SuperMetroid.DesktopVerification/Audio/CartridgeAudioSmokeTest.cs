@@ -15,7 +15,7 @@ public static class CartridgeAudioSmokeTest
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
-        SoundAcknowledgements acknowledgements = default;
+        SoundAcknowledgements<SoundEffectId> acknowledgements = default;
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frames; frame++)
         {
@@ -60,7 +60,7 @@ public static class CartridgeAudioSmokeTest
         soundQueue.QueueSound(
             SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, powerBeamSound),
             maximumQueued: 15);
-        SoundAcknowledgements acknowledgements = default;
+        SoundAcknowledgements<SoundEffectId> acknowledgements = default;
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
         int nonZeroSamples = 0;

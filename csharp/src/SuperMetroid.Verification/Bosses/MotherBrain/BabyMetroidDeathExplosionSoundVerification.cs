@@ -45,8 +45,8 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         {
             DeathExplosions = [], EscapeSequencePages = [],
             EscapePaletteFxRequests = [], EscapeDoorParticleSpawns = [],
-            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust)],
-            EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, SoundEffectLibrary2Sounds.SmallExplosion),
+            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: Library2Sound.LiquidDamage)],
+            EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, Library2Sound.SmallExplosion),
         };
         state.LastSoundEffectLibrary3 = null;
         runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
@@ -54,8 +54,8 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         AssertSequenceEqual(
             new[]
             {
-                new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x10), 3),
-                new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x24), 3),
+                new SoundRequest(Library2Sound.LiquidDamage, 3),
+                new SoundRequest(Library2Sound.SmallExplosion, 3),
             },
             runtime.Enemies.Audio.SoundRequests, "the rot dust and door explosion queue in library two with Max3");
         Console.WriteLine("  Escape explosion sounds: Baby Metroid's in library three, Mother Brain's dust and door in library two.");

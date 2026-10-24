@@ -7,7 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics;

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 

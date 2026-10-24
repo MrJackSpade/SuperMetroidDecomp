@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Window;
 using SuperMetroid.Diagnostics.Configuration;

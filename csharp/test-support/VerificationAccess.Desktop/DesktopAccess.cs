@@ -2,7 +2,7 @@ using System.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Desktop;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Window;

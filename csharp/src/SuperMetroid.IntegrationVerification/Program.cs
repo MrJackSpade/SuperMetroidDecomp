@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.IntegrationVerification.Android;
 using SuperMetroid.IntegrationVerification.Gameplay;
 using SuperMetroid.IntegrationVerification.Installation;

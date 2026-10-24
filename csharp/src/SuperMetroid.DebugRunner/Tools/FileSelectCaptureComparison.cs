@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;

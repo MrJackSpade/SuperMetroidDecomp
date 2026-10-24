@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Window;
 namespace SuperMetroid.DesktopVerification.Startup;
 using SuperMetroid.Core;

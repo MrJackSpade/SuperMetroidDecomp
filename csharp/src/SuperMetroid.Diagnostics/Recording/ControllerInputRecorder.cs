@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 
 namespace SuperMetroid.Diagnostics.Recording;
 

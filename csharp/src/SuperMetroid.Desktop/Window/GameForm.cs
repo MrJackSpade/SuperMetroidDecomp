@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Diagnostics.Configuration;
 

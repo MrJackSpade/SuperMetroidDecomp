@@ -1,8 +1,10 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 
-namespace SuperMetroid.Core.Frontend.Recording;
+namespace SuperMetroid.Diagnostics.Recording;
 
 /// <summary>
 /// A deterministic desktop-session seed followed by the exact controller word submitted

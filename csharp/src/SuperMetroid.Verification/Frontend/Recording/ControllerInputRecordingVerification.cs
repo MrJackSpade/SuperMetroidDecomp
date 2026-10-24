@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Frontend.Recording;
 using SuperMetroid.Verification.Harness;

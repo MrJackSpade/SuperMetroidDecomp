@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Recording;
+namespace SuperMetroid.Diagnostics.Recording;
 
 /// <summary>Named bit assignments in the shared deterministic input-recording header.</summary>
 internal static class ControllerInputRecordingFormat

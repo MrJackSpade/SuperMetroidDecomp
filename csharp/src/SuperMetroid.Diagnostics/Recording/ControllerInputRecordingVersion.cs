@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Input;
+namespace SuperMetroid.Diagnostics.Recording;
 
 /// <summary>The supported versions of the deterministic input-recording header, in format order.</summary>
 internal enum ControllerInputRecordingVersion : uint

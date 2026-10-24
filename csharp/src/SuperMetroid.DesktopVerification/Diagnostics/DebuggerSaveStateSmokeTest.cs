@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
 

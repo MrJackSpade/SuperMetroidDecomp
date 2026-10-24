@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -269,10 +270,8 @@ internal static class RoomBlockUploads
     {
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet))
         {
-            int source = entry.Definition.TileDataAddress;
-            ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TryResolve(source, entry.TileByteCount, out ReadOnlyMemory<byte> installed) ? installed
-                : throw new InvalidDataException($"{state.Name}'s enemy tiles from ${source:X6} are not installed.");
-            yield return new BgCharacterPlacement(new BgArtworkIdentity($"{new TransferObjCharacters(source, entry.TileByteCount)}"), BgCharacterSet.Tiles,
+            ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(entry.DefinitionId);
+            yield return new BgCharacterPlacement(new BgArtworkIdentity($"{new GraphicsSetTileCharacters(entry.DefinitionId)}"), BgCharacterSet.Tiles,
                 (EnemyGraphicsSet.EnemyTileAreaFirstByte + entry.StagingOffset) / ObjCharacterUploads.CharacterByteCount, tiles);
         }
     }

@@ -28,12 +28,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
     /// <summary>Resolves an OBJ binding's installed VRAM asset.</summary>
     ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveVramAsset(asset);
 
-    /// <summary>Resolves an OBJ binding's native upload through the installed artwork that served it.</summary>
-    /// <exception cref="InvalidOperationException">No bound artwork serves the upload any more.</exception>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveCartridgeSource(int sourceAddress, int byteCount) =>
-        TryResolveInstalledArtwork(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
-            : throw new InvalidOperationException($"No bound artwork serves the OBJ upload from ${sourceAddress:X6} ({byteCount} bytes).");
-
     /// <inheritdoc/>
     BossArtworkCatalog IInstalledBossObjCharacterArtwork.BossTiles => _bossArtwork.Installed;
 

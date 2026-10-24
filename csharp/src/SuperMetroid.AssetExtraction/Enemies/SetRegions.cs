@@ -87,7 +87,7 @@ internal sealed class SetRegions
         foreach (RuntimeCharacterUpload upload in Uploads)
             Add(upload.Source, upload.FirstByte, upload.ByteCount);
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, set))
-            Add(new TransferObjCharacters(entry.Definition.TileDataAddress, entry.TileByteCount),
+            Add(new GraphicsSetTileCharacters(entry.DefinitionId),
                 EnemyGraphicsSet.EnemyTileAreaFirstByte + entry.StagingOffset, entry.TileByteCount);
         Add(new AssetObjCharacters(VramAssetId.StandardObjectTiles), 0, StandardObjectArtworkFormat.ByteCount);
         CharacterRegion[][] rotRows = corpseRows.Count == 0 ? [] : [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>

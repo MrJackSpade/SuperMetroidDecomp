@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The room's bank-$B4 enemy graphics set: the staged tiles and palettes, their uploads, and each enemy's tile and palette indexes.</summary>
@@ -45,7 +46,7 @@ internal sealed class EnemyGraphicsSet
             if ((entry.StagingOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
                 throw new InvalidDataException("Enemy tiles are not word-aligned or exceed one native copy.");
             _room.Session.ObjCharacters.Record(EnemyTileAreaFirstByte + entry.StagingOffset, entry.TileByteCount,
-                new TransferObjCharacters(entry.Definition.TileDataAddress, entry.TileByteCount));
+                new GraphicsSetTileCharacters(entry.DefinitionId));
         }
     }
 

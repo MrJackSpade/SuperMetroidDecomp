@@ -168,11 +168,7 @@ internal static void VerifyRoomEnemyLoading()
         "second enemy tile index includes first definition size");
     // Room load stages the tiles; they show over the OBJ characters as named transfers (#1406).
     enemies.GraphicsSet.ShowGraphics();
-    var seededTiles = new SeededEnemyTileTransfers(new Dictionary<int, byte[]>
-    {
-        [0xa29100] = primaryTileBytes,
-        [0xa39320] = specialTileBytes,
-    });
+    var seededTiles = new SeededEnemyTileTransfers(enemies.TileArtwork ?? throw new InvalidOperationException("The fixture binds its seeded tiles."));
     AssertEqual(2, enemies.Room.Session.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
     byte[] shown = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, seededTiles).Characters.ToArray();
     AssertEqual(0x80, shown[0x2000], "ordinary enemy first tile byte");
@@ -1791,29 +1787,22 @@ static void SeedCeresRidleyRoomEntryCartridge(
     }
 }
 
-/// <summary>Serves the loading fixture's seeded enemy tiles at their seeded addresses: the bytes installed artwork
-/// would hold for those definitions.</summary>
-/// <param name="tiles">Each seeded tile block by its 24-bit source address.</param>
-internal sealed class SeededEnemyTileTransfers(IReadOnlyDictionary<int, byte[]> tiles)
-    : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver
+/// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
+/// <param name="tiles">The fixture's seeded enemy artwork.</param>
+internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
+    : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledObjCharacterArtwork
 {
+    /// <inheritdoc/>
+    public EnemyTileArtworkCatalog EnemyTiles => tiles;
+
+    /// <summary>Rejects animated tiles, which the loading fixture never binds.</summary>
+    public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>
+        throw new InvalidOperationException("The loading fixture binds no animated tiles.");
+
     /// <summary>Rejects typed assets, which the fixture never queues.</summary>
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
 
-    /// <summary>Serves a seeded block whose size matches the transfer.</summary>
-    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
-    {
-        bool found = tiles.TryGetValue(sourceAddress, out byte[]? block) && block.Length == byteCount;
-        data = found ? block : ReadOnlyMemory<byte>.Empty;
-        return found;
-    }
-
     /// <summary>Rejects typed assets, which the fixture never binds.</summary>
     public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
-
-    /// <summary>Resolves a recorded seeded transfer.</summary>
-    public ReadOnlyMemory<byte> ResolveCartridgeSource(int sourceAddress, int byteCount) =>
-        TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
-            : throw new InvalidOperationException($"The loading fixture seeded no {byteCount} tile bytes at ${sourceAddress:X6}.");
 
 }

@@ -172,7 +172,7 @@ public sealed class VramWriteQueue
                 {
                     vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
                     objects?.RecordUpload(entry.Destination, entry.SizeInBytes,
-                        new TransferObjCharacters(entry.SourceAddress, entry.SizeInBytes));
+                        new QueuedTransferCharacters(entry.SourceAddress, entry.SizeInBytes));
                 }
             }
             else

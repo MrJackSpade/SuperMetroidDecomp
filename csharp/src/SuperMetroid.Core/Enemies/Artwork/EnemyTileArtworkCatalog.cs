@@ -85,6 +85,11 @@ public sealed class EnemyTileArtworkCatalog
         return false;
     }
 
+    /// <summary>The installed tiles of <paramref name="enemy"/>, as its room's graphics set shows them (#1406).</summary>
+    /// <exception cref="InvalidDataException">The installed artwork holds no tile set for the enemy.</exception>
+    public ReadOnlyMemory<byte> TilesOf(EnemyDefinitionId enemy) => sheets.TryGetValue(enemy, out RoomCharacterAtlas? atlas) ? atlas.Characters
+        : throw new InvalidDataException($"Installed enemy artwork holds no {enemy} tile set.");
+
     /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
     public void LoadPaletteTo(EnemyDefinitionId definitionId, ColourRun destination)
     {

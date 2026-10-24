@@ -52,9 +52,5 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures bind no other asset.</summary>
     public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => Resolve(asset);
 
-    /// <summary>Resolves a recorded native enemy tile transfer.</summary>
-    public ReadOnlyMemory<byte> ResolveCartridgeSource(int sourceAddress, int byteCount) =>
-        TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
-            : throw new InvalidOperationException($"No enemy tiles at ${sourceAddress:X6}.");
 
 }

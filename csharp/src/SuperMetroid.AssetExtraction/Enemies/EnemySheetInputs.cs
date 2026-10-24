@@ -65,8 +65,4 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
         asset is VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles ? EscapeTimer.Resolve(asset)
             : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
 
-    /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">No catalogued upload names a native transfer.</exception>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveCartridgeSource(int sourceAddress, int byteCount) => throw new InvalidOperationException(
-        $"No catalogued encounter upload names a native transfer from ${sourceAddress:X6}.");
 }

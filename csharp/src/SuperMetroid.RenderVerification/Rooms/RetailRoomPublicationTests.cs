@@ -12,6 +12,7 @@ namespace SuperMetroid.RenderVerification.Rooms;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks captured and retained gameplay frames across retail room-local publication fixtures.</summary>
 internal static class RetailRoomPublicationTests

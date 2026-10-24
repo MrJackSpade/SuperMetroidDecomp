@@ -21,7 +21,7 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
     private const int KindColours = RowsPerKind * ColoursPerRow;
 
     /// <summary>The colours, background rows first.</summary>
-    private readonly Bgr555[] colors = new Bgr555[ColorCount];
+    internal readonly Bgr555[] colors = new Bgr555[ColorCount];
 
     /// <inheritdoc />
     public ReadOnlySpan<Bgr555> Colors => colors;
@@ -77,14 +77,6 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         colors[index] = color;
-    }
-
-    /// <inheritdoc />
-    public Rgba32 GetRgba(int index)
-    {
-        if ((uint)index >= ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return colors[index].ToRgba32();
     }
 
     /// <inheritdoc />

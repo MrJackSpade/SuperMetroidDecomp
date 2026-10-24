@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -6,17 +7,17 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal static class EndingFontAtlasAccess
 {
     /// <summary>Reconstructs the ending font from exact-size planar bytes for legacy fixtures.</summary>
-    extension(EndingFontAtlas)
+    extension(EndingFontCharacters)
     {
         /// <summary>Constructs the fallback cartridge-backed atlas used by focused legacy ending tests.</summary>
-        internal static EndingFontAtlas FromPlanarBytes(ReadOnlySpan<byte> planar)
+        internal static EndingFontCharacters FromPlanarBytes(ReadOnlySpan<byte> planar)
         {
             if (planar.Length != EndingFontAtlasFormat.ByteCount)
                 throw new InvalidDataException(
                     $"Ending font contains {planar.Length} planar bytes; expected {EndingFontAtlasFormat.ByteCount}.");
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, EndingFontAtlasFormat.BitsPerPixel,
                 EndingFontAtlasFormat.TilesPerRow, out _);
-            return new EndingFontAtlas(pixels);
+            return new EndingFontCharacters(pixels);
         }
     }
 }

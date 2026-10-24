@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -29,7 +30,7 @@ internal static class FileSelectSheetComposer
     {
         Ensure.NotNull(fileSelect);
         Ensure.NotNull(maps);
-        SpriteArtwork page = maps.Sprites.Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         int palette = fileSelect.ObjectPalette;
         var frames = new List<SheetFrameSource>();
         foreach (FileSelectBorder border in FileSelectPresentationDefinitions.Borders)

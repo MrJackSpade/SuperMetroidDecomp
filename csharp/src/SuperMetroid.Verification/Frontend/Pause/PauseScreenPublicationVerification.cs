@@ -62,7 +62,7 @@ internal static class PauseScreenPublicationVerification
                 .SequenceEqual(screen.Characters[tilemapsEnd..(GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort))]),
             $"{page} draws its bound characters");
         AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{page} draws its own palette");
-        AssertTrue(screen.Objects.Draws.Length > 0 && memory.SpriteDraws.SequenceEqual(screen.Objects.Draws), $"{page} draws its own sprite entries");
+        AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(memory.SpriteDraws, screen.Objects.Draws), $"{page} draws its own sprite entries");
     }
 
     /// <summary>Asserts that the words of <paramref name="vram"/> from <paramref name="firstWord"/> are exactly <paramref name="expected"/>.</summary>

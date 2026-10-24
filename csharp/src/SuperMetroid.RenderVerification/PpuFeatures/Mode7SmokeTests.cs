@@ -7,6 +7,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks D3D11 Mode 7 rendering against the WARP reference over native PPU geometry.</summary>
 internal static class Mode7SmokeTests

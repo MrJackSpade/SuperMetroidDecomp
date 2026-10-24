@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -15,6 +14,7 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks Draygon's pre-battle X-Ray masking and later combat visibility.</summary>
 internal static class DraygonPrebattleXrayVerification

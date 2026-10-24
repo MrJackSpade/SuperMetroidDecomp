@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Areas;
@@ -9,6 +10,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -41,16 +44,16 @@ internal static class EnemyTileArtworkPresentationContractChecks
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
                 Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(index => new Rgba32((byte)index, 0, 0)).ToArray());
             png.Position = 0;
-            RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png, bytes);
+            RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(png, bytes);
             cached.Add(bytes, atlas);
             return atlas;
         }
         var sheets = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId,
             definition => Sheet(definition.ByteCount));
-        using var paletteJson = new MemoryStream(EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument {
+        using var paletteJson = new MemoryStream(EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument {
             Version = 1, Colors = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
                 .Select(_ => new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }).ToArray() }));
-        EnemyPaletteSheet palette = EnemyPaletteSheet.Load(paletteJson);
+        EnemyPaletteSheet palette = EnemyPaletteSheetFile.Read(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
         var sources = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, definition => definition.SourceAddress);
         var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());

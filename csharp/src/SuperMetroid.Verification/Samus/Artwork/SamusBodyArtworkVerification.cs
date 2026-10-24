@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
@@ -29,6 +30,7 @@ internal static class SamusBodyArtworkVerification
     internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyArtworkCatalog stock = installation.LoadSamusBodyArt();
+        SamusDeathTileAtlas stockDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
@@ -217,7 +219,7 @@ internal static class SamusBodyArtworkVerification
             nativeDeathOam.ImageEquals(installedDeathOam),
             "death explosion uses installed Samus OAM art with native parity");
         // $9B:8000: the explosion's characters, in the order its spritemaps name them.
-        ReadOnlySpan<byte> deathCharacters = stock.DeathTiles.Explosion.Characters;
+        ReadOnlySpan<byte> deathCharacters = stockDeathTiles.Explosion.Characters;
         for (int offset = 0; offset < deathCharacters.Length; offset++)
             AssertEqual(bus.ReadCartridgeByte(0x9b8000 + offset), deathCharacters[offset],
                 $"death explosion character byte {offset:X4} is the native character byte");
@@ -305,7 +307,7 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition),
                 frames.Shown.Top ?? -1, $"Samus pose {pose:X2} shows its frame-zero top definition");
             AssertEqual(selection.NamesBottom
-                    ? stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition) : (int?)null,
+                    ? stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition) : null,
                 frames.Shown.Bottom, $"Samus pose {pose:X2} shows its frame-zero bottom definition, or none before any is named");
         }
 
@@ -398,6 +400,7 @@ internal static class SamusBodyArtworkVerification
             IndexedPng.Write(output, new(armImage.Size.X, armImage.Size.Y), armPixels,
                 armImage.Colours);
         SamusBodyArtworkCatalog replacement = installation.LoadSamusBodyArt();
+        SamusDeathTileAtlas replacementDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         AssertTrue(stock.ArmCannon.ReadDrawingByteAt(armXAddress) !=
                 replacement.ArmCannon.ReadDrawingByteAt(armXAddress),
             "edited arm-cannon JSON changes a pose OAM X offset");
@@ -501,7 +504,7 @@ internal static class SamusBodyArtworkVerification
         AssertEqual((ushort)(originalDeathColor + 1),
             editedDeathColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart],
             "edited death suit color reaches the production CGRAM write");
-        AssertTrue(!stock.DeathTiles.Explosion.Characters.SequenceEqual(replacement.DeathTiles.Explosion.Characters),
+        AssertTrue(!stockDeathTiles.Explosion.Characters.SequenceEqual(replacementDeathTiles.Explosion.Characters),
             "edited death explosion PNG reaches the explosion characters its sheet is composed from");
         OamBuffer stockDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));

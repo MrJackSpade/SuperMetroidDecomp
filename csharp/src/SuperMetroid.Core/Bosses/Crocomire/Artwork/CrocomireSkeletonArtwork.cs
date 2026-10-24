@@ -16,13 +16,13 @@ public sealed class CrocomireSkeletonArtwork
     /// <summary>Retains validated character bytes while the death sequence owns their upload timing.</summary>
     private CrocomireSkeletonArtwork(RoomCharacterAtlas atlas) => this.atlas = atlas;
 
-    /// <summary>Compiles the 256-by-24 indexed skeleton sheet into $0C00 bytes of four-bit characters, retaining the six ordered $0200-byte upload chunks represented by $A4:99CB/$99D9.</summary>
-    /// <param name="png">Caller-owned indexed PNG stream, left open, containing 96 row-major 8-by-8 characters with pen indices 0..15; PNG palette RGB values do not select runtime colors.</param>
+    /// <summary>Retains the installed skeleton's $0C00 bytes of four-bit characters, the six ordered $0200-byte upload chunks represented by $A4:99CB/$99D9.</summary>
+    /// <param name="characters">The installed skeleton sheet's characters.</param>
     /// <returns>Owned selected character bytes; the death sequence retains upload cadence and fixed OBJ placement, while skeleton poses use separate OAM compositions.</returns>
-    /// <exception cref="InvalidDataException">The PNG format, dimensions, or pixel indices do not represent the required skeleton character stream.</exception>
-    public static CrocomireSkeletonArtwork Load(Stream png) =>
-        new(RoomCharacterAtlas.Load(png,
-            CrocomireSkeletonTransferDefinitions.TotalByteCount));
+    /// <exception cref="InvalidDataException">The characters are not the required skeleton character stream's length.</exception>
+    public static CrocomireSkeletonArtwork Load(RoomCharacterAtlas characters) =>
+        Ensure.NotNull(characters).Characters.Length == CrocomireSkeletonTransferDefinitions.TotalByteCount ? new CrocomireSkeletonArtwork(characters)
+            : throw new InvalidDataException($"Crocomire skeleton holds {characters.Characters.Length} bytes; expected {CrocomireSkeletonTransferDefinitions.TotalByteCount}.");
 
     /// <summary>Gets one $0200-byte upload chunk; rejects the terminal entry because it has no character transfer.</summary>
     internal ReadOnlyMemory<byte> Chunk(int index)

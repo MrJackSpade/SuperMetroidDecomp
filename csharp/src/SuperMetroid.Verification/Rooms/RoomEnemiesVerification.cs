@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.World.Artwork;
@@ -33,7 +32,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -41,13 +39,16 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms;
+
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -133,7 +134,7 @@ internal static void VerifyRoomEnemyLoading()
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
+        stockSheets.Add(pointer, RoomCharacterAtlasPng.Read(new MemoryStream(png.ToArray()), byteCount));
         var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < palette.Length; color++)
         {
@@ -145,8 +146,8 @@ internal static void VerifyRoomEnemyLoading()
                 Blue = word >> 10 & 31,
             };
         }
-        stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
-            EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
+        stockColors.Add(pointer, EnemyPaletteSheetFile.Read(new MemoryStream(
+            EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
     var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
@@ -877,12 +878,12 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
-                [definitionPointer] = RoomCharacterAtlas.Load(
+                [definitionPointer] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
-                [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
-                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
+                [definitionPointer] = EnemyPaletteSheetFile.Read(new MemoryStream(
+                    EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
             DmaSources = new Dictionary<EnemyDefinitionId, int>
@@ -891,9 +892,9 @@ internal static void VerifyCeresRidleyRoomEntry()
             } }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
-            CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
+            CeresRidleyColors = CeresRidleyColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
-            CeresRidleyFloorColors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
+            CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
         },
     };
@@ -1197,7 +1198,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             new byte[EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height],
             SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
         timerPng.Position = 0;
-        enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
+        enemies.BossArtworkBinding.EscapeTimerArtwork = EscapeTimerCharacters.Read(timerPng);
     }
     AssertTrue(enemies.Audio.SoundRequests.Contains(
             new SoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),

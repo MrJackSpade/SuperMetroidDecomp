@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -20,7 +20,7 @@ public static class DachoraColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return DachoraColorCatalog.Write(new DachoraColorDocument
+        return DachoraColorFile.Write(new DachoraColorDocument
         {
             Version = DachoraColorFormat.Version,
             Normal = Read(DachoraColorRomData.DefaultSource),

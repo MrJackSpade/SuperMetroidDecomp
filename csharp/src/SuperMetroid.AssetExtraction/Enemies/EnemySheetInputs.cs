@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -38,10 +39,10 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     }
 
     /// <summary>The installed escape timer characters at <paramref name="path"/>.</summary>
-    private static EscapeTimerTileAtlas LoadEscapeTimer(string path)
+    private static EscapeTimerCharacters LoadEscapeTimer(string path)
     {
         using FileStream png = File.OpenRead(path);
-        return EscapeTimerTileAtlas.Load(png);
+        return EscapeTimerCharacters.Read(png);
     }
 
     /// <inheritdoc/>

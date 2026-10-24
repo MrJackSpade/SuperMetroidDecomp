@@ -28,7 +28,7 @@ internal static class SamusDeathSheetComposer
                 // A zero entry in the installed pointer table names direct-page scratch the port does not model and
                 // draws nothing (owner decision on #1318), so its frame is empty.
                 frames.Add(new(name, body.Spritemaps.TryGetFrame(ExplosionSpritemap(facing, frame), out SpriteFrame? spritemap)
-                    ? spritemap : new SpriteFrame(name, []), body.DeathTiles.Explosion));
+                    ? spritemap : new SpriteFrame(name, []), inputs.DeathTiles.Explosion));
             }
         }
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));

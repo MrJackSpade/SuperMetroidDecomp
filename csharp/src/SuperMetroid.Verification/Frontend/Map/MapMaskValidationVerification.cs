@@ -1,8 +1,8 @@
 using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -20,9 +20,9 @@ internal static class MapMaskValidationVerification
         try
         {
             File.Delete(maskPath);
-            AssertThrows<FileNotFoundException>(() => AreaMapPresentationCatalog.Load(directory, null), "missing bundled mask fails loudly");
+            AssertThrows<FileNotFoundException>(() => MapPresentationFiles.Load(directory, null), "missing bundled mask fails loudly");
             File.WriteAllText(maskPath, "corrupt");
-            AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(directory, null), "corrupt mask fails hash check");
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(directory, null), "corrupt mask fails hash check");
 
             void CheckInvalid(Action<Dictionary<string, int[]?>> change, string context)
             {
@@ -33,7 +33,7 @@ internal static class MapMaskValidationVerification
                 var manifest = RequiredJson.Deserialize<AreaMapCatalogManifest>(originalManifest, options);
                 manifest.Sha256[AreaMapCatalogFormat.StationRevealFile] = Convert.ToHexString(SHA256.HashData(bytes));
                 File.WriteAllBytes(manifestPath, JsonSerializer.SerializeToUtf8Bytes(manifest, options));
-                AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(directory, null), context);
+                AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(directory, null), context);
             }
 
             CheckInvalid(masks => masks["Crateria"] = [0, 0], "duplicate authored reveal cells rejected even with valid hash");
@@ -46,7 +46,7 @@ internal static class MapMaskValidationVerification
             File.WriteAllBytes(maskPath, originalMask);
             File.WriteAllBytes(manifestPath, originalManifest);
         }
-        _ = AreaMapPresentationCatalog.Load(directory, null);
+        _ = MapPresentationFiles.Load(directory, null);
         Console.WriteLine("Bundled map masks: missing/corrupt/duplicate/out-of-range/incomplete data fail loudly.");
     }
 }

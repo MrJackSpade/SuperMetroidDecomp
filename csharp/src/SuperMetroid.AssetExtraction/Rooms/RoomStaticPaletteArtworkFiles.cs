@@ -86,7 +86,7 @@ public static class RoomStaticPaletteArtworkFiles
             byte[] bytes = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
             try
             {
-                selected.Add(set, RoomStaticPalette.Load(new MemoryStream(bytes, writable: false)));
+                selected.Add(set, RoomStaticPaletteFile.Read(new MemoryStream(bytes, writable: false)));
             }
             catch (InvalidDataException error)
             {

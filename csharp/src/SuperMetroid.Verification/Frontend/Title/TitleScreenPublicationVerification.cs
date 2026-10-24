@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -8,6 +7,8 @@ using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Title;
 
@@ -41,7 +42,8 @@ internal static class TitleScreenPublicationVerification
             if (shownPages.Count == 0 || shownPages[^1] != page)
                 shownPages.Add(page);
             AssertTrue(snapshot.Paint.Colors.SequenceEqual(title.palette.Colors), $"frame {frame} draws the title's own palette");
-            AssertTrue(snapshot.Paint.SpriteDraws.SequenceEqual(title.objects.Draws), $"frame {frame} draws the title's own sprite entries");
+            AssertTrue(PaintedSpriteEntries.AreOwn(snapshot.Paint.SpriteDraws, title.objects.Draws),
+                $"frame {frame} draws the title's own sprite entries");
             foreach (var draw in snapshot.Paint.SpriteDraws)
                 AssertTrue(draw is ImageSpriteDraw image && ReferenceEquals(titleSheet.Image, image.Image.Sheet),
                     $"frame {frame} sprite entries draw from the title sheet");
@@ -52,7 +54,7 @@ internal static class TitleScreenPublicationVerification
         AssertTrue(shownPages.Count >= 8 && shownPages.Select((page, index) => page == new[] { 0, 1, 2, 1 }[(index + Array.IndexOf(new[] { 0, 1, 2, 1 }, shownPages[0])) % 4]).All(match => match),
             $"the shown Baby Metroid page cycles 0, 1, 2, 1 ({string.Join(",", shownPages)})");
 
-        Rgba32[] shown = DisplayRendering.Render(title.CaptureRenderSnapshot());
+        Rgba32[] shown = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), title.CaptureRenderSnapshot()));
         using var state = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(state, title);
         state.Position = 0;
@@ -60,7 +62,7 @@ internal static class TitleScreenPublicationVerification
         restored.BindTitleGradient(maps.TitleGradient);
         restored.BindTitlePalette(maps.TitlePalette);
         restored.BindFixtureTitleGraphics(maps.TitleGraphics);
-        AssertTrue(shown.SequenceEqual(DisplayRendering.Render(restored.CaptureRenderSnapshot())),
+        AssertTrue(shown.SequenceEqual(DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), restored.CaptureRenderSnapshot()))),
             "a restored title shows the same frame once its artwork is rebound");
         Console.WriteLine("  Title screen: the Baby Metroid page cycle, palette and sprite entries come from the title's published state and survive a debugger round trip.");
     }

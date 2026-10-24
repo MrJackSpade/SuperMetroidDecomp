@@ -1,11 +1,11 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -49,13 +49,13 @@ public static class RoomStaticPaletteExtractor
                 };
             }
             using var json = new MemoryStream();
-            RoomStaticPalette.Write(json, new RoomStaticPaletteDocument
+            RoomStaticPaletteFile.Write(json, new RoomStaticPaletteDocument
             {
                 Version = RoomStaticPaletteFormat.Version,
                 Colors = colors,
             });
             byte[] serialized = json.ToArray();
-            RoomStaticPalette compiled = RoomStaticPalette.Load(
+            RoomStaticPalette compiled = RoomStaticPaletteFile.Read(
                 new MemoryStream(serialized, writable: false));
             var nativeCgram = new SnesCgram();
             var compiledCgram = new SnesCgram();

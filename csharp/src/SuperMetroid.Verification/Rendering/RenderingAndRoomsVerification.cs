@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomSkyTilemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -28,6 +27,8 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Verifies room loading, camera/scroll state and PPU output with focused cartridge and synthetic fixtures.</summary>
 internal static class RenderingAndRoomsVerification
@@ -1023,7 +1024,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     const ushort centerX = 100;
     const ushort centerY = 100;
-    var explosion = new SamusPowerBombExplosionState { PresentationColors = SuperMetroid.Core.Samus.Artwork.PowerBombFixedColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombFixedColorExtractor.Extract(bus))) };
+    var explosion = new SamusPowerBombExplosionState { PresentationColors = PowerBombFixedColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombFixedColorExtractor.Extract(bus))) };
     explosion.Arm();
     explosion.Spawn(new(centerX, centerY));
 

@@ -1,9 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
-using System.Collections.Immutable;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus.Artwork;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Verification access to <see cref="MapSpriteCatalog"/> members production does not use.</summary>
@@ -31,14 +27,14 @@ internal static class MapSpriteCatalogAccess
         }
 
         /// <summary>Counts sparse highlight pixels in the map-object character art.</summary>
-        internal int StoredHighlightPixelCount => self.characters.StoredHighlightPixelCount;
+        internal int StoredHighlightPixelCount => MapSpriteArtwork.Of(self).characters.StoredHighlightPixelCount;
 
         /// <summary>Counts sparse reserve pixels in the map-object character art.</summary>
-        internal int StoredReservePixelCount => self.characters.StoredReservePixelCount;
+        internal int StoredReservePixelCount => MapSpriteArtwork.Of(self).characters.StoredReservePixelCount;
 
         /// <summary>Measures the catalog's independent map-object character byte payload.</summary>
-        internal int StoredArtworkByteCount => self.characters.StoredOtherByteCount;
+        internal int StoredArtworkByteCount => MapSpriteArtwork.Of(self).characters.StoredOtherByteCount;
         /// <summary>Loads the compiled shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
-        public void LoadArtworkTo(VramRegion destination) => self.characters.LoadTo(destination);
+        public void LoadArtworkTo(VramRegion destination) => MapSpriteArtwork.Of(self).characters.LoadTo(destination);
     }
 }

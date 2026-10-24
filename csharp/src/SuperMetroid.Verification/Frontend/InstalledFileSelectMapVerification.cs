@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -8,6 +7,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks file-select map navigation with installed presentation and guarded cartridge reads.</summary>
 internal static class InstalledFileSelectMapVerification

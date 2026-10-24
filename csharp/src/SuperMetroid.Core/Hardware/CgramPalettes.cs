@@ -22,9 +22,6 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     /// <summary>The 128 background colours.</summary>
     public CgramPalette Background => new(cgram, PpuMemoryLayout.BackgroundPalettes);
 
-    /// <summary>The backdrop (background palette 0, colour 0) as opaque RGBA.</summary>
-    public Rgba32 BackdropRgba => All.Rgba(0);
-
     /// <summary>The complete 256-colour image, in CGRAM order.</summary>
     public ReadOnlySpan<Bgr555> Image => All.Colors;
 

@@ -6,11 +6,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 
@@ -81,9 +81,9 @@ internal static class PaletteDefinitionAudit
     {
         SyntheticCartridge recorder = ColorAddressRecorder();
         byte[] roomDocument = RoomPaletteFxPresentationExtractor.Extract(recorder);
-        RoomPaletteFxPresentation room = RoomPaletteFxPresentation.Load(new MemoryStream(roomDocument));
+        RoomPaletteFxPresentation room = RoomPaletteFxPresentationFile.Read(new MemoryStream(roomDocument));
         byte[] titleDocument = TitlePaletteExtractor.Extract(recorder);
-        TitlePalettePresentation.Load(new MemoryStream(titleDocument));
+        TitlePaletteFile.Read(new MemoryStream(titleDocument));
         // Import once / install at multiple identities is legitimate. Use the
         // loaders' actual key sets, including aliases and the separate title provider.
         for (int index = 0; index < recorder.Reads.Count; index += 2)

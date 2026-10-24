@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -25,7 +25,7 @@ public static class DraygonColorExtractor
             bands[band] = Read(DraygonColorRomData.HealthBandsSource +
                 band * DraygonColorRomData.HealthBandColorCount * sizeof(ushort),
                 DraygonColorRomData.HealthBandColorCount);
-        return DraygonColorCatalog.Write(new DraygonColorDocument
+        return DraygonColorFile.Write(new DraygonColorDocument
         {
             Version = DraygonColorFormat.Version,
             Intro = Read(DraygonColorRomData.IntroSource, DraygonColorRomData.IntroCount),

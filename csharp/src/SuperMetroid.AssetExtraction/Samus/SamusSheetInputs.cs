@@ -20,22 +20,25 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="Intro">The intro's characters and palette.</param>
 /// <param name="SamusBody">Samus's body definitions, frame selections and spritemaps.</param>
+/// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="SuitColors">The three suits' colours.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePaletteCatalog Palettes, IntroCinematicArtworkCatalog Intro, SamusBodyArtworkCatalog SamusBody,
-    SamusSuitColorCatalog SuitColors)
+    SamusDeathTileAtlas DeathTiles, SamusSuitColorCatalog SuitColors)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        string samusBody = Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName);
         return new(
             ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName), null),
             ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
                 StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Characters.Span),
             GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null),
             IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null),
-            SamusBodyArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null),
+            SamusBodyArtworkFiles.Load(samusBody, null),
+            SamusDeathTileArtworkFiles.Load(samusBody, null),
             LoadSuitColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, SamusSuitColorFormat.FileName)));
     }
 
@@ -43,7 +46,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     private static SamusSuitColorCatalog LoadSuitColors(string path)
     {
         using FileStream json = File.OpenRead(path);
-        return SamusSuitColorCatalog.Load(json);
+        return SamusSuitColorFile.Read(json);
     }
 
     /// <summary>The Power Suit's place in the suit colour tables.</summary>

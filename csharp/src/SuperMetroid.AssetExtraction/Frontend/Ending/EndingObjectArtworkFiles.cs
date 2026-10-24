@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
@@ -183,7 +184,7 @@ public static class EndingObjectArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             byte[] file = png.ToArray();
-            RoomCharacterAtlas compiled = RoomCharacterAtlas.Load(
+            RoomCharacterAtlas compiled = RoomCharacterAtlasPng.Read(
                 new MemoryStream(file, writable: false), count);
             if (!compiled.Characters.Span.SequenceEqual(native))
                 throw new InvalidDataException($"Ending OBJ PNG {name} changed native character bytes.");
@@ -418,7 +419,7 @@ public static class EndingObjectArtworkFiles
                 ? overridePath : stockPath;
             try
             {
-                return RoomCharacterAtlas.Load(new MemoryStream(
+                return RoomCharacterAtlasPng.Read(new MemoryStream(
                     selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
                     writable: false), expectedBytes);
             }

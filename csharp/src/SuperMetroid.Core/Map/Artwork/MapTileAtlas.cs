@@ -1,24 +1,15 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Map.Artwork;
 
-/// <summary>Immutable compiled map characters from an indexed PNG, independent of any cartridge bus.</summary>
-public sealed class MapTileAtlas
+/// <summary>
+/// The installed map-screen or pause-interface characters a menu shows (#1409): how many there are. The installed screen
+/// tile sheets picture them; their pixels belong to the import pipeline that reads the installed artwork.
+/// </summary>
+public class MapTileAtlas
 {
-    /// <summary>Owned SNES 4-bpp character bytes compiled from indexed PNG pixels.</summary>
-    internal readonly byte[] planar;
-    /// <summary>Retains an already compiled planar atlas for later VRAM transfers.</summary>
-    internal MapTileAtlas(byte[] planar) => this.planar = planar;
+    /// <summary>Records how many characters the installed artwork holds.</summary>
+    /// <param name="characterCount">The installed artwork's characters.</param>
+    internal MapTileAtlas(int characterCount) => CharacterCount = characterCount;
 
-    /// <summary>Compiles a 256-by-64 noninterlaced indexed PNG into 256 row-major 8-by-8 SNES 4-bpp characters, requiring pixel indices 0..15; PNG palette RGB values do not determine the runtime display palette.</summary>
-    /// <param name="png">Caller-owned stream containing shared map artwork or the same-sized additional pause-menu atlas.</param>
-    /// <returns>The immutable 8192-byte planar character atlas.</returns>
-    public static MapTileAtlas Load(Stream png)
-    {
-        var image = IndexedPng.Read(png, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
-    }
-
-    /// <summary>The planar 4-bpp characters (#1392).</summary>
-    public ReadOnlySpan<byte> Characters => planar;
+    /// <summary>The installed artwork's characters.</summary>
+    public int CharacterCount { get; }
 }

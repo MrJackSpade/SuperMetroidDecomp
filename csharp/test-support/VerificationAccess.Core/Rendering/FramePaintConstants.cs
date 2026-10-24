@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using System.Collections.Immutable;
-using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Core.Rendering;
 

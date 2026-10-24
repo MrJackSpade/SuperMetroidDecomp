@@ -4,6 +4,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
 /// A deliberate mismatch verifies the comparison's failure evidence, not just its success path. Its exception message

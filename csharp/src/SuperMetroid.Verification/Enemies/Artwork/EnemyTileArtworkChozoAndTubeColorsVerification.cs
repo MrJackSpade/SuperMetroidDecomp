@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -12,6 +11,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -48,7 +48,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         string overrides = Path.Combine(stockDirectory, "chozo-tube-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, ChozoAndTubeColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, ChozoAndTubeColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, ChozoAndTubeColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         ChozoAndTubeColorCatalog colors = edited.Enemies.ChozoAndTubeColors ??
             throw new InvalidDataException("Edited enemy art has no Chozo/tube colors.");
@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Chozo/tube color property fails loudly");
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => ChozoAndTubeColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => ChozoAndTubeColorFile.Write(visual),
             "Chozo/tube RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

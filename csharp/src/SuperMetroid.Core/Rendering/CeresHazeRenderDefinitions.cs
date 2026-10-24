@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx;
 
@@ -30,10 +29,9 @@ internal static class CeresHazeRenderDefinitions
             : Math.Min(MaximumComponent,
                 RampFirstComponent + (screenY - RampFirstLine) / BandHeight);
         component = Math.Max(0, component + intensity - MaximumComponent);
-        PaletteRgb5? custom = ridleyIsDead ? colors?.CeresHazeRed : colors?.CeresHazeBlue;
-        Bgr555 tint = custom is null
+        Bgr555 tint = colors is null
             ? RoomFxPaletteBlendDefinitions.StockCeresHazeTint(ridleyIsDead)
-            : new Bgr555(custom.Red, custom.Green, custom.Blue);
+            : ridleyIsDead ? colors.CeresHazeRed : colors.CeresHazeBlue;
         static int Scale(int component, int channel) =>
             Math.Min(Bgr555.MaxChannel, (component * channel + MaximumComponent / 2) / MaximumComponent);
         return new Bgr555(Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));

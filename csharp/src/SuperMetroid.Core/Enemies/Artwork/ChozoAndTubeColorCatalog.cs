@@ -29,7 +29,7 @@ public sealed class ChozoAndTubeColorCatalog
     internal readonly Dictionary<ColourCell, Bgr555> lowerNorfairEdits = [];
 
     /// <summary>Preserves authored crack seeds and only deviations from calculated stock tube and statue colors.</summary>
-    private ChozoAndTubeColorCatalog(Bgr555[] tubeCracks, Bgr555[] wreckedShip,
+    internal ChozoAndTubeColorCatalog(Bgr555[] tubeCracks, Bgr555[] wreckedShip,
         Bgr555[] lowerNorfair)
     {
         // The eight crack seed colors are authored paint; the remaining stock values
@@ -91,50 +91,10 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Installs the 32 selected Lower Norfair Chozo inks at CGRAM 144–175, replacing the $AA:E35D image copied by initializer $AA:E784.</summary>
     public void ApplyLowerNorfair(ColourRun destination) => Apply(destination, ChozoStatuePalette.LowerNorfair);
 
-    /// <summary>Loads version-1 <c>chozo-and-tube-colors.json</c>, requiring three independent 32-color images and RGB5 channels from 0 through 31.</summary>
-    /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate JSON properties are rejected.</param>
-    /// <returns>Compiled selected tube and statue inks; statue variant selection, hand PLMs, and tube behavior remain engine-owned.</returns>
-    public static ChozoAndTubeColorCatalog Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        ChozoAndTubeColorDocument document;
-        document = JsonAssetDocument.Read<ChozoAndTubeColorDocument>(json, ArtworkJson.Options, "Chozo/tube color");
-        if (document.Version != ChozoAndTubeColorFormat.Version)
-            throw new InvalidDataException("Chozo/tube colors require the supported version.");
-        return new(
-            Compile(document.TubeCracks, "tube cracks"),
-            Compile(document.WreckedShip, "Wrecked Ship"),
-            Compile(document.LowerNorfair, "Lower Norfair"));
-    }
-
-    /// <summary>Serializes the three color images as indented camel-case UTF-8 JSON, validating version, 32-color dimensions, and RGB5 channel bounds before returning the bytes.</summary>
-    public static byte[] Write(ChozoAndTubeColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
-
     /// <summary>Writes the selected statue's 32 inks into the shared boss OBJ palette range.</summary>
     private void Apply(ColourRun destination, ChozoStatuePalette palette)
     {
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
             destination.Write(color, ResolveStatue(palette, color));
     }
-
-    /// <summary>Validates exactly 32 five-bit RGB triples and converts them to packed CGRAM colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
-    {
-        if (source is null || source.Length != ChozoAndTubeColorRomData.ColorCount)
-            throw new InvalidDataException(
-                $"Chozo/tube {name} requires {ChozoAndTubeColorRomData.ColorCount} RGB5 colors.");
-        var compiled = new Bgr555[source.Length];
-        for (int color = 0; color < source.Length; color++)
-        {
-            PaletteRgb5? rgb = source[color];
-            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
-                (uint)rgb.Blue > 31)
-                throw new InvalidDataException(
-                    $"Chozo/tube {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
-        }
-        return compiled;
-    }
-
 }

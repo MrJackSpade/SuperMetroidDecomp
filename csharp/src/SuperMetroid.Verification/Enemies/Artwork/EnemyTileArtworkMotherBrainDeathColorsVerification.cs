@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -9,6 +8,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -80,7 +81,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides,
             MotherBrainDeathColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, MotherBrainDeathColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, MotherBrainDeathColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         MotherBrainDeathColorCatalog colors = edited.Bosses.MotherBrainDeathColors ??
             throw new InvalidDataException("Edited enemy art has no Mother Brain death colors.");
@@ -171,7 +172,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             "duplicate Mother Brain death property fails loudly");
         visual.BodyFade[0][5] = visual.BodyFade[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
-            () => MotherBrainDeathColorCatalog.Write(visual),
+            () => MotherBrainDeathColorFile.Write(visual),
             "Mother Brain death RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

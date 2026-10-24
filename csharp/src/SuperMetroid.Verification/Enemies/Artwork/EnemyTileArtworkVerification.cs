@@ -54,6 +54,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live edit checks.</summary>
 internal static class EnemyTileArtworkVerification
@@ -350,7 +351,7 @@ internal static class EnemyTileArtworkVerification
             editedColors[0] = editedColors[0] with { Red = editedColors[0].Red ^ 1 };
             string paletteOverridePath = Path.Combine(overrideDirectory,
                 EnemyTileArtworkFormat.PaletteFileName(editedPointer));
-            File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheet.Write(
+            File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheetFile.Write(
                 new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
             InstalledEnemyArtwork editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             var originalColors = new GameplayColours(new SpriteColourSets());
@@ -397,7 +398,7 @@ internal static class EnemyTileArtworkVerification
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                 "duplicate enemy palette keys fail loudly");
             editedColors[0] = editedColors[0] with { Red = 32 };
-            AssertThrows<InvalidDataException>(() => EnemyPaletteSheet.Write(
+            AssertThrows<InvalidDataException>(() => EnemyPaletteSheetFile.Write(
                     new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }),
                 "RGB5 palette channel outside native five-bit precision is rejected");
         }

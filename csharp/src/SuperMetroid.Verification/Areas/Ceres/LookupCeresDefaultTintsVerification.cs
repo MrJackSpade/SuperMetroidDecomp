@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.Artwork;
@@ -19,7 +18,7 @@ internal static class LookupCeresDefaultTintsVerification
 
     /// <summary>Checks that channel flags use the last value before native CMP #$0010 stops the fade.</summary>
     private static void VerifyCeresDefaultComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock,
-        int channelMask, Func<PaletteRgb5, int> component)
+        int channelMask, Func<Bgr555, int> component)
     {
         int stopCounter = ReadVerificationWord(rom, 0x88de43);
         foreach (bool dead in new[] { false, true })

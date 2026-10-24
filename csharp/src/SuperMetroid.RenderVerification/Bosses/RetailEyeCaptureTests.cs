@@ -12,6 +12,7 @@ namespace SuperMetroid.RenderVerification.Bosses;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks D3D11 output against production rendering during the retail Morph Ball eye-beam sequence.</summary>
 internal static class RetailEyeCaptureTests

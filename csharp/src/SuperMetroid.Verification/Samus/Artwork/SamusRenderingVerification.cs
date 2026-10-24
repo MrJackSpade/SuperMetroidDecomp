@@ -43,13 +43,12 @@ internal static void VerifySamusRenderingSlice()
         AnimationFrame = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
-    samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     var cgram = new SamusColourRig();
     var vram = new SnesVram();
     var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
 
-    SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+    SamusSuitColorCatalog suitColors = SamusSuitColorFile.Read(
         new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     SamusPresentation.LoadPowerSuitPalette(cgram.Samus.Suit, suitColors);
     AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
@@ -58,7 +57,7 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.PrimeGraphics(samus);
     AssertEqual(0x92d0b0, samus.Presentation.BodyFrames.TopDefinitionAddress, "pose 1 frame 0 top tile definition");
-    AssertEqual((int?)0x92d1c8, samus.Presentation.BodyFrames.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
+    AssertEqual(0x92d1c8, samus.Presentation.BodyFrames.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
 
     samus.Presentation.BodyFrames.LoadShownInto(vram);
     AssertEqual(0x10, vram.ReadByte(0xc000), "Samus top part 1 is the shown body's character 0");
@@ -544,7 +543,6 @@ internal static void VerifySamusArmCannon()
     };
 
     samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
-    samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     samus.BindArmCannonFixture(artwork);
 
     // The HUD producer requires two identical samples. Merely changing selection sets the
@@ -660,7 +658,7 @@ internal static void VerifySamusVisorPalette()
     ushort[] colors = [0x1000, 0x1001, 0x1002, 0x2000, 0x2001, 0x2002];
     WriteVisorColors(bus, colors);
 
-    var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
+    var visorColors = SamusVisorColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
     cgram.SetColor(196, Bgr555.FromWord(0x7777));
     state.Update(
@@ -752,13 +750,13 @@ internal static void VerifySamusHurtFlashPalette()
 
     SeedHurtFlashPalettes(bus);
 
-    var hurtColors = SamusHurtColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
+    var hurtColors = SamusHurtColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         EquippedItems = (SamusEquipmentFlags)0x0021, // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
-        Presentation = { SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus))) },
+        Presentation = { SuitColors = SamusSuitColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus))) },
     };
 
     int hurtPaletteCalls = 0;

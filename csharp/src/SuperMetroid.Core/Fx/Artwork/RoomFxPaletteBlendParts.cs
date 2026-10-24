@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>The room FX blend colours per effect (#633).</summary>
@@ -30,8 +28,8 @@ internal sealed record RoomFxPaletteBlendParts
     public required RoomFxBlendColors MaridiaWaterD { get; init; }
 
     /// <summary>Cosmetic fixed-color tint selected when Ceres Ridley is alive.</summary>
-    public required PaletteRgb5 CeresHazeBlue { get; init; }
+    public required Bgr555 CeresHazeBlue { get; init; }
 
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
-    public required PaletteRgb5 CeresHazeRed { get; init; }
+    public required Bgr555 CeresHazeRed { get; init; }
 }

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -13,6 +12,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification
@@ -64,7 +64,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         }
 
         byte[] extracted = WorkRobotPaletteCycleExtractor.Extract(rom);
-        WorkRobotPaletteCycle stock = WorkRobotPaletteCycle.Load(
+        WorkRobotPaletteCycle stock = WorkRobotPaletteCycleFile.Read(
             new MemoryStream(extracted, writable: false));
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
         for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
@@ -84,8 +84,8 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         {
             Blue = prior.Blue == 31 ? 30 : prior.Blue + 1,
         };
-        WorkRobotPaletteCycle edited = WorkRobotPaletteCycle.Load(
-            new MemoryStream(WorkRobotPaletteCycle.Write(visual), writable: false));
+        WorkRobotPaletteCycle edited = WorkRobotPaletteCycleFile.Read(
+            new MemoryStream(WorkRobotPaletteCycleFile.Write(visual), writable: false));
 
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SamusColourRig();

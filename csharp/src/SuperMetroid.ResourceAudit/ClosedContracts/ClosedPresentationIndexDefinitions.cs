@@ -12,7 +12,6 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -52,7 +51,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("GameOverPresentation", "ApplyBabyPalette", "palette") => new(0, 4),
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
-        ("BeamPaletteCatalog", "LoadTo", "selection") => new(0, BeamTileAtlasDefinitions.SelectionCount),
+        ("BeamPaletteCatalog", "LoadTo", "selection") => new(0, BeamPaletteDefinitions.SelectionCount),
         ("CeresRidleyColorCatalog", "ApplyEyeFade", "row") => new(0, CeresRidleyPaletteRomData.EyeFadeRowCount),
         ("CeresRidleyColorCatalog", "ApplyBodyFade", "row") => new(0, CeresRidleyPaletteRomData.BodyFadeRowCount),
         ("CeresRidleyColorCatalog", "ApplyHealth", "row") => new(0, CeresRidleyPaletteRomData.HealthRowCount),
@@ -137,7 +136,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("CeresDoorVisualCatalog", "Mode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
         ("RoomSkyTilemapCatalog", "Row", "page") => new(0, RoomSkyTilemapFormat.PageCount),
         ("RoomSkyTilemapCatalog", "Row", "row") => new(0, RoomSkyTilemapFormat.RowsPerPage),
-        ("BeamTileCatalog", "Resolve", "asset") => new((int)VramAssetId.BeamPowerTiles, BeamTileAtlasDefinitions.SelectionCount, Additional: (int)VramAssetId.BeamChainsawTiles, AdditionalMaximum: (int)VramAssetId.BeamSpacetimeTiles),
         ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
         ("ChargeFlareSpriteCatalog", "Frame", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Count),
         ("GrappleSpriteCatalog", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentAttributeAddresses.Length),

@@ -79,7 +79,7 @@ internal static class GenericSpriteArtworkVerification
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
         var intro = new IntroCinematicState(introFont: maps.IntroFont,
-            characterArtwork: introArtwork, beamArtwork: projectiles.BeamTiles,
+            characterArtwork: introArtwork, beamPalettes: projectiles.BeamTiles.Palettes,
             samusBodyArtwork: body)
         {
             Random = new CartridgeRandom(),

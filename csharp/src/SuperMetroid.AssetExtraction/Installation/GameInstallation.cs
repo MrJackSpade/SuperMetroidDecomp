@@ -27,6 +27,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -417,7 +418,7 @@ public sealed record GameInstallation(string Root)
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
     /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
-    public AreaMapPresentationCatalog LoadMaps() => AreaMapPresentationCatalog.Load(MapDirectory, MapOverrideDirectory);
+    public AreaMapPresentationCatalog LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps and projectile
@@ -476,14 +477,16 @@ public sealed record GameInstallation(string Root)
             RoomSkyTilemapArt = LoadRoomSkyTilemaps(),
             ProjectileCompositions = projectiles.Catalog,
             ProjectileFrameBindings = projectiles.FrameBindings,
-            BeamArtwork = projectiles.BeamTiles,
+            BeamPalettes = projectiles.BeamTiles.Palettes,
+            HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,
             EnemyTileArtwork = enemies.Enemies,
             BossArtwork = enemies.Bosses,
             AreaArtwork = enemies.Areas,
             TrailArtwork = projectiles.Trails,
             ChargeFlarePlacement = projectiles.FlarePlacement,
             ChargeFlareCompositions = projectiles.FlareCompositions,
-            GrappleArtwork = projectiles.GrappleTiles,
+            GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
+            GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,
             SamusOverreads = LoadSamusOverreads(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),

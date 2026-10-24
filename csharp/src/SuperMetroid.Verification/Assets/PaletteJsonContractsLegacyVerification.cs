@@ -9,6 +9,8 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Assets;
 
@@ -28,15 +30,15 @@ internal static class PaletteJsonContractsLegacyVerification
     {
         Dictionary<string, JsonObject> documents = PaletteJsonContracts().ToDictionary(item => item.Name, item => item.Document);
         JsonObject effects = documents["room effects"];
-        var effectsStock = ReadPaletteContract(effects, json => RoomPaletteFxPresentation.Load(json));
+        var effectsStock = ReadPaletteContract(effects, json => RoomPaletteFxPresentationFile.Read(json));
         var oldEffects = (JsonObject)effects.DeepClone();
         oldEffects["version"] = RoomPaletteFxPresentationFormatConstants.PreviousVersion;
         foreach (string field in new[] { "samusHeatPowerSuit", "samusHeatVariaSuit", "samusHeatGravitySuit" }) oldEffects.Remove(field);
         var editedColor = (JsonObject)oldEffects.Required("norfairForegroundPalette4").Required(0).Required(0);
         editedColor["red"] = (editedColor.Required("red").GetValue<int>() + 1) % 32;
-        AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentation.Load(json)),
+        AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentationFile.Read(json)),
             "v17 room effects require explicitly installed current stock");
-        var migratedEffects = ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentation.Load(json, effectsStock));
+        var migratedEffects = ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentationFile.Read(json, effectsStock));
         ushort editedPointer = NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(
             item => item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundPalette4).ColorPointer(0, 0);
         AssertTrue(migratedEffects.TryReadColor(editedPointer, out Bgr555 edited), "legacy Norfair colors remain installed");
@@ -52,7 +54,7 @@ internal static class PaletteJsonContractsLegacyVerification
         }
 
         JsonObject room = documents["Mother Brain room"];
-        var roomStock = ReadPaletteContract(room, json => MotherBrainRoomColorPresentation.Load(json));
+        var roomStock = ReadPaletteContract(room, json => MotherBrainRoomColorFile.Read(json));
         foreach (int version in new[] { MotherBrainRoomColorFormatConstants.PreRoomEntryVersion, MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion })
         {
             var oldRoom = (JsonObject)room.DeepClone();
@@ -61,9 +63,9 @@ internal static class PaletteJsonContractsLegacyVerification
             if (version == MotherBrainRoomColorFormatConstants.PreRoomEntryVersion)
             { oldRoom.Remove("initialGlassShard"); oldRoom.Remove("initialTubeProjectile"); }
             ((JsonObject)oldRoom.Required("finalRoom").Required(0))["red"] = 31;
-            AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRoom, json => MotherBrainRoomColorPresentation.Load(json)),
+            AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRoom, json => MotherBrainRoomColorFile.Read(json)),
                 "old Mother Brain room colors require current stock");
-            var migrated = ReadPaletteContract(oldRoom, json => MotherBrainRoomColorPresentation.Load(json, roomStock));
+            var migrated = ReadPaletteContract(oldRoom, json => MotherBrainRoomColorFile.Read(json, roomStock));
             var actual = new GameplayColours(new SpriteColourSets());
             var expected = new GameplayColours(new SpriteColourSets());
             migrated.ApplyRoomEntry(actual); roomStock.ApplyRoomEntry(expected);
@@ -79,14 +81,14 @@ internal static class PaletteJsonContractsLegacyVerification
         }
 
         JsonObject rainbow = documents["Mother Brain rainbow"];
-        var rainbowStock = ReadPaletteContract(rainbow, json => MotherBrainRainbowPalettePresentation.Load(json));
+        var rainbowStock = ReadPaletteContract(rainbow, json => MotherBrainRainbowPaletteFile.Read(json));
         var oldRainbow = (JsonObject)rainbow.DeepClone();
         oldRainbow["version"] = (int)MotherBrainRainbowPaletteVersion.PreFakeDeath;
         oldRainbow.Remove("fakeDeathToGrey");
         ((JsonObject)oldRainbow.Required("normal").Required("body").Required(0))["red"] = 31;
-        AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPalettePresentation.Load(json)),
+        AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPaletteFile.Read(json)),
             "old Mother Brain rainbow colors require current stock");
-        var migratedRainbow = ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPalettePresentation.Load(json, rainbowStock));
+        var migratedRainbow = ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPaletteFile.Read(json, rainbowStock));
         var legacyCgram = new GameplayColours(new SpriteColourSets());
         var stockCgram = new GameplayColours(new SpriteColourSets());
         for (int frame = 0; frame < MotherBrainFakeDeathPaletteRomData.FrameCount; frame++)

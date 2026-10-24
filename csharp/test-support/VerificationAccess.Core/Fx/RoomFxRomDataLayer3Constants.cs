@@ -1,6 +1,4 @@
 ﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 

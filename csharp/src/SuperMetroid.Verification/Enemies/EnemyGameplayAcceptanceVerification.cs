@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Reflection;
 using System.Security.Cryptography;

@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
@@ -16,7 +15,7 @@ internal static class PowerBombAfterglowShapeVerification
     internal static void VerifyPowerBombAfterglowShape()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var colors = PowerBombFixedColorCatalog.Load(new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
+        var colors = PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
         // Near the bottom-left, the last oval still leaves visible corners outside it.
         var explosion = new SamusPowerBombExplosionState { PresentationColors = colors };
         explosion.Arm();

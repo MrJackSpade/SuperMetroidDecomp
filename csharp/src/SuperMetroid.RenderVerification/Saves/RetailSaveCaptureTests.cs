@@ -18,6 +18,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks every captured frame of a retail save station cycle, including electricity and control release.</summary>
 internal static class RetailSaveCaptureTests

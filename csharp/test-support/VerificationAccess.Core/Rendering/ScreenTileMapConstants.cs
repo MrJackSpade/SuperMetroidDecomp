@@ -1,7 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.Backgrounds;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rendering;
 

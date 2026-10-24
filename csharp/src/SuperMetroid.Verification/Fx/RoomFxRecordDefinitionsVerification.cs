@@ -46,7 +46,7 @@ internal static class RoomFxRecordDefinitionsVerification
         var compiledVram = new SnesVram();
         var nativeCgram = new GameplayColours(new SpriteColourSets());
         var compiledCgram = new GameplayColours(new SpriteColourSets());
-        RoomFxPaletteBlendCatalog colors = RoomFxPaletteBlendCatalog.Load(
+        RoomFxPaletteBlendCatalog colors = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(bus)));
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(bus)));

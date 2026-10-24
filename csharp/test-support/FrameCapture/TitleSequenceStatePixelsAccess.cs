@@ -1,6 +1,6 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Core.Frontend.Title;
 

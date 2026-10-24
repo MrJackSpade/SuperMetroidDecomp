@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Gameplay;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Assets;
@@ -19,6 +18,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exercises native enemy drop selection, pickup effects, collision timing, and death conversion.</summary>
 internal static class EnemyDropsVerification
@@ -54,8 +55,8 @@ internal static class EnemyDropsVerification
         // the runtime no longer decodes a missing palette from cartridge bytes.
         PaletteRgb5[] colors = Enumerable.Range(0, SamusSuitColorFormat.ColorsPerSuit)
             .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray();
-        samus.Presentation.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
-            SamusSuitColorCatalog.Write(new SamusSuitColorDocument
+        samus.Presentation.SuitColors = SamusSuitColorFile.Read(new MemoryStream(
+            SamusSuitColorFile.Write(new SamusSuitColorDocument
             {
                 Version = SamusSuitColorFormat.Version, Power = colors, Varia = colors, Gravity = colors,
             })));

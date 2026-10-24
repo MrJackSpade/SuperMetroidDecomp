@@ -44,13 +44,4 @@ public sealed class SnesCgram : IPaletteColors
 
         _colors[index] = color;
     }
-
-    /// <summary>Returns one palette word converted to ordinary 8-bit RGBA.</summary>
-    public Rgba32 GetRgba(int index)
-    {
-        if ((uint)index >= ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-
-        return _colors[index].ToRgba32();
-    }
 }

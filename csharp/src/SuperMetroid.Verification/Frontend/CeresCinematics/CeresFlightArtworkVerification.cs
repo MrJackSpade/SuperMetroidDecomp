@@ -1,4 +1,4 @@
-using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>
@@ -64,8 +65,8 @@ internal static class CeresFlightArtworkVerification
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
-        CeresFlightArtworkCatalog reference = CeresFlightArtworkCatalog.Load(
-            referenceCharacters, referenceMaps, referenceObjects, referencePalette,
+        CeresFlightCharacters reference = CeresFlightCharacters.Read(
+            referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette),
             referenceSprites, referenceActors);
         var native = new IntroCeresFlightState(new CartridgeAudioState(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
         var installed = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
@@ -289,7 +290,7 @@ internal static class CeresFlightArtworkVerification
             Red = (document.Colors[0].Red + 17) & 31,
         };
         using (var output = File.Create(overridePath))
-            CeresFlightPalette.Write(output, document);
+            CeresFlightPaletteFile.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
         var native = new IntroCeresFlightState(new CartridgeAudioState(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));

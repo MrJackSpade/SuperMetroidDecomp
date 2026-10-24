@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks reserve tank visuals across supply, flicker, edits, restore, and health transfer.</summary>
@@ -65,7 +66,7 @@ internal static class PauseReserveTankAssetsVerification
         };
         var custom = document with { Anchors = anchors, Palette = 5, Frames = frames };
         using (var output = File.Create(path)) PauseReserveTankPresentation.Write(output, custom);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "reserve-only edit changes content identity");
         var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = Create(guard, samus, edited);
@@ -76,7 +77,7 @@ internal static class PauseReserveTankAssetsVerification
         tankParts.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), new Position16<OamPixels>(132, 136));
         tankParts.FinalizeFrame();
-        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, PauseMenuLayout.ObjectSelection, edited.Sprites.Page.Id);
+        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, PauseMenuLayout.ObjectSelection, MapSpriteArtwork.Of(edited.Sprites).Page.Id);
         AssertTrue(snapshot.Paint.SpriteParts()[^tank.Length..].SequenceEqual(tank),
             "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
         var editedPixels = menu.Render();
@@ -97,12 +98,12 @@ internal static class PauseReserveTankAssetsVerification
         Reject(document with { Version = 2 }); Reject(document with { Palette = 8 }); Reject(document with { Anchors = [] }); Reject(document with { Frames = [] });
         var badAnchors = anchors.ToArray(); badAnchors[0] = new(256, 0); Reject(document with { Anchors = badAnchors });
         Reject(custom with { Frames = new(frames) { ["Full"] = [frames["Full"][0] with { TileColumn = 15 }] } });
-        File.WriteAllText(path, "bad JSON"); AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad reserve override never falls back");
+        File.WriteAllText(path, "bad JSON"); AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad reserve override never falls back");
         File.WriteAllBytes(path, bytes);
         try
         {
-            File.Delete(stockPath); AssertThrows<IOException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override cannot hide missing reserve stock");
-            File.WriteAllText(stockPath, "corrupt stock"); AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "override cannot hide corrupt reserve provenance");
+            File.Delete(stockPath); AssertThrows<IOException>(() => MapPresentationFiles.Load(stock, overrides), "override cannot hide missing reserve stock");
+            File.WriteAllText(stockPath, "corrupt stock"); AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "override cannot hide corrupt reserve provenance");
         }
         finally { File.WriteAllBytes(stockPath, bytes); }
         Console.WriteLine($"Reserve presentation: 180 native composition/capacity cases and {comparisons} fill-step boundary supply/flicker menu frames; edits, restore, transfer and strict failures pass.");

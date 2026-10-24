@@ -19,6 +19,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
 /// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>
@@ -64,9 +66,9 @@ internal static class MapPaletteCycleVerification
         }).ToArray() };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, MapPaletteCycleFormat.FileName);
-        using (var output = File.Create(replacement)) MapPaletteCycle.Write(output, replacementDocument);
+        using (var output = File.Create(replacement)) MapPaletteCycleFile.Write(output, replacementDocument);
         byte[] editedBytes = File.ReadAllBytes(replacement);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "palette edit invalidates selected content identity");
 
         var system = new Bank80SystemState();
@@ -141,9 +143,9 @@ internal static class MapPaletteCycleVerification
         // Replacing with a shorter cycle must not index a saved, now nonexistent
         // frame. Binding retains the pending delay, then wraps at its boundary.
         using var shortJson = new MemoryStream();
-        MapPaletteCycle.Write(shortJson, document with { Frames = [document.Frames[0] with { DurationTicks = 2 }] });
+        MapPaletteCycleFile.Write(shortJson, document with { Frames = [document.Frames[0] with { DurationTicks = 2 }] });
         shortJson.Position = 0;
-        var shortCycle = MapPaletteCycle.Load(shortJson);
+        var shortCycle = MapPaletteCycleFile.Read(shortJson);
         installed.Reset(); installed.Step(installedColors); // Native frame one, delay three.
         installed.Bind(shortCycle);
         AssertTrue(!installed.Step(installedColors) && !installed.Step(installedColors), "shorter cycle preserves outstanding delay");
@@ -152,25 +154,25 @@ internal static class MapPaletteCycleVerification
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
-        AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
+        AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "palette override never rewritten");
         foreach (string invalid in new[] { "null", "{}", "{\"version\":1,\"frames\":[]}", "{\"version\":1,\"frames\":null}" })
         {
             using var input = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid));
-            AssertThrows<InvalidDataException>(() => MapPaletteCycle.Load(input), "invalid palette schema rejected");
+            AssertThrows<InvalidDataException>(() => MapPaletteCycleFile.Read(input), "invalid palette schema rejected");
         }
         foreach (int duration in new[] { 0, 255 })
         {
             var invalid = document with { Frames = [document.Frames[0] with { DurationTicks = duration }] };
             using var output = new MemoryStream();
-            AssertThrows<InvalidDataException>(() => MapPaletteCycle.Write(output, invalid), "invalid palette duration rejected");
+            AssertThrows<InvalidDataException>(() => MapPaletteCycleFile.Write(output, invalid), "invalid palette duration rejected");
         }
         var badColors = document.Frames[0].Colors.ToArray();
         badColors[0] = badColors[0] with { Red = 32 };
         using (var output = new MemoryStream())
-            AssertThrows<InvalidDataException>(() => MapPaletteCycle.Write(output, document with { Frames = [document.Frames[0] with { Colors = badColors }] }), "palette RGB overflow rejected");
+            AssertThrows<InvalidDataException>(() => MapPaletteCycleFile.Write(output, document with { Frames = [document.Frames[0] with { Colors = badColors }] }), "palette RGB overflow rejected");
         File.WriteAllText(replacement, "broken palette JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "invalid palette override never falls back to stock");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid palette override never falls back to stock");
         AssertEqual("broken palette JSON", File.ReadAllText(replacement), "invalid palette override retained for repair");
         Console.WriteLine("Map palette cycle: native colors/loop ticks, full pause pixels, edited restored animation, override preservation and strict validation pass.");
     }

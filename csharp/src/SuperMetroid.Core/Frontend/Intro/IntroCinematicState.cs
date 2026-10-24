@@ -142,7 +142,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public void BindIntroFont(IntroFontAtlas? value)
     {
         if (value is not null)
-            RequireFont(value.Characters.Span);
+            RequireFont(value);
         IntroFont = value;
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
@@ -284,7 +284,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="audio">Optional cartridge audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
     /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
-    /// <param name="beamArtwork">Optional installed beam graphics used by gameplay flashbacks.</param>
+    /// <param name="beamPalettes">Optional installed beam palettes used by gameplay flashbacks.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting (native <c>AltText</c>).</param>
     public IntroCinematicState(
@@ -292,7 +292,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
-        BeamTileCatalog? beamArtwork = null,
+        BeamPaletteCatalog? beamPalettes = null,
         SamusBodyArtworkCatalog? samusBodyArtwork = null,
         bool japaneseText = false)
     {
@@ -309,7 +309,8 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         RequireMinimum(characterArtwork.BackgroundCharacters.Characters.Length, IntroCinematicRomData.Transfers.BackgroundCharacterBytes,
             "intro BG1/BG2 characters");
-        RequireMinimum(introFont.Characters.Length, IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
+        RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
+            IntroCinematicRomData.Transfers.FontOneBytes, "intro font one");
         RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicRomData.Transfers.SamusHeadTilemapBytes,
             "Samus-head BG2 tilemap");
         RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicRomData.Transfers.BackgroundPageTilemapBytes,
@@ -318,7 +319,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             "intro OBJ characters");
         RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicRomData.Transfers.NarrationTilemapBytes,
             "first narration BG3 tilemap");
-        RequireFont(introFont.Characters.Span);
+        RequireFont(introFont);
 
         // `$8B:A469-$A529` upload the characters, font, background pages and OBJ sheets the intro binds,
         // and the portrait and first narration card it keeps as its own tilemaps.
@@ -329,7 +330,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
         // replaces it; the flashback projectile pages bind the beam's characters.
-        SamusProjectileSystem.LoadBeamPalette(palette.SpriteRow(SamusColourDefinitions.BeamInkRow), equippedBeams: 0, beamArtwork?.Palettes);
+        SamusProjectileSystem.LoadBeamPalette(palette.SpriteRow(SamusColourDefinitions.BeamInkRow), equippedBeams: 0, beamPalettes);
         characterArtwork.Palette.LoadTo(palette);
 
         // The PPU loads above are invisible: the intro stays in forced blank until its fade.
@@ -1463,10 +1464,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>Rejects a font atlas that is not the installed font's size.</summary>
-    internal static void RequireFont(ReadOnlySpan<byte> font)
+    internal static void RequireFont(IntroFontAtlas font)
     {
-        if (font.Length != IntroFontAtlasFormat.ByteCount)
-            throw new InvalidDataException($"Opening font contains {font.Length} bytes; expected {IntroFontAtlasFormat.ByteCount}.");
+        if (Ensure.NotNull(font).CharacterCount != IntroFontAtlasFormat.TileCount)
+            throw new InvalidDataException($"Opening font contains {font.CharacterCount} characters; expected {IntroFontAtlasFormat.TileCount}.");
     }
 
     /// <summary>

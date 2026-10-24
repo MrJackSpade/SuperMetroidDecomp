@@ -95,6 +95,11 @@ namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
@@ -219,9 +224,9 @@ internal static class MapPresentationVerification
         private readonly RoomBackgroundTilemapCatalog backgrounds;
         /// <summary>Installed sky tilemaps for rooms that use a scrolling sky.</summary>
         private readonly RoomSkyTilemapCatalog skies;
-        /// <summary>Installed beam art bound to Samus's projectile presentation.</summary>
-        private readonly BeamTileCatalog beamTiles;
-        /// <summary>Installed trail art composed into Samus's projectile page.</summary>
+        /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
+        private readonly BeamPaletteCatalog? beamPalettes;
+        /// <summary>Installed trail appearances.</summary>
         private readonly ProjectileTrailCatalog trails;
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
@@ -248,7 +253,7 @@ internal static class MapPresentationVerification
             skies = installation.LoadRoomSkyTilemaps();
             EnemyTiles = installation.LoadEnemyTiles();
             var projectiles = installation.LoadProjectiles();
-            beamTiles = projectiles.BeamTiles;
+            beamPalettes = projectiles.BeamTiles.Palettes;
             trails = projectiles.Trails;
             SamusBody = installation.LoadSamusBodyArt();
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
@@ -270,7 +275,7 @@ internal static class MapPresentationVerification
             runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
             runtime.AreaArtwork.Artwork = EnemyTiles.Areas;
-            runtime.Artwork.BeamArtwork = beamTiles;
+            runtime.Artwork.BeamPalettes = beamPalettes;
             runtime.Artwork.TrailArtwork = trails;
             runtime.Artwork.SamusBodyArt = SamusBody;
             runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
@@ -335,7 +340,7 @@ internal static class MapPresentationVerification
         var (bus, root, stock, overrides, original, fixtureAssets, initialPalettes) = fixture;
         string repaired = Path.Combine(root, "replacement-stock");
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
-        var reopened = AreaMapPresentationCatalog.Load(stock, overrides);
+        var reopened = MapPresentationFiles.Load(stock, overrides);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
@@ -356,7 +361,7 @@ internal static class MapPresentationVerification
         string replacement = Path.Combine(overrides, name);
         File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
         byte[] editedBytes = File.ReadAllBytes(replacement);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
@@ -370,7 +375,7 @@ internal static class MapPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
         AssertTrue(edited.Get(AreaId.Crateria).GetTile(new(0, 0)) != original.Get(AreaId.Crateria).GetTile(new(0, 0)), "catalog prefers valid override");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
-        var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides);
+        var afterRepair = MapPresentationFiles.Load(repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
         Suite(nameof(VerifyBundledMapMaskValidation), () => VerifyBundledMapMaskValidation(repaired));
@@ -386,11 +391,11 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyMapArrows), () => VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original));
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt override fails instead of selecting stock");
         AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
         File.WriteAllBytes(replacement, editedBytes);
         File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
@@ -404,7 +409,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(stock, overrides, original));
         Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(stock, overrides, original, initialPalettes));
-        Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
         Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
@@ -624,8 +629,8 @@ internal static class MapPresentationVerification
         };
         string replacement = Path.Combine(overrides, MotherBrainRainbowPaletteFormat.FileName);
         using (var stream = File.Create(replacement))
-            MotherBrainRainbowPalettePresentation.Write(stream, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+            MotherBrainRainbowPaletteFile.Write(stream, document);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain rainbow edit changes installed-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -693,28 +698,28 @@ internal static class MapPresentationVerification
             stockBeam.Geometry == editedBeam.Geometry,
             "beam cycle edit reaches the live HDMA frame without a ROM read or timing change");
 
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Rainbow = document.Rainbow.Take(9).ToArray(),
             }, ArtworkJson.Options))), "reject truncated Mother Brain rainbow loop");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 ToGrey = document.ToGrey.Select((item, index) => index == 0 ?
                     item with { TrailingColor = null } : item).ToArray(),
             }, ArtworkJson.Options))), "reject missing Mother Brain grey trailing color");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
             }, ArtworkJson.Options))), "reject truncated Mother Brain normal palette");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 BeamCycle = document.BeamCycle.Take(37).ToArray(),
             }, ArtworkJson.Options))), "reject truncated Mother Brain beam color cycle");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 FakeDeathToGrey = document.FakeDeathToGrey.Take(7).ToArray(),
@@ -727,7 +732,7 @@ internal static class MapPresentationVerification
             FakeDeathToGrey = null,
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacy);
-        AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog migrated = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(migrated.MotherBrainRainbowPalette.BeamInitialColor !=
             original.MotherBrainRainbowPalette.BeamInitialColor,
             "version-two Mother Brain override preserves the existing edited beam color");
@@ -736,7 +741,7 @@ internal static class MapPresentationVerification
                 toGrey: true).Colors),
             "version-two override inherits the new fake-death colors from verified stock");
         File.Delete(replacement);
-        AssertEqual(original.ContentIdentity, AreaMapPresentationCatalog.Load(stock, overrides).ContentIdentity,
+        AssertEqual(original.ContentIdentity, MapPresentationFiles.Load(stock, overrides).ContentIdentity,
             "removing Mother Brain rainbow override restores installed-content identity");
         Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades, live edits, legacy overrides and strict validation pass.");
     }
@@ -756,7 +761,7 @@ internal static class MapPresentationVerification
                 File.ReadAllBytes(source), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain health palette is null.");
         MotherBrainHealthPalettePresentation extracted =
-            MotherBrainHealthPalettePresentation.Load(new MemoryStream(
+            MotherBrainHealthPaletteFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(bus),
                 writable: false));
         foreach (var (health, state) in new VerifyMotherBrainHealthPaletteOverrideCase[]
@@ -786,8 +791,8 @@ internal static class MapPresentationVerification
         document.BackLegs[2][0] = leg with { Blue = leg.Blue == 31 ? 30 : leg.Blue + 1 };
         string replacement = Path.Combine(overrides, MotherBrainHealthPaletteFormat.FileName);
         using (var stream = File.Create(replacement))
-            MotherBrainHealthPalettePresentation.Write(stream, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+            MotherBrainHealthPaletteFile.Write(stream, document);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain health palette override changes installed-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -808,17 +813,17 @@ internal static class MapPresentationVerification
             output.Colors[MotherBrainRainbowPaletteRomDataConstants.BrainColor],
             "body and brain still share the native palette");
 
-        AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Version = MotherBrainHealthPaletteFormat.Version + 1,
             }, ArtworkJson.Options))), "reject unsupported Mother Brain palette version");
-        AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Body = document.Body.Take(3).ToArray(),
             }, ArtworkJson.Options))), "reject incomplete Mother Brain damage states");
-        AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
+        AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 BackLegs = document.BackLegs.Select((colors, index) => index == 0 ?
@@ -826,7 +831,7 @@ internal static class MapPresentationVerification
             }, ArtworkJson.Options))), "reject truncated Mother Brain rear-leg palette");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing Mother Brain health palette override restores installed-content identity");
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies, live body/leg edits, schema checks and content identity pass.");
@@ -976,8 +981,8 @@ internal static class MapPresentationVerification
 
         string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
         using (var stream = File.Create(replacement))
-            RoomPaletteFxPresentation.Write(stream, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+            RoomPaletteFxPresentationFile.Write(stream, document);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "room palette-FX override changes installed-content identity");
 
@@ -1180,7 +1185,7 @@ internal static class MapPresentationVerification
             "Crateria and Brinstar beacon flash");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing room palette-FX override restores installed-content identity");
         Console.WriteLine(
@@ -1237,7 +1242,7 @@ internal static class MapPresentationVerification
         string replacement = Path.Combine(overrides, TitleGradientFormat.FileName);
         using (var stream = File.Create(replacement))
             TitleGradientPresentation.Write(stream, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title gradient override changes installed-content identity");
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
@@ -1248,7 +1253,7 @@ internal static class MapPresentationVerification
             "gradient override visibly changes production title output");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing title gradient override restores installed-content identity");
         Console.WriteLine("Title gradient override: content identity and production title output change immediately, then restore exactly.");
@@ -1283,8 +1288,8 @@ internal static class MapPresentationVerification
 
         string replacement = Path.Combine(overrides, TitlePaletteFormat.FileName);
         using (var stream = File.Create(replacement))
-            TitlePalettePresentation.Write(stream, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+            TitlePaletteFile.Write(stream, document);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title palette override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
@@ -1343,7 +1348,7 @@ internal static class MapPresentationVerification
             "live title rebind applies edited skip white");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing title palette override restores installed-content identity");
         Console.WriteLine("Title palette override: content identity and production title output change immediately, then restore exactly.");
@@ -1364,7 +1369,7 @@ internal static class MapPresentationVerification
         using (var output = File.Create(replacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Colours);
 
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title graphics override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
@@ -1384,7 +1389,7 @@ internal static class MapPresentationVerification
             "Mode 7 PNG override visibly changes production title output");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing title graphics override restores installed-content identity");
         Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
@@ -1412,7 +1417,7 @@ internal static class MapPresentationVerification
         using (var output = File.Create(replacement))
             TitleGraphicsPresentation.WriteMap(output, document);
 
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title sprite override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
@@ -1434,7 +1439,7 @@ internal static class MapPresentationVerification
         AssertTrue(changedOam, "title sprite override changes live title OAM");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing title sprite override restores installed-content identity");
         Console.WriteLine("Title sprite override: installed JSON changes live OAM without changing timing, then restores exactly.");

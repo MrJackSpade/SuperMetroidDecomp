@@ -13,6 +13,9 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.IntegrationVerification.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction;
 
 /// <summary>
 /// Installer acceptance for the source-inventoried presentation domains. Import is
@@ -224,7 +227,7 @@ internal static class InstallationOverrideLifecycleVerification
             File.ReadAllBytes(palettePath), GameplayBasePaletteFormat.JsonOptions);
         PaletteRgb5 color = palette.Initial[0];
         palette.Initial[0] = color with { Red = (color.Red + 1) % 32 };
-        File.WriteAllBytes(palettePath, GameplayBasePaletteCatalog.Write(palette));
+        File.WriteAllBytes(palettePath, GameplayBasePaletteFiles.Write(palette));
         ushort selectedColor = (ushort)(palette.Initial[0].Red | palette.Initial[0].Green << 5 | palette.Initial[0].Blue << 10);
 
         ClipAudioCatalog clips = installation.LoadAudioClips();
@@ -255,7 +258,7 @@ internal static class InstallationOverrideLifecycleVerification
         AssertSnapshot(identities, CatalogSnapshot(installation), phase + ": selected catalog identity");
         AssertSnapshot(files, FileSnapshot(Path.Combine(installation.Root, "overrides")), phase + ": override bytes preserved");
         Assert(installation.LoadStandardObjects().Characters.Span.SequenceEqual(expected.StandardObjects), phase + ": actual PNG transfer");
-        Assert(installation.LoadMaps().IntroFont.Characters.Span.SequenceEqual(expected.Font), phase + ": actual font transfer");
+        Assert(IntroFontCharacters.Of(installation.LoadMaps().IntroFont).Characters.Span.SequenceEqual(expected.Font), phase + ": actual font transfer");
         Assert(installation.LoadGameplayBasePalettes().Initial[0] == Bgr555.FromWord(expected.Color), phase + ": actual palette word");
         ClipAudioCatalog audio = installation.LoadAudioClips();
         Assert(audio.ReadClip(audio.GetMusic(expected.MusicBank, expected.MusicTrack).Clip)[0] == expected.ClipFirstSample,

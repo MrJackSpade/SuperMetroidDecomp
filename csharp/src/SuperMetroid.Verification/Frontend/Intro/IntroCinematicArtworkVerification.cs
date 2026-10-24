@@ -1,4 +1,4 @@
-using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using static SuperMetroid.Verification.Frontend.Intro.IntroArtworkPostSlicesVerification;
@@ -33,7 +33,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -42,6 +41,9 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks installed opening and Ceres cinematic artwork, resource validation, and ROM-read guards.</summary>
 internal static class IntroCinematicArtworkVerification
@@ -127,7 +129,7 @@ internal static class IntroCinematicArtworkVerification
             var completeInstalled = CreateRetailIntroFixture(
                 introFont: installation.LoadMaps().IntroFont,
                 characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles);
+                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes);
             var completeNativeMemory = native.CaptureTranslatedRenderSnapshot().Paint;
             var completeInstalledMemory = completeInstalled.CaptureTranslatedRenderSnapshot().Paint;
             AssertTrue(completeInstalled.ShownVram().SequenceEqual(native.ShownVram()) &&
@@ -173,7 +175,7 @@ internal static class IntroCinematicArtworkVerification
                 Red = originalColor.Red == 31 ? 30 : originalColor.Red + 1,
             };
             using (var output = File.Create(paletteOverridePath))
-                IntroCinematicPalette.Write(output, paletteDocument);
+                IntroCinematicPaletteFile.Write(output, paletteDocument);
             IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
             var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
             var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
@@ -197,7 +199,7 @@ internal static class IntroCinematicArtworkVerification
             // hidden behind the first card's chosen palette indices. A broad color
             // edit proves the selected resource also reaches visible scene pixels.
             using (var output = File.Create(paletteOverridePath))
-                IntroCinematicPalette.Write(output, paletteDocument with
+                IntroCinematicPaletteFile.Write(output, paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Select(color => color with
                     {
@@ -223,12 +225,12 @@ internal static class IntroCinematicArtworkVerification
             }
             AssertTrue(changedVisiblePixel,
                 "edited opening RGB5 colors change displayed narration pixels");
-            AssertThrows<InvalidDataException>(() => IntroCinematicPalette.Load(
+            AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Take(255).ToArray(),
                 }))), "opening palette rejects a truncated color table");
-            AssertThrows<InvalidDataException>(() => IntroCinematicPalette.Load(
+            AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Select((color, index) =>

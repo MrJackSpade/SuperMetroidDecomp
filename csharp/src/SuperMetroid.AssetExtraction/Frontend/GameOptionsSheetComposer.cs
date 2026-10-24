@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -27,7 +28,7 @@ internal static class GameOptionsSheetComposer
     {
         Ensure.NotNull(options);
         Ensure.NotNull(maps);
-        SpriteArtwork page = maps.Sprites.Page;
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         int palette = options.CursorPalette;
         var frames = new List<SheetFrameSource>();
         foreach (GameOptionsPage menuPage in GameOptionsPresentationDefinitions.MenuPages)

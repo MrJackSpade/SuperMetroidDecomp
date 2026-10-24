@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -109,7 +110,7 @@ public static class IntroCinematicArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            RoomCharacterAtlas roundTrip = RoomCharacterAtlas.Load(
+            RoomCharacterAtlas roundTrip = RoomCharacterAtlasPng.Read(
                 new MemoryStream(encoded, writable: false), expectedByteCount);
             if (!roundTrip.Characters.Span.SequenceEqual(planar))
                 throw new InvalidDataException($"Intro PNG {name} did not round-trip its cartridge tiles.");
@@ -148,13 +149,13 @@ public static class IntroCinematicArtworkFiles
                 };
             }
             using var json = new MemoryStream();
-            IntroCinematicPalette.Write(json, new IntroCinematicPaletteDocument
+            IntroCinematicPaletteFile.Write(json, new IntroCinematicPaletteDocument
             {
                 Version = IntroCinematicPaletteFormat.Version,
                 Colors = colors,
             });
             byte[] encoded = json.ToArray();
-            if (!IntroCinematicPalette.Load(new MemoryStream(encoded, writable: false))
+            if (!IntroCinematicPaletteFile.Read(new MemoryStream(encoded, writable: false))
                 .ColorWords.Span.SequenceEqual(native))
                 throw new InvalidDataException("Opening palette JSON did not round-trip cartridge colors.");
             string name = IntroCinematicPaletteFormat.FileName;
@@ -435,7 +436,7 @@ public static class IntroCinematicArtworkFiles
             (string selectedPath, byte[] selected) = ReadSelected(name);
             try
             {
-                return RoomCharacterAtlas.Load(new MemoryStream(selected, writable: false), nativeByteCount);
+                return RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false), nativeByteCount);
             }
             catch (InvalidDataException error)
             {
@@ -467,11 +468,11 @@ public static class IntroCinematicArtworkFiles
             (string actorsPath, byte[] actors) = ReadSelected(CeresFlightActorLayoutFormat.FileName);
             try
             {
-                return CeresFlightArtworkCatalog.Load(
+                return CeresFlightCharacters.Read(
                     new MemoryStream(mode7, writable: false),
                     new MemoryStream(map, writable: false),
                     new MemoryStream(objects, writable: false),
-                    new MemoryStream(palette, writable: false),
+                    CeresFlightPaletteFile.Read(new MemoryStream(palette, writable: false)),
                     new MemoryStream(sprites, writable: false),
                     new MemoryStream(actors, writable: false));
             }
@@ -487,7 +488,7 @@ public static class IntroCinematicArtworkFiles
             (string path, byte[] selected) = ReadSelected(IntroCinematicPaletteFormat.FileName);
             try
             {
-                return IntroCinematicPalette.Load(new MemoryStream(selected, writable: false));
+                return IntroCinematicPaletteFile.Read(new MemoryStream(selected, writable: false));
             }
             catch (InvalidDataException error)
             {
@@ -640,7 +641,7 @@ public static class IntroCinematicArtworkFiles
                 return CeresDestructionArtworkCatalog.Load(
                     new MemoryStream(ceres, writable: false),
                     new MemoryStream(zebesMap, writable: false),
-                    new MemoryStream(zebesPng, writable: false),
+                    RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
                     new MemoryStream(sprites, writable: false),
                     new MemoryStream(actors, writable: false),
                     new MemoryStream(destructionActors, writable: false));

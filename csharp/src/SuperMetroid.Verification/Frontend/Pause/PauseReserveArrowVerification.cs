@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -14,6 +13,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks reserve-tank arrow colors, visibility, and native tilemap palette writes.</summary>
 internal static class PauseReserveArrowVerification

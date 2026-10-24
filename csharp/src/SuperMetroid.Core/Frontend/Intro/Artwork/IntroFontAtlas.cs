@@ -1,35 +1,15 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
-/// <summary>Editable 2-bpp font used by the English opening narration.</summary>
-public sealed class IntroFontAtlas
+/// <summary>
+/// The installed opening-narration font (#1409): how many glyph characters it holds. The installed intro font tile sheet
+/// pictures them; their pixels belong to the import pipeline that reads the installed artwork.
+/// </summary>
+public class IntroFontAtlas
 {
-    /// <summary>Installed planar bytes only when the supplied font differs from the compiled native glyphs.</summary>
-    internal readonly byte[]? suppliedCharacters;
+    /// <summary>Records how many glyph characters the installed font holds.</summary>
+    /// <param name="characterCount">The installed font's glyph characters.</param>
+    internal IntroFontAtlas(int characterCount) => CharacterCount = characterCount;
 
-    /// <summary>Stores edited font bytes while allowing an exact native match to use the compiled glyph source.</summary>
-    internal IntroFontAtlas(byte[] characters) => suppliedCharacters =
-        characters.SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : characters;
-
-    /// <summary>Gets the 2,304-byte SNES two-bit planar characters of all 144 narration glyph tiles.</summary>
-    public ReadOnlyMemory<byte> Characters => suppliedCharacters ?? IntroFontGlyphDefinitions.Compile();
-
-    /// <summary>Loads the indexed opening-font PNG and compiles it to native two-bit planar tiles.</summary>
-    /// <param name="png">Caller-owned indexed PNG stream.</param>
-    /// <returns>The compiled opening narration font.</returns>
-    public static IntroFontAtlas Load(Stream png)
-    {
-        IndexedPngImage image = IndexedPng.Read(
-            png, new(IntroFontAtlasFormat.Width, IntroFontAtlasFormat.Height));
-        byte[] planar = SnesPlanarTileEncoder.Encode(
-            image.Pixels, image.Size, IntroFontAtlasFormat.BitsPerPixel);
-        if (planar.Length != IntroFontAtlasFormat.ByteCount)
-        {
-            throw new InvalidDataException(
-                $"Opening font compiled to {planar.Length} bytes; expected " +
-                $"{IntroFontAtlasFormat.ByteCount}.");
-        }
-        return new(planar);
-    }
+    /// <summary>The installed font's glyph characters.</summary>
+    public int CharacterCount { get; }
 }

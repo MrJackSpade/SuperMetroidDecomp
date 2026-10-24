@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Diagnostics.Saves;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
@@ -13,6 +12,7 @@ namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
 /// Replays one explicitly selected journal from an Android export without extracting

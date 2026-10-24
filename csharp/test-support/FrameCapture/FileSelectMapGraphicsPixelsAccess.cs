@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -17,12 +16,8 @@ internal static class FileSelectMapGraphicsPixelsAccess
         /// The area map's BG1 foreground with its additive BG3 background and no labels, drawn with the game's renderer.
         /// </summary>
         /// <param name="includeBackdropInColorMath">True for steady/return $25 color math; false for forward-window $05 behavior, where transparent BG1 cells retain the backdrop without BG3 addition.</param>
-        internal Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
-        {
-            LayeredScene scene = graphics.CaptureRenderSnapshot(new ushort[FileSelectMapRomData.AreaCount], ColorMath(includeBackdropInColorMath));
-            RenderLayer[] backgrounds = [.. scene.Layers.ToArray().Where(layer => layer is not ObjRenderLayer)];
-            return FrontendScenePixelsAccess.Pixels(new LayeredScene(scene.Paint, backgrounds, scene.Brightness));
-        }
+        internal Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true) =>
+            FrontendScenePixelsAccess.Pixels(graphics.CaptureBackgrounds(ColorMath(includeBackdropInColorMath)));
     }
 
     /// <summary>The room map's published pixels.</summary>

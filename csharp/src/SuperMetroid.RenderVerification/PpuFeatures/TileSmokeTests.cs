@@ -5,6 +5,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares Direct3D tile and color-math output with the WARP reference.</summary>
 internal static class TileSmokeTests

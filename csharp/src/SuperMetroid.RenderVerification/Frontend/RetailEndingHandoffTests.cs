@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares the gunship escape event, fade, and ending handoff through captured rendering and audio.</summary>
 internal static class RetailEndingHandoffTests

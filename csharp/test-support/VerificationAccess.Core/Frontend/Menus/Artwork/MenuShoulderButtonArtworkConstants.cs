@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>Cartridge values of <see cref="MenuShoulderButtonArtwork"/> that only verification reads.</summary>

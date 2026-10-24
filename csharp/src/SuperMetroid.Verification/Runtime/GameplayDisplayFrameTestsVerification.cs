@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
@@ -17,6 +16,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>

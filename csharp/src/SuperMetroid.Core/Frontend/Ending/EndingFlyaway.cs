@@ -189,7 +189,8 @@ internal sealed class EndingFlyaway
     {
         CeresFlightArtworkCatalog artwork = FlightArtwork ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
-        EndingStage.RequireMinimum(artwork.FloorCharacters, EndingCreditsRomData.Rendering.FloorBytes, "flyaway characters");
+        EndingStage.RequireMinimum(artwork.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, EndingCreditsRomData.Rendering.FloorBytes,
+            "flyaway characters");
         EndingStage.RequireMinimum(artwork.FloorMaps, EndingCreditsRomData.Rendering.FlyawayMapDataBytes, "flyaway map");
     }
 

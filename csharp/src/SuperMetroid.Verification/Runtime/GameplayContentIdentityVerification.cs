@@ -10,6 +10,9 @@ using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction;
 
 /// <summary>Checks canonical hashes for shared gameplay palettes, sprite pixels, and X-ray visuals.</summary>
 internal static class GameplayContentIdentityVerification
@@ -83,7 +86,7 @@ internal static class GameplayContentIdentityVerification
         var paletteDocument = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             Colors(SnesCgram.ColorCount, edit == "initial"),
             Colors(GameplayBasePaletteFormat.SpriteColorCount, edit == "common"));
-        GameplayBasePaletteCatalog palettes = GameplayBasePaletteCatalog.Load(new MemoryStream(
+        GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Read(new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(paletteDocument,
                 (edit == "json-indent" ? IndentedJson : CompactJson))));
         using var png = new MemoryStream();
@@ -92,7 +95,7 @@ internal static class GameplayContentIdentityVerification
         IndexedPng.Write(png, new(8, 8), pixels, [new Rgba32(0, 0, 0),
             edit == "png-colors" ? new Rgba32(255, 0, 0) : new Rgba32(255, 255, 255)]);
         png.Position = 0;
-        RoomCharacterAtlas sprites = RoomCharacterAtlas.Load(png, RoomCharacterAtlasFormat.BytesPerTile);
+        RoomCharacterAtlas sprites = RoomCharacterAtlasPng.Read(png, RoomCharacterAtlasFormat.BytesPerTile);
 
         var entries = new List<XrayRevealVisualDefinition>();
         bool editedOperands = false;

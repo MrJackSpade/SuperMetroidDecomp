@@ -91,8 +91,7 @@ internal sealed class EndingArtwork
         LoadObjectFragment(EndingObjectFragmentId.Segment74);
         LoadObjectFragment(EndingObjectFragmentId.Segment78);
         LoadObjectFragment(EndingObjectFragmentId.Segment7C);
-        ReadOnlyMemory<byte> font = _stage.ResolveEndingFont().Characters;
-        EndingStage.RequireMinimum(font, EndingCreditsRomData.Rendering.ObjectFragmentLimit,
+        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingCreditsRomData.Rendering.ObjectFragmentLimit,
             "ending font characters");
         screen.Record(EndingUploadKind.EndingFont, 0);
     }
@@ -114,8 +113,7 @@ internal sealed class EndingArtwork
             return;
 
         _stage.LoadStaticPalette(EndingPaletteId.Credits, screen.Palette.Background);
-        ReadOnlyMemory<byte> font = _stage.ResolveEndingFont().Characters;
-        EndingStage.RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
+        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");
 
         screen.Clear();

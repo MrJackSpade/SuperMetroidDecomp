@@ -1,5 +1,5 @@
 ﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
@@ -13,8 +13,9 @@ internal static class WorldMapArtworkAccess
         /// <param name="vram">Destination VRAM receiving both character transfers; this method does not install palette colors or world-map layout words.</param>
         public void LoadTo(SnesVram vram)
         {
-            new WorldMapVram(vram).Foreground.Load(self.ForegroundCharacters());
-            new WorldMapVram(vram).Background.Load(self.BackgroundCharacters());
+            WorldMapCharacters characters = WorldMapCharacters.Of(self);
+            new WorldMapVram(vram).Foreground.Load(characters.ForegroundCharacters());
+            new WorldMapVram(vram).Background.Load(characters.BackgroundCharacters());
         }
     }
 }

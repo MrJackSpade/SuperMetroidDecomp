@@ -1,10 +1,10 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -36,7 +36,7 @@ public static class CrystalFlashColorExtractor
                 SamusSourceDefinitions.BubblePointers.Value + frame * sizeof(ushort));
             bubble[frame] = ReadColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
         }
-        return CrystalFlashColorCatalog.Write(new CrystalFlashColorDocument
+        return CrystalFlashColorFile.Write(new CrystalFlashColorDocument
         {
             Version = CrystalFlashColorFormat.Version,
             Body = body,

@@ -1,9 +1,9 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using System.Diagnostics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.Diagnostics.Sessions;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Reaches a measured autonomous host frame without changing the demo sequence.</summary>
 internal static class AutonomousPerformanceStateFixture

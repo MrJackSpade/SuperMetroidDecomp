@@ -1,10 +1,10 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -20,7 +20,7 @@ public static class PowerBombFixedColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return PowerBombFixedColorCatalog.Write(new PowerBombFixedColorDocument
+        return PowerBombFixedColorFile.Write(new PowerBombFixedColorDocument
         {
             Version = PowerBombFixedColorFormat.Version,
             PreExplosion = Read(bus, PowerBombFixedColorSequence.PreExplosion),

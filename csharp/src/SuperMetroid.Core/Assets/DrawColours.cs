@@ -17,7 +17,7 @@ public sealed class DrawColours
     public const int RowColours = 16;
 
     /// <summary>The ink rows an image's pixels are coloured in.</summary>
-    private const int InkRows = SpriteImage.MaximumPaletteRow + 1;
+    internal const int InkRows = SpriteImage.MaximumPaletteRow + 1;
 
     /// <summary>The colours of a frame: the background rows' colours, then the sprite rows'.</summary>
     private const int FrameColours = 2 * SpriteImage.SpriteColourCount;
@@ -46,11 +46,6 @@ public sealed class DrawColours
 
     /// <summary>Whether every pixel shows the image's own colours and blends as its own row does.</summary>
     public bool IsOwn => !FollowsPartRows && shown.All(row => row is null) && blending == OwnBlending;
-
-    /// <summary>The key a pixel of ink row <paramref name="inkRow"/> and part row <paramref name="partRow"/> takes.</summary>
-    public int Key(int inkRow, int partRow) => FollowsPartRows
-        ? Ensure.BetweenInclusive(0, Keys - 1, partRow)
-        : Ensure.BetweenInclusive(0, InkRows - 1, inkRow);
 
     /// <summary>Whether the pixels of key <paramref name="key"/> show the image's own colours.</summary>
     public bool ShowsOwnColours(int key) => shown[CheckKey(key)] is null;

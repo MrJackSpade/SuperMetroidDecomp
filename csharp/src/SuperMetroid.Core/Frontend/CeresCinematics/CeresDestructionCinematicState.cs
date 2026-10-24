@@ -461,14 +461,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtworkCatalog content = Artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        RequireMinimum(content.CeresFlight.FloorCharacters.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
+        RequireMinimum(content.CeresFlight.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresDestructionRomData.Transfers.FloorCharacterBytes,
             "Ceres destruction Mode-7 characters");
         // The stream is four adjacent native work-RAM regions, not merely the two Ceres
         // screens used by this setup call. `$8B:C345` later consumes the front-gunship
         // screen at +$000 and the clear screen at +$C00 without decompressing again.
         RequireMinimum(content.CeresFlight.FloorMaps.Length + content.CeresDestruction.CeresMaps.Length,
             CeresDestructionRomData.Transfers.CeresMinimumTilemapBytes, "Ceres cinematic tilemaps");
-        RequireMinimum(content.CeresFlight.ObjectCharacters.Length, CeresDestructionRomData.Transfers.FloorCharacterBytes,
+        RequireMinimum(content.CeresFlight.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresDestructionRomData.Transfers.FloorCharacterBytes,
             "Ceres cinematic OBJ characters");
 
         // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair. The

@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
@@ -17,6 +16,7 @@ namespace SuperMetroid.Verification.Fx;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks the first Acid Statue room transition after the Lower Norfair acid-drain event.</summary>
 internal static class AcidStatueFirstEntryVerification

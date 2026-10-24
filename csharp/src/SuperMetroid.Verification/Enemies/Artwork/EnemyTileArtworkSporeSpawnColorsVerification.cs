@@ -14,6 +14,8 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks installed Spore Spawn spore, health, and death colors against ROM and live current and target palettes.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification
@@ -61,7 +63,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         string overrides = Path.Combine(stockDirectory, "spore-spawn-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, SporeSpawnColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, SporeSpawnColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, SporeSpawnColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         SporeSpawnColorCatalog colors = edited.Bosses.SporeSpawnColors ??
             throw new InvalidDataException("Edited enemy art has no Spore Spawn colors.");
@@ -146,7 +148,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Spore Spawn color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => SporeSpawnColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Write(visual),
             "Spore Spawn RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

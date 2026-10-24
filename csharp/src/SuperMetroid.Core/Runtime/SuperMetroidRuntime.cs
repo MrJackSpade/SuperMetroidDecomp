@@ -258,8 +258,10 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.EnemySheets, value => EnemySession.Sheets = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
         Bind(a => a.ChargeFlareCompositions, value => Artwork.ChargeFlareCompositions = value);
-        Bind(a => a.GrappleArtwork, value => Artwork.GrappleArtwork = value);
-        Bind(a => a.BeamArtwork, value => Artwork.BeamArtwork = value);
+        Bind(a => a.GrappleFlarePlacement, value => Artwork.GrappleFlarePlacement = value);
+        Bind(a => a.GrappleSwingFrames, value => Artwork.GrappleSwingFrames = value);
+        Bind(a => a.BeamPalettes, value => Artwork.BeamPalettes = value);
+        Bind(a => a.HyperBeamFxColors, value => Artwork.HyperBeamFxColors = value);
         Bind(a => a.BossArtwork, value => BossArtwork.Artwork = value);
         Bind(a => a.AreaArtwork, value => AreaArtwork.Artwork = value);
         Bind(a => a.EnemyTileArtwork, value => EnemySession.TileArtwork = value);
@@ -640,7 +642,7 @@ internal sealed class SuperMetroidRuntime
         {
             Player.Samus?.Drained.HyperBeamPaletteFx.Step(
                 Player.Colours,
-                Artwork.BeamArtwork?.HyperBeamFxColors);
+                Artwork.HyperBeamFxColors);
         }
     }
 

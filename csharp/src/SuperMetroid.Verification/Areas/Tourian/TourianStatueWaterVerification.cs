@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
@@ -16,6 +15,7 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks the four-statues room's special water FX in live physics and displayed BG3 composition.</summary>
 internal static class TourianStatueWaterVerification
 {

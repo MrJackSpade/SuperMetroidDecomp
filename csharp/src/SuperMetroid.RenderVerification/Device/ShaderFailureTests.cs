@@ -4,6 +4,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Verifies missing embedded shaders report their identity and leave the render device reusable.</summary>
 internal static class ShaderFailureTests

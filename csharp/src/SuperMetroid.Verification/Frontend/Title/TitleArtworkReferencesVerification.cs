@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
@@ -6,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Checks title-artwork selector coverage and editable OAM without entering gameplay.</summary>
 internal static class TitleArtworkReferencesVerification
@@ -83,7 +85,7 @@ internal static class TitleArtworkReferencesVerification
                 ArtworkJson.Options), writable: false);
             using var objectStream = new MemoryStream(objects, writable: false);
             using var babyStream = new MemoryStream(baby, writable: false);
-            return TitleGraphicsPresentation.Load(mode7Stream, mapStream, objectStream, babyStream);
+            return TitleGraphicsCharacters.Read(mode7Stream, mapStream, objectStream, babyStream);
         }
 
         static byte[] Png(int width, int height, int colors)

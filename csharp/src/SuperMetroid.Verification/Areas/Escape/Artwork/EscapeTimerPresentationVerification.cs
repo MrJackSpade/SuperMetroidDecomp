@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Assets;
@@ -11,14 +10,13 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Compares installed escape-timer artwork, tile transfers, and digit layout with the cartridge.</summary>
 internal static class EscapeTimerPresentationVerification
@@ -41,7 +39,7 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(extractedTiles.SequenceEqual(File.ReadAllBytes(stockTilePath)),
             "installed timer PNG is the deterministic cartridge extraction");
 
-        var tileAtlas = EscapeTimerTileAtlas.Load(new MemoryStream(extractedTiles));
+        var tileAtlas = EscapeTimerCharacters.Read(new MemoryStream(extractedTiles));
         byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
         byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -101,7 +99,7 @@ internal static class EscapeTimerPresentationVerification
         string replacement = Path.Combine(overrides, EscapeTimerPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             EscapeTimerPresentation.Write(output, document);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "timer override changes catalog identity");
 
@@ -114,7 +112,7 @@ internal static class EscapeTimerPresentationVerification
             "edited minute anchor reaches the minute ones draw");
 
         File.WriteAllText(replacement, "{ broken timer JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt timer override fails loudly");
         using (var output = File.Create(replacement))
             EscapeTimerPresentation.Write(output, document);
@@ -129,7 +127,7 @@ internal static class EscapeTimerPresentationVerification
         string tileReplacement = Path.Combine(overrides, EscapeTimerTileAtlasFormat.FileName);
         using (var output = File.Create(tileReplacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var editedArtwork = AreaMapPresentationCatalog.Load(stock, overrides);
+        var editedArtwork = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(!original.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span.SequenceEqual(
             editedArtwork.EscapeTimerTiles.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
             "timer PNG edit changes the first compiled transfer");
@@ -139,18 +137,10 @@ internal static class EscapeTimerPresentationVerification
 
         using (var output = File.Create(tileReplacement))
             IndexedPng.Write(output, new(EscapeTimerTileAtlasFormat.Width - 8, EscapeTimerTileAtlasFormat.Height), image.Pixels.AsSpan(0, image.Pixels.Length - 64), image.Colours);
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "wrong-size timer PNG fails loudly");
 
         Console.WriteLine("Escape timer presentation: native-equivalent draws, exact PNG transfers, ROM-free drawing/uploads, edits, rebind and strict failures pass.");
-
-        static byte[] ReadVram(SnesVram vram, int byteAddress, int count)
-        {
-            var result = new byte[count];
-            for (int index = 0; index < count; index++)
-                result[index] = vram.ReadByte(byteAddress + index);
-            return result;
-        }
     }
 
     /// <summary>Checks the compiled digit pointer table and confirms the timer sheet is composed without rereading it.</summary>

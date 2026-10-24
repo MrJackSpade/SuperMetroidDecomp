@@ -1,10 +1,11 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
@@ -23,7 +24,7 @@ internal static class MenuShoulderButtonPixelsVerification
         var button = new MenuShoulderButtonArtwork(image);
         AssertEqual(32, MenuShoulderButtonArtwork.StoredGlyphPixelCount, "only the two authored four-by-four letter drawings remain");
         AssertEqual(0, button.StoredEditCount, "all stock button caps and shadow joins are calculated without retained pixel exceptions");
-        var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
+        var stock = MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "button planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadCartridgeByte(0xb6c000 + index);
@@ -70,7 +71,7 @@ internal static class MenuShoulderButtonPixelsVerification
         void CheckEdited(byte[] pixels)
         {
             using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
+            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
             var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
             byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring borders or other artwork");

@@ -19,6 +19,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -167,7 +168,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             "Duplicate Tourian statue property fails loudly");
         JsonNode invalid = RequiredJson.Parse(stockBytes);
         invalid.Required("eye").Required(0).Required(0)["red"] = 32;
-        AssertThrows<InvalidDataException>(() => TourianStatueColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => TourianStatueColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Tourian statue RGB5 channel rejected");
         File.Delete(overridePath);
@@ -263,7 +264,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 
     /// <summary>Requires an edited CGRAM image to differ only at the specified RGB5 channel bits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void CheckOnlyDifferences(IPaletteColors reference, IPaletteColors edited,
+    private static void CheckOnlyDifferences(SamusColourRig reference, IPaletteColors edited,
         IReadOnlyList<Difference> differences, string context)
     {
         for (int color = 0; color < SnesCgram.ColorCount; color++)

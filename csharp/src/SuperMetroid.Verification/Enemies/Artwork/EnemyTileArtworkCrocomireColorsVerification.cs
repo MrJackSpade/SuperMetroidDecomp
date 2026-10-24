@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -13,6 +12,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks installed Crocomire palette bands against native RGB5 data
 /// and live boss CGRAM writes under a cartridge-read guard.</summary>
@@ -55,7 +56,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         string overrides = Path.Combine(stockDirectory, "crocomire-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, CrocomireColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, CrocomireColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, CrocomireColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         CrocomireColorCatalog colors = edited.Bosses.CrocomireColors ??
             throw new InvalidDataException("Edited enemy art has no Crocomire colors.");
@@ -135,7 +136,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Crocomire color property fails loudly");
         visual.FightBody[1] = visual.FightBody[1] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => CrocomireColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => CrocomireColorFile.Write(visual),
             "Crocomire RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

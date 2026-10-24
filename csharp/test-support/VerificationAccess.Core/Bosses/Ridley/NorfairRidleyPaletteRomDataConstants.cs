@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
-
+﻿
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Cartridge values and helpers of <see cref="NorfairRidleyPaletteRomData"/> that only verification reads.</summary>

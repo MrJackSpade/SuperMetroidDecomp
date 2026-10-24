@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Palettes;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Verification seeding of <see cref="EnemyFrameContext"/> through its production operations.</summary>

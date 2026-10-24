@@ -14,7 +14,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
@@ -22,6 +21,9 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks extracted suit palettes and edited installed colors through Samus's normal palette paths.</summary>
 internal static class SamusSuitColorsVerification
@@ -35,7 +37,7 @@ internal static class SamusSuitColorsVerification
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(cartridge);
-        SamusSuitColorCatalog colors = SamusSuitColorCatalog.Load(new MemoryStream(extracted));
+        SamusSuitColorCatalog colors = SamusSuitColorFile.Read(new MemoryStream(extracted));
         foreach (var (differences, source) in new[] { new VerifyNormalSuitCatalogBoundaryCase(colors.varia, 0x9b9520), new VerifyNormalSuitCatalogBoundaryCase(colors.gravity, 0x9b9800) })
         {
             AssertEqual(4, differences.Count, "Only four differing native colors per secondary suit remain stored");
@@ -61,7 +63,7 @@ internal static class SamusSuitColorsVerification
             for (int color = 0; color < 16; color++, ordinal++)
                 if (!powerOnly || ReferenceEquals(palette, document.Power))
                     palette[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-            var edited = SamusSuitColorCatalog.Load(new MemoryStream(SamusSuitColorCatalog.Write(document)));
+            var edited = SamusSuitColorFile.Read(new MemoryStream(SamusSuitColorFile.Write(document)));
             ordinal = 1000;
             for (int suit = 0; suit < 3; suit++)
             for (int color = 0; color < 16; color++, ordinal++)
@@ -122,7 +124,7 @@ internal static class SamusSuitColorsVerification
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus);
-        SamusSuitColorCatalog decoded = SamusSuitColorCatalog.Load(
+        SamusSuitColorCatalog decoded = SamusSuitColorFile.Read(
             new MemoryStream(extracted, writable: false));
         int[] sourceAddresses =
         [
@@ -145,8 +147,8 @@ internal static class SamusSuitColorsVerification
         Paint(document.Varia, 2);
         Paint(document.Gravity, 3);
         string replacement = Path.Combine(overrideDirectory, SamusSuitColorFormat.FileName);
-        File.WriteAllBytes(replacement, SamusSuitColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        File.WriteAllBytes(replacement, SamusSuitColorFile.Write(document));
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Samus suit color override changes installed-content identity");
 
@@ -214,12 +216,12 @@ internal static class SamusSuitColorsVerification
         PaletteRgb5 originalColor = document.Varia[1];
         document.Varia[1] = originalColor with { Red = 32 };
         byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(() => SamusSuitColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusSuitColorFile.Read(
             new MemoryStream(malformed, writable: false)),
             "Samus suit colors reject out-of-range RGB5 channels");
 
         File.Delete(replacement);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,
             "removing Samus suit override restores installed-content identity");
         Console.WriteLine("Samus suit colors: three stock palettes, three live CGRAM edits, production entry, normal restoration branches, ROM guard, invalid data and override removal pass.");

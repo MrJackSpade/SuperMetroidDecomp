@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Globalization;
@@ -21,6 +20,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Audits retail room-FX selection, visible liquid layers, animation, and transition behavior across named states and doors.</summary>
 internal static class RoomFxRetailInventoryVerification
@@ -44,11 +44,11 @@ internal static class RoomFxRetailInventoryVerification
     internal static RoomFxSession CreateRetailFxSession(SuperMetroidAddressSpace bus)
     {
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
-            RoomFxPaletteBlendCatalog.Load(new MemoryStream(
+            RoomFxPaletteBlendFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(source))),
             RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapExtractor.Extract(source))),
-            RoomFxAnimatedTileAtlas.Load(new MemoryStream(
+            RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
         return new()
         {

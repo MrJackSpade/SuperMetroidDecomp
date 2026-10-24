@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -21,7 +21,7 @@ public static class SporeSpawnColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return SporeSpawnColorCatalog.Write(new SporeSpawnColorDocument
+        return SporeSpawnColorFile.Write(new SporeSpawnColorDocument
         {
             Version = SporeSpawnColorFormat.Version,
             Spores = Read(SporeSpawnColorRomData.SporeSource),

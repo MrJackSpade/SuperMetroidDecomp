@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
@@ -311,7 +312,7 @@ internal static class SpacetimeBeamVerification
             "legacy SpaceTime graphics queue resolves through installed artwork");
         // The page SpaceTime's equipped word binds shows the bytes its native DMA reads.
         var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
-            InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+            InstalledFixtures.Projectiles.TrailTiles);
         ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)0x100e)).Characters;
         int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
         for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");

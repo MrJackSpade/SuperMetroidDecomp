@@ -8,6 +8,7 @@ using SuperMetroid.Rendering.Direct3D11.Telemetry;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks the D3D11 display scaler, GPU timing boundaries, and compute reuse after display.</summary>
 internal static class DisplayPassTests

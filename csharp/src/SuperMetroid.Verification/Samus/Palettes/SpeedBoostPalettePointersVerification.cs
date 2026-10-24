@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks suit-dependent Speed Booster palette selection and its installed CGRAM colors.</summary>
 internal static class SpeedBoostPalettePointersVerification
@@ -19,7 +20,7 @@ internal static class SpeedBoostPalettePointersVerification
     internal static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
+        SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom)));
         SamusEquipmentFlags[] equipment =
         [

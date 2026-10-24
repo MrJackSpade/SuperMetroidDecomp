@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.RenderFixtures;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.WindowsConsole;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
 /// Direct3D 11 renderer verification against the WARP reference device.

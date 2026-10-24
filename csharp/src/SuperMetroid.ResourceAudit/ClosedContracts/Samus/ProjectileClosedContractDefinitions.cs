@@ -6,13 +6,6 @@ internal static class ProjectileClosedContractDefinitions
     /// <summary>Lists the reviewed projectile and grapple presentation entry points with the source files required to keep each visual contract self-contained.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Samus.Artwork.BeamTileCatalog", "beam-complete-sheet-selection", ["Resolve", "TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Progression/SamusEquipmentFlags.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileAtlas.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileAtlasDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SpazerCompositionGeometryDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog", "flare-complete-standing-running-offsets", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlarePlacementCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlarePlacementDefinitions.cs"),

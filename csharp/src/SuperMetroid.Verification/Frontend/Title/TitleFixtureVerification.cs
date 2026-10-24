@@ -14,12 +14,12 @@ internal static class TitleFixtureVerification
         CartridgeAudioState? audio = null, TitleGradientPresentation? titleGradientPresentation = null)
     {
         var files = TitleGraphicsExtractor.Extract(source);
-        var graphics = TitleGraphicsPresentation.Load(
+        var graphics = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        var palette = TitlePalettePresentation.Load(new MemoryStream(TitlePaletteExtractor.Extract(source)));
+        var palette = TitlePaletteFile.Read(new MemoryStream(TitlePaletteExtractor.Extract(source)));
         var gradient = titleGradientPresentation ?? TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(source)));
         return new TitleSequenceState(audio, gradient, palette, graphics, MenuSheetFixtures.WithTitle(graphics));

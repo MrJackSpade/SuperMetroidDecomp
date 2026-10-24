@@ -14,6 +14,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -84,7 +86,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         string overrides = Path.Combine(directory, "kraid-color-overrides");
         Directory.CreateDirectory(overrides);
         string overridePath = Path.Combine(overrides, KraidColorFormat.FileName);
-        File.WriteAllBytes(overridePath, KraidColorCatalog.Write(editedDocument));
+        File.WriteAllBytes(overridePath, KraidColorFile.Write(editedDocument));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         foreach ((KraidPaletteConsumer consumer, int cgramIndex) in new[]
         {
@@ -119,7 +121,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             "malformed Kraid color override fails at load");
         PaletteRgb5[] invalidHealth = (PaletteRgb5[])editedDocument.Health.Clone();
         invalidHealth[0] = invalidHealth[0] with { Red = 32 };
-        AssertThrows<InvalidDataException>(() => KraidColorCatalog.Write(
+        AssertThrows<InvalidDataException>(() => KraidColorFile.Write(
                 editedDocument with { Health = invalidHealth }),
             "Kraid RGB5 channels outside native precision are rejected");
     }

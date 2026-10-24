@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -21,7 +21,7 @@ public static class BabyMetroidCutsceneColorExtractor
         for (int frame = 0; frame < fade.Length; frame++)
             fade[frame] = Read(BabyMetroidCutsceneColorRomData.FadeSource(frame + 1),
                 BabyMetroidCutsceneColorRomData.FadeColorCount);
-        return BabyMetroidCutsceneColorCatalog.Write(new BabyMetroidCutsceneColorDocument
+        return BabyMetroidCutsceneColorFile.Write(new BabyMetroidCutsceneColorDocument
         {
             Version = BabyMetroidCutsceneColorFormat.Version,
             Initial = Read(BabyMetroidCutsceneColorRomData.InitialSource,

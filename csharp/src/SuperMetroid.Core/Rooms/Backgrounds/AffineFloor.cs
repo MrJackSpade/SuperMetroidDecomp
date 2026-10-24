@@ -29,10 +29,6 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     /// <summary>What each tile the cells name shows.</summary>
     public Mode7TilePictures Tiles { get; }
 
-    /// <summary>The tile at <paramref name="cell"/>, column and row 0 through 127.</summary>
-    public int TileAt(Position16<TilemapCells> cell) =>
-        Cells[Ensure.BetweenInclusive(0, Side - 1, cell.Y) * Side + Ensure.BetweenInclusive(0, Side - 1, cell.X)].Tile;
-
     /// <summary>The floor whose map is <paramref name="tiles"/>' row-major tile numbers.</summary>
     /// <exception cref="ArgumentException">The tile numbers do not fill the map.</exception>
     public static AffineFloor Of(ReadOnlySpan<byte> map, Mode7TilePictures tiles)

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -10,6 +9,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -51,7 +52,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         string overrides = Path.Combine(stockDirectory, "shitroid-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, ShitroidColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, ShitroidColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, ShitroidColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         ShitroidColorCatalog colors = edited.Bosses.ShitroidColors ??
             throw new InvalidDataException("Edited enemy art has no Shitroid colors.");
@@ -118,7 +119,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Shitroid color property fails loudly");
         visual.Normal[0][2] = visual.Normal[0][2] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => ShitroidColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => ShitroidColorFile.Write(visual),
             "Shitroid RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 
@@ -91,7 +92,7 @@ internal static class GameOptionsPresentationVerification
             GameOptionsPresentationDefinitions.FileName);
         using (var output = File.Create(replacement))
             GameOptionsPresentation.Write(output, document);
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "options override changes selected catalog identity");
 
@@ -125,7 +126,7 @@ internal static class GameOptionsPresentationVerification
             "editable options hides cursor during intro fade-out");
 
         File.WriteAllText(replacement, "{ broken options JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
+        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
             "corrupt options override fails loudly");
         using (var output = File.Create(replacement))
             GameOptionsPresentation.Write(output, document);

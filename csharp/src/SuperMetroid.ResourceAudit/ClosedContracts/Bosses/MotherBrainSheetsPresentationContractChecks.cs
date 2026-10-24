@@ -1,13 +1,14 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 
@@ -26,7 +27,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
                 Enumerable.Range(0, 16).Select(_ => new Rgba32(0, 0, 0, 255)).ToArray());
             png.Position = 0;
-            return RoomCharacterAtlas.Load(png, count);
+            return RoomCharacterAtlasPng.Read(png, count);
         }
         var sheets = MotherBrainSpecialSpriteArtworkDefinitions.All.ToDictionary(sheet => sheet.SourceAddress,
             sheet => Sheet(sheet.ByteCount));

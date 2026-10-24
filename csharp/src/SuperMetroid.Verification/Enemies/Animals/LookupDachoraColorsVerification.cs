@@ -1,11 +1,11 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
 
@@ -27,7 +27,7 @@ internal static class LookupDachoraColorsVerification
         ushort[][] shine = Enumerable.Range(0, 4).Select(frame => Row(DachoraColorRomData.ShineSource + frame * 32)).ToArray();
 
         byte[] source = DachoraColorExtractor.Extract(rom);
-        var stock = DachoraColorCatalog.Load(new MemoryStream(source));
+        var stock = DachoraColorFile.Read(new MemoryStream(source));
         AssertEqual(0, stock.speedEdits.Count + stock.shineEdits.Count,
             "Stock Dachora speed and shine frames store no colors beyond the calculation");
         Check(stock, normal, speed, shine);
@@ -40,7 +40,7 @@ internal static class LookupDachoraColorsVerification
             var document = RequiredJson.Deserialize<DachoraColorDocument>(source, options);
             PaletteRgb5[] row = phase == DachoraPalettePhase.Speed ? document.Speed[frame] : document.Shine[frame];
             row[color] = row[color] with { Red = row[color].Red ^ 1 };
-            var edited = DachoraColorCatalog.Load(new MemoryStream(DachoraColorCatalog.Write(document)));
+            var edited = DachoraColorFile.Read(new MemoryStream(DachoraColorFile.Write(document)));
             ushort[][] expectedSpeed = speed.Select(values => (ushort[])values.Clone()).ToArray();
             ushort[][] expectedShine = shine.Select(values => (ushort[])values.Clone()).ToArray();
             (phase == DachoraPalettePhase.Speed ? expectedSpeed : expectedShine)[frame][color] ^= 1;

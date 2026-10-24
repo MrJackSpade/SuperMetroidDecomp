@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
@@ -14,6 +13,7 @@ namespace SuperMetroid.Verification.Fx;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks installed waterfall room color math and combined BG2 subscreen capture.</summary>
 internal static class WaterfallRoomsVerification
 {

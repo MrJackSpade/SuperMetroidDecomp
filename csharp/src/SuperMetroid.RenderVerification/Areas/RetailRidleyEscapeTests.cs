@@ -12,6 +12,7 @@ namespace SuperMetroid.RenderVerification.Areas;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Native AI-driven escape after staging either retail termination condition at hover.</summary>
 internal static class RetailRidleyEscapeTests

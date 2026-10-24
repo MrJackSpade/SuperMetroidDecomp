@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
@@ -72,7 +73,7 @@ internal static class CeresFlightArtworkExtractor
             };
         }
         using var paletteJson = new MemoryStream();
-        CeresFlightPalette.Write(paletteJson, new CeresFlightPaletteDocument
+        CeresFlightPaletteFile.Write(paletteJson, new CeresFlightPaletteDocument
         {
             Version = CeresFlightPaletteFormat.Version,
             Colors = colors,
@@ -117,11 +118,11 @@ internal static class CeresFlightArtworkExtractor
             Actors = placements,
         });
         byte[] actorsFile = actorsJson.ToArray();
-        CeresFlightArtworkCatalog roundTrip = CeresFlightArtworkCatalog.Load(
+        CeresFlightCharacters roundTrip = CeresFlightCharacters.Read(
             new MemoryStream(floorPng, writable: false),
             new MemoryStream(mapFile, writable: false),
             new MemoryStream(objectPng, writable: false),
-            new MemoryStream(paletteFile, writable: false),
+            CeresFlightPaletteFile.Read(new MemoryStream(paletteFile, writable: false)),
             new MemoryStream(spritesFile, writable: false),
             new MemoryStream(actorsFile, writable: false));
         if (!roundTrip.FloorCharacters.Span.SequenceEqual(characters) ||

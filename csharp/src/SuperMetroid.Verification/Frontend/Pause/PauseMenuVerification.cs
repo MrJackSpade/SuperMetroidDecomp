@@ -1,8 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Samus.Projectiles.InvalidBeamSelectionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -195,28 +193,16 @@ internal static class PauseMenuVerification
             "pause toggle immediately mutates live Wave equipment word");
 
         var resumeRuntime = CreateRetailRuntimeFixture();
-        // Keep the fixture's distinctive Wave sheet and palette through the real
-        // installed transfer queue; no synthetic native DMA fallback is involved.
-        var beamFiles = SuperMetroid.AssetExtraction.Samus.BeamTileExtractor.Extract(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-        byte[] wavePlanar = Enumerable.Range(0, 256).Select(index => unchecked((byte)(0x40 + index))).ToArray();
-        byte[] wavePixels = SnesGraphics.DecodePlanarTiles(wavePlanar, 4,
-            BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> waveSize);
-        using var wavePng = new MemoryStream();
-        IndexedPng.Write(wavePng, waveSize, wavePixels, SnesGraphics.DiagnosticPalette(16));
-        beamFiles[BeamTileAtlasDefinitions.FileName(SamusBeamCombination.Wave)] = wavePng.ToArray();
+        // Keep the fixture's distinctive Wave palette through the real installed binding.
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
         var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
-        resumeRuntime.Artwork.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
+        resumeRuntime.Artwork.BeamPalettes = beamPalettes;
         resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
         resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
-        // The newly equipped Wave characters are bound on the projectile page (#1342), not uploaded.
-        ReadOnlySpan<byte> wavePage = (resumeRuntime.Artwork.ProjectileObjects
-            ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(samus.EquippedBeams).Characters
-            .Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount, BeamTileAtlasDefinitions.ByteCount);
-        AssertEqual(0x40, wavePage[0], "the projectile page binds newly equipped Wave character data");
-        AssertEqual(0x3f, wavePage[0xff], "the projectile page binds the complete Wave character range");
+        // The newly equipped Wave beam selects the Wave projectile sheet (#1342); no characters are uploaded.
+        AssertEqual(SamusBeamFlags.Wave, resumeRuntime.Artwork.LoadedBeams,
+            "unpause latches the newly equipped Wave beam whose projectile sheet is drawn");
         AssertEqual(0x3200, resumeRuntime.Cgram.Colors[0xe0],
             "unpause immediately installs newly equipped Wave palette");
         AssertEqual(0x320f, resumeRuntime.Cgram.Colors[0xef],

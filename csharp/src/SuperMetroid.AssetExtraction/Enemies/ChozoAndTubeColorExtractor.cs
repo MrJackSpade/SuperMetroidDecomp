@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -17,7 +17,7 @@ public static class ChozoAndTubeColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return ChozoAndTubeColorCatalog.Write(new ChozoAndTubeColorDocument
+        return ChozoAndTubeColorFile.Write(new ChozoAndTubeColorDocument
         {
             Version = ChozoAndTubeColorFormat.Version,
             TubeCracks = Read(ChozoAndTubeColorRomData.TubeCracksSource),

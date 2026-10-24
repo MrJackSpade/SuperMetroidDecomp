@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
@@ -9,6 +8,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -44,7 +45,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         string overrides = Path.Combine(stockDirectory, "botwoon-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, BotwoonColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, BotwoonColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, BotwoonColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         BotwoonColorCatalog colors = edited.Bosses.BotwoonColors ??
             throw new InvalidDataException("Edited enemy art has no Botwoon colors.");
@@ -106,7 +107,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Botwoon color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => BotwoonColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => BotwoonColorFile.Write(visual),
             "Botwoon RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

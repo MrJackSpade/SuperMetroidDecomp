@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 

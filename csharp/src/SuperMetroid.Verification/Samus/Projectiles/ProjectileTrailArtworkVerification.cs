@@ -6,22 +6,14 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Artwork.ProjectileTrailAtlasVerification;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Gameplay;
 
 /// <summary>Retail OAM, compiled program, live override, and mutable-memory checks for projectile trails.</summary>
 internal static class ProjectileTrailArtworkVerification
@@ -33,10 +25,7 @@ internal static class ProjectileTrailArtworkVerification
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
         byte[] json = ProjectileTrailExtractor.Extract(bus);
-        // Runtime binding composes projectile pages from the catalog's characters, so the fixture carries the installed ones.
-        ProjectileTrailAtlas installedTrailTiles = InstalledFixtures.Projectiles.Trails.Tiles
-            ?? throw new InvalidOperationException("The installation has no trail characters.");
-        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json), installedTrailTiles);
+        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var encountered = new HashSet<ushort>();
         foreach (ushort start in new[] { ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave, ProjectileTrailDefinitions.Missile })
         {
@@ -143,7 +132,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native pose comparisons, frozen-start preservation and strict metadata rejection pass.");
         // Round-trip an edited frame node through the same JSON catalog validation as installed assets.
-        ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())), installedTrailTiles);
+        ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
     /// <summary>Interprets the native trail words and sibling-targeted movement as an independent OAM and timer reference.</summary>

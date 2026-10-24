@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -43,7 +44,7 @@ internal static class ProjectileCompositionsVerification
             VerifyHyperBeamFxColorArtwork(rom);
         }
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
-        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners(content));
+        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners());
         int draws = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
@@ -125,7 +126,7 @@ internal static class ProjectileCompositionsVerification
 
     /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM, flicker, and projectile state without ROM reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyProjectileCompositionOwners(ProjectileSpriteCatalog content)
+    private static void VerifyProjectileCompositionOwners()
     {
         int comparisons = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
@@ -386,7 +387,7 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
         var pngEdited = installation.LoadProjectiles();
         AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
-        AssertTrue(!(pngEdited.Trails.Tiles ?? throw new InvalidOperationException("Verification requires pngEdited.Trails.Tiles.")).IceAndWave.Span.SequenceEqual((trailEdited.Trails.Tiles ?? throw new InvalidOperationException("Verification requires trailEdited.Trails.Tiles.")).IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
+        AssertTrue(!pngEdited.TrailTiles.IceAndWave.Span.SequenceEqual(trailEdited.TrailTiles.IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
         File.WriteAllText(trailPngStock, "broken PNG");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Trail PNG override cannot hide broken stock");
         File.Move(trailPngStock, trailPngStock + ".invalid");

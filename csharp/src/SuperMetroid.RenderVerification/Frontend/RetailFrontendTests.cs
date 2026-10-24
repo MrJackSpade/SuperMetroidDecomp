@@ -10,6 +10,7 @@ namespace SuperMetroid.RenderVerification.Frontend;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares captured title and frontend frames with the WARP reference device and checks their state transitions.</summary>
 internal static class RetailFrontendTests

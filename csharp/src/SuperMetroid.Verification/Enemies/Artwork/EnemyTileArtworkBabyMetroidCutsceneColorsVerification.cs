@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -9,6 +8,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -59,7 +60,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides,
             BabyMetroidCutsceneColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, BabyMetroidCutsceneColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, BabyMetroidCutsceneColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         BabyMetroidCutsceneColorCatalog colors = edited.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Edited enemy art has no cutscene Baby colors.");
@@ -118,7 +119,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             "duplicate cutscene Baby color property fails loudly");
         visual.Fade[0][5] = visual.Fade[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidCutsceneColorCatalog.Write(visual),
+            () => BabyMetroidCutsceneColorFile.Write(visual),
             "cutscene Baby RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -246,7 +245,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.MapDirectoryName,
             new InstallerStep("Extracting map presentation...",
                 (bus, d, cancellation) => MapPresentationExtractor.Extract(bus, d, SupportedCartridge.Sha256, cancellation),
-                AreaMapPresentationCatalog.ValidateStock)),
+                MapPresentationFiles.ValidateStock)),
         new(GameInstallationLayout.GameplayBasePaletteDirectoryName,
             Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d, SupportedCartridge.Sha256), GameplayBasePaletteFiles.ValidateStock)),
         new(GameInstallationLayout.SamusOverreadDirectoryName,

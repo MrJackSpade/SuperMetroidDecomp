@@ -1,8 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies;
-
-namespace SuperMetroid.Core.Bosses.SporeSpawn;
+﻿namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Verification access to <see cref="SporeSpawnEnemyState"/> members production does not use.</summary>
 internal static class SporeSpawnEnemyStateAccess

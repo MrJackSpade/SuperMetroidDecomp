@@ -19,6 +19,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks extracted title graphics, palettes, and HDMA gradient through installed presentation and retail oracles.</summary>
 internal static class TitleGradientVerification
@@ -70,7 +71,7 @@ internal static class TitleGradientVerification
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsExtractor.Extract(tracingBus);
-        TitleGraphicsPresentation presentation = TitleGraphicsPresentation.Load(
+        TitleGraphicsPresentation presentation = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -157,7 +158,7 @@ internal static class TitleGradientVerification
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
         byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
-        TitleGraphicsPresentation editedPresentation = TitleGraphicsPresentation.Load(
+        TitleGraphicsPresentation editedPresentation = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(editedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -194,7 +195,7 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
+        AssertThrows<InvalidDataException>(() => TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(malformedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -207,7 +208,7 @@ internal static class TitleGradientVerification
         using var wrong = new MemoryStream();
         IndexedPng.Write(wrong, new(8, 8), new byte[64], mode7.Colours);
         wrong.Position = 0;
-        AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
+        AssertThrows<InvalidDataException>(() => TitleGraphicsCharacters.Read(
             wrong,
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
@@ -231,7 +232,7 @@ internal static class TitleGradientVerification
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteExtractor.Extract(bus);
-        TitlePalettePresentation presentation = TitlePalettePresentation.Load(
+        TitlePalettePresentation presentation = TitlePaletteFile.Read(
             new MemoryStream(extracted, writable: false));
         var expected = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSequenceRomData.Assets.PaletteAddress);
@@ -350,7 +351,7 @@ internal static class TitleGradientVerification
             ?? throw new InvalidDataException("Extracted title palette document is null.");
         byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         void Reject(string description) => AssertThrows<InvalidDataException>(
-            () => TitlePalettePresentation.Load(new MemoryStream(Json(), writable: false)),
+            () => TitlePaletteFile.Read(new MemoryStream(Json(), writable: false)),
             description);
 
         int version = document.Version;
@@ -395,7 +396,7 @@ internal static class TitleGradientVerification
         string unknownField = System.Text.Encoding.UTF8.GetString(extracted)
             .Replace("\"version\": 3", "\"version\": 3,\n  \"nativeAddress\": 9232873", StringComparison.Ordinal);
         AssertThrows<InvalidDataException>(
-            () => TitlePalettePresentation.Load(new MemoryStream(
+            () => TitlePaletteFile.Read(new MemoryStream(
                 System.Text.Encoding.UTF8.GetBytes(unknownField), writable: false)),
             "title palette rejects native-address escape hatch");
     }
@@ -423,10 +424,10 @@ internal static class TitleGradientVerification
         // slices. Forbid only the complete gradient source closure discovered above, then
         // drive the real title owner through Start's skip fade into a gradient frame.
         var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
-        TitlePalettePresentation palette = TitlePalettePresentation.Load(new MemoryStream(
+        TitlePalettePresentation palette = TitlePaletteFile.Read(new MemoryStream(
             TitlePaletteExtractor.Extract(bus)));
         IReadOnlyDictionary<string, byte[]> graphicsFiles = TitleGraphicsExtractor.Extract(bus);
-        TitleGraphicsPresentation graphics = TitleGraphicsPresentation.Load(
+        TitleGraphicsPresentation graphics = TitleGraphicsCharacters.Read(
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),

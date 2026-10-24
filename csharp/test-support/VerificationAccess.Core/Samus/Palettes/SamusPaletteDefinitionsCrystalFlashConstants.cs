@@ -1,8 +1,4 @@
-using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Cartridge values of <see cref="SamusPaletteDefinitions.CrystalFlash"/> that only verification reads.</summary>
 internal static class SamusPaletteDefinitionsCrystalFlashConstants

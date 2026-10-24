@@ -8,12 +8,13 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks installed Samus hurt and intro flash palettes against native CGRAM behavior.</summary>
 internal static class SamusHurtColorsVerification
@@ -29,7 +30,7 @@ internal static class SamusHurtColorsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        SamusHurtColorCatalog catalog = SamusHurtColorCatalog.Load(
+        SamusHurtColorCatalog catalog = SamusHurtColorFile.Read(
             new MemoryStream(SamusHurtColorExtractor.Extract(rom)));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
         {
@@ -50,10 +51,10 @@ internal static class SamusHurtColorsVerification
         AssertThrows<InvalidOperationException>(() => SamusHurtFlashPalette.Update(
             new SamusColourRig().Samus.Suit, new SamusState { HurtFlashCounter = 1 }, 0),
             "hurt flash requires installed color artwork instead of a cartridge fallback");
-        AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Samus hurt JSON property fails loudly");
-        AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Load(
+        AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt Samus hurt JSON fails loudly");
         Console.WriteLine("  Samus hurt colors: both native palettes and guarded ordinary/cinematic cycles pass.");
     }
@@ -64,7 +65,7 @@ internal static class SamusHurtColorsVerification
         SamusHurtColorCatalog catalog, bool cinematic)
     {
         var samus = new SamusState { HurtFlashCounter = 1 };
-        samus.Presentation.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+        samus.Presentation.SuitColors = SamusSuitColorFile.Read(new MemoryStream(
             SamusSuitColorExtractor.Extract(rom)));
         samus.LiquidPhysics.CinematicFunctionActive = cinematic;
         var cgram = new SamusColourRig();
@@ -116,8 +117,8 @@ internal static class SamusHurtColorsVerification
         PaletteRgb5 introOriginal = document.Intro[5];
         document.Hurt[5] = hurtOriginal with { Red = (hurtOriginal.Red + 1) % 32 };
         document.Intro[5] = introOriginal with { Blue = (introOriginal.Blue + 1) % 32 };
-        File.WriteAllBytes(path, SamusHurtColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        File.WriteAllBytes(path, SamusHurtColorFile.Write(document));
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "hurt color override changes installed content identity");
         foreach (bool cinematic in new[] { false, true })
@@ -138,12 +139,12 @@ internal static class SamusHurtColorsVerification
                 $"edited {variant} color reaches CGRAM");
             AssertEqual(0, guarded.ForbiddenReadAttempts, $"edited {variant} avoids native art");
         }
-        AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Write(document with
+        AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Write(document with
         {
             Hurt = [.. document.Hurt.Take(5), hurtOriginal with { Red = 32 }, .. document.Hurt.Skip(6)],
         }), "out-of-range Samus hurt RGB5 fails loudly");
         File.Delete(path);
-        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
+        AreaMapPresentationCatalog restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing hurt override restores stock content identity");
         Console.WriteLine("Samus hurt override: edited flash/intro colors reach CGRAM and stock restores.");

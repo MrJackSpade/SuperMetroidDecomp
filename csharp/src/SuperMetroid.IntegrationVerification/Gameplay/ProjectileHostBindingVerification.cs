@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
@@ -37,9 +39,9 @@ internal static class ProjectileHostBindingVerification
             if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed session did not bind projectile content.");
             CheckCatalog(content, installation.LoadProjectiles().Catalog);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
-            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
+            CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
-            CheckBeams(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork."), installation.LoadProjectiles().BeamTiles);
+            CheckBeams(session.Game.Artwork.BeamPalettes ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamPalettes."), installation.LoadProjectiles().BeamTiles);
             CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
@@ -92,12 +94,12 @@ internal static class ProjectileHostBindingVerification
         using (var session = new InstalledGameSession(root))
         {
             var content = session.Game.Artwork.ProjectileCompositions;
-            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
+            CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
             if (content is null || !ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions))
                 throw new InvalidDataException("Restarted host did not bind the newly selected content.");
             CheckCatalog(content, installation.LoadProjectiles().Catalog);
-            CheckBeams(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork."), installation.LoadProjectiles().BeamTiles);
+            CheckBeams(session.Game.Artwork.BeamPalettes ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamPalettes."), installation.LoadProjectiles().BeamTiles);
             CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
@@ -133,14 +135,10 @@ internal static class ProjectileHostBindingVerification
         }
     }
 
-    /// <summary>Checks installed trail tiles and each authored trail frame after host binding.</summary>
+    /// <summary>Checks each authored trail frame after host binding.</summary>
     private static void CheckTrails(ProjectileTrailCatalog actual, ProjectileTrailCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind trail content.");
-        if (actual.Tiles is null || expected.Tiles is null ||
-            !actual.Tiles.IceAndWave.Span.SequenceEqual(expected.Tiles.IceAndWave.Span) ||
-            !actual.Tiles.Missile.Span.SequenceEqual(expected.Tiles.Missile.Span))
-            throw new InvalidDataException("Host bound stale or missing trail PNGs.");
         foreach (var frame in ProjectileTrailVisualDefinitions.Frames)
             if (actual.Resolve(frame) != expected.Resolve(frame))
                 throw new InvalidDataException("Host bound stale trail appearance.");
@@ -170,36 +168,25 @@ internal static class ProjectileHostBindingVerification
         }
     }
 
-    /// <summary>Checks Grapple flare placement, swing choices, sprite styles, and installed transfer tiles.</summary>
-    private static void CheckGrapple(GrappleTileAtlas actual, GrappleTileAtlas expected)
+    /// <summary>Checks the Grapple flare placement and swing choices the host bound.</summary>
+    private static void CheckGrapple(GameArtwork actual, GrappleTileAtlas expected)
     {
-        if (actual is null) throw new InvalidDataException("Host did not bind Grapple PNG.");
-        CheckFlare((actual.FlarePlacement ?? throw new InvalidOperationException("Verification requires actual.FlarePlacement.")), (expected.FlarePlacement ?? throw new InvalidOperationException("Verification requires expected.FlarePlacement.")));
-        if (actual.SwingFrames is null || expected.SwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
+        CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), (expected.FlarePlacement ?? throw new InvalidOperationException("Verification requires expected.FlarePlacement.")));
+        if (actual.GrappleSwingFrames is null || expected.SwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
         for (int angle = 0; angle < 256; angle++)
-            if (actual.SwingFrames.Resolve(new SnesByteAngle((byte)angle)) != expected.SwingFrames.Resolve(new SnesByteAngle((byte)angle)))
+            if (actual.GrappleSwingFrames.Resolve(new SnesByteAngle((byte)angle)) != expected.SwingFrames.Resolve(new SnesByteAngle((byte)angle)))
                 throw new InvalidDataException("Host restored stale Grapple swing frames.");
-        if (actual.Sprites is null || expected.Sprites is null || actual.Sprites.Endpoint != expected.Sprites.Endpoint)
-            throw new InvalidDataException("Host restored stale or missing Grapple endpoint style.");
-        for (int frame = 0; frame < 4; frame++)
-            if (actual.Sprites.Segment(frame) != expected.Sprites.Segment(frame))
-                throw new InvalidDataException("Host restored stale Grapple segment style.");
-        foreach (var transfer in GrappleTileDefinitions.Transfers)
-            if (!actual.Resolve(transfer.Asset).Span.SequenceEqual(expected.Resolve(transfer.Asset).Span))
-                throw new InvalidDataException("Host restored stale Grapple PNG content.");
     }
 
-    /// <summary>Checks each beam selection's installed tile data and loaded CGRAM palette.</summary>
-    private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)
+    /// <summary>Checks each beam selection's loaded CGRAM palette.</summary>
+    private static void CheckBeams(BeamPaletteCatalog actual, BeamTileCatalog expected)
     {
-        if (actual is null) throw new InvalidDataException("Host did not bind beam PNGs.");
+        if (actual is null) throw new InvalidDataException("Host did not bind beam palettes.");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
-            if (!actual.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span.SequenceEqual(expected.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span))
-                throw new InvalidDataException("Host restored stale beam artwork instead of current PNG selection.");
             var boundColors = new SamusColourRig();
             var diskColors = new SamusColourRig();
-            (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
+            actual.LoadTo(boundColors.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
             (expected.Palettes ?? throw new InvalidOperationException("Verification requires expected.Palettes.")).LoadTo(diskColors.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
             if (!new CgramPalettes(boundColors).ImageEquals(new CgramPalettes(diskColors)))
                 throw new InvalidDataException("Host restored stale palette colors instead of current selection.");

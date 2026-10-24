@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -17,7 +17,7 @@ internal static class MotherBrainRainbowPaletteExtractor
     {
         Ensure.NotNull(bus);
         using var json = new MemoryStream();
-        MotherBrainRainbowPalettePresentation.Write(json, new MotherBrainRainbowPaletteDocument
+        MotherBrainRainbowPaletteFile.Write(json, new MotherBrainRainbowPaletteDocument
         {
             Version = (int)MotherBrainRainbowPaletteVersion.Current,
             Rainbow = ReadTable(MotherBrainRainbowPaletteRomData.PointerTable,

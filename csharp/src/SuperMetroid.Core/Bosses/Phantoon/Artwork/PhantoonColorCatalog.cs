@@ -35,7 +35,7 @@ public sealed class PhantoonColorCatalog
     internal readonly Dictionary<ColourCell, Bgr555> powerEdits = [];
 
     /// <summary>Retains only authored deviations from the calculated health, fade, and ship-power colors.</summary>
-    private PhantoonColorCatalog(Bgr555[][] healthBands, Bgr555[] fadeOut, Bgr555[] powerOn)
+    internal PhantoonColorCatalog(Bgr555[][] healthBands, Bgr555[] fadeOut, Bgr555[] powerOn)
     {
         for (int band = 0; band < healthBands.Length; band++)
         for (int color = 0; color < healthBands[band].Length; color++)
@@ -76,41 +76,10 @@ public sealed class PhantoonColorCatalog
         if ((uint)color >= PhantoonColorRomData.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
         return powerEdits.TryGetValue(new ColourCell(0, color), out Bgr555 edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
     }
-    /// <summary>Loads and validates Phantoon's health, fade-out, and ship-power RGB5 sources.</summary>
-    /// <param name="json">Caller-owned stream containing the color document.</param>
-    /// <returns>The compiled color catalog.</returns>
-    public static PhantoonColorCatalog Load(Stream json)
-    {
-        Ensure.NotNull(json);
-        PhantoonColorDocument document;
-        document = JsonAssetDocument.Read<PhantoonColorDocument>(json, ArtworkJson.Options, "Phantoon color");
-        if (document.Version != PhantoonColorFormat.Version)
-            throw new InvalidDataException("Phantoon colors require the supported version.");
-        if (document.HealthBands is null ||
-            document.HealthBands.Length != PhantoonColorRomData.HealthBandCount)
-            throw new InvalidDataException("Phantoon colors require eight health palettes.");
-        return new(
-            document.HealthBands.Select((band, index) =>
-                Compile(band, PhantoonColorRomData.HealthBandColorCount,
-                    $"health palette {index}")).ToArray(),
-            Compile(document.FadeOut, PhantoonColorRomData.FadeOutCount, "fade-out"),
-            Compile(document.PowerOn, PhantoonColorRomData.PowerOnCount, "power-on"));
-    }
-
-    /// <summary>Validates and serializes a Phantoon color document as UTF-8 JSON.</summary>
-    /// <param name="document">Document containing every required color source.</param>
-    /// <returns>A new caller-owned JSON byte array.</returns>
-    public static byte[] Write(PhantoonColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Rejects a health palette index outside the eight Phantoon bands.</summary>
     private static int CheckBand(int band) =>
         (uint)band < PhantoonColorRomData.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
-
-    /// <summary>Checks a palette row's length and five-bit channels before converting it to hardware color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
-        Rgb5Rows.Compile(source, count, $"Phantoon {name}");
-
 }

@@ -16,13 +16,18 @@ public static class CeresFlightArtworkFormat
     /// <summary>Mode-7 PNG height in pixels: sixteen 8-pixel character rows.</summary>
     public const int FloorHeight = 128;
     /// <summary>Exact chunky Mode-7 character length, $4000 bytes for 256 characters at 64 bytes each.</summary>
-    public const int FloorByteCount = 256 * 64;
+    public const int FloorByteCount = 256 * FloorCharacterBytes;
     /// <summary>OBJ PNG width in pixels: thirty-two 8-pixel character columns.</summary>
     public const int ObjectWidth = 256;
     /// <summary>OBJ PNG height in pixels: sixteen 8-pixel character rows.</summary>
     public const int ObjectHeight = 128;
     /// <summary>Exact planar 4-bpp character length, $4000 bytes for 512 characters at 32 bytes each.</summary>
-    public const int ObjectByteCount = 512 * 32;
+    public const int ObjectByteCount = 512 * ObjectCharacterBytes;
+    /// <summary>The chunky 8-bpp pixels of one Mode 7 floor character.</summary>
+    public const int FloorCharacterBytes = 64;
+
+    /// <summary>The planar bytes of one 4-bpp OBJ character.</summary>
+    public const int ObjectCharacterBytes = 32;
     /// <summary>Number of tile cells per row in each view's host editing-array layout, not the full hardware Mode-7 map stride.</summary>
     public const int MapWidth = 32;
     /// <summary>Number of tile-cell rows in each view's host editing-array layout.</summary>

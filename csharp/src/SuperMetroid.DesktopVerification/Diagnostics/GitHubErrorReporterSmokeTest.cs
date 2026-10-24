@@ -12,6 +12,8 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
@@ -100,7 +102,7 @@ public static class GitHubErrorReporterSmokeTest
     private static string VerifyFrameFailureSnapshot()
     {
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var colors = GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
+        var colors = GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));

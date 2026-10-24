@@ -294,7 +294,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     {
         var cinematic = new IntroCinematicState(
 session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
-            session.Artwork.BeamArtwork, session.Artwork.SamusBodyArt, japaneseText)
+            session.Artwork.BeamPalettes, session.Artwork.SamusBodyArt, japaneseText)
         {
             Random = session.Random,
             FloorQueueResidue = session.floorQueueResidue,

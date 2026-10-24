@@ -31,14 +31,6 @@ public sealed class SpriteFrameBuffer
         pending.Clear();
     }
 
-    /// <summary>Replaces the displayed draws with a published frame's, for a render consumer.</summary>
-    public void LoadDraws(ImmutableArray<SpriteDraw> draws)
-    {
-        if (draws.IsDefault) throw new ArgumentException("A published frame needs a draw list.", nameof(draws));
-        pending.Clear();
-        finalized = ImmutableCollectionsMarshal.AsArray(draws) ?? throw new ArgumentException("A published frame needs a draw list.", nameof(draws));
-    }
-
     /// <summary>Makes a finalized frame the displayed one, as the NMI does.</summary>
     /// <param name="staging">The buffer the main loop built and finalized.</param>
     public void LatchFrom(SpriteFrameBuffer staging) => finalized = Ensure.NotNull(staging).finalized;

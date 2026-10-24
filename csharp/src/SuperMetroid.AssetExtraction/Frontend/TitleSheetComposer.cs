@@ -5,6 +5,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -29,7 +30,7 @@ internal static class TitleSheetComposer
         List<SheetFrameSource> frames = [.. TitleSpriteDefinitions.All.Select(sprite =>
         {
             string name = TitleSpriteDefinitions.FrameName(sprite);
-            return new SheetFrameSource(name, graphics.Frame(sprite, name), graphics.ObjectPage, FrontendSheetPalette.FramePalette);
+            return new SheetFrameSource(name, graphics.Frame(sprite, name), TitleGraphicsCharacters.Of(graphics).ObjectPage, FrontendSheetPalette.FramePalette);
         })];
         var colours = new ScreenPalette();
         palette.Apply(colours);

@@ -97,7 +97,7 @@ internal static class SamusPaletteDefinitionsVerification
             "death whiteout shades");
 
         TouchRange(bus, SamusPaletteDefinitions.CrystalFlash.BeamPalettePointers,
-            SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
+            SuperMetroid.AssetExtraction.Samus.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
             "Crystal Flash restored beam palettes");
         TouchRange(bus, SamusSourceDefinitions.CrystalFlashBodyRecords.Value,
             SamusPaletteDefinitions.CrystalFlash.BodyRecordCount *

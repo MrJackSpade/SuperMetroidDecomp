@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -10,6 +9,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -53,7 +54,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         string overrides = Path.Combine(stockDirectory, "phantoon-color-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, PhantoonColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, PhantoonColorCatalog.Write(visual));
+        File.WriteAllBytes(overrideFile, PhantoonColorFile.Write(visual));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         PhantoonColorCatalog colors = edited.Bosses.PhantoonColors ??
             throw new InvalidDataException("Edited enemy art has no Phantoon colors.");
@@ -153,7 +154,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Phantoon color property fails loudly");
         visual.HealthBands[2][1] = visual.HealthBands[2][1] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => PhantoonColorCatalog.Write(visual),
+        AssertThrows<InvalidDataException>(() => PhantoonColorFile.Write(visual),
             "Phantoon RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

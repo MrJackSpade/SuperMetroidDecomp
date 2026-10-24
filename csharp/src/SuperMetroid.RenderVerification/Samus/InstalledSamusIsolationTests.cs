@@ -17,6 +17,7 @@ namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Finite, source-selected production-owner fixtures for #541. These compare stock
@@ -53,13 +54,13 @@ internal sealed class InstalledSamusIsolationTests
         this.artwork = artwork;
         var source = new GameInstallation(Path.GetFullPath(root));
         suits = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            SamusSuitColorFormat.FileName, SamusSuitColorCatalog.Load);
+            SamusSuitColorFormat.FileName, SamusSuitColorFile.Read);
         cycles = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            SamusFullBodyCycleColorFormat.FileName, SamusFullBodyCycleColorCatalog.Load);
+            SamusFullBodyCycleColorFormat.FileName, SamusFullBodyCycleColorFile.Read);
         crystal = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
-            CrystalFlashColorFormat.FileName, CrystalFlashColorCatalog.Load);
+            CrystalFlashColorFormat.FileName, CrystalFlashColorFile.Read);
         using var stream = File.OpenRead(Path.Combine(source.ProjectileDirectory, BeamPaletteDefinitions.FileName));
-        beams = BeamPaletteCatalog.Load(stream);
+        beams = BeamPaletteFile.Read(stream);
     }
 
     /// <summary>Checks stock and edited Samus state across movement, collision, and special sequences while requiring visible art differences.</summary>
@@ -122,7 +123,6 @@ internal sealed class InstalledSamusIsolationTests
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
             Samus.Presentation.BodyFrames.BindBodyFixture(Body);
-            Samus.Presentation.BodyFrames.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
             SamusPoseMetadata.RefreshCollisionRadii(Samus);
             Samus.Position = Samus.Position.WithWholeY((ushort)(FloorY - Samus.Kinematics.Radius.Y));
@@ -621,7 +621,7 @@ internal sealed class InstalledSamusIsolationTests
                 pair.Check(context + " explosion draw");
                 draws++;
                 if (!a.LowTable.SequenceEqual(b.LowTable)) changedOam++;
-                if (!pair.Stock.Body.DeathTiles.Explosion.Characters.SequenceEqual(pair.Edited.Body.DeathTiles.Explosion.Characters)) changedTiles++;
+                if (pair.Stock.Body.DeathTilesContentIdentity != pair.Edited.Body.DeathTilesContentIdentity) changedTiles++;
             }
             frames++;
         }

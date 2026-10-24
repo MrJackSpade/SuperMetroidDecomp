@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -36,7 +37,7 @@ public static class MapSpriteExtractor
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new MapSpriteDocument { Version = MapSpriteFormat.Version, Frames = frames },
             CamelCaseIndentedJson);
         byte[] pngBytes = png.ToArray();
-        _ = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(pngBytes));
+        _ = MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(pngBytes));
         return new() { [MapSpriteFormat.JsonFile] = json, [MapSpriteFormat.PngFile] = pngBytes };
     }
 }

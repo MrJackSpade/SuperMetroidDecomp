@@ -90,11 +90,11 @@ public static class ProjectilePresentationFiles
             stockBeams.Add(name, file);
         }
         ProjectileFile stockPalettes = Stock(BeamPaletteDefinitions.FileName, manifest.PaletteSha256);
-        _ = stockPalettes.Compile(BeamPaletteCatalog.Load);
+        _ = stockPalettes.Compile(BeamPaletteFile.Read);
         ProjectileFile stockHyperBeamFxColors = Stock(HyperBeamFxColorFormat.FileName, manifest.HyperBeamFxColorsSha256);
-        _ = stockHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load);
+        _ = stockHyperBeamFxColors.Compile(HyperBeamFxColorFile.Read);
         ProjectileFile stockTrails = Stock(ProjectileTrailVisualDefinitions.FileName, manifest.TrailSha256);
-        _ = stockTrails.Compile(stream => ProjectileTrailCatalog.Load(stream));
+        _ = stockTrails.Compile(ProjectileTrailCatalog.Load);
         ProjectileFile stockTrailTiles = Stock(ProjectileTrailAtlasDefinitions.FileName, manifest.TrailTilesSha256);
         _ = stockTrailTiles.Compile(ProjectileTrailAtlas.Load);
         ProjectileFile stockFlarePlacement = Stock(ChargeFlarePlacementDefinitions.FileName, manifest.FlarePlacementSha256);
@@ -129,8 +129,9 @@ public static class ProjectilePresentationFiles
             Identity(new ProjectilePresentationSourceFiles { Composition = stock, Beams = stockBeams, Palettes = stockPalettes, HyperBeamFxColors = stockHyperBeamFxColors, Trails = stockTrails, TrailTiles = stockTrailTiles, FlarePlacement = stockFlarePlacement, FlareCompositions = stockFlareCompositions, GrappleTiles = stockGrappleTiles, GrappleSprites = stockGrappleSprites, GrappleFlare = stockGrappleFlare, GrappleSwing = stockGrappleSwing, FrameBindings = stockFrameBindings }), Identity(new ProjectilePresentationSourceFiles { Composition = selected, Beams = selectedBeams, Palettes = selectedPalettes, HyperBeamFxColors = selectedHyperBeamFxColors, Trails = selectedTrails, TrailTiles = selectedTrailTiles, FlarePlacement = selectedFlarePlacement, FlareCompositions = selectedFlareCompositions, GrappleTiles = selectedGrappleTiles, GrappleSprites = selectedGrappleSprites, GrappleFlare = selectedGrappleFlare, GrappleSwing = selectedGrappleSwing, FrameBindings = selectedFrameBindings }),
             BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
                 .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
-                selectedPalettes.Compile(BeamPaletteCatalog.Load), selectedHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load)),
-            selectedTrails.Compile(stream => ProjectileTrailCatalog.Load(stream, selectedTrailTiles.Compile(ProjectileTrailAtlas.Load))),
+                selectedPalettes.Compile(BeamPaletteFile.Read), selectedHyperBeamFxColors.Compile(HyperBeamFxColorFile.Read)),
+            selectedTrails.Compile(ProjectileTrailCatalog.Load),
+            selectedTrailTiles.Compile(ProjectileTrailAtlas.Load),
             selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),
             selectedFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load),
             selectedGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, selectedGrappleSprites.Compile(GrappleSpriteCatalog.Load),

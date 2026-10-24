@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Core.Map.Artwork;
 
@@ -12,6 +11,6 @@ internal static class MapTileAtlasAccess
     {
         /// <summary>Copies compiled characters to the screen's own VRAM; source storage cannot be mutated by callers.</summary>
         /// <param name="destination">The screen's character region receiving the full 8192-byte atlas.</param>
-        public void LoadTo(VramRegion destination) => destination.Load(self.planar);
+        public void LoadTo(VramRegion destination) => destination.Load(MapTileCharacters.Of(self).Characters);
     }
 }

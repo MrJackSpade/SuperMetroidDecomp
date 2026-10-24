@@ -6,6 +6,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks BG2 mosaic sampling against an independent pixel oracle and the Direct3D renderer.</summary>
 internal static class BackgroundMosaicTests

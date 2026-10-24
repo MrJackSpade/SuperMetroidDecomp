@@ -12,6 +12,9 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -25,7 +28,7 @@ internal static class CeresRidleyMode7ColorsVerification
         GameplayBasePaletteCatalog initialPalettes)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
-        CeresRidleyMode7ColorCatalog native = CeresRidleyMode7ColorCatalog.Load(
+        CeresRidleyMode7ColorCatalog native = CeresRidleyMode7ColorFile.Read(
             new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
         for (int row = 0; row < CeresRidleyPaletteRomData.Mode7ZoomRowCount; row++)
@@ -60,8 +63,8 @@ internal static class CeresRidleyMode7ColorsVerification
             };
         }
         string replacement = Path.Combine(overrideDirectory, CeresRidleyMode7ColorFormat.FileName);
-        File.WriteAllBytes(replacement, CeresRidleyMode7ColorCatalog.Write(document));
-        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        File.WriteAllBytes(replacement, CeresRidleyMode7ColorFile.Write(document));
+        AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
@@ -102,21 +105,21 @@ internal static class CeresRidleyMode7ColorsVerification
         }
 
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorCatalog.Write(document),
+        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Write(document),
             "Ceres Mode-7 colors reject invalid RGB5 values");
         string replacementStock = Path.Combine(
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "ceres-mode7-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
-        AreaMapPresentationCatalog repaired = AreaMapPresentationCatalog.Load(replacementStock, overrideDirectory);
+        AreaMapPresentationCatalog repaired = MapPresentationFiles.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "stock re-extraction preserves Ceres Mode-7 override");
         AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
             "stock re-extraction does not rewrite Ceres Mode-7 colors");
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity,
-            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory).ContentIdentity,
+            MapPresentationFiles.Load(stockDirectory, overrideDirectory).ContentIdentity,
             "removing Ceres Mode-7 override restores stock identity");
         Console.WriteLine("Ceres Mode-7 colors: 135 stock words and all 112 getaway frames match, with every source color guarded and override repair preserved.");
     }

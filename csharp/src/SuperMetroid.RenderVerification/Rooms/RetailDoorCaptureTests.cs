@@ -14,6 +14,7 @@ namespace SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RenderFixtures;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares captured Ceres door transitions with direct retail-frame rendering.</summary>
 internal static class RetailDoorCaptureTests

@@ -7,6 +7,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 

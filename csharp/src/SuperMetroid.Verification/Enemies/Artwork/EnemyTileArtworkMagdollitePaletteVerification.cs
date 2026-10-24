@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -8,6 +7,7 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -54,7 +54,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         string overrides = Path.Combine(stockDirectory, "magdollite-cycle-overrides");
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, MagdollitePaletteCycleFormat.FileName);
-        File.WriteAllBytes(overrideFile, MagdollitePaletteCycle.Write(document));
+        File.WriteAllBytes(overrideFile, MagdollitePaletteCycleFile.Write(document));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         MagdollitePaletteCycle cycle = edited.Enemies.MagdollitePaletteCycle ??
             throw new InvalidDataException("Edited enemy art has no Magdollite palette cycle.");
@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Magdollite color property fails loudly");
         document.Frames[1][0] = original with { Red = 32 };
-        AssertThrows<InvalidDataException>(() => MagdollitePaletteCycle.Write(document),
+        AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Write(document),
             "Magdollite RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
 

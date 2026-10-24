@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerification;
@@ -88,7 +87,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         Suite(nameof(VerifyTourianStatueProgramMappings), () => VerifyTourianStatueProgramMappings(rom));
         Suite(nameof(VerifyTourianStatueSpawnOrder), () => VerifyTourianStatueSpawnOrder(rom));
         int pictureCount = 0;
-        RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(
+        RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
                  TourianStatueAnimatedTileMechanicsDefinitions.All)

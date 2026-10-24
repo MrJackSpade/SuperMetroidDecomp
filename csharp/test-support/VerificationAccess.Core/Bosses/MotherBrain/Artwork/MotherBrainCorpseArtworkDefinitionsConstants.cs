@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using SuperMetroid.Core.Escape;
-
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="MotherBrainCorpseArtworkDefinitions"/> that only verification reads.</summary>
 internal static class MotherBrainCorpseArtworkDefinitionsConstants

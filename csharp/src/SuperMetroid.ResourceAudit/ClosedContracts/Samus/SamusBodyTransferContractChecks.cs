@@ -1,10 +1,10 @@
-using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
@@ -78,7 +78,7 @@ internal static class SamusBodyTransferContractChecks
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(cannonJson, cannonPng);
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         if (invalidAdjacentFrame) frames[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
-        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodyArtworkCatalog.TopSetCount], BottomSetStarts = starts[SamusBodyArtworkCatalog.TopSetCount..], PoseFirstFrames = new int[SamusBodyArtworkCatalog.PoseCount], GraphicsYOffsets = new sbyte[SamusBodyArtworkCatalog.PoseCount], Frames = frames, Top = groups[..SamusBodyArtworkCatalog.TopSetCount], Bottom = groups[SamusBodyArtworkCatalog.TopSetCount..], Spritemaps = sprites, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = new ushort[SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount], PostureYOffsets = new sbyte[SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount], DrainedYOffsets = new sbyte[SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount] });
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodyArtworkCatalog.TopSetCount], BottomSetStarts = starts[SamusBodyArtworkCatalog.TopSetCount..], PoseFirstFrames = new int[SamusBodyArtworkCatalog.PoseCount], GraphicsYOffsets = new sbyte[SamusBodyArtworkCatalog.PoseCount], Frames = frames, Top = groups[..SamusBodyArtworkCatalog.TopSetCount], Bottom = groups[SamusBodyArtworkCatalog.TopSetCount..], Spritemaps = sprites, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = cannon, LandingYOffsets = new ushort[SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount], PostureYOffsets = new sbyte[SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount], DrainedYOffsets = new sbyte[SamusDrawingDefinitions.BodyOffsets.DrainedVerticalOffsetByteCount] });
     }
 
     /// <summary>Compiles representative transfer calls and checks audit behavior under valid and stale source contracts.</summary>

@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
@@ -17,7 +17,7 @@ public static class CeresRidleyColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return CeresRidleyColorCatalog.Write(new CeresRidleyColorDocument
+        return CeresRidleyColorFile.Write(new CeresRidleyColorDocument
         {
             Version = (int)CeresRidleyColorVersion.Current,
             Start = ReadColors(CeresRidleyPaletteRomData.StartColors,

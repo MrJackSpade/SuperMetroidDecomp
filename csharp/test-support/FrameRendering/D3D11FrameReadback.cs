@@ -1,0 +1,61 @@
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using Vortice.Direct3D11;
+using Vortice.DXGI;
+using SuperMetroid.Rendering.Direct3D11.Frames;
+
+namespace SuperMetroid.TestSupport.FrameRendering;
+
+/// <summary>
+/// CPU readback of a renderer's last completed frame, for the debug runner and render verification;
+/// player hosts present on the GPU and never read frames back.
+/// </summary>
+internal static class D3D11FrameReadback
+{
+    /// <summary>Diagnostic GPU readback helpers attached to the D3D11 renderer.</summary>
+    extension(D3D11FrameRenderer self)
+    {
+        /// <summary>Diagnostic convenience; production presentation must use Render without readback.</summary>
+        public Rgba32[] RenderForReadback(DisplayPacket packet)
+        {
+            self.Render(packet);
+            return self.Readback();
+        }
+        /// <summary>Reads the last completed submission for diagnostics; never advances simulation.</summary>
+        public unsafe Rgba32[] Readback()
+        {
+            self.owner.VerifyOwner(); ObjectDisposedException.ThrowIf(self.disposed, self);
+            if (self.renderedIdentity is null) throw new InvalidOperationException("No successful frame submission is available for readback.");
+            const int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
+            using ID3D11Texture2D staging = self.owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
+                width, height, 1, 1, BindFlags.None, ResourceUsage.Staging, CpuAccessFlags.Read));
+            self.owner.Context.CSSetUnorderedAccessView(0, null);
+            self.owner.Context.CSSetUnorderedAccessView(1, null);
+            self.owner.Context.CopyResource(staging, self.output);
+            MappedSubresource mapped = self.owner.Context.Map(staging, 0, MapMode.Read);
+            try
+            {
+                var pixels = new Rgba32[width * height];
+                for (int y = 0; y < height; y++)
+                {
+                    uint* row = (uint*)((byte*)mapped.DataPointer + y * mapped.RowPitch);
+                    for (int x = 0; x < width; x++)
+                    {
+                        uint packed = row[x];
+                        pixels[y * width + x] = UnpackRgba(packed);
+                    }
+                }
+                return pixels;
+            }
+            finally { self.owner.Context.Unmap(staging, 0); }
+        }
+    }
+
+    /// <summary>An R8G8B8A8 texel read as a little-endian word: red in the lowest byte.</summary>
+    private static Rgba32 UnpackRgba(uint packed)
+    {
+        Span<byte> channels = stackalloc byte[sizeof(uint)];
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(channels, packed);
+        return new(channels[0], channels[1], channels[2], channels[3]);
+    }
+}

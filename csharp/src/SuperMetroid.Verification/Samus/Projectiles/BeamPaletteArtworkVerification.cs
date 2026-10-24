@@ -27,7 +27,7 @@ internal static class BeamPaletteArtworkVerification
     internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
-        var catalog = BeamPaletteCatalog.Load(new MemoryStream(bytes));
+        var catalog = BeamPaletteFile.Read(new MemoryStream(bytes));
         Suite(nameof(VerifyBeamPaletteOwnership), () => VerifyBeamPaletteOwnership(bus, catalog));
         for (ushort selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
@@ -44,7 +44,7 @@ internal static class BeamPaletteArtworkVerification
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
-            var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
+            var edited = BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
             SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusColourDefinitions.BeamFirstColour + 3 ? 1 : 0)),
@@ -53,7 +53,7 @@ internal static class BeamPaletteArtworkVerification
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Previously loaded palette remains immutable after editing input");
         }
         string json = Encoding.UTF8.GetString(bytes);
-        AssertThrows<InvalidDataException>(() => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
+        AssertThrows<InvalidDataException>(() => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
         var invalid = RequiredJson.Parse(bytes);
         invalid.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 32;
         Reject(invalid, "Out-of-range RGB rejected");
@@ -69,14 +69,13 @@ internal static class BeamPaletteArtworkVerification
         Console.WriteLine("Beam palettes: twelve native full-CGRAM matches, exact isolated RGB edits, ROM-free queue path and strict JSON validation pass.");
 
         static void Reject(JsonNode document, string message) => AssertThrows<InvalidDataException>(
-            () => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
+            () => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
     }
 
     /// <summary>Checks NMI rebinding respects Crystal Flash and Hyper owners and uses edited Grapple colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
-        var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -85,14 +84,14 @@ internal static class BeamPaletteArtworkVerification
         var expected = new SamusColourRig();
         palettes.LoadTo(expected.Samus.Beam, 0);
         runtime.Cgram.AsPaletteColors().SetColor(SamusColourDefinitions.BeamFirstColour, new Bgr555(27, 3, 0));
-        runtime.Artwork.BeamArtwork = artwork;
+        runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
         flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         runtime.Cgram.AsPaletteColors().SetColor(224, new Bgr555(27, 3, 0));
-        runtime.Artwork.BeamArtwork = artwork;
+        runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         flash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
@@ -101,7 +100,7 @@ internal static class BeamPaletteArtworkVerification
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
         runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
         runtime.Cgram.AsPaletteColors().SetColor(224, new Bgr555(8, 14, 0));
-        runtime.Artwork.BeamArtwork = artwork;
+        runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");
 
@@ -117,10 +116,9 @@ internal static class BeamPaletteArtworkVerification
         var editedDocument = RequiredJson.Parse(BeamPaletteExtractor.Extract(bus));
         var editedColor = editedDocument.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombination.Ice)).Required(3);
         editedColor["red"] = editedColor.Required("red").GetValue<int>() ^ 1;
-        var editedPalettes = BeamPaletteCatalog.Load(
+        var editedPalettes = BeamPaletteFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
-        var editedArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), editedPalettes);
-        nativeRuntime.Artwork.BeamArtwork = editedArtwork;
+        nativeRuntime.Artwork.BeamPalettes = editedPalettes;
         nativeRuntime.LoadDebugGrapplePalette();
         editedPalettes.LoadTo(grappleExpected.Samus.Beam, SamusBeamCombination.Ice);
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),

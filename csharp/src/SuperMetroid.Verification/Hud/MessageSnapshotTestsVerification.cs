@@ -3,13 +3,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.FrameCapture;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Hud;
 
 /// <summary>Checks gameplay message snapshots, reveal geometry and frame ownership.</summary>

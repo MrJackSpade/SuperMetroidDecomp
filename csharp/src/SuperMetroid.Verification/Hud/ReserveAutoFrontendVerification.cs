@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
@@ -18,6 +17,7 @@ namespace SuperMetroid.Verification.Hud;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks automatic reserve recovery through the game frontend, including freeze timing, HUD updates, and health-warning audio.</summary>
 internal static class ReserveAutoFrontendVerification

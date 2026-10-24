@@ -1,5 +1,5 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Core.Frontend;
 

@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -20,7 +20,7 @@ public static class SamusFullBodyCycleColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return SamusFullBodyCycleColorCatalog.Write(new SamusFullBodyCycleColorDocument
+        return SamusFullBodyCycleColorFile.Write(new SamusFullBodyCycleColorDocument
         {
             Version = SamusFullBodyCycleColorFormat.Version,
             SpeedBooster = ReadFamily(SamusFullBodyCycleFamily.SpeedBooster),

@@ -1,10 +1,10 @@
-using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxBlendSelectorsVerification;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -95,7 +95,7 @@ internal static class LookupCeresHazeRampVerification
                 CeresHazeBlue = new() { Red = channel, Green = channel, Blue = channel },
                 CeresHazeRed = new() { Red = 31 - channel, Green = 31 - channel, Blue = 31 - channel },
             };
-            var colors = RoomFxPaletteBlendCatalog.Load(new MemoryStream(RoomFxPaletteBlendCatalog.Write(edited)));
+            var colors = RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(edited)));
             for (int counter = 0; counter <= lastCounter; counter++)
             foreach (bool dead in new[] { false, true })
             {

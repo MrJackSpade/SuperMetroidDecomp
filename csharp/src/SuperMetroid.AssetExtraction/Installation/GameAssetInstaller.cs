@@ -237,7 +237,15 @@ public static class GameAssetInstaller
         Action<CartridgeImportAddressSpace, string> extract, Action<string> validate) =>
         new(progress, (bus, directory, _) => extract(bus, directory), validate);
 
-    /// <summary>Every extracted-content component, in extraction order.</summary>
+    /// <summary>The installation a component directory belongs to.</summary>
+    /// <exception cref="InvalidOperationException">The directory has no installation above it.</exception>
+    private static string InstallationOf(string componentDirectory) => Path.GetDirectoryName(componentDirectory)
+        ?? throw new InvalidOperationException($"Component directory {componentDirectory} has no installation above it.");
+
+    /// <summary>
+    /// Every extracted-content component, in extraction order. The sheets come last: they compose from the stock
+    /// artwork every earlier component has installed beside them.
+    /// </summary>
     private static readonly InstallerComponent[] Components =
     [
         new(GameInstallationLayout.AudioDirectoryName,
@@ -336,15 +344,14 @@ public static class GameAssetInstaller
             Step("Extracting permanent-item tile PNGs...", (bus, d) => RoomPlmDynamicCollectibleArtFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomPlmDynamicCollectibleArtFiles.ValidateStock)),
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
             Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256), XrayRevealVisualFiles.ValidateStock)),
-        // Last: the sheets compose from the stock artwork every earlier component has installed beside them.
         new(GameInstallationLayout.SpriteSheetDirectoryName,
-            Step("Composing sprite sheets...", (bus, d) => SpriteSheetFiles.Extract(bus, Path.GetDirectoryName(d)!, d, SupportedCartridge.Sha256),
+            Step("Composing sprite sheets...", (bus, d) => SpriteSheetFiles.Extract(bus, InstallationOf(d), d, SupportedCartridge.Sha256),
                 SpriteSheetFiles.ValidateStock)),
         new(GameInstallationLayout.RoomBlockSheetDirectoryName,
-            Step("Composing room block sheets...", (_, d) => RoomBlockSheetFiles.Extract(Path.GetDirectoryName(d)!, d, SupportedCartridge.Sha256),
+            Step("Composing room block sheets...", (_, d) => RoomBlockSheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256),
                 RoomBlockSheetFiles.ValidateStock)),
         new(GameInstallationLayout.EnemySheetDirectoryName,
-            Step("Composing enemy sheets...", (_, d) => EnemySheetFiles.Extract(Path.GetDirectoryName(d)!, d, SupportedCartridge.Sha256),
+            Step("Composing enemy sheets...", (_, d) => EnemySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256),
                 EnemySheetFiles.ValidateStock)),
     ];
 

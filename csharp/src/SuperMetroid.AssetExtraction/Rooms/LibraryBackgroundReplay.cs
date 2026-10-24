@@ -61,9 +61,9 @@ internal static class LibraryBackgroundReplay
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
                     // Kraid's list repeats the filled staging at his own page before BG2's.
                     LibraryBackgroundClear clear = LibraryBackgroundStagingDefinitions.ClearBg2;
-                    staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue);
+                    staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue.Raw);
                     vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), LibraryBackgroundStagingDefinitions.KraidBg2VramDestinationWord);
-                    vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestinationWord);
+                    vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestination);
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                     if (instruction.Door == activeDoor)
@@ -108,8 +108,8 @@ internal static class LibraryBackgroundReplay
     /// <summary>Fills the staging as <paramref name="clear"/> names, then transfers it to its VRAM destination.</summary>
     private static void FillAndTransfer(Staging staging, SnesVram vram, LibraryBackgroundClear clear)
     {
-        staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue);
-        vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestinationWord);
+        staging.FillWords(clear.WorkRamDestination, clear.ByteCount, clear.FillValue.Raw);
+        vram.ExecuteQueuedAssetWrite(staging.Read(clear.WorkRamSourceAddress, clear.ByteCount), clear.VramDestination);
     }
 
     /// <summary>The work RAM a replay reads and writes: the tilemap staging, and the enemy BG2 staging it only reads.</summary>

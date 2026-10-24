@@ -285,7 +285,7 @@ internal static class RoomAssetRomDataVerification
         AssertTrue(transfer.WorkRamDestination + transfer.ByteCount <=
             RoomAssetRomData.LibraryBackground.BankByteCount,
             $"{description} transfer remains in bank $7E");
-        AssertTrue(transfer.VramDestinationWord + transfer.ByteCount / 2 <= 0x8000,
+        AssertTrue(transfer.VramDestination.Word + transfer.ByteCount / 2 <= 0x8000,
             $"{description} transfer remains in 64-KiB VRAM");
     }
 

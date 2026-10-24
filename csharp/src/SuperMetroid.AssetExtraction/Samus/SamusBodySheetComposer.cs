@@ -75,15 +75,21 @@ internal static class SamusBodySheetComposer
     }
 
     /// <summary>Every animation frame the tables hold a selection for, in table order.</summary>
-    private static IEnumerable<(SamusPoseId Pose, int AnimationFrame, SamusBodyFrameSelection Selection)> Selections(SamusBodyArtworkCatalog body)
+    private static IEnumerable<SelectedFrame> Selections(SamusBodyArtworkCatalog body)
     {
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
             for (int animationFrame = 0; animationFrame < AnimationFrames; animationFrame++)
             {
                 if (body.TryFrame((SamusPoseId)pose, animationFrame, out SamusBodyFrameSelection selection))
-                    yield return ((SamusPoseId)pose, animationFrame, selection);
+                    yield return new SelectedFrame((SamusPoseId)pose, animationFrame, selection);
             }
         }
     }
+
+    /// <summary>An animation frame the body tables select a picture for.</summary>
+    /// <param name="Pose">The pose.</param>
+    /// <param name="AnimationFrame">The pose's animation frame.</param>
+    /// <param name="Selection">What the tables select.</param>
+    private readonly record struct SelectedFrame(SamusPoseId Pose, int AnimationFrame, SamusBodyFrameSelection Selection);
 }

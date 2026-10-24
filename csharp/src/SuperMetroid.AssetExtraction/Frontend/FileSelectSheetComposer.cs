@@ -24,6 +24,7 @@ internal static class FileSelectSheetComposer
         Sources(Ensure.NotNull(maps).FileSelect, maps);
 
     /// <summary>What the file-select sheet composes from <paramref name="fileSelect"/>, over the menus of <paramref name="maps"/>.</summary>
+    [PpuLayoutBoundary("codec: the menu's sprite colours, read from its CGRAM image")]
     internal static SpriteSheetSources Sources(FileSelectPresentation fileSelect, AreaMapPresentationCatalog maps)
     {
         Ensure.NotNull(fileSelect);
@@ -50,8 +51,8 @@ internal static class FileSelectSheetComposer
         {
             string name = FileCopyArrowDefinitions.FrameName(shape);
             // The arrows' parts are placed with their own attribute words, palette and all.
-            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowDefinitions.Parts(shape).ToArray()
-                .Select(part => ObjPartFrames.Part(part.X, part.Y, part.Attributes, firstCharacter: 0))]), page));
+            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowDefinitions.Parts(shape)
+                .SelectToArray(part => ObjPartFrames.Part(part.X, part.Y, part.Attributes, firstCharacter: 0))]), page));
         }
         var cgram = new SnesCgram();
         new CgramPalettes(cgram).LoadImage(maps.Palettes.FileSelect);

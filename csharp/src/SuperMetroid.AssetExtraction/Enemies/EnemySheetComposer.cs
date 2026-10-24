@@ -177,7 +177,7 @@ internal static class EnemySheetComposer
         graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, cgram);
         List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
-            .SelectMany(state => state.EnemyPopulation.Records.ToArray().Select(record => record.DefinitionId))
+            .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
             .Except(members).Distinct().Order();
         EnemyDefinitionId[] drawn = [.. members, .. placed];
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
@@ -228,18 +228,18 @@ internal static class EnemySheetComposer
     /// Each shown frame's composition by sheet frame name: an ordinary frame whole, an extended frame component by
     /// component. A frame no installed composition shows draws nothing to compose.
     /// </summary>
-    private static IEnumerable<(string Name, EnemySpritemapParts Parts)> Composed(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown)
+    private static IEnumerable<ComposedFrame> Composed(EnemyTileArtworkCatalog enemies, IReadOnlyList<EnemyFrameId> shown)
     {
         EnemySpritemapCatalog spritemaps = enemies.Spritemaps ?? throw new InvalidDataException("Enemy sheets require the installed enemy compositions.");
         EnemyExtendedFrameCatalog extended = enemies.ExtendedFrames ?? throw new InvalidDataException("Enemy sheets require the installed extended frames.");
         foreach (EnemyFrameId frame in shown)
         {
             if (spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts))
-                yield return (EnemySheetDefinitions.FrameName(frame), parts);
+                yield return new ComposedFrame(EnemySheetDefinitions.FrameName(frame), parts);
             else if (extended.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components))
             {
                 for (int component = 0; component < components.Length; component++)
-                    yield return (EnemySheetDefinitions.ComponentFrameName(frame, component), components.Span[component].Parts);
+                    yield return new ComposedFrame(EnemySheetDefinitions.ComponentFrameName(frame, component), components.Span[component].Parts);
             }
         }
     }
@@ -258,4 +258,9 @@ internal static class EnemySheetComposer
         hash.AppendData(SpriteSheet.Write(sheet.Manifest));
         return Convert.ToHexString(hash.GetHashAndReset());
     }
+
+    /// <summary>A shown frame's composition, by the sheet frame name it takes.</summary>
+    /// <param name="Name">The sheet frame's name.</param>
+    /// <param name="Parts">Its parts.</param>
+    private readonly record struct ComposedFrame(string Name, EnemySpritemapParts Parts);
 }

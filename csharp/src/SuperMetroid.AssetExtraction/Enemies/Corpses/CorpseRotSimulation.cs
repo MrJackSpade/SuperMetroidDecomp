@@ -23,6 +23,7 @@ internal sealed class CorpseRotSimulation
     /// <summary>Each state the corpse's uploads can leave its rows in: the step each row shows, or none for the set's characters.</summary>
     private readonly IReadOnlyList<IReadOnlyDictionary<CorpseRotRow, int?>> reachable;
 
+    /// <summary>A corpse's simulated rot: its rows, each row's bytes after each step, and the states its uploads reach.</summary>
     private CorpseRotSimulation(string flesh, RottingCorpseKind? kind, IReadOnlyList<CorpseRotRow> rows,
         Dictionary<CorpseRotRow, byte[]?[]> rowBytes, IReadOnlyList<IReadOnlyDictionary<CorpseRotRow, int?>> reachable,
         IReadOnlyList<CorpseRotState> states)
@@ -150,7 +151,7 @@ internal sealed class CorpseRotSimulation
     private static CorpseRotSimulation Batch(RottingCorpseKind kind, CorpseStaging staged, CorpseRowGeometry geometry,
         int rotTableOffset, int entryCount, int populated) =>
         Batch(kind.Name, kind, [.. DeadMonsterRowUploadDefinitions.ForKind(kind).Select((upload, index) => Row(index, upload))],
-            new EnemyStagingSurfaces().RotTable(rotTableOffset, entryCount), staged, geometry, populated, uploadsLastStep: true);
+            new EnemyStagingSurfaces().RotTable(rotTableOffset, entryCount), new StagedCorpse(staged, geometry), populated, uploadsLastStep: true);
 
     /// <summary>
     /// Mother Brain's corpse, which uploads its six rows after each rot step but the last, whose finished table returns
@@ -165,7 +166,7 @@ internal sealed class CorpseRotSimulation
         return Batch("MotherBrain", null, [.. MotherBrainCorpseArtworkDefinitions.RotRows.Select(row =>
                 new CorpseRotRow(row.Row, EnemyStagingDefinitions.RottingHeapNativeAddress + row.RottingOffset, row.ByteCount,
                     row.FirstCharacter * SuperMetroid.Core.Assets.SpriteArtwork.CharacterByteCount))],
-            new EnemyStagingSurfaces().MotherBrainRotTable, CorpseStaging.MotherBrain(atlas.Characters.Span), CorpseRowGeometry.MotherBrain,
+            new EnemyStagingSurfaces().MotherBrainRotTable, new StagedCorpse(CorpseStaging.MotherBrain(atlas.Characters.Span), CorpseRowGeometry.MotherBrain),
             populated: 1, uploadsLastStep: false);
     }
 
@@ -174,8 +175,10 @@ internal sealed class CorpseRotSimulation
     /// <paramref name="uploadsLastStep"/> is false), and none before the first.
     /// </summary>
     private static CorpseRotSimulation Batch(string flesh, RottingCorpseKind? kind, CorpseRotRow[] rows, CorpseRotTable table,
-        CorpseStaging staged, CorpseRowGeometry geometry, int populated, bool uploadsLastStep)
+        StagedCorpse corpse, int populated, bool uploadsLastStep)
     {
+        CorpseStaging staged = corpse.Copy;
+        CorpseRowGeometry geometry = corpse.Geometry;
         CorpseRottingTableProcessor.Initialize(table);
         int yLimit = table.EntryCount - 1;
         var snapshots = new List<byte[]?[]> { new byte[]?[rows.Length] };
@@ -293,7 +296,7 @@ internal sealed class CorpseRotSimulation
 
     /// <summary>How many population records of <paramref name="enemy"/> with first parameter <paramref name="parameter"/> any room state holds at most.</summary>
     private static int Populated(EnemyDefinitionId enemy, ushort parameter) =>
-        Math.Max(1, RoomStateDefinitions.All.Max(state => state.EnemyPopulation.Records.ToArray()
+        Math.Max(1, RoomStateDefinitions.All.Max(state => state.EnemyPopulation.Records.Span
             .Count(record => record.DefinitionId == enemy && record.Parameter1 == parameter)));
 
     /// <summary>The installed tiles a corpse copies its staged characters from.</summary>
@@ -309,4 +312,9 @@ internal sealed class CorpseRotSimulation
     private static Dictionary<CorpseRotRow, byte[]?[]> ByRow(CorpseRotRow[] rows, List<byte[]?[]> snapshots) =>
         rows.Select((row, index) => new KeyValuePair<CorpseRotRow, byte[]?[]>(row, [.. snapshots.Select(snapshot => snapshot[index])]))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+    /// <summary>The staged copy a corpse rots and how its rows move within it.</summary>
+    /// <param name="Copy">The staged copy.</param>
+    /// <param name="Geometry">How its rows move.</param>
+    private sealed record StagedCorpse(CorpseStaging Copy, CorpseRowGeometry Geometry);
 }

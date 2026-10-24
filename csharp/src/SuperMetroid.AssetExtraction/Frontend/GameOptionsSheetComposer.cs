@@ -22,6 +22,7 @@ internal static class GameOptionsSheetComposer
     internal static SpriteSheetSources Sources(AreaMapPresentationCatalog maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
 
     /// <summary>What the options sheet composes from <paramref name="options"/>, over the menus of <paramref name="maps"/>.</summary>
+    [PpuLayoutBoundary("codec: the menu's sprite colours, read from its CGRAM image")]
     internal static SpriteSheetSources Sources(GameOptionsPresentation options, AreaMapPresentationCatalog maps)
     {
         Ensure.NotNull(options);

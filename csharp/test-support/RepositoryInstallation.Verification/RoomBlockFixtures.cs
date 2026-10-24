@@ -1,7 +1,6 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -31,7 +30,7 @@ internal static class RoomBlockFixtures
             throw new ArgumentException("Block definitions are whole groups of four tilemap words.", nameof(definitions));
         int count = definitions.Length / RoomLevelPlane.DefinitionBytes;
         int rows = (count + columns - 1) / columns;
-        var canvas = new RoomTileCanvas(columns * side, rows * side);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * side, checked((ushort)(rows * side))));
         Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
@@ -78,7 +77,7 @@ internal static class RoomBlockFixtures
         int characterWord = 0)
     {
         const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles;
-        var canvas = new RoomTileCanvas(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels));
         Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var words = new ushort[RoomBackgroundImage.Words];

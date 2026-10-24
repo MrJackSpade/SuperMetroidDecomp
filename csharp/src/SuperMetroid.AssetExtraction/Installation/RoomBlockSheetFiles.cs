@@ -166,8 +166,8 @@ public static class RoomBlockSheetFiles
     /// <summary>The tile word sheet <paramref name="document"/> describes, read from <paramref name="store"/>.</summary>
     private static TileWordSheet Words(WordSheetDocument document, TilesetDefinition tileset, SpriteSheetStore store) =>
         new(document.Layer, tileset, store.Read(TileWordSheet.NameOf(document.Layer, tileset)),
-            document.Tiles.Select(tile => new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(tile.Word),
-                new BgArtworkShown(new BgArtworkIdentity(tile.Artwork), tile.Offset)), tile.Frame, new Position16<ImagePixels>(tile.X, tile.Y))));
+            document.Tiles.Select(tile => new TileWordSheetTile(new BgTileArtwork(new SnesBgTilemapWord(checked((ushort)tile.Word)),
+                new BgArtworkShown(new BgArtworkIdentity(tile.Artwork), tile.Offset)), tile.Frame, new Position16<ImagePixels>(checked((ushort)tile.X), checked((ushort)tile.Y)))));
 
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
@@ -227,7 +227,8 @@ public static class RoomBlockSheetFiles
     /// <param name="Frame">The frame picturing the word.</param>
     /// <param name="X">The tile's left pixel within the frame.</param>
     /// <param name="Y">The tile's top pixel within the frame.</param>
-    private sealed record WordTileDocument(ushort Word, string Artwork, int Offset, string Frame, ushort X, ushort Y);
+    [SpatialComponents("External format: the installed tile word manifest stores each tile's frame corner as x/y.")]
+    private sealed record WordTileDocument(int Word, string Artwork, int Offset, string Frame, int X, int Y);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

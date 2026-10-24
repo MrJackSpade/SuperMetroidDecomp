@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -57,7 +58,7 @@ internal static class MessageBoxSheetComposer
         colours[GameplayMessageRomData.Palette.TemporaryDarkIndex] = GameplayMessageRomData.Palette.TemporaryDarkColor;
         int width = GameplayMessageRomData.Layout.TilemapWidth;
         int rows = messages.Values.Sum(words => words.Length / width);
-        var canvas = new RoomTileCanvas(width * RoomTileCanvas.CharacterPixels, rows * RoomTileCanvas.CharacterPixels);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(width * RoomTileCanvas.CharacterPixels)), checked((ushort)(rows * RoomTileCanvas.CharacterPixels))));
         ReadOnlySpan<byte> characters = inputs.Hud.Bytes.Span;
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         int top = 0;

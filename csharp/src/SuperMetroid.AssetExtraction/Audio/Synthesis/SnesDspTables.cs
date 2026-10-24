@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Keeping the hardware tables separate from the mixer makes their provenance explicit and
 /// prevents register and envelope code from accumulating unexplained numeric literals.
 /// </summary>
+[SnesEncodingOwner]
 internal static class SnesDspTables
 {
     /// <summary>

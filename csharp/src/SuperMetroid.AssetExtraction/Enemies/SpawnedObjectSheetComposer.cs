@@ -51,7 +51,7 @@ internal static class SpawnedObjectSheetComposer
             var word = new SnesObjAttributeWord(checked((ushort)(indexes.TileIndex | indexes.PaletteIndex)));
             int palette = SnesObjAttributeWord.FromPaletteBits(checked((ushort)indexes.PaletteIndex)).PaletteIndex;
             // A projectile draws at its graphics index's low byte, a sprite object at the index's character.
-            foreach (int tileBase in new[] { (int)unchecked((byte)word.Raw), word.TileNumber }.Distinct())
+            foreach (int tileBase in new[] { unchecked((byte)word.Raw), word.TileNumber }.Distinct())
             {
                 if (!plans.TryGetValue(tileBase, out SpawnedObjectSheetPlan? plan))
                     plans.Add(tileBase, plan = new SpawnedObjectSheetPlan(tileBase, palette, [], Anywhere: false));

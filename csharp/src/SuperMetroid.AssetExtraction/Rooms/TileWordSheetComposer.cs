@@ -140,7 +140,7 @@ internal static class TileWordSheetComposer
             }
         }
         int reboundRows = (rebound.Count + PartTiles - 1) / PartTiles;
-        var canvas = new RoomTileCanvas(PartTiles * RoomTileCanvas.CharacterPixels, (top + reboundRows) * RoomTileCanvas.CharacterPixels);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(PartTiles * RoomTileCanvas.CharacterPixels, checked((ushort)((top + reboundRows) * RoomTileCanvas.CharacterPixels))));
         foreach (PlacedWord tile in placed)
             Paint(new(tile.Cell.X, (ushort)(tile.PartTop + tile.Cell.Y)), tile.Shown);
         for (int index = 0; index < rebound.Count; index++)

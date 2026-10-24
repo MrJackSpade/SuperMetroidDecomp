@@ -20,10 +20,11 @@ internal static class BgCharacterWords
     /// <exception cref="InvalidDataException">The words hold neither, or not from a character's first word.</exception>
     internal static BgCharacterPlacement Place(BgArtworkIdentity identity, int firstWord, ReadOnlyMemory<byte> bytes)
     {
-        (BgCharacterSet set, int offset) = AmongTiles(firstWord) ? (BgCharacterSet.Tiles, firstWord - RoomGraphicsLayout.AreaCharacters.Offset)
-            : firstWord >= GameplayVramLayout.HudCharacters.Offset && firstWord < GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count
-                ? (BgCharacterSet.Layer3, firstWord - GameplayVramLayout.HudCharacters.Offset)
-                : throw new InvalidDataException($"{identity.Name} is copied to VRAM word ${firstWord:X4}, which holds no background characters.");
+        bool amongHud = firstWord >= GameplayVramLayout.HudCharacters.Offset && firstWord < GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count;
+        if (!AmongTiles(firstWord) && !amongHud)
+            throw new InvalidDataException($"{identity.Name} is copied to VRAM word ${firstWord:X4}, which holds no background characters.");
+        BgCharacterSet set = AmongTiles(firstWord) ? BgCharacterSet.Tiles : BgCharacterSet.Layer3;
+        int offset = firstWord - (set == BgCharacterSet.Tiles ? RoomGraphicsLayout.AreaCharacters.Offset : GameplayVramLayout.HudCharacters.Offset);
         int characterWords = set.CharacterBytes() / sizeof(ushort);
         return offset % characterWords == 0 ? new BgCharacterPlacement(identity, set, offset / characterWords, bytes)
             : throw new InvalidDataException($"{identity.Name} is copied to VRAM word ${firstWord:X4}, inside one of the {set} characters.");

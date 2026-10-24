@@ -63,11 +63,38 @@ internal static class ScreenTileSheetComposer
             SpriteSheetId.PauseInterfaceTiles => Compose(maps.PauseTiles.Characters, BgBitDepth.FourBpp, maps.Palettes.Pause),
             SpriteSheetId.PauseHudTiles => Compose(maps.HudTiles.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount], BgBitDepth.TwoBpp,
                 maps.Palettes.Pause),
-            _ when AreaOf(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet) is { } area =>
-                Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(area)),
-            _ when AreaOf(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet) is { } area =>
-                Compose(maps.WorldArtwork.BackgroundCharacters(), BgBitDepth.TwoBpp, maps.Palettes.World(area)),
-            _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
+            SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
+                SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
+                SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian =>
+                Compose(maps.WorldArtwork.ForegroundCharacters(), BgBitDepth.FourBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapForegrounds, sheet))),
+            SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
+                SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
+                SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian =>
+                Compose(maps.WorldArtwork.BackgroundCharacters(), BgBitDepth.TwoBpp, maps.Palettes.World(AreaFor(ScreenTileSheetDefinitions.AreaMapBackgrounds, sheet))),
+            SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
+                SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
+                SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
+                SpriteSheetId.GameOptions or SpriteSheetId.MapSprites or SpriteSheetId.PauseSprites or
+                SpriteSheetId.Title or SpriteSheetId.IntroSprites or SpriteSheetId.CeresFlightSprites or
+                SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites or
+                SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
+                SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
+                SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
+                SpriteSheetId.EndingShootingLogoHalfSprites or
+                SpriteSheetId.EndingShootingLogoThreeQuartersSprites or SpriteSheetId.EndingLogoSprites or
+                SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or
+                SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or
+                SpriteSheetId.ProjectilesSpazer or SpriteSheetId.ProjectilesSpazerWave or
+                SpriteSheetId.ProjectilesSpazerIce or SpriteSheetId.ProjectilesSpazerIceWave or
+                SpriteSheetId.ProjectilesPlasma or SpriteSheetId.ProjectilesPlasmaWave or
+                SpriteSheetId.ProjectilesPlasmaIce or SpriteSheetId.ProjectilesPlasmaIceWave or
+                SpriteSheetId.ProjectilesSpazerPlasmaWave or SpriteSheetId.ProjectilesSpazerPlasmaIce or
+                SpriteSheetId.TitleMode7Tiles or SpriteSheetId.TitleBabyTiles or
+                SpriteSheetId.CeresFlightMode7Tiles or SpriteSheetId.EndingEscapeAMode7Tiles or
+                SpriteSheetId.EndingEscapeBMode7Tiles or SpriteSheetId.EndingPlanetExplosionMode7Tiles or
+                SpriteSheetId.EndingFlyawayMode7Tiles or SpriteSheetId.EndingRewardIconMode7Tiles =>
+                throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
+            _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };
     }
 
@@ -83,8 +110,7 @@ internal static class ScreenTileSheetComposer
             throw new InvalidDataException($"{characters.Length} bytes are not whole {depth} characters.");
         int count = characters.Length / bytes;
         int blockRows = ScreenTileSheet.BlockRowsOf(count);
-        var canvas = new RoomTileCanvas(ScreenTileSheet.Columns * ScreenTileSheet.TilePixels,
-            ScreenTileSheet.ColourVariants * blockRows * ScreenTileSheet.TilePixels);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenTileSheet.Columns * ScreenTileSheet.TilePixels, checked((ushort)(ScreenTileSheet.ColourVariants * blockRows * ScreenTileSheet.TilePixels))));
         Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         for (int row = 0; row < ScreenTileSheet.ColourVariants; row++)
         {
@@ -126,7 +152,40 @@ internal static class ScreenTileSheetComposer
             SpriteSheetId.EndingFlyawayMode7Tiles => ComposeMode7Pixels(sources.Intro.CeresFlight.FloorCharacters.Span[..EndingCreditsRomData.Rendering.FloorBytes],
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
             SpriteSheetId.EndingRewardIconMode7Tiles => ComposeRewardIcon(sources.EndingMode7, sources.EndingPalettes),
-            _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no Mode 7 characters."),
+            SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
+                SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
+                SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
+                SpriteSheetId.GameOptions or SpriteSheetId.MapSprites or SpriteSheetId.PauseSprites or
+                SpriteSheetId.Title or SpriteSheetId.IntroSprites or SpriteSheetId.CeresFlightSprites or
+                SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites or
+                SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
+                SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
+                SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
+                SpriteSheetId.EndingShootingLogoHalfSprites or
+                SpriteSheetId.EndingShootingLogoThreeQuartersSprites or SpriteSheetId.EndingLogoSprites or
+                SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or
+                SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or
+                SpriteSheetId.ProjectilesSpazer or SpriteSheetId.ProjectilesSpazerWave or
+                SpriteSheetId.ProjectilesSpazerIce or SpriteSheetId.ProjectilesSpazerIceWave or
+                SpriteSheetId.ProjectilesPlasma or SpriteSheetId.ProjectilesPlasmaWave or
+                SpriteSheetId.ProjectilesPlasmaIce or SpriteSheetId.ProjectilesPlasmaIceWave or
+                SpriteSheetId.ProjectilesSpazerPlasmaWave or SpriteSheetId.ProjectilesSpazerPlasmaIce or
+                SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
+                SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
+                SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
+                SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian or
+                SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
+                SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
+                SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian or
+                SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHudTiles or
+                SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or
+                SpriteSheetId.CeresFlightObjectTiles or SpriteSheetId.CeresIntroObjectTiles or
+                SpriteSheetId.ZebesRevealTiles or SpriteSheetId.EndingCreditsFontTiles or
+                SpriteSheetId.EndingTextFontTiles or SpriteSheetId.EndingSubtitleTiles or
+                SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
+                SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles =>
+                throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no Mode 7 characters."),
+            _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };
     }
 
@@ -153,8 +212,7 @@ internal static class ScreenTileSheetComposer
         if (pixels.IsEmpty || pixels.Length % Mode7CharacterSheet.TileBytes != 0)
             throw new InvalidDataException($"{pixels.Length} pixels are not whole Mode 7 characters.");
         int tiles = pixels.Length / Mode7CharacterSheet.TileBytes;
-        var canvas = new RoomTileCanvas(Mode7CharacterSheet.TilesPerRow * Mode7CharacterSheet.TilePixels,
-            Mode7CharacterSheet.RowsOf(tiles) * Mode7CharacterSheet.TilePixels);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(Mode7CharacterSheet.TilesPerRow * Mode7CharacterSheet.TilePixels, checked((ushort)(Mode7CharacterSheet.RowsOf(tiles) * Mode7CharacterSheet.TilePixels))));
         Bgr555[] colours = palette[..SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
         SpritePaletteRows coloured = SpritePaletteRows.None;
         for (int tile = 0; tile < tiles; tile++)
@@ -165,7 +223,7 @@ internal static class ScreenTileSheetComposer
                 byte index = pixels[tile * Mode7CharacterSheet.TileBytes + pixel];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
                     coloured |= SpritePaletteRowSet.Rows[index / 16];
-                canvas.PaintIndex(corner.X + pixel % Mode7CharacterSheet.TilePixels, corner.Y + pixel / Mode7CharacterSheet.TilePixels, index, colours);
+                canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % Mode7CharacterSheet.TilePixels)), checked((ushort)(corner.Y + pixel / Mode7CharacterSheet.TilePixels))), index, colours);
             }
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
@@ -173,7 +231,7 @@ internal static class ScreenTileSheetComposer
             [Mode7CharacterSheet.FrameName] = new SpriteSheetFrameDocument
             {
                 Corner = default,
-                Size = new Extent16<ImagePixels>((ushort)canvas.Width, (ushort)canvas.Height),
+                Size = canvas.Size,
                 Origin = default,
                 Rows = coloured,
                 Parts = [],
@@ -229,6 +287,11 @@ internal static class ScreenTileSheetComposer
         flight.Palette.LoadTo(colours);
         return colours.Colors;
     }
+
+    /// <summary>The area whose sheet <paramref name="sheet"/> is among <paramref name="sheets"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No area's sheet is <paramref name="sheet"/>.</exception>
+    private static AreaId AreaFor(IReadOnlyDictionary<AreaId, SpriteSheetId> sheets, SpriteSheetId sheet) =>
+        AreaOf(sheets, sheet) ?? throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet is no area's.");
 
     /// <summary>The area whose sheet <paramref name="sheet"/> is among <paramref name="sheets"/>, or null.</summary>
     private static AreaId? AreaOf(IReadOnlyDictionary<AreaId, SpriteSheetId> sheets, SpriteSheetId sheet) =>

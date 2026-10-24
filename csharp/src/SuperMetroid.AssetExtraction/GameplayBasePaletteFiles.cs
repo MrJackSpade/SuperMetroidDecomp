@@ -93,6 +93,7 @@ public static class GameplayBasePaletteFiles
         return colours;
     }
 
+    /// <summary>Reads <paramref name="count"/> colours from the cartridge at <paramref name="address"/>.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address, int count)
     {
         var colors = new PaletteRgb5[count];

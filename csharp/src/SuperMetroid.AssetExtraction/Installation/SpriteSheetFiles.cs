@@ -10,7 +10,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
@@ -57,7 +56,8 @@ public static class SpriteSheetFiles
         SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ManifestFileName, SpriteSheetDefinitions.Sheets.Count);
         var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
         // The body sheets are named from the stock body tables installed beside them.
-        string content = Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!;
+        string content = Path.GetDirectoryName(Path.GetFullPath(stockDirectory))
+            ?? throw new ArgumentException($"Stock directory {stockDirectory} has no installation above it.", nameof(stockDirectory));
         var body = new Lazy<SamusBodyArtworkCatalog>(() => SamusBodyArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
         // The pause sheet is named from the stock selector presentation installed beside it.
@@ -89,11 +89,8 @@ public static class SpriteSheetFiles
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Composes one sheet.</summary>
-    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SpriteSheetSourceCatalog sources, SpriteSheetId sheet) => sheet switch
-    {
-        SpriteSheetId.EscapeTimer => EscapeTimerSheetComposer.Compose(bus),
-        _ => sources.Compose(sheet),
-    };
+    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SpriteSheetSourceCatalog sources, SpriteSheetId sheet) =>
+        sheet == SpriteSheetId.EscapeTimer ? EscapeTimerSheetComposer.Compose(bus) : sources.Compose(sheet);
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     /// <param name="sheet">The sheet.</param>
@@ -104,8 +101,25 @@ public static class SpriteSheetFiles
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<SamusBodyArtworkCatalog> body,
         Lazy<AreaMapPresentationCatalog> maps, Lazy<IntroCinematicArtworkCatalog> intro, Lazy<EndingObjectArtworkCatalog> ending) => sheet switch
     {
-        _ when ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) => [ScreenTileSheet.FrameName],
-        _ when ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) => [Mode7CharacterSheet.FrameName],
+        SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
+            SpriteSheetId.AreaMapForegroundTilesCrateria or SpriteSheetId.AreaMapForegroundTilesBrinstar or
+            SpriteSheetId.AreaMapForegroundTilesNorfair or SpriteSheetId.AreaMapForegroundTilesWreckedShip or
+            SpriteSheetId.AreaMapForegroundTilesMaridia or SpriteSheetId.AreaMapForegroundTilesTourian or
+            SpriteSheetId.AreaMapBackgroundTilesCrateria or SpriteSheetId.AreaMapBackgroundTilesBrinstar or
+            SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
+            SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian or
+            SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHudTiles or
+            SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
+            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
+            SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or
+            SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
+            SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles =>
+            [ScreenTileSheet.FrameName],
+        SpriteSheetId.TitleMode7Tiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightMode7Tiles or
+            SpriteSheetId.EndingEscapeAMode7Tiles or SpriteSheetId.EndingEscapeBMode7Tiles or
+            SpriteSheetId.EndingPlanetExplosionMode7Tiles or SpriteSheetId.EndingFlyawayMode7Tiles or
+            SpriteSheetId.EndingRewardIconMode7Tiles =>
+            [Mode7CharacterSheet.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
@@ -121,8 +135,21 @@ public static class SpriteSheetFiles
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),
         SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),
-        _ when EndingSpriteSheets.Sheets.Contains(sheet) => EndingSpriteSheetComposer.FrameNames(sheet, ending.Value),
-        _ => ProjectileSheetDefinitions.Frames,
+        SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
+            SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
+            SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
+            SpriteSheetId.EndingShootingLogoHalfSprites or SpriteSheetId.EndingShootingLogoThreeQuartersSprites or
+            SpriteSheetId.EndingLogoSprites =>
+            EndingSpriteSheetComposer.FrameNames(sheet, ending.Value),
+        SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or
+            SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or SpriteSheetId.ProjectilesSpazer or
+            SpriteSheetId.ProjectilesSpazerWave or SpriteSheetId.ProjectilesSpazerIce or
+            SpriteSheetId.ProjectilesSpazerIceWave or SpriteSheetId.ProjectilesPlasma or
+            SpriteSheetId.ProjectilesPlasmaWave or SpriteSheetId.ProjectilesPlasmaIce or
+            SpriteSheetId.ProjectilesPlasmaIceWave or SpriteSheetId.ProjectilesSpazerPlasmaWave or
+            SpriteSheetId.ProjectilesSpazerPlasmaIce =>
+            ProjectileSheetDefinitions.Frames,
+        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 
     /// <summary>A sheet's frame manifest file name.</summary>

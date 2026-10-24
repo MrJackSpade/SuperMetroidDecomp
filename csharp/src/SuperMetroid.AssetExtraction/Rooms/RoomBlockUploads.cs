@@ -58,11 +58,11 @@ internal static class RoomBlockUploads
                     tilesets.Add(tileset, uploads = new TilesetUploads(ceres, inputs));
                 else if (uploads.Ceres != ceres)
                     throw new InvalidDataException($"Tileset {tileset} is loaded both inside and outside Ceres.");
-                foreach (BgCharacterPlacement placement in Of(inputs, room, state).Where(OverTiles))
+                foreach (BgCharacterPlacement placement in Of(inputs, state).Where(OverTiles))
                     uploads.Add(placement);
                 foreach (AnimatedCharacterPlacement frame in AnimatedFrames(inputs, room, state).Where(frame => frame.Set == BgCharacterSet.Tiles))
                     uploads.AddAnimated(frame);
-                if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
+                if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Crocomire))
                 {
                     foreach (AnimatedCharacterPlacement frame in CrocomireMeltBandFrames(inputs))
                         uploads.AddAnimated(frame);
@@ -123,9 +123,9 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>What one state of a room binds after it loads, collectibles and animations aside: Kraid's backdrop.</summary>
-    private static IEnumerable<BgCharacterPlacement> Of(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, CartridgeRoomState state)
+    private static IEnumerable<BgCharacterPlacement> Of(RoomBlockSheetInputs inputs, CartridgeRoomState state)
     {
-        if (state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
+        if (state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
         {
             yield return new BgCharacterPlacement(KraidBehavior.KraidRoomBackgroundIdentity, BgCharacterSet.Tiles, KraidBackgroundRomData.RoomBackgroundFirstCharacter,
                 (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
@@ -334,7 +334,7 @@ internal static class RoomBlockUploads
     /// <summary>What <paramref name="state"/>'s bosses bind over BG3's characters: the HUD's, which Kraid's death restores.</summary>
     private static IEnumerable<BgCharacterPlacement> Bg3BossUploads(RoomBlockSheetInputs inputs, CartridgeRoomState state)
     {
-        if (!state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
+        if (!state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid))
             yield break;
         for (int quarter = 0; quarter < HudTileAtlasFormat.RestoreQuarterCount; quarter++)
             yield return KraidBackgroundRomData.Bg3RestoreQuarter(quarter, inputs.Hud.KraidRestoreQuarter(quarter));
@@ -434,8 +434,8 @@ internal static class RoomBlockUploads
         internal void AddObjectPage(IReadOnlyList<BgCharacterPlacement> loaded, IReadOnlyList<BgCharacterPlacement> encounters)
         {
             IReadOnlyList<BgCharacterPlacement>[] pages = encounters.Count == 0 ? [loaded] : [loaded, [.. loaded, .. encounters]];
-            if (ObjectPages.Count > 0 && !ObjectPages.SelectMany(page => page).Select(placement => (placement.Identity, placement.FirstCharacter))
-                .SequenceEqual(pages.SelectMany(page => page).Select(placement => (placement.Identity, placement.FirstCharacter))))
+            if (ObjectPages.Count > 0 && !ObjectPages.SelectMany(page => page).Select(PagePlacement.Of)
+                .SequenceEqual(pages.SelectMany(page => page).Select(PagePlacement.Of)))
                 throw new InvalidDataException("Two rooms of one tileset read different OBJ character tables.");
             if (ObjectPages.Count == 0)
                 ObjectPages = pages;
@@ -577,4 +577,13 @@ internal static class RoomBlockUploads
     /// <param name="Characters">The graphics bound.</param>
     /// <param name="Words">The tile words written, four per definition.</param>
     internal sealed record CollectibleSlotCharacters(BgCharacterPlacement Characters, ushort[] Words);
+
+    /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
+    /// <param name="Identity">The artwork.</param>
+    /// <param name="FirstCharacter">The character it starts at.</param>
+    private readonly record struct PagePlacement(BgArtworkIdentity Identity, int FirstCharacter)
+    {
+        /// <summary>Where <paramref name="placement"/> places its artwork.</summary>
+        internal static PagePlacement Of(BgCharacterPlacement placement) => new(placement.Identity, placement.FirstCharacter);
+    }
 }

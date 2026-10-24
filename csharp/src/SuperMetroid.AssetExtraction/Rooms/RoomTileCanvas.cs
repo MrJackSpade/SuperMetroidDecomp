@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -10,9 +11,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The pixel planes of a pre-coloured room sheet, painted one four-bpp tile at a time over a tileset's background colours
 /// (#1392): each pixel's colour, palette index, tile priority and row.
 /// </summary>
-/// <param name="width">The sheet's width.</param>
-/// <param name="height">The sheet's height.</param>
-internal sealed class RoomTileCanvas(int width, int height)
+/// <param name="size">The sheet's size.</param>
+internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 {
     /// <summary>Colours in one palette row.</summary>
     private const int RowColours = 16;
@@ -23,23 +23,23 @@ internal sealed class RoomTileCanvas(int width, int height)
     /// <summary>Bytes in one four-bpp character.</summary>
     internal const int CharacterBytes = 32;
 
-    /// <summary>The sheet's width.</summary>
-    internal int Width { get; } = width;
+    /// <summary>The sheet's size.</summary>
+    internal Extent16<ImagePixels> Size { get; } = size;
 
-    /// <summary>The sheet's height.</summary>
-    internal int Height { get; } = height;
+    /// <summary>The sheet's width: the pixels from one row to the next.</summary>
+    internal int Width => Size.X;
 
     /// <summary>Each pixel's colour.</summary>
-    internal Rgba32[] Pixels { get; } = new Rgba32[width * height];
+    internal Rgba32[] Pixels { get; } = new Rgba32[size.X * size.Y];
 
     /// <summary>Each pixel's palette row times sixteen plus its colour; zero where transparent.</summary>
-    internal byte[] PaletteIndices { get; } = new byte[width * height];
+    internal byte[] PaletteIndices { get; } = new byte[size.X * size.Y];
 
     /// <summary>Each pixel's tile priority.</summary>
-    internal byte[] Priorities { get; } = new byte[width * height];
+    internal byte[] Priorities { get; } = new byte[size.X * size.Y];
 
     /// <summary>Each pixel's row, which no draw overrides.</summary>
-    internal byte[] PartRows { get; } = new byte[width * height];
+    internal byte[] PartRows { get; } = new byte[size.X * size.Y];
 
     /// <summary>The 128 background colours a tileset's palette loads, the first half of CGRAM.</summary>
     internal static Bgr555[] StandardColours(ReadOnlySpan<byte> palette)
@@ -115,13 +115,13 @@ internal sealed class RoomTileCanvas(int width, int height)
     }
 
     /// <summary>
-    /// Paints one pixel of colour <paramref name="index"/> at (<paramref name="x"/>, <paramref name="y"/>), as a Mode 7 tile
+    /// Paints one pixel of colour <paramref name="index"/> at <paramref name="at"/>, as a Mode 7 tile
     /// names its colours directly from all 256; colour zero is transparent. Such a pixel has no part row, as no draw
     /// overrides a background's rows.
     /// </summary>
-    internal void PaintIndex(int x, int y, byte index, Bgr555[] colours)
+    internal void PaintIndex(Position16<ImagePixels> at, byte index, Bgr555[] colours)
     {
-        int pixel = y * Width + x;
+        int pixel = at.Y * Width + at.X;
         PaletteIndices[pixel] = index;
         if (index != 0)
             Pixels[pixel] = colours[index].ToRgba32();
@@ -136,7 +136,7 @@ internal sealed class RoomTileCanvas(int width, int height)
     /// <summary>The painted planes as a background sheet coloured as <paramref name="kind"/> with <paramref name="frames"/> cut from it.</summary>
     internal ComposedSpriteSheet ToSheet(Bgr555[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
         SpriteImageColours kind = SpriteImageColours.Background) =>
-        new(new((ushort)Width, (ushort)Height), Pixels, PaletteIndices, Priorities, PartRows, new SpriteSheetDocument
+        new(Size, Pixels, PaletteIndices, Priorities, PartRows, new SpriteSheetDocument
         {
             Version = SpriteSheet.Version,
             Palette = kind,

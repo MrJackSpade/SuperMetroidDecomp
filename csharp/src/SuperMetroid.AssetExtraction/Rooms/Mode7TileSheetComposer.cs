@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -41,7 +40,7 @@ internal static class Mode7TileSheetComposer
         background.CopyTo(colours, 0);
         SpritePaletteRows coloured = SpritePaletteRows.None;
         int side = Mode7TileSheet.TilesPerRow * Mode7TileSheet.TilePixels;
-        var canvas = new RoomTileCanvas(side, side);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(side)), checked((ushort)(side))));
         var shown = new BgArtworkShown?[Mode7TileSheet.Tiles];
         for (int tile = 0; tile < Mode7TileSheet.Tiles; tile++)
         {
@@ -55,7 +54,7 @@ internal static class Mode7TileSheetComposer
                 byte index = tiles[(tile * Mode7TileSheet.TileWords + pixel) * 2 + 1];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
                     coloured |= SpritePaletteRowSet.Rows[index / 16];
-                canvas.PaintIndex(corner.X + pixel % Mode7TileSheet.TilePixels, corner.Y + pixel / Mode7TileSheet.TilePixels, index, colours);
+                canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % Mode7TileSheet.TilePixels)), checked((ushort)(corner.Y + pixel / Mode7TileSheet.TilePixels))), index, colours);
             }
         }
         // The frame's rows name the background rows it is coloured from; its sprite rows are the room load's own.
@@ -73,9 +72,3 @@ internal static class Mode7TileSheetComposer
         return new ComposedMode7Tiles(tileset, canvas.ToSheet(colours, frames, SpriteImageColours.FullPalette), shown);
     }
 }
-
-/// <summary>A composed Ceres tileset's Mode 7 tiles: the picture and what each tile was pictured over.</summary>
-/// <param name="Tileset">The tileset.</param>
-/// <param name="Sheet">The picture of every tile.</param>
-/// <param name="Shown">What showed at each tile's characters, or null where nothing did.</param>
-internal sealed record ComposedMode7Tiles(TilesetDefinition Tileset, ComposedSpriteSheet Sheet, IReadOnlyList<BgArtworkShown?> Shown);

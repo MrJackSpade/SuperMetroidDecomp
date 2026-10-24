@@ -43,7 +43,7 @@ internal static class RoomBlockSheetComposer
         // BG3's characters outlive the room that binds them: an effect's frames and Kraid's restoration stay bound in the
         // rooms after, until something binds over them again, so every room's BG3 words are pictured over all of them.
         BgCharacterPlacement[] bg3Uploads = [.. tilesets.Values.SelectMany(uploads => uploads.Bg3Uploads)
-            .DistinctBy(placement => (placement.Identity, placement.Set, placement.FirstCharacter))];
+            .DistinctBy(placement => new BoundArtwork(placement.Identity, placement.Set, placement.FirstCharacter))];
         IReadOnlyDictionary<string, ImmutableArray<ushort>> messages = MessageBoxSheetComposer.Messages(inputs);
         return new RoomSheetComposition(tilesets.ToDictionary(entry => entry.Key, entry => Compose(inputs, entry.Key, entry.Value)), backgrounds,
             words, tilesets.ToDictionary(entry => entry.Key, entry => TileWordSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value, bg3Uploads)),
@@ -82,8 +82,7 @@ internal static class RoomBlockSheetComposer
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(placement => placement.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
-        var canvas = new RoomTileCanvas(RoomBackgroundImage.PagePixels,
-            background.Words.Length / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, checked((ushort)(background.Words.Length / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels))));
         SpritePaletteRows rows = SpritePaletteRows.None;
         for (int index = 0; index < background.Words.Length; index++)
         {
@@ -100,7 +99,7 @@ internal static class RoomBlockSheetComposer
             [RoomBackgroundImage.FrameName] = new SpriteSheetFrameDocument
             {
                 Corner = default,
-                Size = new Extent16<ImagePixels>((ushort)canvas.Width, (ushort)canvas.Height),
+                Size = canvas.Size,
                 Origin = default,
                 Rows = rows,
                 Parts = [],
@@ -165,7 +164,7 @@ internal static class RoomBlockSheetComposer
         }
 
         int rows = (pictures.Count + SheetColumns - 1) / SheetColumns;
-        var canvas = new RoomTileCanvas(SheetColumns * RoomBlockSheet.BlockPixels, Math.Max(rows, 1) * RoomBlockSheet.BlockPixels);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(SheetColumns * RoomBlockSheet.BlockPixels, checked((ushort)(Math.Max(rows, 1) * RoomBlockSheet.BlockPixels))));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         int index = 0;
         foreach ((string name, Picture picture) in pictures)
@@ -262,4 +261,9 @@ internal static class RoomBlockSheetComposer
     /// <param name="Shown">What shows at each tile's character.</param>
     private sealed record Picture(ushort[] Words, BgArtworkShown[] Shown);
 
+    /// <summary>Artwork bound over background characters: the artwork, the set and the character it starts at.</summary>
+    /// <param name="Identity">The artwork.</param>
+    /// <param name="Set">The character set it is bound over.</param>
+    /// <param name="FirstCharacter">The character it starts at.</param>
+    private readonly record struct BoundArtwork(BgArtworkIdentity Identity, BgCharacterSet Set, int FirstCharacter);
 }

@@ -55,7 +55,7 @@ internal static class Layer3CellsFixtures
         for (int place = 0; place < distinct.Length; place++)
             places.Add(distinct[place], place);
         int rows = (distinct.Length + columns - 1) / columns;
-        var canvas = new RoomTileCanvas(columns * tile, rows * tile);
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * tile, checked((ushort)(rows * tile))));
         Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         for (int place = 0; place < distinct.Length; place++)

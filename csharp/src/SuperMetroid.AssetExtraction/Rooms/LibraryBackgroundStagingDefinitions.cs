@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -6,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The work RAM and VRAM a library-background command list reads and writes as bank $82's interpreter runs it, which
 /// extraction's replay of the list reproduces (#1406).
 /// </summary>
+[PpuLayoutBoundary("catalog: the clear commands' encoded VRAM destinations, decoded once")]
 internal static class LibraryBackgroundStagingDefinitions
 {
     /// <summary><c>$7E:4000</c>: the tilemap staging decompression and fills write, and transfers read.</summary>
@@ -30,10 +32,12 @@ internal static class LibraryBackgroundStagingDefinitions
     internal static readonly SnesAddress RomSourceAddressFloor = new(0x80, 0x0000);
 
     /// <summary>Command six's fill of the staging with the blank FX tile and its transfer to BG3's tilemap; no retail list runs it.</summary>
-    internal static readonly LibraryBackgroundClear ClearFx = new((int)TilemapStagingAddress, 0x4000, 0x0f00, 0x184e, 0x5880);
+    internal static readonly LibraryBackgroundClear ClearFx = new((int)TilemapStagingAddress, 0x4000, 0x0f00,
+        new SnesBgTilemapWord(0x184e), VramDmaDestination.FromNative(0x5880));
 
     /// <summary>Commands A and C's fill of the staging with the blank BG2 tile and its transfer to BG2's two pages.</summary>
-    internal static readonly LibraryBackgroundClear ClearBg2 = new((int)TilemapStagingAddress, 0x4000, 0x1000, 0x0338, 0x4800);
+    internal static readonly LibraryBackgroundClear ClearBg2 = new((int)TilemapStagingAddress, 0x4000, 0x1000,
+        new SnesBgTilemapWord(0x0338), VramDmaDestination.FromNative(0x4800));
 
     /// <summary>Command C's additional destination for the filled staging: Kraid's BG2 page.</summary>
     internal const ushort KraidBg2VramDestinationWord = 0x4000;

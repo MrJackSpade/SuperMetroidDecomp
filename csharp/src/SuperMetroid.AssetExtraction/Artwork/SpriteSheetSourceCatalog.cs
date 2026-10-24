@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -78,8 +77,39 @@ internal sealed class SpriteSheetSourceCatalog
             [CeresDestructionUpload.CeresScene]),
         SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value,
             [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]),
-        _ when EndingSpriteSheets.Sheets.Contains(sheet) => EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes.Value,
-            maps.Value.EndingFont),
-        _ => SamusSheetSources.For(samus.Value, sheet),
+        SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
+            SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
+            SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
+            SpriteSheetId.EndingShootingLogoHalfSprites or SpriteSheetId.EndingShootingLogoThreeQuartersSprites or
+            SpriteSheetId.EndingLogoSprites =>
+            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes.Value, maps.Value.EndingFont),
+        SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom or
+            SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or SpriteSheetId.SamusDeath or
+            SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or
+            SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or SpriteSheetId.ProjectilesSpazer or
+            SpriteSheetId.ProjectilesSpazerWave or SpriteSheetId.ProjectilesSpazerIce or
+            SpriteSheetId.ProjectilesSpazerIceWave or SpriteSheetId.ProjectilesPlasma or
+            SpriteSheetId.ProjectilesPlasmaWave or SpriteSheetId.ProjectilesPlasmaIce or
+            SpriteSheetId.ProjectilesPlasmaIceWave or SpriteSheetId.ProjectilesSpazerPlasmaWave or
+            SpriteSheetId.ProjectilesSpazerPlasmaIce or SpriteSheetId.MenuForegroundTiles or
+            SpriteSheetId.MenuMapTiles or SpriteSheetId.AreaMapForegroundTilesCrateria or
+            SpriteSheetId.AreaMapForegroundTilesBrinstar or SpriteSheetId.AreaMapForegroundTilesNorfair or
+            SpriteSheetId.AreaMapForegroundTilesWreckedShip or SpriteSheetId.AreaMapForegroundTilesMaridia or
+            SpriteSheetId.AreaMapForegroundTilesTourian or SpriteSheetId.AreaMapBackgroundTilesCrateria or
+            SpriteSheetId.AreaMapBackgroundTilesBrinstar or SpriteSheetId.AreaMapBackgroundTilesNorfair or
+            SpriteSheetId.AreaMapBackgroundTilesWreckedShip or SpriteSheetId.AreaMapBackgroundTilesMaridia or
+            SpriteSheetId.AreaMapBackgroundTilesTourian or SpriteSheetId.PauseMapTiles or
+            SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHudTiles or SpriteSheetId.IntroSceneTiles or
+            SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
+            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
+            SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or
+            SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
+            SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles or
+            SpriteSheetId.TitleMode7Tiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightMode7Tiles or
+            SpriteSheetId.EndingEscapeAMode7Tiles or SpriteSheetId.EndingEscapeBMode7Tiles or
+            SpriteSheetId.EndingPlanetExplosionMode7Tiles or SpriteSheetId.EndingFlyawayMode7Tiles or
+            SpriteSheetId.EndingRewardIconMode7Tiles =>
+            SamusSheetSources.For(samus.Value, sheet),
+        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 }

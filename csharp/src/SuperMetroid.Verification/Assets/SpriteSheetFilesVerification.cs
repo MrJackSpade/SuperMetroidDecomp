@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -33,6 +32,14 @@ internal static class SpriteSheetFilesVerification
                          GameInstallationLayout.IntroCinematicDirectoryName, GameInstallationLayout.EndingObjectDirectoryName })
                 CopyDirectory(Path.Combine(RepositoryInstallation.Installation.ContentDirectory, beside), Path.Combine(scratch.FullName, beside));
             SpriteSheetFiles.Extract(bus, RepositoryInstallation.Installation.ContentDirectory, stock, SupportedCartridge.Sha256);
+            // Composing the sheets again reproduces the installed files byte for byte.
+            string installedDirectory = Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
+            string[] installedFiles = [.. Directory.GetFiles(installedDirectory).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal)];
+            AssertTrue(installedFiles.SequenceEqual(Directory.GetFiles(stock).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal)),
+                "the recomposed sprite sheets are the installed files");
+            foreach (string name in installedFiles)
+                AssertTrue(File.ReadAllBytes(Path.Combine(installedDirectory, name)).AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(stock, name))),
+                    $"sprite sheet file {name} recomposes byte for byte");
             InstalledSpriteSheets installed = SpriteSheetFiles.Load(stock, null);
 
             ComposedSpriteSheet composed = EscapeTimerSheetComposer.Compose(bus);

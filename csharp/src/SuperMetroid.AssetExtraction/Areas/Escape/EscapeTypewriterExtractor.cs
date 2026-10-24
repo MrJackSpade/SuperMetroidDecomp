@@ -93,6 +93,7 @@ public static class EscapeTypewriterExtractor
     /// The VRAM word of the tilemap <paramref name="id"/>'s program types over: the Ceres warning types over BG1, the Zebes
     /// warning over BG2.
     /// </summary>
+    [PpuLayoutBoundary("codec: the VRAM tilemap word each typewriter program writes over")]
     private static int TilemapWordOf(EscapeTypewriterProgramId id) => id switch
     {
         EscapeTypewriterProgramId.Ceres => GameplayVramLayout.Bg1TilemapWord,

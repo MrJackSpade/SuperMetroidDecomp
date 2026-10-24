@@ -60,7 +60,9 @@ public static class EnemySheetFiles
         var spawnedRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
         var artwork = new Lazy<InstalledEnemyArtwork>(() => EnemyTileArtworkFiles.Load(
-            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))!, GameInstallationLayout.EnemyTileDirectoryName), null));
+            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))
+                ?? throw new ArgumentException($"Stock directory {stockDirectory} has no installation above it.", nameof(stockDirectory)),
+                GameInstallationLayout.EnemyTileDirectoryName), null));
         var setRegions = new Dictionary<string, SetRegions>(StringComparer.Ordinal);
         var setCorpses = new Dictionary<string, IReadOnlyList<CorpseRotSimulation>>(StringComparer.Ordinal);
         foreach ((string set, Dictionary<string, string> members) in manifest.Sets)

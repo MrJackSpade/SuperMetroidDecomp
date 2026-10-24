@@ -25,6 +25,7 @@ internal static class PauseSheetComposer
     /// What the pause sheet composes from <paramref name="selectors"/> and <paramref name="tanks"/>, over the menus of
     /// <paramref name="maps"/>.
     /// </summary>
+    [PpuLayoutBoundary("codec: the menu's sprite colours, read from its CGRAM image")]
     internal static SpriteSheetSources Sources(PauseSelectorPresentation selectors, PauseReserveTankPresentation tanks,
         AreaMapPresentationCatalog maps)
     {

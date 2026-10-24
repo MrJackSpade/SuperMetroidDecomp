@@ -131,13 +131,13 @@ internal static class LibraryBackgroundProgramImporter
             for (int i = 0; i < transfer.ByteCount; i += 2)
             {
                 int address = RoomAssetRomData.LibraryBackground.WorkRamBank | (transfer.WorkRamDestination + i);
-                source.WriteByte(address, (byte)transfer.FillValue);
-                source.WriteByte(address + 1, SnesLittleEndian.HighByte(transfer.FillValue));
+                source.WriteByte(address, SnesLittleEndian.LowByte(transfer.FillValue.Raw));
+                source.WriteByte(address + 1, SnesLittleEndian.HighByte(transfer.FillValue.Raw));
             }
             ISnesMutableMemory memory = source as ISnesMutableMemory ?? throw new InvalidOperationException("Import staging requires WRAM.");
             if (includeKraidPage) vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress,
                 transfer.ByteCount, LibraryBackgroundStagingDefinitions.KraidBg2VramDestinationWord);
-            vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress, transfer.ByteCount, transfer.VramDestinationWord);
+            vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress, transfer.ByteCount, transfer.VramDestination.Encoded);
         }
     }
 

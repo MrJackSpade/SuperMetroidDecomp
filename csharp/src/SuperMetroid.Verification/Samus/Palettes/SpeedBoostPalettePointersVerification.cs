@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
@@ -31,12 +32,12 @@ internal static class SpeedBoostPalettePointersVerification
         for (int selection = 0; selection < equipment.Length; selection++)
         {
             ushort offset = equipment[selection].GetSuitPaletteTableOffset();
-            int source = SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers + offset;
+            int source = SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPointers + offset;
             ushort nativePointer = rom.ReadCartridgeWord(source);
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"Speed Booster pointer selection {selection} matches retail ROM");
             AssertEqual(nativePointer,
-                SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(offset),
+                SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPalettePointer(offset),
                 $"compiled Speed Booster pointer selection {selection} matches retail ROM");
 
             var samus = new SamusState
@@ -50,7 +51,7 @@ internal static class SpeedBoostPalettePointersVerification
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
-                    installedColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    installedColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(2, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");
@@ -90,7 +91,7 @@ internal static class SpeedBoostPalettePointersVerification
     /// <summary>Reads one native full-body shade as the verification oracle for installed Speed Booster colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster full-body shade colors")]
     private static ushort ReadNativeSpeedBoosterShadeColor(IImportCartridgeSource rom, int nativePointer, int color) =>
-        RomDataReader.ReadWordFixedBank(rom, SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort)));
+        RomDataReader.ReadWordFixedBank(rom, SamusCartridgeTables.PaletteBank | (nativePointer + color * sizeof(ushort)));
 
     /// <summary>Runs the Speed Booster palette pointer and CGRAM checks.</summary>
     [VerificationCommand("--speed-boost-palette-pointers")]

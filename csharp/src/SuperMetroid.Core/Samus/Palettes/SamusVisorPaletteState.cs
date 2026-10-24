@@ -27,7 +27,7 @@ public sealed class SamusVisorPaletteState
 
     /// <summary>
     /// Palette-handler calls left before the next visor colour, one through
-    /// <see cref="SamusPaletteRomData.Visor.FrameDelay"/>; it reads the frame delay on the call that wrote a colour.
+    /// <see cref="SamusPaletteDefinitions.Visor.FrameDelay"/>; it reads the frame delay on the call that wrote a colour.
     /// </summary>
     public int Timer { get; private set; } = ResetTimer;
 
@@ -35,7 +35,7 @@ public sealed class SamusVisorPaletteState
     /// Byte offset of the next visor colour in the six-colour visor table: six, eight or ten, the three
     /// room-cycle colours. It is a byte offset, not an ordinal.
     /// </summary>
-    public int PaletteByteOffset { get; private set; } = SamusPaletteRomData.Visor.CycleFirstByteOffset;
+    public int PaletteByteOffset { get; private set; } = SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
 
     /// <summary>
     /// Advances one palette-handler call and optionally writes CGRAM color 196.
@@ -60,7 +60,7 @@ public sealed class SamusVisorPaletteState
         if (!layerBlendingDefaultConfig.AnimatesVisor())
         {
             Timer = ResetTimer;
-            PaletteByteOffset = SamusPaletteRomData.Visor.CycleFirstByteOffset;
+            PaletteByteOffset = SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
             return new SamusVisorPaletteStepResult();
         }
 
@@ -71,7 +71,7 @@ public sealed class SamusVisorPaletteState
         }
 
         // `$91:D864` reloads the expired countdown to the frame delay and keeps the table offset.
-        Timer = SamusPaletteRomData.Visor.FrameDelay;
+        Timer = SamusPaletteDefinitions.Visor.FrameDelay;
         int sourceOffset = PaletteByteOffset;
         if (PresentationColors is null ||
             !PresentationColors.TryResolveByteOffset(sourceOffset, out Bgr555 color))
@@ -81,9 +81,9 @@ public sealed class SamusVisorPaletteState
         // Only offsets 6, 8, and 10 belong to the room-backdrop cycle. Offsets 0/2/4 are
         // X-ray widening colors and are selected by the separate X-ray palette handler.
         int nextOffset = sourceOffset + 2;
-        PaletteByteOffset = nextOffset < SamusPaletteRomData.Visor.CycleEndByteOffset
+        PaletteByteOffset = nextOffset < SamusPaletteDefinitions.Visor.CycleEndByteOffset
             ? nextOffset
-            : SamusPaletteRomData.Visor.CycleFirstByteOffset;
+            : SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
 
         return new SamusVisorPaletteStepResult();
     }

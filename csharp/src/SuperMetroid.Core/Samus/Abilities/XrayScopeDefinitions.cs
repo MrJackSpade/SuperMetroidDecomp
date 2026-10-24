@@ -15,11 +15,11 @@ public static class XrayScopeDefinitions
         /// <summary>Final visor word offset retained while the beam widens.</summary>
         public const ushort WideningFinalWordOffset = 4;
         /// <summary>First visor word offset in the full-beam cycle.</summary>
-        public const ushort FullCycleFirstWordOffset = SamusPaletteRomData.Visor.CycleFirstByteOffset;
+        public const ushort FullCycleFirstWordOffset = SamusPaletteDefinitions.Visor.CycleFirstByteOffset;
         /// <summary>Exclusive visor word offset ending the full-beam cycle.</summary>
-        public const ushort FullCycleEndWordOffset = SamusPaletteRomData.Visor.CycleEndByteOffset;
+        public const ushort FullCycleEndWordOffset = SamusPaletteDefinitions.Visor.CycleEndByteOffset;
         /// <summary>Frames between visor color advances.</summary>
-        public const ushort FrameDelay = SamusPaletteRomData.Visor.FrameDelay;
+        public const ushort FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
     }
 
     /// <summary>Angle bands selecting the five standing/crouching X-ray animation frames.</summary>

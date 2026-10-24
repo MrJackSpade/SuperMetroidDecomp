@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -35,17 +36,17 @@ internal static class PowerBombFixedColorsVerification
         {
             for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
             {
-                int address = PowerBombFixedColorFormat.SourceAddress(sequence) +
-                    index * SamusPaletteRomData.PowerBomb.BytesPerColor;
+                int address = SamusCartridgeTables.PowerBombColors(sequence) +
+                    index * SamusCartridgeTables.PowerBombBytesPerColor;
                 Bgr555 color = catalog.Resolve(sequence, index);
                 byte red = (byte)color.Red;
                 byte green = (byte)color.Green;
                 byte blue = (byte)color.Blue;
-                AssertEqual((byte)(rom.ReadCartridgeByte(address) & SamusPaletteRomData.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
                     red, $"{sequence} native red {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & SamusPaletteRomData.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
                     green, $"{sequence} native green {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & SamusPaletteRomData.PowerBomb.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & SamusPaletteDefinitions.PowerBomb.ComponentMask),
                     blue, $"{sequence} native blue {index}");
                 compared++;
             }
@@ -150,9 +151,9 @@ internal static class PowerBombFixedColorsVerification
     internal static CartridgeReadGuard NewForbiddenPowerBombColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => Enum.GetValues<PowerBombFixedColorSequence>().Any(sequence =>
-                    address >= PowerBombFixedColorFormat.SourceAddress(sequence) &&
-                    address < PowerBombFixedColorFormat.SourceAddress(sequence) +
-                        PowerBombFixedColorFormat.Count(sequence) * SamusPaletteRomData.PowerBomb.BytesPerColor),
+                    address >= SamusCartridgeTables.PowerBombColors(sequence) &&
+                    address < SamusCartridgeTables.PowerBombColors(sequence) +
+                        PowerBombFixedColorFormat.Count(sequence) * SamusCartridgeTables.PowerBombBytesPerColor),
                 address => $"Installed explosion read color ROM ${address:X6}.");
 
     /// <summary>Runs the Power Bomb fixed-color verification suite.</summary>

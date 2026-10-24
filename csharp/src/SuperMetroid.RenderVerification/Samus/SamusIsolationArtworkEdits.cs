@@ -39,7 +39,7 @@ internal static class SamusIsolationArtworkEdits
             RecolorWords(document.Required("whiteout"));
             JsonArray selectors = document.Required("explosionPaletteIndices").AsArray();
             for (int index = 0; index < selectors.Count; index++)
-                selectors[index] = (selectors.Required(index).GetValue<int>() + 1) % SamusPaletteRomData.Death.PaletteCount;
+                selectors[index] = (selectors.Required(index).GetValue<int>() + 1) % SamusPaletteDefinitions.Death.PaletteCount;
         });
 
         void Edit(string name, Action<JsonNode> change)

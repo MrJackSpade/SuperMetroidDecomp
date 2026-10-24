@@ -28,10 +28,10 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 {
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(
+        AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalettePointer(
             0, unchecked((ushort)(frame * 2)), out ushort pointer),
             $"compiled Power stored-shine phase {frame} exists");
-        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer,
+        WriteTestWord(bus, SamusCartridgeTables.PaletteBank | pointer,
             unchecked((ushort)(0x1100 + frame)));
     }
     WriteTestWord(bus, SamusCartridgeTables.PowerSuitPalette, 0x0321);

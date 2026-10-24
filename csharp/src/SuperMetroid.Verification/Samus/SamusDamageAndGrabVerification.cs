@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -829,7 +830,7 @@ static void InstallHyperBeamSuitPaletteFixture(TestAddressSpace bus)
     // controller-zero/command-$17 restoration rather than retaining rainbow colors.
     for (ushort palette = 0; palette < 10; palette++)
     {
-        ushort pointer = unchecked((ushort)SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(palette));
+        ushort pointer = unchecked((ushort)SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(palette));
         WriteTestWord(bus, 0x91d99e + palette * 2, pointer);
         for (ushort color = 0; color < 16; color++)
         {
@@ -840,8 +841,8 @@ static void InstallHyperBeamSuitPaletteFixture(TestAddressSpace bus)
         }
     }
     for (ushort color = 0; color < 16; color++)
-        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette |
-            (SamusPaletteRomData.Common.NormalSuitPalettePointer(0) + color * 2),
+        WriteTestWord(bus, SamusCartridgeTables.PaletteBank |
+            (SamusPaletteDefinitions.Common.NormalSuitPalettePointer(0) + color * 2),
             unchecked((ushort)(0x3000 + color)));
 }
 

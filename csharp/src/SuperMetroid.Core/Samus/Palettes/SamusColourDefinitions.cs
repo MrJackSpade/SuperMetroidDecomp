@@ -29,7 +29,7 @@ internal static class SamusColourDefinitions
     public const int FlareColour = 15;
 
     /// <summary>The visor's colour within the suit.</summary>
-    public const int VisorColour = SamusPaletteRomData.Common.VisorColorOffset;
+    public const int VisorColour = SamusPaletteDefinitions.Common.VisorColorOffset;
 
     /// <summary>The first beam colour the Crystal Flash's bubble shows.</summary>
     public const int CrystalFlashBubbleFirstColour = 10;

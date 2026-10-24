@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Core.Samus.Palettes.SamusPaletteRomData;
+using static SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -23,23 +23,23 @@ internal static class CrystalFlashVisualsVerification
             // Independent timeline lookup: expand authored durations into a cycle
             // and index elapsed calls, rather than reading the production timers.
             int cycleLength = Enumerable.Range(0, CrystalFlash.BodyRecordCount)
-                .Sum(i => Word(CrystalFlash.BodyRecords + i * CrystalFlash.BodyRecordByteCount + 2));
+                .Sum(i => Word(SamusCartridgeTables.CrystalFlashBodyRecords + i * CrystalFlash.BodyRecordByteCount + 2));
             int remaining = elapsed % cycleLength, record = 0;
-            while (remaining >= Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount + 2))
-                remaining -= Word(CrystalFlash.BodyRecords + record++ * CrystalFlash.BodyRecordByteCount + 2);
-            int body = Banks.Palette | Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount);
-            int bubble = Banks.Palette | Word(SamusCartridgeTables.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
+            while (remaining >= Word(SamusCartridgeTables.CrystalFlashBodyRecords + record * CrystalFlash.BodyRecordByteCount + 2))
+                remaining -= Word(SamusCartridgeTables.CrystalFlashBodyRecords + record++ * CrystalFlash.BodyRecordByteCount + 2);
+            int body = SamusCartridgeTables.PaletteBank | Word(SamusCartridgeTables.CrystalFlashBodyRecords + record * CrystalFlash.BodyRecordByteCount);
+            int bubble = SamusCartridgeTables.PaletteBank | Word(SamusCartridgeTables.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
             for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
-                AssertEqual(Word(body + color * 2), packet.Paint.Colors[SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart + color],
+                AssertEqual(Word(body + color * 2), packet.Paint.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
                     $"runtime Crystal Flash body palette at frame {elapsed}");
             for (int color = 0; color < CrystalFlash.BubbleColorCount; color++)
-                AssertEqual(Word(bubble + color * 2), packet.Paint.Colors[SamusPaletteRomDataCrystalFlashConstants.BubbleCgramStart + color],
+                AssertEqual(Word(bubble + color * 2), packet.Paint.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart + color],
                     $"runtime Crystal Flash bubble palette at frame {elapsed}");
         }
 
         var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
         var colors = packet.Paint.Colors.ToArray();
-        Array.Clear(colors, SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart, Common.ColorsPerObjPalette);
+        Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColorsPerObjPalette);
         var mutedMemory = new FramePaint(colors, packet.Paint.SpriteDraws);
         var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));

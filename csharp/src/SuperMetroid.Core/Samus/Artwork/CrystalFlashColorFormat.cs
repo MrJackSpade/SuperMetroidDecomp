@@ -10,11 +10,11 @@ public static class CrystalFlashColorFormat
     /// <summary>Supported JSON schema revision one, checked before palette compilation.</summary>
     public const int Version = 1;
     /// <summary>Ten editable body frames, one per pointer/timer record at $91:DC00-$DC27 in native playback order.</summary>
-    public const int BodyFrameCount = SamusPaletteRomData.CrystalFlash.BodyRecordCount;
+    public const int BodyFrameCount = SamusPaletteDefinitions.CrystalFlash.BodyRecordCount;
     /// <summary>Six editable bubble frames selected independently by the pointer table at $91:DC28-$DC33.</summary>
-    public const int BubbleFrameCount = SamusPaletteRomData.CrystalFlash.BubblePaletteCount;
+    public const int BubbleFrameCount = SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount;
     /// <summary>Ten colors in each body frame, occupying sprite palette six colors 0..9 at CGRAM $E0-$E9.</summary>
-    public const int BodyColorCount = SamusPaletteRomData.CrystalFlash.BodyColorCount;
+    public const int BodyColorCount = SamusPaletteDefinitions.CrystalFlash.BodyColorCount;
     /// <summary>Six colors in each bubble frame, occupying sprite palette six colors $A..$F at CGRAM $EA-$EF.</summary>
-    public const int BubbleColorCount = SamusPaletteRomData.CrystalFlash.BubbleColorCount;
+    public const int BubbleColorCount = SamusPaletteDefinitions.CrystalFlash.BubbleColorCount;
 }

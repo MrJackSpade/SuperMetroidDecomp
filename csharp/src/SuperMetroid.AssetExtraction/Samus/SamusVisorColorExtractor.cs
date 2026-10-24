@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +21,7 @@ public static class SamusVisorColorExtractor
     {
         Ensure.NotNull(bus);
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            SamusVisorColorFormat.SourceAddress,
+            SamusCartridgeTables.VisorColors,
             SamusVisorColorFormat.ColorCount * sizeof(ushort));
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
         for (int index = 0; index < colors.Length; index++)

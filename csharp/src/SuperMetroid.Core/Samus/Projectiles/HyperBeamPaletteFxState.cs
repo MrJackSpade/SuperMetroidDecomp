@@ -76,7 +76,7 @@ public sealed class HyperBeamPaletteFxState
         }
 
         RoomPaletteFxDefinition definition = HyperBeamDefinition();
-        if (definition.SetupCallback != SamusPaletteRomData.HyperBeamFx.SetupCallback ||
+        if (definition.SetupCallback != SamusPaletteDefinitions.HyperBeamFx.SetupCallback ||
             definition.InitialProgram != PaletteFxProgram.HyperBeam0)
         {
             throw new InvalidDataException(

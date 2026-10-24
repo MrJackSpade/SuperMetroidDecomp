@@ -120,13 +120,13 @@ public sealed class SamusSuitPickupState
             throw new InvalidOperationException("A suit pickup transformation is already active.");
 
         Kind = kind;
-        FixedColorRed = SamusPaletteRomData.SuitPickup.InitialRed;
+        FixedColorRed = SamusPaletteDefinitions.SuitPickup.InitialRed;
         FixedColorGreen = kind == SamusSuitPickupKind.Varia
-            ? SamusPaletteRomData.SuitPickup.VariaGreen
-            : SamusPaletteRomData.SuitPickup.GravityGreen;
+            ? SamusPaletteDefinitions.SuitPickup.VariaGreen
+            : SamusPaletteDefinitions.SuitPickup.GravityGreen;
         FixedColorBlue = kind == SamusSuitPickupKind.Varia
-            ? SamusPaletteRomData.SuitPickup.VariaBlue
-            : SamusPaletteRomData.SuitPickup.GravityBlue;
+            ? SamusPaletteDefinitions.SuitPickup.VariaBlue
+            : SamusPaletteDefinitions.SuitPickup.GravityBlue;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamScanlines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
@@ -391,9 +391,9 @@ public sealed class SamusSuitPickupState
     /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last HDMA stage.</summary>
     private void Finish(SamusState samus)
     {
-        FixedColorRed = SamusPaletteRomData.SuitPickup.ResetRed;
-        FixedColorGreen = SamusPaletteRomData.SuitPickup.ResetGreen;
-        FixedColorBlue = SamusPaletteRomData.SuitPickup.ResetBlue;
+        FixedColorRed = SamusPaletteDefinitions.SuitPickup.ResetRed;
+        FixedColorGreen = SamusPaletteDefinitions.SuitPickup.ResetGreen;
+        FixedColorBlue = SamusPaletteDefinitions.SuitPickup.ResetBlue;
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamScanlines = 0;
@@ -423,22 +423,22 @@ public sealed class SamusSuitPickupState
     /// <summary>Raises each COLDATA component by two toward the white reveal color.</summary>
     private void AdvanceColorTowardWhite()
     {
-        FixedColorRed = AddTwoAndClamp(FixedColorRed, SamusPaletteRomData.SuitPickup.WhiteRed);
-        FixedColorGreen = AddTwoAndClamp(FixedColorGreen, SamusPaletteRomData.SuitPickup.WhiteGreen);
-        FixedColorBlue = AddTwoAndClamp(FixedColorBlue, SamusPaletteRomData.SuitPickup.WhiteBlue);
+        FixedColorRed = AddTwoAndClamp(FixedColorRed, SamusPaletteDefinitions.SuitPickup.WhiteRed);
+        FixedColorGreen = AddTwoAndClamp(FixedColorGreen, SamusPaletteDefinitions.SuitPickup.WhiteGreen);
+        FixedColorBlue = AddTwoAndClamp(FixedColorBlue, SamusPaletteDefinitions.SuitPickup.WhiteBlue);
     }
 
     /// <summary>Returns the Varia beam's fixed color toward its orange target during the shrinking stage.</summary>
     private void AdvanceColorTowardOrange() => StepColorDownToward(
-        SamusPaletteRomData.SuitPickup.WhiteRed,
-        SamusPaletteRomData.SuitPickup.VariaOrangeGreen,
-        SamusPaletteRomData.SuitPickup.VariaOrangeBlue);
+        SamusPaletteDefinitions.SuitPickup.WhiteRed,
+        SamusPaletteDefinitions.SuitPickup.VariaOrangeGreen,
+        SamusPaletteDefinitions.SuitPickup.VariaOrangeBlue);
 
     /// <summary>Returns the Gravity beam's fixed color toward its blue target during the shrinking stage.</summary>
     private void AdvanceColorTowardBlue() => StepColorDownToward(
-        SamusPaletteRomData.SuitPickup.InitialRed,
-        SamusPaletteRomData.SuitPickup.GravityGreen,
-        SamusPaletteRomData.SuitPickup.GravityBlue);
+        SamusPaletteDefinitions.SuitPickup.InitialRed,
+        SamusPaletteDefinitions.SuitPickup.GravityGreen,
+        SamusPaletteDefinitions.SuitPickup.GravityBlue);
 
     /// <summary>Decrements each fixed-color component by one until it reaches its target.</summary>
     private void StepColorDownToward(int red, int green, int blue)

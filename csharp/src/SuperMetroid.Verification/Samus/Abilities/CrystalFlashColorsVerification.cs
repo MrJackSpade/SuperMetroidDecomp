@@ -27,11 +27,11 @@ internal static class CrystalFlashColorsVerification
             new MemoryStream(extracted, writable: false));
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
-            ushort pointer = ReadWord(rom, SamusPaletteRomData.CrystalFlash.BodyRecords +
-                frame * SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
+            ushort pointer = ReadWord(rom, SamusCartridgeTables.CrystalFlashBodyRecords +
+                frame * SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                        SamusPaletteRomData.Banks.Palette | (pointer + color * 2)),
+                        SamusCartridgeTables.PaletteBank | (pointer + color * 2)),
                     native.ResolveBody(frame, color),
                     $"Crystal Flash body frame {frame}, color {color} matches cartridge");
         }
@@ -41,7 +41,7 @@ internal static class CrystalFlashColorsVerification
                 frame * sizeof(ushort));
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                        SamusPaletteRomData.Banks.Palette | (pointer + color * 2)),
+                        SamusCartridgeTables.PaletteBank | (pointer + color * 2)),
                     native.ResolveBubble(frame, color),
                     $"Crystal Flash bubble frame {frame}, color {color} matches cartridge");
         }
@@ -96,11 +96,11 @@ internal static class CrystalFlashColorsVerification
             int bubbleFrame = call / 5 % CrystalFlashColorFormat.BubbleFrameCount;
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
                 AssertEqual(edited.CrystalFlashColors.ResolveBody(bodyFrame, color),
-                    cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart + color],
+                    cgram.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
                     $"Crystal Flash body call {call}, color {color} reaches CGRAM");
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
                 AssertEqual(edited.CrystalFlashColors.ResolveBubble(bubbleFrame, color),
-                    cgram.Colors[SamusPaletteRomDataCrystalFlashConstants.BubbleCgramStart + color],
+                    cgram.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart + color],
                     $"Crystal Flash bubble call {call}, color {color} reaches CGRAM");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -170,8 +170,8 @@ internal static class CrystalFlashColorsVerification
         var forbidden = new HashSet<int>();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
-            int address = SamusPaletteRomData.CrystalFlash.BodyRecords +
-                frame * SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
+            int address = SamusCartridgeTables.CrystalFlashBodyRecords +
+                frame * SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount;
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
             forbidden.Add(address);
             forbidden.Add(address + 1);
@@ -191,7 +191,7 @@ internal static class CrystalFlashColorsVerification
 
         void BlockColors(ushort pointer, int count)
         {
-            int address = SamusPaletteRomData.Banks.Palette | pointer;
+            int address = SamusCartridgeTables.PaletteBank | pointer;
             for (int offset = 0; offset < count * sizeof(ushort); offset++)
                 forbidden.Add(address + offset);
         }

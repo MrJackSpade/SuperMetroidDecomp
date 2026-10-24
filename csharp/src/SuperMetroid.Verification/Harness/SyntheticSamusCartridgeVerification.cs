@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -141,7 +142,7 @@ internal static class SyntheticSamusCartridge
         {
             WriteTestWord(
                 bus,
-                SamusPaletteRomData.Banks.Palette | unchecked((ushort)(pointer + color * 2)),
+                SamusCartridgeTables.PaletteBank | unchecked((ushort)(pointer + color * 2)),
                 colors[color]);
         }
     }

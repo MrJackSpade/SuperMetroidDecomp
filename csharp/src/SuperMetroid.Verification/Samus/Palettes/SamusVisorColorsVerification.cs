@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using System.Text;
@@ -43,7 +44,7 @@ internal static class SamusVisorColorsVerification
             new MemoryStream(SamusVisorColorExtractor.Extract(rom)));
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
         {
-            int address = SamusVisorColorFormat.SourceAddress + index * sizeof(ushort);
+            int address = SamusCartridgeTables.VisorColors + index * sizeof(ushort);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, catalog.Resolve(index), $"native visor color {index}");
         }
@@ -67,7 +68,7 @@ internal static class SamusVisorColorsVerification
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
-            int address = SamusVisorColorFormat.SourceAddress + index * sizeof(ushort);
+            int address = SamusCartridgeTables.VisorColors + index * sizeof(ushort);
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             colors[index] = new PaletteRgb5
             {
@@ -99,10 +100,10 @@ internal static class SamusVisorColorsVerification
                 LayerBlendingConfiguration.VisorBackdrop28);
             // `$91:D864` reloads the expired countdown to the frame delay only on the call
             // that writes a color; countdown calls leave it below that delay.
-            bool expectedWrite = native.Timer == SamusPaletteRomData.Visor.FrameDelay;
-            bool actualWrite = installed.Timer == SamusPaletteRomData.Visor.FrameDelay;
+            bool expectedWrite = native.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
+            bool actualWrite = installed.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
             if (expectedWrite)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusCartridgeTables.VisorColors + sourceOffset), installedCgram.Colors[196],
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
             AssertEqual(new VerifySamusVisorPaletteCase(native.Timer, native.PaletteByteOffset), new VerifySamusVisorPaletteCase(installed.Timer, installed.PaletteByteOffset),
@@ -135,7 +136,7 @@ internal static class SamusVisorColorsVerification
             bool expected = native.Xray.UpdatePalette(nativeCgram.Samus, native.EquippedItems);
             bool actual = installed.Xray.UpdatePalette(installedCgram.Samus, installed.EquippedItems);
             if (expected)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusCartridgeTables.VisorColors + sourceOffset), installedCgram.Colors[196],
                     $"X-ray visor call {call} matches native color word");
             AssertEqual(expected, actual, $"X-ray visor call {call} write");
             AssertEqual(native.Xray.SpecialPaletteFrame, installed.Xray.SpecialPaletteFrame,
@@ -230,8 +231,8 @@ internal static class SamusVisorColorsVerification
 
     /// <summary>Forbids installed room or X-ray palette updates from reading the native six-color source table.</summary>
     private static CartridgeReadGuard NewForbiddenVisorColorBus(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= SamusVisorColorFormat.SourceAddress and
-                < (SamusVisorColorFormat.SourceAddress +
+        new CartridgeReadGuard(source).Forbid(address => address is >= SamusCartridgeTables.VisorColors and
+                < (SamusCartridgeTables.VisorColors +
                     SamusVisorColorFormat.ColorCount * sizeof(ushort)),
             address => $"Installed visor read native color ${address:X6}.");
 

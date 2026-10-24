@@ -767,9 +767,9 @@ false);
         ushort suitOffset = equippedItems.GetSuitPaletteTableOffset();
         ushort phaseOffset = checked((ushort)PaletteFrameOffset);
         bool catalogued = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
-            ? SamusPaletteRomData.FullBodyCycles.TryStoredShinePalette(
+            ? SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalette(
                 suitOffset, phaseOffset, out SamusFullBodyCyclePalette palette)
-            : SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalette(
+            : SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalette(
                 suitOffset, phaseOffset, out palette);
         if (!catalogued)
             throw new InvalidDataException(

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -22,8 +23,8 @@ public static class SamusHurtColorExtractor
         return SamusHurtColorCatalog.Write(new SamusHurtColorDocument
         {
             Version = SamusHurtColorFormat.Version,
-            Hurt = ReadColors(bus, SamusHurtColorFormat.HurtSourceAddress),
-            Intro = ReadColors(bus, SamusHurtColorFormat.IntroSourceAddress),
+            Hurt = ReadColors(bus, SamusCartridgeTables.HurtFlashColors),
+            Intro = ReadColors(bus, SamusCartridgeTables.IntroHurtFlashColors),
         });
     }
 

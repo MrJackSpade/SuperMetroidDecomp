@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -31,17 +32,17 @@ public static class PowerBombFixedColorExtractor
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, PowerBombFixedColorSequence sequence)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            PowerBombFixedColorFormat.SourceAddress(sequence),
-            PowerBombFixedColorFormat.Count(sequence) * SamusPaletteRomData.PowerBomb.BytesPerColor);
+            SamusCartridgeTables.PowerBombColors(sequence),
+            PowerBombFixedColorFormat.Count(sequence) * SamusCartridgeTables.PowerBombBytesPerColor);
         var colors = new PaletteRgb5[PowerBombFixedColorFormat.Count(sequence)];
         for (int index = 0; index < colors.Length; index++)
         {
-            int offset = index * SamusPaletteRomData.PowerBomb.BytesPerColor;
+            int offset = index * SamusCartridgeTables.PowerBombBytesPerColor;
             colors[index] = new PaletteRgb5
             {
-                Red = source[offset] & SamusPaletteRomData.PowerBomb.ComponentMask,
-                Green = source[offset + 1] & SamusPaletteRomData.PowerBomb.ComponentMask,
-                Blue = source[offset + 2] & SamusPaletteRomData.PowerBomb.ComponentMask,
+                Red = source[offset] & SamusPaletteDefinitions.PowerBomb.ComponentMask,
+                Green = source[offset + 1] & SamusPaletteDefinitions.PowerBomb.ComponentMask,
+                Blue = source[offset + 2] & SamusPaletteDefinitions.PowerBomb.ComponentMask,
             };
         }
         return colors;

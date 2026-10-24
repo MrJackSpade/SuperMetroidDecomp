@@ -7,7 +7,7 @@ internal static class SamusColorClosedContractDefinitions
 {
     /// <summary>Shared native palette definitions required by the player-color providers.</summary>
     private static readonly ReviewedSource PaletteDefinitions = new(
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteRomData.cs");
+        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteDefinitions.cs");
 
     /// <summary>Reviewed Samus body, suit, charge, hurt, visor, and special
     /// effect color domains with their complete source dependencies.</summary>

@@ -4,8 +4,8 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Cartridge values of <see cref="SamusPaletteRomData.CrystalFlash"/> that only verification reads.</summary>
-internal static class SamusPaletteRomDataCrystalFlashConstants
+/// <summary>Cartridge values of <see cref="SamusPaletteDefinitions.CrystalFlash"/> that only verification reads.</summary>
+internal static class SamusPaletteDefinitionsCrystalFlashConstants
 {
     /// <summary><c>$90:C3C9</c>, twelve beam-loadout palette pointers.</summary>
     /// <remarks>
@@ -19,10 +19,10 @@ internal static class SamusPaletteRomDataCrystalFlashConstants
     public const int BeamPalettePointers = 0x90c3c9;
 
     /// <summary>Provides Crystal Flash beam palette pointers for effect color comparisons.</summary>
-    extension(SamusPaletteRomData.CrystalFlash)
+    extension(SamusPaletteDefinitions.CrystalFlash)
     {
-        /// <inheritdoc cref="SamusPaletteRomDataCrystalFlashConstants.BeamPalettePointers"/>
-        internal static int BeamPalettePointers => SamusPaletteRomDataCrystalFlashConstants.BeamPalettePointers;
+        /// <inheritdoc cref="SamusPaletteDefinitionsCrystalFlashConstants.BeamPalettePointers"/>
+        internal static int BeamPalettePointers => SamusPaletteDefinitionsCrystalFlashConstants.BeamPalettePointers;
     }
         /// <summary>First CGRAM color of OBJ palette six.</summary>
         public const int BodyCgramStart = 0xe0;

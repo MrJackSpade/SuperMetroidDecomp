@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
@@ -60,10 +61,10 @@ internal static class SamusHyperBeamColorsVerification
         AssertEqual(3, shadeComponentCount, "Magenta blue shares its red shade input");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
-            int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
+            int pointerAddress = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPointers + frame * 2;
             ushort pointer = rom.ReadCartridgeWord(pointerAddress);
-            int paletteAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(frame);
-            AssertEqual(paletteAddress, SamusPaletteRomData.Banks.Palette | pointer,
+            int paletteAddress = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(frame);
+            AssertEqual(paletteAddress, SamusCartridgeTables.PaletteBank | pointer,
                 $"Hyper Beam frame {frame} compiled pointer");
             for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
             {
@@ -157,7 +158,7 @@ internal static class SamusHyperBeamColorsVerification
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>
-            SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(10),
+            SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(10),
             "compiled Hyper Beam pointer table remains bounded");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(invalid, 0), "Hyper Beam frame bounds");
@@ -453,9 +454,9 @@ internal static class SamusHyperBeamColorsVerification
     private static CartridgeReadGuard NewForbiddenHyperBeamColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
-                int pointerStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers;
-                int paletteStart = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(9);
-                int paletteEnd = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(0) +
+                int pointerStart = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPointers;
+                int paletteStart = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(9);
+                int paletteEnd = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(0) +
                     SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort);
                 return (address >= 0x91d829 && address < 0x91d83f) ||
                     (address >= pointerStart && address < pointerStart +

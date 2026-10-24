@@ -222,17 +222,17 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(bus.ReadCartridgeByte(0x9b8000 + offset), deathCharacters[offset],
                 $"death explosion character byte {offset:X4} is the native character byte");
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
-        for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
+        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
         {
             int pointerAt = SamusCartridgeTables.SuitPointers +
-                (suit * SamusPaletteRomData.Death.PaletteCount + palette) * sizeof(ushort);
+                (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * sizeof(ushort);
             ushort suitPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAt);
             int suitlessAt = SamusCartridgeTables.SuitlessPointers + palette * sizeof(ushort);
             ushort suitlessPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(suitlessAt);
             for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)
             {
-                int suitedAt = SamusPaletteRomData.Banks.Palette | suitPointer + color * 2;
-                int suitlessColorAt = SamusPaletteRomData.Banks.Palette | suitlessPointer + color * 2;
+                int suitedAt = SamusCartridgeTables.PaletteBank | suitPointer + color * 2;
+                int suitlessColorAt = SamusCartridgeTables.PaletteBank | suitlessPointer + color * 2;
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(suitedAt),
                     stock.DeathPalettes.SuitedColor(suit, palette, color),
                     $"death suit {suit} palette {palette} color {color}");
@@ -241,14 +241,14 @@ internal static class SamusBodyArtworkVerification
                     $"death suitless palette {palette} color {color}");
             }
         }
-        for (int shade = 0; shade < SamusPaletteRomData.Death.WhiteoutShadeCount; shade++)
+        for (int shade = 0; shade < SamusPaletteDefinitions.Death.WhiteoutShadeCount; shade++)
         {
-            int at = SamusPaletteRomData.Death.WhiteoutShades + shade * sizeof(ushort);
+            int at = SamusCartridgeTables.DeathWhiteoutShades + shade * sizeof(ushort);
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
                 stock.DeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
         }
         for (int frame = 0; frame < SamusDeathExplosionTimingDefinitions.RecordCount; frame++)
-            AssertEqual(bus.ReadCartridgeByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices +
+            AssertEqual(bus.ReadCartridgeByte(SamusCartridgeTables.DeathExplosionTimingAndPaletteIndices +
                 frame * 2 + 1), stock.DeathPalettes.ExplosionPaletteIndex(frame),
                 $"death explosion frame {frame} visual palette selector");
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
@@ -499,7 +499,7 @@ internal static class SamusBodyArtworkVerification
             editedDeathSamus.DeathSequence.Step(editedDeathSamus,
                 editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathPalettes);
         AssertEqual((ushort)(originalDeathColor + 1),
-            editedDeathColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart],
+            editedDeathColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart],
             "edited death suit color reaches the production CGRAM write");
         AssertTrue(!stock.DeathTiles.Explosion.Characters.SequenceEqual(replacement.DeathTiles.Explosion.Characters),
             "edited death explosion PNG reaches the explosion characters its sheet is composed from");

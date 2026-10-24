@@ -11,13 +11,6 @@ public static class PowerBombFixedColorFormat
     /// <summary>Supported schema revision, one, fixing the sixteen- and thirty-two-entry sequence dimensions.</summary>
     public const int Version = 1;
 
-    /// <summary>Native bank-$88 source address for one authored RGB5 sequence.</summary>
-    public static int SourceAddress(PowerBombFixedColorSequence sequence) => sequence switch
-    {
-        PowerBombFixedColorSequence.PreExplosion => SamusPaletteRomData.PowerBomb.PreExplosionColors,
-        PowerBombFixedColorSequence.Explosion => SamusPaletteRomData.PowerBomb.ExplosionColors,
-        _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
-    };
 
     /// <summary>Returns the number of radius-addressable RGB5 triplets in the selected native sequence.</summary>
     /// <param name="sequence">Pre-explosion or explosion artwork domain; this is not an animation phase or composable bit mask.</param>
@@ -25,8 +18,8 @@ public static class PowerBombFixedColorFormat
     /// <exception cref="ArgumentOutOfRangeException">The sequence value is not defined.</exception>
     public static int Count(PowerBombFixedColorSequence sequence) => sequence switch
     {
-        PowerBombFixedColorSequence.PreExplosion => SamusPaletteRomData.PowerBomb.PreExplosionColorCount,
-        PowerBombFixedColorSequence.Explosion => SamusPaletteRomData.PowerBomb.ExplosionColorCount,
+        PowerBombFixedColorSequence.PreExplosion => SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount,
+        PowerBombFixedColorSequence.Explosion => SamusPaletteDefinitions.PowerBomb.ExplosionColorCount,
         _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
     };
     /// <summary>

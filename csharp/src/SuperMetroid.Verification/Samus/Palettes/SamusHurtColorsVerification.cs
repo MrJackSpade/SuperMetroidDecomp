@@ -34,8 +34,8 @@ internal static class SamusHurtColorsVerification
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
         {
             int address = variant == SamusHurtColorVariant.Hurt
-                ? SamusHurtColorFormat.HurtSourceAddress
-                : SamusHurtColorFormat.IntroSourceAddress;
+                ? SamusCartridgeTables.HurtFlashColors
+                : SamusCartridgeTables.IntroHurtFlashColors;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
             {
                 int wordAddress = address + index * sizeof(ushort);
@@ -75,7 +75,7 @@ internal static class SamusHurtColorsVerification
         for (int call = 1; call <= 7; call++)
         {
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, Bgr555.FromWord(checked(sentinel)));
+                cgram.SetColor(SamusPaletteDefinitions.Common.SamusObjPaletteStart + index, Bgr555.FromWord(checked(sentinel)));
             SamusHurtFlashPalette.Update(
                 cgram.Samus.Suit, samus, 0, catalog);
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
@@ -84,18 +84,18 @@ internal static class SamusHurtColorsVerification
             {
                 for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                     AssertEqual(sentinel,
-                        cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
+                        cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + index],
                         $"{(cinematic ? "intro" : "ordinary")} hurt call {call} leaves CGRAM {index} unchanged");
                 continue;
             }
             int expectedPaletteAddress = (call & 1) != 0
-                ? SamusHurtColorFormat.HurtSourceAddress
+                ? SamusCartridgeTables.HurtFlashColors
                 : cinematic
-                    ? SamusHurtColorFormat.IntroSourceAddress
+                    ? SamusCartridgeTables.IntroHurtFlashColors
                     : SamusCartridgeTables.PowerSuitPalette;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual((ushort)(ReadNativeHurtCycleColor(rom, expectedPaletteAddress, index) & 0x7fff),
-                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
+                    cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + index],
                     $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source CGRAM {index}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -132,7 +132,7 @@ internal static class SamusHurtColorsVerification
                 ? SamusHurtColorVariant.Intro : SamusHurtColorVariant.Hurt;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual(edited.SamusHurtColors.Resolve(variant, index),
-                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + index],
+                    cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + index],
                     $"edited {variant} path remains selected by native counter (CGRAM {index})");
             AssertEqual(edited.SamusHurtColors.Resolve(variant, 5), cgram.Colors[197],
                 $"edited {variant} color reaches CGRAM");
@@ -151,8 +151,8 @@ internal static class SamusHurtColorsVerification
 
     /// <summary>Rejects reads of native hurt and intro color tables after installed artwork binding.</summary>
     private static CartridgeReadGuard NewForbiddenHurtColorBus(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= SamusHurtColorFormat.HurtSourceAddress and
-                < (SamusHurtColorFormat.IntroSourceAddress +
+        new CartridgeReadGuard(source).Forbid(address => address is >= SamusCartridgeTables.HurtFlashColors and
+                < (SamusCartridgeTables.IntroHurtFlashColors +
                     SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort)),
             address => $"Installed hurt handler read native artwork ${address:X6}.");
 

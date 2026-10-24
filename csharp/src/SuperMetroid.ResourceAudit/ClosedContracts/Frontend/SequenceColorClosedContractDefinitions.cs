@@ -45,7 +45,7 @@ internal static class SequenceColorClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusDeathPaletteArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteInputView.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusPaletteFade.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs")]),
     ];
 }

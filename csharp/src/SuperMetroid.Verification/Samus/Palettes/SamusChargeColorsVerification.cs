@@ -91,7 +91,7 @@ internal static class SamusChargeColorsVerification
                     $"installed charge phase {family}/{suit}/{phase}");
                 for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
                     AssertEqual(edited.SamusChargeColors.ResolveCharge(family != 0, suit, phase, color),
-                        cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                        cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                         $"edited charge CGRAM {family}/{suit}/{phase}/{color}");
             }
         }
@@ -118,7 +118,7 @@ internal static class SamusChargeColorsVerification
             AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
                 AssertEqual(edited.SamusChargeColors.ResolveHyper(frame, color),
-                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                     $"edited Hyper-shot CGRAM {frame}/{color}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -229,10 +229,10 @@ internal static class SamusChargeColorsVerification
             ushort pointer = Word(SamusCartridgeTables.SuitlessPointers + palette * 2);
             deathSuitless[palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
         }
-        var whiteout = Enumerable.Range(0, SamusPaletteRomData.Death.WhiteoutShadeCount)
-            .Select(index => Word(SamusPaletteRomData.Death.WhiteoutShades + index * 2)).ToArray();
+        var whiteout = Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount)
+            .Select(index => Word(SamusCartridgeTables.DeathWhiteoutShades + index * 2)).ToArray();
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
-            .Select(index => (ushort)rom.ReadCartridgeByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
+            .Select(index => (ushort)rom.ReadCartridgeByte(SamusCartridgeTables.DeathExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
         var death = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
         foreach (var inputs in new[] { death.suitedFadeInputs, death.suitlessFadeInputs })
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");

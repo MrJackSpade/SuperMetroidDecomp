@@ -59,11 +59,11 @@ internal static class SamusBodyTransferContractChecks
         var atmosphere = new SamusAtmosphericArtworkCatalog(
             new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
             new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
-        Bgr555[][] Rows() => Enumerable.Range(0, SamusPaletteRomData.Death.PaletteCount)
+        Bgr555[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
             .Select(_ => new Bgr555[SamusDeathPaletteArtworkCatalog.ColorCount]).ToArray();
         var deathColors = new SamusDeathPaletteArtworkCatalog(
             Enumerable.Range(0, SamusDeathPaletteArtworkCatalog.SuitCount).Select(_ => Rows()).ToArray(), Rows(),
-            new Bgr555[SamusPaletteRomData.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.RecordCount]);
+            new Bgr555[SamusPaletteDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.RecordCount]);
         using var deathPng = Png(new(SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height));
         SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(deathPng);
         var cannonDocument = new SamusArmCannonArtworkDocument {

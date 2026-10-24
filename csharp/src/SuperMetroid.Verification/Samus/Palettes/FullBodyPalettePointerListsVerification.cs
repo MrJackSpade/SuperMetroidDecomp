@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
@@ -19,10 +20,10 @@ internal static class FullBodyPalettePointerListsVerification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => (uint)(address - SamusPaletteRomData.FullBodyCycles.ScrewAttackLists) < 0x2a ||
-                (uint)(address - SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists) < 0x1e ||
-                (uint)(address - SamusPaletteRomData.FullBodyCycles.StoredShineLists) < 0x2a ||
-                (uint)(address - SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists) < 0x1e,
+            address => (uint)(address - SamusPaletteDefinitions.FullBodyCycles.ScrewAttackLists) < 0x2a ||
+                (uint)(address - SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLists) < 0x1e ||
+                (uint)(address - SamusPaletteDefinitions.FullBodyCycles.StoredShineLists) < 0x2a ||
+                (uint)(address - SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkLists) < 0x1e,
             address => $"Runtime read of compiled full-body palette pointer ${address:X6}.");
         SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom)));
@@ -35,10 +36,10 @@ internal static class FullBodyPalettePointerListsVerification
         ];
         FullBodyPalettePointerListsFamily[] families =
         [
-            new FullBodyPalettePointerListsFamily("Screw Attack", SamusPaletteRomData.FullBodyCycles.ScrewAttackLists, 0xda50, 0x9ca0, 6, true),
-            new FullBodyPalettePointerListsFamily("Speed Booster", SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists, 0xdaaf, 0x9b20, 4, false),
-            new FullBodyPalettePointerListsFamily("stored shine", SamusPaletteRomData.FullBodyCycles.StoredShineLists, 0xdb16, 0x9ba0, 6, true),
-            new FullBodyPalettePointerListsFamily("active shinespark", SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists, 0xdb7b, 0x9c20, 4, false),
+            new FullBodyPalettePointerListsFamily("Screw Attack", SamusPaletteDefinitions.FullBodyCycles.ScrewAttackLists, 0xda50, 0x9ca0, 6, true),
+            new FullBodyPalettePointerListsFamily("Speed Booster", SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLists, 0xdaaf, 0x9b20, 4, false),
+            new FullBodyPalettePointerListsFamily("stored shine", SamusPaletteDefinitions.FullBodyCycles.StoredShineLists, 0xdb16, 0x9ba0, 6, true),
+            new FullBodyPalettePointerListsFamily("active shinespark", SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkLists, 0xdb7b, 0x9c20, 4, false),
         ];
 
         foreach (var family in families)
@@ -54,7 +55,7 @@ internal static class FullBodyPalettePointerListsVerification
                     int shade = family.PingPong ? Math.Min(phase, 6 - phase) : phase;
                     ushort expectedPalette = (ushort)(family.FirstPalette + suit * 0x200 + shade * 0x20);
                     AssertEqual(expectedPalette,
-                        CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusPaletteRomData.Banks.Movement | (expectedList + phase * 2))),
+                        CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusPaletteDefinitionsBanksConstants.Movement | (expectedList + phase * 2))),
                         $"{family.Name} nested pointer for suit {suit}, phase {phase}");
                 }
             }
@@ -125,13 +126,13 @@ internal static class FullBodyPalettePointerListsVerification
             }
         }
 
-        AssertTrue(!SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(0, 12, out _),
+        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(0, 12, out _),
             "Screw Attack does not catalogue a seventh phase");
-        AssertTrue(!SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(0, 8, out _),
+        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(0, 8, out _),
             "active Speed Booster does not catalogue a fifth phase");
-        AssertTrue(!SamusPaletteRomData.FullBodyCycles.TryStoredShinePalettePointer(1, 0, out _),
+        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalettePointer(1, 0, out _),
             "stored shine does not catalogue an unaligned suit offset");
-        AssertTrue(!SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalettePointer(0, 1, out _),
+        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalettePointer(0, 1, out _),
             "active shinespark does not catalogue an unaligned phase offset");
 
         var adjacentScrew = new SamusHorizontalSpeedState { SpecialPaletteFrame = 12 };
@@ -154,16 +155,16 @@ internal static class FullBodyPalettePointerListsVerification
             "Speed Booster phase eight reads the adjacent Varia list");
 
         Suite(nameof(VerifyCompiledWindow), () => VerifyCompiledWindow(0xda50, 6,
-            SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer,
+            SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalettePointer,
             "Screw Attack"));
         Suite(nameof(VerifyCompiledWindow), () => VerifyCompiledWindow(0xdaaf, 4,
-            SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer,
+            SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer,
             "active Speed Booster"));
         AssertThrows<InvalidDataException>(() =>
-            SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer(4, 12),
+            SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalettePointer(4, 12),
             "a Screw Attack read beyond the compiled three-suit window fails explicitly");
         AssertThrows<InvalidDataException>(() =>
-            SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(4, 12),
+            SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(4, 12),
             "a Speed Booster phase beyond both proven Screw Attack overruns fails explicitly");
 
         Console.WriteLine("Full-body palettes: all four suit-indexed list families match ROM and live CGRAM without pointer-table reads.");
@@ -179,7 +180,7 @@ internal static class FullBodyPalettePointerListsVerification
                      phaseOffset++)
                 {
                     ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(
-                        SamusPaletteRomData.Banks.Movement | (listStart + phaseOffset));
+                        SamusPaletteDefinitionsBanksConstants.Movement | (listStart + phaseOffset));
                     if ((phaseOffset & 1) == 0)
                     {
                         AssertEqual(native, readCompiled(suitOffset, (ushort)phaseOffset),
@@ -201,11 +202,11 @@ internal static class FullBodyPalettePointerListsVerification
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SamusColourRig actual, int pointer, string context)
     {
-        for (int color = 0; color < SamusPaletteRomData.Common.ColorsPerObjPalette; color++)
+        for (int color = 0; color < SamusPaletteDefinitions.Common.ColorsPerObjPalette; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(rom),
-                    SamusPaletteRomData.Banks.Palette | (pointer + color * sizeof(ushort))) & 0x7fff),
-                actual.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    SamusCartridgeTables.PaletteBank | (pointer + color * sizeof(ushort))) & 0x7fff),
+                actual.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                 $"{context} CGRAM color {color} matches ROM");
     }
 

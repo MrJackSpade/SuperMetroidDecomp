@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
@@ -32,11 +33,11 @@ internal static class NormalSuitPalettePointersVerification
         for (int selection = 0; selection < equipment.Length; selection++)
         {
             ushort offset = equipment[selection].GetSuitPaletteTableOffset();
-            int source = SamusPaletteRomData.Common.NormalSuitPointers + offset;
+            int source = SamusPaletteDefinitions.Common.NormalSuitPointers + offset;
             ushort nativePointer = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, source), CpuBusRegionRead.Read(rom, source + 1));
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"normal suit pointer selection {selection} matches retail ROM");
-            AssertEqual(nativePointer, SamusPaletteRomData.Common.NormalSuitPalettePointer(offset),
+            AssertEqual(nativePointer, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(offset),
                 $"compiled normal suit pointer selection {selection} matches retail ROM");
 
             var samus = new SamusState
@@ -50,8 +51,8 @@ internal static class NormalSuitPalettePointersVerification
                 "installed special palette restores normal suit without a CPU bus");
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,
-                        SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort))) & 0x7fff),
-                    installedColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                        SamusCartridgeTables.PaletteBank | (nativePointer + color * sizeof(ushort))) & 0x7fff),
+                    installedColors.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                     $"normal suit CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(3, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");

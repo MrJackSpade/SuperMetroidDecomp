@@ -16,7 +16,7 @@ internal static class SamusSpeedBoosterPalette
     {
         if (source.Overrun is { } overrun)
         {
-            for (int index = 0; index < SamusPaletteRomData.Common.ColorsPerObjPalette; index++)
+            for (int index = 0; index < SamusPaletteDefinitions.Common.ColorsPerObjPalette; index++)
             {
                 // The native unrolled copy uses LDA $0000..001E,X; the expansion window's open
                 // bus returns the operand's high byte for every word.

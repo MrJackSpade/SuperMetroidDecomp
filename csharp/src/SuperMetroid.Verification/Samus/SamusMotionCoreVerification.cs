@@ -253,14 +253,14 @@ internal static void VerifySamusHorizontalSpeed()
 
     // The active suit/phase pointer lists are compiled. Distinct first/second
     // colors at their actual targets prove the one-then-four timer progression.
-    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         0, 0, out ushort powerBoostFirst), "compiled first Power boost phase exists");
-    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         0, 2, out ushort powerBoostSecond), "compiled second Power boost phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostFirst, 0x1234);
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostSecond, 0x4567);
     SyntheticSamusCartridge.WriteSamusPaletteColors(
-        bus, SamusPaletteRomData.Common.NormalSuitPalettePointer(0), 0x0321);
+        bus, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(0), 0x0321);
 
     var boostCgram = new SamusColourRig();
     AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2000 }, suitColors: SuitColors(), cycleColors: CycleColors()),
@@ -281,7 +281,7 @@ internal static void VerifySamusHorizontalSpeed()
     // Attack or active Speed Booster branches. A submerged Power/Varia body returns with
     // carry set: neither CGRAM nor the shared timer/index words may move. Gravity Suit's
     // palette-index bit two bypasses that exact gate and must still follow the ROM pointer.
-    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         4, 0, out ushort gravityBoostFirst), "compiled first Gravity boost phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityBoostFirst, 0x6a5a);
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401) };
@@ -304,7 +304,7 @@ internal static void VerifySamusHorizontalSpeed()
 
     // The same early return surrounds Screw Attack. Exercise it independently so a future
     // refactor cannot fix running boost while accidentally leaving the spin palette active.
-    AssertTrue(SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
+    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(
         4, 0, out ushort gravityScrewFirst), "compiled first Gravity Screw phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityScrewFirst, 0x5b4b);
     var submergedScrew = new SamusHorizontalSpeedState();
@@ -322,7 +322,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Gravity Screw palette remains ROM-authored");
 
     SyntheticSamusCartridge.WriteSamusPaletteColors(
-        bus, SamusPaletteRomData.Common.NormalSuitPalettePointer(4), 0x3a2a);
+        bus, SamusPaletteDefinitions.Common.NormalSuitPalettePointer(4), 0x3a2a);
     AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 27, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "Gravity Screw frame 27 restores normal suit colors underwater");
     AssertEqual(0x3a2a, submergedScrewCgram.Colors[192],

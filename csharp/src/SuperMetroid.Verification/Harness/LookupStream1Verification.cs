@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Input;
@@ -2537,7 +2538,7 @@ internal static class LookupStream1Verification
         Dictionary<ColourCell, Bgr555> Stored(SamusVisorColorCatalog value) => value.colors;
         ushort Native(int index)
         {
-            int address = SamusVisorColorFormat.SourceAddress + index * 2;
+            int address = SamusCartridgeTables.VisorColors + index * 2;
             return SnesLittleEndian.Word(LookupStream1VisorColorsRomByte(rom, address), LookupStream1VisorColorsRomByte(rom, address + 1));
         }
         AssertEqual(0, Stored(stock).Count, "visor stock stores no sampled fallback colors");

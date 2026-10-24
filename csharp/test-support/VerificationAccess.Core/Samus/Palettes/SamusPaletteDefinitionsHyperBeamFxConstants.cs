@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Cartridge values of <see cref="SamusPaletteRomData.HyperBeamFx"/> that only verification reads.</summary>
-internal static class SamusPaletteRomDataHyperBeamFxConstants
+/// <summary>Cartridge values of <see cref="SamusPaletteDefinitions.HyperBeamFx"/> that only verification reads.</summary>
+internal static class SamusPaletteDefinitionsHyperBeamFxConstants
 {
     /// <summary>Instruction <c>$C595</c>: finish the current timed palette record.</summary>
     public const ushort Done = 0xc595;
@@ -17,20 +17,20 @@ internal static class SamusPaletteRomDataHyperBeamFxConstants
     public const ushort SetColorIndex = 0xc655;
 
     /// <summary>Provides Hyper Beam palette FX commands, list address, frame count, and frame width.</summary>
-    extension(SamusPaletteRomData.HyperBeamFx)
+    extension(SamusPaletteDefinitions.HyperBeamFx)
     {
-        /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants.Done"/>
-        internal static ushort Done => SamusPaletteRomDataHyperBeamFxConstants.Done;
-        /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants.FrameByteCount"/>
-        internal static int FrameByteCount => SamusPaletteRomDataHyperBeamFxConstants.FrameByteCount;
-        /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants.FrameCount"/>
-        internal static int FrameCount => SamusPaletteRomDataHyperBeamFxConstants.FrameCount;
-        /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants.Goto"/>
-        internal static ushort Goto => SamusPaletteRomDataHyperBeamFxConstants.Goto;
-        /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants.InitialList"/>
-        internal static ushort InitialList => SamusPaletteRomDataHyperBeamFxConstants.InitialList;
-        /// <inheritdoc cref="SamusPaletteRomDataHyperBeamFxConstants.SetColorIndex"/>
-        internal static ushort SetColorIndex => SamusPaletteRomDataHyperBeamFxConstants.SetColorIndex;
+        /// <inheritdoc cref="SamusPaletteDefinitionsHyperBeamFxConstants.Done"/>
+        internal static ushort Done => SamusPaletteDefinitionsHyperBeamFxConstants.Done;
+        /// <inheritdoc cref="SamusPaletteDefinitionsHyperBeamFxConstants.FrameByteCount"/>
+        internal static int FrameByteCount => SamusPaletteDefinitionsHyperBeamFxConstants.FrameByteCount;
+        /// <inheritdoc cref="SamusPaletteDefinitionsHyperBeamFxConstants.FrameCount"/>
+        internal static int FrameCount => SamusPaletteDefinitionsHyperBeamFxConstants.FrameCount;
+        /// <inheritdoc cref="SamusPaletteDefinitionsHyperBeamFxConstants.Goto"/>
+        internal static ushort Goto => SamusPaletteDefinitionsHyperBeamFxConstants.Goto;
+        /// <inheritdoc cref="SamusPaletteDefinitionsHyperBeamFxConstants.InitialList"/>
+        internal static ushort InitialList => SamusPaletteDefinitionsHyperBeamFxConstants.InitialList;
+        /// <inheritdoc cref="SamusPaletteDefinitionsHyperBeamFxConstants.SetColorIndex"/>
+        internal static ushort SetColorIndex => SamusPaletteDefinitionsHyperBeamFxConstants.SetColorIndex;
     }
         /// <summary><c>$8D:E1F0</c>, two-word Hyper Beam palette-FX definition.</summary>
         /// <remarks>

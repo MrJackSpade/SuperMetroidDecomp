@@ -434,7 +434,7 @@ public sealed class SamusHorizontalSpeedState
 
         SpecialPaletteTimer = WrappingCountdown.Start(4);
 
-        SpeedBoosterPaletteSource source = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalette(
+        SpeedBoosterPaletteSource source = SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalette(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
         SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overreads);
 
@@ -476,7 +476,7 @@ public sealed class SamusHorizontalSpeedState
         ushort suitTableOffset,
         SamusFullBodyCycleColorCatalog? cycleColors)
     {
-        SamusFullBodyCyclePalette palette = SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalette(
+        SamusFullBodyCyclePalette palette = SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalette(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
         (cycleColors ?? throw new InvalidOperationException(
             "Screw Attack palette requires installed Samus full-body cycle colors."))

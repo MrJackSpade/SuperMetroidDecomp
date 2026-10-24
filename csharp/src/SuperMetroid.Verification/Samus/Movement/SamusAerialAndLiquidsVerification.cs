@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -684,7 +685,7 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
     SeedSamusPaletteWord(bus, 0x9400, 0x0111);
     for (int shade = 0; shade < 4; shade++)
     {
-        AssertTrue(SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
+        AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(
             0, unchecked((ushort)(shade * 2)), out ushort pointer),
             $"compiled Power Screw shade {shade} exists");
         SeedSamusPaletteWord(bus, pointer, unchecked((ushort)(0x1200 + shade)));
@@ -726,7 +727,7 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
 /// <summary>Writes one word of the bank-$9B Samus palette data at <paramref name="pointer"/>.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$9B Samus palette word")]
 static void SeedSamusPaletteWord(TestAddressSpace bus, ushort pointer, ushort color) =>
-    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer, color);
+    WriteTestWord(bus, SamusCartridgeTables.PaletteBank | pointer, color);
 
 /// <summary>
 /// Seeds the three media's standalone grapple-release speed records ($90:9F31/$9F3D/$9F49):

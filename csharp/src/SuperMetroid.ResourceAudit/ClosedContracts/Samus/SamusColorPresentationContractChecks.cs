@@ -56,9 +56,9 @@ internal static class SamusColorPresentationContractChecks
                     flash.ApplyBody(colours, CrystalFlashColorFormat.BodyFrameCount);
                     flash.ApplyBubble(colours, CrystalFlashColorFormat.BubbleFrameCount - 1);
                     flash.ApplyBubble(colours, CrystalFlashColorFormat.BubbleFrameCount);
-                    bomb.Resolve(PowerBombFixedColorSequence.Explosion, SamusPaletteRomData.PowerBomb.ExplosionColorCount - 1);
-                    bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteRomData.PowerBomb.PreExplosionColorCount - 1);
-                    bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteRomData.PowerBomb.PreExplosionColorCount);
+                    bomb.Resolve(PowerBombFixedColorSequence.Explosion, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount - 1);
+                    bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount - 1);
+                    bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount);
                     bomb.Resolve((PowerBombFixedColorSequence)int.MaxValue, 0);
                     fx.Apply(run, HyperBeamFxColorFormat.FrameCount - 1);
                     fx.Apply(run, HyperBeamFxColorFormat.FrameCount);

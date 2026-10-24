@@ -501,10 +501,10 @@ internal sealed class InstalledSamusIsolationTests
                 foreach (Actor actor in new[] { pair.Stock, pair.Edited })
                 {
                     for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                        Require(actor.Colors.Colors[SamusPaletteRomDataCrystalFlashConstants.BodyCgramStart + color] ==
+                        Require(actor.Colors.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color] ==
                             actor.Crystal.ResolveBody(0, color), "Flash body colors were not applied");
                     for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                        Require(actor.Colors.Colors[SamusPaletteRomDataCrystalFlashConstants.BubbleCgramStart + color] ==
+                        Require(actor.Colors.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart + color] ==
                             actor.Crystal.ResolveBubble(0, color), "Flash bubble colors were not applied");
                 }
             }

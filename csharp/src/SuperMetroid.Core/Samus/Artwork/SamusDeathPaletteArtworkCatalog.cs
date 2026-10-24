@@ -45,7 +45,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Three suited families in $9B:B7D3's pointer-table order: Power, Varia, then Gravity.</summary>
     public const int SuitCount = 3;
     /// <summary>Sixteen RGB5 words per OBJ palette row, including the transparent sprite ink at index zero.</summary>
-    public const int ColorCount = SamusPaletteRomData.Common.ColorsPerObjPalette;
+    public const int ColorCount = SamusPaletteDefinitions.Common.ColorsPerObjPalette;
 
     /// <summary>Native9B9420 yellow flash: full red and green,zero blue in RGB5.</summary>
     private static readonly Bgr555 YellowFlashColor = new(31, 31, 0);
@@ -85,20 +85,20 @@ public sealed class SamusDeathPaletteArtworkCatalog
         Ensure.NotNull(suitless);
         Ensure.NotNull(whiteout);
         Ensure.NotNull(explosionPaletteIndices);
-        FixedGridShape paletteRows = new(SamusPaletteRomData.Death.PaletteCount, ColorCount);
+        FixedGridShape paletteRows = new(SamusPaletteDefinitions.Death.PaletteCount, ColorCount);
         if (suited.Length != SuitCount ||
             suited.Any(family => !paletteRows.Fits(family)) ||
             !paletteRows.Fits(suitless) ||
-            whiteout.Length != SamusPaletteRomData.Death.WhiteoutShadeCount ||
+            whiteout.Length != SamusPaletteDefinitions.Death.WhiteoutShadeCount ||
             explosionPaletteIndices.Length != SamusDeathExplosionTimingDefinitions.RecordCount ||
-            explosionPaletteIndices.Any(index => index >= SamusPaletteRomData.Death.PaletteCount))
+            explosionPaletteIndices.Any(index => index >= SamusPaletteDefinitions.Death.PaletteCount))
             throw new InvalidDataException("Samus death-palette artwork has an invalid shape or RGB5 color.");
         for (int suit = 0; suit < SuitCount; suit++)
-        for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
+        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
         for (int color = 0; color < ColorCount; color++)
         {
-            int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
-            var keyCell = new ColourCell((suit * SamusPaletteRomData.Death.PaletteCount + palette), color);
+            int key = (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * ColorCount + color;
+            var keyCell = new ColourCell((suit * SamusPaletteDefinitions.Death.PaletteCount + palette), color);
             Bgr555 value = suited[suit][palette][color];
             if (palette == 0 && suit != 0 && value == suited[0][0][color]) continue;
             if (palette == 1 && (suit != 0 || color != 0) && value == suited[0][1][0]) continue;
@@ -111,7 +111,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
             }
             else this.suited.Add(keyCell, value);
         }
-        for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
+        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
         for (int color = 0; color < ColorCount; color++)
         {
             int key = palette * ColorCount + color;
@@ -185,17 +185,17 @@ public sealed class SamusDeathPaletteArtworkCatalog
     {
         Span<Bgr555> suitedRow = stackalloc Bgr555[ColorCount];
         for (int suit = 0; suit < SuitCount; suit++)
-        for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
+        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
         {
             for (int color = 0; color < ColorCount; color++) suitedRow[color] = SuitedColor(suit, palette, color);
             content.AppendColors("suited row", suitedRow);
         }
-        for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
+        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
         {
             for (int color = 0; color < ColorCount; color++) suitedRow[color] = SuitlessColor(palette, color);
             content.AppendColors("suitless row", suitedRow);
         }
-        Span<Bgr555> whiteoutColors = stackalloc Bgr555[SamusPaletteRomData.Death.WhiteoutShadeCount];
+        Span<Bgr555> whiteoutColors = stackalloc Bgr555[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
         for (int index = 0; index < whiteoutColors.Length; index++) whiteoutColors[index] = WhiteoutColor(index);
         content.AppendColors("whiteout", whiteoutColors);
         Span<ushort> selectors = stackalloc ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
@@ -224,12 +224,12 @@ public sealed class SamusDeathPaletteArtworkCatalog
     {
         if ((uint)suit >= SuitCount)
             throw new ArgumentOutOfRangeException(nameof(suit));
-        if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount)
+        if ((uint)palette >= SamusPaletteDefinitions.Death.PaletteCount)
             throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        int key = (suit * SamusPaletteRomData.Death.PaletteCount + palette) * ColorCount + color;
-        var keyCell = new ColourCell((suit * SamusPaletteRomData.Death.PaletteCount + palette), color);
+        int key = (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * ColorCount + color;
+        var keyCell = new ColourCell((suit * SamusPaletteDefinitions.Death.PaletteCount + palette), color);
         if (suited.TryGetValue(keyCell, out Bgr555 value)) return value;
         if (palette == 0) return SuitedColor(0, 0, color);
         if (palette == 1) return suit == 0 && color == 0 ? YellowFlashColor : SuitedColor(0, 1, 0);
@@ -250,7 +250,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <exception cref="ArgumentOutOfRangeException">Either index is outside its documented range.</exception>
     public Bgr555 SuitlessColor(int palette, int color)
     {
-        if ((uint)palette >= SamusPaletteRomData.Death.PaletteCount)
+        if ((uint)palette >= SamusPaletteDefinitions.Death.PaletteCount)
             throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
@@ -446,7 +446,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// This establishes an exact two-rate ramp,not the identity of its historical tool.</remarks>
     internal static Bgr555 DefaultWhiteoutColor(int index)
     {
-        if ((uint)index >= SamusPaletteRomData.Death.WhiteoutShadeCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= SamusPaletteDefinitions.Death.WhiteoutShadeCount) throw new ArgumentOutOfRangeException(nameof(index));
         const int firstLitIntensity = 1, fullWhiteIntensity = 31;
         const int halfBrightnessIndex = 7, completionIndex = 21;
         const int halfRise = (fullWhiteIntensity - firstLitIntensity) / 2;

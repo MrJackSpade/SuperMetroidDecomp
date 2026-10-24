@@ -1,8 +1,8 @@
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Cartridge values of <see cref="SamusPaletteRomData.Common"/> that only verification reads.</summary>
-internal static class SamusPaletteRomDataCommonConstants
+/// <summary>Cartridge values of <see cref="SamusPaletteDefinitions.Common"/> that only verification reads.</summary>
+internal static class SamusPaletteDefinitionsCommonConstants
 {
     /// <summary><c>$91:D727</c>, Power/Varia/Gravity normal-palette pointers.</summary>
     /// <remarks>
@@ -18,9 +18,9 @@ internal static class SamusPaletteRomDataCommonConstants
     public const int NormalSuitPointers = 0x91d727;
 
     /// <summary>Provides normal suit palette pointers used by common Samus color checks.</summary>
-    extension(SamusPaletteRomData.Common)
+    extension(SamusPaletteDefinitions.Common)
     {
-        /// <inheritdoc cref="SamusPaletteRomDataCommonConstants.NormalSuitPointers"/>
-        internal static int NormalSuitPointers => SamusPaletteRomDataCommonConstants.NormalSuitPointers;
+        /// <inheritdoc cref="SamusPaletteDefinitionsCommonConstants.NormalSuitPointers"/>
+        internal static int NormalSuitPointers => SamusPaletteDefinitionsCommonConstants.NormalSuitPointers;
     }
 }

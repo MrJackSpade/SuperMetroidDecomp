@@ -393,7 +393,7 @@ public sealed class SamusCrystalFlashState
         {
             SpecialPaletteTimer = WrappingCountdown.Start(5);
             if (colors is null || (SpecialPaletteFrame & 1) != 0 ||
-                SpecialPaletteFrame >= SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort))
+                SpecialPaletteFrame >= SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount * sizeof(ushort))
                 throw new InvalidDataException(
                     $"Crystal Flash bubble frame {SpecialPaletteFrame} has no installed color.");
             colors.ApplyBubble(colours, SpecialPaletteFrame / sizeof(ushort));
@@ -401,7 +401,7 @@ public sealed class SamusCrystalFlashState
             // The frame was validated below the table end above, so this advance stays far below any wrap.
             int nextBubbleFrame = SpecialPaletteFrame + sizeof(ushort);
             SpecialPaletteFrame = nextBubbleFrame <
-                SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort)
+                SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount * sizeof(ushort)
                     ? nextBubbleFrame
                     : 0;
         }
@@ -412,22 +412,22 @@ public sealed class SamusCrystalFlashState
         if (crystalPaletteTimer.IsZeroOrNegative)
         {
             if (colors is null ||
-                BodyPaletteRecordOffset % SamusPaletteRomData.CrystalFlash.BodyRecordByteCount != 0 ||
-                BodyPaletteRecordOffset >= SamusPaletteRomData.CrystalFlash.BodyRecordCount *
-                    SamusPaletteRomData.CrystalFlash.BodyRecordByteCount)
+                BodyPaletteRecordOffset % SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount != 0 ||
+                BodyPaletteRecordOffset >= SamusPaletteDefinitions.CrystalFlash.BodyRecordCount *
+                    SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount)
                 throw new InvalidDataException(
                     $"Crystal Flash body frame {BodyPaletteRecordOffset} has no installed color.");
             CrystalPaletteTimer =
                 WrappingCountdown.FromRaw(CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
                     BodyPaletteRecordOffset));
             colors.ApplyBody(colours,
-                BodyPaletteRecordOffset / SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
+                BodyPaletteRecordOffset / SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount);
 
             // The offset was validated as one of the ten records above, so this advance cannot wrap.
-            int nextRecord = BodyPaletteRecordOffset + SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
+            int nextRecord = BodyPaletteRecordOffset + SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount;
             BodyPaletteRecordOffset = nextRecord <
-                SamusPaletteRomData.CrystalFlash.BodyRecordCount *
-                    SamusPaletteRomData.CrystalFlash.BodyRecordByteCount
+                SamusPaletteDefinitions.CrystalFlash.BodyRecordCount *
+                    SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount
                         ? nextRecord
                         : 0;
         }

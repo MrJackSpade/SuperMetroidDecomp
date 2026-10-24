@@ -69,7 +69,7 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
     // colors. Distinct synthetic records expose both destination ranges, their independent
     // timers, and `$90:ACC2`'s full beam-palette restoration at finish.
     for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
-        WriteTestWord(bus, SamusPaletteRomData.CrystalFlash.BodyRecords + frame * 4, 0x9500);
+        WriteTestWord(bus, SamusCartridgeTables.CrystalFlashBodyRecords + frame * 4, 0x9500);
     for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         WriteTestWord(bus, SamusCartridgeTables.BubblePointers + frame * 2, 0x9620);
     WriteTestWord(bus, 0x91dc02, 10);

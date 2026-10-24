@@ -221,7 +221,7 @@ public sealed class SamusDrainedState
         // `$91:D96F` doubles the palette number, selects one of ten complete palette
         // frames, and copies all sixteen colors before decrementing the shared timer.
         int paletteFrame = ChargePaletteIndex %
-            SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
+            SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
         if (PresentationColors is null)
             throw new InvalidOperationException("Drained Samus requires installed Hyper Beam colors.");
         for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
@@ -235,7 +235,7 @@ public sealed class SamusDrainedState
 
         CommonPaletteTimer = WrappingCountdown.Start(SpecialPaletteFrame);
         ChargePaletteIndex++;
-        if (ChargePaletteIndex >= SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount)
+        if (ChargePaletteIndex >= SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount)
             ChargePaletteIndex = 0;
         return true;
     }

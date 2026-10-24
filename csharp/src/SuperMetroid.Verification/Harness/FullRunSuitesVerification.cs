@@ -316,7 +316,7 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusHyperBeamColorsVerifi
 using static SuperMetroid.Verification.Samus.Abilities.SamusMorphBallVerification;
 using static SuperMetroid.Verification.Samus.SamusMotionCoreVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
-using static SuperMetroid.Verification.Samus.Palettes.SamusPaletteRomDataVerification;
+using static SuperMetroid.Verification.Samus.Palettes.SamusPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.SamusPoseHistoryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectileRomDataVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;

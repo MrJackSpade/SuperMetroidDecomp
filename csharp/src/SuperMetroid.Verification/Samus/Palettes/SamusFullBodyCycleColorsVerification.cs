@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -173,7 +174,7 @@ internal static class SamusFullBodyCycleColorsVerification
                         Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9b20 + 2 * color))), Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9b40 + 2 * color)))), "Original Gravity base shared-channel pairs");
                 AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint && !powerInk && !endpoint && !gravityShared && !variaScrew,
                     stored.ContainsKey(new ColourCell(paletteIndex, color)), "Only source inputs remain in stock storage");
-                AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
+                AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
             }
             foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => native.Resolve(pointer, invalid), "Full-body color bounds");
@@ -543,7 +544,7 @@ internal static class SamusFullBodyCycleColorsVerification
             ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual(edited.SamusFullBodyCycleColors.Resolve(pointer, color),
-                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + color],
                     $"{family} suit {suit}, shade {shade}, color {color} reaches live CGRAM");
         }
 
@@ -565,7 +566,7 @@ internal static class SamusFullBodyCycleColorsVerification
         for (int suit = 0; suit < SamusFullBodyCycleColorFormat.SuitCount; suit++)
         for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
         {
-            int address = SamusPaletteRomData.Banks.Palette |
+            int address = SamusCartridgeTables.PaletteBank |
                 SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int offset = 0;
                  offset < SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort);

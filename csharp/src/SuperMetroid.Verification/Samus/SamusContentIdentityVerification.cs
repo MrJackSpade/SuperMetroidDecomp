@@ -95,11 +95,11 @@ internal static class SamusContentIdentityVerification
         if (edit == "atmosphere-one") one[0] = 1;
         if (edit == "atmosphere-shared") shared[0] = 1;
         var atmosphere = new SamusAtmosphericArtworkCatalog(one, shared);
-        ushort[][] Rows() => Enumerable.Range(0, SamusPaletteRomData.Death.PaletteCount)
+        ushort[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
             .Select(_ => new ushort[SamusDeathPaletteArtworkCatalog.ColorCount]).ToArray();
         ushort[][][] suited = Enumerable.Range(0, SamusDeathPaletteArtworkCatalog.SuitCount).Select(_ => Rows()).ToArray();
         ushort[][] suitless = Rows();
-        var whiteout = new ushort[SamusPaletteRomData.Death.WhiteoutShadeCount];
+        var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
         var explosion = new ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
         if (edit == "death-suit") suited[0][0][0] = 1;
         if (edit == "death-suitless") suitless[0][0] = 1;

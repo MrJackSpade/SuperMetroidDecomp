@@ -33,9 +33,9 @@ public sealed class PowerBombFixedColorCatalog
         if (document.Version != PowerBombFixedColorFormat.Version)
             throw new InvalidDataException("Power Bomb fixed colors require the supported version.");
         return new(Compile(document.PreExplosion,
-                SamusPaletteRomData.PowerBomb.PreExplosionColorCount, PowerBombFixedColorSequence.PreExplosion, "pre-explosion"),
+                SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount, PowerBombFixedColorSequence.PreExplosion, "pre-explosion"),
             Compile(document.Explosion,
-                SamusPaletteRomData.PowerBomb.ExplosionColorCount, PowerBombFixedColorSequence.Explosion, "explosion"));
+                SamusPaletteDefinitions.PowerBomb.ExplosionColorCount, PowerBombFixedColorSequence.Explosion, "explosion"));
     }
 
     /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Load"/>.</summary>

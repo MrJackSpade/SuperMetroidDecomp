@@ -1,8 +1,8 @@
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Cartridge values of <see cref="SamusPaletteRomData.FullBodyCycles"/> that only verification reads.</summary>
-internal static class SamusPaletteRomDataFullBodyCyclesConstants
+/// <summary>Cartridge values of <see cref="SamusPaletteDefinitions.FullBodyCycles"/> that only verification reads.</summary>
+internal static class SamusPaletteDefinitionsFullBodyCyclesConstants
 {
     /// <summary><c>$91:DB75</c>, suit-indexed active-shinespark palette lists.</summary>
     /// <remarks>
@@ -162,19 +162,19 @@ internal static class SamusPaletteRomDataFullBodyCyclesConstants
     public const int StoredShineLists = 0x91db10;
 
     /// <summary>Provides full-body Samus palette lists for shinespark, Hyper Beam, Screw Attack, and speed states.</summary>
-    extension(SamusPaletteRomData.FullBodyCycles)
+    extension(SamusPaletteDefinitions.FullBodyCycles)
     {
-        /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants.ActiveShinesparkLists"/>
-        internal static int ActiveShinesparkLists => SamusPaletteRomDataFullBodyCyclesConstants.ActiveShinesparkLists;
-        /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants.HyperBeamPointers"/>
-        internal static int HyperBeamPointers => SamusPaletteRomDataFullBodyCyclesConstants.HyperBeamPointers;
-        /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants.ScrewAttackLists"/>
-        internal static int ScrewAttackLists => SamusPaletteRomDataFullBodyCyclesConstants.ScrewAttackLists;
-        /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants.SpeedBoostPointers"/>
-        internal static int SpeedBoostPointers => SamusPaletteRomDataFullBodyCyclesConstants.SpeedBoostPointers;
-        /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants.SpeedBoosterLists"/>
-        internal static int SpeedBoosterLists => SamusPaletteRomDataFullBodyCyclesConstants.SpeedBoosterLists;
-        /// <inheritdoc cref="SamusPaletteRomDataFullBodyCyclesConstants.StoredShineLists"/>
-        internal static int StoredShineLists => SamusPaletteRomDataFullBodyCyclesConstants.StoredShineLists;
+        /// <inheritdoc cref="SamusPaletteDefinitionsFullBodyCyclesConstants.ActiveShinesparkLists"/>
+        internal static int ActiveShinesparkLists => SamusPaletteDefinitionsFullBodyCyclesConstants.ActiveShinesparkLists;
+        /// <inheritdoc cref="SamusPaletteDefinitionsFullBodyCyclesConstants.HyperBeamPointers"/>
+        internal static int HyperBeamPointers => SamusPaletteDefinitionsFullBodyCyclesConstants.HyperBeamPointers;
+        /// <inheritdoc cref="SamusPaletteDefinitionsFullBodyCyclesConstants.ScrewAttackLists"/>
+        internal static int ScrewAttackLists => SamusPaletteDefinitionsFullBodyCyclesConstants.ScrewAttackLists;
+        /// <inheritdoc cref="SamusPaletteDefinitionsFullBodyCyclesConstants.SpeedBoostPointers"/>
+        internal static int SpeedBoostPointers => SamusPaletteDefinitionsFullBodyCyclesConstants.SpeedBoostPointers;
+        /// <inheritdoc cref="SamusPaletteDefinitionsFullBodyCyclesConstants.SpeedBoosterLists"/>
+        internal static int SpeedBoosterLists => SamusPaletteDefinitionsFullBodyCyclesConstants.SpeedBoosterLists;
+        /// <inheritdoc cref="SamusPaletteDefinitionsFullBodyCyclesConstants.StoredShineLists"/>
+        internal static int StoredShineLists => SamusPaletteDefinitionsFullBodyCyclesConstants.StoredShineLists;
     }
 }

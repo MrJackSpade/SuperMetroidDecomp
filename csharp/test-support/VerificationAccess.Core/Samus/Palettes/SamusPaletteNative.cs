@@ -68,7 +68,7 @@ internal static class SamusPaletteNative
     }
 
     /// <summary>The normal suit palette the native suit table selects, by its bank-$9B address.</summary>
-    extension(SamusPaletteRomData.Common)
+    extension(SamusPaletteDefinitions.Common)
     {
         /// <summary>$91:D727: the Power, Varia or Gravity palette pointer at an even suit-table byte offset.</summary>
         internal static ushort NormalSuitPalettePointer(ushort byteOffset) => byteOffset switch
@@ -81,11 +81,11 @@ internal static class SamusPaletteNative
     }
 
     /// <summary>The cycle lists by bank-$9B palette address.</summary>
-    extension(SamusPaletteRomData.FullBodyCycles)
+    extension(SamusPaletteDefinitions.FullBodyCycles)
     {
         /// <summary>$91:D998: the special Super-palette flash's cycle palette pointer.</summary>
         internal static ushort SpeedBoostPalettePointer(ushort byteOffset) =>
-            Address(SamusPaletteRomData.FullBodyCycles.SpeedBoostPalette(byteOffset));
+            Address(SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPalette(byteOffset));
 
         /// <summary>The Screw Attack palette pointer for a bounded suit and phase.</summary>
         internal static bool TryScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
@@ -99,22 +99,22 @@ internal static class SamusPaletteNative
 
         /// <summary>The stored-shine palette pointer for a bounded suit and phase.</summary>
         internal static bool TryStoredShinePalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            Pointer(SamusPaletteRomData.FullBodyCycles.TryStoredShinePalette(suitByteOffset, phaseByteOffset,
+            Pointer(SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalette(suitByteOffset, phaseByteOffset,
                 out SamusFullBodyCyclePalette palette), palette, out pointer);
 
         /// <summary>The active-shinespark palette pointer for a bounded suit and phase.</summary>
         internal static bool TryActiveShinesparkPalettePointer(ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
-            Pointer(SamusPaletteRomData.FullBodyCycles.TryActiveShinesparkPalette(suitByteOffset, phaseByteOffset,
+            Pointer(SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalette(suitByteOffset, phaseByteOffset,
                 out SamusFullBodyCyclePalette palette), palette, out pointer);
 
         /// <summary>The Screw Attack list word read anywhere in its compiled allocation.</summary>
         internal static ushort ReadScrewAttackPalettePointer(ushort suitByteOffset, ushort phaseByteOffset) =>
-            Address(SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalette(suitByteOffset, phaseByteOffset));
+            Address(SamusPaletteDefinitions.FullBodyCycles.ReadScrewAttackPalette(suitByteOffset, phaseByteOffset));
 
         /// <summary>The active Speed Booster list word read anywhere in its compiled allocation, or an overrun's operand.</summary>
         internal static ushort ReadActiveSpeedBoosterPalettePointer(ushort suitByteOffset, ushort phaseByteOffset)
         {
-            SpeedBoosterPaletteSource source = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalette(
+            SpeedBoosterPaletteSource source = SamusPaletteDefinitions.FullBodyCycles.ReadActiveSpeedBoosterPalette(
                 suitByteOffset, phaseByteOffset);
             return source.Overrun switch
             {
@@ -126,7 +126,7 @@ internal static class SamusPaletteNative
         }
 
         /// <summary>The bank-$9B source of the ten Hyper Beam frames $91:D99E selects, descending from $9B:A360.</summary>
-        internal static int HyperBeamPaletteSource(int frame) => (uint)frame < SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount
+        internal static int HyperBeamPaletteSource(int frame) => (uint)frame < SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount
             ? 0x9ba360 - frame * ShadeStride
             : throw new ArgumentOutOfRangeException(nameof(frame));
     }
@@ -180,7 +180,7 @@ internal static class SamusPaletteNative
             }
             pointer = phaseOffset / sizeof(ushort) < 3
                 ? Address(new(SamusFullBodyCycleFamily.ActiveShinespark, suitOffset / sizeof(ushort), 3))
-                : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
+                : SamusPaletteDefinitions.Common.NormalSuitPalettePointer(suitOffset);
             return true;
         }
 

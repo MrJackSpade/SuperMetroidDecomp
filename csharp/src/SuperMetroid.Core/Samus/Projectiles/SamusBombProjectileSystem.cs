@@ -87,10 +87,10 @@ public sealed class SamusBombProjectileSystem
     public bool SoundSuppressedBeforeProjectileHandling { get; private set; }
 
     /// <summary>
-    /// Advances bank-$88 blast HDMA independently of Samus's alpha/input handler.
-    /// Scripted carries suppress alpha but do not stop the outer HDMA object pass.
+    /// Advances the Power Bomb explosion's shape independently of Samus's alpha/input handler.
+    /// Scripted carries suppress alpha but do not stop the per-line effect phase.
     /// </summary>
-    public void AdvancePowerBombHdma(
+    public void AdvancePowerBombExplosion(
         SamusState samus,
         SnesButton controllerInput,
         SuperMetroid.Core.Progression.SuperMetroidGameState gameState = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
@@ -130,14 +130,14 @@ public sealed class SamusBombProjectileSystem
     /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
     /// overlap pass that the main gameplay loop invokes before movement-handler beta.
     /// </summary>
-    public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombHdmaStep powerBombHdma = PowerBombHdmaStep.Advance)
+    public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
     {
 
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
-        if (powerBombHdma == PowerBombHdmaStep.Advance)
-            AdvancePowerBombHdma(samus, controllerInput);
+        if (explosion == PowerBombExplosionStep.Advance)
+            AdvancePowerBombExplosion(samus, controllerInput);
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.

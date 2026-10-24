@@ -525,7 +525,7 @@ internal sealed class SuperMetroidRuntime
         if (Player.Samus is { } hdmaSamus && !MessageBox.IsActive)
         {
             hdmaSamus.LiquidPhysics.BeginFrameSoundRequests(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
-            Room.LoadedScope.BombProjectiles.AdvancePowerBombHdma(hdmaSamus, Controller1.Current, DispatchGameState);
+            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(hdmaSamus, Controller1.Current, DispatchGameState);
         }
     }
 
@@ -1103,7 +1103,7 @@ internal sealed class SuperMetroidRuntime
             if (Room.Camera is not null)
                 HdmaPhase.AdvanceHdmaObjectPreInstructions(Room.LoadedScope.Plms, Room.LoadedScope);
             if (Player.Samus is { } hdmaSamus)
-                Room.LoadedScope.BombProjectiles.AdvancePowerBombHdma(hdmaSamus, Controller1.Current, DispatchGameState);
+                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(hdmaSamus, Controller1.Current, DispatchGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;

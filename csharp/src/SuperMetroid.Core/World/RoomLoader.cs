@@ -141,8 +141,8 @@ internal sealed class RoomLoader
     /// door loader reaches that enemy's initialization slot.
     /// </summary>
     private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
-    /// <summary>Source-room PPU scroll retained until door-opening IRQ offsets are installed.</summary>
-    private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
+    /// <summary>What the source room showed, kept until the door-opening scroll's offsets are installed.</summary>
+    private DoorOpeningSourceView? _pendingDoorOpeningSourceView;
 
     /// <summary>
     /// Executes the data-loading portion of native loading-state $1F: area six, station
@@ -524,9 +524,9 @@ internal sealed class RoomLoader
             _backgroundScroll.Layer2Position,
             _player.Samus.Position);
         DoorDirection direction = door.Orientation.Direction;
-        DoorOpeningPpuScroll sourceScroll = _pendingDoorOpeningPpuScroll
+        DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
             ?? throw new InvalidOperationException(
-                "Door-opening scroll lost the source-room PPU scroll snapshot.");
+                "Door-opening scroll lost the source room's view.");
         // The offsets derive from the layer-one words staged before setup's first call:
         // horizontal setups had not yet taken their four-pixel step, and up's
         // FixDoorsMovingUp path stages layer one five (layer two four) pixels lower.
@@ -543,7 +543,7 @@ internal sealed class RoomLoader
             ? sourceScroll.Bg1Scroll + new Offset16<RoomPixels>(0, 1)
             : sourceScroll.Bg1Scroll;
         _backgroundScroll.ConfigureDoorOpeningOffsets(retainedBg1Scroll, stagedLayer1);
-        _pendingDoorOpeningPpuScroll = null;
+        _pendingDoorOpeningSourceView = null;
         // The source screen stays where it was while the destination scrolls in around it.
         _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.Bg1Scroll.AsBgPlaneScroll());
         PublishDoorOpeningLayers(_doorOpeningScroll);
@@ -781,10 +781,10 @@ internal sealed class RoomLoader
         RoomViewportLoadMode viewportLoadMode,
         RoomEntry entry = default)
     {
-        DoorOpeningPpuScroll? doorOpeningPpuScroll = viewportLoadMode switch
+        DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningPpuScroll(_backgroundScroll.Bg1Scroll,
+            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningSourceView(_backgroundScroll.Bg1Scroll,
                 new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(),
                     SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
@@ -1060,13 +1060,13 @@ internal sealed class RoomLoader
         {
             // State-$0B never calls DisplayViewablePartOfRoom: the source screen stays
             // visible while the opening scroll moves the destination in around it.
-            _pendingDoorOpeningPpuScroll = doorOpeningPpuScroll;
+            _pendingDoorOpeningSourceView = doorOpeningSourceView;
             _room.Adopt(scope.Complete());
             return new InitialViewportResult();
         }
 
         _room.Adopt(scope.Complete());
-        _pendingDoorOpeningPpuScroll = null;
+        _pendingDoorOpeningSourceView = null;
         _backgroundScroll.Layer1Position = destinationCamera.PixelPosition;
         _backgroundScroll.CalculateScrolls();
         return new InitialViewportResult();

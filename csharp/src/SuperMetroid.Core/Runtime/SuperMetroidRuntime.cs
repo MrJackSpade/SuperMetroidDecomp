@@ -381,7 +381,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public bool PowerBombExplosionSuppressesSounds => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
-    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room's layer-3 FX.</summary>
+    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's layer-3 FX.</summary>
     public RoomFxSession RoomFx { get; } = new();
 
 

@@ -12,20 +12,20 @@ public sealed class LayeredScene
     public FramePaint Paint { get; }
     /// <summary>Owned operation sequence in back-to-front application order on the 256-by-224-pixel visible viewport.</summary>
     public ReadOnlySpan<RenderLayer> Layers => layers;
-    /// <summary>Master brightness 0..15, applied after all layer operations; zero produces black.</summary>
+    /// <summary>The screen's brightness, from black (zero) to <see cref="FadeLevel.Full"/>, applied after all layer operations.</summary>
     public int Brightness { get; }
 
     /// <summary>Retains the frame's paint and layer records while copying their ordering into packet-owned storage.</summary>
     /// <param name="paint">The frame's colours and sprite draws, independent of later simulation writes.</param>
     /// <param name="layers">Supported immutable operations in execution order; an empty sequence displays the backdrop, and a fused gameplay base must be first.</param>
-    /// <param name="brightness">Final master brightness, from 0 through 15 inclusive.</param>
+    /// <param name="brightness">The screen's brightness, from black (zero) to <see cref="FadeLevel.Full"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <exception cref="ArgumentException">A layer is null or unsupported, has invalid geometry, priorities or color values, selects incompatible color math, or places a fused gameplay base after another operation.</exception>
     public LayeredScene(FramePaint paint, ReadOnlySpan<RenderLayer> layers, int brightness)
     {
         Ensure.NotNull(paint);
-        Brightness = Ensure.BetweenInclusive(0, Hardware.SnesPpuLayout.MaximumMasterBrightness, brightness);
+        Brightness = Ensure.BetweenInclusive(0, FadeLevel.Full, brightness);
         // Each accepted record is sealed and owns any array data. Copy the sequence so a scene
         // cannot rearrange a queued frame's priority ladder after publication.
         foreach (RenderLayer layer in layers)

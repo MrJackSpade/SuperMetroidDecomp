@@ -84,7 +84,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork each room's layer-3 FX reads.</summary>
+    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's layer-3 FX reads.</summary>
     public required RoomFxSession RoomFx { get; init; }
 
     /// <summary>The palette-FX handler state each room's palette FX reads.</summary>

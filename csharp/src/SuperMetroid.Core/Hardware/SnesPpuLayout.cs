@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("catalog: PPU memory geometry and gameplay VRAM bases")]
 public static class SnesPpuLayout
 {
-    /// <summary>INIDISP ($2100) brightness nibble: fifteen is full intensity.</summary>
-    public const byte MaximumMasterBrightness = 15;
-
     /// <summary>Width of the SNES low-resolution raster used by the game.</summary>
     public const int ScreenWidthPixels = 256;
 

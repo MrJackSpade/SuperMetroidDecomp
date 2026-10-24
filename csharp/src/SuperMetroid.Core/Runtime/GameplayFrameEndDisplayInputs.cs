@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="CrocomireMeltingScrolls">Crocomire's melting BG2VOFS HDMA table, while its channel is active.</param>
 /// <param name="MotherBrainRisingHdmaActive">Whether Mother Brain's ascent HDMA owns the gameplay layers.</param>
 /// <param name="RainbowBeam">Rainbow-beam window description; its fixed color comes from the NMI latch.</param>
-/// <param name="CeresHaze">Ceres haze per-line COLDATA gradient, when the room spawned one.</param>
+/// <param name="CeresHaze">The Ceres haze's per-line fixed-colour gradient, when the room spawned one.</param>
 /// <param name="RoomFxPaletteBlends">Installed presentation colors for the haze gradient.</param>
 /// <param name="PowerBomb">Power-bomb window table inputs; its fixed color comes from the NMI latch.</param>
 /// <param name="MessageBox">Bank-$85 message overlay, which runs its own display loop.</param>

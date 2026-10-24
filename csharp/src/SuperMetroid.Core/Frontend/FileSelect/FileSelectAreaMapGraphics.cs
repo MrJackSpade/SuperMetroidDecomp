@@ -189,6 +189,6 @@ public sealed class FileSelectAreaMapGraphics
             new TileAddRenderLayer(ScreenTileMap.Of(screen.Tilemaps.AreaBackground, TileViewportRenderLayer.MapSize,
                     tiles.Background),
                 colorMath == AreaMapColorMath.WithBackdrop ? null : foreground),
-            new ObjRenderLayer() }, SnesPpuLayout.MaximumMasterBrightness);
+            new ObjRenderLayer() }, FadeLevel.Full);
     }
 }

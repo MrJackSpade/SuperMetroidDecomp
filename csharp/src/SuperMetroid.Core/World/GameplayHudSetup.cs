@@ -24,8 +24,6 @@ internal sealed class GameplayHudSetup
     private readonly EnemySession _enemySession;
     /// <summary>The room whose loaded enemy characters show again over the standard sprite characters.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Carries the HUD characters' and the loaded enemies' character uploads, which still go through the queue.</summary>
-    private readonly VramWriteQueue _vramWrites;
     /// <summary>The background artwork bindings the HUD's characters are shown through.</summary>
     private readonly BgArtworkBindings _backgrounds;
 
@@ -38,7 +36,6 @@ internal sealed class GameplayHudSetup
         _player = dependencies.Player;
         _enemySession = dependencies.EnemySession;
         _room = dependencies.Room;
-        _vramWrites = dependencies.VramWrites;
         _backgrounds = dependencies.Backgrounds;
     }
 
@@ -82,7 +79,7 @@ internal sealed class GameplayHudSetup
         // A loaded room's enemy characters show over the standard ones again from the next accepted frame.
         // Before the gameplay runtime's first room there is no enemy population.
         if (_room.Scope?.Enemies is { IsLoaded: true } enemies)
-            enemies.GraphicsSet.QueueGraphicsUploads(_vramWrites);
+            enemies.GraphicsSet.ShowGraphics();
         _hud.Initialize(snapshot);
     }
 }

@@ -165,19 +165,18 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
     AssertEqual(2, specialGraphics.VramTilesIndex,
         "second enemy tile index includes first definition size");
-    // Room load stages the tiles; they reach VRAM, and the OBJ characters' record, through the NMI queue.
-    var tileQueue = new VramWriteQueue();
-    enemies.GraphicsSet.QueueGraphicsUploads(tileQueue);
+    // Room load stages the tiles; they show over the OBJ characters as named transfers (#1406).
+    enemies.GraphicsSet.ShowGraphics();
     var seededTiles = new SeededEnemyTileTransfers(new Dictionary<int, byte[]>
     {
         [0xa29100] = primaryTileBytes,
         [0xa39320] = specialTileBytes,
     });
-    tileQueue.DrainTo(vram, seededTiles, enemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(vram));
     AssertEqual(2, enemies.Room.Session.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
-    AssertEqual(0x80, vram.ReadByte(0xe000), "ordinary enemy first tile byte");
-    AssertEqual(0xbf, vram.ReadByte(0xe03f), "ordinary enemy final tile byte");
-    AssertEqual(0xc0, vram.ReadByte(0xda00), "special enemy first tile byte");
+    byte[] shown = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, seededTiles).Characters.ToArray();
+    AssertEqual(0x80, shown[0x2000], "ordinary enemy first tile byte");
+    AssertEqual(0xbf, shown[0x203f], "ordinary enemy final tile byte");
+    AssertEqual(0xc0, shown[0x1a00], "special enemy first tile byte");
     AssertEqual(0x2120, cgram.Colors[(3 + 8) * 16],
         "ordinary enemy palette destination and source");
     AssertEqual(0x6160, cgram.Colors[(4 + 8) * 16],
@@ -220,11 +219,10 @@ internal static void VerifyRoomEnemyLoading()
     var installedVram = new SnesVram();
     var installedCgram = new SamusColourRig();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram), installedCgram.Gameplay));
-    var installedQueue = new VramWriteQueue();
-    installedEnemies.GraphicsSet.QueueGraphicsUploads(installedQueue);
-    installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(installedVram));
-    AssertTrue(vram.ImageEquals(installedVram),
-        "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
+    installedEnemies.GraphicsSet.ShowGraphics();
+    byte[] installedShown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.ObjCharacters, seededTiles).Characters.ToArray();
+    AssertTrue(shown.SequenceEqual(installedShown),
+        "installed enemy PNGs preserve both native ordinary and high-bit OBJ placements");
     AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
         "enemy tile overrides cannot alter native palettes");
     AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,

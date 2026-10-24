@@ -97,8 +97,6 @@ internal sealed class RoomLoader
     private readonly TesterTools _tester;
     /// <summary>The background character artwork the room binds (#1350).</summary>
     private readonly BgArtworkBindings _backgrounds;
-    /// <summary>Queues VRAM writes that must occur at the next display boundary.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
 
     /// <summary>Captures the owners of room, player, graphics, and door state used by the loader.</summary>
@@ -131,7 +129,6 @@ internal sealed class RoomLoader
         _system = dependencies.System;
         _tester = dependencies.Tester;
         _backgrounds = dependencies.Backgrounds;
-        _vramWrites = dependencies.VramWrites;
 
     }
     /// <summary>
@@ -1058,7 +1055,7 @@ internal sealed class RoomLoader
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomLayer3Fx, roomPaletteFx, enemies);
         scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomLayer3Fx, roomPaletteFx, plms, enemies);
-        enemies.GraphicsSet.QueueGraphicsUploads(_vramWrites);
+        enemies.GraphicsSet.ShowGraphics();
         // The door-transition code that owns $0795/$0797 keeps them over the destination once its enemies are loaded.
         enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 

@@ -110,8 +110,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The background character artwork the room binds (#1350).</summary>
     public required BgArtworkBindings Backgrounds { get; init; }
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 
 
 }

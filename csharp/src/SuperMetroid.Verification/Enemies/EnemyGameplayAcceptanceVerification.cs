@@ -168,11 +168,9 @@ internal static class EnemyGameplayAcceptanceVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var vram = new SnesVram(); var colors = new SamusColourRig();
             enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram), colors.Gameplay));
-            // The room's enemy tile set reaches the OBJ characters only through the NMI queue, as named transfers.
+            // The room's enemy tile set reaches the OBJ characters as named transfers.
             var transfers = new EnemyTileTransfers(artwork);
-            var queue = new VramWriteQueue();
-            enemies.GraphicsSet.QueueGraphicsUploads(queue);
-            queue.DrainTo(vram, transfers, enemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(vram));
+            enemies.GraphicsSet.ShowGraphics();
             byte[] characters = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, transfers).Characters.ToArray();
             return new LoadResult(enemies, characters, colors);
         }

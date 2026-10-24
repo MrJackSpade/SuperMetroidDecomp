@@ -28,29 +28,29 @@ internal sealed class EnemyGraphicsSet
 
 
     /// <summary>
-    /// Appends enemy tile DMAs after the standard OBJ transfer queued by room setup.
+    /// Shows the set's enemy characters over the OBJ character table, after the standard sprite characters room setup
+    /// selected (#1406): each entry's installed tiles from its place in the enemy tile area, in set order.
     /// </summary>
     /// <remarks>
-    /// Standard sprite graphics occupy VRAM bytes $C000-$EDFF and therefore overlap the
-    /// beginning of the enemy region at $E000. ProcessEnemyTilesets stages enemy art first,
-    /// but LoadEnemyTileData schedules its final VRAM copies after standard room graphics.
-    /// A direct host load alone would be overwritten by the next accepted NMI.
+    /// Standard sprite graphics cover the beginning of the enemy tile area, so the enemies' characters are shown after
+    /// them, as LoadEnemyTileData's copies follow the standard room graphics; the cartridge queues them before any enemy
+    /// AI's own transfer, which these records also precede.
     /// </remarks>
-    /// <param name="queue">Ordered NMI VRAM-write queue to which selected enemy character transfers are appended.</param>
-    public void QueueGraphicsUploads(VramWriteQueue queue)
+    /// <exception cref="InvalidDataException">An entry's tiles are not word-aligned or exceed one native copy.</exception>
+    public void ShowGraphics()
     {
-        Ensure.NotNull(queue);
         _room.EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
             if ((entry.StagingOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
-                throw new InvalidDataException("Enemy tile DMA is not word-aligned or exceeds one native transfer.");
-            queue.Enqueue(
-                unchecked((ushort)entry.TileByteCount),
-                entry.Definition.TileDataAddress,
-                EnemyVram.EnemyTilesDma(entry.StagingOffset / 2));
+                throw new InvalidDataException("Enemy tiles are not word-aligned or exceed one native copy.");
+            _room.Session.ObjCharacters.Record(EnemyTileAreaFirstByte + entry.StagingOffset, entry.TileByteCount,
+                new TransferObjCharacters(entry.Definition.TileDataAddress, entry.TileByteCount));
         }
     }
+
+    /// <summary>The OBJ character table byte the enemy tile area begins at, $1800: VRAM byte $D800 less the table's $C000.</summary>
+    private const int EnemyTileAreaFirstByte = 0x1800;
 
     /// <summary>Stages selected enemy tiles and OBJ palettes in bank-$B4 record order while retaining native size arithmetic.</summary>
     internal void LoadGraphicsSet(

@@ -12,7 +12,6 @@ internal static class VramDmaProducerContracts
             "SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas.QueuePoint" => "grapple-point",
             "SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas.QueueSegments" => "grapple-segment",
             "SuperMetroid.Core.Samus.Artwork.ProjectileTrailAtlas.QueueTo" => "trails",
-            "SuperMetroid.Core.Enemies.EnemyGraphicsSet.QueueGraphicsUploads" => "enemies",
             "SuperMetroid.Core.Fx.RoomFxAnimatedTilesState.Step" => "fx",
             "SuperMetroid.Core.Samus.Drawing.SamusArmCannonState.Draw" => "arm",
             "SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement.DrawConnectedBeam" => "grapple-native",

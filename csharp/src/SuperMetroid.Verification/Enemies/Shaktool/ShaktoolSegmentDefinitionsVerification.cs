@@ -117,7 +117,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Compares one seven-word native table with its compiled definition and rejects out-of-range segment indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool definition field")]
     private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,
-        int nativeAddress, Func<ShaktoolSegmentDefinition, ushort> select, string label)
+        int nativeAddress, Func<ShaktoolSegmentDefinition, int> select, string label)
     {
         for (int index = 0; index < 7; index++)
         {

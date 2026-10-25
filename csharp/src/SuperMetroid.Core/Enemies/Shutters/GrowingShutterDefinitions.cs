@@ -26,7 +26,7 @@ public static class GrowingShutterDefinitions
     /// VerifyCompiledGrowingShutters covers all 24 values through the real initializer,
     /// every high byte, all four dispatch selectors, and the invalid index boundary.
     /// </remarks>
-    public static SnesSignedSixteenSixteen Speed(ushort parameter)
+    public static SnesSignedSixteenSixteen Speed(int parameter)
     {
         int index = (byte)parameter;
         if (index >= 24)

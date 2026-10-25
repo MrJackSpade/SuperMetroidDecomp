@@ -104,7 +104,7 @@ internal sealed class EnemyDrawList
                         ((slot.FrameCounter & 2) != 0 ? -1 : 1))));
                     slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
                 }
-                ushort drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
+                int drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
@@ -236,7 +236,7 @@ internal sealed class EnemyDrawList
     /// Ridley's translated AI already publishes the exact common-writer palette because
     /// its body, wings, and tail must share one latched phase.
     /// </remarks>
-    private ushort SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
+    private int SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
     {
         if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPaletteIndex() is { } owned)
             return owned;
@@ -251,6 +251,6 @@ internal sealed class EnemyDrawList
             return EnemyFrozenPaletteDefinitions.PaletteBits;
         }
 
-        return checked((ushort)slot.PaletteIndex);
+        return slot.PaletteIndex;
     }
 }

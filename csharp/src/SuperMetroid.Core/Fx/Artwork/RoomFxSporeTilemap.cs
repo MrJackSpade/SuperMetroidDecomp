@@ -25,11 +25,11 @@ internal sealed class RoomFxSporeTilemap
         characters = new ushort[RoomFxLayer3TilemapFormat.CellsPerPage];
         for (int index = 0; index < characters.Length; index++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]);
-            characters[index] = (ushort)new Hardware.SnesBgTilemapWord(word).CharacterIndex;
-            ushort attributes = new Hardware.SnesBgTilemapWord(word).WithCharacterIndex(0).Raw;
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]);
+            characters[index] = (ushort)new Hardware.SnesBgTilemapWord(checked((ushort)word)).CharacterIndex;
+            int attributes = new Hardware.SnesBgTilemapWord(checked((ushort)word)).WithCharacterIndex(0).Raw;
             if (attributes != RoomFxSporeTilemapDefinitions.Attributes(index))
-                (customAttributes ??= []).Add(index, attributes);
+                (customAttributes ??= []).Add(index, checked((ushort)attributes));
         }
     }
 
@@ -39,8 +39,8 @@ internal sealed class RoomFxSporeTilemap
         var bytes = new byte[RoomFxLayer3TilemapFormat.PageByteCount];
         for (int index = 0; index < characters.Length; index++)
         {
-            ushort attributes = customAttributes is not null && customAttributes.TryGetValue(index, out ushort edited)
-                ? edited : RoomFxSporeTilemapDefinitions.Attributes(index);
+            int attributes = customAttributes is not null && customAttributes.ContainsKey(index)
+                ? customAttributes[index] : RoomFxSporeTilemapDefinitions.Attributes(index);
             BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), (ushort)(characters[index] | attributes));
         }
         return bytes;

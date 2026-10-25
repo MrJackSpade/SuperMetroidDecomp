@@ -160,10 +160,10 @@ public sealed class GameplayMessageTitlePresentation
         };
 
     /// <summary>Recovers a supported title character from the tile portion of a BG3 word.</summary>
-    internal static char DecodeGlyph(ushort word)
+    internal static char DecodeGlyph(int word)
     {
-        ushort tile = (ushort)new SnesBgTilemapWord(word).CharacterIndex;
-        return GlyphsByTile.TryGetValue(tile, out char character)
+        int tile = new SnesBgTilemapWord(checked((ushort)word)).CharacterIndex;
+        return GlyphsByTile.TryGetValue(checked((ushort)tile), out char character)
             ? character
             : throw new InvalidDataException($"${tile:X4} is not a gameplay-message title glyph.");
     }

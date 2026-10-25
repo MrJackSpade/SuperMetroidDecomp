@@ -17,7 +17,7 @@ internal static class TourianStatueUnlockDefinitions
     ];
 
     /// <summary>Returns the room position shared by the eye glow and released soul selected by the native doubled boss parameter.</summary>
-    internal static Position16<RoomPixels> EyePosition(ushort parameter)
+    internal static Position16<RoomPixels> EyePosition(int parameter)
     {
         if (parameter > 6 || (parameter & 1) != 0)
         {

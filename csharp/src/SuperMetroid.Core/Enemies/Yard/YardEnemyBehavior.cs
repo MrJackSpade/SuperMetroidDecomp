@@ -64,8 +64,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AirborneFacingDirection = YardDirectionDefinitions.ForDirection(state.Direction).AirborneFacingDirection;
                 return null;
             case YardCue.MoveBy moveBy:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + moveBy.Offset)));
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + moveBy.OffsetY)));
+                slot.Position += moveBy.Offset;
                 return null;
             case YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
                 if (state.Behavior != YardBehavior.Hiding && (_room.Random.Generate() & 1) == 0)
@@ -83,7 +82,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Yard initialization at $A3:CDE2-$CE56.</summary>
     internal static void InitializeYard(RoomEnemySlot slot)
     {
-        ushort direction = checked((ushort)slot.CurrentInstruction);
+        int direction = checked((ushort)slot.CurrentInstruction);
         if (direction >= 8)
         {
             throw new InvalidDataException(
@@ -124,12 +123,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void SetYardCrawlingVelocities(YardEnemyState state, int direction)
     {
         ValidateYardSpeedIndex(checked((ushort)state.CrawlingSpeedIndex));
-        ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
+        int speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
         state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 
     /// <summary>Rejects a crawl speed selector outside Yard's native signed speed table.</summary>
-    private static void ValidateYardSpeedIndex(ushort index)
+    private static void ValidateYardSpeedIndex(int index)
     {
         if (index >= CrawlerSpeedDefinitions.Count)
             throw new InvalidDataException($"Yard speed index ${index:X4} exceeds $A3:CCA2.");
@@ -428,7 +427,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (_terrain.MoveEnemyVertically(level, slot, state.AirborneVelocity.Y.RawValue))
         {
-            short wholeY = state.AirborneVelocity.Y.WholePixels;
+            int wholeY = state.AirborneVelocity.Y.WholePixels;
             if (wholeY is >= 0 and < 3)
             {
                 LandYard(slot, state, samus);

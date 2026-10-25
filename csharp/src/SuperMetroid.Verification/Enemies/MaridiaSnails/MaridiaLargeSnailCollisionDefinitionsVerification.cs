@@ -128,7 +128,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         Console.WriteLine($"Oum collision: 30 frames, 66 rectangles, {probes} " +
             "native-equivalent touch/shot boundary probes with no ROM reads.");
 
-        static ushort[] BoundaryPoints(ushort origin, short low, short high) =>
+        static ushort[] BoundaryPoints(int origin, int low, int high) =>
         [
             unchecked((ushort)(origin + low - 1)),
             unchecked((ushort)(origin + low)),

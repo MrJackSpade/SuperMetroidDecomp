@@ -14,7 +14,7 @@ internal static class TourianAccessPlmDrawDefinitions
     /// The rows and air word of one Tourian access draw. Clear selects six blank rows; empty selects one. The three
     /// crumble records select successive tiles $53..55. Every row is four air cells.
     /// </summary>
-    internal static void Describe(TourianAccessDraw list, out int rows, out ushort word)
+    internal static void Describe(TourianAccessDraw list, out int rows, out int word)
     {
         TourianAccessDrawFill fill = list switch
         {
@@ -61,10 +61,10 @@ internal static class TourianAccessPlmDrawDefinitions
     /// <summary>Builds the four-air-cell runs of a Tourian access draw.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList Compile(TourianAccessDraw draw)
     {
-        Describe(draw, out int rows, out ushort word);
+        Describe(draw, out int rows, out int word);
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[rows];
         for (int row = 0; row < rows; row++)
-            runs[row] = new(4, new ushort[] { word, word, word, word },
+            runs[row] = new(4, Enumerable.Repeat(checked((ushort)word), 4).ToArray(),
                 new(0, (sbyte)(row + 1 < rows ? row + 1 : 0)));
         return new(PlmDraw.Of(draw), runs);
     }

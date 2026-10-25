@@ -8,7 +8,7 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
         CrateriaEscapeLightningPaletteOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
-        ushort colorByteIndex,
+        int colorByteIndex,
         int colorsPerFrame)
     {
         Owner = owner;
@@ -23,7 +23,7 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
     /// <summary>The palette-FX object that installs this program.</summary>
     public PaletteFxObject Object { get; }
     /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
+    public int ColorByteIndex { get; }
     /// <summary>The number of live BGR555 colors in every record.</summary>
     public int ColorsPerFrame { get; }
 

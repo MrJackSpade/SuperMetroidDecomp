@@ -84,8 +84,8 @@ public sealed class KzanEnemyState
     /// <summary>Post-landing wait in actor updates, backed by <c>$7E:7806,x</c>; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
     public WrappingCountdown RiseWaitTimer
     {
-        get => WrappingCountdown.FromRaw(_words.RiseWaitTimer);
-        internal set => _words.RiseWaitTimer = value.RawValue;
+        get => _words.RiseWaitTimer;
+        internal set => _words.RiseWaitTimer = value;
     }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>

@@ -78,7 +78,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
     private void WakeDownwardGateProjectile(int plmBlockIndex)
     {
-        ushort associatedBlock = checked((ushort)(
+        int associatedBlock = checked((ushort)(
             plmBlockIndex * DownwardGateDefinitions.BlockAssociationScale));
         RoomEnemyProjectileSlot? projectile = null;
         for (int index = _projectiles.EnemyProjectiles.Count - 1; index >= 0; index--)

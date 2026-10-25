@@ -8,9 +8,9 @@ public sealed class CinematicGlowPaletteFxColorDefinition
         CinematicGlowPaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
-        ushort colorByteIndex,
+        int colorByteIndex,
         int colorsPerFrame,
-        ushort frameDuration)
+        int frameDuration)
     {
         Owner = owner;
         Object = paletteFxObject;
@@ -30,13 +30,13 @@ public sealed class CinematicGlowPaletteFxColorDefinition
     public PaletteFxObject Object { get; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
+    public int ColorByteIndex { get; }
 
     /// <summary>The number of live BGR555 colors written by each timed record.</summary>
     public int ColorsPerFrame { get; }
 
     /// <summary>The cartridge-authored duration of each timed record.</summary>
-    public ushort FrameDuration { get; }
+    public int FrameDuration { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows { get; }

@@ -180,10 +180,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!PlatformsBehavior.IsSamusRidingPlatform(slot, samus))
             return;
 
-        short wholeDelta = (slot.Position.Whole - state.PreviousPosition).Y;
+        int wholeDelta = (slot.Position.Whole - state.PreviousPosition).Y;
         if (wholeDelta < 0)
         {
-            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, wholeDelta);
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, checked((short)wholeDelta));
         }
     }
 
@@ -214,7 +214,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
-        ushort radius = checked((ushort)(8 + state.GrowthLevel * 8));
+        int radius = checked((ushort)(8 + state.GrowthLevel * 8));
         InstallGrowingShutterProgram(slot, state, program, radius);
     }
 
@@ -223,12 +223,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
         ShutterProgram program,
-        ushort yRadius)
+        int yRadius)
     {
         state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.Radius = slot.Radius.WithY(yRadius);
+        slot.Radius = slot.Radius.WithY(checked((ushort)yRadius));
     }
     /// <summary>Samus's four-pixel correction when pushing against a horizontal shutter.</summary>
     private const short HorizontalShutterManualPushPixels = 4;
@@ -239,7 +239,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new HorizontalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        ushort packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
+        int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
         state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
         state.ReactionDirection = state.PrimaryDirection ^ 1;
@@ -538,7 +538,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus)
     {
         IReadOnlyList<ushort> collisions = samus.Kinematics.SolidEnemyCollisionIndexes;
-        ushort combined = unchecked((ushort)(collisions[0] & collisions[1] & collisions[2] & collisions[3]));
+        int combined = unchecked((ushort)(collisions[0] & collisions[1] & collisions[2] & collisions[3]));
         return combined != ShutterContactDefinitions.NoSolidEnemy &&
             combined == slot.EnemyIndex &&
             samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
@@ -550,7 +550,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         int maximumDistance)
     {
-        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)distance) < 0)
             distance = unchecked((ushort)-distance);
         return distance < maximumDistance;
@@ -742,7 +742,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new VerticalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        ushort packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
+        int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
         state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
         state.ReactionDirection = state.PrimaryDirection;

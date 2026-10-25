@@ -24,7 +24,7 @@ internal sealed class EscapeExplosionsBehavior
 
     /// <summary>Native $8F:C1A9 sprite/sound publication through the shared object pool.</summary>
     /// <remarks>A random low nibble of eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
-    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, ushort inheritedX)
+    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX)
     {
         int choice = random & 15;
         // Preserve the cartridge's unchanged-X branch, not the upstream C port's bugfix.

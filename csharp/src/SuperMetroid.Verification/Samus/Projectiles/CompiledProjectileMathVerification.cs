@@ -48,7 +48,7 @@ internal static class CompiledProjectileMathVerification
         var rio = new Func<byte, ushort>(angle => RioBehavior.ReadRioSignedSineCosineSample(new SnesByteAngle(angle)));
         var shaktool = new Func<int, ushort>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var arc = new Action<RoomEnemyProjectileSlot, ushort>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
+        var arc = new Action<RoomEnemyProjectileSlot, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new SnesBearing(bearing)));
         var echo = new Func<SnesAngle, byte, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
 

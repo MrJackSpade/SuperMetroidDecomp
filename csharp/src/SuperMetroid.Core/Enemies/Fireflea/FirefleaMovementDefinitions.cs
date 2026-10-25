@@ -11,7 +11,7 @@ internal static class FirefleaMovementDefinitions
     /// and masks the result to a byte; all eight results are already below 256.
     /// Circular positions and wrapped vertical extrema remain caller-owned.
     /// </remarks>
-    internal static ushort Radius(byte index)
+    internal static ushort Radius(int index)
     {
         if (index >= 8)
             throw new InvalidDataException(

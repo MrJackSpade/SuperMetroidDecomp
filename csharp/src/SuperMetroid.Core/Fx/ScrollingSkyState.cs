@@ -64,7 +64,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     }
 
     /// <summary>Advances the fixed-point sky bands and copies layer-one Y into the BG2 vertical scroll.</summary>
-    public void ProcessFrame(ushort layer1YPosition, bool timeIsFrozen)
+    public void ProcessFrame(int layer1YPosition, bool timeIsFrozen)
     {
         if (timeIsFrozen)
         {
@@ -76,7 +76,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
 
         BandsShown = HasBands;
         if (HasBands) AdvanceHorizontalScrolls();
-        Bg2Scroll = new Position16<Bg2Pixels>(0, layer1YPosition);
+        Bg2Scroll = new Position16<Bg2Pixels>(0, checked((ushort)layer1YPosition));
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// band HDMA object, whose BG2 is the room's own background.
     /// </summary>
     /// <param name="layer1YPosition">The camera's layer-one Y the bands are positioned from.</param>
-    public ScrollingSkyLayer? Publish(ushort layer1YPosition)
+    public ScrollingSkyLayer? Publish(int layer1YPosition)
     {
         if (!HasBands)
             return null;

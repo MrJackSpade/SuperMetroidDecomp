@@ -408,7 +408,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports projectile pre-instruction $86:B535.</summary>
     internal static void RunDragonFireballPreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraY)
+        int cameraY)
     {
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
 

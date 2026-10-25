@@ -29,7 +29,7 @@ public sealed class RipperEnemyState
     public int MinimumXPosition
     {
         get => _words.MinimumXPosition;
-        internal set => _words.MinimumXPosition = checked((ushort)value);
+        internal set => _words.MinimumXPosition = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public sealed class RipperEnemyState
     public int MaximumXPosition
     {
         get => _words.MaximumXPosition;
-        internal set => _words.MaximumXPosition = checked((ushort)value);
+        internal set => _words.MaximumXPosition = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Empties the velocity and speed record, when a kill empties the enemy's common record.</summary>

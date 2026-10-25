@@ -20,7 +20,7 @@ internal static class ShaktoolInstructionDefinitions
     /// Calculates $AA:DD15-$DD24 from the eight head animations stored from $AA:DAA4.
     /// The direction bucket starts at up; program storage starts two eighth-turns earlier at left.
     /// </summary>
-    internal static ShaktoolProgram ForOrientationBucket(ushort directionBucket)
+    internal static ShaktoolProgram ForOrientationBucket(int directionBucket)
     {
         if ((directionBucket & 0x001f) != 0 || directionBucket > 0x00e0)
         {

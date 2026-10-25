@@ -7,7 +7,7 @@ public static class PuyoHopDefinitions
     public const int RecordSize = 8;
 
     /// <summary>Preserves native byte-index state while returning named fields.</summary>
-    public static PuyoHopDefinition FromByteIndex(ushort index) => index switch
+    public static PuyoHopDefinition FromByteIndex(int index) => index switch
     {
         0 => new(0x10, 0x100, 0x200, PuyoAirborneFunction.NormalShortHop),
         8 => new(0x20, 0x100, 0x200, PuyoAirborneFunction.NormalBigHop),

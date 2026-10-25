@@ -21,7 +21,7 @@ public static class CrawlerSpeedDefinitions
     /// calculates; the two gap points and the penultimate magnitude are authored tuning
     /// with no rule in the ramp (see residualScalarInputsReview).
     /// </summary>
-    public static ushort ForParameter(ushort parameter)
+    public static ushort ForParameter(int parameter)
     {
         if (parameter >= Count)
             throw new InvalidDataException($"Crawler speed parameter ${parameter:X4} exceeds the 32 authored records.");

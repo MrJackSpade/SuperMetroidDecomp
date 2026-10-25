@@ -107,9 +107,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
                 level,
                 slot.BlockIndex,
                 WreckedShipTreadmillBlockDefinitions.BlockCount);
-            byte bts = state.Direction == WreckedShipTreadmillDirection.Rightwards
-                ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
-                : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior;
+            bool rightwards = state.Direction == WreckedShipTreadmillDirection.Rightwards;
 
             // Instructions $AD43/$AD58 call the shared raw row writer. The level word's
             // low twelve bits stay $0FF, so the visual block definition is unchanged;
@@ -120,7 +118,9 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
                 level.SetForegroundEntry(
                     blockIndex,
                     WreckedShipTreadmillBlockDefinitions.ActiveTreadmillWord);
-                level.SetBehavior(blockIndex, bts);
+                level.SetBehavior(blockIndex, rightwards
+                    ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
+                    : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);
             }
         }
 

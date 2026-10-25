@@ -99,7 +99,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        short direction = unchecked((short)slot.Spawn.Population.Parameter1);
+        int direction = unchecked((short)slot.Spawn.Population.Parameter1);
         if (direction < 0)
         {
             // A negative direction identifies an echo. Its low bit selects the same facing
@@ -547,7 +547,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Uses wrapped signed positions and a strict native proximity threshold on one axis.</summary>
-    private static bool DachoraWithinAxis(ushort actor, ushort samus, int distance) =>
+    private static bool DachoraWithinAxis(int actor, int samus, int distance) =>
         Math.Abs(unchecked((short)(actor - samus))) < distance;
 
     /// <summary>Samus's current gravity per update, which the shinespark and fall accumulate.</summary>

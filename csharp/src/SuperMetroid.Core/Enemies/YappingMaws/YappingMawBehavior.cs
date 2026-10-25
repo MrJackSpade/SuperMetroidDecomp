@@ -252,20 +252,20 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // the clamp below caps it, and the update that carries it negative leaves this function. In that range a
         // quarter of the signed whole part equals the cartridge's two logical right shifts of the word; the checked
         // conversion fails loudly if that range is ever violated.
-        ushort bendStep = checked((ushort)(state.Extension.WholePixels / 4));
+        int bendStep = checked((ushort)(state.Extension.WholePixels / 4));
         // $A8:A532 clears carry once, then adds the eight correction words in segment
         // order (X then Y) with ADC alone, so each addition's carry adds one to the next.
         bool carry = false;
         for (int segment = 0; segment < 4; segment++)
         {
-            ushort multiple = unchecked((ushort)(bendStep * (segment + 1)));
-            ushort linkAngle = state.MirroredBend
+            int multiple = unchecked((ushort)(bendStep * (segment + 1)));
+            int linkAngle = state.MirroredBend
                 ? unchecked((ushort)(128 + multiple))
                 : unchecked((ushort)(128 - multiple));
 
-            ushort rawX = unchecked((ushort)(
+            int rawX = unchecked((ushort)(
                 CalculateYappingMawX(new SnesByteAngle(unchecked((byte)(linkAngle))), checked((ushort)state.SegmentRadius)) - state.Baseline.X));
-            ushort rawY = unchecked((ushort)(
+            int rawY = unchecked((ushort)(
                 CalculateYappingMawY(
                     new SnesByteAngle(unchecked((byte)(linkAngle))),
                     checked((ushort)(state.SegmentRadius / 2))) - state.Baseline.Y));
@@ -273,17 +273,17 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
             // Passing raw Y here is an attractive cleanup and is wrong; the cartridge's
             // lopsided curve is a direct consequence of reusing raw X for both components.
-            ushort correctionX = unchecked((ushort)(
+            int correctionX = unchecked((ushort)(
                 CalculateYappingMawX(state.CurlAngle.ToByteAngle(), rawX) -
                 CalculateYappingMawX(new SnesByteAngle(0), rawX)));
-            ushort correctionY = unchecked((ushort)(
+            int correctionY = unchecked((ushort)(
                 CalculateYappingMawY(state.CurlAngle.ToByteAngle(), rawX) -
                 CalculateYappingMawY(new SnesByteAngle(0), rawX)));
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 unchecked((short)correctionX), unchecked((short)correctionY));
             // X is added before Y so its carry feeds the Y addition.
-            ushort segmentX = SnesCarry.AddWithCarry(rawX, correctionX, ref carry);
-            ushort segmentY = SnesCarry.AddWithCarry(rawY, correctionY, ref carry);
+            int segmentX = SnesCarry.AddWithCarry(checked((ushort)rawX), checked((ushort)correctionX), ref carry);
+            int segmentY = SnesCarry.AddWithCarry(checked((ushort)rawY), checked((ushort)correctionY), ref carry);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
                 unchecked((short)segmentX), unchecked((short)segmentY));
         }
@@ -459,7 +459,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         YappingMawEnemyState state)
     {
-        ushort paletteBits = SelectYappingMawFrozenPalette(
+        int paletteBits = SelectYappingMawFrozenPalette(
             state.OriginalPalette.PaletteBits,
             slot.FrozenTimer.RawValue);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
@@ -467,21 +467,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             if (body is not null)
             {
                 body.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)body.GraphicsIndex))
-                    .WithPaletteBits(paletteBits);
+                    .WithPaletteBits(checked((ushort)paletteBits));
             }
         }
 
         if (state.RootSpriteObject is not null)
         {
             state.RootSpriteObject.Attributes =
-                state.RootSpriteObject.Attributes.WithPaletteBits(paletteBits);
+                state.RootSpriteObject.Attributes.WithPaletteBits(checked((ushort)paletteBits));
         }
     }
 
     /// <summary>Flashes frozen palette six against original colors during the last 89 ticks.</summary>
-    private static ushort SelectYappingMawFrozenPalette(
-        ushort originalPaletteBits,
-        ushort frozenTimer)
+    private static int SelectYappingMawFrozenPalette(
+        int originalPaletteBits,
+        int frozenTimer)
     {
         if (frozenTimer == 0)
             return originalPaletteBits;
@@ -538,19 +538,19 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
     {
-        ushort deltaX = unchecked((ushort)(samus.X - origin.X));
-        ushort absoluteX = EnemyMath.WrappedMagnitude(deltaX);
+        int deltaX = unchecked((ushort)(samus.X - origin.X));
+        int absoluteX = EnemyMath.WrappedMagnitude(deltaX);
         if (unchecked((short)(absoluteX - 255)) >= 0)
             return new YappingMawTarget(absoluteX, default);
 
-        ushort deltaY = unchecked((ushort)(samus.Y - origin.Y));
-        ushort absoluteY = EnemyMath.WrappedMagnitude(deltaY);
+        int deltaY = unchecked((ushort)(samus.Y - origin.Y));
+        int absoluteY = EnemyMath.WrappedMagnitude(deltaY);
         if (unchecked((short)(absoluteY - 255)) >= 0)
             return new YappingMawTarget(absoluteY, default);
 
         SnesByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(
             new(unchecked((short)absoluteX), unchecked((short)absoluteY))).ReinterpretAsTableAngle();
-        ushort distance = unchecked((ushort)(
+        int distance = unchecked((ushort)(
             EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitNegativeSineProduct(
                 positiveQuadrantAngle,
                 absoluteX))) +
@@ -561,27 +561,27 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>$A8:A73E: X is the Y helper with a minus-64 angle adjustment.</summary>
-    internal static ushort CalculateYappingMawX(SnesByteAngle angle, ushort length) =>
+    internal static ushort CalculateYappingMawX(SnesByteAngle angle, int length) =>
         CalculateYappingMawY(angle.AddTableUnits(-SnesByteAngle.QuarterTurn.RawValue), length);
 
     /// <summary>
     /// Ports $A8:A742 exactly, including the high-byte sine approximation and the unusual
     /// negative-product construction. Only length's low byte reaches WRMPYB.
     /// </summary>
-    internal static ushort CalculateYappingMawY(SnesByteAngle angle, ushort length)
+    internal static ushort CalculateYappingMawY(SnesByteAngle angle, int length)
     {
-        short signedSample = EnemyTrigonometryTables.SignedSixteenBitSine(
+        int signedSample = EnemyTrigonometryTables.SignedSixteenBitSine(
             new SnesByteAngle(unchecked((byte)-angle.RawValue)));
         bool negative = signedSample < 0;
-        ushort magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));
-        ushort product = unchecked((ushort)((SnesLittleEndian.HighByte(magnitude)) * unchecked((byte)length)));
+        int magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));
+        int product = unchecked((ushort)((SnesLittleEndian.HighByte(magnitude)) * unchecked((byte)length)));
         if (product == 0)
             return 0;
 
         if (!negative)
             return unchecked((ushort)(2 * (SnesLittleEndian.HighByte(product))));
 
-        ushort negatedProduct = unchecked((ushort)-product);
+        int negatedProduct = unchecked((ushort)-product);
         return EnemyMath.FillHighByte(2 * SnesLittleEndian.HighByte(negatedProduct));
     }
 

@@ -111,7 +111,7 @@ internal static class CrystalFlashCleanupVerification
             int beforeHealth = samus.Health;
             // Later projectile processing can delete the actor and clear its header.
             // Read the contact damage before stepping, not from a recycled slot.
-            ushort contactDamage = testContact ? (contactEnemy ?? throw new InvalidOperationException("Verification requires contactEnemy.")).Definition.Damage : (ushort)0;
+            int contactDamage = testContact ? (contactEnemy ?? throw new InvalidOperationException("Verification requires contactEnemy.")).Definition.Damage : 0;
             // Once activated, challenge the inert input handler with movement/jump.
             ControllerButton input = active ? (ControllerButton.Right | ControllerButton.A) : chord;
             runtime.StepFrame(input);

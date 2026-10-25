@@ -69,7 +69,7 @@ internal static class ChozoStrideGeometryDefinitions
     }
 
     /// <summary>Retains a foot glyph's flags, row, and tile attributes when relocating its horizontal origin.</summary>
-    private readonly record struct FootAppearance(ushort XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
+    private readonly record struct FootAppearance(int XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
     {
         /// <summary>Separates the glyph's non-position X flags from its current horizontal coordinate.</summary>
         internal static FootAppearance From(SpritemapPart part) =>

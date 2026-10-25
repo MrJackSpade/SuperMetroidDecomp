@@ -247,7 +247,7 @@ internal sealed class NoobTubeBehavior
     /// <summary>Runs the six crack, shard, and bubble callbacks, including flicker timing and off-screen shard deletion.</summary>
     internal void RunNoobTubeProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraY)
+        int cameraY)
     {
         EnemyProjectilePreInstruction preInstruction = projectile.PreInstruction;
         switch (preInstruction)
@@ -265,7 +265,7 @@ internal sealed class NoobTubeBehavior
                 return;
 
             case EnemyProjectilePreInstruction.NoobTubeShardFlying:
-                AdvanceNoobTubeShardX(projectile, projectile.Velocity.X.RawValue);
+                AdvanceNoobTubeShardX(projectile, projectile.Velocity.X);
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
@@ -402,7 +402,7 @@ internal sealed class NoobTubeBehavior
     }
 
     /// <summary>Advances the shard's separate 16.16 horizontal position, kept in its projectile variables one and zero.</summary>
-    private static void AdvanceNoobTubeShardX(RoomEnemyProjectileSlot projectile, ushort velocity)
+    private static void AdvanceNoobTubeShardX(RoomEnemyProjectileSlot projectile, SnesSignedEightEight velocity)
     {
         SnesFixedPosition x = EnemyMath.AddEightBitVelocity(
             new SnesFixedPosition(checked((ushort)projectile.Variable1), checked((ushort)projectile.Variable0)), velocity);
@@ -413,12 +413,11 @@ internal sealed class NoobTubeBehavior
     /// <summary>Uses the native sine table to advance the projectile's separate horizontal word and fraction, then steps its angle.</summary>
     internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         RoomEnemyProjectileSlot projectile,
-        ushort angleStep)
+        int angleStep)
     {
         // The native even table offset ORs in a quarter turn: the angle's bit 6.
-        short sine = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)((projectile.Velocity.X.RawValue >> 1) | 64))));
-        ushort horizontalVelocity = unchecked((ushort)(sine >> 2));
-        AdvanceNoobTubeShardX(projectile, horizontalVelocity);
+        int sine = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)((projectile.Velocity.X.RawValue >> 1) | 64))));
+        AdvanceNoobTubeShardX(projectile, SnesSignedEightEight.FromSignedRaw(checked((short)(sine >> 2))));
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
     }
 

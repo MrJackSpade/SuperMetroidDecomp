@@ -32,9 +32,8 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         var bytes = new byte[page.WordCount * sizeof(ushort)];
         for (int index = 0; index < page.WordCount; index++)
         {
-            ushort word = edits.TryGetValue(new CeresEscapeOverlayWord(page.Name, index), out ushort edit)
-                ? edit : CeresEscapeOverlayTilemapDefinitions.StockWord(page, index);
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), word);
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), edits.GetValueOrDefault(
+                new CeresEscapeOverlayWord(page.Name, index), CeresEscapeOverlayTilemapDefinitions.StockWord(page, index)));
         }
         return bytes;
     }

@@ -19,7 +19,7 @@ internal static class KraidMouthMappingsVerification
             var expected = new EnemyHitboxRectangle(Word(address), Word(address + 2), Word(address + 4), Word(address + 6));
             AssertTrue(KraidMouthHitboxDefinitionsConstants.IsDefined(pointer), "Native mouth shape is defined");
             AssertEqual(expected, KraidMouthHitboxDefinitionsConstants.Resolve(pointer), "Native mouth shape case");
-            AssertEqual(new KraidMouthCollisionEdges(expected.Left, expected.Top, expected.Bottom),
+            AssertEqual(new KraidMouthCollisionEdges(checked((short)expected.Left), checked((short)expected.Top), checked((short)expected.Bottom)),
                 KraidMouthHitboxDefinitionsConstants.ResolveCollision(pointer), "Collision uses left/top/bottom only");
         }
         for (int raw = 0x9787; raw <= 0x97c8; raw++)

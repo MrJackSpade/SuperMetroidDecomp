@@ -35,7 +35,7 @@ internal sealed class EscapeRoomEffects
         if (setup is RoomSetupCallback.SetLightHorizontalRoomShaking or
             RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking)
             _room.RoomMainScratch.Var1 = 0;
-        ushort? type = setup switch
+        int? type = setup switch
         {
             RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking or
             RoomSetupCallback.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,

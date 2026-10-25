@@ -192,8 +192,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Subtracts the native <c>[$14].[$12]</c> split pair from enemy Y.</summary>
     private static void SubtractKzanY(
         RoomEnemySlot slot,
-        ushort wholeSpeed,
-        ushort fractionalSpeed)
+        int wholeSpeed,
+        int fractionalSpeed)
     {
         bool borrowed = slot.Position.Y.Fraction < fractionalSpeed;
         slot.Position = slot.Position.WithFractionY(unchecked((ushort)(slot.Position.Y.Fraction - fractionalSpeed)));
@@ -214,7 +214,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (xDistance >= samus.Kinematics.Radius.X + slot.Radius.X)
             return false;
 
-        short shiftedYDelta = unchecked((short)(
+        int shiftedYDelta = unchecked((short)(
             unchecked((ushort)(samus.Position.Y.Whole + 5 - slot.Position.Y.Whole))));
         if (shiftedYDelta >= 0)
             return false;

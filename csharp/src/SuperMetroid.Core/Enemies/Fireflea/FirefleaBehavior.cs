@@ -53,7 +53,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpeedTableIndex = speedTableIndex;
         state.AngularSpeed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
 
-        byte radiusIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        int radiusIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
 
         if (state.UsesCircularMovement)
@@ -136,7 +136,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void AdvanceFirefleaDarknessLevel()
     {
-        ushort next = unchecked((ushort)(_roomStatus.FirefleaDarknessLevel + 2));
+        int next = unchecked((ushort)(_roomStatus.FirefleaDarknessLevel + 2));
         if (unchecked((short)(next - 14)) < 0)
             _roomStatus.FirefleaDarknessLevel = next;
     }

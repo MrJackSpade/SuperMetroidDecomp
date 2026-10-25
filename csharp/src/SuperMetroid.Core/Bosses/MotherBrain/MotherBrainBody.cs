@@ -341,14 +341,14 @@ internal sealed class MotherBrainBody
         {
             bool belowOrigin = fromOrigin.Y >= 0;
             int yDistance = Math.Abs(fromOrigin.Y);
-            short yExtent = belowOrigin ? hitbox.Bottom : hitbox.Top;
+            int yExtent = belowOrigin ? hitbox.Bottom : hitbox.Top;
             int yOverlap = samus.Kinematics.Radius.Y + Math.Abs((int)yExtent) - yDistance;
             if (yOverlap < 0)
                 continue;
 
             bool rightOfOrigin = fromOrigin.X >= 0;
             int xDistance = Math.Abs(fromOrigin.X);
-            short xExtent = rightOfOrigin ? hitbox.Right : hitbox.Left;
+            int xExtent = rightOfOrigin ? hitbox.Right : hitbox.Left;
             int xOverlap = samus.Kinematics.Radius.X + Math.Abs((int)xExtent) - xDistance;
             if (xOverlap < 0)
                 continue;
@@ -378,7 +378,7 @@ internal sealed class MotherBrainBody
             ? unchecked((ushort)(body.Definition.Damage >> 2))
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? unchecked((ushort)(body.Definition.Damage >> 1))
-                : body.Definition.Damage;
+                : checked((ushort)body.Definition.Damage);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;

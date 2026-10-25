@@ -35,8 +35,8 @@ public static class EnemyQuadraticSpeedDefinitions
     /// <summary>Reads a fraction-first signed 16.16 displacement without rounding or aligned-index coercion.</summary>
     public static int ReadDisplacement(int byteOffset)
     {
-        ushort fraction = ReadWord(byteOffset);
-        short whole = unchecked((short)ReadWord(byteOffset + 2));
+        int fraction = ReadWord(byteOffset);
+        int whole = unchecked((short)ReadWord(byteOffset + 2));
         return (SnesSixteenSixteen.FromWhole(whole)) | fraction;
     }
 

@@ -6,7 +6,7 @@ public sealed class RoomEnemyPopulationDefinition
     /// <summary>Placement order captured from the bank-$A1 list before its terminator.</summary>
     private readonly RoomEnemyPopulationRecord[] records;
     /// <summary>Retains one compiled list's name, placement order, and trailing kill quota.</summary>
-    internal RoomEnemyPopulationDefinition(string name, RoomEnemyPopulationRecord[] records, byte deathQuota)
+    internal RoomEnemyPopulationDefinition(string name, RoomEnemyPopulationRecord[] records, int deathQuota)
     {
         Name = Ensure.NotNull(name);
         this.records = records;

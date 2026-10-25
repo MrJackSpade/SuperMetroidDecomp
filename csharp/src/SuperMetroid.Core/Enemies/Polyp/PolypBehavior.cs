@@ -106,9 +106,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the three independent random-table selections at $A2:B5B2.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
-        ushort xVelocity = PolypLaunchDefinitions.XVelocity(_room.Random.Generate());
+        int xVelocity = PolypLaunchDefinitions.XVelocity(_room.Random.Generate());
 
-        ushort initialYSpeed = PolypLaunchDefinitions.InitialYIndex(_room.Random.Generate());
+        int initialYSpeed = PolypLaunchDefinitions.InitialYIndex(_room.Random.Generate());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Function = PolypEnemyFunction.Cooldown;
@@ -120,10 +120,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// both bank-$A0 proximity helpers. Equality at 64 pixels is outside; the modular $8000
     /// difference also remains outside without passing through host <c>Math.Abs</c> overflow.
     /// </summary>
-    private static bool IsWithinPolypAxis(ushort samusCoordinate, ushort enemyCoordinate)
+    private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
     {
-        ushort difference = unchecked((ushort)(samusCoordinate - enemyCoordinate));
-        ushort magnitude = EnemyMath.IsNegative16(difference)
+        int difference = unchecked((ushort)(samusCoordinate - enemyCoordinate));
+        int magnitude = EnemyMath.IsNegative16(difference)
             ? unchecked((ushort)-difference)
             : difference;
         return unchecked((short)(magnitude - PolypProximity)) < 0;
@@ -164,8 +164,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void SpawnPolypRock(
         RoomEnemySlot source,
-        ushort initialYSpeed,
-        ushort xVelocity)
+        int initialYSpeed,
+        int xVelocity)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -178,7 +178,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
         projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Rising);
-        projectile.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(initialYSpeed));
+        projectile.Velocity = new(new SnesSignedEightEight(checked((ushort)xVelocity)), new SnesSignedEightEight(checked((ushort)initialYSpeed)));
         projectile.Position = source.Position;
     }
 
@@ -251,7 +251,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         RoomEnemyProjectileSlot projectile,
-        ushort tableIndex,
+        int tableIndex,
         QuadraticSpeedHalf half)
     {
         if (tableIndex >= EnemyQuadraticSpeedDefinitions.RecordCount)
@@ -262,14 +262,14 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
             (half == QuadraticSpeedHalf.Negative ? 4 : 0);
-        ushort fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
+        int fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
         projectile.Variable1 = fraction;
         uint fractionalSum = (uint)projectile.Position.Y.Fraction + fraction;
         projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fractionalSum));
         if (fractionalSum > ushort.MaxValue)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
-        ushort whole = EnemyQuadraticSpeedDefinitions.ReadWord(record + 2);
+        int whole = EnemyQuadraticSpeedDefinitions.ReadWord(record + 2);
         projectile.Variable1 = whole;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
     }

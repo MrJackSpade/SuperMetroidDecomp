@@ -165,7 +165,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingPosition.Y - samus.Position.Y.Whole))) >= 32)
             return;
 
-        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (EnemyMath.WrappedMagnitude(signedXDistance) >= AlcoonEmergeXDistance)
             return;
 
@@ -220,7 +220,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)signedXDistance) < 0)
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
@@ -252,7 +252,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // walking actor fall by the same amount before the remainder of main AI runs.
         _terrain.MoveEnemyVertically(level, slot, 2 << 16);
 
-        ushort spawnDistance = unchecked((ushort)(state.SpawnPosition.X - slot.Position.X.Whole));
+        int spawnDistance = unchecked((ushort)(state.SpawnPosition.X - slot.Position.X.Whole));
         if (EnemyMath.WrappedMagnitude(spawnDistance) >= AlcoonHideXDistance)
         {
             state.Function = AlcoonEnemyFunction.HidingRising;
@@ -352,7 +352,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<int> readRandomNumber = _room.Random.Read;
-        ushort count = unchecked((ushort)(readRandomNumber() & 3));
+        int count = unchecked((ushort)(readRandomNumber() & 3));
         state.StepCounter = WrappingCountdown.FromRaw(count == 0 ? (ushort)2 : count);
         return state.Velocity.X.WholePixels < 0
             ? AlcoonProgram.WalkingLeft
@@ -378,7 +378,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
         }
 
-        short oldVelocity = state.Velocity.X.WholePixels;
+        int oldVelocity = state.Velocity.X.WholePixels;
         state.Velocity = state.Velocity.WithWholeX(unchecked((short)-oldVelocity));
         return oldVelocity >= 0
             ? AlcoonProgram.WalkingLeftLoop
@@ -423,7 +423,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Ports <c>InitAI_EnemyProjectile_AlcoonFireball</c> at <c>$86:9EB2</c>. The parameter
     /// is a byte offset (0, 2, or 4), exactly as passed in A by Alcoon's three instructions.
     /// </summary>
-    internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, ushort yVelocityTableByteOffset)
+    internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, int yVelocityTableByteOffset)
     {
         if (yVelocityTableByteOffset is not (0 or 2 or 4))
         {
@@ -468,7 +468,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        short velocity = unchecked((short)projectile.Velocity.X.RawValue);
+        int velocity = unchecked((short)projectile.Velocity.X.RawValue);
         if (velocity < 0)
         {
             velocity = unchecked((short)(velocity + AlcoonFireballHorizontalDeceleration));

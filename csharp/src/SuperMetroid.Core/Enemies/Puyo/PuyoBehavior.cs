@@ -141,7 +141,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Types three and above ignore this value but still advance the seed, an observable
         // side effect shared with every other random enemy in the room.
-        ushort randomChoice = NextPuyoRandom0To7(slot);
+        int randomChoice = NextPuyoRandom0To7(slot);
         if (IsNormalHop(state.HopType))
         {
             if (state.HopType == PuyoHopType.NormalSmall)
@@ -159,11 +159,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the integration loop at $A2:9B1A without simplifying its odd units.</summary>
     internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
-        ushort timeAccumulator = 0;
-        ushort distanceAccumulator = 0;
+        int timeAccumulator = 0;
+        int distanceAccumulator = 0;
         PuyoHopDefinition hop = Hop(state);
-        ushort xSpeed = hop.XSpeed;
-        ushort swappedJumpHeight = SnesLittleEndian.SwapBytes(hop.Height);
+        int xSpeed = hop.XSpeed;
+        int swappedJumpHeight = SnesLittleEndian.SwapBytes(checked((ushort)hop.Height));
 
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
@@ -277,7 +277,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the constant-speed collision fall at $A2:9D98.</summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        ushort packed = Hop(state).YIndexDelta;
+        int packed = Hop(state).YIndexDelta;
         int displacement = SnesSixteenSixteen.FromEightEight(packed);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
@@ -348,8 +348,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // X speed is stored as 8.8, but NTSC $A2:9C29-9C32 moves by the whole byte only
         // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
         // hop's $0140 therefore moves exactly one pixel per frame either way.
-        ushort xSpeed = Hop(state).XSpeed;
-        short whole = unchecked((short)(SnesEightEight.WholeOf(xSpeed)));
+        int xSpeed = Hop(state).XSpeed;
+        int whole = unchecked((short)(SnesEightEight.WholeOf(xSpeed)));
         if (state.Direction == PuyoDirection.Left)
             whole = unchecked((short)-whole);
         int horizontalDisplacement = SnesSixteenSixteen.FromWhole(whole);

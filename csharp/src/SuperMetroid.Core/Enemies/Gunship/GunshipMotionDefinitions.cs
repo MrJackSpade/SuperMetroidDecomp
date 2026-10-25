@@ -12,7 +12,7 @@ internal static class GunshipMotionDefinitions
     /// more directly than the older clamp/truncated-division hypothesis.
     /// Callers add the signed whole-pixel delta with word wrapping, then advance.
     /// </remarks>
-    internal static short LandingBrakeYDelta(ushort frameIndex)
+    internal static short LandingBrakeYDelta(int frameIndex)
     {
         if (frameIndex >= 17)
             throw new InvalidDataException(
@@ -28,7 +28,7 @@ internal static class GunshipMotionDefinitions
     /// this case policy is clearer than the older Gray-code sign expression.
     /// Validate before selecting. The caller owns expiration and phase wrap.
     /// </remarks>
-    internal static GunshipIdleBobDefinition IdleBob(ushort phase)
+    internal static GunshipIdleBobDefinition IdleBob(int phase)
     {
         if (phase >= 4)
             throw new InvalidDataException(

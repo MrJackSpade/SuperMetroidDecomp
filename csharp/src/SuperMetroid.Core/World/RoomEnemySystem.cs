@@ -892,7 +892,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
         Drawing.Clear();
 
-        foreach (ushort enemyIndex in ProcessingWindow.ActiveEnemyIndexes)
+        foreach (int enemyIndex in ProcessingWindow.ActiveEnemyIndexes)
         {
             RoomEnemySlot slot = SlotTable.SlotAtEnemyIndex(enemyIndex);
             // EnemyMain $A0:9021-$902E decrements tangible actors' invincibility
@@ -1027,7 +1027,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // collision routines dereference the live slot words, so publish bodies after AI
         // has had its chance to move multi-part enemies.
         _interactiveCollisionBodies.Clear();
-        foreach (ushort enemyIndex in ProcessingWindow.InteractiveEnemyIndexes)
+        foreach (int enemyIndex in ProcessingWindow.InteractiveEnemyIndexes)
         {
             RoomEnemySlot slot = SlotTable.SlotAtEnemyIndex(enemyIndex);
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
@@ -1057,7 +1057,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // on the following frame rather than retroactively changing already-emitted OAM.
         if (Earthquake.Advance(timeIsFrozen))
         {
-            foreach (ushort enemyIndex in ProcessingWindow.ActiveEnemyIndexes)
+            foreach (int enemyIndex in ProcessingWindow.ActiveEnemyIndexes)
                 SlotTable.SlotAtEnemyIndex(enemyIndex).ShakeTimer = WrappingCountdown.Start(RoomEarthquakeDefinitions.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;

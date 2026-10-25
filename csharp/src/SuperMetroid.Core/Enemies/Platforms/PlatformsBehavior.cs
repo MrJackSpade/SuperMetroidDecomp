@@ -74,7 +74,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
-        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2)) * 8));
+        int speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2)) * 8));
         SnesSignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightSpeed = right;
         SnesSignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
@@ -109,7 +109,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             : PlatformVerticalMovement.Rising;
 
         // The sinking carry measures the horizontal step from the position before it.
-        ushort preHorizontalX = slot.Position.X.Whole;
+        int preHorizontalX = slot.Position.X.Whole;
         MovePlatformHorizontally(slot, state, level);
         MovePlatformVertically(slot, state, samus, level, preHorizontalX);
 
@@ -124,7 +124,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Exact wrapped-word port of <c>$A0:ABE7-$AC28</c>.</summary>
     internal static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
     {
-        ushort xDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int xDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)xDistance) < 0)
             xDistance = unchecked((ushort)-xDistance);
 
@@ -132,20 +132,20 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // remainder must be strictly less than the platform radius; equality is not overlap.
         if (xDistance >= samus.Kinematics.Radius.X)
         {
-            ushort remainder = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
+            int remainder = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
             if (remainder >= slot.Radius.X)
                 return false;
         }
 
         // The +3 bias requires Samus's center to remain above the enemy center. After taking
         // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
-        ushort yDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - slot.Position.Y.Whole));
+        int yDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - slot.Position.Y.Whole));
         if (unchecked((short)yDifference) >= 0)
             return false;
-        ushort yDistance = unchecked((ushort)-yDifference);
+        int yDistance = unchecked((ushort)-yDifference);
         if (yDistance < samus.Kinematics.Radius.Y)
             return true;
-        ushort yRemainder = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
+        int yRemainder = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
         return yRemainder <= slot.Radius.Y;
     }
 
@@ -186,7 +186,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        ushort preHorizontalX)
+        int preHorizontalX)
     {
         switch (state.YMovement)
         {
@@ -240,7 +240,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        ushort preHorizontalX)
+        int preHorizontalX)
     {
         // `$A3:9DE7-$9DED` performs a comparison followed by a JSR to an immediate RTS; it
         // has no branch or side effect. Sinking therefore always continues to acceleration.
@@ -248,10 +248,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
-        ushort xDelta = unchecked((ushort)(slot.Position.X.Whole - preHorizontalX));
+        int xDelta = unchecked((ushort)(slot.Position.X.Whole - preHorizontalX));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(xDelta)), 0);
 
-        ushort preVerticalY = slot.Position.Y.Whole;
+        int preVerticalY = slot.Position.Y.Whole;
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
             state.YSpeedTableIndex,
             negative: false);
@@ -263,7 +263,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
-        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - preVerticalY));
+        int yDelta = unchecked((ushort)(slot.Position.Y.Whole - preVerticalY));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 

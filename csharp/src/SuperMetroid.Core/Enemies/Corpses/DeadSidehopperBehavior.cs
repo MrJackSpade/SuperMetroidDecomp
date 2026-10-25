@@ -142,7 +142,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Allocates slot state, resets the rotation table, and installs the selected corpse tile variant.</summary>
     private DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
         RoomEnemySlot slot,
-        ushort graphicsVariant,
+        int graphicsVariant,
         DeadSidehopperCorpseDefinition definition)
     {
         // Two rows is the smallest corpse whose late-move entry (height less two) is a real entry index.
@@ -284,7 +284,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         // Upward motion accelerates by $20 in signed 8.8; falling motion accelerates by
         // $80. The sign test is performed before the addition in the cartridge.
-        ushort acceleration = state.Velocity.Y.SignedRawValue < 0
+        int acceleration = state.Velocity.Y.SignedRawValue < 0
             ? (ushort)32
             : (ushort)128;
         state.Velocity = state.Velocity.WithY(
@@ -309,20 +309,17 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private static void MoveDeadSidehopperAxisDirect(
         RoomEnemySlot slot,
         Axis axis,
-        ushort velocity)
+        int velocity)
     {
-        ushort position = axis == Axis.Horizontal ? slot.Position.X.Whole : slot.Position.Y.Whole;
-        ushort subposition = axis == Axis.Horizontal ? slot.Position.X.Fraction : slot.Position.Y.Fraction;
-        SnesFixedPosition moved = new SnesFixedPosition(position, subposition).AddEightEightToHighFraction(velocity);
-        position = moved.Whole;
-        subposition = moved.Fraction;
+        SnesFixedPosition current = axis == Axis.Horizontal ? slot.Position.X : slot.Position.Y;
+        SnesFixedPosition moved = current.AddEightEightToHighFraction(checked((ushort)velocity));
         if (axis == Axis.Horizontal)
         {
-            slot.Position = slot.Position.WithX(new(position, subposition));
+            slot.Position = slot.Position.WithX(moved);
         }
         else
         {
-            slot.Position = slot.Position.WithY(new(position, subposition));
+            slot.Position = slot.Position.WithY(moved);
         }
     }
 

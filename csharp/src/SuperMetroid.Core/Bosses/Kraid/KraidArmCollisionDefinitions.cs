@@ -88,7 +88,7 @@ internal static class KraidArmCollisionDefinitions
     {
         if ((uint)index >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(index));
         EnemyHitboxRectangle geometry = Geometry[index];
-        return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
+        return new(checked((short)geometry.Left), checked((short)geometry.Top), checked((short)geometry.Right), checked((short)geometry.Bottom),
             TouchCallback(index), ShotCallback(index));
     }
     /// <summary>The seven articulated shapes components 0 and 3 advance through.</summary>

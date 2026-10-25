@@ -6,16 +6,16 @@ namespace SuperMetroid.Verification.Harness;
 internal sealed class FixtureRoomEarthquake : IRoomEarthquakeWriter
 {
     /// <summary>Observes timer writes.</summary>
-    public Action<ushort>? WriteTimer { get; init; }
+    public Action<int>? WriteTimer { get; init; }
 
     /// <summary>Observes type writes.</summary>
-    public Action<ushort>? WriteType { get; init; }
+    public Action<int>? WriteType { get; init; }
 
     /// <summary>Invokes the installed timer observer or fails at the missing fixture dependency.</summary>
-    public void SetTimer(ushort timer) => (WriteTimer ?? throw Missing("timer"))(timer);
+    public void SetTimer(int timer) => (WriteTimer ?? throw Missing("timer"))(timer);
 
     /// <summary>Invokes the installed quake-type observer or fails at the missing fixture dependency.</summary>
-    public void SetType(ushort type) => (WriteType ?? throw Missing("type"))(type);
+    public void SetType(int type) => (WriteType ?? throw Missing("type"))(type);
 
     /// <summary>Identifies the earthquake writer the PLM fixture failed to install.</summary>
     private static InvalidOperationException Missing(string what) =>

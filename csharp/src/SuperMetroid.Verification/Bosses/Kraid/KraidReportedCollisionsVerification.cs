@@ -77,7 +77,7 @@ internal static class KraidReportedCollisionsVerification
                 nail.Position = nail.Position.WithWhole(new(100, 400));
                 nail.Properties = nail.Properties.Without(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted | EnemyProperties.Invisible);
                 ResetSamus(100, 400);
-                ushort damage = nail.Definition.Damage;
+                int damage = nail.Definition.Damage;
                 var interactive = (List<int>)runtime.Enemies.ProcessingWindow.InteractiveEnemyIndexes;
                 interactive.Clear(); interactive.Add(nail.EnemyIndex);
                 AssertEqual(true, runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0), "Nail callback is dispatched");

@@ -52,7 +52,7 @@ public sealed class FirefleaFxState
         }
         Timer = timer;
 
-        byte shade = unchecked((byte)(
+        int shade = unchecked((byte)(
             FirefleaFxDefinitions.FlashingShade(index) +
             FirefleaFxDefinitions.DarknessShade(darkness)));
         // Each of the cartridge's three writes carries the shade as its five-bit intensity. Past the darkness ramp the

@@ -202,11 +202,11 @@ internal sealed class RoomLoader
         AreaId requestedArea = AreaIds.FromIndex(
             unchecked((byte)slot.Area),
             $"Save slot {slot.Slot}");
-        byte stationIndex = unchecked((byte)slot.SaveStation);
+        int stationIndex = unchecked((byte)slot.SaveStation);
 
         LoadStationEntry station = LoadStationDefinitions.Get(
             requestedArea,
-            stationIndex);
+            checked((byte)stationIndex));
         DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
@@ -486,9 +486,9 @@ internal sealed class RoomLoader
         _room.Camera.PublishDoorSamusPosition(position.Whole);
         _player.Samus.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
         DoorDirection direction = door.Orientation.Direction;
-        short delta = direction is DoorDirection.Right or DoorDirection.Down ? (short)4 : (short)-4;
+        int delta = direction is DoorDirection.Right or DoorDirection.Down ? (short)4 : (short)-4;
         bool vertical = direction.IsVertical();
-        Offset16<RoomPixels> firstStep = vertical ? new(0, delta) : new(delta, 0);
+        Offset16<RoomPixels> firstStep = vertical ? new(0, checked((short)delta)) : new(checked((short)delta), 0);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + firstStep);
         _room.Camera.PublishDoorSamusTravelAxis(vertical, _player.Samus.Position.Whole);
         _doorScrollClearsCounter8 = true;
@@ -668,9 +668,9 @@ internal sealed class RoomLoader
         if (_pendingLoaderSamusPlacement is not null)
             throw new InvalidOperationException("The door loader's Samus placement is still pending.");
 
-        ushort x = NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(_player.Samus.Position.X.Whole));
-        ushort y = NudgeOffScreenLeftEdge(_player.Samus.Position.Y.Whole);
-        _player.Samus.Position = _player.Samus.Position.WithWhole(new(x, y));
+        _player.Samus.Position = _player.Samus.Position.WithWhole(new(
+            NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(_player.Samus.Position.X.Whole)),
+            NudgeOffScreenLeftEdge(_player.Samus.Position.Y.Whole)));
 
         if (_room.LoadedScope.Enemies.Elevator.ElevatorFlags != ElevatorJourneyFlag.None)
         {
@@ -1145,15 +1145,12 @@ internal sealed class RoomLoader
         for (int call = DoorOpeningScrollState.MovingIrqCalls(direction); call > 0; call--)
             samus = samus.Advance(step);
 
-        ushort finalX = samus.X.Whole;
-        ushort finalY = samus.Y.Whole;
-        finalX = NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(finalX));
-        finalY = NudgeOffScreenLeftEdge(finalY);
+        int finalX = NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(samus.X.Whole));
 
         // LoadMoreThings applies this eight-pixel doorway alignment only horizontally.
         if (!direction.IsVertical())
             finalX = direction == DoorDirection.Right ? (ushort)(finalX | 7) : unchecked((ushort)(finalX & ~7));
-        samus = samus.WithWhole(new Position16<RoomPixels>(finalX, finalY));
+        samus = samus.WithWhole(new Position16<RoomPixels>(checked((ushort)finalX), NudgeOffScreenLeftEdge(samus.Y.Whole)));
         // `$80:ADC8` adds $20 to door_destination_y_pos after using the unmodified value
         // for Samus's setup origin. The IRQ completion later snaps an upward transition's
         // camera to that adjusted destination; the other three directions retain theirs.
@@ -1273,16 +1270,16 @@ internal sealed class RoomLoader
 
 
     /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>
-    private static int BlockInScreen(ushort pixel) => (pixel >> 4) & 15;
+    private static int BlockInScreen(int pixel) => (pixel >> 4) & 15;
 
     /// <summary>
     /// The doorway nudge of <c>$82:E6A2</c> and <c>LoadMoreThings</c>: a coordinate in its screen's second block moves
     /// to eight pixels past that block.
     /// </summary>
-    private static ushort NudgeOffScreenLeftEdge(ushort pixel) =>
-        BlockInScreen(pixel) == 1 ? unchecked((ushort)((pixel | 15) + 8)) : pixel;
+    private static ushort NudgeOffScreenLeftEdge(int pixel) =>
+        BlockInScreen(pixel) == 1 ? unchecked((ushort)((pixel | 15) + 8)) : checked((ushort)pixel);
 
     /// <summary>The doorway nudge's other edge: a coordinate in its screen's fifteenth block moves to eight pixels before it.</summary>
-    private static ushort NudgeOffScreenRightEdge(ushort pixel) =>
-        BlockInScreen(pixel) == 14 ? unchecked((ushort)((pixel & ~15) - 8)) : pixel;
+    private static ushort NudgeOffScreenRightEdge(int pixel) =>
+        BlockInScreen(pixel) == 14 ? unchecked((ushort)((pixel & ~15) - 8)) : checked((ushort)pixel);
 }

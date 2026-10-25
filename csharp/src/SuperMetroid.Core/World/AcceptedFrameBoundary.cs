@@ -147,7 +147,7 @@ internal sealed class AcceptedFrameBoundary
             CaptureMorphBallEyeBeamForDisplay(),
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
             // Before the first room there are no statues, so no descent is displayed.
-            _room.TourianStatues?.DisplayedVerticalOffset ?? 0,
+            checked((short)(_room.TourianStatues?.DisplayedVerticalOffset ?? 0)),
             scene,
             CaptureBossBackgrounds(),
             CaptureFixedColors(),

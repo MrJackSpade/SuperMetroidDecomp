@@ -107,14 +107,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (state.Activated)
             return;
 
-        ushort verticalDelta = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+        int verticalDelta = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.Spawn.Population.Parameter1)
             return;
 
         // Variable B is written after the Y test but before the X test, including on frames
         // that fail horizontal range or side. That write order is visible to debuggers and
         // is preserved rather than collapsing the two comparisons into host geometry.
-        ushort horizontalDelta = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int horizontalDelta = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         state.LastHorizontalDelta = horizontalDelta;
         if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.Spawn.Population.Parameter1)
             return;
@@ -144,8 +144,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// Reproduces the native signed-magnitude helper over one wrapped 16-bit subtraction.
     /// In particular, $8000 remains $8000 just as the 65C816 negate sequence does.
     /// </summary>
-    private static ushort AbsoluteFaceBlockDelta(ushort delta) =>
-        unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : delta;
+    private static ushort AbsoluteFaceBlockDelta(int delta) =>
+        unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : checked((ushort)delta);
 
     /// <summary>Selects the block's OBJ palette row as the singleton graphics-hook target.</summary>
     private void InstallBlueBrinstarFaceBlockPaletteHook(RoomEnemySlot slot)

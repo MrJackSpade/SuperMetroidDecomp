@@ -5,9 +5,9 @@ public static class YardVelocityDefinitions
 {
 
     /// <summary>Equivalent to native XOR $FFFF then increment; negation wraps at sixteen bits.</summary>
-    public static EightEightVector<RoomPixels> Apply(ushort magnitude, int direction)
+    public static EightEightVector<RoomPixels> Apply(int magnitude, int direction)
     {
-        var positive = new SnesSignedEightEight(magnitude);
+        var positive = new SnesSignedEightEight(checked((ushort)magnitude));
         var negative = new SnesSignedEightEight(unchecked((ushort)-magnitude));
         return direction switch
         {

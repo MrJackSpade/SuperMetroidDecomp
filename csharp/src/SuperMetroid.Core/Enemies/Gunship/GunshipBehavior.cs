@@ -329,8 +329,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
-        short yDelta = GunshipMotionDefinitions.LandingBrakeYDelta(checked((ushort)Part(top).LandingBrakeStep));
-        samus.Position += new Offset16<RoomPixels>(0, unchecked(yDelta));
+        int yDelta = GunshipMotionDefinitions.LandingBrakeYDelta(checked((ushort)Part(top).LandingBrakeStep));
+        samus.Position += new Offset16<RoomPixels>(0, checked((short)yDelta));
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
@@ -361,7 +361,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             throw new InvalidOperationException("Post-Ceres gunship exit lost Samus.");
 
         samus.Position -= new Offset16<RoomPixels>(0, 1);
-        ushort targetY = unchecked((ushort)(Part(top).BaseY - 30));
+        int targetY = unchecked((ushort)(Part(top).BaseY - 30));
         if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - targetY))
             return;
 
@@ -412,7 +412,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipIdleBobDefinition bob = GunshipMotionDefinitions.IdleBob(
             unchecked((ushort)(Part(top).BobPhase & 3)));
         Part(top).BobTimer = bob.Timer;
-        sbyte yDelta = bob.YDelta;
+        int yDelta = bob.YDelta;
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
@@ -578,7 +578,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             // The six calls at `$A2:AC9B-$ACCA` happen after the frame counter reaches
             // exactly 64. Descending projectile allocation means parameter A occupies the
             // highest surviving slot, matching the ordinary bank-$86 scheduler.
-            for (ushort parameter = 0; parameter <= 10; parameter += 2)
+            for (int parameter = 0; parameter <= 10; parameter += 2)
                 _projectiles.SpawnGunshipLiftoffDustCloud(parameter, samus);
         }
         if (Part(bottom).RumbleFrame >= 128)
@@ -633,9 +633,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void MoveGunshipAndSamusToY(
         RoomEnemySlot top,
         SamusState samus,
-        ushort samusY)
+        int samusY)
     {
-        samus.Position = samus.Position.WithWholeY(samusY);
+        samus.Position = samus.Position.WithWholeY(checked((ushort)samusY));
         RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         top.Position = top.Position.WithWholeY(unchecked((ushort)(samusY - 17)));

@@ -62,7 +62,7 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Installs the selected four-color eye glow at CGRAM 249–252 without altering boss completion or animated-tile state.</summary>
     /// <param name="colours">The colours receiving the selected eye glow.</param>
     /// <param name="doubledBossParameter">Native doubled selector: Phantoon 0, Ridley 2, Draygon 4, or Kraid 6.</param>
-    public void ApplyEye(GameplayColours colours, ushort doubledBossParameter)
+    public void ApplyEye(GameplayColours colours, int doubledBossParameter)
     {
         if (doubledBossParameter > 6 || (doubledBossParameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));

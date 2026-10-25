@@ -31,7 +31,7 @@ public static class CeresShaftRotationDefinitions
     };
 
     /// <summary>Resolves the native wrapping six-byte offset, including encoded reverse phases.</summary>
-    public static CeresShaftRotationDefinition Read(ushort phase)
+    public static CeresShaftRotationDefinition Read(int phase)
     {
         // Multiplication wraps before indexing: $8044 selects record 68, not a
         // negative index. Reject non-record offsets instead of inventing ROM data.
@@ -41,7 +41,7 @@ public static class CeresShaftRotationDefinitions
             throw new InvalidDataException($"Ceres shaft rotation phase ${phase:X4} does not select an authored record.");
         int sine = record - 34;
         int magnitude = Math.Abs(sine);
-        ushort cosine = (ushort)(256 - (magnitude * magnitude + 255) / 512);
+        int cosine = (ushort)(256 - (magnitude * magnitude + 255) / 512);
         return new(Timer(magnitude), unchecked((ushort)sine), cosine);
     }
 }

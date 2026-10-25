@@ -360,8 +360,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         HorizontalDirection direction,
         BeetomArcKind arc,
-        ushort risingDelta,
-        ushort fallingDelta)
+        int risingDelta,
+        int fallingDelta)
     {
         RunBeetomVerticalArc(slot, state, level, risingDelta, fallingDelta);
 
@@ -383,8 +383,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         BeetomEnemyState state,
         RoomLevelData level,
-        ushort risingDelta,
-        ushort fallingDelta)
+        int risingDelta,
+        int fallingDelta)
     {
         if (!state.Falling)
         {
@@ -469,10 +469,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Accumulates the native unaligned quadratic-speed words until a jump height is reached.</summary>
-    internal static ushort CalculateInitialBeetomYSpeedIndex(ushort targetHeight, ushort tableIndexDelta)
+    internal static int CalculateInitialBeetomYSpeedIndex(int targetHeight, int tableIndexDelta)
     {
-        ushort tableIndex = 0;
-        ushort accumulatedHeight = 0;
+        int tableIndex = 0;
+        int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
             tableIndex = unchecked((ushort)(tableIndex + tableIndexDelta));
@@ -519,7 +519,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // subtraction directly, then reproduce those two clearing stores.
         if ((slot.FrameCounter & 63) != 63)
             return;
-        ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? unchecked((ushort)(slot.Definition.Damage >> 2))
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? unchecked((ushort)(slot.Definition.Damage >> 1))

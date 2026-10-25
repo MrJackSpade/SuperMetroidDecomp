@@ -23,8 +23,8 @@ internal static class YardAnimationsVerification
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
                     'D' => checked((ushort)AssertIs<YardCue.SetDirection>(cue, $"{at}: cue").Direction),
-                    'S' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset),
-                    'Y' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").OffsetY),
+                    'S' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset.X),
+                    'Y' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset.Y),
                     'N' => AssertIs<YardCue.SetHidingProgram>(cue, $"{at}: cue").OptionalTarget is { } optional ? NativeEnemyProgramOracle.EntryOf(Entries, optional) : NullTarget,
                     'E' => YardNativeWords.YardMovementFunctions.Word(AssertIs<YardCue.SetMovementFunction>(cue, $"{at}: cue").MovementFunction),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),

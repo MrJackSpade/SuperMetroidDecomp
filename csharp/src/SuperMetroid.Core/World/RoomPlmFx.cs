@@ -17,8 +17,8 @@ internal sealed class RoomPlmFx(RoomLayer3FxState fx, Func<SamusState?> samus) :
     public Position16<RoomPixels> TargetSurface => fx.TargetSurface;
 
     /// <inheritdoc/>
-    public void SetLiquidMotion(ushort? baseYPosition = null, ushort? targetYPosition = null,
-        ushort? packedYVelocity = null, ushort? timer = null) =>
+    public void SetLiquidMotion(int? baseYPosition = null, int? targetYPosition = null,
+        int? packedYVelocity = null, int? timer = null) =>
         fx.SetLiquidMotion(baseYPosition, targetYPosition, packedYVelocity, timer);
 
     /// <inheritdoc/>

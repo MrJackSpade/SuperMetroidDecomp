@@ -22,7 +22,7 @@ public static class GameplayMessageTitleDefinitions
     public const int LetterCount = 26;
 
     /// <summary>True when <paramref name="tile"/> is one of the A-Z letter tiles.</summary>
-    public static bool IsLetterTile(ushort tile) => (uint)(tile - FirstLetterTile) < LetterCount;
+    public static bool IsLetterTile(int tile) => (uint)(tile - FirstLetterTile) < LetterCount;
     /// <summary>JSON filename containing the editable one-row item and status titles.</summary>
     public const string FileName = "gameplay-message-titles.json";
     /// <summary>Number of transparent tilemap columns preceding the visible title.</summary>

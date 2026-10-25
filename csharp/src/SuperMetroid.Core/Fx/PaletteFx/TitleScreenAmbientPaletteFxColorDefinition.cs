@@ -10,7 +10,7 @@ public sealed class TitleScreenAmbientPaletteFxColorDefinition
     /// <summary>Distinguishes the eight-shade tube loop from the two-state displays.</summary>
     internal bool IsTubeLight => Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight;
     /// <summary>Native color destinations: byte $54 (tube) / $5C (displays).</summary>
-    public ushort ColorByteIndex => (ushort)(FirstColor * sizeof(ushort));
+    public int ColorByteIndex => FirstColor * sizeof(ushort);
     /// <summary>First CGRAM color slot controlled by the selected ambient program.</summary>
     private int FirstColor => IsTubeLight ? TitleScreenAmbientPaletteFxColorDefinitions.TubeFirstColor
         : TitleScreenAmbientPaletteFxColorDefinitions.TubeLastColor + 1;

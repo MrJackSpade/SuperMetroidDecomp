@@ -15,6 +15,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
     /// <summary>Offset of the shot-reaction list in a native <c>EprojDef</c>, which production never reads.</summary>
     private const int ShotListOffset = 12;
 
+    /// <summary>Offset of the touch-reaction list in a native <c>EprojDef</c>, which production reads only as present or absent.</summary>
+    private const int TouchListOffset = 10;
+
     /// <summary>Checks every nonzero initial, touch, and shot entry without a cartridge fallback.</summary>
     internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
@@ -31,7 +34,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 continue;
 
             definitionCount++;
-            EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
+            // Every translated kind has a definition; the catalog rejects any other.
+            _ = EnemyProjectileDefinitionCatalog.Get(kind);
             var projectile = new RoomEnemyProjectileSlot(0)
             {
                 Kind = kind,
@@ -98,7 +102,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
-                VerifySharedDelete(definition.TouchInstructionList, "touch");
+                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                    NativeEnemyProjectileListDefinitions.ProjectileBank | ((ushort)kind + TouchListOffset)), "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or

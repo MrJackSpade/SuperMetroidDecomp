@@ -62,10 +62,10 @@ public sealed class RoomFxLayer3TilemapCatalog
                 SnesTileFlipFlags flips =
                     (value.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
                     (value.FlipY ? SnesTileFlipFlags.Vertical : 0);
-                ushort word = SnesBgTilemapWord.Create(
+                int word = SnesBgTilemapWord.Create(
                     value.TileRow * RoomBackgroundTilemapFormat.TileColumns + value.TileColumn,
                     value.Palette, value.Priority, flips).Raw;
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * sizeof(ushort)), word);
+                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * sizeof(ushort)), checked((ushort)word));
             }
             return bytes;
         }

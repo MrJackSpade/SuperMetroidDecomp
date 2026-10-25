@@ -17,7 +17,7 @@ internal static class GunshipDustDefinitionsVerification
     {
         ushort Word(int address) => SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var spawn = new Action<ushort, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
+        var spawn = new Action<int, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
         var samus = new SamusState();
         var slot = enemies.Projectiles.EnemyProjectiles[^1];
         for (ushort parameter = 0; parameter <= 10; parameter += 2)

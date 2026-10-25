@@ -69,7 +69,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
     {
         int address = 0xa90000 | ConfigurationPointer(rom, species, variantIndex);
         ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-        ushort[] actual = [definition.RottingTablePointer, definition.RowUploadPointer, definition.EntryCount];
+        ushort[] actual = [definition.RottingTablePointer, definition.RowUploadPointer, checked((ushort)definition.EntryCount)];
         AssertTrue(actual.SequenceEqual(new[] { Word(0), Word(1), Word(4) }),
             $"dead {species} variant {variantIndex} configuration words");
 

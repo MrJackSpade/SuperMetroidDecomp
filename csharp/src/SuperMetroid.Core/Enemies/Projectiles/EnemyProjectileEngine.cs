@@ -197,7 +197,7 @@ internal sealed class EnemyProjectileEngine
                 // cannot rewrite a freshly fired Super Missile (or its invisible link) to
                 // family $0800 in the producer frame. Its own pre-instruction consumes the
                 // mark on the next projectile pass.
-                ushort collidedProjectileType = shot.PackedType.Raw;
+                int collidedProjectileType = shot.PackedType.Raw;
                 if ((collidedProjectileType & 8) == 0)
                     shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
 
@@ -396,7 +396,7 @@ internal sealed class EnemyProjectileEngine
             if (unchecked((ushort)(screen.X + 128)) >= 512 || unchecked((ushort)(screen.Y + 128)) >= 512)
                 continue;
 
-            ushort paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
+            int paletteBits = new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits;
             // The blank frame draws nothing.
             if (frame != EnemyProjectileFrameId.Blank)
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
@@ -429,7 +429,7 @@ internal sealed class EnemyProjectileEngine
     internal static void InitializeEnemyProjectileFromDefinition(
         RoomEnemyProjectileSlot projectile,
         RoomEnemyProjectileKind kind,
-        ushort graphicsIndex)
+        int graphicsIndex)
     {
         EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
         projectile.Kind = kind;
@@ -480,26 +480,27 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         Axis axis)
     {
-        ushort position = axis == Axis.Horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
-        ushort subposition = axis == Axis.Horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
-        short velocity = unchecked((short)(axis == Axis.Horizontal ? projectile.Velocity.X.RawValue : projectile.Velocity.Y.RawValue));
+        int position = axis == Axis.Horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
+        int subposition = axis == Axis.Horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
+        int velocity = axis == Axis.Horizontal ? projectile.Velocity.X.SignedRawValue : projectile.Velocity.Y.SignedRawValue;
         int fixedPosition = unchecked((int)SnesSixteenSixteen.Compose(position, subposition));
         fixedPosition = unchecked(fixedPosition + (SnesSixteenSixteen.FromEightEight(velocity)));
-        ushort nextPosition = SnesFixedPosition.WholeOf(fixedPosition);
-        ushort nextSubposition = unchecked((ushort)fixedPosition);
+        SnesFixedPosition next = SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition));
+        int nextPosition = next.Whole;
 
-        ushort movementRadius = axis == Axis.Horizontal ? projectile.Radius.X : projectile.Radius.Y;
-        ushort perpendicularPosition = axis == Axis.Horizontal
+        int movementRadius = axis == Axis.Horizontal ? projectile.Radius.X : projectile.Radius.Y;
+        int perpendicularPosition = axis == Axis.Horizontal
             ? projectile.Position.Y.Whole
             : projectile.Position.X.Whole;
-        ushort perpendicularRadius = axis == Axis.Horizontal
+        int perpendicularRadius = axis == Axis.Horizontal
             ? projectile.Radius.Y
             : projectile.Radius.X;
 
         // Bank $86 checks every room block crossed by the projectile's perpendicular
         // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
         // right/down projectiles collide one pixel earlier than their native counterparts.
-        ushort movementEdge = unchecked((ushort)(nextPosition +
+        // The edge wraps at the room's sixteen-bit coordinate width, as the probe's block bounds check expects.
+        int movementEdge = unchecked((ushort)(nextPosition +
             (velocity < 0 ? -movementRadius : movementRadius - 1)));
         int firstPerpendicularBlock = (perpendicularPosition - perpendicularRadius) >> 4;
         int lastPerpendicularBlock = (perpendicularPosition + perpendicularRadius - 1) >> 4;
@@ -514,14 +515,14 @@ internal sealed class EnemyProjectileEngine
                     axis,
                     movingNegative: velocity < 0,
                     targetEdge: movementEdge,
-                    slopeAlignedPosition: out ushort? slopeAlignedPosition))
+                    slopeAlignedPosition: out int? slopeAlignedPosition))
             {
                 // `$86:894F-$897A` / `$86:8A0D-$8A38` do not merely reject the
                 // attempted movement. They clear the subposition and place the
                 // projectile flush against the 16-pixel block boundary it reached.
                 // Without this correction a fast downward projectile retains its last
                 // pre-collision coordinate and visibly hovers above the floor.
-                ushort snappedPosition = slopeAlignedPosition ?? (velocity < 0
+                int snappedPosition = slopeAlignedPosition ?? (velocity < 0
                     ? unchecked((ushort)((movementEdge | BlockPixelMask) + movementRadius + 1))
                     : unchecked((ushort)((movementEdge & ~BlockPixelMask) - movementRadius)));
                 bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (velocity < 0
@@ -532,13 +533,13 @@ internal sealed class EnemyProjectileEngine
                 {
                     projectile.Position = projectile.Position.WithFractionX(0);
                     if (snapDoesNotMoveBackwards)
-                        projectile.Position = projectile.Position.WithWholeX(snappedPosition);
+                        projectile.Position = projectile.Position.WithWholeX(checked((ushort)snappedPosition));
                 }
                 else
                 {
                     projectile.Position = projectile.Position.WithFractionY(0);
                     if (snapDoesNotMoveBackwards)
-                        projectile.Position = projectile.Position.WithWholeY(snappedPosition);
+                        projectile.Position = projectile.Position.WithWholeY(checked((ushort)snappedPosition));
                 }
                 return true;
             }
@@ -546,11 +547,11 @@ internal sealed class EnemyProjectileEngine
 
         if (axis == Axis.Horizontal)
         {
-            projectile.Position = projectile.Position.WithX(new(nextPosition, nextSubposition));
+            projectile.Position = projectile.Position.WithX(next);
         }
         else
         {
-            projectile.Position = projectile.Position.WithY(new(nextPosition, nextSubposition));
+            projectile.Position = projectile.Position.WithY(next);
         }
         return false;
     }
@@ -562,8 +563,8 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomBlocks> block,
         Axis axis,
         bool movingNegative,
-        ushort targetEdge,
-        out ushort? slopeAlignedPosition)
+        int targetEdge,
+        out int? slopeAlignedPosition)
     {
         slopeAlignedPosition = null;
         if (block.X >= (uint)level.Size.X ||
@@ -703,7 +704,7 @@ internal sealed class EnemyProjectileEngine
             return null;
         }
 
-        ushort damage = SamusSuitDamage.Reduce(checked((ushort)projectile.Damage), samus.EquippedItems);
+        int damage = SamusSuitDamage.Reduce(checked((ushort)projectile.Damage), samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
@@ -717,12 +718,11 @@ internal sealed class EnemyProjectileEngine
         // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact
         // but immediately changes to its smoke list. Keeping this in the common path also
         // prevents later persistent projectile families from needing bespoke hit effects.
-        ushort touchInstruction =
-            EnemyProjectileDefinitionCatalog.Get(projectile.Kind).TouchInstructionList;
+        bool hasTouchList = EnemyProjectileDefinitionCatalog.Get(projectile.Kind).HasTouchReaction;
         // Every touch list without a typed reaction of its own is the shared delete list.
         if (Handlers.TryGetTouchAnimation(projectile.Kind, out Func<EnemyProjectileAnimation>? touchAnimation))
             projectile.StartAnimation(touchAnimation());
-        else if (touchInstruction != 0)
+        else if (hasTouchList)
             projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
 
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
@@ -764,11 +764,10 @@ internal sealed class EnemyProjectileEngine
         int center)
     {
         int random = _room.Random.Generate();
-        ushort x = unchecked((ushort)(
-            projectile.Position.X.Whole + (random & mask) - center));
-        ushort y = unchecked((ushort)(
-            projectile.Position.Y.Whole + (SnesLittleEndian.HighByte(unchecked((ushort)random)) & mask) - center));
-        _ = _spriteObjects.SpawnRoomSpriteObject(new(x, y), kind, graphicsIndex: 0);
+        _ = _spriteObjects.SpawnRoomSpriteObject(new(
+            unchecked((ushort)(projectile.Position.X.Whole + (random & mask) - center)),
+            unchecked((ushort)(projectile.Position.Y.Whole + (SnesLittleEndian.HighByte(unchecked((ushort)random)) & mask) - center))),
+            kind, graphicsIndex: 0);
     }
 
     /// <summary>
@@ -780,10 +779,11 @@ internal sealed class EnemyProjectileEngine
     internal void Scatter(RoomEnemyProjectileSlot projectile, EnemyProjectileScatter scatter)
     {
         Ensure.NotNull(projectile);
-        byte xMask = checked((byte)scatter.Range.X);
-        byte xCenter = checked((byte)scatter.Center.X);
-        byte yMask = checked((byte)scatter.Range.Y);
-        byte yCenter = checked((byte)scatter.Center.Y);
+        // The masks and centres are authored byte values (checked below), so the offsets stay within one byte.
+        int xMask = checked((byte)scatter.Range.X);
+        int xCenter = checked((byte)scatter.Center.X);
+        int yMask = checked((byte)scatter.Range.Y);
+        int yCenter = checked((byte)scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
         int xOffset;
@@ -839,7 +839,7 @@ internal sealed class EnemyProjectileEngine
     /// <c>$8F:E525</c>. The X coordinate and palette variant come directly from the room's
     /// current RNG word; this initializer owns only bank-$86's projectile fields.
     /// </summary>
-    public void SpawnCeresFallingDebris(ushort xPosition, bool dark, EnemyProjectileAnimation animation)
+    public void SpawnCeresFallingDebris(int xPosition, bool dark, EnemyProjectileAnimation animation)
     {
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -850,7 +850,7 @@ internal sealed class EnemyProjectileEngine
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
-        projectile.Position = projectile.Position.WithWhole(new(xPosition, 42));
+        projectile.Position = projectile.Position.WithWhole(new(checked((ushort)xPosition), 42));
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(16));
         projectile.Variable0 = 0;
         projectile.Variable1 = 0;
@@ -904,7 +904,7 @@ internal sealed class EnemyProjectileEngine
     /// Allocates one of gunship function <c>$A2:AC1B</c>'s six room-graphics dust actors.
     /// Parameter values are even byte offsets <c>0..A</c> into the native X/list tables.
     /// </summary>
-    internal void SpawnGunshipLiftoffDustCloud(ushort parameter, SamusState samus)
+    internal void SpawnGunshipLiftoffDustCloud(int parameter, SamusState samus)
     {
         // Validate before allocation, including when the native projectile pool is full.
         var definition = GunshipDustDefinitions.ForParameter(parameter);
@@ -995,9 +995,9 @@ internal sealed class EnemyProjectileEngine
     /// </remarks>
     internal static void DeleteEnemyProjectileIfVerticallyOffScreen(
         RoomEnemyProjectileSlot projectile,
-        ushort cameraY)
+        int cameraY)
     {
-        ushort screenY = unchecked((ushort)(projectile.Position.Y.Whole - cameraY));
+        int screenY = unchecked((ushort)(projectile.Position.Y.Whole - cameraY));
         if (unchecked((short)screenY) >= 0 &&
             screenY >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
         {
@@ -1035,10 +1035,9 @@ internal sealed class EnemyProjectileEngine
             context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 16))));
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
             {
-                ushort impactX = context.Projectile.Position.X.Whole;
-                ushort impactY = context.Projectile.Position.Y.Whole;
+                Position16<RoomPixels> impact = context.Projectile.Position.Whole;
                 context.Projectile.Clear();
-                SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.SmallDustCloud);
+                SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
                 _audio.QueueEnemySound(Library2Sound.CeresTileFall, maximumQueued: SoundQueueLimit.Max6);
             }
         }, EnemyProjectilePreInstruction.CeresFallingTile);

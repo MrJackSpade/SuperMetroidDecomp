@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal readonly record struct DeadSidehopperCorpseDefinition(
     int RotTableOffset,
     RottingCorpseKind Kind,
-    ushort EntryCount,
-    ushort WrapOffset);
+    int EntryCount,
+    int WrapOffset);

@@ -109,11 +109,11 @@ internal sealed class EnemyProcessingWindow
     /// <c>CheckIfEnemyIsHorizontallyOffScreen</c> ($A0:C18E): a negative X, a right edge
     /// left of the camera, or a position at least $100 right of the camera is off-screen.
     /// </summary>
-    internal static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, ushort cameraX)
+    internal static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, int cameraX)
     {
         if (EnemyMath.IsNegative16(slot.Position.X.Whole))
             return true;
-        ushort fromCamera = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - cameraX));
+        int fromCamera = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - cameraX));
         return EnemyMath.IsNegative16(fromCamera) || !EnemyMath.IsNegative16(fromCamera - 256 - slot.Radius.X);
     }
 

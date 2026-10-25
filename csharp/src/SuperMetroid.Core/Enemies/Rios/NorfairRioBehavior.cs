@@ -136,7 +136,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
+                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
                 {
                     BeginNorfairRioReturn(slot, state);
                     return;
@@ -153,7 +153,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
+                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
                 {
                     state.Function = NorfairRioEnemyFunction.FinishLanding;
                     return;
@@ -274,7 +274,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
+                EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
         {
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
         }

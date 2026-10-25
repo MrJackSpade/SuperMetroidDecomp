@@ -17,7 +17,7 @@ internal sealed class BullExtensionWords
     internal int Angle { get; set; }
 
     /// <summary>Suppresses repeated immune-shot knockback during its reaction window.</summary>
-    internal ushort ShotReactionDisableFlag { get; set; }
+    internal bool ShotReactionDisabled { get; set; }
 
     /// <summary>Population-selected interval between acceleration steps, in eligible AI calls.</summary>
     internal int AccelerationTimerReset { get; set; }
@@ -26,7 +26,7 @@ internal sealed class BullExtensionWords
     internal int DecelerationTimerReset { get; set; }
 
     /// <summary>Counts down the post-hit period before shot reactions may run again.</summary>
-    internal ushort ShotReactionDisableTimer { get; set; }
+    internal WrappingCountdown ShotReactionDisableTimer { get; set; }
 
     /// <summary>Health captured before common hit processing for immune-hit detection.</summary>
     internal int PreviousHealth { get; set; }

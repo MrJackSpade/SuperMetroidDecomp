@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 internal interface IEnemyDrawHooks : IEnemyEntity
 {
     /// <summary>The palette bits the common writer uses for the occupant, when its AI owns them; otherwise null.</summary>
-    ushort? CommonDrawPaletteIndex();
+    int? CommonDrawPaletteIndex();
 
     /// <summary>Publishes supplemental sprites before the common writer publishes the occupant's body.</summary>
     /// <param name="sprites">The frame's sprite description.</param>

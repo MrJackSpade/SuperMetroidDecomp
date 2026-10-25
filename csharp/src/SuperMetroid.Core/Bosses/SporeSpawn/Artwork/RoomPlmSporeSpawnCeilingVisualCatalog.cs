@@ -49,13 +49,13 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     /// <exception cref="ArgumentOutOfRangeException">Either cell selector is outside zero through one; the reported parameter is <paramref name="blockIndex"/>.</exception>
     internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (!SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(draw, out ushort stockWord))
+        if (!SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(draw, out int stockWord))
             throw new InvalidDataException(
                 $"Spore Spawn ceiling visuals lack frame {draw}.");
         if ((uint)runIndex >= 2 ||
             (uint)blockIndex >= 2)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         return customWords.TryGet(draw, out var words)
-            ? words[runIndex * 2 + blockIndex] : new RoomLevelWord(stockWord).VisualWord;
+            ? words[runIndex * 2 + blockIndex] : new RoomLevelWord(checked((ushort)stockWord)).VisualWord;
     }
 }

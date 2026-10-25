@@ -10,11 +10,11 @@ internal abstract record WallSpacePirateCue
 
     /// <summary>Climbs the operand's pixels on the left wall, continuing at the opposite climb after terrain contact (<c>Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left</c>, $B2:EE40).</summary>
     /// <param name="ClimbPixels">For a climb cue: the whole pixels the Pirate moves down the wall; negative climbs up.</param>
-    internal sealed record ClimbLeftWall(short ClimbPixels) : WallSpacePirateCue;
+    internal sealed record ClimbLeftWall(int ClimbPixels) : WallSpacePirateCue;
 
     /// <summary>Climbs the operand's pixels on the right wall, continuing at the opposite climb after terrain contact (<c>Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right</c>, $B2:EE72).</summary>
     /// <param name="ClimbPixels">For a climb cue: the whole pixels the Pirate moves down the wall; negative climbs up.</param>
-    internal sealed record ClimbRightWall(short ClimbPixels) : WallSpacePirateCue;
+    internal sealed record ClimbRightWall(int ClimbPixels) : WallSpacePirateCue;
 
     /// <summary>Sets the function main AI runs next (<c>Instruction_PirateWall_FunctionInY</c>, $B2:EF83).</summary>
     /// <param name="Function">The cue's Function operand.</param>

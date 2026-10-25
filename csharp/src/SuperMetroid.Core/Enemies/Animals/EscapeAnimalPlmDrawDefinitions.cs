@@ -13,7 +13,7 @@ internal static class EscapeAnimalPlmDrawDefinitions
             draw = default;
             return false;
         }
-        ushort word = list switch
+        int word = list switch
         {
             EscapeAnimalDraw.Frame0 => 0x8053,
             EscapeAnimalDraw.Frame1 => 0x8054,
@@ -23,7 +23,7 @@ internal static class EscapeAnimalPlmDrawDefinitions
         };
         draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(0x8003, new ushort[] { word, word, word }, new(0, 0)),
+            new(0x8003, Enumerable.Repeat(checked((ushort)word), 3).ToArray(), new(0, 0)),
         });
         return true;
     }

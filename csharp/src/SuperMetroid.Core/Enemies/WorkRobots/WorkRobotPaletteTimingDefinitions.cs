@@ -22,7 +22,7 @@ internal static class WorkRobotPaletteTimingDefinitions
     /// only 0,10,20,30,40,50 are durations. $A8:CCFD is the separate color terminator,
     /// resolved by NormalizeByteOffset at offset 60, never a seventh duration.
     /// </remarks>
-    public static ushort DurationForByteOffset(ushort byteOffset)
+    public static ushort DurationForByteOffset(int byteOffset)
     {
         if (byteOffset % RecordByteCount != 0 ||
             byteOffset >= RecordCount * RecordByteCount)

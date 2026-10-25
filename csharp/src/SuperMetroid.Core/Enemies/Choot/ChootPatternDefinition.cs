@@ -3,4 +3,4 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// <summary>One Choot falling stream and its per-loop vertical advance.</summary>
 internal readonly record struct ChootPatternDefinition(
     ChootFallingPath FallingPath,
-    ushort FallingPatternYDistance);
+    int FallingPatternYDistance);

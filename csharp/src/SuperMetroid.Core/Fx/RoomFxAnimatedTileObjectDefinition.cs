@@ -19,9 +19,9 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// </param>
     internal RoomFxAnimatedTileObjectDefinition(
         AnimatedTileObject animatedObject,
-        ushort frameByteCount,
+        int frameByteCount,
         int frameCount,
-        ushort frameDuration,
+        int frameDuration,
         int imageCount)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
@@ -42,7 +42,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     /// verified against NTSC J/U v1.0 and pinned bank_87.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
     /// never a generated frame table. Index bounds match the former read-only list.</remarks>
-    internal sealed class CalculatedFrames(AnimatedTileObject animatedObject, int count, ushort duration)
+    internal sealed class CalculatedFrames(AnimatedTileObject animatedObject, int count, int duration)
         : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
     {
         /// <summary>Number of timed entries before the terminal goto command.</summary>
@@ -69,7 +69,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
 
 
     /// <summary>The bytes of characters every frame shows.</summary>
-    public ushort FrameByteCount { get; }
+    public int FrameByteCount { get; }
 
     /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
     public int ImageCount { get; }

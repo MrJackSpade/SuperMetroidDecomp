@@ -305,12 +305,12 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Accumulates the native unaligned quadratic-speed words until the authored jump height is reached.</summary>
-    internal static ushort CalculateInitialHopperYSpeedTableIndex(
-        ushort jumpHeight,
-        ushort tableIndexDelta)
+    internal static int CalculateInitialHopperYSpeedTableIndex(
+        int jumpHeight,
+        int tableIndexDelta)
     {
-        ushort tableIndex = 0;
-        ushort accumulatedHeight = 0;
+        int tableIndex = 0;
+        int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
             tableIndex = unchecked((ushort)(tableIndex + tableIndexDelta));
@@ -318,7 +318,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             // $A3:ABAF deliberately reads at table+1: the word consists of the subspeed's
             // high byte and speed's low byte. A naturally aligned 16-bit read changes every
             // initial jump index, so retain this odd unaligned cartridge access literally.
-            ushort heightIncrement = EnemyQuadraticSpeedDefinitions.ReadWord(tableIndex * 8 + 1);
+            int heightIncrement = EnemyQuadraticSpeedDefinitions.ReadWord(tableIndex * 8 + 1);
             accumulatedHeight = unchecked((ushort)(accumulatedHeight + heightIncrement));
             if (unchecked((short)(accumulatedHeight - jumpHeight)) >= 0)
                 return tableIndex;

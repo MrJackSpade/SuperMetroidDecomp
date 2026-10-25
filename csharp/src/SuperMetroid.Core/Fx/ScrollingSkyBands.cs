@@ -14,7 +14,7 @@ public static class ScrollingSkyBands
     /// Reject outside 0..22 before computing fields; no row array/cache remains.</remarks>
     public static SkyScrollSection GetSection(int index)
     {
-        ushort top = index switch
+        int top = index switch
         {
             0 => 0, 1 => 16, 2 => 56, 3 => 208,
             4 => 224, 5 => 288, 6 => 416, 7 => 472,

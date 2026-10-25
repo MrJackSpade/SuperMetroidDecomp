@@ -53,14 +53,14 @@ internal sealed class EnemyTerrain
 
         uint oldPosition = slot.Position.X.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
-        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
+        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
         bool movingLeft = displacement < 0;
-        ushort targetEdge = movingLeft
+        int targetEdge = movingLeft
             ? unchecked((ushort)(targetCenter - slot.Radius.X))
             : unchecked((ushort)(targetCenter + slot.Radius.X - 1));
 
-        ushort topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
-        ushort bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
+        int topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
+        int bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & RoomPixelMasks.BlockStart))) >> 4;
         // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
@@ -93,16 +93,16 @@ internal sealed class EnemyTerrain
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
-            ushort aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.X + 1));
+            int aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.X + 1));
             if (aligned <= slot.Position.X.Whole)
-                slot.Position = slot.Position.WithWholeX(aligned);
+                slot.Position = slot.Position.WithWholeX(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionX(0);
         }
         else
         {
-            ushort aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.X));
+            int aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.X));
             if (aligned >= slot.Position.X.Whole)
-                slot.Position = slot.Position.WithWholeX(aligned);
+                slot.Position = slot.Position.WithWholeX(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionX(RoomPixelMasks.LastFraction);
         }
         return true;
@@ -119,14 +119,14 @@ internal sealed class EnemyTerrain
 
         uint oldPosition = slot.Position.Y.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
-        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
+        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
         bool movingUp = displacement < 0;
-        ushort targetEdge = movingUp
+        int targetEdge = movingUp
             ? unchecked((ushort)(targetCenter - slot.Radius.Y))
             : unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
 
-        ushort leftPixel = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
-        ushort rightPixel = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
+        int leftPixel = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
+        int rightPixel = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
         int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & RoomPixelMasks.BlockStart))) >> 4;
         // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
         // scanned column steps to the next native block index.
@@ -135,7 +135,7 @@ internal sealed class EnemyTerrain
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
             int remaining = spanMinusOne - scanIndex;
-            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
+            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, checked((ushort)targetCenter)), TargetEdge = new(slot.Position.X.Whole, checked((ushort)targetEdge)), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
             {
                 collided = true;
                 break;
@@ -152,16 +152,16 @@ internal sealed class EnemyTerrain
         // The native outer helper performs this conditional coarse alignment afterward.
         if (movingUp)
         {
-            ushort aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.Y + 1));
+            int aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.Y + 1));
             if (aligned <= slot.Position.Y.Whole)
-                slot.Position = slot.Position.WithWholeY(aligned);
+                slot.Position = slot.Position.WithWholeY(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionY(0);
         }
         else
         {
-            ushort aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.Y));
+            int aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.Y));
             if (aligned >= slot.Position.Y.Whole)
-                slot.Position = slot.Position.WithWholeY(aligned);
+                slot.Position = slot.Position.WithWholeY(checked((ushort)aligned));
             slot.Position = slot.Position.WithFractionY(RoomPixelMasks.LastFraction);
         }
         return true;
@@ -177,8 +177,8 @@ internal sealed class EnemyTerrain
         int unsignedDistance)
     {
         uint target = unchecked(slot.Position.Y.RawValue + (uint)unsignedDistance);
-        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)target));
-        ushort targetEdge = unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
+        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)target));
+        int targetEdge = unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
         int row = targetEdge >> 4;
         int firstColumn = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
         int lastColumn = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
@@ -205,14 +205,14 @@ internal sealed class EnemyTerrain
         int displacement)
     {
         uint position = slot.Position.X.RawValue;
-        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
+        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
         bool movingLeft = displacement < 0;
-        ushort targetEdge = movingLeft
+        int targetEdge = movingLeft
             ? unchecked((ushort)(targetCenter - slot.Radius.X))
             : unchecked((ushort)(targetCenter + slot.Radius.X - 1));
 
-        ushort topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
-        ushort bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
+        int topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
+        int bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int firstRow = topPixel >> 4;
         int lastRow = bottomPixel >> 4;
         int column = targetEdge >> 4;
@@ -236,8 +236,8 @@ internal sealed class EnemyTerrain
     internal static bool EnemyHasSolidHighBitVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
     {
         uint position = slot.Position.Y.RawValue;
-        ushort center = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
-        ushort edge = displacement < 0
+        int center = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
+        int edge = displacement < 0
             ? unchecked((ushort)(center - slot.Radius.Y))
             : unchecked((ushort)(center + slot.Radius.Y - 1));
         int blockY = edge >> 4;
@@ -258,7 +258,7 @@ internal sealed class EnemyTerrain
         RoomLevelData level,
         RoomEnemySlot slot,
         int startBlock,
-        ushort targetEdge,
+        int targetEdge,
         int remaining,
         int spanMinusOne,
         bool treatNonSquareSlopesAsWalls)
@@ -448,7 +448,7 @@ internal sealed class EnemyTerrain
     /// <summary>Tests the target half-tile quadrant and the enemy's vertical span against a square slope.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
         RoomEnemySlot slot,
-        ushort targetEdge,
+        int targetEdge,
         RoomBlockBehavior bts,
         int remaining,
         int spanMinusOne)
@@ -474,7 +474,7 @@ internal sealed class EnemyTerrain
     /// <summary>Tests the target half-tile quadrant and the enemy's horizontal span against a square slope.</summary>
     private static bool SquareVerticalSlopeIsSolid(
         RoomEnemySlot slot,
-        ushort targetEdge,
+        int targetEdge,
         RoomBlockBehavior bts,
         int remaining,
         int spanMinusOne)
@@ -502,7 +502,7 @@ internal sealed class EnemyTerrain
         RoomLevelData level,
         RoomEnemySlot slot,
         RoomCollisionBlock block,
-        ushort targetCenter,
+        int targetCenter,
         bool movingUp)
     {
         if (block.Index % level.Size.X != slot.Position.X.Whole >> 4)

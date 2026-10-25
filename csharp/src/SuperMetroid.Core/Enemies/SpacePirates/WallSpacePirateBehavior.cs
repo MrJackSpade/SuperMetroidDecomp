@@ -206,7 +206,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
         RoomLevelData? level,
-        short downwardPixels,
+        int downwardPixels,
         HorizontalDirection wall)
     {
         if (level is null)

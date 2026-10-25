@@ -147,7 +147,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // GenerateRandomNumber advances the global seed before the comparison. Only low
         // byte sums zero and one attack; byte wrapping is intentional and observable.
         int random = _room.Random.Generate();
-        byte attackRoll = unchecked((byte)((byte)slot.FrameCounter + (byte)random));
+        int attackRoll = unchecked((byte)((byte)slot.FrameCounter + (byte)random));
         if (attackRoll >= 2)
             return;
 
@@ -257,7 +257,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        ushort horizontalVelocity = ProjectileFunctions.Decode(projectile.Variable0) switch
+        int horizontalVelocity = ProjectileFunctions.Decode(projectile.Variable0) switch
         {
             // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
             StokeProjectileFunction.MoveLeft => projectile.Velocity.Y.RawValue,
@@ -266,7 +266,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Stoke projectile movement function {projectile.Variable0} is not translated."),
         };
 
-        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(horizontalVelocity).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
 
         // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);

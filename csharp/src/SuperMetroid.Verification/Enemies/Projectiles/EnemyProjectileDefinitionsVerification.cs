@@ -41,7 +41,7 @@ internal static class EnemyProjectileDefinitionsVerification
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
 
-        Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, ushort> initialize =
+        Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, int> initialize =
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition;
 
         const ushort populationPointer = 0x9400;
@@ -113,7 +113,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is MotherBrainTurretAnimation,
                     $"{kind} production touch starts the typed impact program");
             }
-            else if (definition.TouchInstructionList != 0)
+            else if (definition.HasTouchReaction)
             {
                 // Every other touch list is the shared delete list; the owner coverage check proves each one deletes.
                 AssertTrue(projectile.Animation is EnemyProjectileDeleteAnimation, $"{kind} production touch starts the shared delete reaction");
@@ -523,14 +523,25 @@ internal static class EnemyProjectileDefinitionsVerification
             EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), EnemyProjectilePreInstructionAccess.Word(definition.PreInstruction),
                 $"{kind} pre-instruction");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), definition.RadiusWord,
-                $"{kind} radius word");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), definition.Properties,
-                $"{kind} properties");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), definition.TouchInstructionList,
-                $"{kind} touch list");
+            // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
+            // contact damage in its low twelve bits and the four behaviour bits above them.
+            ushort radiusWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6);
+            AssertEqual(new Extent16<RoomPixels>(SnesLittleEndian.LowByte(radiusWord), SnesLittleEndian.HighByte(radiusWord)),
+                definition.Radius, $"{kind} radius");
+            ushort propertyWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 8);
+            AssertEqual(propertyWord % 4096, definition.Damage, $"{kind} contact damage");
+            AssertEqual(NativeProjectileProperties(propertyWord), definition.Properties, $"{kind} behaviour properties");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 10) != 0, definition.HasTouchReaction,
+                $"{kind} touch reaction");
         }
         return forbidden;
+
+        // Each behaviour bit of the native property word, highest four bits, as its named flag.
+        static EnemyProjectilePropertyFlags NativeProjectileProperties(ushort word) =>
+            (word / 4096 % 2 != 0 ? EnemyProjectilePropertyFlags.HighPriority : EnemyProjectilePropertyFlags.None) |
+            (word / 8192 % 2 != 0 ? EnemyProjectilePropertyFlags.HarmlessToSamus : EnemyProjectilePropertyFlags.None) |
+            (word / 16384 % 2 != 0 ? EnemyProjectilePropertyFlags.PersistsOnContact : EnemyProjectilePropertyFlags.None) |
+            (word / 32768 != 0 ? EnemyProjectilePropertyFlags.BlocksShots : EnemyProjectilePropertyFlags.None);
     }
 
     /// <summary>A sparse cartridge whose bank-$A1 population at <paramref name="populationPointer"/> is empty.</summary>

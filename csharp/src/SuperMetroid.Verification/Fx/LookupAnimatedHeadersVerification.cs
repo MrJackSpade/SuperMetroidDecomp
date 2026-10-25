@@ -49,7 +49,7 @@ internal static class LookupAnimatedHeadersVerification
 
     /// <summary>Checks a header word through lookup, enumeration, and mechanics-word views.</summary>
     private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,
-        Func<RoomFxAnimatedTileObjectDefinition, ushort> field)
+        Func<RoomFxAnimatedTileObjectDefinition, int> field)
     {
         var enumerated = RoomFxAnimatedTileMechanicsDefinitions.All.ToDictionary(x => x.AnimatedObject);
         foreach (ushort pointer in OriginalSimpleAnimationObjects)

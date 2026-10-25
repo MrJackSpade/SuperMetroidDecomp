@@ -11,7 +11,7 @@ internal static class OwtchMovementDefinitions
     /// native doubles it for word access, then adds/subtracts the distance with word
     /// wrap. Only definition selection changes here; callers retain that wrapping.
     /// </remarks>
-    internal static ushort TravelDistance(byte index)
+    internal static ushort TravelDistance(int index)
     {
         if (index >= 8)
             throw new InvalidDataException(
@@ -27,7 +27,7 @@ internal static class OwtchMovementDefinitions
     /// sinking. Keep its shorter six-entry bound independent of the patrol domain;
     /// this is not the PAL timer contract and no input clamping is permitted.
     /// </remarks>
-    internal static ushort UndergroundTimer(byte index)
+    internal static ushort UndergroundTimer(int index)
     {
         if (index >= 6)
             throw new InvalidDataException(

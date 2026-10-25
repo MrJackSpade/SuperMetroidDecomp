@@ -112,8 +112,8 @@ public sealed class CeresDoorVisualCatalog
     /// <summary>Resolves one platform cell from the shared canonical strip or an independently supplied cell edit.</summary>
     private byte PlatformTile(int frame, int index)
     {
-        byte stock = CeresFloorAnimationDefinitions.PlatformTile(frame, index);
-        return platformEdits.TryGetValue(frame * CeresDoorVisualDefinitions.PlatformCellCount + index, out byte edit) ? edit : stock;
+        return platformEdits.GetValueOrDefault(frame * CeresDoorVisualDefinitions.PlatformCellCount + index,
+            CeresFloorAnimationDefinitions.PlatformTile(frame, index));
     }
 
     /// <summary>The selected light (0) or dark (1) platform strip: the four floor cells the rotating-elevator door draws.</summary>

@@ -58,7 +58,7 @@ internal static class SporeSpawnCeilingPlmsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out ushort word), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out int word), "Spore ceiling scalar ownership");
             AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (index < 0)
             {

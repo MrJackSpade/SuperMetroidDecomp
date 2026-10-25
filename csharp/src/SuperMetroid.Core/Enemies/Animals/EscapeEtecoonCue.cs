@@ -14,7 +14,7 @@ internal abstract record EscapeEtecoonCue
 
     /// <summary>Moves the Etecoon horizontally (<c>AddXPosition</c>, $B3:E610).</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>
-    internal sealed record Move(short Offset) : EscapeEtecoonCue;
+    internal sealed record Move(int Offset) : EscapeEtecoonCue;
 
     /// <summary>Installs the Etecoon's movement routine (<c>SetPreInstruction</c>, $B3:806B).</summary>
     /// <param name="PreInstruction">The cue's PreInstruction operand.</param>

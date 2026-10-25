@@ -90,21 +90,21 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // first establishes those requested posts around the population X coordinate, then
         // deliberately replaces them with a symmetric pair derived from its acceleration
         // sum. That adjustment is why the final span can differ slightly from parameter two.
-        ushort requestedLeft = startsAtLeft
+        int requestedLeft = startsAtLeft
             ? slot.Position.X.Whole
             : unchecked((ushort)(slot.Position.X.Whole - slot.Spawn.Population.Parameter2));
-        ushort requestedRight = startsAtLeft
+        int requestedRight = startsAtLeft
             ? unchecked((ushort)(slot.Position.X.Whole + slot.Spawn.Population.Parameter2))
             : slot.Position.X.Whole;
-        ushort requestedHalfSpan = unchecked((ushort)(requestedRight - requestedLeft));
+        int requestedHalfSpan = unchecked((ushort)(requestedRight - requestedLeft));
         requestedHalfSpan >>= 1;
         state.PostsMidpoint = new(unchecked((ushort)(requestedLeft + requestedHalfSpan)), 0);
 
         // `$B2:F632` truncates the half-span to one byte before moving it to the high byte.
         // The do/while always executes once, including a zero-span debug population.
-        ushort distanceInSubpixels = unchecked((ushort)SnesEightEight.FromWhole((byte)requestedHalfSpan));
-        ushort speed = 0;
-        ushort accumulatedDistance = 0;
+        int distanceInSubpixels = unchecked((ushort)SnesEightEight.FromWhole((byte)requestedHalfSpan));
+        int speed = 0;
+        int accumulatedDistance = 0;
         do
         {
             speed = unchecked((ushort)(speed + 32));
@@ -113,8 +113,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         while (unchecked((short)(accumulatedDistance - distanceInSubpixels)) < 0);
 
         state.CalculatedSpinJumpSpeed = speed;
-        short adjustedHalfSpan = SnesLittleEndian.HighByte(accumulatedDistance);
-        var halfSpan = new Offset16<RoomPixels>(adjustedHalfSpan, 0);
+        int adjustedHalfSpan = SnesLittleEndian.HighByte(accumulatedDistance);
+        var halfSpan = new Offset16<RoomPixels>(checked((short)adjustedHalfSpan), 0);
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
         slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
@@ -363,7 +363,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // The table contains three identical entries per side. The random retry is retained
         // because advancing the native RNG until its low two bits are nonzero is observable
         // even though all three accepted values select the same list.
-        ushort choice;
+        int choice;
         do
             choice = unchecked((ushort)(_room.Random.Generate() & 3));
         while (choice == 0);
@@ -521,7 +521,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
     {
-        ushort graphicsIndex = 0;
+        int graphicsIndex = 0;
         if (_spriteObjects.SpawnRoomSpriteObject(
                 new(unchecked((ushort)(slot.Position.X.Whole - 8)), unchecked((ushort)(slot.Position.Y.Whole + 28))),
                 RoomSpriteObjectKind.NinjaPirateLandingDust,
@@ -585,8 +585,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             projectile.Variable1 = 0;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
-        ushort right = unchecked((ushort)(camera.X + 256));
-        ushort bottom = unchecked((ushort)(camera.Y + 256));
+        int right = unchecked((ushort)(camera.X + 256));
+        int bottom = unchecked((ushort)(camera.Y + 256));
         bool offScreen = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
             unchecked((short)(projectile.Position.X.Whole - right)) >= 0 ||
             unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||
@@ -616,7 +616,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     "A ninja Space Pirate sound cue carries no sound.");
                 return null;
             case NinjaSpacePirateCue.ThrowClaw throwClaw:
-                SpawnNinjaPirateClaw(slot, state, throwClaw.Throw == HorizontalDirection.Right, new Offset16<RoomPixels>(throwClaw.Offset, throwClaw.OffsetY));
+                SpawnNinjaPirateClaw(slot, state, throwClaw.Throw == HorizontalDirection.Right, throwClaw.Offset);
                 return null;
             case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive }:
                 if (samus is null)

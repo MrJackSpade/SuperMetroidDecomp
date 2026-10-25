@@ -29,7 +29,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.
         // Keeping all four words exactly avoids the one-subpixel errors caused by rebuilding
         // the negative pair from a C# integer after the fact.
-        ushort speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
+        int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
         SnesSignedSixteenSixteen positive =
             EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         SnesSignedSixteenSixteen negative =
@@ -99,11 +99,11 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesFixedPosition position,
         SnesSignedSixteenSixteen velocity)
     {
-        ushort whole = unchecked((ushort)(position.Whole + velocity.WholeWord));
+        int whole = unchecked((ushort)(position.Whole + velocity.WholeWord));
         uint fractionalSum = (uint)position.Fraction + velocity.Fraction;
         if (fractionalSum > ushort.MaxValue)
             whole = unchecked((ushort)(whole + 1));
-        return new(whole, unchecked((ushort)fractionalSum));
+        return new(checked((ushort)whole), unchecked((ushort)fractionalSum));
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>

@@ -16,7 +16,7 @@ internal static class NuclearWaffleDefinitions
     /// <summary>$A6:95FE separates same-kind links by 24 angle units, with interleaved links halfway between.</summary>
     private const int SegmentPitch = 24;
     /// <summary>Derives one of the two mirrored sweeps, including endpoints, link spacing, and turn thresholds.</summary>
-    internal static NuclearWaffleSweepDefinition Sweep(byte direction)
+    internal static NuclearWaffleSweepDefinition Sweep(int direction)
     {
         if (direction >= 2)
             throw new InvalidDataException($"Nuclear Waffle direction {direction} is outside the two native sweeps.");

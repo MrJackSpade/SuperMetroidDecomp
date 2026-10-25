@@ -151,7 +151,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Chooses header death art, upgrading a small explosion for Super Missile kills.</summary>
-    internal static ushort SelectNormalShotDeathAnimation(
+    internal static int SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType,
         ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
@@ -159,14 +159,14 @@ internal sealed class EnemyDeathsAndDrops
         if (rule == ShotDeathAnimationRule.PirateBigExplosion)
             return 4;
 
-        ushort causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType.Raw);
+        int causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType.Raw);
         if (causeOfDeath != 2)
             return enemy.Definition.DeathAnimation;
 
         // A Super Missile raises headers zero, one and two to explosion two and keeps three
         // and four: $A0:A67B loads Y = 2, and the signed `< 3` branch at $A0:A698 keeps it.
         return enemy.Definition.DeathAnimation < 3
-            ? (ushort)2
+            ? 2
             : enemy.Definition.DeathAnimation;
     }
 
@@ -178,17 +178,17 @@ internal sealed class EnemyDeathsAndDrops
     internal void SpawnEnemyDropScatter(
         EnemyDefinitionId definitionId,
         int count,
-        ushort xBase,
-        ushort xMask,
-        ushort yBase,
-        ushort yMask)
+        int xBase,
+        int xMask,
+        int yBase,
+        int yMask)
     {
         for (int drop = 0; drop < count; drop++)
         {
             int random = _room.Random.Generate();
-            ushort x = unchecked((ushort)((random & xMask) + xBase));
-            ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(unchecked((ushort)(random & yMask))) + yBase));
-            SpawnEnemyDropFromEnemyHeader(new(x, y), definitionId);
+            SpawnEnemyDropFromEnemyHeader(new(
+                unchecked((ushort)((random & xMask) + xBase)),
+                unchecked((ushort)(SnesLittleEndian.HighByte(unchecked((ushort)(random & yMask))) + yBase))), definitionId);
         }
     }
 
@@ -201,9 +201,9 @@ internal sealed class EnemyDeathsAndDrops
         for (int drop = 0; drop < count; drop++)
         {
             int random = _room.Random.Generate();
-            ushort x = unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16));
-            ushort y = unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16));
-            SpawnEnemyDropFromEnemyHeader(new(x, y), definitionId);
+            SpawnEnemyDropFromEnemyHeader(new(
+                unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16)),
+                unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16))), definitionId);
         }
     }
 
@@ -330,16 +330,16 @@ internal sealed class EnemyDeathsAndDrops
         Span<byte> chances = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
         table.CopyTo(chances);
 
-        byte random;
+        int random;
         do
         {
             random = unchecked((byte)_room.Random.Generate());
         }
         while (random == 0);
 
-        byte majorAdjustedBudget = byte.MaxValue;
-        ushort accumulated = 0;
-        ushort combinedEnergy = unchecked((ushort)(
+        int majorAdjustedBudget = byte.MaxValue;
+        int accumulated = 0;
+        int combinedEnergy = unchecked((ushort)(
             samus.Health + samus.ReserveEnergy));
         if (combinedEnergy < 30)
             _room.Session.CriticalEnergyDropBias = true;
@@ -348,8 +348,8 @@ internal sealed class EnemyDeathsAndDrops
         // Values 30..49 deliberately retain the previous flag: this is the cartridge's
         // hysteresis/grace period, not an omitted assignment.
 
-        byte pooledMinorWeight;
-        byte enabledMask;
+        int pooledMinorWeight;
+        int enabledMask;
         if (_room.Session.CriticalEnergyDropBias)
         {
             pooledMinorWeight = unchecked((byte)(chances[0] + chances[1]));
@@ -534,7 +534,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Fills health first, spilling excess into capped reserves and enabling reserve auto mode.</summary>
-    private static void RestoreEnemyDropEnergy(SamusState samus, ushort amount)
+    private static void RestoreEnemyDropEnergy(SamusState samus, int amount)
     {
         int restored = samus.Health + amount;
         samus.Health = restored;
@@ -551,7 +551,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Fills missiles first, spilling excess into reserves capped by inventory and 99.</summary>
-    private static void RestoreEnemyDropMissiles(SamusState samus, ushort amount)
+    private static void RestoreEnemyDropMissiles(SamusState samus, int amount)
     {
         int restored = samus.Missiles + amount;
         samus.Missiles = restored;
@@ -566,7 +566,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Adds a Super Missile and clamps it to the owned maximum.</summary>
-    private static void RestoreEnemyDropSuperMissiles(SamusState samus, ushort amount)
+    private static void RestoreEnemyDropSuperMissiles(SamusState samus, int amount)
     {
         int restored = samus.SuperMissiles + amount;
         samus.SuperMissiles = restored;
@@ -577,7 +577,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Adds a Power Bomb and clamps it to the owned maximum.</summary>
-    private static void RestoreEnemyDropPowerBombs(SamusState samus, ushort amount)
+    private static void RestoreEnemyDropPowerBombs(SamusState samus, int amount)
     {
         int restored = samus.PowerBombs + amount;
         samus.PowerBombs = restored;
@@ -588,7 +588,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Measures the absolute distance between native 16-bit coordinates.</summary>
-    private static int AbsoluteWrappedDelta(ushort left, ushort right) =>
+    private static int AbsoluteWrappedDelta(int left, int right) =>
         Math.Abs((int)unchecked((short)(left - right)));
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

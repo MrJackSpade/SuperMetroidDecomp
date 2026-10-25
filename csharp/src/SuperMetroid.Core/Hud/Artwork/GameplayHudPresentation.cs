@@ -74,7 +74,7 @@ public sealed class GameplayHudPresentation
     {
         var row = new ushort[GameplayHudDefinitions.Width];
         for (int column = 0; column < row.Length; column++)
-            row[column] = topRowOverrides.TryGetValue(column, out ushort edited) ? edited : GameplayHudDefinitions.TopRowWord(column);
+            row[column] = topRowOverrides.GetValueOrDefault(column, GameplayHudDefinitions.TopRowWord(column));
         return row;
     }
 
@@ -105,8 +105,7 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         for (int index = 0; index < GameplayHudDefinitions.CellCount; index++)
-            tiles[index] = templateOverrides.TryGetValue(index, out ushort edited)
-                ? edited : GameplayHudDefinitions.TemplateWord(index);
+            tiles[index] = templateOverrides.GetValueOrDefault(index, GameplayHudDefinitions.TemplateWord(index));
     }
 
     /// <summary>Draws an item icon when its anchor cell is currently blank.</summary>
@@ -163,8 +162,8 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         for (int index = 0; index < GameplayHudDefinitions.AutoReserveCellCount; index++)
-            tiles[AutoReserveCell(index)] = autoReserveOverrides.TryGetValue(index + (containsEnergy ? 0 : 6), out ushort edited)
-                ? edited : GameplayHudDefinitions.AutoReserveWord(index, containsEnergy);
+            tiles[AutoReserveCell(index)] = autoReserveOverrides.GetValueOrDefault(index + (containsEnergy ? 0 : 6),
+                GameplayHudDefinitions.AutoReserveWord(index, containsEnergy));
     }
 
     /// <summary>Replaces every AUTO reserve-indicator cell with the configured blank tile.</summary>
@@ -254,8 +253,8 @@ public sealed class GameplayHudPresentation
         for (int digit = 0; digit < count; digit++)
         {
             int numeral = (value / divisor) % 10;
-            tiles[Index(anchor + new Offset16<TilemapCells>(checked((short)digit), 0))] = glyphs.TryGetValue(numeral, out ushort edited)
-                ? edited : GameplayHudDefinitions.DigitWord(numeral);
+            tiles[Index(anchor + new Offset16<TilemapCells>(checked((short)digit), 0))] = glyphs.GetValueOrDefault(numeral,
+                GameplayHudDefinitions.DigitWord(numeral));
             divisor /= 10;
         }
     }
@@ -301,9 +300,9 @@ public sealed class GameplayHudPresentation
         for (int state = 0; state < 2; state++)
         for (int cell = 0; cell < 6; cell++)
         {
-            ushort supplied = (state == 0 ? full : empty)[cell];
-            if (supplied != GameplayHudDefinitions.AutoReserveWord(cell, state == 0))
-                overrides.Add(state * 6 + cell, supplied);
+            ushort[] supplied = state == 0 ? full : empty;
+            if (supplied[cell] != GameplayHudDefinitions.AutoReserveWord(cell, state == 0))
+                overrides.Add(state * 6 + cell, supplied[cell]);
         }
         return overrides;
     }
@@ -418,7 +417,6 @@ public sealed class GameplayHudPresentation
                 if (cells[cell] != GameplayHudDefinitions.IconWord(item, cell)) edits.Add(cell, cells[cell]);
         }
         /// <summary>Reads an edited icon cell or its compiled stock tile word.</summary>
-        internal ushort Cell(int index) => edits.TryGetValue(index, out ushort edited)
-            ? edited : GameplayHudDefinitions.IconWord(item, index);
+        internal ushort Cell(int index) => edits.GetValueOrDefault(index, GameplayHudDefinitions.IconWord(item, index));
     }
 }

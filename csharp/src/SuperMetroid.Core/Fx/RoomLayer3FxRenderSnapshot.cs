@@ -9,7 +9,7 @@ public readonly record struct RoomLayer3FxRenderSnapshot(
     RoomLiquidOptions LiquidOptions = RoomLiquidOptions.None,
     int WaterBg3WavePhase = 0,
     int WaterBg2WavePhase = 0,
-    short WaterSurfaceScreenY = short.MaxValue)
+    int WaterSurfaceScreenY = short.MaxValue)
 {
     /// <summary>
     /// Effective circular phase of the lava/acid BG2 HDMA table. Zero is the first table

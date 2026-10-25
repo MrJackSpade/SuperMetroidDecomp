@@ -188,7 +188,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             }
             return false;
         }
-        static ushort[] BoundaryPoints(ushort origin, short low, short high) =>
+        static ushort[] BoundaryPoints(int origin, int low, int high) =>
         [
             unchecked((ushort)(origin + low - 1)),
             unchecked((ushort)(origin + low)),

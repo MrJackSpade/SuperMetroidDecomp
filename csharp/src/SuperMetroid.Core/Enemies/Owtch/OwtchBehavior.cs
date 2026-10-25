@@ -65,9 +65,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Owtch parameter two ${slot.Spawn.Population.Parameter2:X4} selects linear-speed " +
                 $"index {speedIndex}, outside the NTSC retail table.");
         }
-        ushort undergroundTimer =
+        int undergroundTimer =
             OwtchMovementDefinitions.UndergroundTimer((byte)undergroundTimerIndex);
-        ushort travelDistance =
+        int travelDistance =
             OwtchMovementDefinitions.TravelDistance((byte)distanceIndex);
 
         // The initializer masks the raw state only for its two-entry facing table. Thus
@@ -188,7 +188,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
         int random = _room.Random.Generate();
-        byte decision = unchecked((byte)((byte)random + (byte)slot.FrameCounter));
+        int decision = unchecked((byte)((byte)random + (byte)slot.FrameCounter));
         if (decision < 6)
             state.Behavior = OwtchBehaviorState.Sinking;
     }

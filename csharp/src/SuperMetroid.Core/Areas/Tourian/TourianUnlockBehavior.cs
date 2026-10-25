@@ -56,7 +56,7 @@ internal sealed class TourianUnlockBehavior
     }
 
     /// <summary>$87:8320 spawns a statue eye's glow from the bank-$86 definition and lights the eye's colours.</summary>
-    public void SpawnTourianEyeGlow(ushort parameter)
+    public void SpawnTourianEyeGlow(int parameter)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, parameter) is null) return;
         (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
@@ -65,14 +65,14 @@ internal sealed class TourianUnlockBehavior
     }
 
     /// <summary>$87:832F spawns a statue's released soul from the bank-$86 definition, rising from the eye.</summary>
-    public void SpawnTourianSoul(ushort parameter)
+    public void SpawnTourianSoul(int parameter)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, parameter) is not { } soul) return;
         soul.Velocity = soul.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1024)));
     }
 
     /// <summary>Allocates an unlock effect at the statue's native eye position; null when every slot is busy.</summary>
-    private RoomEnemyProjectileSlot? SpawnAtStatueEye(RoomEnemyProjectileKind kind, ushort parameter)
+    private RoomEnemyProjectileSlot? SpawnAtStatueEye(RoomEnemyProjectileKind kind, int parameter)
     {
         Position16<RoomPixels> position = TourianStatueUnlockDefinitions.EyePosition(parameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
@@ -95,7 +95,7 @@ internal sealed class TourianUnlockBehavior
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
-        byte angle = unchecked((byte)((_room.Random.Generate() & 63) - 32));
+        int angle = unchecked((byte)((_room.Random.Generate() & 63) - 32));
         projectile.Variable0 = (ushort)(angle * 2);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64))));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));

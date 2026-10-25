@@ -7,7 +7,7 @@ internal static class AtomicMovementDefinitions
     /// $A8:E380, InstructionListPointers_Atomic: the four spinning animations, selected by the enemy population's first
     /// parameter.
     /// </summary>
-    internal static AtomicProgram InitialProgram(ushort parameter) => parameter switch
+    internal static AtomicProgram InitialProgram(int parameter) => parameter switch
     {
         0 => AtomicProgram.UpRight,
         1 => AtomicProgram.UpLeft,

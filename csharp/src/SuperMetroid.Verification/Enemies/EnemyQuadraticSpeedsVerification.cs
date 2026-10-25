@@ -29,7 +29,7 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadDisplacement(757), "quadratic partial displacement");
         if (definitionsOnly) return;
         var shared = new Func<int, bool, int>(EnemyMath.ReadQuadraticEnemySpeed);
-        var addRock = new Action<RoomEnemyProjectileSlot, ushort, QuadraticSpeedHalf>(PolypBehavior.AddPolypRockQuadraticStep);
+        var addRock = new Action<RoomEnemyProjectileSlot, int, QuadraticSpeedHalf>(PolypBehavior.AddPolypRockQuadraticStep);
         var rock = new RoomEnemyProjectileSlot(0);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (ushort index = 0; index < 95; index++)
@@ -51,8 +51,8 @@ internal static class EnemyQuadraticSpeedsVerification
             AssertEqual(unchecked((int)SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))), shared(index, negative),
                 "quadratic shared production reader");
         }
-        var beetom = new Func<ushort, ushort, ushort>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
-        var hopper = new Func<ushort, ushort, ushort>(HoppersBehavior.CalculateInitialHopperYSpeedTableIndex);
+        var beetom = new Func<int, int, int>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
+        var hopper = new Func<int, int, int>(HoppersBehavior.CalculateInitialHopperYSpeedTableIndex);
         int initialIndexCases = 0;
         foreach (ushort delta in new ushort[] { 1, 2, 4 })
         for (int height = 0; height <= ushort.MaxValue; height++)

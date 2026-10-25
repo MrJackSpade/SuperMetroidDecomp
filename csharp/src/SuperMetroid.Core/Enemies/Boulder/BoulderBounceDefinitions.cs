@@ -16,7 +16,7 @@ public static class BoulderBounceDefinitions
     /// VerifyCompiledBoulderBounces exercises each real floor collision, the
     /// zero-to-$FFFF handoff, and both invalid counter boundaries without a bus.
     /// </remarks>
-    public static ushort SpeedIndex(ushort remainingBounces) => remainingBounces switch
+    public static ushort SpeedIndex(int remainingBounces) => remainingBounces switch
     {
         2 => 0x1800,
         1 => 0x1000,

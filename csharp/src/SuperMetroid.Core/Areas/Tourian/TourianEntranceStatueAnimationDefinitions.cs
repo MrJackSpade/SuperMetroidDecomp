@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal static class TourianEntranceStatueAnimationDefinitions
 {
     /// <summary>The animation the native even parameter zero, two or four selects ($AA:D7A5/D7AF/D7B9 table).</summary>
-    internal static TourianEntranceStatueProgram InitialProgram(ushort parameter)
+    internal static TourianEntranceStatueProgram InitialProgram(int parameter)
     {
         if (parameter > 4 || (parameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(parameter));

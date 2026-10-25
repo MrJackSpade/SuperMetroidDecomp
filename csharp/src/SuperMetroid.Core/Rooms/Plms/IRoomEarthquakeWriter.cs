@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public interface IRoomEarthquakeWriter
 {
     /// <summary>Writes the earthquake timer.</summary>
-    void SetTimer(ushort timer);
+    void SetTimer(int timer);
 
     /// <summary>Writes the earthquake type.</summary>
-    void SetType(ushort type);
+    void SetType(int type);
 }

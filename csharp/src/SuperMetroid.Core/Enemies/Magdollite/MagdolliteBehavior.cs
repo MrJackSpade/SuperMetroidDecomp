@@ -228,7 +228,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         overlayState.AttackTimer = WrappingCountdown.Start(0);
-        ushort range = unchecked((byte)head.Spawn.Population.Parameter2);
+        int range = unchecked((byte)head.Spawn.Population.Parameter2);
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
@@ -316,7 +316,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
         state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);
 
-        ushort upwardDistance = unchecked((ushort)-state.RiseDisplacement.Y);
+        int upwardDistance = unchecked((ushort)-state.RiseDisplacement.Y);
         MagdollitePhaseDefinition phase = MagdollitePhaseDefinitions.Phase(state.BodyPhase);
         bool roseMaximum = !EnemyMath.IsNegative16(
             upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
@@ -365,8 +365,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort downwardDistanceRemaining = unchecked((ushort)-state.RiseDisplacement.Y);
-        ushort threshold = MagdollitePhaseDefinitions.Phase(state.BodyPhase - 1).DistanceThreshold;
+        int downwardDistanceRemaining = unchecked((ushort)-state.RiseDisplacement.Y);
+        int threshold = MagdollitePhaseDefinitions.Phase(state.BodyPhase - 1).DistanceThreshold;
         if (!EnemyMath.IsNegative16(downwardDistanceRemaining - threshold))
             return;
 
@@ -432,7 +432,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            ushort offset = MagdollitePhaseDefinitions
+            int offset = MagdollitePhaseDefinitions
                 .Phase(bodyState.BodyPhase).OverlayYOffset;
             overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
         }
@@ -454,7 +454,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            ushort offset = MagdollitePhaseDefinitions
+            int offset = MagdollitePhaseDefinitions
                 .Phase(bodyState.BodyPhase).OverlayYOffset;
             overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
         }
@@ -470,8 +470,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
     {
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
-        ushort radius = unchecked((ushort)(head.Position.Y.Whole - overlay.Position.Y.Whole + 2));
-        head.Radius = head.Radius.WithY(EnemyMath.IsNegative16(radius - 8) ? (ushort)8 : radius);
+        int radius = unchecked((ushort)(head.Position.Y.Whole - overlay.Position.Y.Whole + 2));
+        head.Radius = head.Radius.WithY(checked((ushort)(EnemyMath.IsNegative16(radius - 8) ? 8 : radius)));
     }
 
     /// <summary>
@@ -591,9 +591,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteCueKind.SinkAndShowParts:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
-                ushort y = (state.Origin + new Offset16<RoomPixels>(0, 24)).Y;
-                slot.Position = slot.Position.WithWholeY(y);
-                body.Position = body.Position.WithWholeY(y);
+                Position16<RoomPixels> sunk = state.Origin + new Offset16<RoomPixels>(0, 24);
+                slot.Position = slot.Position.WithWholeY(sunk.Y);
+                body.Position = body.Position.WithWholeY(sunk.Y);
                 body.Properties = body.Properties.Without(EnemyProperties.Invisible);
                 overlay.Properties = overlay.Properties.Without(EnemyProperties.Invisible);
                 break;
@@ -608,9 +608,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteCueKind.SurfaceAndHideParts:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
-                ushort y = (state.Origin + new Offset16<RoomPixels>(0, 4)).Y;
-                slot.Position = slot.Position.WithWholeY(y);
-                body.Position = body.Position.WithWholeY(y);
+                Position16<RoomPixels> surfaced = state.Origin + new Offset16<RoomPixels>(0, 4);
+                slot.Position = slot.Position.WithWholeY(surfaced.Y);
+                body.Position = body.Position.WithWholeY(surfaced.Y);
                 body.Properties = body.Properties.With(EnemyProperties.Invisible);
                 overlay.Properties = overlay.Properties.With(EnemyProperties.Invisible);
                 break;
@@ -805,10 +805,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The left routine at $E050 deliberately adds the Y-velocity word to X. The right
         // routine at $E07A uses X velocity. They begin as -$0300 and +$0300 respectively,
         // so expressing this oddity literally keeps debugger state aligned with the ROM.
-        ushort horizontalVelocity = projectile.DirectionParameter == 0
+        int horizontalVelocity = projectile.DirectionParameter == 0
             ? projectile.Velocity.Y.RawValue
             : projectile.Velocity.X.RawValue;
-        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(horizontalVelocity).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
 
         // $86:E049 deletes actors outside the inclusive 256x256 camera square after their
         // horizontal move. No vertical movement occurs despite the field's directional use.

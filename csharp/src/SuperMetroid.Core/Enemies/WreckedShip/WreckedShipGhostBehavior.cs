@@ -229,9 +229,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 "do not select a retail spawn offset.");
         }
 
-        (short xOffset, short yOffset) = WreckedShipGhostAppearanceDefinitions.SpawnOffset(
-            state.SpawnRow * WreckedShipGhostMovementClassCount + state.SpawnColumn);
-        slot.Position = slot.Position.WithWhole(samusPosition + new Offset16<RoomPixels>(xOffset, yOffset));
+        slot.Position = slot.Position.WithWhole(samusPosition + WreckedShipGhostAppearanceDefinitions.SpawnOffset(
+            state.SpawnRow * WreckedShipGhostMovementClassCount + state.SpawnColumn));
         state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
         state.StablePositionTimer = WrappingCountdown.Start(WreckedShipGhostStablePositionDuration);
         state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
@@ -351,7 +350,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                     $"Wrecked Ship ghost flicker offset ${state.FlickerTableOffset:X4} exceeds $A8:9ACC.");
             }
 
-            short duration = WreckedShipGhostAppearanceDefinitions.FlickerDuration(tableIndex);
+            int duration = WreckedShipGhostAppearanceDefinitions.FlickerDuration(tableIndex);
             if (duration < 0)
             {
                 state.PhaseTimer = WrappingCountdown.Start(0);

@@ -153,7 +153,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // remains mutable after load. RoomEnemySlot.Spawn.Population.Parameter1 is that exact WRAM field.
         // The earlier population "init" word seeds Enemy.instList before initialization;
         // it is not the variant despite its host-side historical name.
-        ushort variant = checked((ushort)slot.Spawn.Population.Parameter1);
+        int variant = checked((ushort)slot.Spawn.Population.Parameter1);
 
         CeresDoorInitializationDefinition initialization =
             CeresDoorInitializationDefinitions.For(variant);
@@ -244,7 +244,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports the two entry points at $A6:F76B/$F770 without advancing the RNG.</summary>
-    private void RunCeresDoorEarthquake(ushort baseEarthquakeType)
+    private void RunCeresDoorEarthquake(int baseEarthquakeType)
     {
         // The door cannot start a second quake while the shared timer is active. A separate
         // engine stage decrements that timer; this actor only chooses the next type/duration.
@@ -253,7 +253,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
         Func<int> readRandomNumber = _room.Random.Read;
         // One random word in 32 (its low twelve bits below 128) picks the stronger quake.
-        ushort lowTwelveBits = unchecked((ushort)(readRandomNumber() % 4096));
+        int lowTwelveBits = unchecked((ushort)(readRandomNumber() % 4096));
         if (lowTwelveBits < 128)
         {
             // Rarely select the stronger sibling quake six entries after the base type.
@@ -293,9 +293,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         CountdownStep burst = WrappingCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
         state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Value;
 
-        (short xOffset, short yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(state.ExplosionPositionIndex);
-        ushort explosionX = unchecked((ushort)(slot.Position.X.Whole + xOffset));
-        ushort explosionY = unchecked((ushort)(slot.Position.Y.Whole + yOffset));
+        (int xOffset, int yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(state.ExplosionPositionIndex);
+        Position16<RoomPixels> explosion = new(
+            unchecked((ushort)(slot.Position.X.Whole + xOffset)), unchecked((ushort)(slot.Position.Y.Whole + yOffset)));
 
         // GenerateRandomNumber is called exactly once per explosion. Values below $4000
         // select animation $0C; all other values select animation three (smoke).
@@ -303,7 +303,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         MiscDustAnimation animation = randomNumber < 16384
             ? CeresDoorExplosionAnimation
             : CeresDoorSmokeAnimation;
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(explosionX, explosionY), animation);
+        _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
 
         // QueueSound_Lib2_Max6 runs even if the finite enemy-projectile pool was full and
         // could not allocate the visual effect, so publish the request unconditionally.

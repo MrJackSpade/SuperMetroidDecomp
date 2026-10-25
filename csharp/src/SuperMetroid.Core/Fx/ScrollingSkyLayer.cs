@@ -24,7 +24,7 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<ushort
             return result;
         for (int line = 0; line < lineCount; line++)
         {
-            ushort worldY = unchecked((ushort)(VerticalScroll + ScrollingSkyBandDefinitions.GameplayFirstScanline + line));
+            int worldY = unchecked((ushort)(VerticalScroll + ScrollingSkyBandDefinitions.GameplayFirstScanline + line));
             int band = BandAt(worldY);
             // The assembly's fallback entries point at direct-page BG2HOFS ($00B5), which is zero for the sky rooms.
             result[line] = band >= 0 ? BandOffsets[ScrollingSkyBands.GetSection(band).DataSlot] : (ushort)0;
@@ -33,7 +33,7 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<ushort
     }
 
     /// <summary>The band covering a world position, or -1 below the sky's bands.</summary>
-    private static int BandAt(ushort worldY)
+    private static int BandAt(int worldY)
     {
         for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
         {

@@ -11,7 +11,7 @@ internal static class MetroidBehaviorDefinitions
     private static readonly SoundEffectId ThirdCry = Library2Sound.ShotMetroid;
 
     /// <summary><c>BombedOffVelocities</c> at $A3:EA3F: four successive two-pixel cardinal displacements.</summary>
-    internal static Offset16<RoomPixels> EscapeDisplacement(ushort countdown)
+    internal static Offset16<RoomPixels> EscapeDisplacement(int countdown)
     {
         int phase = countdown & 3;
         int signedRadius = 2 - 2 * (phase & 2);

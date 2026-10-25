@@ -197,7 +197,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         int travelDistance = hold == PowampHold.Grappled
             ? balloon.State.BalloonGrappleTravelDistance
             : PowampUngrappledTravelDistance;
-        ushort targetY = unchecked((ushort)(balloon.State.BalloonSpawn.Y - travelDistance));
+        int targetY = unchecked((ushort)(balloon.State.BalloonSpawn.Y - travelDistance));
 
         // CMP target,body followed by BMI means "continue while body is still below the
         // target". A room collision completes the rise regardless of its Y coordinate.
@@ -287,10 +287,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
-        ushort spawnY = balloon.State.BalloonSpawn.Y;
+        int spawnY = balloon.State.BalloonSpawn.Y;
         if (!EnemyMath.IsNegative16(body.Position.Y.Whole - spawnY))
         {
-            body.Position = body.Position.WithWholeY(spawnY);
+            body.Position = body.Position.WithWholeY(balloon.State.BalloonSpawn.Y);
             state.Function = PowampEnemyFunction.DeflatedResting;
             state.FunctionTimer = WrappingCountdown.Start(PowampRestFrames);
             SetPowampProgram(body, state, PowampProgram.BodySlow);
@@ -339,7 +339,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // through EnemyDeath with whatever the spike loop left in A as its animation.
         balloon.Slot.Health = 0;
         balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
-        ushort accumulator = SpawnPowampSpikeBurst(body);
+        int accumulator = SpawnPowampSpikeBurst(body);
         _deathsAndDrops.StartGenericEnemyDeath(body, accumulator);
     }
 
@@ -415,10 +415,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Powamp wiggle index {state.WiggleIndex} exceeds the 12-word ROM table.");
         }
 
-        ushort x = unchecked((ushort)(
+        int x = unchecked((ushort)(
             balloon.State.BalloonSpawn.X + PowampMotionDefinitions.WiggleOffset(state.WiggleIndex)));
-        balloon.Slot.Position = balloon.Slot.Position.WithWholeX(x);
-        body.Position = body.Position.WithWholeX(x);
+        balloon.Slot.Position = balloon.Slot.Position.WithWholeX(checked((ushort)x));
+        body.Position = body.Position.WithWholeX(checked((ushort)x));
         if (stop == PowampWiggleStop.WhenCentered && IsPowampCentered(state.WiggleIndex))
             return true;
 
@@ -582,10 +582,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// projectile index, or the body's graphics word when the pool was full. The death
     /// sequence passes it straight to EnemyDeath as the animation.
     /// </returns>
-    internal ushort SpawnPowampSpikeBurst(RoomEnemySlot body)
+    internal int SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
-        ushort graphics = unchecked((ushort)(body.TileIndexBase | body.PaletteIndex));
-        ushort accumulator = 0;
+        int graphics = unchecked((ushort)(body.TileIndexBase | body.PaletteIndex));
+        int accumulator = 0;
         // Native Y counts from seven down to zero. Allocation independently searches the
         // eighteen-slot bank-$86 pool from native index $22 downward on every iteration.
         for (int direction = 7; direction >= 0; direction--)

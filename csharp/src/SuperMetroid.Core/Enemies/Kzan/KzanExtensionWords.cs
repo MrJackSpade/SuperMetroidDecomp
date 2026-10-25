@@ -16,5 +16,5 @@ internal sealed class KzanExtensionWords
     internal int FallingYSpeedTableIndex { get; set; }
 
     /// <summary>hold between landing and rising.</summary>
-    internal ushort RiseWaitTimer { get; set; }
+    internal WrappingCountdown RiseWaitTimer { get; set; }
 }

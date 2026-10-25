@@ -140,7 +140,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>SetSparkFunctionTimer</c> at <c>$A8:E6F6</c>.</summary>
-    private void SetSparkFunctionTimer(SparkEnemyState state, ushort additionalTime)
+    private void SetSparkFunctionTimer(SparkEnemyState state, int additionalTime)
     {
         int baseTime = state.BaseFunctionTime;
         if (unchecked((short)baseTime) < 0)

@@ -8,7 +8,7 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
         OldTourianEscapeAccentPaletteOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
-        ushort colorByteIndex)
+        int colorByteIndex)
     {
         Owner = owner;
         Object = paletteFxObject;
@@ -23,7 +23,7 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     public PaletteFxObject Object { get; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
+    public int ColorByteIndex { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows { get; }

@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal sealed class RipperExtensionWords
 {
     /// <summary>GRipper's population-defined left patrol endpoint.</summary>
-    internal ushort MinimumXPosition { get; set; }
+    internal int MinimumXPosition { get; set; }
 
     /// <summary>GRipper's population-defined right patrol endpoint.</summary>
-    internal ushort MaximumXPosition { get; set; }
+    internal int MaximumXPosition { get; set; }
 
     /// <summary>The Ripper-family typed flying loop (#641).</summary>
     internal AnimationProgramCursor<RipperProgram> Program { get; set; }

@@ -32,7 +32,7 @@ public sealed class SkyTilemap
         Variant = variant;
         for (int row = 0; row < Rows; row++)
         {
-            if (!ScrollingSkyChunkDefinitions.TryGetPageIndex(variant, row / RowsPerChunk, out int page))
+            if (!ScrollingSkyChunks.TryGetPage(variant, row / RowsPerChunk, out int page))
                 continue;
             ReadOnlySpan<byte> bytes = RoomSkyTilemapCatalog.Row(pages, page, row % RowsPerChunk);
             for (int column = 0; column < Columns; column++)

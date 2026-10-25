@@ -22,14 +22,14 @@ public sealed class RoomMetatileAtlas
 
     /// <summary>Validates editable metatile JSON and packs each block's four tile references and visual attributes into the native eight-byte representation.</summary>
     /// <param name="json">Map document stream using the strict, camel-case version-1 schema.</param>
-    /// <param name="expectedNativeByteCount">Required decompressed table length in bytes, comprising 1..1024 complete eight-byte blocks.</param>
+    /// <param name="expectedByteCount">Required decompressed table length in bytes, comprising 1..1024 complete eight-byte blocks.</param>
     /// <returns>The compiled block table, preserving the document's block and quadrant order.</returns>
     /// <exception cref="ArgumentNullException">The JSON stream is null.</exception>
     /// <exception cref="InvalidDataException">The table length, JSON schema, block count, quadrant, tile coordinate, or palette index is invalid.</exception>
-    public static RoomMetatileAtlas Load(Stream json, int expectedNativeByteCount)
+    public static RoomMetatileAtlas Load(Stream json, int expectedByteCount)
     {
         Ensure.NotNull(json);
-        int expectedCount = RoomMetatileFormat.ValidateBlockCount(expectedNativeByteCount);
+        int expectedCount = RoomMetatileFormat.ValidateBlockCount(expectedByteCount);
         RoomMetatileDocument document = JsonAssetDocument.Read<RoomMetatileDocument>(
             json, JsonOptions, "room metatile");
         if (document.Version != RoomMetatileFormat.Version || document.Blocks is null ||
@@ -38,7 +38,7 @@ public sealed class RoomMetatileAtlas
                 $"Room metatiles require version {RoomMetatileFormat.Version} and " +
                 $"{expectedCount} ordered 16x16 blocks.");
 
-        var bytes = new byte[expectedNativeByteCount];
+        var bytes = new byte[expectedByteCount];
         for (int block = 0; block < document.Blocks.Length; block++)
         {
             RoomMetatileDefinition? definition = document.Blocks[block];
@@ -72,14 +72,14 @@ public sealed class RoomMetatileAtlas
     /// <summary>Serializes and recompiles a metatile document to validate it before writing any JSON bytes to the destination.</summary>
     /// <param name="json">Destination stream for the indented camel-case document.</param>
     /// <param name="document">Ordered visual block definitions to encode.</param>
-    /// <param name="expectedNativeByteCount">Required native table length used to validate the serialized document's block count.</param>
+    /// <param name="expectedByteCount">Required native table length used to validate the serialized document's block count.</param>
     /// <exception cref="ArgumentNullException">The destination stream is null.</exception>
     /// <exception cref="InvalidDataException">The serialized document or expected table length fails metatile validation.</exception>
-    public static void Write(Stream json, RoomMetatileDocument document, int expectedNativeByteCount)
+    public static void Write(Stream json, RoomMetatileDocument document, int expectedByteCount)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false), expectedNativeByteCount);
+        _ = Load(new MemoryStream(bytes, writable: false), expectedByteCount);
         json.Write(bytes);
     }
 

@@ -2061,21 +2061,20 @@ internal static class LookupStream4Verification
             AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
         int Long(int address) => CartridgeImportSource.Require(rom).ReadCartridgeLong(address);
         int[] nativeBackgroundSources = LibraryBackgroundSourceInventory.Scan(rom)
-            .Where(instruction => instruction.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+            .Where(instruction => instruction.Command == LibraryBackgroundCommand.Decompress)
             .Select(instruction => instruction.SourceAddress).Distinct().Order().ToArray();
         AssertEqual(58, nativeBackgroundSources.Length, "native distinct compressed background source count");
-        AssertEqual(nativeBackgroundSources.Length, RoomBackgroundTilemapSources.All.Count, "calculated background source view count");
-        AssertTrue(nativeBackgroundSources.SequenceEqual(RoomBackgroundTilemapSources.All), "background source view exact native distinct order");
-        for (int index = 0; index < nativeBackgroundSources.Length; index++)
+        AssertEqual(nativeBackgroundSources.Length, Enum.GetValues<RoomBackgroundTilemap>().Length, "one named background tilemap per native source");
+        // Each native decompression source decodes to the named tilemap the extraction table stores there (#1414).
+        foreach (int source in nativeBackgroundSources)
         {
-            AssertEqual(nativeBackgroundSources[index], RoomBackgroundTilemapSources.All[index], "background source indexed view native identity");
-            AssertTrue(RoomBackgroundTilemapSources.Contains(nativeBackgroundSources[index]), "background source native member accepted");
-            AssertTrue(!RoomBackgroundTilemapSources.Contains(nativeBackgroundSources[index] + 1), "background source interior byte is not an identity");
+            RoomBackgroundTilemap tilemap = LibraryBackgroundOperandDecoding.DecompressedSource(source).Tilemap;
+            AssertEqual(source, RoomBackgroundSourceDefinitions.Tilemaps[tilemap], "background tilemap native source");
+            AssertThrows<InvalidDataException>(() => LibraryBackgroundOperandDecoding.DecompressedSource(source + 1),
+                "background source interior byte names no tilemap");
         }
-        foreach (int invalid in new[] { -1, 58, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = RoomBackgroundTilemapSources.All[invalid], "background source exact index domain");
         foreach (int invalid in new[] { -1, 0, 0xffffff, int.MaxValue })
-            AssertTrue(!RoomBackgroundTilemapSources.Contains(invalid), "background source absent identity rejected");
+            AssertThrows<InvalidDataException>(() => LibraryBackgroundOperandDecoding.DecompressedSource(invalid), "background source absent identity rejected");
 
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)

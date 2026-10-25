@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -45,7 +44,7 @@ public static class RoomCharacterArtworkFiles
                 ? LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount
                 : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source.Set is { } set
                     ? tilesets.Characters[set]
-                    : SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreCharactersAddress)).Length;
+                    : RoomTilesetSourceDefinitions.CreCharacters).Length;
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(png);

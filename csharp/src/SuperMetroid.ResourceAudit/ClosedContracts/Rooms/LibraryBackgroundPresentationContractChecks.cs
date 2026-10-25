@@ -10,7 +10,7 @@ using SuperMetroid.ResourceAudit.Resources;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 
-/// <summary>Confirms exact required source admission, not background pixels or room execution.</summary>
+/// <summary>Confirms exact required tilemap admission, not background pixels or room execution.</summary>
 internal static class LibraryBackgroundPresentationContractChecks
 {
     /// <summary>Checks exact source-key admission, catalog ownership, and audit revocation when the provider's source test is removed.</summary>
@@ -24,15 +24,15 @@ internal static class LibraryBackgroundPresentationContractChecks
                 Cells = Enumerable.Repeat(cell, RoomBackgroundTilemapFormat.CellsPerPage).ToArray() }],
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(json, RoomBackgroundTilemapFormat.BytesPerPage);
-        var owned = RoomBackgroundTilemapSources.All.ToDictionary(source => source, _ => atlas);
-        var substituted = new Dictionary<int, RoomBackgroundTilemapAtlas>(owned);
-        int first = RoomBackgroundTilemapSources.All[0];
+        var owned = Enum.GetValues<RoomBackgroundTilemap>().ToDictionary(tilemap => tilemap, _ => atlas);
+        var substituted = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>(owned);
+        RoomBackgroundTilemap first = Enum.GetValues<RoomBackgroundTilemap>()[0];
         substituted.Remove(first);
-        substituted.Add(0, atlas);
+        substituted.Add((RoomBackgroundTilemap)0, atlas);
         bool rejected = false;
         try { _ = new RoomBackgroundTilemapCatalog(substituted); }
         catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "a correct count with one substituted source must fail at construction");
+        Require(rejected, "a correct count with one substituted tilemap must fail at construction");
         var catalog = new RoomBackgroundTilemapCatalog(owned);
         owned.Remove(first);
         Require(ReferenceEquals(catalog.Get(first), atlas), "catalog keys must be independent of the caller's dictionary");
@@ -43,11 +43,12 @@ internal static class LibraryBackgroundPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Rooms.Artwork;
+            using SuperMetroid.Core.Rooms.Backgrounds;
             class BackgroundConsumer {
-                void Inspect(RoomBackgroundTilemapCatalog catalog, int selected) {
-                    catalog.Get({{first}});
+                void Inspect(RoomBackgroundTilemapCatalog catalog, RoomBackgroundTilemap selected) {
+                    catalog.Get(RoomBackgroundTilemap.{{first}});
                     catalog.Get(selected);
-                    catalog.Get(0);
+                    catalog.Get((RoomBackgroundTilemap)0);
                 }
             }
             """, path: "fixture-library-bg-consumer.cs");

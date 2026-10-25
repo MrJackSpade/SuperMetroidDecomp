@@ -17,7 +17,7 @@ internal static class EndingScreenTiles
     /// The floor characters <paramref name="uploads"/> leave: each escape and explosion scene's, the flyaway gunship's
     /// chunks and the reward icon's; an upload of other characters over the floor's leaves those tiles unpictured.
     /// </summary>
-    internal static Mode7TilePictures Floor(InstalledSpriteSheets sheets, IEnumerable<EndingUpload> uploads)
+    internal static FloorTilePictures Floor(InstalledSpriteSheets sheets, IEnumerable<EndingUpload> uploads)
     {
         Ensure.NotNull(sheets);
         var tiles = new FloorCharacters();

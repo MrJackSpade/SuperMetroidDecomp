@@ -133,7 +133,7 @@ public sealed class CartridgeRoomAssets
         var cells = new byte[FloorMap.Cells];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = words[cell * 2];
-        return new FloorMap(cells, Tileset, Pictures.Mode7(Tileset));
+        return new FloorMap(cells, Tileset, Pictures.FloorTilesOf(Tileset));
 
         void CopyAt(byte[] source, int byteOffset)
         {
@@ -165,7 +165,7 @@ public sealed class CartridgeRoomAssets
 
         foreach (BgCharacterPlacement placement in CharacterPlacements(Tileset, CreCharacters, RoomCharacters))
             placement.BindTo(backgrounds);
-        if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
+        if (PaletteBytes.Length < RoomStaticPaletteFormat.ByteCount)
         {
             throw new InvalidDataException(
                 $"Tileset palette expanded to ${PaletteBytes.Length:X} bytes; expected at least $100.");

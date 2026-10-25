@@ -167,7 +167,7 @@ internal static class RoomDefinitionIntegrationVerification
             if (unchecked((short)state.ScrollPointer) < 0)
             {
                 AddAddressRange(forbidden,
-                    RoomAssetRomData.Tilesets.DefinitionBank | state.ScrollPointer,
+                    RoomTilesetTableConstants.DefinitionBank | state.ScrollPointer,
                     RoomScrollGrid.StorageByteCount);
             }
         }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Artwork;
 
-/// <summary>Editable tile-reference schema limits and source-keyed filenames for native library-background maps.</summary>
+/// <summary>Editable tile-reference schema limits and file names for library-background maps.</summary>
 public static class RoomBackgroundTilemapFormat
 {
     /// <summary>Required tilemap document schema revision.</summary>
@@ -15,14 +15,9 @@ public static class RoomBackgroundTilemapFormat
     public const int CellsPerPage = 32 * 32;
     /// <summary>Compiled byte length of one page, $0800, with one little-endian sixteen-bit word per cell.</summary>
     public const int BytesPerPage = CellsPerPage * sizeof(ushort);
-    /// <summary>Number of distinct compressed library-background source identities required by the supported retail cartridge's complete room-background catalog.</summary>
-    public const int RetailCompressedSourceCount = 58;
-
-    /// <summary>Creates the JSON filename keyed by a background's immutable compressed cartridge source, allowing shared sources to share one resource.</summary>
-    /// <param name="sourceAddress">Full SNES source address, conventionally a 24-bit bank/offset value; this naming method does not validate address mapping.</param>
-    /// <returns>The <c>room-background-</c> filename with an uppercase hexadecimal address padded to at least six digits and a <c>.json</c> suffix.</returns>
-    public static string SourceFileName(int sourceAddress) =>
-        $"room-background-{sourceAddress:X6}.json";
+    /// <summary>The editable JSON file name of <paramref name="tilemap"/>, named for the background it pictures (#1414).</summary>
+    public static string FileName(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundTilemap tilemap) =>
+        $"room-background-{SuperMetroid.Core.Assets.InstalledArtworkNames.Hyphenated(tilemap.ToString())}.json";
 
     /// <summary>Checks a native transfer extent and converts its byte length to the supported page count.</summary>
     /// <param name="byteCount">Compiled BG word bytes; only $0800 and $1000 are accepted.</param>

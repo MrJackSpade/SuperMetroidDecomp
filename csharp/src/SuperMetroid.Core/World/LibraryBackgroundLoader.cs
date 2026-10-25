@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -32,10 +31,10 @@ public static class LibraryBackgroundLoader
         {
             switch (instruction.Command)
             {
-                case LibraryBackgroundCommand.TransferToVram:
+                case LibraryBackgroundCommand.Transfer:
                     _ = TryBindTransferredCharacters(instruction, artwork);
                     break;
-                case LibraryBackgroundCommand.TransferToVramForKraid:
+                case LibraryBackgroundCommand.TransferForKraid:
                     _ = TryBindTransferredCharacters(instruction, artwork);
                     selectsKraidHudCharacters = true;
                     break;
@@ -43,13 +42,12 @@ public static class LibraryBackgroundLoader
                     if (instruction.Door == activeDoor)
                         _ = TryBindTransferredCharacters(instruction, artwork);
                     break;
-                case LibraryBackgroundCommand.DecompressToWorkRam:
+                case LibraryBackgroundCommand.Decompress:
                 case LibraryBackgroundCommand.ClearFxTilemap:
                 case LibraryBackgroundCommand.ClearBg2:
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
                     // Tilemap commands: the background's image pictures the pages they build.
                     break;
-                case LibraryBackgroundCommand.End:
                 default:
                     throw new InvalidDataException(
                         $"Unknown compiled library-background command {instruction.Command} in list {program.Name}.");
@@ -74,7 +72,7 @@ public static class LibraryBackgroundLoader
     internal static bool TryBindTransferredCharacters(LibraryBackgroundInstruction transfer, LibraryBackgroundCharacterArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        if (transfer.SourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress)
+        if (transfer.Source == LibraryBackgroundSource.TourianStatueGhostCharacters)
         {
             RoomCharacterAtlasCatalog characters = artwork.CharacterArt
                 ?? throw new InvalidOperationException("The Tourian statue ghost's library characters have no installed character artwork.");
@@ -84,13 +82,13 @@ public static class LibraryBackgroundLoader
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, not its {ghost.Length}.");
             return true;
         }
-        else if (transfer.SourceAddress == HudTileAtlasFormat.SourceAddress && transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
+        else if (transfer.Source == LibraryBackgroundSource.HudCharacters && transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
         {
-            if (transfer.Command != LibraryBackgroundCommand.TransferToVramForKraid)
+            if (transfer.Command != LibraryBackgroundCommand.TransferForKraid)
                 throw new InvalidDataException($"A library background's {transfer.Command} moves the HUD's characters, which only Kraid's list copies.");
             HudTileAtlas hud = artwork.HudArt
                 ?? throw new InvalidOperationException("Kraid's library background moves the HUD's characters, which have no installed artwork.");
-            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.SourceAddress), BgCharacterSet.KraidLayer3, 0,
+            artwork.Backgrounds.Bind(RoomBgArtwork.Library(transfer.Source), BgCharacterSet.KraidLayer3, 0,
                 hud.Bytes.Span[..HudTileAtlasFormat.CharacterByteCount]);
             return true;
         }

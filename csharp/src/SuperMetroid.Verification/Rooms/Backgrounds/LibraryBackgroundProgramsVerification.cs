@@ -1,12 +1,16 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
-/// <summary>Validates typed library background commands against the native bank $8F byte stream.</summary>
+/// <summary>
+/// Validates the named library background commands against the native bank $8F byte stream (#1414): each command,
+/// source and destination is the one the cartridge's word, address and VRAM word decode to.
+/// </summary>
 internal static class LibraryBackgroundProgramsVerification
 {
     /// <summary>Independently decode every pinned native command and compare typed operands.</summary>
@@ -18,19 +22,23 @@ internal static class LibraryBackgroundProgramsVerification
             ushort cursor = program.Pointer;
             foreach (LibraryBackgroundInstruction instruction in program.Instructions)
             {
-                AssertEqual((ushort)instruction.Command, ReadWord(cursor),
+                AssertEqual(LibraryBackgroundOperandDecoding.Word(instruction.Command), ReadWord(cursor),
                     $"library BG $8F:{program.Pointer:X4} opcode at $8F:{cursor:X4}");
                 cursor = unchecked((ushort)(cursor + sizeof(ushort)));
                 switch (instruction.Command)
                 {
-                    case LibraryBackgroundCommand.TransferToVram:
-                    case LibraryBackgroundCommand.TransferToVramForKraid:
+                    case LibraryBackgroundCommand.Transfer:
+                    case LibraryBackgroundCommand.TransferForKraid:
                         CheckTransfer();
                         break;
-                    case LibraryBackgroundCommand.DecompressToWorkRam:
-                        AssertEqual(instruction.SourceAddress, ReadLong(cursor),
-                            $"library BG $8F:{program.Pointer:X4} compressed source");
-                        AssertEqual(instruction.StagingOffset,
+                    case LibraryBackgroundCommand.Decompress:
+                        AssertEqual(LibraryBackgroundSourceKind.Tilemap, instruction.Source.Kind,
+                            $"library BG $8F:{program.Pointer:X4} decompresses a named tilemap");
+                        AssertEqual(LibraryBackgroundOperandDecoding.Address(instruction.Source), ReadLong(cursor),
+                            $"library BG $8F:{program.Pointer:X4} compressed source {instruction.Source}");
+                        AssertEqual(LibraryBackgroundDestination.TilemapStaging, instruction.Destination,
+                            $"library BG $8F:{program.Pointer:X4} decompresses into the tilemap staging");
+                        AssertEqual(LibraryBackgroundOperandDecoding.TilemapStagingOffset,
                             ReadWord(unchecked((ushort)(cursor + 3))),
                             $"library BG $8F:{program.Pointer:X4} WRAM destination");
                         cursor = unchecked((ushort)(cursor + 5));
@@ -45,7 +53,6 @@ internal static class LibraryBackgroundProgramsVerification
                     case LibraryBackgroundCommand.ClearBg2:
                     case LibraryBackgroundCommand.ClearBg2ForKraid:
                         break;
-                    case LibraryBackgroundCommand.End:
                     default:
                         throw new InvalidDataException(
                             $"Unexpected compiled library BG command {instruction.Command}.");
@@ -54,9 +61,9 @@ internal static class LibraryBackgroundProgramsVerification
 
                 void CheckTransfer()
                 {
-                    AssertEqual(instruction.SourceAddress, ReadLong(cursor),
-                        $"library BG $8F:{program.Pointer:X4} transfer source");
-                    AssertEqual(instruction.FirstWord,
+                    AssertEqual(LibraryBackgroundOperandDecoding.Address(instruction.Source), ReadLong(cursor),
+                        $"library BG $8F:{program.Pointer:X4} transfer source {instruction.Source}");
+                    AssertEqual(LibraryBackgroundOperands.DestinationWord(instruction.Destination),
                         ReadWord(unchecked((ushort)(cursor + 3))),
                         $"library BG $8F:{program.Pointer:X4} VRAM destination");
                     AssertEqual(instruction.ByteCount,
@@ -66,7 +73,7 @@ internal static class LibraryBackgroundProgramsVerification
                 }
             }
 
-            AssertEqual((ushort)LibraryBackgroundCommand.End, ReadWord(cursor),
+            AssertEqual(LibraryBackgroundOperandDecoding.EndCommandWord, ReadWord(cursor),
                 $"library BG $8F:{program.Pointer:X4} terminator");
         }
 
@@ -79,13 +86,13 @@ internal static class LibraryBackgroundProgramsVerification
 
         ushort ReadWord(ushort pointer)
         {
-            int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
+            int address = LibraryBackgroundOperandDecoding.CommandListBank | pointer;
             return unchecked(SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
         }
 
         int ReadLong(ushort pointer)
         {
-            int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
+            int address = LibraryBackgroundOperandDecoding.CommandListBank | pointer;
             return (int)new SnesAddress(CompiledLibraryBackgroundProgramsRomByte(bus, address + 2),
                 SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
         }

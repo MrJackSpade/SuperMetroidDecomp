@@ -35,7 +35,7 @@ internal static class RoomAssetJsonContractsVerification
             RoomJsonFileContract[] contracts =
             [
                 new("backgrounds", installed.RoomBackgroundTilemapDirectory, RoomBackgroundTilemapArtworkFiles.ManifestFileName,
-                    (stock, edited) => RoomBackgroundTilemapArtworkFiles.Load(stock, edited).ContentIdentity),
+                    (stock, edited) => RoomBackgroundTilemapArtworkFiles.ContentIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock, edited))),
                 new("skies", installed.RoomBackgroundTilemapDirectory, RoomSkyTilemapFormat.ManifestFileName,
                     (stock, edited) => RoomSkyTilemapArtworkFiles.Load(stock, edited).ContentIdentity),
                 new("metatiles", installed.RoomMetatileDirectory, RoomMetatileArtworkFiles.ManifestFileName,

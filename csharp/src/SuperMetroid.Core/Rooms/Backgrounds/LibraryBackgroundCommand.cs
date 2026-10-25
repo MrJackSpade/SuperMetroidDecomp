@@ -1,22 +1,23 @@
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
-/// <summary>Bank-$82 command words accepted by room library-background lists.</summary>
-public enum LibraryBackgroundCommand : ushort
+/// <summary>
+/// The operations a room's library-background list performs. Values are arbitrary identities (#1414); extraction
+/// translates the cartridge's command words, and a list's end is the end of its instructions.
+/// </summary>
+public enum LibraryBackgroundCommand
 {
-    /// <summary>Terminate the command list.</summary>
-    End = 0x0000,
-    /// <summary>Transfer a parameterized ROM range to VRAM.</summary>
-    TransferToVram = 0x0002,
-    /// <summary>Decompress a parameterized ROM stream into work RAM.</summary>
-    DecompressToWorkRam = 0x0004,
-    /// <summary>Fill and upload the shared BG3 FX tilemap.</summary>
-    ClearFxTilemap = 0x0006,
-    /// <summary>Transfer to VRAM and select Kraid's BG3 character base.</summary>
-    TransferToVramForKraid = 0x0008,
-    /// <summary>Clear the ordinary BG2 tilemap pages.</summary>
-    ClearBg2 = 0x000a,
-    /// <summary>Clear BG2 and its additional Kraid page.</summary>
-    ClearBg2ForKraid = 0x000c,
-    /// <summary>Execute the following transfer only for a matching door pointer.</summary>
-    TransferForDoor = 0x000e,
+    /// <summary>Copy a source to its destination.</summary>
+    Transfer = 1,
+    /// <summary>Decompress a background tilemap into the tilemap staging.</summary>
+    Decompress,
+    /// <summary>Fill and copy the shared layer-3 effect tilemap.</summary>
+    ClearFxTilemap,
+    /// <summary>Copy a source to its destination and move the HUD's characters to Kraid's base.</summary>
+    TransferForKraid,
+    /// <summary>Clear the background layer's two tilemap pages.</summary>
+    ClearBg2,
+    /// <summary>Clear the background layer's pages and Kraid's additional pages.</summary>
+    ClearBg2ForKraid,
+    /// <summary>Copy a source to its destination only when the room was entered through the instruction's door.</summary>
+    TransferForDoor,
 }

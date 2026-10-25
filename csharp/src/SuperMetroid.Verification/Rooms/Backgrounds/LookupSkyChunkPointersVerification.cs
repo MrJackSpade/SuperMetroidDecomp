@@ -6,9 +6,24 @@ using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
-/// <summary>Compares compiled land and ocean sky chunk pointers and the sky rows they select with native bank-$88 tables.</summary>
+/// <summary>
+/// Compares the land and ocean sky chunks' pages and the sky rows they select with the native bank-$88 tables (#1414):
+/// each chunk shows the page its native word names, and a chunk whose word names no page shows nothing.
+/// </summary>
 internal static class LookupSkyChunkPointersVerification
 {
+    /// <summary><c>$88:AD9C</c>, the land sky chunk pointer table the scrolling-sky room main reads.</summary>
+    private const int LandTable = 0x88ad9c;
+
+    /// <summary><c>$88:ADA6</c>, the ocean sky chunk pointer table <c>RoomMainAsm_ScrollingSkyOcean</c> passes.</summary>
+    private const int OceanTable = 0x88ada6;
+
+    /// <summary><c>$8A:B180</c>, the first sky page a chunk word can name.</summary>
+    private const int FirstPageWord = 0xb180;
+
+    /// <summary>The bytes of one sky page: the stride between the words that name consecutive pages.</summary>
+    private const int PageBytes = 0x800;
+
     /// <summary>Checks the land sky table and the rows it selects.</summary>
     internal static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land));
@@ -17,28 +32,40 @@ internal static class LookupSkyChunkPointersVerification
     internal static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean));
 
-    /// <summary>Checks reachable and adjacent pointer indices, then the row every vertical position shows.</summary>
+    /// <summary>
+    /// Checks the page every reachable chunk index names, including the adjacent data and code the ocean table and
+    /// index 255 read, then the row every vertical position shows.
+    /// </summary>
     private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table)
     {
-        ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | (((int)table + 2 * index) & 0xffff));
+        int tableAddress = table == ScrollingSkyChunkTable.Land ? LandTable : OceanTable;
+        ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | ((tableAddress + 2 * index) & 0xffff));
+        int NativePage(int index)
+        {
+            int offset = Original(index) - FirstPageWord;
+            return offset >= 0 && offset % PageBytes == 0 && offset / PageBytes < RoomSkyTilemapFormat.PageCount ? offset / PageBytes : -1;
+        }
         for (int index = 0; index <= 256; index++)
         {
             if (index is < 9 or 255)
-                AssertEqual(Original(index), ScrollingSkyChunkDefinitions.Get(table, index),
-                    "Sky original pointer including adjacent data/code");
+            {
+                bool selects = ScrollingSkyChunks.TryGetPage(table, index, out int page);
+                AssertEqual(NativePage(index), selects ? page : -1,
+                    $"Sky chunk {index} shows the page its native word names, or none for adjacent data/code");
+            }
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunkDefinitions.Get(table, index),
+                AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunks.TryGetPage(table, index, out _),
                     "Sky rejects unreachable indices");
         }
         foreach (int index in new[] { int.MinValue, -1, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunkDefinitions.Get(table, index),
+            AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunks.TryGetPage(table, index, out _),
                 "Sky int index endpoints reject");
-        foreach (int invalidTable in new[] { int.MinValue, 0, (int)table - 1, (int)table + 1, int.MaxValue })
+        foreach (int invalidTable in new[] { int.MinValue, 0, (int)ScrollingSkyChunkTable.Ocean + 1, int.MaxValue })
         foreach (int index in new[] { -1, 0, 8, 255 })
         {
             var exception = AssertThrows<ArgumentOutOfRangeException>(
-                () => ScrollingSkyChunkDefinitions.Get((ScrollingSkyChunkTable)invalidTable, index), "Unknown sky table rejects first");
-            AssertEqual("pointerTable", exception.ParamName, "Table rejection precedes index handling");
+                () => ScrollingSkyChunks.TryGetPage((ScrollingSkyChunkTable)invalidTable, index, out _), "Unknown sky table rejects first");
+            AssertEqual("table", exception.ParamName, "Table rejection precedes index handling");
         }
 
         // Each 8-pixel row reads its chunk's page at the row's offset (#1347); a chunk whose native word names no page
@@ -46,11 +73,10 @@ internal static class LookupSkyChunkPointersVerification
         SkyTilemap rows = RoomSkyTilemapFixtures.Numbered().Tilemap(table);
         for (int row = 0; row < SkyTilemap.Rows; row++)
         {
-            int offset = Original(row / 32) - 0xb180;
-            bool page = offset >= 0 && offset % 0x800 == 0 && offset / 0x800 < 7;
-            AssertEqual(page, rows.RowShown(row), $"Sky row {row} shows exactly when its native chunk names a page");
-            for (int column = 0; page && column < SkyTilemap.Columns; column++)
-                AssertEqual(RoomSkyTilemapFixtures.NumberedWord(offset / 0x800, row % 32 * 32 + column), rows.Words[row * SkyTilemap.Columns + column],
+            int page = NativePage(row / 32);
+            AssertEqual(page >= 0, rows.RowShown(row), $"Sky row {row} shows exactly when its native chunk names a page");
+            for (int column = 0; page >= 0 && column < SkyTilemap.Columns; column++)
+                AssertEqual(RoomSkyTilemapFixtures.NumberedWord(page, row % 32 * 32 + column), rows.Words[row * SkyTilemap.Columns + column],
                     $"Sky row {row} column {column} reads its native page");
         }
     }

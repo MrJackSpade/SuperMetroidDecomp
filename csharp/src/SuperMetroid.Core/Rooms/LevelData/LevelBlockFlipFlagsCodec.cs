@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 internal static class LevelBlockFlipFlagsCodec
 {
     /// <summary>The level-word bits that store <paramref name="flags"/>.</summary>
-    internal static ushort ToNativeWord(this LevelBlockFlipFlags flags) => (ushort)flags;
+    internal static ushort ToLevelWordBits(this LevelBlockFlipFlags flags) => (ushort)flags;
 }

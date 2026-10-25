@@ -29,7 +29,7 @@ public sealed class FloorMap
     /// <param name="cells">Exactly <see cref="Cells"/> tile numbers, row-major.</param>
     /// <param name="tileset">The room tileset whose Mode 7 characters the map's tile numbers select: its artwork binding.</param>
     /// <param name="tiles">The tileset's pre-coloured tiles the map draws from (#1392).</param>
-    public FloorMap(ReadOnlySpan<byte> cells, TilesetDefinition tileset, Mode7TileSheet tiles)
+    public FloorMap(ReadOnlySpan<byte> cells, TilesetDefinition tileset, FloorTileSheet tiles)
     {
         Ensure.LengthEqual(cells, Cells);
         this.cells = cells.ToArray();
@@ -38,7 +38,7 @@ public sealed class FloorMap
     }
 
     /// <summary>The tileset's pre-coloured tiles the map draws from (#1392).</summary>
-    public Mode7TileSheet Tiles { get; }
+    public FloorTileSheet Tiles { get; }
 
     /// <summary>The room tileset whose Mode 7 characters the map's tile numbers select.</summary>
     public TilesetDefinition Tileset { get; }
@@ -58,5 +58,5 @@ public sealed class FloorMap
     public IReadOnlySet<byte> NamedTiles => named ??= [.. cells];
 
     /// <summary>The floor the next frame shows, drawn from the tileset's pre-coloured tiles; shared until the next write.</summary>
-    public AffineFloor Publish() => published ??= AffineFloor.Of(cells, Mode7TilePictures.Of(Tiles));
+    public AffineFloor Publish() => published ??= AffineFloor.Of(cells, FloorTilePictures.Of(Tiles));
 }

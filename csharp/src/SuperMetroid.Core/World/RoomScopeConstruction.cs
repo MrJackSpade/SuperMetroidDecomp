@@ -153,9 +153,8 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, CartridgeRoomHe
     private HashSet<BgArtworkIdentity> LoadedArtwork(LibraryBackgroundProgram program) =>
     [
         .. RoomLoadArtwork(),
-        .. program.Instructions.Where(instruction => instruction.Command is LibraryBackgroundCommand.TransferToVram
-            or LibraryBackgroundCommand.TransferToVramForKraid or LibraryBackgroundCommand.TransferForDoor)
-            .Select(instruction => RoomBgArtwork.Library(instruction.SourceAddress)),
+        .. program.Instructions.Where(instruction => instruction.Transfers)
+            .Select(instruction => RoomBgArtwork.Library(instruction.Source)),
     ];
 
     /// <summary>The artwork the room's own load binds: its common room elements and tileset.</summary>

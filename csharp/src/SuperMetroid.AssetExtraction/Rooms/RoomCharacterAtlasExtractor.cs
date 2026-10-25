@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -25,7 +24,7 @@ public static class RoomCharacterAtlasExtractor
         var files = new Dictionary<string, byte[]>();
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomCharacterAtlasFormat.CreFileName,
-            SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreCharactersAddress));
+            RoomTilesetSourceDefinitions.CreCharacters);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet set = RoomTilesetDefinitions.Get(graphicsSet).Characters;

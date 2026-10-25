@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 internal static class TitleScreenTiles
 {
     /// <summary>The title's tiles with Baby Metroid page <paramref name="babySourcePage"/> loaded.</summary>
-    internal static Mode7TilePictures Of(InstalledSpriteSheets sheets, int babySourcePage)
+    internal static FloorTilePictures Of(InstalledSpriteSheets sheets, int babySourcePage)
     {
         Ensure.NotNull(sheets);
         int pageTiles = TitleSequenceRomData.Transfers.BabyCharacterPageByteCount / Mode7CharacterSheet.TileBytes;

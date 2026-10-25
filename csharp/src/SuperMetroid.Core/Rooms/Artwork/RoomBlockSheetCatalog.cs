@@ -18,10 +18,10 @@ public sealed class RoomBlockSheetCatalog
     public RoomBlockSheetCatalog(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
         IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords,
         IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
-        IReadOnlyDictionary<TilesetDefinition, Mode7TileSheet> floorTiles)
+        IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> floorTiles)
     {
         FloorTiles = Ensure.NotNull(floorTiles);
-        foreach ((TilesetDefinition tileset, Mode7TileSheet tiles) in floorTiles)
+        foreach ((TilesetDefinition tileset, FloorTileSheet tiles) in floorTiles)
         {
             if (tiles.Tileset != tileset)
                 throw new ArgumentException($"{tiles.Name} is filed under {tileset}.", nameof(floorTiles));
@@ -78,13 +78,13 @@ public sealed class RoomBlockSheetCatalog
     public RoomAnimatedCharacters AnimationsOf(TilesetDefinition tileset) =>
         Animations.TryGetValue(tileset, out RoomAnimatedCharacters? animations) ? animations : RoomAnimatedCharacters.None;
 
-    /// <summary>The Mode 7 tiles of each Ceres tileset.</summary>
-    public IReadOnlyDictionary<TilesetDefinition, Mode7TileSheet> FloorTiles { get; }
+    /// <summary>The floor tiles of each Ceres tileset.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> FloorTiles { get; }
 
-    /// <summary>The Mode 7 tiles of Ceres tileset <paramref name="tileset"/>.</summary>
-    /// <exception cref="InvalidDataException">No Mode 7 tiles are installed for the tileset.</exception>
-    public Mode7TileSheet Mode7(TilesetDefinition tileset) =>
-        FloorTiles.TryGetValue(tileset, out Mode7TileSheet? tiles) ? tiles : throw new InvalidDataException($"No Mode 7 tiles are installed for {tileset}.");
+    /// <summary>The floor tiles of Ceres tileset <paramref name="tileset"/>.</summary>
+    /// <exception cref="InvalidDataException">No floor tiles are installed for the tileset.</exception>
+    public FloorTileSheet FloorTilesOf(TilesetDefinition tileset) =>
+        FloorTiles.TryGetValue(tileset, out FloorTileSheet? tiles) ? tiles : throw new InvalidDataException($"No floor tiles are installed for {tileset}.");
 
     /// <summary>The message box images of each tileset's rooms.</summary>
     public IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> MessageBoxes { get; }
@@ -115,7 +115,7 @@ public sealed class RoomBlockSheetCatalog
             foreach (ushort word in background.TilemapWords)
                 content.Append("word", word);
         }
-        foreach (Mode7TileSheet tiles in FloorTiles.Values.OrderBy(tiles => tiles.Name, StringComparer.Ordinal))
+        foreach (FloorTileSheet tiles in FloorTiles.Values.OrderBy(tiles => tiles.Name, StringComparer.Ordinal))
         {
             content.AppendName("mode7", tiles.Name);
             tiles.Sheet.AppendIdentity(content);

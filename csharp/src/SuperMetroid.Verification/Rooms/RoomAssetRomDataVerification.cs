@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -29,9 +30,9 @@ internal static class RoomAssetRomDataVerification
         ValidateLibraryBackgroundClear(LibraryBackgroundStagingDefinitions.ClearFx, "clear FX");
         ValidateLibraryBackgroundClear(LibraryBackgroundStagingDefinitions.ClearBg2, "clear BG2");
         AssertEqual(
-            RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionsByteCount,
-            RoomAssetRomDataGraphicsLayoutTooling.CreBlockDefinitionCount *
-                RoomAssetRomData.GraphicsLayout.BytesPerBlockDefinition,
+            RoomGraphicsLayoutTooling.CreBlockDefinitionsByteCount,
+            RoomGraphicsLayoutTooling.CreBlockDefinitionCount *
+                RoomMetatileFormat.BytesPerBlock,
             "CRE block-table geometry");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -67,20 +68,20 @@ internal static class RoomAssetRomDataVerification
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             TilesetDefinition compiled = RoomTilesetDefinitions.Get(graphicsSet);
-            int pointerAddress = RoomAssetRomData.Tilesets.PointerTableAddress +
+            int pointerAddress = RoomTilesetTableConstants.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
-            int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | pointer;
+            int definitionAddress = RoomTilesetTableConstants.DefinitionBank | pointer;
             AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
-                    definitionAddress + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset),
+                    definitionAddress + RoomTilesetTableConstants.BlockDefinitionsAddressOffset),
                 compiled.BlockDefinitionsAddress,
                 $"graphics set ${graphicsSet:X2} compiled block source");
             AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
-                    definitionAddress + RoomAssetRomData.Tilesets.CharacterAddressOffset),
+                    definitionAddress + RoomTilesetTableConstants.CharacterAddressOffset),
                 compiled.CharacterAddress,
                 $"graphics set ${graphicsSet:X2} compiled character source");
             AssertEqual(RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
-                    definitionAddress + RoomAssetRomData.Tilesets.PaletteAddressOffset),
+                    definitionAddress + RoomTilesetTableConstants.PaletteAddressOffset),
                 compiled.PaletteAddress,
                 $"graphics set ${graphicsSet:X2} compiled palette source");
         }
@@ -89,19 +90,19 @@ internal static class RoomAssetRomDataVerification
 
         foreach (byte graphicsSet in graphicsSets)
         {
-            int pointerAddress = RoomAssetRomData.Tilesets.PointerTableAddress +
+            int pointerAddress = RoomTilesetTableConstants.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
             ushort definitionPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
-            int definitionAddress = RoomAssetRomData.Tilesets.DefinitionBank | definitionPointer;
+            int definitionAddress = RoomTilesetTableConstants.DefinitionBank | definitionPointer;
             int blockAddress = RomDataReader.ReadLongFixedBank(
                 CartridgeImportSource.Require(bus),
-                definitionAddress + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset);
+                definitionAddress + RoomTilesetTableConstants.BlockDefinitionsAddressOffset);
             int characterAddress = RomDataReader.ReadLongFixedBank(
                 CartridgeImportSource.Require(bus),
-                definitionAddress + RoomAssetRomData.Tilesets.CharacterAddressOffset);
+                definitionAddress + RoomTilesetTableConstants.CharacterAddressOffset);
             int paletteAddress = RomDataReader.ReadLongFixedBank(
                 CartridgeImportSource.Require(bus),
-                definitionAddress + RoomAssetRomData.Tilesets.PaletteAddressOffset);
+                definitionAddress + RoomTilesetTableConstants.PaletteAddressOffset);
 
             AssertTrue(RomDataReader.Decompress(bus, blockAddress).Length > 0,
                 $"graphics set ${graphicsSet:X2} block stream is in the retail ROM");
@@ -109,7 +110,7 @@ internal static class RoomAssetRomDataVerification
                 $"graphics set ${graphicsSet:X2} character stream is in the retail ROM");
             AssertTrue(
                 RomDataReader.Decompress(bus, paletteAddress).Length >=
-                    RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount,
+                    RoomStaticPaletteFormat.ByteCount,
                 $"graphics set ${graphicsSet:X2} has the complete background palette range");
         }
 
@@ -164,14 +165,14 @@ internal static class RoomAssetRomDataVerification
         IReadOnlyDictionary<string, byte[]> files = RoomCharacterAtlasExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {
-            [RoomCharacterAtlasFormat.CreFileName] = RoomAssetRomData.Tilesets.CreCharactersAddress,
+            [RoomCharacterAtlasFormat.CreFileName] = (int)RoomTilesetSourceDefinitions.CreCharacters,
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             int address = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
             sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
         }
-        int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
+        int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
         sources[RoomCharacterAtlasFormat.SourceFileName(ghostSource)] = ghostSource;
         AssertEqual(sources.Count, files.Count, "one PNG per distinct retail room-character source");
 
@@ -278,13 +279,13 @@ internal static class RoomAssetRomDataVerification
         string description)
     {
         AssertEqual(
-            RoomAssetRomData.LibraryBackground.WorkRamBank | transfer.WorkRamDestination,
+            LibraryBackgroundListConstants.WorkRamBank | transfer.WorkRamDestination,
             transfer.WorkRamSourceAddress,
             $"{description} WRAM source corresponds to its fill destination");
         AssertTrue((transfer.ByteCount & 1) == 0,
             $"{description} transfer contains complete words");
         AssertTrue(transfer.WorkRamDestination + transfer.ByteCount <=
-            RoomAssetRomData.LibraryBackground.BankByteCount,
+            LibraryBackgroundListConstants.BankByteCount,
             $"{description} transfer remains in bank $7E");
         AssertTrue(transfer.VramDestination.Word + transfer.ByteCount / 2 <= 0x8000,
             $"{description} transfer remains in 64-KiB VRAM");

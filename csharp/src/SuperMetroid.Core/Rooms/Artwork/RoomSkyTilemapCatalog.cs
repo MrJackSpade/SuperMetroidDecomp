@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>Seven contiguous native scrolling-sky tilemap pages, selected by host artwork.</summary>
 public sealed class RoomSkyTilemapCatalog
 {
-    /// <summary>Owned contiguous bytes of the seven selected bank-$8A sky pages.</summary>
+    /// <summary>Owned contiguous bytes of the seven selected sky pages, in scrolling order.</summary>
     private readonly byte[] pages;
 
     /// <summary>The land rows, built when first shown.</summary>
@@ -15,7 +15,7 @@ public sealed class RoomSkyTilemapCatalog
     /// <summary>The ocean rows, built when first shown.</summary>
     private SkyTilemap? ocean;
 
-    /// <summary>Copies and validates the seven scrolling-sky pages in native source order.</summary>
+    /// <summary>Copies and validates the seven scrolling-sky pages in scrolling order.</summary>
     /// <param name="selectedPages">Exactly seven 32-by-32 compiled BG tilemap pages.</param>
     public RoomSkyTilemapCatalog(IReadOnlyList<RoomBackgroundTilemapAtlas> selectedPages)
     {
@@ -58,24 +58,17 @@ public sealed class RoomSkyTilemapCatalog
             RoomSkyTilemapFormat.RowByteCount);
     }
 
-    /// <summary>Resolves a whole aligned page from installed artwork.</summary>
-    /// <param name="sourceAddress">Full 24-bit bank-$8A source address within the contiguous seven-page range.</param>
-    /// <param name="byteCount">One complete page.</param>
-    /// <param name="data">Receives the matching immutable slice when the address belongs to this catalog.</param>
-    /// <returns><see langword="true"/> when the source lies within the installed sky range; otherwise <see langword="false"/>.</returns>
-    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    /// <summary>The installed tile words of sky page <paramref name="page"/>, which a library background copies whole.</summary>
+    /// <param name="page">The page, 0 through 6.</param>
+    /// <param name="byteCount">The bytes the copy moves: one complete page.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not a sky page.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="byteCount"/> is not one page.</exception>
+    public ReadOnlyMemory<byte> Page(int page, int byteCount)
     {
-        int offset = sourceAddress - RoomSkyTilemapFormat.FirstSourceAddress;
-        if ((uint)offset >= pages.Length)
-        {
-            data = default;
-            return false;
-        }
-        // Room setup uploads whole pages; the sky's rows are drawn from the pages directly (#1347).
-        if (offset % RoomSkyTilemapFormat.PageByteCount != 0 || byteCount != RoomSkyTilemapFormat.PageByteCount)
-            throw new InvalidDataException(
-                $"Scrolling-sky transfer ${sourceAddress:X6}+${byteCount:X} is not an aligned page.");
-        data = pages.AsMemory(offset, byteCount);
-        return true;
+        Ensure.BetweenInclusive(0, RoomSkyTilemapFormat.PageCount - 1, page);
+        // Room setup copies whole pages; the sky's rows are drawn from the pages directly (#1347).
+        if (byteCount != RoomSkyTilemapFormat.PageByteCount)
+            throw new InvalidDataException($"A scrolling-sky page copy of {byteCount} bytes is not one whole page.");
+        return pages.AsMemory(page * RoomSkyTilemapFormat.PageByteCount, byteCount);
     }
 }

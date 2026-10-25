@@ -58,7 +58,7 @@ internal static class Mode7SmokeTests
         }
         // A Ceres room's map drawn from seeded tile pictures (#1392), some rows recoloured by the scene, and from the
         // fixture's characters, with outside pixels transparent, as Ceres rooms show them, or character zero.
-        var pictured = new AffineFloor(map.Cells, Mode7TilePictures.Of(RoomBackgroundsFixtures.SeededMode7Tiles(random, palette)));
+        var pictured = new AffineFloor(map.Cells, FloorTilePictures.Of(RoomBackgroundsFixtures.SeededMode7Tiles(random, palette)));
         foreach (AffineFloor shown in new[] { map, pictured })
         foreach (int hud in new[] { 0, 32 })
         foreach (short scale in new short[] { 256, -113, 511 })

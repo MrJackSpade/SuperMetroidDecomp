@@ -28,9 +28,6 @@ internal static class LibraryBackgroundStagingDefinitions
     /// <summary>The bytes of the Tourian statue ghost's 48 uncompressed 4-bpp characters, which its list transfers whole.</summary>
     internal const int TourianStatueGhostByteCount = 0x0600;
 
-    /// <summary>Lowest full 24-bit address of cartridge ROM, from which a transfer reads installed artwork.</summary>
-    internal static readonly SnesAddress RomSourceAddressFloor = new(0x80, 0x0000);
-
     /// <summary>Command six's fill of the staging with the blank FX tile and its transfer to BG3's tilemap; no retail list runs it.</summary>
     internal static readonly LibraryBackgroundClear ClearFx = new((int)TilemapStagingAddress, 0x4000, 0x0f00,
         new SnesBgTilemapWord(0x184e), VramDmaDestination.FromNative(0x5880));

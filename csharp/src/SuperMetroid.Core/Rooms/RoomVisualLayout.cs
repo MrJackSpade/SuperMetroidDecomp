@@ -13,36 +13,36 @@ public sealed class RoomVisualLayout
     private readonly ushort[] background;
 
     /// <summary>Copies and validates both initial visual planes for one room-level source, rejecting mismatched dimensions and any collision/type bits in the artwork words.</summary>
-    /// <param name="sourceAddress">Room state's full 24-bit level-data source identity, used for artwork lookup rather than runtime cartridge access.</param>
+    /// <param name="levelSource">The level the room states share, as they name it, used for artwork lookup rather than runtime cartridge access.</param>
     /// <param name="size">Positive plane size in native 16-pixel blocks: the width is the row stride and each plane must contain width times height words.</param>
     /// <param name="foregroundVisualWords">Row-major BG1 words: block selector bits 0..9 and parent horizontal/vertical flip bits 10..11 only.</param>
     /// <param name="backgroundVisualWords">Row-major BG2 words with the same permitted bit fields; collision/type and BTS data are not supplied here.</param>
     /// <exception cref="ArgumentOutOfRangeException">The source is outside 24 bits or a dimension is nonpositive.</exception>
     /// <exception cref="InvalidDataException">A plane has the wrong word count or includes bits 12..15.</exception>
-    public RoomVisualLayout(int sourceAddress, Extent16<RoomBlocks> size,
+    public RoomVisualLayout(int levelSource, Extent16<RoomBlocks> size,
         ReadOnlySpan<ushort> foregroundVisualWords,
         ReadOnlySpan<ushort> backgroundVisualWords)
     {
-        if ((uint)sourceAddress > 0xffffff)
-            throw new ArgumentOutOfRangeException(nameof(sourceAddress));
+        if ((uint)levelSource > 0xffffff)
+            throw new ArgumentOutOfRangeException(nameof(levelSource));
         if (size.X <= 0 || size.Y <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Room layout dimensions must be positive.");
         int expected = size.Area;
         if (foregroundVisualWords.Length != expected || backgroundVisualWords.Length != expected)
             throw new InvalidDataException(
-                $"Room layout ${sourceAddress:X6} needs {expected} visual words in each plane.");
+                $"Room layout ${levelSource:X6} needs {expected} visual words in each plane.");
         if (HasCollisionBits(foregroundVisualWords) || HasCollisionBits(backgroundVisualWords))
             throw new InvalidDataException(
-                $"Room layout ${sourceAddress:X6} contains a collision/type bit in visual artwork.");
+                $"Room layout ${levelSource:X6} contains a collision/type bit in visual artwork.");
 
-        SourceAddress = sourceAddress;
+        LevelSource = levelSource;
         Size = size;
         foreground = foregroundVisualWords.ToArray();
         background = backgroundVisualWords.ToArray();
     }
 
-    /// <summary>Full 24-bit room-level source identity shared by room states using the same initial artwork allocation.</summary>
-    public int SourceAddress { get; }
+    /// <summary>The level the room states using the same initial artwork allocation share, as they name it.</summary>
+    public int LevelSource { get; }
     /// <summary>
     /// Size of each visual plane in native 16-pixel blocks rather than 8-pixel SNES characters: the width
     /// is the row stride; the height does not resize the compiled collision allocation.

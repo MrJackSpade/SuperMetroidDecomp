@@ -16,7 +16,7 @@ public static class RoomScrollStates
     /// Converts a cartridge-authored byte into its named state and reports the owning data
     /// source when an untranslated value enters a logical room cell.
     /// </summary>
-    public static RoomScrollState FromCartridge(byte value, string sourceContext)
+    public static RoomScrollState FromAuthoredByte(byte value, string sourceContext)
     {
         RoomScrollState state = (RoomScrollState)value;
         if (!Enum.IsDefined(typeof(RoomScrollState), state))

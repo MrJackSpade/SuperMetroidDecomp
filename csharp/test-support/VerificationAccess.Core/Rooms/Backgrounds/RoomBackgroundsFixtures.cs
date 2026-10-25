@@ -28,7 +28,7 @@ internal static class RoomBackgroundsFixtures
     internal static Layer3Cells BlankBg3() => Layer3CellsFixtures.Blank;
 
     /// <summary>Seeded Mode 7 tile pictures for a Ceres map whose drawing a check does not look at.</summary>
-    internal static Mode7TileSheet FloorTiles() => SeededMode7Tiles(new Random(0), new Bgr555[SnesPpuLayout.CgramColorCount]);
+    internal static FloorTileSheet FloorTiles() => SeededMode7Tiles(new Random(0), new Bgr555[SnesPpuLayout.CgramColorCount]);
 
     /// <summary>A Mode 7 floor of tile zero everywhere, showing nothing.</summary>
     internal static AffineFloor BlankMode7Floor() => new([.. new AffineFloorCell[AffineFloor.CellCount]], new FloorCharacters().Pictures());
@@ -201,13 +201,13 @@ internal static class RoomBackgroundsFixtures
     /// Seeded Mode 7 tile pictures (#1392): every tile's pixels seeded as <see cref="SeededPictures"/> seeds its sheets,
     /// even rows' standard colours <paramref name="scene"/>'s and odd rows' different.
     /// </summary>
-    internal static Mode7TileSheet SeededMode7Tiles(Random random, Bgr555[] scene)
+    internal static FloorTileSheet SeededMode7Tiles(Random random, Bgr555[] scene)
     {
-        var size = new Extent16<ImagePixels>(Mode7TileSheet.TilesPerRow * Mode7TileSheet.TilePixels,
-            Mode7TileSheet.Tiles / Mode7TileSheet.TilesPerRow * Mode7TileSheet.TilePixels);
-        SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [Mode7TileSheet.FrameName] = default },
+        var size = new Extent16<ImagePixels>(FloorTileSheet.TilesPerRow * FloorTileSheet.TilePixels,
+            FloorTileSheet.Tiles / FloorTileSheet.TilesPerRow * FloorTileSheet.TilePixels);
+        SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [FloorTileSheet.FrameName] = default },
             size, "seeded Mode 7 tiles", SpriteImageColours.FullPalette);
-        return new Mode7TileSheet(default, sheet, [.. Enumerable.Repeat((BgArtworkShown?)default(BgArtworkShown), Mode7TileSheet.Tiles)]);
+        return new FloorTileSheet(default, sheet, [.. Enumerable.Repeat((BgArtworkShown?)default(BgArtworkShown), FloorTileSheet.Tiles)]);
     }
 
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>

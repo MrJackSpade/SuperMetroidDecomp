@@ -551,7 +551,7 @@ internal sealed class RoomLoader
         // positions. Down's frame-zero probe restores the registers it moved, so only the
         // horizontal and upward setups leave new registers behind.
         if (direction != DoorDirection.Down)
-            _backgroundScroll.CalculateScrollRegisters();
+            _backgroundScroll.CalculateLayerScrolls();
         _player.Samus.Position = _doorOpeningScroll.SamusPosition;
         _room.Camera.PublishDoorSamusPosition(_player.Samus.Position.Whole);
         // Recreate the VRAM producer requests for IRQ progress already published
@@ -575,7 +575,7 @@ internal sealed class RoomLoader
         // The IRQ recomputes the scroll registers after each four-pixel step, except
         // during an upward door's first frames.
         if (state.RecalculatesScrollAfterAdvance)
-            _backgroundScroll.CalculateScrollRegisters();
+            _backgroundScroll.CalculateLayerScrolls();
 
         if (completed)
         {

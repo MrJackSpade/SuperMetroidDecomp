@@ -200,14 +200,13 @@ internal static class RoomBlockUploads
     {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
-            if (transfer.Command is not (LibraryBackgroundCommand.TransferToVram or LibraryBackgroundCommand.TransferToVramForKraid
-                or LibraryBackgroundCommand.TransferForDoor) || !BgCharacterWords.AmongTiles(transfer.FirstWord))
+            if (!transfer.Transfers || !BgCharacterWords.AmongTiles(LibraryBackgroundOperands.DestinationWord(transfer.Destination)))
                 continue;
-            if (transfer.Command != LibraryBackgroundCommand.TransferToVramForKraid || transfer.SourceAddress != HudTileAtlasFormat.SourceAddress
+            if (transfer.Command != LibraryBackgroundCommand.TransferForKraid || transfer.Source != LibraryBackgroundSource.HudCharacters
                 || transfer.ByteCount != HudTileAtlasFormat.CharacterByteCount)
                 throw new InvalidDataException(
-                    $"{state.Name}'s library background transfers ${transfer.SourceAddress:X6} over the block characters, which no installed character artwork names.");
-            yield return new BgCharacterPlacement(RoomBgArtwork.Library(transfer.SourceAddress), BgCharacterSet.KraidLayer3, 0,
+                    $"{state.Name}'s library background transfers {transfer.Source} over the block characters, which no installed character artwork names.");
+            yield return new BgCharacterPlacement(RoomBgArtwork.Library(transfer.Source), BgCharacterSet.KraidLayer3, 0,
                 inputs.Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
         }
     }
@@ -316,18 +315,19 @@ internal static class RoomBlockUploads
     {
         foreach (LibraryBackgroundInstruction transfer in state.Background?.Instructions ?? [])
         {
-            if (transfer.Command is not (LibraryBackgroundCommand.TransferToVram or LibraryBackgroundCommand.TransferToVramForKraid
-                or LibraryBackgroundCommand.TransferForDoor)
-                || transfer.FirstWord + transfer.ByteCount / sizeof(ushort) <= GameplayVramLayout.HudCharacters.Offset
-                || transfer.FirstWord >= GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count
-                || SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(transfer.SourceAddress)) == SnesDmaSourceKind.WorkRam
-                || inputs.Skies.TryResolve(transfer.SourceAddress, transfer.ByteCount, out _))
+            if (!transfer.Transfers)
                 continue;
-            ReadOnlyMemory<byte> characters = transfer.SourceAddress == HudTileAtlasFormat.SourceAddress
+            ushort firstWord = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
+            if (firstWord + transfer.ByteCount / sizeof(ushort) <= GameplayVramLayout.HudCharacters.Offset
+                || firstWord >= GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count
+                || transfer.Source.Kind is LibraryBackgroundSourceKind.TilemapStaging or LibraryBackgroundSourceKind.EnemyTilemapStaging
+                    or LibraryBackgroundSourceKind.SkyPage)
+                continue;
+            ReadOnlyMemory<byte> characters = transfer.Source == LibraryBackgroundSource.HudCharacters
                 ? inputs.Hud.Bytes[..transfer.ByteCount]
                 : throw new InvalidDataException(
-                    $"{state.Name}'s library background transfers ${transfer.SourceAddress:X6} over BG3's characters, which no installed character artwork names.");
-            yield return BgCharacterWords.Place(RoomBgArtwork.Library(transfer.SourceAddress), transfer.FirstWord, characters);
+                    $"{state.Name}'s library background transfers {transfer.Source} over BG3's characters, which no installed character artwork names.");
+            yield return BgCharacterWords.Place(RoomBgArtwork.Library(transfer.Source), firstWord, characters);
         }
     }
 

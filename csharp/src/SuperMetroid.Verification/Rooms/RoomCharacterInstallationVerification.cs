@@ -15,6 +15,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
@@ -84,18 +85,18 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(native.RoomCharacters),
                 "room override does not mutate stock artwork already loaded");
 
-            int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
+            int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
             string ghostName = RoomCharacterAtlasFormat.SourceFileName(ghostSource);
             string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
             byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
             AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
                 "installed statue-ghost PNG preserves every native character byte");
-            LibraryBackgroundSource ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
+            LibraryBackgroundNativeOperand ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(entry => entry.SourceAddress == ghostSource);
             AssertEqual(LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount,
                 (ghostTransfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires ghostTransfer.TransferByteCount.")), "statue-ghost library upload length");
-            AssertEqual(RoomAssetRomData.LibraryBackground.TourianStatueGhost.VramDestinationWord,
+            AssertEqual(LibraryBackgroundOperands.DestinationWord(LibraryBackgroundDestination.StatueGhostSpriteCharacters),
                 (ghostTransfer.VramDestination ?? throw new InvalidOperationException("Verification requires ghostTransfer.VramDestination.")), "statue-ghost library VRAM destination");
             var nativeGhostVram = new SnesVram();
             SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
@@ -191,17 +192,17 @@ internal static class RoomCharacterInstallationVerification
             string backgroundManifestPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
                 RoomBackgroundTilemapArtworkFiles.ManifestFileName);
             byte[] originalBackgroundManifest = File.ReadAllBytes(backgroundManifestPath);
-            int stockSource = RoomBackgroundTilemapSources.All[0];
-            int substitutedSource = stockSource + 1;
-            AssertTrue(!RoomBackgroundTilemapSources.Contains(substitutedSource),
-                "manifest substitution fixture uses an uncatalogued source");
+            // A manifest entry that names no background tilemap (#1414) is rejected.
+            const string substitutedTilemap = "NotABackgroundTilemap";
+            AssertTrue(!Enum.TryParse(substitutedTilemap, out RoomBackgroundTilemap _),
+                "manifest substitution fixture names no background tilemap");
             JsonNode alteredManifest = JsonNode.Parse(originalBackgroundManifest)
                 ?? throw new InvalidDataException("Installed background manifest is empty.");
             JsonObject manifestEntries = alteredManifest.Required("entries").AsObject();
-            string stockName = RoomBackgroundTilemapFormat.SourceFileName(stockSource);
-            string substitutedName = RoomBackgroundTilemapFormat.SourceFileName(substitutedSource);
+            string stockName = RoomBackgroundTilemapFormat.FileName(Enum.GetValues<RoomBackgroundTilemap>()[0]);
+            string substitutedName = "room-background-not-a-background-tilemap.json";
             JsonNode alteredEntry = manifestEntries.Required(stockName).DeepClone();
-            alteredEntry["sourceAddress"] = substitutedSource;
+            alteredEntry["tilemap"] = substitutedTilemap;
             manifestEntries.Remove(stockName);
             manifestEntries[substitutedName] = alteredEntry;
             try
@@ -211,21 +212,22 @@ internal static class RoomCharacterInstallationVerification
                 {
                     _ = installed.LoadRoomBackgroundTilemaps();
                     throw new InvalidOperationException(
-                        "Substituted background source was accepted by the installation loader.");
+                        "Substituted background tilemap was accepted by the installation loader.");
                 }
                 catch (InvalidDataException error)
                 {
-                    AssertTrue(error.Message.Contains("invalid source entry",
+                    AssertTrue(error.Message.Contains("invalid tilemap entry",
                             StringComparison.Ordinal),
-                        "substituted background source fails the compiled identity check");
+                        "substituted background tilemap fails the named identity check");
                 }
             }
             finally { File.WriteAllBytes(backgroundManifestPath, originalBackgroundManifest); }
             CartridgeRoomHeader ceres = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xdf8d);
             int backgroundSource = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&
-                    source.Command == LibraryBackgroundCommand.DecompressToWorkRam).SourceAddress;
-            string backgroundName = RoomBackgroundTilemapFormat.SourceFileName(backgroundSource);
+                    source.Command == LibraryBackgroundCommand.Decompress).SourceAddress;
+            string backgroundName = RoomBackgroundTilemapFormat.FileName(
+                LibraryBackgroundOperandDecoding.DecompressedSource(backgroundSource).Tilemap);
             var nativeBackgroundVram = new SnesVram();
             var stockBackgroundVram = new SnesVram();
             SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeBackgroundVram,
@@ -255,8 +257,7 @@ internal static class RoomCharacterInstallationVerification
             LibraryBackgroundInstruction landingSky = LibraryBackgroundProgramDefinitions.GetDoorTransfer(
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
                 LandingSiteRomData.LandingCutsceneDoorPointer);
-            int skyPage = (landingSky.SourceAddress -
-                RoomSkyTilemapFormat.FirstSourceAddress) / RoomSkyTilemapFormat.PageByteCount;
+            int skyPage = landingSky.Source.SkyPage;
             string skyName = RoomSkyTilemapFormat.FileName(skyPage);
             string skyStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory, skyName);
             AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is installed");

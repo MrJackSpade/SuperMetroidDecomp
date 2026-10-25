@@ -44,12 +44,12 @@ public sealed class RoomLevelStreamCatalog
     public string ContentIdentity { get; }
 
     /// <summary>Reads one complete decompressed native level stream by cartridge source identity.</summary>
-    /// <param name="sourceAddress">Full 24-bit level-data source identity selected by the room state.</param>
+    /// <param name="levelSource">The level the room state names.</param>
     /// <returns>The unmodified installed stream, including any native overread tail.</returns>
     /// <exception cref="InvalidDataException">The requested source is not installed; room loads never fall back to the ROM.</exception>
-    public ReadOnlyMemory<byte> Get(int sourceAddress) =>
-        streams.TryGetValue(sourceAddress, out ReadOnlyMemory<byte> stream)
+    public ReadOnlyMemory<byte> Get(int levelSource) =>
+        streams.TryGetValue(levelSource, out ReadOnlyMemory<byte> stream)
             ? stream
             : throw new InvalidDataException(
-                $"Installed room-level data lacks source ${sourceAddress:X6}.");
+                $"Installed room-level data lacks source ${levelSource:X6}.");
 }

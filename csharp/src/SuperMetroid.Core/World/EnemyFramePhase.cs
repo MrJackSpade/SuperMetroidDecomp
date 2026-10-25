@@ -120,7 +120,7 @@ internal sealed class EnemyFramePhase
                 // while eye/tentacle collision follows enemy positions. Publish those
                 // writes before the next accepted NMI latches the matching OAM frame.
                 // The room's fixed layer-two axes preserve them during camera scrolling.
-                _backgroundScroll.SetBg2ScrollRegisters(phantoon.Bg2Scroll);
+                _backgroundScroll.SetBg2Scroll(phantoon.Bg2Scroll);
             }
             if (result.CeresEscapeStarted)
             {

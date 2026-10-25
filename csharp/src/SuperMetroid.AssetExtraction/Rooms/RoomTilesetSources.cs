@@ -1,9 +1,9 @@
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -38,7 +38,7 @@ internal static class RoomTilesetSources
             Add(palettes, sets.Palette, Source(cartridge, entry, RoomTilesetSourceDefinitions.PalettePointerOffset));
         }
         characters.Add(RoomCharacterSet.TourianStatueGhost,
-            SnesAddress.FromBusAddress(RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress));
+            SnesAddress.FromBusAddress(RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters));
         return new(characters.ToFrozenDictionary(), blocks.ToFrozenDictionary(), palettes.ToFrozenDictionary());
     }
 

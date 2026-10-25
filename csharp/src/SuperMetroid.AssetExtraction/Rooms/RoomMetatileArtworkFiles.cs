@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -38,7 +37,7 @@ public static class RoomMetatileArtworkFiles
         foreach ((string name, RoomBlockSource source) in ExpectedSources())
         {
             SnesAddress address = source.Set is { } set ? tilesets.Blocks[set]
-                : SnesAddress.FromBusAddress(RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
+                : RoomTilesetSourceDefinitions.CreBlocks;
             byte[] json = files[name];
             int nativeLength = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
             RoomMetatileFormat.ValidateBlockCount(nativeLength);

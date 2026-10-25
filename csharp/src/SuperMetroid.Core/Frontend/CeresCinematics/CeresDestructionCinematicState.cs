@@ -54,13 +54,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>What the uploads' Mode 7 characters show (#1392), read when <see cref="floorTilesReadAt"/> uploads were recorded; artwork, never saved.</summary>
-    [NonSerialized] private Mode7TilePictures? uploadedFloorTiles;
+    [NonSerialized] private FloorTilePictures? uploadedFloorTiles;
 
     /// <summary>How many uploads were recorded when <see cref="uploadedFloorTiles"/> was read.</summary>
     [NonSerialized] private int floorTilesReadAt;
 
     /// <summary>What the Mode 7 characters the uploads leave show, read again only once another upload is made.</summary>
-    private Mode7TilePictures UploadedFloorTiles()
+    private FloorTilePictures UploadedFloorTiles()
     {
         if (uploadedFloorTiles is null || floorTilesReadAt != Uploads.Count)
         {

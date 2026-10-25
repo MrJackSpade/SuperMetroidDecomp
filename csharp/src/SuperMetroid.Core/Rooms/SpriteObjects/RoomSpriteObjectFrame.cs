@@ -23,7 +23,7 @@ internal enum RoomSpriteObjectFrame
     /// <summary><c>SpriteObjectSpritemaps_3D_DraygonFoamingAtTheMouth_7</c> at $B4:DD82.</summary>
     DraygonFoamingAtTheMouth7,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_2F_B4D594</c> at $B4:D594.</summary>
-    D594,
+    UnusedObject47,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_0_BeamCharge_0_B4CAC9</c> at $B4:CAC9.</summary>
     BeamCharge0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_0_BeamCharge_1_B4CAD0</c> at $B4:CAD0.</summary>
@@ -297,99 +297,99 @@ internal enum RoomSpriteObjectFrame
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_1A_1B_VerticalGate_7_B4CAB3</c> at $B4:CAB3.</summary>
     VerticalGate7,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_1E_0_B4C630</c> at $B4:C630.</summary>
-    C630,
+    UnusedObject30Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_1E_1_B4C637</c> at $B4:C637.</summary>
-    C637,
+    UnusedObject30Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_1E_2_B4C63E</c> at $B4:C63E.</summary>
-    C63E,
+    UnusedObject30Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_1F_0_B4C645</c> at $B4:C645.</summary>
-    C645,
+    UnusedObject31Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_1F_1_B4C645</c> at $B4:C64C.</summary>
-    C64C,
+    UnusedObject31Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_1F_2_B4C653</c> at $B4:C653.</summary>
-    C653,
+    UnusedObject31Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_20_0_B4C65A</c> at $B4:C65A.</summary>
-    C65A,
+    UnusedObject32Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_20_1_B4C661</c> at $B4:C661.</summary>
-    C661,
+    UnusedObject32Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_20_2_B4C668</c> at $B4:C668.</summary>
-    C668,
+    UnusedObject32Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_21_0_B4C66F</c> at $B4:C66F.</summary>
-    C66F,
+    UnusedObject33Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_21_1_B4C676</c> at $B4:C676.</summary>
-    C676,
+    UnusedObject33Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_21_2_B4C67D</c> at $B4:C67D.</summary>
-    C67D,
+    UnusedObject33Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_22_0_B4C684</c> at $B4:C684.</summary>
-    C684,
+    UnusedObject34Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_22_1_B4C68B</c> at $B4:C68B.</summary>
-    C68B,
+    UnusedObject34Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_22_2_B4C692</c> at $B4:C692.</summary>
-    C692,
+    UnusedObject34Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_23_0_B4C699</c> at $B4:C699.</summary>
-    C699,
+    UnusedObject35Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_23_1_B4C6A0</c> at $B4:C6A0.</summary>
-    C6A0,
+    UnusedObject35Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_23_2_B4C6A7</c> at $B4:C6A7.</summary>
-    C6A7,
+    UnusedObject35Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_24_0_B4C6AE</c> at $B4:C6AE.</summary>
-    C6AE,
+    UnusedObject36Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_24_1_B4C6B5</c> at $B4:C6B5.</summary>
-    C6B5,
+    UnusedObject36Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_24_2_B4C6BC</c> at $B4:C6BC.</summary>
-    C6BC,
+    UnusedObject36Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_25_0_B4C6C3</c> at $B4:C6C3.</summary>
-    C6C3,
+    UnusedObject37Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_25_1_B4C6CA</c> at $B4:C6CA.</summary>
-    C6CA,
+    UnusedObject37Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_25_2_B4C6D1</c> at $B4:C6D1.</summary>
-    C6D1,
+    UnusedObject37Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_0_B4D08B</c> at $B4:D08B.</summary>
-    D08B,
+    UnusedObject38Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_1_B4D0BA</c> at $B4:D0BA.</summary>
-    D0BA,
+    UnusedObject38Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_2_B4D0E9</c> at $B4:D0E9.</summary>
-    D0E9,
+    UnusedObject38Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_3_B4D118</c> at $B4:D118.</summary>
-    D118,
+    UnusedObject38Frame3,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_4_B4D147</c> at $B4:D147.</summary>
-    D147,
+    UnusedObject38Frame4,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_26_5_B4D176</c> at $B4:D176.</summary>
-    D176,
+    UnusedObject38Frame5,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_0_B4D1D4</c> at $B4:D1D4.</summary>
-    D1D4,
+    UnusedObject39Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_1_B4D1EF</c> at $B4:D1EF.</summary>
-    D1EF,
+    UnusedObject39Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_2_B4D20A</c> at $B4:D20A.</summary>
-    D20A,
+    UnusedObject39Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_3_B4D225</c> at $B4:D225.</summary>
-    D225,
+    UnusedObject39Frame3,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_27_4_B4D245</c> at $B4:D245.</summary>
-    D245,
+    UnusedObject39Frame4,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_0_B4D2B3</c> at $B4:D2B3.</summary>
-    D2B3,
+    UnusedObject40Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_1_B4D2E2</c> at $B4:D2E2.</summary>
-    D2E2,
+    UnusedObject40Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_2_B4D311</c> at $B4:D311.</summary>
-    D311,
+    UnusedObject40Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_3_B4D340</c> at $B4:D340.</summary>
-    D340,
+    UnusedObject40Frame3,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_4_B4D36F</c> at $B4:D36F.</summary>
-    D36F,
+    UnusedObject40Frame4,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_28_5_B4D39E</c> at $B4:D39E.</summary>
-    D39E,
+    UnusedObject40Frame5,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_0_B4D3FC</c> at $B4:D3FC.</summary>
-    D3FC,
+    UnusedObject41Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_1_B4D417</c> at $B4:D417.</summary>
-    D417,
+    UnusedObject41Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_2_B4D432</c> at $B4:D432.</summary>
-    D432,
+    UnusedObject41Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_3_B4D44D</c> at $B4:D44D.</summary>
-    D44D,
+    UnusedObject41Frame3,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_29_4_B4D46D</c> at $B4:D46D.</summary>
-    D46D,
+    UnusedObject41Frame4,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_2A_B4D2AC</c> at $B4:D2AC.</summary>
-    D2AC,
+    UnusedObject42,
     /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_0</c> at $B4:D4BE.</summary>
     Puromi0,
     /// <summary><c>SpriteObjectSpritemaps_2B_Puromi_1</c> at $B4:D4C5.</summary>
@@ -527,21 +527,21 @@ internal enum RoomSpriteObjectFrame
     /// <summary><c>SpriteObjectSpritemaps_39_YappingMawBaseFacingUp</c> at $B4:D8B6.</summary>
     YappingMawBaseFacingUp,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_0_B4D8BD</c> at $B4:D8BD.</summary>
-    D8BD,
+    UnusedObject58Frame0,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_1_B4D905</c> at $B4:D905.</summary>
-    D905,
+    UnusedObject58Frame1,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_2_B4D957</c> at $B4:D957.</summary>
-    D957,
+    UnusedObject58Frame2,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_3_B4D9A9</c> at $B4:D9A9.</summary>
-    D9A9,
+    UnusedObject58Frame3,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_4_B4D9FB</c> at $B4:D9FB.</summary>
-    D9FB,
+    UnusedObject58Frame4,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_5_B4DA48</c> at $B4:DA48.</summary>
-    DA48,
+    UnusedObject58Frame5,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_6_B4DA90</c> at $B4:DA90.</summary>
-    DA90,
+    UnusedObject58Frame6,
     /// <summary><c>UNUSED_SpriteObjectSpritemaps_3A_7_B4DAD8</c> at $B4:DAD8.</summary>
-    DAD8,
+    UnusedObject58Frame7,
     /// <summary><c>SpriteObjectSpritemaps_3B_EvirFacingLeft_0</c> at $B4:DB42.</summary>
     EvirFacingLeft0,
     /// <summary><c>SpriteObjectSpritemaps_3B_EvirFacingLeft_1</c> at $B4:DB80.</summary>

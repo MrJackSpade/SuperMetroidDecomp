@@ -107,7 +107,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>What the Mode 7 view's tiles show (#1392); artwork, never saved.</summary>
-    [NonSerialized] private Mode7TilePictures? floorTiles;
+    [NonSerialized] private FloorTilePictures? floorTiles;
 
     /// <summary>What the caption's characters show (#1392); artwork, never saved.</summary>
     [NonSerialized] private ScreenLayerPictures? captionTiles;

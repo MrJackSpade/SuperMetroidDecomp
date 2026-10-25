@@ -49,10 +49,10 @@ internal sealed class EndingScreen
 
     /// <summary>What the uploads' Mode 7 characters show (#1392), until the uploads change.</summary>
     [NonSerialized]
-    private Mode7TilePictures? floorTiles;
+    private FloorTilePictures? floorTiles;
 
     /// <summary>What the uploads' Mode 7 characters show (#1392).</summary>
-    internal Mode7TilePictures FloorTiles(InstalledSpriteSheets sheets)
+    internal FloorTilePictures FloorTiles(InstalledSpriteSheets sheets)
     {
         if (!ReferenceEquals(tileSheets, sheets))
         {

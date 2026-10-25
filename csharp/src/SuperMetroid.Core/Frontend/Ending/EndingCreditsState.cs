@@ -480,7 +480,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal byte[] FloorCells() => screen.FloorCells(Stage.FloorArtwork, Flyaway.FlightArtwork);
 
     /// <summary>What the Mode 7 map shows: the pre-coloured characters the uploads leave (#1392).</summary>
-    internal Mode7TilePictures FloorTiles() => screen.FloorTiles(InstalledArtwork.Sheets);
+    internal FloorTilePictures FloorTiles() => screen.FloorTiles(InstalledArtwork.Sheets);
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredScene CaptureExplosionFinale()

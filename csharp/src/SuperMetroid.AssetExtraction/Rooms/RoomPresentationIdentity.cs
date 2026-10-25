@@ -25,7 +25,7 @@ public static class RoomPresentationIdentity
             [GameInstallationLayout.RoomCharacterDirectoryName] = RoomTilesetSources.CharacterIdentity(characters),
             [GameInstallationLayout.RoomPaletteDirectoryName] = RoomTilesetSources.PaletteIdentity(palettes),
             [GameInstallationLayout.RoomMetatileDirectoryName] = RoomTilesetSources.BlockIdentity(metatiles),
-            [GameInstallationLayout.RoomBackgroundTilemapDirectoryName] = backgrounds.ContentIdentity,
+            [GameInstallationLayout.RoomBackgroundTilemapDirectoryName] = RoomBackgroundTilemapArtworkFiles.ContentIdentity(backgrounds),
             [nameof(RoomSkyTilemapCatalog)] = skies.ContentIdentity,
             [GameInstallationLayout.RoomVisualLayoutDirectoryName] = layouts.ContentIdentity,
         };

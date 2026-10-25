@@ -18,14 +18,14 @@ internal static class AffineFloorFixtures
     [PpuLayoutBoundary("exact hardware test: decodes a fixture's Mode 7 characters, the high byte of each VRAM word")]
     internal static AffineFloor Floor(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette)
     {
-        var pixels = new byte[Mode7TilePictures.Tiles * Mode7CharacterSheet.TileBytes];
+        var pixels = new byte[FloorTilePictures.Tiles * Mode7CharacterSheet.TileBytes];
         for (int pixel = 0; pixel < pixels.Length; pixel++)
             pixels[pixel] = image[pixel * sizeof(ushort) + 1];
         ComposedSpriteSheet composed = ScreenTileSheetComposer.ComposeMode7Pixels(pixels, palette);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "mode7-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartRows);
-        Mode7TilePictures tiles = new FloorCharacters()
-            .Show(new Mode7CharacterSheet(SpriteSheetId.TitleMode7Tiles, sheet), 0, 0, Mode7TilePictures.Tiles).Pictures();
+        FloorTilePictures tiles = new FloorCharacters()
+            .Show(new Mode7CharacterSheet(SpriteSheetId.TitleMode7Tiles, sheet), 0, 0, FloorTilePictures.Tiles).Pictures();
         return AffineFloorConstants.Capture(image, tiles);
     }
 }

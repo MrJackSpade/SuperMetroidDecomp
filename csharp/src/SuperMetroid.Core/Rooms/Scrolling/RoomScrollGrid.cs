@@ -96,7 +96,7 @@ public sealed class RoomScrollGrid
     /// does not know the C# array ended there, so camera code must observe adjacent WRAM
     /// rather than throw or manufacture a clamped scroll cell.
     /// </remarks>
-    public byte ReadNativeStorage(int index)
+    public byte ReadStorage(int index)
     {
         if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -107,8 +107,8 @@ public sealed class RoomScrollGrid
     /// Typed view of a native-relative read, including legal adjacent-WRAM reads. Enum casts
     /// preserve unexpected byte values; callers can still distinguish every raw state.
     /// </summary>
-    public RoomScrollState ReadNativeState(int index) =>
-        (RoomScrollState)ReadNativeStorage(index);
+    public RoomScrollState ReadState(int index) =>
+        (RoomScrollState)ReadStorage(index);
 
     /// <summary>
     /// Writes one raw byte in the fixed 50-byte scroll allocation. Enemy and PLM scripts use

@@ -9,6 +9,6 @@ internal static class RoomLevelMemoryLayout
     /// </summary>
     public const int PrefilledStreamingWordCount = 0x3200;
 
-    /// <summary>Solid visual word used to prefill the complete native streaming allocation.</summary>
-    public const ushort PrefilledLevelWord = 0x8000;
+    /// <summary>The level word the complete streaming allocation is prefilled with: block zero, unflipped, solid.</summary>
+    public static readonly ushort PrefilledLevelWord = (ushort)RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock);
 }

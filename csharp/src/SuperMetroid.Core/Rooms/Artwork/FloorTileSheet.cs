@@ -4,11 +4,11 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// The installed pre-coloured Mode 7 tiles of one Ceres tileset (#1392): each of the 256 tiles whose characters the room's
+/// The installed pre-coloured floor tiles of one Ceres tileset (#1392): each of the 256 tiles whose characters the room's
 /// load binds, sixteen to a row, coloured with the tileset's standard palette and the sprite half as a room load leaves
 /// it, and what showed at each tile's characters when it was pictured; a tile nothing binds is not pictured.
 /// </summary>
-public sealed class Mode7TileSheet
+public sealed class FloorTileSheet
 {
     /// <summary>The frame picturing every tile.</summary>
     public const string FrameName = "tiles";
@@ -25,12 +25,12 @@ public sealed class Mode7TileSheet
     /// <summary>VRAM words one tile's characters occupy, whose high bytes are its pixels.</summary>
     public const int TileWords = TilePixels * TilePixels;
 
-    /// <summary>The room tile characters whose bytes one Mode 7 tile's pixels share.</summary>
+    /// <summary>The room tile characters whose bytes one floor tile's pixels share.</summary>
     public const int TileCharacters = 4;
 
     /// <summary>Checks the picture holds every tile and is background-coloured, and that each tile records what it shows over.</summary>
     /// <exception cref="InvalidDataException">The picture is not every tile's size or colours, or a tile's artwork is missing.</exception>
-    public Mode7TileSheet(TilesetDefinition tileset, SpriteSheet sheet, IReadOnlyList<BgArtworkShown?> shown)
+    public FloorTileSheet(TilesetDefinition tileset, SpriteSheet sheet, IReadOnlyList<BgArtworkShown?> shown)
     {
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
@@ -73,13 +73,13 @@ public sealed class Mode7TileSheet
         Ensure.NotNull(bindings);
         foreach (byte tile in Ensure.NotNull(tiles))
         {
-            BgArtworkShown pictured = Shown[tile] ?? throw new InvalidDataException($"The Mode 7 map names tile {tile}, whose characters {Name} does not picture.");
+            BgArtworkShown pictured = Shown[tile] ?? throw new InvalidDataException($"The floor map names tile {tile}, whose characters {Name} does not picture.");
             BgArtworkShown now = bindings.Showing(BgCharacterSet.Tiles, tile * TileCharacters, TileCharacters);
             if (now != pictured)
-                throw new InvalidDataException($"Mode 7 tile {tile} shows {now.Artwork.Name} at {now.WordOffset}, not the {pictured.Artwork.Name} {Name} pictures.");
+                throw new InvalidDataException($"floor tile {tile} shows {now.Artwork.Name} at {now.WordOffset}, not the {pictured.Artwork.Name} {Name} pictures.");
         }
     }
 
-    /// <summary>The installed name of <paramref name="tileset"/>'s Mode 7 tiles.</summary>
-    public static string NameOf(TilesetDefinition tileset) => $"Mode7.{RoomBlockSheet.NameOf(tileset)}";
+    /// <summary>The installed name of <paramref name="tileset"/>'s floor tiles.</summary>
+    public static string NameOf(TilesetDefinition tileset) => $"Floor.{RoomBlockSheet.NameOf(tileset)}";
 }

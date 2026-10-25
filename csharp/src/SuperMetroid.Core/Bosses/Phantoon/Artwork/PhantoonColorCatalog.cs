@@ -12,16 +12,16 @@ public sealed class PhantoonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
         {
-            Span<Bgr555> target = stackalloc Bgr555[PhantoonColorRomData.FadeOutCount];
+            Span<Bgr555> target = stackalloc Bgr555[PhantoonColorDefinitions.FadeOutCount];
             for (int color = 0; color < target.Length; color++) target[color] = ResolveFadeOut(color);
             content.AppendColors("fadeOut", target);
-            var power = new Bgr555[PhantoonColorRomData.PowerOnCount];
+            var power = new Bgr555[PhantoonColorDefinitions.PowerOnCount];
             for (int color = 0; color < power.Length; color++) power[color] = ResolvePowerOn(color);
             content.AppendColors("powerOn", power);
-            var frames = new Bgr555[PhantoonColorRomData.HealthBandCount][];
+            var frames = new Bgr555[PhantoonColorDefinitions.HealthBandCount][];
             for (int band = 0; band < frames.Length; band++)
             {
-                frames[band] = new Bgr555[PhantoonColorRomData.HealthBandColorCount];
+                frames[band] = new Bgr555[PhantoonColorDefinitions.HealthBandColorCount];
                 for (int color = 0; color < frames[band].Length; color++) frames[band][color] = ResolveHealth(band, color);
             }
             content.AppendColorFrames("healthBands", frames);
@@ -55,7 +55,7 @@ public sealed class PhantoonColorCatalog
     public Bgr555 ResolveHealth(int band, int color)
     {
         _ = CheckBand(band);
-        if ((uint)color >= PhantoonColorRomData.HealthBandColorCount)
+        if ((uint)color >= PhantoonColorDefinitions.HealthBandColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         var key = new ColourCell(band, color);
         return healthEdits.TryGetValue(key, out Bgr555 edit) ? edit : PhantoonHealthPaintDefinitions.Color(band, color);
@@ -66,20 +66,20 @@ public sealed class PhantoonColorCatalog
     /// </summary>
     public Bgr555 ResolveFadeOut(int color)
     {
-        if ((uint)color >= PhantoonColorRomData.FadeOutCount)
+        if ((uint)color >= PhantoonColorDefinitions.FadeOutCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return fadeOutEdits.GetValueOrDefault(new ColourCell(0, color));
     }
     /// <summary>$A7:CA61-CB40: all seven powered ship material palettes calculate; supplied words remain independently editable.</summary>
     public Bgr555 ResolvePowerOn(int color)
     {
-        if ((uint)color >= PhantoonColorRomData.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
+        if ((uint)color >= PhantoonColorDefinitions.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
         return powerEdits.TryGetValue(new ColourCell(0, color), out Bgr555 edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
     }
 
     /// <summary>Rejects a health palette index outside the eight Phantoon bands.</summary>
     private static int CheckBand(int band) =>
-        (uint)band < PhantoonColorRomData.HealthBandCount
+        (uint)band < PhantoonColorDefinitions.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 }

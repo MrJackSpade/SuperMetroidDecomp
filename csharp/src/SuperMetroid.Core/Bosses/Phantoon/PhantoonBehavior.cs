@@ -324,7 +324,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void CopyPhantoonHealthPalette(RoomEnemySlot body)
     {
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
-        for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
             _presentation.BossColours().PhantoonBody.Write(color, Presentation.ReadPhantoonHealthColor(healthBand, color));
     }
     /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>

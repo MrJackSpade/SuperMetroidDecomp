@@ -786,9 +786,9 @@ internal static class LookupStream5Verification
         PhantoonColorCatalog stock = Check(document);
         var edits = stock.fadeOutEdits;
         AssertEqual(0, edits.Count, "Stock fade stores no target table");
-        for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
+        for (int color = 0; color < PhantoonColorDefinitions.FadeOutCount; color++)
         {
-            AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.FadeOutSource + color * 2), stock.ResolveFadeOut(color), "Native black fade endpoint");
+            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.FadeOutColors + color * 2), stock.ResolveFadeOut(color), "Native black fade endpoint");
             for (int channel = 0; channel < 3; channel++)
             {
                 document.FadeOut[color] = new PaletteRgb5 { Red = channel == 0 ? 31 : 0, Green = channel == 1 ? 31 : 0, Blue = channel == 2 ? 31 : 0 };
@@ -802,10 +802,10 @@ internal static class LookupStream5Verification
             "No per-channel native residual samples remain");
         AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "healthyPaint", BindingFlags.Instance | BindingFlags.NonPublic),
             "No stock healthy palette remains stored");
-        for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
-        for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+        for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
+        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
         {
-            AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.HealthBandsSource + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
+            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.HealthBandColors + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
             PaletteRgb5 original = document.HealthBands[band][color];
             for (int channel = 0; channel < 3; channel++)
             {
@@ -822,9 +822,9 @@ internal static class LookupStream5Verification
         var powerEdits = stock.powerEdits;
         AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic), "Power targets retain no stock color dictionary");
         AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
-        for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
+        for (int color = 0; color < PhantoonColorDefinitions.PowerOnCount; color++)
         {
-            AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.PowerOnSource + color * 2), stock.ResolvePowerOn(color), "Native power shade equality");
+            AssertEqual(ReadVerificationWord(rom, PhantoonSourceDefinitions.PowerOnColors + color * 2), stock.ResolvePowerOn(color), "Native power shade equality");
             PaletteRgb5 original = document.PowerOn[color];
             for (int channel = 0; channel < 3; channel++)
             {

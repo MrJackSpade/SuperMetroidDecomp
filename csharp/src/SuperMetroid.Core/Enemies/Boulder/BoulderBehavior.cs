@@ -85,7 +85,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialPosition.Y - initialYOffset)));
 
-        int horizontalReach = -(byte)slot.Spawn.Population.Parameter2;
+        int horizontalReach = -SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
 
         // The population record's initialization parameter was copied to current_instruction
         // before init AI ran. Boulder consumes only its low byte as the strict Samus-Y

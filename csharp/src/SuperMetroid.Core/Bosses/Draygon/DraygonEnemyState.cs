@@ -196,8 +196,8 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal HashSet<DraygonCannonControlWord> DisabledCannonWords { get; } = [];
 
-    /// <summary>The body-function word.</summary>
-    private int _functionWord;
+    /// <summary>The body function.</summary>
+    private DraygonAiFunction _function;
 
     /// <summary>The word holding the function timer or the swoop path cursor, according to <see cref="Function"/>.</summary>
     private int _timerOrSwoopOffsetWord;
@@ -214,8 +214,8 @@ public sealed class DraygonEnemyState
     /// <summary>Bank-$A5 body-function address; body main AI dispatches this before copying coordinates to the three parts.</summary>
     public DraygonAiFunction Function
     {
-        get => (DraygonAiFunction)_functionWord;
-        internal set => _functionWord = (ushort)value;
+        get => _function;
+        internal set => _function = value;
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ public sealed class DraygonEnemyState
     /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
     internal void ClearWithRecord()
     {
-        _functionWord = 0;
+        _function = DraygonAiFunction.None;
         _timerOrSwoopOffsetWord = 0;
         _swoopEndOffsetWord = 0;
         _velocityWholeWord = 0;

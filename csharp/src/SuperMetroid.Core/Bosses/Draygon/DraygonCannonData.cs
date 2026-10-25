@@ -15,6 +15,6 @@ public static class DraygonCannonData
         DraygonFiringCannon.UpperRight => new(DraygonCannonControlWord.UpperRight, new(460, 257)),
         DraygonFiringCannon.LowerRight => new(DraygonCannonControlWord.LowerRight, new(460, 350)),
         DraygonFiringCannon.UnusedBottom => new(DraygonCannonControlWord.UnusedBottom, new(444, 392)),
-        _ => throw new InvalidOperationException($"Undefined {nameof(DraygonFiringCannon)} {(int)cannon}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DraygonFiringCannon)} {cannon}."),
     };
 }

@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -28,19 +29,19 @@ internal static class EnemyTileArtworkDraygonColorsVerification
     {
         DraygonColorCatalog native = stock.Bosses.DraygonColors ??
             throw new InvalidDataException("Installed enemy art has no Draygon colors.");
-        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.IntroSource, DraygonColorRomData.IntroCount,
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonSourceDefinitions.IntroColors, DraygonColorDefinitions.IntroCount,
             native.ResolveIntro, "intro"));
-        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.BackgroundSource,
-            DraygonColorRomData.BackgroundCount, native.ResolveBackground, "background"));
-        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.SpriteSource,
-            DraygonColorRomData.SpriteCount, native.ResolveSprite, "sprite"));
-        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.WhiteFlashSource,
-            DraygonColorRomData.WhiteFlashCount, native.ResolveWhiteFlash, "white flash"));
-        for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
-        for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonSourceDefinitions.BackgroundColors,
+            DraygonColorDefinitions.BackgroundCount, native.ResolveBackground, "background"));
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonSourceDefinitions.SpriteColors,
+            DraygonColorDefinitions.SpriteCount, native.ResolveSprite, "sprite"));
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonSourceDefinitions.WhiteFlashColors,
+            DraygonColorDefinitions.WhiteFlashCount, native.ResolveWhiteFlash, "white flash"));
+        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    DraygonColorRomData.HealthBandsSource +
-                    (band * DraygonColorRomData.HealthBandColorCount + color) * sizeof(ushort)),
+                    DraygonSourceDefinitions.HealthBandColors +
+                    (band * DraygonColorDefinitions.HealthBandColorCount + color) * sizeof(ushort)),
                 native.ResolveHealthBand(band, color),
                 $"installed Draygon health band {band} color {color} preserves native RGB5");
 
@@ -61,16 +62,16 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         DraygonColorCatalog colors = edited.Bosses.DraygonColors ??
             throw new InvalidDataException("Edited enemy art has no Draygon colors.");
-        CheckEditedBand(DraygonColorRomData.IntroCount,
+        CheckEditedBand(DraygonColorDefinitions.IntroCount,
             native.ResolveIntro, colors.ResolveIntro, "intro");
-        CheckEditedBand(DraygonColorRomData.BackgroundCount,
+        CheckEditedBand(DraygonColorDefinitions.BackgroundCount,
             native.ResolveBackground, colors.ResolveBackground, "background");
-        CheckEditedBand(DraygonColorRomData.SpriteCount,
+        CheckEditedBand(DraygonColorDefinitions.SpriteCount,
             native.ResolveSprite, colors.ResolveSprite, "sprite");
-        CheckEditedBand(DraygonColorRomData.WhiteFlashCount,
+        CheckEditedBand(DraygonColorDefinitions.WhiteFlashCount,
             native.ResolveWhiteFlash, colors.ResolveWhiteFlash, "white flash");
-        for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
-        for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
+        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
             if (band == 1 && color == 1)
                 AssertTrue(native.ResolveHealthBand(band, color) !=
                     colors.ResolveHealthBand(band, color),
@@ -87,13 +88,13 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         // Invoke the actual body initializer and hurt program with the visual source
         // windows forbidden. Only the resource may supply colors during installed play.
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= DraygonColorRomData.HealthBandsSource and
-                    < (DraygonColorRomData.HealthBandsSource +
-                        DraygonColorRomData.HealthBandCount *
-                        DraygonColorRomData.HealthBandColorCount * sizeof(ushort))
-                    or >= DraygonColorRomData.SpriteSource and
-                    < (DraygonColorRomData.WhiteFlashSource +
-                        DraygonColorRomData.WhiteFlashCount * sizeof(ushort)),
+            address => address is >= DraygonSourceDefinitions.HealthBandColors and
+                    < (DraygonSourceDefinitions.HealthBandColors +
+                        DraygonColorDefinitions.HealthBandCount *
+                        DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort))
+                    or >= DraygonSourceDefinitions.SpriteColors and
+                    < (DraygonSourceDefinitions.WhiteFlashColors +
+                        DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
@@ -107,38 +108,38 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "installed Draygon colors leave intro mechanics unchanged");
-        AssertBand(DraygonColorRomDataConstants.IntroDestination,
-            DraygonColorRomData.IntroCount, colors.ResolveIntro, "intro CGRAM");
+        AssertBand(DraygonColorDestinations.IntroDestination,
+            DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
         state.HealthPaletteBand = 1;
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
-        for (int color = 0; color < DraygonColorRomData.BackgroundCount; color++)
+        for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
             Bgr555 expected = color is >= 9 and <= 12
                 ? colors.ResolveHealthBand(1, color - 9)
                 : colors.ResolveBackground(color);
             AssertEqual(expected,
-                cgram.Colors[DraygonColorRomDataConstants.BackgroundDestination + color],
+                cgram.Colors[DraygonColorDestinations.BackgroundDestination + color],
                 $"Draygon hurt background color {color}");
         }
-        AssertBand(DraygonColorRomDataConstants.SpriteDestination,
-            DraygonColorRomData.SpriteCount, colors.ResolveSprite,
+        AssertBand(DraygonColorDestinations.SpriteDestination,
+            DraygonColorDefinitions.SpriteCount, colors.ResolveSprite,
             "normal hurt sprite CGRAM");
         body.FlashTimer = WrappingCountdown.Start(2);
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
-        AssertBand(DraygonColorRomDataConstants.BackgroundDestination,
-            DraygonColorRomData.WhiteFlashCount, colors.ResolveWhiteFlash,
+        AssertBand(DraygonColorDestinations.BackgroundDestination,
+            DraygonColorDefinitions.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt background CGRAM");
-        AssertBand(DraygonColorRomDataConstants.SpriteDestination,
-            DraygonColorRomData.WhiteFlashCount, colors.ResolveWhiteFlash,
+        AssertBand(DraygonColorDestinations.SpriteDestination,
+            DraygonColorDefinitions.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt sprite CGRAM");
-        for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
+        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
             state.HealthPaletteBand = band;
             enemies.DraygonBehavior.Combat.CopyDraygonHealthColors(state);
-            for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
+            for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
-                    cgram.Colors[DraygonColorRomDataConstants.HealthDestination + color],
+                    cgram.Colors[DraygonColorDestinations.HealthDestination + color],
                     $"Draygon live health band {band} color {color}");
         }
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,

@@ -60,11 +60,11 @@ public sealed class CrocomireColorCatalog
     /// <summary>Chooses the native transfer length for one Crocomire material role.</summary>
     private static int Count(Band band) => band switch
     {
-        Band.FightBody => CrocomirePaletteRomData.FightBodyCount,
-        Band.InitialWall => CrocomirePaletteRomData.InitialWallCount,
-        Band.InitialProjectile => CrocomirePaletteRomData.InitialProjectileCount,
-        Band.SkeletonArm => CrocomirePaletteRomData.SkeletonArmCount,
-        Band.WallSpikes => CrocomirePaletteRomData.WallSpikesCount,
+        Band.FightBody => CrocomireColorDefinitions.FightBodyCount,
+        Band.InitialWall => CrocomireColorDefinitions.InitialWallCount,
+        Band.InitialProjectile => CrocomireColorDefinitions.InitialProjectileCount,
+        Band.SkeletonArm => CrocomireColorDefinitions.SkeletonArmCount,
+        Band.WallSpikes => CrocomireColorDefinitions.WallSpikesCount,
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
 
@@ -76,23 +76,23 @@ public sealed class CrocomireColorCatalog
         content.AppendColors(label, transfer);
     }
     /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then seventeen projectile words at 208–224, retaining each source overlap word.</summary>
-    public void ApplyInitial(GameplayColours cgram)
+    public void ApplyInitial(GameplayColours colours)
     {
-        Apply(new BossColours(cgram).CrocomireInitialWall, Band.InitialWall);
-        Apply(new BossColours(cgram).CrocomireInitialProjectile, Band.InitialProjectile);
+        Apply(new BossColours(colours).CrocomireInitialWall, Band.InitialWall);
+        Apply(new BossColours(colours).CrocomireInitialProjectile, Band.InitialProjectile);
     }
 
     /// <summary>Restores the eight selected body/head BG inks from the $A4:B89D role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
-    public void ApplyFightBody(GameplayColours cgram) =>
-        Apply(new BossColours(cgram).CrocomireFightBody, Band.FightBody);
+    public void ApplyFightBody(GameplayColours colours) =>
+        Apply(new BossColours(colours).CrocomireFightBody, Band.FightBody);
 
     /// <summary>Installs the sixteen skeleton-arm OBJ inks corresponding to $A4:B8FD at CGRAM 144–159 when the wall-break sequence begins.</summary>
-    public void ApplySkeletonArm(GameplayColours cgram) =>
-        Apply(new BossColours(cgram).CrocomireSkeletonArm, Band.SkeletonArm);
+    public void ApplySkeletonArm(GameplayColours colours) =>
+        Apply(new BossColours(colours).CrocomireSkeletonArm, Band.SkeletonArm);
 
     /// <summary>Installs the sixteen wall-spike OBJ inks corresponding to $A4:B91D at CGRAM 176–191 when the rumble script reaches its terminator.</summary>
-    public void ApplyWallSpikes(GameplayColours cgram) =>
-        Apply(new BossColours(cgram).CrocomireWallSpikes, Band.WallSpikes);
+    public void ApplyWallSpikes(GameplayColours colours) =>
+        Apply(new BossColours(colours).CrocomireWallSpikes, Band.WallSpikes);
 
     /// <summary>Returns an edited color or calculates the corresponding native stock paint.</summary>
     internal Bgr555 Get(Band band, int index)

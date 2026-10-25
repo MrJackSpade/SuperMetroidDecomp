@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal sealed class StationPlms : IPlmFamilySource
 {
     /// <summary>Registers the Station family's step.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.Station, (slot, context) =>

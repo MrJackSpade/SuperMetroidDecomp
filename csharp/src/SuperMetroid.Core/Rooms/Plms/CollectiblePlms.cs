@@ -11,7 +11,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// <summary>Words in one collectible character slot: two 16x16 frames of four characters.</summary>
 
     /// <summary>Registers the Collectible family's step.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.Collectible, (slot, context) =>

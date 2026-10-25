@@ -26,12 +26,12 @@ internal static class CompiledProjectileMathVerification
         {
             int address = 0x869059 + (parameter >> 1) * 2;
             short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            AssertEqual(expected, CrocomireProjectileRomData.GradientForSpawnParameter(parameter),
+            AssertEqual(expected, CrocomireVolley.GradientForSpawnParameter(parameter),
                 "Crocomire authored gradient and final instruction-byte overread");
         }
-        AssertEqual(unchecked((short)0xb620), CrocomireProjectileRomData.GradientForSpawnParameter(18),
+        AssertEqual(unchecked((short)0xb620), CrocomireVolley.GradientForSpawnParameter(18),
             "Crocomire ninth volley shot must preserve native overread");
-        AssertThrows<InvalidDataException>(() => CrocomireProjectileRomData.GradientForSpawnParameter(20),
+        AssertThrows<InvalidDataException>(() => CrocomireVolley.GradientForSpawnParameter(20),
             "Crocomire unsupported gradient selector remains explicit");
         var native = new short[320];
         for (int i = 0; i < native.Length; i++)

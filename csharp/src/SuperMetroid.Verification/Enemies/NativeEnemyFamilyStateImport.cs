@@ -85,6 +85,7 @@ internal static class NativeEnemyFamilyStateImport
             phantoonPartRecord.SwoopVelocity = new(new SnesSignedEightEight(words.C), new SnesSignedEightEight(words.D));
             phantoonPartRecord.FunctionTimer = words.E;
             phantoonPartRecord.WavyPhaseDelta = words.F;
+            PhantoonNativeWords.Import(phantoonPartRecord, slot.Spawn.Population.Parameter2, words.C, words.E, words.F);
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
@@ -141,14 +142,14 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
         {
-            draygonEyeRecord.Function = words.A == 0 ? null : (DraygonEyeFunction)words.A;
+            draygonEyeRecord.Function = words.A == 0 ? null : DraygonNativeWords.EyeFunctions.Decode(words.A, "recorded DraygonEyeFunction");
             draygonEyeRecord.LookAngle = words.F;
         }
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
             crocomireRecord.DeathSequenceIndex = (CrocomireDeathPhase)words.A;
-            crocomireRecord.FightFlags = CrocomireFightFlagBits.Flags(words.B);
-            crocomireRecord.HitCount = CrocomireFightFlagBits.HitCount(words.B);
+            crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
+            crocomireRecord.HitCount = CrocomireNativeWords.HitCount(words.B);
             crocomireRecord.FightFunction = (CrocomireFightFunction)words.C;
             crocomireRecord.RumbleTableOffset = words.D;
             crocomireRecord.VerticalSpeed = words.E;

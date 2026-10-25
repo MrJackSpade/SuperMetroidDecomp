@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Checks Crocomire's wall-rumble cursor records and death-sequence timing against retail data.</summary>
 internal static class CrocomireRumbleDefinitionsVerification
@@ -130,9 +131,9 @@ internal static class CrocomireRumbleDefinitionsVerification
             "Crocomire rumble production terminator handoff");
         AssertEqual((ushort)0x8080, death.MeltShakeCounter.RawValue,
             "Crocomire rumble production terminator marker reaches the melt shake counter");
-        for (int color = 0; color < CrocomirePaletteRomData.WallSpikesCount; color++)
+        for (int color = 0; color < CrocomireColorDefinitions.WallSpikesCount; color++)
             AssertEqual(colors.ResolveWallSpikes(color),
-                cgram.Colors[CrocomirePaletteRomDataConstants.WallSpikesDestination + color],
+                cgram.Colors[CrocomireColorDestinations.WallSpikesDestination + color],
                 $"Crocomire rumble termination applies installed wall-spike color {color}");
 
         Console.WriteLine(
@@ -190,9 +191,9 @@ internal static class CrocomireRumbleDefinitionsVerification
     private static CartridgeReadGuard NewCrocomireRumbleReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa498ca and < 0xa4990a or
-                >= CrocomirePaletteRomData.FightBodySource and
-                < (CrocomirePaletteRomData.WallSpikesSource +
-                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
+                >= CrocomireSourceDefinitions.FightBodyColors and
+                < (CrocomireSourceDefinitions.WallSpikesColors +
+                    CrocomireColorDefinitions.WallSpikesCount * sizeof(ushort)),
                 address => $"Crocomire rumble attempted migrated data read ${address:X6}.");
 
     /// <summary>Runs the Crocomire rumble comparison from the command dispatcher.</summary>

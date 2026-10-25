@@ -36,7 +36,7 @@ internal sealed class CrocomireMelting
     internal void LoadFirstCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
         ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
-            CrocomireMeltingTilemapAddress.FirstTilemap);
+            CrocomireMeltingIllustration.First);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingOneTopRow);
 
         if (state.Tongue is { } tongue)
@@ -64,7 +64,7 @@ internal sealed class CrocomireMelting
     internal void LoadSecondCrocomireMeltingTilemap(CrocomireEnemyState state)
     {
         ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
-            CrocomireMeltingTilemapAddress.SecondTilemap);
+            CrocomireMeltingIllustration.Second);
         _bg2.FillCrocomireBg2ScrollTable(_bg2.CrocomireBg2Scroll.Y);
         StartCrocomireMeltingTilemap(state, CrocomireBodyProgram.MeltingTwoTopRow);
         // $A4:940E-941D clears the first $800 bytes.
@@ -72,9 +72,9 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>Requires a complete installed melting map before phase, actor, scratch, or VRAM state changes.</summary>
-    internal ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(CrocomireMeltingTilemapAddress tilemapAddress) =>
+    internal ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(CrocomireMeltingIllustration illustration) =>
         (_bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
-            "Crocomire melting requires installed tilemap artwork.")).Tilemap(tilemapAddress);
+            "Crocomire melting requires installed tilemap artwork.")).Tilemap(illustration);
 
     /// <summary>Starts the selected body melting list and synchronizes actor state with the new BG2 map.</summary>
     private static void StartCrocomireMeltingTilemap(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
@@ -168,7 +168,7 @@ internal sealed class CrocomireMelting
     internal void BeginCrocomireMelting(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        death.MeltingHdmaActive = true;
+        death.MeltingScrollActive = true;
         int lineCount = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
         scrolls.Slice(0, lineCount).Fill(_bg2.CrocomireBg2Scroll.Y);
@@ -254,7 +254,7 @@ internal sealed class CrocomireMelting
     internal void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        death.MeltingHdmaActive = false;
+        death.MeltingScrollActive = false;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.NextMeltBand = 0;
     }

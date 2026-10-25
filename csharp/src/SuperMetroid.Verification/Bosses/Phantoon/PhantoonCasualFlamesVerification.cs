@@ -38,7 +38,7 @@ internal static class PhantoonCasualFlamesVerification
         {
             random = (ushort)raw;
             state.Parts[mouth.SlotIndex].CasualFlameHold = 0;
-            state.Parts[mouth.SlotIndex].CasualFlameCount = 0xffff;
+            state.Parts[mouth.SlotIndex].CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
             int before = calls;
             step(mouth);
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
@@ -54,7 +54,7 @@ internal static class PhantoonCasualFlamesVerification
             random = (ushort)pattern;
             state.Parts[mouth.SlotIndex].CasualFlamePattern = (ushort)pattern;
             state.Parts[mouth.SlotIndex].CasualFlameHold = 0;
-            state.Parts[mouth.SlotIndex].CasualFlameCount = 0xffff;
+            state.Parts[mouth.SlotIndex].CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
             ushort timer = 0, count = 0xffff;
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             for (int frame = 0; frame < 2048; frame++)
@@ -84,7 +84,8 @@ internal static class PhantoonCasualFlamesVerification
                 }
                 step(mouth);
                 AssertEqual(timer, state.Parts[mouth.SlotIndex].CasualFlameHold, "Actual casual frame timer");
-                AssertEqual(count, state.Parts[mouth.SlotIndex].CasualFlameCount, "Actual casual frame remaining count");
+                // The count is the signed value the cartridge's word holds.
+                AssertEqual((int)unchecked((short)count), state.Parts[mouth.SlotIndex].CasualFlameCount, "Actual casual frame remaining count");
                 AssertEqual(draw ? AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame) : default, state.PartProgram(mouth), "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.InstructionTimer.RawValue, "Exact casual instruction timer reset");
             }

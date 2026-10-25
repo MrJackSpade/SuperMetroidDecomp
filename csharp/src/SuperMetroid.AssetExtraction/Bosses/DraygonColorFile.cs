@@ -19,15 +19,15 @@ public static class DraygonColorFile
         if (document.Version != DraygonColorFormat.Version)
             throw new InvalidDataException("Draygon colors require the supported version.");
         if (document.HealthBands is null ||
-            document.HealthBands.Length != DraygonColorRomData.HealthBandCount)
+            document.HealthBands.Length != DraygonColorDefinitions.HealthBandCount)
             throw new InvalidDataException("Draygon colors require eight health bands.");
         return new(
-            Compile(document.Intro, DraygonColorRomData.IntroCount, "intro"),
-            Compile(document.Background, DraygonColorRomData.BackgroundCount, "background"),
-            Compile(document.Sprite, DraygonColorRomData.SpriteCount, "sprite"),
-            Compile(document.WhiteFlash, DraygonColorRomData.WhiteFlashCount, "white flash"),
+            Compile(document.Intro, DraygonColorDefinitions.IntroCount, "intro"),
+            Compile(document.Background, DraygonColorDefinitions.BackgroundCount, "background"),
+            Compile(document.Sprite, DraygonColorDefinitions.SpriteCount, "sprite"),
+            Compile(document.WhiteFlash, DraygonColorDefinitions.WhiteFlashCount, "white flash"),
             document.HealthBands.Select((band, index) =>
-                Compile(band, DraygonColorRomData.HealthBandColorCount,
+                Compile(band, DraygonColorDefinitions.HealthBandColorCount,
                     $"health band {index}")).ToArray());
     }
 

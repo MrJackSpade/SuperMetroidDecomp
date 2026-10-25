@@ -72,15 +72,14 @@ internal static class EnemyEffectsFixtureVerification
         /// Loads one melting tilemap through the death-sequence phase that owns it. Any other source exercises the
         /// production tilemap resolution, which rejects it before a phase advances or an actor changes.
         /// </summary>
-        internal void InitializeMap(int source)
+        internal void InitializeMap(CrocomireMeltingIllustration illustration)
         {
-            var address = (CrocomireMeltingTilemapAddress)source;
-            if (address == CrocomireMeltingTilemapAddress.FirstTilemap)
+            if (illustration == CrocomireMeltingIllustration.First)
                 Enemies.CrocomireBehavior.Melting.LoadFirstCrocomireMeltingTilemap(Actor);
-            else if (address == CrocomireMeltingTilemapAddress.SecondTilemap)
+            else if (illustration == CrocomireMeltingIllustration.Second)
                 Enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap(Actor);
             else
-                _ = Enemies.CrocomireBehavior.Melting.RequireCrocomireMeltingTilemap(address);
+                _ = Enemies.CrocomireBehavior.Melting.RequireCrocomireMeltingTilemap(illustration);
         }
 
         /// <summary>Runs one Crocomire melting step, selected from the fixture's Crocomire behavior, on its actor.</summary>

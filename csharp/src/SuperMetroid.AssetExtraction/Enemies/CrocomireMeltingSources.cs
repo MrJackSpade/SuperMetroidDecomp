@@ -21,6 +21,15 @@ internal static class CrocomireMeltingSources
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMeltingIllustration)} {illustration}."),
     };
 
+    /// <summary>The cartridge source of <paramref name="illustration"/>'s 256-word tilemap.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="illustration"/> is not a melt image.</exception>
+    internal static int Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
+    {
+        CrocomireMeltingIllustration.First => CrocomireMeltingSourceDefinitions.FirstTilemap,
+        CrocomireMeltingIllustration.Second => CrocomireMeltingSourceDefinitions.SecondTilemap,
+        _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMeltingIllustration)} {illustration}."),
+    };
+
     /// <summary>Offset within its image's bank of <paramref name="band"/>'s graphics chunk: the first chunk plus one stride per earlier band.</summary>
     internal static int SourceWord(CrocomireMeltingIllustration illustration, int band) =>
         Graphics(illustration).FirstChunk + band * CrocomireMeltingSourceDefinitions.ChunkStride;

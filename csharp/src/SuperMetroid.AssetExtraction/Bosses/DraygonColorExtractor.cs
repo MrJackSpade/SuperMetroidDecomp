@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -20,21 +21,21 @@ public static class DraygonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[DraygonColorRomData.HealthBandCount][];
+        var bands = new PaletteRgb5[DraygonColorDefinitions.HealthBandCount][];
         for (int band = 0; band < bands.Length; band++)
-            bands[band] = Read(DraygonColorRomData.HealthBandsSource +
-                band * DraygonColorRomData.HealthBandColorCount * sizeof(ushort),
-                DraygonColorRomData.HealthBandColorCount);
+            bands[band] = Read(DraygonSourceDefinitions.HealthBandColors +
+                band * DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort),
+                DraygonColorDefinitions.HealthBandColorCount);
         return DraygonColorFile.Write(new DraygonColorDocument
         {
             Version = DraygonColorFormat.Version,
-            Intro = Read(DraygonColorRomData.IntroSource, DraygonColorRomData.IntroCount),
-            Background = Read(DraygonColorRomData.BackgroundSource,
-                DraygonColorRomData.BackgroundCount),
-            Sprite = Read(DraygonColorRomData.SpriteSource,
-                DraygonColorRomData.SpriteCount),
-            WhiteFlash = Read(DraygonColorRomData.WhiteFlashSource,
-                DraygonColorRomData.WhiteFlashCount),
+            Intro = Read(DraygonSourceDefinitions.IntroColors, DraygonColorDefinitions.IntroCount),
+            Background = Read(DraygonSourceDefinitions.BackgroundColors,
+                DraygonColorDefinitions.BackgroundCount),
+            Sprite = Read(DraygonSourceDefinitions.SpriteColors,
+                DraygonColorDefinitions.SpriteCount),
+            WhiteFlash = Read(DraygonSourceDefinitions.WhiteFlashColors,
+                DraygonColorDefinitions.WhiteFlashCount),
             HealthBands = bands,
         });
 

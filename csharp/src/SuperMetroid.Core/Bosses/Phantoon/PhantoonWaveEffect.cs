@@ -22,10 +22,10 @@ public sealed class PhantoonWaveEffect
     /// <summary>Whether a setup has run and the wave has not since observed eye parameter one equal to zero; requesting it with Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
-    /// Sine-table byte phase: setup seeds <see cref="PhantoonWaveRomData.InitialPhase"/> (two below a whole cycle of
-    /// the sixteen-bit counter), then each active call adds twice mouth variable F and keeps the nine-bit remainder,
-    /// so the phase is that seed or 0..511. The seed is a multiple of the nine-bit cycle minus two, so the first
-    /// masked advance is the same whether it is reached through sixteen-bit or ordinary arithmetic.
+    /// Sine-table byte phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's
+    /// start), then each active call adds twice the mouth's phase step and keeps the remainder within one cycle, so the
+    /// phase is that seed or 0..511. The cartridge seeds its sixteen-bit counter two below a whole number of cycles,
+    /// so its first remainder equals this one.
     /// </summary>
     public int Phase { get; private set; }
     /// <summary>The wave the last display latch observed (#1353); null when it observed no active wave.</summary>
@@ -60,7 +60,7 @@ public sealed class PhantoonWaveEffect
         {
             boss.Parts[boss.Eye.SlotIndex].WaveMode = _pendingMode;
             _setupMode = _pendingMode;
-            Phase = PhantoonWaveRomData.InitialPhase;
+            Phase = PhantoonWaveDefinitions.InitialPhase;
             Active = true;
             _pendingSetup = false;
             return; // The setup update does not also ripple.
@@ -71,7 +71,7 @@ public sealed class PhantoonWaveEffect
             Active = false; // The wave ends, keeping its last shape.
             return;
         }
-        Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveRomData.PhaseMask;
+        Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveDefinitions.PhaseMask;
         if (boss.Parts[boss.Eye.SlotIndex].WaveMode != _setupMode)
             throw new InvalidOperationException($"Phantoon's wave mode {boss.Parts[boss.Eye.SlotIndex].WaveMode} changed from its setup mode {_setupMode}.");
         _built = new(Phase, boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude, boss.Bg2Scroll.X);

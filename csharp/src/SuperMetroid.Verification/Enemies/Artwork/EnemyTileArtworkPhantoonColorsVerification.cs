@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -30,15 +31,15 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     {
         PhantoonColorCatalog native = stock.Bosses.PhantoonColors ??
             throw new InvalidDataException("Installed enemy art has no Phantoon colors.");
-        Suite(nameof(VerifyBand), () => VerifyBand(PhantoonColorRomData.FadeOutSource,
-            PhantoonColorRomData.FadeOutCount, native.ResolveFadeOut, "fade-out"));
-        Suite(nameof(VerifyBand), () => VerifyBand(PhantoonColorRomData.PowerOnSource,
-            PhantoonColorRomData.PowerOnCount, native.ResolvePowerOn, "power-on"));
-        for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
-        for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+        Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.FadeOutColors,
+            PhantoonColorDefinitions.FadeOutCount, native.ResolveFadeOut, "fade-out"));
+        Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.PowerOnColors,
+            PhantoonColorDefinitions.PowerOnCount, native.ResolvePowerOn, "power-on"));
+        for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
+        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    PhantoonColorRomData.HealthBandsSource +
-                    (band * PhantoonColorRomData.HealthBandColorCount + color) *
+                    PhantoonSourceDefinitions.HealthBandColors +
+                    (band * PhantoonColorDefinitions.HealthBandColorCount + color) *
                         sizeof(ushort)),
                 native.ResolveHealth(band, color),
                 $"installed Phantoon health palette {band} color {color} preserves RGB5");
@@ -64,15 +65,15 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             "Phantoon fade-out edit changes selected RGB5 word");
         AssertTrue(colors.ResolvePowerOn(1) != native.ResolvePowerOn(1),
             "Phantoon power-on edit changes selected RGB5 word");
-        for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
-        for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+        for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
+        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
             if (band != 2 || color != 1)
                 AssertEqual(native.ResolveHealth(band, color),
                     colors.ResolveHealth(band, color),
                     $"Phantoon health edit leaves palette {band} color {color} unchanged");
-        CheckUnchangedBand(PhantoonColorRomData.FadeOutCount,
+        CheckUnchangedBand(PhantoonColorDefinitions.FadeOutCount,
             native.ResolveFadeOut, colors.ResolveFadeOut, "fade-out");
-        CheckUnchangedBand(PhantoonColorRomData.PowerOnCount,
+        CheckUnchangedBand(PhantoonColorDefinitions.PowerOnCount,
             native.ResolvePowerOn, colors.ResolvePowerOn, "power-on");
         AssertEqual(colors.ResolvePowerOn(1),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
@@ -82,10 +83,10 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         // Drive the actual boss palette handlers. The complete authored color range is
         // forbidden on the bus, proving no installed runtime path silently falls back.
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= PhantoonColorRomData.FadeOutSource and
-                < (PhantoonColorRomData.HealthBandsSource +
-                    PhantoonColorRomData.HealthBandCount *
-                    PhantoonColorRomData.HealthBandColorCount * sizeof(ushort)),
+            address => address is >= PhantoonSourceDefinitions.FadeOutColors and
+                < (PhantoonSourceDefinitions.HealthBandColors +
+                    PhantoonColorDefinitions.HealthBandCount *
+                    PhantoonColorDefinitions.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
@@ -100,13 +101,13 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             Tentacles = tentacles,
         };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
-        for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
+        for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
             enemies.PhantoonBehavior.CopyPhantoonHealthPalette(body);
             AssertBodyBand(band, $"Phantoon live health restore band {band}");
-            for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
-                cgram.SetColor(PhantoonColorRomDataConstants.BodyDestination + color, new Bgr555(0, 0, 0));
+            for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
+                cgram.SetColor(PhantoonColorDestinations.BodyDestination + color, new Bgr555(0, 0, 0));
             state.Parts[eye.SlotIndex].FadeNumerator = 1;
             state.Parts[eye.SlotIndex].FadeComplete = false;
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 0);
@@ -126,9 +127,9 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.Parts[eye.SlotIndex].FadeNumerator = 1;
         state.Parts[eye.SlotIndex].FadeComplete = false;
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 0);
-        for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
+        for (int color = 0; color < PhantoonColorDefinitions.FadeOutCount; color++)
             AssertEqual(colors.ResolveFadeOut(color),
-                cgram.Colors[PhantoonColorRomDataConstants.BodyDestination + color],
+                cgram.Colors[PhantoonColorDestinations.BodyDestination + color],
                 $"Phantoon live fade-out target {color}");
         AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon fade-out retains native numerator advance");
@@ -137,9 +138,9 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.Parts[eye.SlotIndex].FadeNumerator = 1;
         bool complete = enemies.PhantoonBehavior.Death.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
-        for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
+        for (int color = 0; color < PhantoonColorDefinitions.PowerOnCount; color++)
             AssertEqual(colors.ResolvePowerOn(color),
-                cgram.Colors[PhantoonColorRomData.PowerOnDestination + color],
+                cgram.Colors[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
         AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon ship power-on retains native numerator advance");
@@ -173,9 +174,9 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         void AssertBodyBand(int band, string name)
         {
-            for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+            for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealth(band, color),
-                    cgram.Colors[PhantoonColorRomDataConstants.BodyDestination + color],
+                    cgram.Colors[PhantoonColorDestinations.BodyDestination + color],
                     $"{name} color {color}");
         }
 

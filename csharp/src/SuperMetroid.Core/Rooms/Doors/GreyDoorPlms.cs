@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class GreyDoorPlms : IPlmFamilySource
 {
     /// <summary>Registers the GreyDoor family, which has no step of its own: its slots take the shared path.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);

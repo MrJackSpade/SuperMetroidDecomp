@@ -1,23 +1,23 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Bank-$AA movement pre-instructions a Torizo installs in <c>toriz_var_F</c>.</summary>
-public enum TorizoPreInstruction : ushort
+/// <summary>The movement step a Torizo runs before its instructions; each member names the bank-$AA routine it replaced (#1413: the values are arbitrary).</summary>
+public enum TorizoPreInstruction
 {
     /// <summary>$AA:C95E, the shared no-op movement step.</summary>
-    Idle = 0xc95e,
+    Idle = 1,
 
     /// <summary><c>Function_Torizo_Movement_Walking</c> at $AA:C752.</summary>
-    AirTransition = 0xc752,
+    AirTransition,
 
     /// <summary><c>Function_Torizo_Movement_Attacking</c> at $AA:C828.</summary>
-    Gravity = 0xc828,
+    Gravity,
 
     /// <summary><c>Function_Torizo_Movement_Jumping_Falling</c> at $AA:C82C.</summary>
-    Jump = 0xc82c,
+    Jump,
 
     /// <summary><c>Function_GoldenTorizo_Movement_Walking</c> at $AA:D5F1.</summary>
-    GoldenAirTransition = 0xd5f1,
+    GoldenAirTransition,
 
     /// <summary><c>Function_GoldenTorizo_Movement_Attacking</c> at $AA:D5ED.</summary>
-    GoldenGravity = 0xd5ed,
+    GoldenGravity,
 }

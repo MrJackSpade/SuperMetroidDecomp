@@ -17,8 +17,8 @@ public sealed class CrocomireEnemyState
     /// <summary>The death-sequence phase word.</summary>
     private int _deathPhaseWord;
 
-    /// <summary>The fight-flags word.</summary>
-    private int _fightFlagsWord;
+    /// <summary>The saturating count of mouth hits (<see cref="HitCount"/>).</summary>
+    private int _hitCount;
 
     /// <summary>The fight-function word.</summary>
     private int _fightFunctionWord;
@@ -68,18 +68,14 @@ public sealed class CrocomireEnemyState
         internal set => _deathPhaseWord = (ushort)value;
     }
 
-    /// <summary>The fight latches.</summary>
-    public CrocomireFightFlags FightFlags
-    {
-        get => CrocomireFightFlagBits.Flags(checked((ushort)_fightFlagsWord));
-        internal set => _fightFlagsWord = CrocomireFightFlagBits.ToNativeWord(value, HitCount);
-    }
+    /// <summary>The fight latches. The cartridge keeps them in one word with <see cref="HitCount"/> in its low four bits; nothing reads that word another way.</summary>
+    public CrocomireFightFlags FightFlags { get; internal set; }
 
-    /// <summary>The saturating count of mouth hits, 0..<see cref="CrocomireFightFlagBits.MaximumHitCount"/>, kept in the fight word beside the latches.</summary>
+    /// <summary>The saturating count of mouth hits, 0..<see cref="CrocomireMouthHits.MaximumCount"/>.</summary>
     public int HitCount
     {
-        get => CrocomireFightFlagBits.HitCount(checked((ushort)_fightFlagsWord));
-        internal set => _fightFlagsWord = CrocomireFightFlagBits.ToNativeWord(FightFlags, value);
+        get => _hitCount;
+        internal set => _hitCount = Ensure.BetweenInclusive(0, CrocomireMouthHits.MaximumCount, value);
     }
 
     /// <summary>The fight-AI function, run when the body program's fight-AI cue fires rather than once per main-AI frame.</summary>
@@ -210,7 +206,8 @@ public sealed class CrocomireEnemyState
     internal void ClearWithRecord()
     {
         _deathPhaseWord = 0;
-        _fightFlagsWord = 0;
+        FightFlags = 0;
+        _hitCount = 0;
         _fightFunctionWord = 0;
         _stepsDelayRumbleOrAccelerationWord = 0;
         _reactionSpeedOrSkeletonFractionWord = 0;

@@ -55,7 +55,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Registers component-specific bomb hit routines, including the native no-op gates.</summary>
-    internal void RegisterCrocomireBombReactions(EnemySharedReactions table)
+    internal void AddCrocomireBombReactions(EnemySharedReactions table)
     {
         // Specials consulted before the selected literal no-op gate, in the original order.
         // Crocomire has no header shot callback; every live component supplies its own bank-$A4 routine. Bomb
@@ -67,7 +67,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
-    internal void RegisterCrocomireProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddCrocomireProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -91,7 +91,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
-    internal void RegisterCrocomirePowerBombReactions(EnemySharedReactions table)
+    internal void AddCrocomirePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.CrocomirePowerBomb)
@@ -101,7 +101,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>
-    internal void RegisterCrocomireShotReactions(EnemySharedReactions table)
+    internal void AddCrocomireShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                                      enemy.Definition.ShotBody == EnemyCallbackBody.None ||
@@ -122,7 +122,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Registers Crocomire component contact, including normal enemy touch damage.</summary>
-    internal void RegisterCrocomireTouch(EnemySharedReactions table)
+    internal void AddCrocomireTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Crocomire &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CrocomireHeaderTouch ||
@@ -169,7 +169,7 @@ internal sealed class CrocomireCombat
                 // $B951 increments a temporary low-nibble value, then ORs it back into the
                 // flags word instead of replacing the nibble. Preserve that odd instruction
                 // sequence; changing it to an ordinary counter disagrees for several values.
-                state.HitCount |= CrocomireFightFlagBits.NextHitCount(state.HitCount);
+                state.HitCount |= CrocomireMouthHits.Next(state.HitCount);
                 return;
             }
 
@@ -354,7 +354,7 @@ internal sealed class CrocomireCombat
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
             state.StepCounter += stepCount;
-            int hitCount = CrocomireFightFlagBits.NextHitCount(state.HitCount);
+            int hitCount = CrocomireMouthHits.Next(state.HitCount);
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
             {
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
@@ -432,7 +432,7 @@ internal sealed class CrocomireCombat
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
-        short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(checked((ushort)projectile.DirectionParameter));
+        short gradient = CrocomireVolley.GradientForSpawnParameter(projectile.DirectionParameter);
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
         projectile.PreInstruction =
@@ -458,9 +458,9 @@ internal sealed class CrocomireCombat
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
             unchecked((short)(EnemyTrigonometryTables.SignedSine(bearing.ReinterpretAsTableAngle()) *
-                CrocomireProjectileRomData.VelocityMultiplier)),
+                CrocomireProjectileDefinitions.VelocityMultiplier)),
             unchecked((short)(EnemyTrigonometryTables.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
-                CrocomireProjectileRomData.VelocityMultiplier)));
+                CrocomireProjectileDefinitions.VelocityMultiplier)));
     }
 
     /// <summary>Ports the byte-precise slot-dependent shard motion at $86:9115.</summary>
@@ -510,9 +510,9 @@ internal sealed class CrocomireCombat
 
         ushort impactX = projectile.Position.X.Whole;
         ushort impactY = projectile.Position.Y.Whole;
-        int nativeIndex = projectile.SlotIndex * 2;
+        bool evenSlot = projectile.SlotIndex % 2 == 0;
         projectile.Clear();
-        if ((nativeIndex & 2) == 0)
+        if (evenSlot)
             _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.BigDustCloud);
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;
@@ -537,7 +537,7 @@ internal sealed class CrocomireCombat
     /// Registers the mouth projectile's typed shot program and its cues: the drop is allocated with Crocomire's
     /// chances before the deletion frees the exploding actor.
     /// </summary>
-    internal void RegisterCrocomireDropProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddCrocomireDropProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
             () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Bank-$A7 rage-wave producer operands, independent of the bank-$86 motion program.</summary>
-internal static class PhantoonRageRomData
+/// <summary>The shape and pacing of Phantoon's enraged flame waves, independent of how each flame then moves.</summary>
+internal static class PhantoonRageDefinitions
 {
     /// <summary>$A7:D8BB: first direction of the seven-flame even wave; descends through zero.</summary>
     internal const int EvenWaveFirstDirection = 6;

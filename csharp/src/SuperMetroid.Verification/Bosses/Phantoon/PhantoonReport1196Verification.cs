@@ -56,7 +56,7 @@ internal static class PhantoonReport1196Verification
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
-        wave.Begin(PhantoonWaveRomData.IntroMode);
+        wave.Begin(PhantoonWaveDefinitions.IntroMode);
         wave.Step(boss);
         wave.Step(boss);
         AssertTrue(wave.ScrollCycle.CountDistinct() > 1, "fixture retains a used introductory wave");
@@ -68,7 +68,7 @@ internal static class PhantoonReport1196Verification
         PhantoonDeath.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
         wave.Step(boss);
         wave.LatchDisplay();
-        AssertEqual(PhantoonWaveRomData.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");
+        AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");
 
         // Any stale per-line X offset would split the body: every displayed line takes BG2's own X.
         AssertTrue((wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).All(scroll => scroll == 13), "every first-frame death scroll equals native BG2 X");

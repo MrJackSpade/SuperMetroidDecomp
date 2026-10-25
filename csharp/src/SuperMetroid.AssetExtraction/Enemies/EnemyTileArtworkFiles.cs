@@ -142,9 +142,9 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingIllustration.Second,
             CrocomireMeltingArtworkFormat.SecondByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            (int)CrocomireMeltingTilemapAddress.FirstTilemap);
+            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.First));
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            (int)CrocomireMeltingTilemapAddress.SecondTilemap);
+            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Second));
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
         File.WriteAllBytes(Path.Combine(directory,
@@ -152,7 +152,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
         byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CrocomireSkeletonTransferDefinitions.Frames[0].SourceAddress,
+            CrocomireSourceDefinitions.SkeletonChunk(0),
             CrocomireSkeletonTransferDefinitions.TotalByteCount);
         byte[] skeletonPixels = SnesGraphics.DecodePlanarTiles(skeletonPlanar, 4,
             RoomCharacterAtlasFormat.TileColumns,
@@ -163,7 +163,7 @@ public static class EnemyTileArtworkFiles
         byte[] skeletonPng = skeletonImage.ToArray();
         CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
             new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonTransferDefinitions.TotalByteCount));
-        for (int index = 0; index < CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
+        for (int index = 0; index < CrocomireSkeletonTransferDefinitions.FrameCount; index++)
         {
             ReadOnlySpan<byte> expected = skeletonPlanar.AsSpan(
                 index * CrocomireSkeletonTransferDefinitions.ChunkByteCount,
@@ -184,7 +184,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
         var torizoInstructionHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (TileSheetDefinition page in
+        foreach (TorizoTileSheet page in
                  TorizoSwapArtworkDefinitions.All)
         {
             byte[] png = ExtractTorizoInstructionPage(bus, page);
@@ -727,7 +727,7 @@ public static class EnemyTileArtworkFiles
             TorizoSwapArtworkDefinitions.All.Length];
         for (int index = 0; index < torizoPages.Length; index++)
         {
-            TileSheetDefinition page =
+            TorizoTileSheet page =
                 TorizoSwapArtworkDefinitions.All[index];
             if (!manifest.TorizoInstructionTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
@@ -1300,8 +1300,8 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>Exports one Torizo instruction tile page with its definition's source range.</summary>
     private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
-        TileSheetDefinition page) =>
-        IndexedTilePageExtractor.Extract(bus, page.SourceAddress, page.ByteCount,
+        TorizoTileSheet page) =>
+        IndexedTilePageExtractor.Extract(bus, TorizoSourceDefinitions.PageSources[page.Page], page.ByteCount,
             $"Torizo instruction page {page.FileName}");
 
     /// <summary>Writes Kraid's backdrop, target, health, secondary, and death-arm palettes as one editable color document.</summary>

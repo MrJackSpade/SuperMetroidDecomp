@@ -38,7 +38,7 @@ internal sealed class TorizoAttacks
         _access.TorizoState is { IsGolden: true } ? _access.TorizoState : null;
 
     /// <summary>Installs movement handlers and typed program cues for statue fragments, orbs, attacks, and reflected missiles.</summary>
-    internal void RegisterBombTorizoProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddBombTorizoProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -215,11 +215,11 @@ internal sealed class TorizoAttacks
         if (kind == RoomEnemyProjectileKind.BombTorizoInitialDrool)
         {
             // $86:A66D-$A683 chain the carry: CLC; ADC Y; ADC #$FFFB, then the Y velocity's
-            // ADC #$0030 adds that second addition's carry (set whenever Y + jitter >= 5).
+            // ADC #$0030 adds that second addition's carry, which is set whenever the lift does not wrap.
             int jitteredY = (random & 3) + torizo.Position.Y.Whole;
-            int yWithOffset = jitteredY + TorizoMotionDefinitions.InitialDroolLift;
-            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)yWithOffset));
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((random & TorizoRandomDefinitions.DroolFallJitterMask) + 48 + SnesCarry.OutOfWord(yWithOffset)))));
+            int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
+            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(jitteredY - TorizoMotionDefinitions.InitialDroolLift)));
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((random & TorizoRandomDefinitions.DroolFallJitterMask) + 48 + liftCarry))));
             // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
             // stores a zero X velocity.
             int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
@@ -227,8 +227,8 @@ internal sealed class TorizoAttacks
             projectile.Position = projectile.Position.WithWholeX(_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
                 ? unchecked((ushort)jitteredX)
                 : _access.FacesRight(torizo)
-                    ? unchecked((ushort)(jitteredX + 8 + carry))
-                    : unchecked((ushort)(jitteredX + TorizoMotionDefinitions.InitialDroolLeftOffset + carry)));
+                    ? unchecked((ushort)(jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset + carry))
+                    : unchecked((ushort)(jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset + carry)));
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
             return;
         }
@@ -518,14 +518,14 @@ internal sealed class TorizoAttacks
         if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && verticalCollision)
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-                (projectile.Position.Y.Whole & TorizoMotionDefinitions.BlockMask) + 6)));
+                BlockTop(projectile.Position.Y.Whole) + 6)));
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbFloorImpact));
             projectile.CanDamageSamus = false;
             return;
         }
 
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 18))));
-        if (TorizoMotionDefinitions.IsRunaway(projectile.Velocity.Y))
+        if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
 
@@ -545,7 +545,7 @@ internal sealed class TorizoAttacks
 
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
             (unchecked((short)projectile.Velocity.X.RawValue) < 0 ? -16 : 16)))));
-        if (TorizoMotionDefinitions.IsRunaway(projectile.Velocity.X))
+        if (IsRunaway(projectile.Velocity.X))
             projectile.Clear();
     }
 
@@ -585,7 +585,7 @@ internal sealed class TorizoAttacks
         }
 
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
-        if (TorizoMotionDefinitions.IsRunaway(projectile.Velocity.Y))
+        if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
 
@@ -605,10 +605,10 @@ internal sealed class TorizoAttacks
                 ? xVelocity - 64
                 : xVelocity + 64))));
             projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-(projectile.Velocity.Y.RawValue >> 1))));
-            if (TorizoMotionDefinitions.HasSettled(projectile.Velocity.Y))
+            if (HasSettled(projectile.Velocity.Y))
             {
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-                    (projectile.Position.Y.Whole & TorizoMotionDefinitions.BlockMask) + 6)));
+                    BlockTop(projectile.Position.Y.Whole) + 6)));
                 projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbFloorImpact));
                 projectile.CanDamageSamus = false;
                 return;
@@ -629,7 +629,7 @@ internal sealed class TorizoAttacks
         {
             // The hatch timer steps the sleeping list past its sleep.
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileProgram(projectile))));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(((TorizoPostureFlags)projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight)
+            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(TorizoParameterFlagCodec.PostureOf(projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight)
                 ? (ushort)256
                 : unchecked((ushort)-256)));
             return;
@@ -638,7 +638,9 @@ internal sealed class TorizoAttacks
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
-            projectile.Variable0 = ((TorizoPostureFlags)projectile.Variable0 ^ TorizoPostureFlags.FacingRight).ToNativeWord();
+            projectile.Variable0 = TorizoParameterFlagCodec.ToParameterWord(
+                TorizoParameterFlagCodec.PostureOf(projectile.Variable0) ^ TorizoPostureFlags.FacingRight,
+                TorizoParameterFlagCodec.PostureLowBitsOf(projectile.Variable0));
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) &&
@@ -650,7 +652,7 @@ internal sealed class TorizoAttacks
         }
 
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
-        if (TorizoMotionDefinitions.IsRunaway(projectile.Velocity.Y))
+        if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
 
@@ -668,7 +670,7 @@ internal sealed class TorizoAttacks
         }
 
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
-            (((TorizoPostureFlags)projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight) ? 48 : -48)))));
+            (TorizoParameterFlagCodec.PostureOf(projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight) ? 48 : -48)))));
     }
 
     /// <summary>Accelerates the egg downward until floor contact selects the facing-specific break program.</summary>
@@ -678,7 +680,7 @@ internal sealed class TorizoAttacks
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.StartAnimation(new TorizoProjectileAnimation(((TorizoPostureFlags)projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight) ? TorizoProjectileProgram.EggBreakRight : TorizoProjectileProgram.EggBreakLeft));
+            projectile.StartAnimation(new TorizoProjectileAnimation(TorizoParameterFlagCodec.PostureOf(projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight) ? TorizoProjectileProgram.EggBreakRight : TorizoProjectileProgram.EggBreakLeft));
             return;
         }
 
@@ -719,7 +721,7 @@ internal sealed class TorizoAttacks
         }
 
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
-        if (TorizoMotionDefinitions.IsRunaway(projectile.Velocity.Y))
+        if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
 
@@ -757,7 +759,7 @@ internal sealed class TorizoAttacks
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-                (projectile.Position.Y.Whole & TorizoMotionDefinitions.BlockMask) + 6)));
+                BlockTop(projectile.Position.Y.Whole) + 6)));
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.EyeBeamFloorImpact));
         }
     }
@@ -833,7 +835,7 @@ internal sealed class TorizoAttacks
             // retaining it matters if another projectile already occupies slot zero.
             projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
                 projectile.Velocity.Y.RawValue + _projectiles.EnemyProjectiles[0].Variable1))));
-            if (TorizoMotionDefinitions.IsRunaway(projectile.Velocity.Y))
+            if (IsRunaway(projectile.Velocity.Y))
                 projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(TorizoMotionDefinitions.RunawaySpeed));
             return;
         }
@@ -841,4 +843,20 @@ internal sealed class TorizoAttacks
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped;
     }
+    /// <summary>
+    /// Whether a falling projectile has run away: its raw 8.8 speed is at least sixteen pixels per frame and below
+    /// thirty-two, the range whose top four bits the cartridge compares with one.
+    /// </summary>
+    private static bool IsRunaway(SnesSignedEightEight speed) =>
+        speed.RawValue >= TorizoMotionDefinitions.RunawaySpeed && speed.RawValue < 2 * TorizoMotionDefinitions.RunawaySpeed;
+
+    /// <summary>
+    /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame, the range whose
+    /// top nine bits the cartridge tests all set.
+    /// </summary>
+    private static bool HasSettled(SnesSignedEightEight speed) =>
+        speed.SignedRawValue is < 0 && speed.SignedRawValue >= -TorizoMotionDefinitions.SettledBounceSpeed;
+
+    /// <summary>The top of the room block a whole pixel coordinate lies in.</summary>
+    private static int BlockTop(int whole) => whole - whole % TorizoMotionDefinitions.BlockPixels;
 }

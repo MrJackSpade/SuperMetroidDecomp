@@ -43,7 +43,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Binds bomb hit responses for vulnerable Phantoon phases.</summary>
-    internal void RegisterPhantoonBombReactions(EnemySharedReactions table)
+    internal void AddPhantoonBombReactions(EnemySharedReactions table)
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
         // AI; their private callbacks own slot cleanup or a staged death. Bank-$A8 callbacks reuse the same
@@ -69,7 +69,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Registers Phantoon flame initializers, pre-instructions, and instructions.</summary>
-    internal void RegisterPhantoonProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddPhantoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -438,7 +438,7 @@ internal sealed class PhantoonCombat
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
     internal static void RunPhantoonCasualFlameImpactPause(
         RoomEnemyProjectileSlot flame,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         CountdownStep pauseStep = WrappingCounter.Decrement(checked((ushort)flame.Variable0));
         flame.Variable0 = pauseStep.Value;
@@ -453,7 +453,7 @@ internal sealed class PhantoonCombat
         flame.Velocity = flame.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-768));
         flame.Variable0 = 0;
         // $86:99EB reads the 16-bit NMI_FrameCounter.
-        flame.Velocity = flame.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((nmiFrameCounter & 1) == 0 ? (short)128 : (short)-128));
+        flame.Velocity = flame.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? (short)128 : (short)-128));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>
@@ -495,7 +495,7 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionRomData.RageRadiusStep))));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.RageRadiusStep))));
         flame.Variable0 = unchecked((byte)(flame.Variable0 + (byte)flame.Velocity.X.RawValue));
         PositionPhantoonFlameAroundBody(
             flame,
@@ -517,7 +517,7 @@ internal sealed class PhantoonCombat
                 return;
             // Expiry falls through to movement on this call, including signed
             // underflow. Keep each actor's native queue call rather than a last-SFX latch.
-            _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
+            _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundQueueCapacity);
         }
 
         flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
@@ -527,7 +527,7 @@ internal sealed class PhantoonCombat
         flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
         flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
-        _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
+        _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundQueueCapacity);
     }
 
     /// <summary>Moves a spiral flame around Phantoon's body.</summary>
@@ -539,8 +539,8 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionRomData.SpiralRadiusStep))));
-        flame.Variable0 = unchecked((byte)(flame.Variable0 + PhantoonFlameMotionRomData.SpiralAngleStep));
+        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.SpiralRadiusStep))));
+        flame.Variable0 = unchecked((byte)(flame.Variable0 + PhantoonFlameMotionDefinitions.SpiralAngleStep));
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
@@ -625,7 +625,7 @@ internal sealed class PhantoonCombat
         EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
 
     /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>
-    internal void RegisterPhantoonBodyTouch(EnemySharedReactions table)
+    internal void AddPhantoonBodyTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PhantoonTouch,

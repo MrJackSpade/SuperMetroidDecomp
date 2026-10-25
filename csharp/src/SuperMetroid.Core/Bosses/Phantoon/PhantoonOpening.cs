@@ -69,15 +69,15 @@ internal sealed class PhantoonOpening
         state.Parts[body.SlotIndex].StartingFlamesActive = false;
         state.SemiTransparent = true;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WavyFadeIn;
-        state.Parts[state.Mouth.SlotIndex].BlendingControl = PhantoonBlendingRomData.WavyFadeInControl;
+        state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
         state.Parts[body.SlotIndex].FunctionTimer = 120;
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
         state.Parts[state.Mouth.SlotIndex].WaveAmplitudeShrinking = false;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
         state.MusicRequest = MusicRequest.SelectTrack(5);
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
-        state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveRomData.IntroMode;
-        state.Wave.Begin(PhantoonWaveRomData.IntroMode);
+        state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveDefinitions.IntroMode;
+        state.Wave.Begin(PhantoonWaveDefinitions.IntroMode);
     }
 
     /// <summary>Raises intro wave amplitude and reveals the body palette.</summary>
@@ -92,7 +92,7 @@ internal sealed class PhantoonOpening
                 PhantoonBehavior.PhantoonIntroMaximumAmplitude))
         {
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.PickFirstRoundPattern;
-            state.Parts[state.Mouth.SlotIndex].BlendingControl = 1;
+            state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
             state.Parts[body.SlotIndex].FunctionTimer = 30;
             return;
         }

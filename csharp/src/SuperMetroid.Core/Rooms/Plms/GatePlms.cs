@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal sealed class GatePlms : IPlmFamilySource
 {
     /// <summary>Registers the DownwardGate family, which has no step of its own: its slots take the shared path.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);

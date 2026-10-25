@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonCannonPlms : IPlmFamilySource
 {
     /// <summary>Registers the DraygonCannon family, which has no step of its own: its slots take the shared path.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.DraygonCannon, static (_, _) => PlmStepOutcome.Shared);
@@ -327,7 +327,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.
-            slot.RoomArgument = DraygonCannonRomData.HitsToDestroy;
+            slot.RoomArgument = DraygonCannonDefinitions.HitsToDestroy;
             slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.DestroyProgram(orientation)));
             return;
         }
@@ -337,11 +337,11 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,
-            DraygonCannonRomData.CannonCollisionWord);
+            DraygonCannonDefinitions.LiveCannon);
         WriteDraygonCannonTypeAndBts(
             level,
             checked(slot.BlockIndex + level.Size.X),
-            DraygonCannonRomData.CannonExtensionWord);
+            DraygonCannonDefinitions.LiveCannonExtension);
     }
 
     /// <summary>Accepts pending missile hits, treating a Super Missile as enough damage to reach the destruction threshold.</summary>
@@ -354,7 +354,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
 
         SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family == SamusProjectileFamily.SuperMissile)
-            slot.RoomArgument = DraygonCannonRomData.SuperMissileHitCounterSeed;
+            slot.RoomArgument = DraygonCannonDefinitions.SuperMissileHitCounterSeed;
         else if (family != SamusProjectileFamily.Missile)
             return;
 
@@ -370,7 +370,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     internal static bool CountHit(PlmSlot slot)
     {
         byte next = unchecked((byte)(slot.RoomArgument + 1));
-        if (next < DraygonCannonRomData.HitsToDestroy)
+        if (next < DraygonCannonDefinitions.HitsToDestroy)
         {
             slot.RoomArgument = next;
             return false;
@@ -394,11 +394,11 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,
-            DraygonCannonRomData.DestroyedCannonWord);
+            DraygonCannonDefinitions.DestroyedCannon);
         WriteDraygonCannonTypeAndBts(
             level,
             checked(slot.BlockIndex + level.Size.X),
-            DraygonCannonRomData.DestroyedCannonWord);
+            DraygonCannonDefinitions.DestroyedCannon);
         state.Destroyed = true;
     }
 
@@ -406,13 +406,13 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     private static void WriteDraygonCannonTypeAndBts(
         RoomLevelData level,
         int blockIndex,
-        ushort typeAndBts)
+        DraygonCannonTerrain terrain)
     {
         ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetPlmForegroundEntry(
             blockIndex,
-            new RoomLevelWord(original).WithCollisionType(new RoomLevelWord(typeAndBts).CollisionType).Raw);
-        level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
+            new RoomLevelWord(original).WithCollisionType(terrain.Type).Raw);
+        level.SetPlmBehavior(blockIndex, terrain.Behavior);
     }
 
     /// <summary>Per-slot cannon enemy control-word identity, destruction state, and queued hit flag.</summary>

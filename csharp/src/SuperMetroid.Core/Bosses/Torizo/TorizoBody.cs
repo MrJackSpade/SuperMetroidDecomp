@@ -45,7 +45,7 @@ internal sealed class TorizoBody
         if (torizo.Health is 0 or >= BombTorizoBehavior.BombTorizoHeadExplosionHealth)
             return;
         if (_room.Random.Read() is int random &&
-            (random & TorizoRandomDefinitions.LowHealthDroolMask) == 0)
+            TorizoRandomDefinitions.LowHealthDrool.AllClear(random))
         {
             SpawnBombTorizoInitialDrool(torizo);
         }

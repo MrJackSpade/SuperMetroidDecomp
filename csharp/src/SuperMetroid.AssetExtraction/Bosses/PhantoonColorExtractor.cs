@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -17,19 +18,19 @@ public static class PhantoonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[PhantoonColorRomData.HealthBandCount][];
+        var bands = new PaletteRgb5[PhantoonColorDefinitions.HealthBandCount][];
         for (int band = 0; band < bands.Length; band++)
-            bands[band] = Read(PhantoonColorRomData.HealthBandsSource +
-                band * PhantoonColorRomData.HealthBandColorCount * sizeof(ushort),
-                PhantoonColorRomData.HealthBandColorCount);
+            bands[band] = Read(PhantoonSourceDefinitions.HealthBandColors +
+                band * PhantoonColorDefinitions.HealthBandColorCount * sizeof(ushort),
+                PhantoonColorDefinitions.HealthBandColorCount);
         return PhantoonColorFile.Write(new PhantoonColorDocument
         {
             Version = PhantoonColorFormat.Version,
             HealthBands = bands,
-            FadeOut = Read(PhantoonColorRomData.FadeOutSource,
-                PhantoonColorRomData.FadeOutCount),
-            PowerOn = Read(PhantoonColorRomData.PowerOnSource,
-                PhantoonColorRomData.PowerOnCount),
+            FadeOut = Read(PhantoonSourceDefinitions.FadeOutColors,
+                PhantoonColorDefinitions.FadeOutCount),
+            PowerOn = Read(PhantoonSourceDefinitions.PowerOnColors,
+                PhantoonColorDefinitions.PowerOnCount),
         });
 
         PaletteRgb5[] Read(int source, int count)

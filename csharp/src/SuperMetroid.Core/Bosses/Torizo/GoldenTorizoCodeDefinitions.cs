@@ -17,8 +17,17 @@ internal static class GoldenTorizoCodeDefinitions
     internal const ushort SuperMissiles = 20;
     /// <summary>$AA:C942 immediate: current and maximum Power Bombs.</summary>
     internal const ushort PowerBombs = 20;
-    /// <summary>$AA:C94B immediate: replaces collected and equipped item words without merging prior upgrades.</summary>
-    internal const SuperMetroid.Core.Progression.SamusEquipmentFlags Items = (SamusEquipmentFlags)0xf337;
-    /// <summary>$AA:C954 immediate: native collected/equipped beams, including simultaneous Spazer and Plasma.</summary>
-    internal const SuperMetroid.Core.Progression.SamusBeamFlags Beams = (SamusBeamFlags)0x100f;
+    /// <summary>
+    /// $AA:C94B immediate: every item but the Screw Attack, replacing the collected and equipped items without merging
+    /// prior upgrades. The cartridge's word also sets bit 4, which names no item and no retail routine tests.
+    /// </summary>
+    internal const SamusEquipmentFlags Items = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall |
+        SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |
+        SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster |
+        SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope | UnnamedItemBit;
+    /// <summary>The bit the code's item word sets that names no item.</summary>
+    private const SamusEquipmentFlags UnnamedItemBit = (SamusEquipmentFlags)0x0010;
+    /// <summary>$AA:C954 immediate: every beam, collected and equipped, including simultaneous Spazer and Plasma.</summary>
+    internal const SamusBeamFlags Beams = SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer |
+        SamusBeamFlags.Plasma | SamusBeamFlags.Charge;
 }

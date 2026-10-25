@@ -104,10 +104,10 @@ public sealed class CrocomireDeathState
     public IReadOnlyList<ushort> Bg2ScrollByScanline => _bg2ScrollByScanline;
 
     /// <summary>
-    /// Whether $A4:9555 has spawned the melting scroll HDMA object and $A4:95CE has
-    /// not cleared its channel. Allocated scratch table storage alone does not enable HDMA.
+    /// Whether the melting's per-line scroll distortion is running: $A4:9555 starts it and $A4:95CE ends it.
+    /// Allocated scratch table storage alone does not start it.
     /// </summary>
-    public bool MeltingHdmaActive { get; internal set; }
+    public bool MeltingScrollActive { get; internal set; }
 
     /// <summary>Exposes the BG2 tilemap while death-sequence graphics are assembled.</summary>
     internal Span<ushort> MutableBg2WorkingTilemap => _bg2WorkingTilemap;

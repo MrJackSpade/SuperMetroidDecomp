@@ -1039,7 +1039,7 @@ internal sealed class SuperMetroidRuntime
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionMainScreenLayers,
             sky?.Publish(Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
-            crocomireDeath is { MeltingHdmaActive: true } melting
+            crocomireDeath is { MeltingScrollActive: true } melting
                 ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,

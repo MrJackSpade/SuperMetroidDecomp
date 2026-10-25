@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
 {
     /// <summary>Registers the WreckedShipTreadmill family's step.</summary>
-    public void RegisterPlmFamilies(PlmFamilyTable table)
+    public void AddPlmFamilies(PlmFamilyTable table)
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.WreckedShipTreadmill, static (slot, context) =>

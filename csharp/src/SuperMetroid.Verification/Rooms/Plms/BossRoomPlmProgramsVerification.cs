@@ -167,10 +167,10 @@ internal static class BossRoomPlmProgramsVerification
                     Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2))), "cannon links its own hit program");
                 break;
             case DraygonCannonCue.ArmMissileWake:
-                AssertEqual(DraygonCannonRomDataConstants.MissileHitPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
+                AssertEqual(DraygonNativeWords.MissileHitPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
                 break;
             case DraygonCannonCue.CountHit:
-                AssertEqual(DraygonCannonRomData.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
+                AssertEqual(DraygonCannonDefinitions.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
                 AssertEqual(right ? DraygonCannonProgram.RightDestroy : DraygonCannonProgram.LeftDestroy,
                     Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 3))), "cannon destroys its own side");
                 break;

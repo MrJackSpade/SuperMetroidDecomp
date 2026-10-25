@@ -71,12 +71,12 @@ public sealed class CrocomireMeltingArtwork
     };
 
     /// <summary>Returns only the visual tile references, never melt control or hitboxes.</summary>
-    internal ReadOnlySpan<ushort> Tilemap(CrocomireMeltingTilemapAddress sourceAddress) => sourceAddress switch
+    internal ReadOnlySpan<ushort> Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingTilemapAddress.FirstTilemap => firstTilemap.Words(),
-        CrocomireMeltingTilemapAddress.SecondTilemap => secondTilemap.Words(),
+        CrocomireMeltingIllustration.First => firstTilemap.Words(),
+        CrocomireMeltingIllustration.Second => secondTilemap.Words(),
         _ => throw new InvalidDataException(
-            $"Crocomire melt tilemap ${(int)sourceAddress:X6} is not installed."),
+            $"Crocomire melt tilemap {illustration} is not installed."),
     };
 
     /// <summary>Writes a validated, human-editable tile-layout document.</summary>

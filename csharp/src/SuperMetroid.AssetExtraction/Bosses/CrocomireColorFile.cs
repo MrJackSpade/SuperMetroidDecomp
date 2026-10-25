@@ -21,14 +21,14 @@ public static class CrocomireColorFile
         if (document.Version != CrocomireColorFormat.Version)
             throw new InvalidDataException("Crocomire colors require the supported version.");
         return new(
-            Compile(document.FightBody, CrocomirePaletteRomData.FightBodyCount, "fight body"),
-            Compile(document.InitialWall, CrocomirePaletteRomData.InitialWallCount,
+            Compile(document.FightBody, CrocomireColorDefinitions.FightBodyCount, "fight body"),
+            Compile(document.InitialWall, CrocomireColorDefinitions.InitialWallCount,
                 "initial wall"),
-            Compile(document.InitialProjectile, CrocomirePaletteRomData.InitialProjectileCount,
+            Compile(document.InitialProjectile, CrocomireColorDefinitions.InitialProjectileCount,
                 "initial projectile"),
-            Compile(document.SkeletonArm, CrocomirePaletteRomData.SkeletonArmCount,
+            Compile(document.SkeletonArm, CrocomireColorDefinitions.SkeletonArmCount,
                 "skeleton arm"),
-            Compile(document.WallSpikes, CrocomirePaletteRomData.WallSpikesCount,
+            Compile(document.WallSpikes, CrocomireColorDefinitions.WallSpikesCount,
                 "wall spikes"));
     }
 

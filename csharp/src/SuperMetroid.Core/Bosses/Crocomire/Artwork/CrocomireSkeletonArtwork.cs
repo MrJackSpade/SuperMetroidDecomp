@@ -24,10 +24,25 @@ public sealed class CrocomireSkeletonArtwork
         Ensure.NotNull(characters).Characters.Length == CrocomireSkeletonTransferDefinitions.TotalByteCount ? new CrocomireSkeletonArtwork(characters)
             : throw new InvalidDataException($"Crocomire skeleton holds {characters.Characters.Length} bytes; expected {CrocomireSkeletonTransferDefinitions.TotalByteCount}.");
 
-    /// <summary>Gets one $0200-byte upload chunk; rejects the terminal entry because it has no character transfer.</summary>
+    /// <summary>
+    /// Whether <paramref name="index"/> names one of the skeleton's chunks: false only for the entry after the last,
+    /// which ends the sequence.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="index"/> is outside the sequence and its end entry.</exception>
+    internal static bool IsChunk(int index)
+    {
+        if ((uint)index < CrocomireSkeletonTransferDefinitions.FrameCount)
+            return true;
+        if (index != CrocomireSkeletonTransferDefinitions.FrameCount)
+            throw new InvalidDataException(
+                $"Crocomire skeleton upload index {index} is outside its sequence.");
+        return false;
+    }
+
+    /// <summary>Gets one 512-byte upload chunk; rejects the terminal entry because it has no character transfer.</summary>
     internal ReadOnlyMemory<byte> Chunk(int index)
     {
-        if (!CrocomireSkeletonTransferDefinitions.TryGet(index, out _))
+        if (!IsChunk(index))
             throw new InvalidDataException(
                 "Crocomire skeleton's terminal entry has no character upload.");
         return atlas.Characters.Slice(index *

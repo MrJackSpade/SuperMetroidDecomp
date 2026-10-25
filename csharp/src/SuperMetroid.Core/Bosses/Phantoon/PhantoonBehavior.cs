@@ -148,7 +148,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // owns the casual-flame pattern index/control words used much later in the fight.
         if (_slotTable.Slots.Count > 3)
         {
-            state.Parts[3].BlendingControl = 0;
+            state.Parts[3].LayerControl = PhantoonLayerControl.Hidden;
             state.Parts[3].CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
         }
     }
@@ -324,7 +324,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void CopyPhantoonHealthPalette(RoomEnemySlot body)
     {
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
-        for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
             _presentation.BossColours().PhantoonBody.Write(color, Presentation.ReadPhantoonHealthColor(healthBand, color));
     }
     /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>
@@ -451,7 +451,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the native hurt callback used after a vulnerable-eye hit.</summary>
     /// <remarks>$A7:DD3F owns every Phantoon hurt frame. It alternates palette seven between white and the new health
     /// band; body movement/main AI resumes only after common flash timing clears handler bit two.</remarks>
-    internal void RegisterPhantoonHurtAi(EnemySharedReactions table) =>
+    internal void AddPhantoonHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody,
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));
 }

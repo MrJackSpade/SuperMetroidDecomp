@@ -14,6 +14,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Checks installed Crocomire palette bands against native RGB5 data
 /// and live boss CGRAM writes under a cartridge-read guard.</summary>
@@ -31,17 +32,17 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
     {
         CrocomireColorCatalog native = stock.Bosses.CrocomireColors ??
             throw new InvalidDataException("Installed enemy art has no Crocomire colors.");
-        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.FightBodySource,
-            CrocomirePaletteRomData.FightBodyCount, native.ResolveFightBody, "fight body"));
-        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.InitialWallSource,
-            CrocomirePaletteRomData.InitialWallCount, native.ResolveInitialWall, "initial wall"));
-        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.InitialProjectileSource,
-            CrocomirePaletteRomData.InitialProjectileCount, native.ResolveInitialProjectile,
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomireSourceDefinitions.FightBodyColors,
+            CrocomireColorDefinitions.FightBodyCount, native.ResolveFightBody, "fight body"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomireSourceDefinitions.InitialWallColors,
+            CrocomireColorDefinitions.InitialWallCount, native.ResolveInitialWall, "initial wall"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomireSourceDefinitions.InitialProjectileColors,
+            CrocomireColorDefinitions.InitialProjectileCount, native.ResolveInitialProjectile,
             "initial projectile"));
-        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.SkeletonArmSource,
-            CrocomirePaletteRomData.SkeletonArmCount, native.ResolveSkeletonArm, "skeleton arm"));
-        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.WallSpikesSource,
-            CrocomirePaletteRomData.WallSpikesCount, native.ResolveWallSpikes, "wall spikes"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomireSourceDefinitions.SkeletonArmColors,
+            CrocomireColorDefinitions.SkeletonArmCount, native.ResolveSkeletonArm, "skeleton arm"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomireSourceDefinitions.WallSpikesColors,
+            CrocomireColorDefinitions.WallSpikesCount, native.ResolveWallSpikes, "wall spikes"));
 
         string file = Path.Combine(stockDirectory, CrocomireColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
@@ -60,16 +61,16 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         CrocomireColorCatalog colors = edited.Bosses.CrocomireColors ??
             throw new InvalidDataException("Edited enemy art has no Crocomire colors.");
-        CheckEditedBand(CrocomirePaletteRomData.FightBodyCount,
+        CheckEditedBand(CrocomireColorDefinitions.FightBodyCount,
             native.ResolveFightBody, colors.ResolveFightBody, "fight body");
-        CheckEditedBand(CrocomirePaletteRomData.InitialWallCount,
+        CheckEditedBand(CrocomireColorDefinitions.InitialWallCount,
             native.ResolveInitialWall, colors.ResolveInitialWall, "initial wall");
-        CheckEditedBand(CrocomirePaletteRomData.InitialProjectileCount,
+        CheckEditedBand(CrocomireColorDefinitions.InitialProjectileCount,
             native.ResolveInitialProjectile, colors.ResolveInitialProjectile,
             "initial projectile");
-        CheckEditedBand(CrocomirePaletteRomData.SkeletonArmCount,
+        CheckEditedBand(CrocomireColorDefinitions.SkeletonArmCount,
             native.ResolveSkeletonArm, colors.ResolveSkeletonArm, "skeleton arm");
-        CheckEditedBand(CrocomirePaletteRomData.WallSpikesCount,
+        CheckEditedBand(CrocomireColorDefinitions.WallSpikesCount,
             native.ResolveWallSpikes, colors.ResolveWallSpikes, "wall spikes");
         AssertEqual(colors.ResolveFightBody(1),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
@@ -80,9 +81,9 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         // forbidden. Their CGRAM writes must come from the installed resource, while the
         // native phase, instruction, and white-flash decisions remain unchanged.
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= CrocomirePaletteRomData.FightBodySource and
-                < (CrocomirePaletteRomData.WallSpikesSource +
-                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
+            address => address is >= CrocomireSourceDefinitions.FightBodyColors and
+                < (CrocomireSourceDefinitions.WallSpikesColors +
+                    CrocomireColorDefinitions.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
@@ -99,29 +100,29 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertEqual(AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial),
             state.BodyCursor,
             "installed Crocomire colors leave the initial program unchanged");
-        AssertBand(CrocomirePaletteRomDataConstants.InitialWallDestination,
-            CrocomirePaletteRomData.InitialWallCount, colors.ResolveInitialWall,
+        AssertBand(CrocomireColorDestinations.InitialWallDestination,
+            CrocomireColorDefinitions.InitialWallCount, colors.ResolveInitialWall,
             "initial wall CGRAM");
-        AssertBand(CrocomirePaletteRomDataConstants.InitialProjectileDestination,
-            CrocomirePaletteRomData.InitialProjectileCount, colors.ResolveInitialProjectile,
+        AssertBand(CrocomireColorDestinations.InitialProjectileDestination,
+            CrocomireColorDefinitions.InitialProjectileCount, colors.ResolveInitialProjectile,
             "initial projectile CGRAM");
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
-        AssertBand(CrocomirePaletteRomDataConstants.FightBodyDestination,
-            CrocomirePaletteRomData.FightBodyCount, colors.ResolveFightBody,
+        AssertBand(CrocomireColorDestinations.FightBodyDestination,
+            CrocomireColorDefinitions.FightBodyCount, colors.ResolveFightBody,
             "restored fight-body CGRAM");
         body.FlashTimer = WrappingCountdown.Start(1);
         enemies.FrameContext.SeedRandomEnemyCounter(2);
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
-        for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
+        for (int color = 0; color < CrocomireColorDefinitions.FightBodyCount; color++)
             AssertEqual(0x7fff,
-                cgram.Colors[CrocomirePaletteRomDataConstants.FightBodyDestination + color],
+                cgram.Colors[CrocomireColorDestinations.FightBodyDestination + color],
                 $"Crocomire native white hurt flash {color}");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "white hurt flash leaves fight phase unchanged");
         state.DeathPhaseDelay = WrappingCountdown.Start(0);
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonTileLoadAndWallBreak(state);
-        AssertBand(CrocomirePaletteRomDataConstants.SkeletonArmDestination,
-            CrocomirePaletteRomData.SkeletonArmCount, colors.ResolveSkeletonArm,
+        AssertBand(CrocomireColorDestinations.SkeletonArmDestination,
+            CrocomireColorDefinitions.SkeletonArmCount, colors.ResolveSkeletonArm,
             "skeleton-arm CGRAM");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             "installed skeleton-arm colors leave death-phase handoff unchanged");

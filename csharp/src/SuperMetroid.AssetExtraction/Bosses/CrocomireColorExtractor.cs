@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -24,16 +25,16 @@ public static class CrocomireColorExtractor
         return CrocomireColorFile.Write(new CrocomireColorDocument
         {
             Version = CrocomireColorFormat.Version,
-            FightBody = Read(CrocomirePaletteRomData.FightBodySource,
-                CrocomirePaletteRomData.FightBodyCount),
-            InitialWall = Read(CrocomirePaletteRomData.InitialWallSource,
-                CrocomirePaletteRomData.InitialWallCount),
-            InitialProjectile = Read(CrocomirePaletteRomData.InitialProjectileSource,
-                CrocomirePaletteRomData.InitialProjectileCount),
-            SkeletonArm = Read(CrocomirePaletteRomData.SkeletonArmSource,
-                CrocomirePaletteRomData.SkeletonArmCount),
-            WallSpikes = Read(CrocomirePaletteRomData.WallSpikesSource,
-                CrocomirePaletteRomData.WallSpikesCount),
+            FightBody = Read(CrocomireSourceDefinitions.FightBodyColors,
+                CrocomireColorDefinitions.FightBodyCount),
+            InitialWall = Read(CrocomireSourceDefinitions.InitialWallColors,
+                CrocomireColorDefinitions.InitialWallCount),
+            InitialProjectile = Read(CrocomireSourceDefinitions.InitialProjectileColors,
+                CrocomireColorDefinitions.InitialProjectileCount),
+            SkeletonArm = Read(CrocomireSourceDefinitions.SkeletonArmColors,
+                CrocomireColorDefinitions.SkeletonArmCount),
+            WallSpikes = Read(CrocomireSourceDefinitions.WallSpikesColors,
+                CrocomireColorDefinitions.WallSpikesCount),
         });
 
         PaletteRgb5[] Read(int source, int count)

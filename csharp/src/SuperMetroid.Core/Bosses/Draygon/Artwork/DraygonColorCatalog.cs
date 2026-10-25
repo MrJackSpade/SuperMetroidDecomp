@@ -12,21 +12,21 @@ public sealed class DraygonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
         {
-            Span<Bgr555> introWords = stackalloc Bgr555[DraygonColorRomData.IntroCount];
+            Span<Bgr555> introWords = stackalloc Bgr555[DraygonColorDefinitions.IntroCount];
             for (int color = 0; color < introWords.Length; color++) introWords[color] = intro.Color(color);
             content.AppendColors("intro", introWords);
-            Span<Bgr555> backgroundWords = stackalloc Bgr555[DraygonColorRomData.BackgroundCount];
+            Span<Bgr555> backgroundWords = stackalloc Bgr555[DraygonColorDefinitions.BackgroundCount];
             for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = background.Color(color);
             content.AppendColors("background", backgroundWords);
-            Span<Bgr555> spriteWords = stackalloc Bgr555[DraygonColorRomData.SpriteCount];
+            Span<Bgr555> spriteWords = stackalloc Bgr555[DraygonColorDefinitions.SpriteCount];
             for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = sprite.Color(color);
             content.AppendColors("sprite", spriteWords);
-            Span<Bgr555> flash = stackalloc Bgr555[DraygonColorRomData.WhiteFlashCount];
+            Span<Bgr555> flash = stackalloc Bgr555[DraygonColorDefinitions.WhiteFlashCount];
             for (int color = 0; color < flash.Length; color++) flash[color] = ResolveWhiteFlash(color);
             content.AppendColors("whiteFlash", flash);
-            content.Append("healthBands", DraygonColorRomData.HealthBandCount);
-            Span<Bgr555> row = stackalloc Bgr555[DraygonColorRomData.HealthBandColorCount];
-            for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
+            content.Append("healthBands", DraygonColorDefinitions.HealthBandCount);
+            Span<Bgr555> row = stackalloc Bgr555[DraygonColorDefinitions.HealthBandColorCount];
+            for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = ResolveHealthBand(band, color);
                 content.AppendColors("row", row);
@@ -65,7 +65,7 @@ public sealed class DraygonColorCatalog
     /// <summary>Gets one of the 16 selected white-flash colors, preserving transparent entry zero.</summary>
     public Bgr555 ResolveWhiteFlash(int color)
     {
-        if ((uint)color >= DraygonColorRomData.WhiteFlashCount)
+        if ((uint)color >= DraygonColorDefinitions.WhiteFlashCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return whiteFlash.TryGetValue(new ColourCell(0, color), out Bgr555 selected) ? selected : StockWhiteFlash(color);
     }
@@ -74,7 +74,7 @@ public sealed class DraygonColorCatalog
     public Bgr555 ResolveHealthBand(int band, int color)
     {
         _ = CheckBand(band);
-        if ((uint)color >= DraygonColorRomData.HealthBandColorCount)
+        if ((uint)color >= DraygonColorDefinitions.HealthBandColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return healthBands.Color(band, color);
     }
@@ -83,38 +83,38 @@ public sealed class DraygonColorCatalog
     private static Bgr555 StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : Bgr555.FromWord(0x7fff);
 
     /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
-    public void ApplyIntro(GameplayColours cgram) =>
-        ApplyCalculated(new BossColours(cgram).DraygonIntro, DraygonColorRomData.IntroCount, ResolveIntro);
+    public void ApplyIntro(GameplayColours colours) =>
+        ApplyCalculated(new BossColours(colours).DraygonIntro, DraygonColorDefinitions.IntroCount, ResolveIntro);
 
     /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
-    public void ApplyHurt(GameplayColours cgram, bool whiteFrame, int healthBand)
+    public void ApplyHurt(GameplayColours colours, bool whiteFrame, int healthBand)
     {
         if (whiteFrame)
-            ApplyCalculated(new BossColours(cgram).DraygonBackground, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
+            ApplyCalculated(new BossColours(colours).DraygonBackground, DraygonColorDefinitions.WhiteFlashCount, ResolveWhiteFlash);
         else
-            ApplyCalculated(new BossColours(cgram).DraygonBackground, DraygonColorRomData.BackgroundCount, ResolveBackground);
+            ApplyCalculated(new BossColours(colours).DraygonBackground, DraygonColorDefinitions.BackgroundCount, ResolveBackground);
         if (!whiteFrame)
-            ApplyHealthBand(cgram, healthBand);
+            ApplyHealthBand(colours, healthBand);
         if (whiteFrame)
-            ApplyCalculated(new BossColours(cgram).DraygonSprite, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
+            ApplyCalculated(new BossColours(colours).DraygonSprite, DraygonColorDefinitions.WhiteFlashCount, ResolveWhiteFlash);
         else
-            ApplyCalculated(new BossColours(cgram).DraygonSprite, DraygonColorRomData.SpriteCount, ResolveSprite);
+            ApplyCalculated(new BossColours(colours).DraygonSprite, DraygonColorDefinitions.SpriteCount, ResolveSprite);
     }
 
     /// <summary>Installs the four-color health band 0-7.</summary>
-    public void ApplyHealthBand(GameplayColours cgram, int band)
+    public void ApplyHealthBand(GameplayColours colours, int band)
     {
-        if (band is < 0 or >= DraygonColorRomData.HealthBandCount)
+        if (band is < 0 or >= DraygonColorDefinitions.HealthBandCount)
             throw new InvalidDataException($"Draygon health palette band {band} is not authored.");
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
-            new BossColours(cgram).DraygonHealth.Write(color,
+        Ensure.NotNull(colours);
+        for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
+            new BossColours(colours).DraygonHealth.Write(color,
                 ResolveHealthBand(band, color));
     }
 
     /// <summary>Validates a health palette row before resolving one of its colors.</summary>
     private static int CheckBand(int band) =>
-        (uint)band < DraygonColorRomData.HealthBandCount
+        (uint)band < DraygonColorDefinitions.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 

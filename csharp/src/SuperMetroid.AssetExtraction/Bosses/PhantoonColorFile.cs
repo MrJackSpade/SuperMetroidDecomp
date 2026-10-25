@@ -21,14 +21,14 @@ public static class PhantoonColorFile
         if (document.Version != PhantoonColorFormat.Version)
             throw new InvalidDataException("Phantoon colors require the supported version.");
         if (document.HealthBands is null ||
-            document.HealthBands.Length != PhantoonColorRomData.HealthBandCount)
+            document.HealthBands.Length != PhantoonColorDefinitions.HealthBandCount)
             throw new InvalidDataException("Phantoon colors require eight health palettes.");
         return new(
             document.HealthBands.Select((band, index) =>
-                Compile(band, PhantoonColorRomData.HealthBandColorCount,
+                Compile(band, PhantoonColorDefinitions.HealthBandColorCount,
                     $"health palette {index}")).ToArray(),
-            Compile(document.FadeOut, PhantoonColorRomData.FadeOutCount, "fade-out"),
-            Compile(document.PowerOn, PhantoonColorRomData.PowerOnCount, "power-on"));
+            Compile(document.FadeOut, PhantoonColorDefinitions.FadeOutCount, "fade-out"),
+            Compile(document.PowerOn, PhantoonColorDefinitions.PowerOnCount, "power-on"));
     }
 
     /// <summary>Validates and serializes a Phantoon color document as UTF-8 JSON.</summary>

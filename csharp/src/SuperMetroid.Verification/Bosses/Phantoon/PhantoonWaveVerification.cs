@@ -23,11 +23,11 @@ internal static class PhantoonWaveVerification
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
-        wave.Begin(PhantoonWaveRomData.IntroMode);
+        wave.Begin(PhantoonWaveDefinitions.IntroMode);
         AssertTrue(!wave.Active, "a requested wave waits for its setup update");
         wave.Step(boss);
         AssertEqual(2, boss.Parts[boss.Eye.SlotIndex].WaveMode, "the wave's setup copies the pending mode to the eye");
-        AssertEqual(65534, wave.Phase, "native setup-only phase");
+        AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
         AssertTrue(wave.ScrollCycle.All(word => word == 0), "setup does not run the scroll pre-instruction");
         // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8.
         foreach (var (phase, first) in new[] { new VerifyPhantoonWaveLifecycleCase(14, 2), new VerifyPhantoonWaveLifecycleCase(30, 4), new VerifyPhantoonWaveLifecycleCase(46, 6), new VerifyPhantoonWaveLifecycleCase(62, 8) })
@@ -60,18 +60,17 @@ internal static class PhantoonWaveVerification
     }
 
     /// <summary>
-    /// Checks that each death-mosaic step the eye's counter takes, from the first value to the last, is published as
-    /// the same BG2 block size the PPU decodes from that MOSAIC value.
+    /// Checks that each death-mosaic block size, from the first to the last, is the size the PPU decodes from the MOSAIC
+    /// value the cartridge writes for that step ($02 first, sixteen more each step: the size less one in the high
+    /// nibble, BG2 enabled).
     /// </summary>
     private static void VerifyPhantoonDeathMosaicSizes()
     {
         int steps = 0;
-        for (int mosaic = PhantoonDeathDefinitions.InitialMosaic;
-             mosaic <= PhantoonDeathDefinitions.FinalMosaicRegister;
-             mosaic += PhantoonDeathDefinitions.MosaicSizeStep)
+        for (int size = PhantoonDeathDefinitions.InitialMosaicSize; size <= PhantoonDeathDefinitions.FinalMosaicSize; size++)
         {
-            AssertEqual(BackgroundMosaicSamplingConstants.ForBg2((byte)mosaic).Size, PhantoonDeath.MosaicBlockSizeOf((byte)mosaic),
-                $"death mosaic step {steps} block size");
+            byte mosaic = (byte)PhantoonNativeWords.DeathMosaicWord(size);
+            AssertEqual(BackgroundMosaicSamplingConstants.ForBg2(mosaic).Size, size, $"death mosaic step {steps} block size");
             steps++;
         }
         AssertEqual(16, steps, "the death mosaic grows through all sixteen block sizes");
@@ -97,8 +96,8 @@ internal static class PhantoonWaveVerification
     {
         var blend = boss.Blending;
         boss.SemiTransparent = true;
-        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = PhantoonBlendingRomData.DeleteControl;
-        for (int i = 0; i < PhantoonBlendingRomData.SetupCalls; i++)
+        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Removed;
+        for (int i = 0; i < PhantoonBlendingState.SetupCalls; i++)
         {
             blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
             AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "blend setup does not run pre-instruction");
@@ -108,15 +107,16 @@ internal static class PhantoonWaveVerification
         blend.LatchDisplay(mosaicBlockSize: 5);
         boss.MosaicBlockSize = 6;
         boss.SemiTransparent = false;
-        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = 0x8001;
+        // The fade-in's control (the cartridge's word $8001, low byte one) is the room-default state.
+        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-        AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "nonzero low byte retains current room default, not previous blend");
+        AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "the room-default control retains the current room default, not the previous blend");
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
         AssertEqual(5, blend.DisplayedMosaicBlockSize, "live mosaic size change waits for next accepted NMI");
-        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = 0x8000;
+        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Hidden;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-        AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "zero low byte hides body");
-        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = 0xffff;
+        AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "the hidden control hides the body");
+        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Removed;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "delete call still publishes hidden configuration");
         boss.SemiTransparent = true;

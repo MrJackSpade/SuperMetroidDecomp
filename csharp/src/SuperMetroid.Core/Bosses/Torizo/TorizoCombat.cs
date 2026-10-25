@@ -160,14 +160,14 @@ internal sealed class TorizoCombat
     internal void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => _access.RequireBombTorizoState(torizo).Behavior |= flags;
 
     /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox callback.</summary>
-    internal void RegisterBombTorizoBombReactions(EnemySharedReactions table)
+    internal void AddBombTorizoBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             c => ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShotAi));
     }
 
     /// <summary>Validates extended hitbox callbacks, handles catches, and defers death to Torizo's own sequence.</summary>
-    internal void RegisterBombTorizoShotReactions(EnemySharedReactions table)
+    internal void AddBombTorizoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
                                                      EnemyCollision.ShotAi(enemy) == (enemy.DefinitionId == EnemyDefinitionId.BombTorizo
@@ -199,7 +199,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Registers extended body touch damage without invoking the generic death animation.</summary>
-    internal void RegisterBombTorizoTouch(EnemySharedReactions table)
+    internal void AddBombTorizoTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BombTorizoTouch,
@@ -302,7 +302,7 @@ internal sealed class TorizoCombat
     /// Registers Torizo_Hurt for each variant; the common instruction interpreter still
     /// advances after the hurt callback, matching <c>$A0:8FF7</c>.
     /// </summary>
-    internal void RegisterBombTorizoHurtAi(EnemySharedReactions table) =>
+    internal void AddBombTorizoHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             (slot, _) => ApplyBombTorizoHurt(slot));
 

@@ -49,7 +49,7 @@ internal sealed class PrePhantoonRoomBehavior
     }
 
     /// <summary>Registers the projectile pre-instruction that pins the runtime BG2 Y offset to zero.</summary>
-    internal void RegisterPrePhantoonRoomProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddPrePhantoonRoomProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {

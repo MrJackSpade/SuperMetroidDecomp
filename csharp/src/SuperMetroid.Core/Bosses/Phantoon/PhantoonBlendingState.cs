@@ -6,9 +6,14 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <remarks>One mutable instance belongs to the encounter. Setup progress and deletion persist for its lifetime; the separate wavy-scroll owner and palette colors are not modified here.</remarks>
 public sealed class PhantoonBlendingState
 {
+    /// <summary>
+    /// The passes the blending owner spends on its setup before it applies the mouth's control: one installs an empty
+    /// table and one installs the pre-instruction, and neither runs it.
+    /// </summary>
+    internal const int SetupCalls = 2;
     /// <summary>Number of initial HDMA passes consumed before Phantoon's blend pre-instruction becomes active.</summary>
     private int _setupCalls;
-    /// <summary>Permanent deletion state after the mouth control byte requests removal of this HDMA owner.</summary>
+    /// <summary>Permanent deletion state after the mouth's control removes this owner.</summary>
     private bool _deleted;
     /// <summary>Current HDMA-pass result: room default, $04 with BG2 hidden, or $1A with BG2 added on the subscreen; not necessarily the displayed result.</summary>
     public LayerBlendingConfiguration Configuration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
@@ -19,26 +24,26 @@ public sealed class PhantoonBlendingState
 
     /// <summary>
     /// Advances one ordinary-gameplay HDMA pass, resetting to the room default even during the two setup calls or after deletion.
-    /// Thereafter $4000 selects semi-transparency; otherwise mouth control $00 hides BG2, $FF hides it and permanently deletes this owner, and other low bytes leave the room default.
+    /// Thereafter semi-transparency takes precedence; otherwise the mouth's <see cref="PhantoonLayerControl"/> hides BG2, hides it and permanently deletes this owner, or leaves the room default.
     /// </summary>
     /// <param name="boss">Encounter state read without mutation or retention; its mouth must exist when the active, non-semitransparent branch reads its control byte.</param>
     /// <param name="roomDefault">This pass's room blending configuration, not the previous pass's result.</param>
-    /// <remarks>Bit $4000 takes precedence over deletion control. This advances setup/deletion state but does not publish display state, write CGRAM, or update the boss.</remarks>
+    /// <remarks>Semi-transparency takes precedence over removal. This advances setup/deletion state but does not publish display state, write CGRAM, or update the boss.</remarks>
     public void Step(PhantoonEnemyState boss, LayerBlendingConfiguration roomDefault)
     {
         // The outer HDMA handler resets configuration from the room every pass.
         // A nonzero control byte is a no-write branch, not "retain yesterday's mode".
         Configuration = roomDefault;
         if (_deleted) return;
-        if (_setupCalls < PhantoonBlendingRomData.SetupCalls) { _setupCalls++; return; }
+        if (_setupCalls < SetupCalls) { _setupCalls++; return; }
         if (boss.SemiTransparent)
             Configuration = LayerBlendingConfiguration.PhantoonSemiTransparent;
-        else if ((byte)boss.Parts[boss.Mouth.SlotIndex].BlendingControl is 0 or PhantoonBlendingRomData.DeleteControl)
+        else if (boss.Parts[boss.Mouth.SlotIndex].LayerControl is PhantoonLayerControl.Hidden or PhantoonLayerControl.Removed)
         {
             Configuration = LayerBlendingConfiguration.PhantoonHidden;
             // The pre-instruction advances sleep to delete with timer one, so the
             // instruction handler removes this owner on this same call.
-            _deleted = (byte)boss.Parts[boss.Mouth.SlotIndex].BlendingControl == PhantoonBlendingRomData.DeleteControl;
+            _deleted = boss.Parts[boss.Mouth.SlotIndex].LayerControl == PhantoonLayerControl.Removed;
         }
     }
 

@@ -41,15 +41,15 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, fragment.Kind,
                 $"production Mother Brain door fragment kind {parameter}");
-            AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.Offset.X)),
+            AssertEqual(unchecked((ushort)(MotherBrainDeathDefinitions.DoorX + definition.Offset.X)),
                 fragment.Position.X.Whole, $"production Mother Brain door fragment X {parameter}");
-            AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorY + definition.Offset.Y)),
+            AssertEqual(unchecked((ushort)(MotherBrainDeathDefinitions.DoorY + definition.Offset.Y)),
                 fragment.Position.Y.Whole, $"production Mother Brain door fragment Y {parameter}");
             AssertEqual(definition.Velocity.X, fragment.Velocity.X,
                 $"production Mother Brain door fragment X velocity {parameter}");
             AssertEqual(definition.Velocity.Y, fragment.Velocity.Y,
                 $"production Mother Brain door fragment Y velocity {parameter}");
-            AssertEqual(MotherBrainDeathRomData.DoorFragmentLifetime, fragment.Variable0,
+            AssertEqual(MotherBrainDeathDefinitions.DoorFragmentLifetime, fragment.Variable0,
                 $"production Mother Brain door fragment lifetime {parameter}");
         }
 

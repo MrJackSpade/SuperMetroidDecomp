@@ -96,6 +96,33 @@ internal static class MotherBrainSourceDefinitions
         internal static int RecoveryLightsColors(int index) => RecoveryLightsFirstColors - index * RecoveryLightsImageBytes;
     }
 
+    /// <summary>Mother Brain's death and escape colour images.</summary>
+    internal static class Death
+    {
+        /// <summary>$AD:E9E8, the body fade pointers followed by a null word.</summary>
+        internal const int BodyFadeTable = 0xade9e8;
+
+        /// <summary>$AD:EA0A, the first of sixteen consecutive body-and-leg fade images, each fourteen body then fourteen leg colours.</summary>
+        internal const int FirstBodyFadeColors = 0xadea0a;
+
+        /// <summary>$AD:F107, the corpse fade pointers followed by a null word.</summary>
+        internal const int CorpseFadeTable = 0xadf107;
+
+        /// <summary>$AD:F119, the first of eight consecutive fifteen-colour corpse-head images.</summary>
+        internal const int FirstCorpseFadeColors = 0xadf119;
+
+        /// <summary>$A9:9534, the fourteen colours installed for the exploded escape door.</summary>
+        internal const int ExplodedDoorColors = 0xa99534;
+
+        /// <summary>The source of body-and-leg fade image <paramref name="frame"/> (0..15).</summary>
+        internal static int BodyFadeColors(int frame) =>
+            FirstBodyFadeColors + frame * 2 * MotherBrainDeathDefinitions.BodyColorCount * ColorWordBytes;
+
+        /// <summary>The source of corpse-head fade image <paramref name="frame"/> (0..7).</summary>
+        internal static int CorpseFadeColors(int frame) =>
+            FirstCorpseFadeColors + frame * MotherBrainDeathDefinitions.CorpseColorCount * ColorWordBytes;
+    }
+
     /// <summary>The Shitroid's bank-$A9 colour images.</summary>
     internal static class Shitroid
     {

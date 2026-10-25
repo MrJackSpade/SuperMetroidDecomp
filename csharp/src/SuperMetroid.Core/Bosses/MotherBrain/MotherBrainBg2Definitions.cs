@@ -9,4 +9,6 @@ internal static class MotherBrainBg2Definitions
     internal const int ClearWordCount = 0x800;
     /// <summary>$A0:8A49 initializes EnemyBG2TilemapSize to $800 bytes, the whole working tilemap; $A9:8D41 first shows it.</summary>
     internal const ushort InitialTilemapByteCount = 0x800;
+    /// <summary>$A9:AFE0, the last byte of the body tilemap cleared to <see cref="BlankTile"/> once the death's body fade ends, inclusively.</summary>
+    internal const ushort DeathClearLastByte = 710;
 }

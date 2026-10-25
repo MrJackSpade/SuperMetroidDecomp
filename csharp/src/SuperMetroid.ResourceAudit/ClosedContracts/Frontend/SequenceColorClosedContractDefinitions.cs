@@ -27,7 +27,7 @@ internal static class SequenceColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainDrainedPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowShadeChannel.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainDeathRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainDeathDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainExplodedDoorPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainFinalRoomPaintDefinitions.cs")]),
         new("SuperMetroid.Core.Enemies.Artwork.ChozoAndTubeColorCatalog", "chozo-tube-v1-complete-fixed-palettes",

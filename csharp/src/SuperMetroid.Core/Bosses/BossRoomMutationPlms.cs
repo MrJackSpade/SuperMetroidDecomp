@@ -1111,10 +1111,11 @@ internal sealed class BossRoomMutationPlms
         {
             // B5F8 installs the door-list index and three upward-linked extensions
             // synchronously, before the first draw instruction changes their artwork.
-            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
+            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, RoomCollisionType.DoorBlock,
+                MotherBrainDeathDefinitions.EscapeDoorListIndex);
             for (int row = 1; row < 4; row++)
                 PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.X,
-                    MotherBrainDeathRomData.EscapeDoorExtension);
+                    RoomCollisionType.VerticalExtension, unchecked((byte)MotherBrainDeathDefinitions.EscapeDoorExtensionOffset));
         }
         return true;
     }

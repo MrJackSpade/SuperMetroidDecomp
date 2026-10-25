@@ -233,7 +233,7 @@ internal static class TileWordSheetComposer
             case TileWordWriter.MotherBrain:
                 foreach (NamedPart part in FrameParts((bosses.MotherBrainBodyBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
-                yield return Fill(MotherBrainBg2Definitions.BlankTile, MotherBrainDeathRomData.EmptyBodyTile);
+                yield return Fill(MotherBrainBg2Definitions.BlankTile);
                 break;
             default:
                 throw new InvalidDataException($"Undefined tile word writer {writer}.");

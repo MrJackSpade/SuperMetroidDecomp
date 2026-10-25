@@ -9,7 +9,7 @@ public static class CeresSteamDefinitions
     internal const ushort ActivationDelayMask = 0x001f;
 
     /// <summary>The variant each authored population parameter-one value selects.</summary>
-    internal static readonly PopulationParameterVariants<CeresSteamVariant> Variants = new(new Dictionary<int, CeresSteamVariant>
+    internal static readonly ParameterVariants<CeresSteamVariant> Variants = new(new Dictionary<int, CeresSteamVariant>
     {
         [0] = CeresSteamVariant.Up,
         [1] = CeresSteamVariant.Left,

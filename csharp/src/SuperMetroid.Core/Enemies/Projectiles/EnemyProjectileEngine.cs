@@ -179,8 +179,8 @@ internal sealed class EnemyProjectileEngine
                     continue;
 
                 SamusProjectileTypeWord shotType = shot.PackedType;
-                if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb ||
-                    shotType.FamilyValue >= (ushort)SamusProjectileFamily.BeamExplosion)
+                if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
+                    SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                     continue;
 
                 // The native path intentionally compares only 32-pixel cells. It does not

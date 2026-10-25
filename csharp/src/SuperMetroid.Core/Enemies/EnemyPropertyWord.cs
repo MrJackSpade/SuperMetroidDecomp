@@ -33,7 +33,7 @@ public readonly record struct EnemyPropertyWord
     public ushort ToNativeWord() => EnemyPropertyWordCodec.Encode(this);
 
     /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
-    public bool HasAny(EnemyProperties flags) => (Flags & flags) != 0;
+    public bool HasAny(EnemyProperties flags) => (Flags & flags) != EnemyProperties.None;
 
     /// <summary>This value with <paramref name="flags"/> set.</summary>
     public EnemyPropertyWord With(EnemyProperties flags) => new(Flags | flags, checked((byte)FamilyData));

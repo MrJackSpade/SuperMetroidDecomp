@@ -12,18 +12,15 @@ internal static class EnemyPickupDefinitions
     /// </summary>
     internal static EnemyPickupAnimationDefinition Animation(EnemyPickupKind kind)
     {
-        int index = (int)kind;
-        EnemyDeathProjectileProgram? program = kind switch
+        return kind switch
         {
-            EnemyPickupKind.None => null,
-            EnemyPickupKind.SmallEnergy => EnemyDeathProjectileProgram.SmallEnergy,
-            EnemyPickupKind.BigEnergy => EnemyDeathProjectileProgram.BigEnergy,
-            EnemyPickupKind.PowerBomb => EnemyDeathProjectileProgram.PowerBombs,
-            EnemyPickupKind.Missile => EnemyDeathProjectileProgram.Missiles,
-            EnemyPickupKind.SuperMissile => EnemyDeathProjectileProgram.SuperMissiles,
-            EnemyPickupKind.NoDrop => throw new InvalidDataException($"Enemy pickup kind ${index:X4} has no animation-table entry."),
-            _ => throw new InvalidDataException($"Enemy pickup kind ${index:X4} has no animation-table entry."),
+            EnemyPickupKind.None => new(0, null),
+            EnemyPickupKind.SmallEnergy => new(2, EnemyDeathProjectileProgram.SmallEnergy),
+            EnemyPickupKind.BigEnergy => new(4, EnemyDeathProjectileProgram.BigEnergy),
+            EnemyPickupKind.PowerBomb => new(6, EnemyDeathProjectileProgram.PowerBombs),
+            EnemyPickupKind.Missile => new(8, EnemyDeathProjectileProgram.Missiles),
+            EnemyPickupKind.SuperMissile => new(10, EnemyDeathProjectileProgram.SuperMissiles),
+            _ => throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry."),
         };
-        return new EnemyPickupAnimationDefinition(checked((ushort)(index * 2)), program);
     }
 }

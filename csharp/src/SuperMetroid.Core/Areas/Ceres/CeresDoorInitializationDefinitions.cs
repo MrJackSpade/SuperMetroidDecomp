@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresDoorInitializationDefinitions
 {
     /// <summary>The variant each authored population parameter-one value selects.</summary>
-    private static readonly PopulationParameterVariants<CeresDoorVariant> Variants = new(new Dictionary<int, CeresDoorVariant>
+    private static readonly ParameterVariants<CeresDoorVariant> Variants = new(new Dictionary<int, CeresDoorVariant>
     {
         [0] = CeresDoorVariant.NormalFacingRight,
         [1] = CeresDoorVariant.NormalFacingLeft,

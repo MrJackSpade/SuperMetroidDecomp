@@ -15,7 +15,7 @@ internal static class RidleyExplosionDefinitions
     /// <summary>The tail tip's sixteen orientations.</summary>
     private const int TailTipOrientationCount = 16;
     /// <summary>The part each authored spawn parameter of the breakup's embedded population records selects.</summary>
-    internal static readonly PopulationParameterVariants<RidleyExplosionPart> PartParameters = new(new Dictionary<int, RidleyExplosionPart>
+    internal static readonly ParameterVariants<RidleyExplosionPart> PartParameters = new(new Dictionary<int, RidleyExplosionPart>
     {
         [0] = RidleyExplosionPart.Tail0,
         [2] = RidleyExplosionPart.Tail1,

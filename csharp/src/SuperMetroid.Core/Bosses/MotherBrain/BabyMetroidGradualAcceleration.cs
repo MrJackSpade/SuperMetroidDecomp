@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The native arithmetic is an ADC/SBC chain whose carry is never normalised: the
 /// position subtraction's carry reaches the step taken while already moving toward the
 /// target, and each reversal step borrows from the one before. Both axes are reproduced
-/// as that chain (<see cref="SnesCarry"/>) rather than as signed integer arithmetic.
+/// as that chain (<see cref="WordCarry"/>) rather than as signed integer arithmetic.
 /// Positions, targets, distances and velocity words all lie in 0 through 65535, the range
 /// the chain's sixteen-bit carry is defined over.
 /// </summary>
@@ -78,9 +78,9 @@ internal static class BabyMetroidGradualAcceleration
 
         // One link of the chain: a word sum or difference that takes and leaves the running carry.
         int Add(int value, int addend) =>
-            SnesCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
+            WordCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
         int Subtract(int value, int subtrahend) =>
-            SnesCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
+            WordCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
     }
 
     /// <summary>Returns the new Y velocity (the vertical half of $A9:F46B).</summary>
@@ -123,9 +123,9 @@ internal static class BabyMetroidGradualAcceleration
 
         // One link of the chain: a word sum or difference that takes and leaves the running carry.
         int Add(int value, int addend) =>
-            SnesCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
+            WordCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
         int Subtract(int value, int subtrahend) =>
-            SnesCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
+            WordCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
     }
 
     /// <summary>Models $4204/$4206 distance division, replacing a zero quotient with one.</summary>

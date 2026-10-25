@@ -359,7 +359,7 @@ or a tuple (`Speed`/`Subspeed`, `Whole`/`Fraction`): they are one `SignedSixteen
 word: it is a `RotationAngle` (8.8 turn), `ByteAngle` (trigonometry-table index) or `Bearing` (the
 up-is-zero result of the cartridge angle routine); a name ending in Step, Delta, Mask or Offset is a difference in
 table units and is not an angle (SME6352). No member, tuple element or by-reference parameter carries a processor
-carry or overflow flag: carry arithmetic is `SnesCarry`'s operations, and results name what happened (SME6353).
+carry or overflow flag: carry arithmetic is `WordCarry`'s operations, and results name what happened (SME6353).
 
 **SME6354** keeps underscore-prefixed fields and properties private (#1328). An underscore names a type's own
 implementation state; another type changes it through a named operation on the owner (`BeginRoomLoad`,

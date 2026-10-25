@@ -202,7 +202,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // Both fractions are words, so their sum fits an int and its carry is the bit above the word.
         int fractionalSum = position.Fraction + fraction;
         return new(
-            unchecked((ushort)(position.Whole + whole + (SnesCarry.OutOfWord(fractionalSum)))),
+            unchecked((ushort)(position.Whole + whole + (WordCarry.OutOfWord(fractionalSum)))),
             unchecked((ushort)fractionalSum));
     }
 

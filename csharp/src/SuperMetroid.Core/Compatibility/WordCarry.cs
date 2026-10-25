@@ -1,11 +1,14 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The carry out of a native addition (#223): bits above an 8- or 16-bit register after a sum computed in a wider
-/// host integer. Routines add it into the next byte or word, as <c>ADC</c> consumes the carry flag.
+/// The carry and borrow of byte and word arithmetic (#223, #1420): the bits above a byte or word after a sum computed
+/// in a wider integer, which the game adds into the next byte or word of a multi-part value. A fraction that
+/// overflows moves its whole part, and a chained addition or subtraction passes its carry or borrow on to the next
+/// part, exactly as the original arithmetic did.
 /// </summary>
+[CompatibilityService("additions and subtractions whose carry or borrow out of a byte or word moves the next part of a multi-part value, so a fraction's overflow advances the whole part")]
 [EncodingOwner("word addition carry")]
-public static class SnesCarry
+public static class WordCarry
 {
     /// <summary>The carry (or borrow, when negative) out of a sixteen-bit word addition.</summary>
     public static int OutOfWord(int sum) => sum >> 16;

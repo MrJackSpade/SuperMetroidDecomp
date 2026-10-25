@@ -81,7 +81,7 @@ internal static class FixedPointVocabularyVerification
         }
     }
 
-    /// <summary>SnesCarry's ADC and SBC match the private helpers they replaced over boundary words.</summary>
+    /// <summary>WordCarry's ADC and SBC match the private helpers they replaced over boundary words.</summary>
     private static void VerifyCarryArithmetic()
     {
         foreach (ushort value in BoundaryWords)
@@ -90,12 +90,12 @@ internal static class FixedPointVocabularyVerification
         {
             int sum = value + operand + (carryIn ? 1 : 0);
             bool carry = carryIn;
-            AssertEqual(unchecked((ushort)sum), SnesCarry.AddWithCarry(value, operand, ref carry), $"ADC {value:X4}+{operand:X4} c{carryIn}");
+            AssertEqual(unchecked((ushort)sum), WordCarry.AddWithCarry(value, operand, ref carry), $"ADC {value:X4}+{operand:X4} c{carryIn}");
             AssertEqual(sum > ushort.MaxValue, carry, $"ADC carry {value:X4}+{operand:X4} c{carryIn}");
 
             int difference = value - operand - (carryIn ? 0 : 1);
             carry = carryIn;
-            AssertEqual(unchecked((ushort)difference), SnesCarry.SubtractWithBorrow(value, operand, ref carry), $"SBC {value:X4}-{operand:X4} c{carryIn}");
+            AssertEqual(unchecked((ushort)difference), WordCarry.SubtractWithBorrow(value, operand, ref carry), $"SBC {value:X4}-{operand:X4} c{carryIn}");
             AssertEqual(difference >= 0, carry, $"SBC carry {value:X4}-{operand:X4} c{carryIn}");
         }
     }

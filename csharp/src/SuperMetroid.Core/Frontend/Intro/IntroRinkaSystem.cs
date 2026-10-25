@@ -269,7 +269,7 @@ internal sealed class IntroRinkaSystem
     {
         FixedCoordinate x = rinka.Position.X;
         uint subSum = (uint)x.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
-        int carry = (int)(SnesCarry.OutOfWord(subSum));
+        int carry = (int)(WordCarry.OutOfWord(subSum));
         rinka.Position = rinka.Position.WithX(new(
             unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
     }
@@ -280,6 +280,6 @@ internal sealed class IntroRinkaSystem
         FixedCoordinate y = rinka.Position.Y;
         uint subSum = (uint)y.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
         rinka.Position = rinka.Position.WithY(new(
-            unchecked((ushort)(y.Whole + (SnesCarry.OutOfWord(subSum)))), unchecked((ushort)subSum)));
+            unchecked((ushort)(y.Whole + (WordCarry.OutOfWord(subSum)))), unchecked((ushort)subSum)));
     }
 }

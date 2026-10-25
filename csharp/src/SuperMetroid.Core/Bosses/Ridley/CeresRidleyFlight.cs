@@ -219,8 +219,8 @@ internal sealed class CeresRidleyFlight
         // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
         bool carry = false;
         Position16<RoomPixels> target = new(
-            SnesCarry.AddWithCarry(state.FireballBasePosition.X, unchecked((ushort)jitter), ref carry),
-            SnesCarry.AddWithCarry(state.FireballBasePosition.Y, unchecked((ushort)jitter), ref carry));
+            WordCarry.AddWithCarry(state.FireballBasePosition.X, unchecked((ushort)jitter), ref carry),
+            WordCarry.AddWithCarry(state.FireballBasePosition.Y, unchecked((ushort)jitter), ref carry));
         AccelerateRidleyToward(slot, state, target, 0);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (state.FunctionTimer.IsNegative)
@@ -435,7 +435,7 @@ internal sealed class CeresRidleyFlight
         int difference = unchecked((short)(position - target));
         if (difference == 0)
             return velocity;
-        bool carry = SnesCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
+        bool carry = WordCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
         bool targetBelow = difference < 0;
         // Hardware quotient of the distance, at most 32768; a zero quotient is promoted to one.
         int step = Math.Max(1, Math.Abs(difference) / divisor);
@@ -467,8 +467,8 @@ internal sealed class CeresRidleyFlight
         }
         return new SignedEightEight(checked((ushort)word));
 
-        void Add(int operand) => word = SnesCarry.AddWithCarry(checked((ushort)word), checked((ushort)operand), ref carry);
-        void Subtract(int operand) => word = SnesCarry.SubtractWithBorrow(checked((ushort)word), checked((ushort)operand), ref carry);
+        void Add(int operand) => word = WordCarry.AddWithCarry(checked((ushort)word), checked((ushort)operand), ref carry);
+        void Subtract(int operand) => word = WordCarry.SubtractWithBorrow(checked((ushort)word), checked((ushort)operand), ref carry);
     }
 
     /// <summary>Applies Ridley's 8.8 motion and native arena clamps, invoking impact only at the strict left bound.</summary>

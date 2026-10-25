@@ -282,8 +282,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 unchecked((short)correctionX), unchecked((short)correctionY));
             // X is added before Y so its carry feeds the Y addition.
-            int segmentX = SnesCarry.AddWithCarry(checked((ushort)rawX), checked((ushort)correctionX), ref carry);
-            int segmentY = SnesCarry.AddWithCarry(checked((ushort)rawY), checked((ushort)correctionY), ref carry);
+            int segmentX = WordCarry.AddWithCarry(checked((ushort)rawX), checked((ushort)correctionX), ref carry);
+            int segmentY = WordCarry.AddWithCarry(checked((ushort)rawY), checked((ushort)correctionY), ref carry);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
                 unchecked((short)segmentX), unchecked((short)segmentY));
         }

@@ -485,7 +485,7 @@ internal sealed class CrocomireCombat
         // and the whole byte is capped by a signed eight-bit comparison.
         int velocityFraction = unchecked((byte)velocityFractionSum);
         int velocityWhole = unchecked((byte)(
-            (EightEight.WholeOf(projectile.Velocity.X.RawValue)) + (SnesCarry.OutOfByte(velocityFractionSum))));
+            (EightEight.WholeOf(projectile.Velocity.X.RawValue)) + (WordCarry.OutOfByte(velocityFractionSum))));
         int maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;

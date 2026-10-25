@@ -40,7 +40,7 @@ internal static class EnemyMath
             // The routine chooses its octant using words, then writes only bytes
             // to the hardware divider. Preserve overflow rather than extending
             // its intended +/-255 range with a more accurate host calculation.
-            int divided = SnesUnsignedDivision.Quotient(
+            int divided = UnsignedDivision.Quotient(
                 unchecked((ushort)EightEight.FromWhole(absoluteY)), unchecked((byte)absoluteX));
             return new Bearing(quadrant switch
             {
@@ -51,7 +51,7 @@ internal static class EnemyMath
             });
         }
 
-        int inverseDivided = SnesUnsignedDivision.Quotient(
+        int inverseDivided = UnsignedDivision.Quotient(
             unchecked((ushort)EightEight.FromWhole(absoluteX)), unchecked((byte)absoluteY));
         return new Bearing(quadrant switch
         {

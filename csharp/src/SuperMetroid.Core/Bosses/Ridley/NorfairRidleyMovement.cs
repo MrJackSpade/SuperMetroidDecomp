@@ -59,7 +59,7 @@ internal sealed class NorfairRidleyMovement
         int distance = unchecked((short)(position - target));
         if (distance == 0) return axisVelocity;
         int step = Math.Max(1, Math.Abs(distance) / divisor);
-        bool carry = SnesCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
+        bool carry = WordCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
         int velocity = axisVelocity.RawValue;
 
         // $A6:D559..D5A5 and D5CF..D61B retain carry/borrow across the chained
@@ -93,7 +93,7 @@ internal sealed class NorfairRidleyMovement
         }
         return new SignedEightEight(checked((ushort)velocity));
 
-        void Add(int operand) => velocity = SnesCarry.AddWithCarry(checked((ushort)velocity), checked((ushort)operand), ref carry);
-        void Subtract(int operand) => velocity = SnesCarry.SubtractWithBorrow(checked((ushort)velocity), checked((ushort)operand), ref carry);
+        void Add(int operand) => velocity = WordCarry.AddWithCarry(checked((ushort)velocity), checked((ushort)operand), ref carry);
+        void Subtract(int operand) => velocity = WordCarry.SubtractWithBorrow(checked((ushort)velocity), checked((ushort)operand), ref carry);
     }
 }

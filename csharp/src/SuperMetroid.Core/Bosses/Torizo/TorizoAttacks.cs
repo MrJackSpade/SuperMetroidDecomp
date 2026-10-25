@@ -223,7 +223,7 @@ internal sealed class TorizoAttacks
             // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
             // stores a zero X velocity.
             int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
-            int carry = SnesCarry.OutOfWord(jitteredX);
+            int carry = WordCarry.OutOfWord(jitteredX);
             projectile.Position = projectile.Position.WithWholeX(_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
                 ? unchecked((ushort)jitteredX)
                 : _access.FacesRight(torizo)

@@ -52,11 +52,11 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor CarryProtocolRule = new(
         CarryProtocolId,
         "Processor-flag protocol outside Hardware",
-        "'{0}' carries a processor flag; use SnesCarry's operations or name what the flag means",
+        "'{0}' carries a processor flag; use WordCarry's operations or name what the flag means",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Carry arithmetic lives in SnesCarry; results say what happened rather than which flag was set (#1326).");
+        description: "Carry arithmetic lives in WordCarry; results say what happened rather than which flag was set (#1326).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [SplitFixedPointRule, RawAngleRule, CarryProtocolRule];

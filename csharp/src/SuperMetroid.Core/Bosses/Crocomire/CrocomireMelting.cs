@@ -241,7 +241,7 @@ internal sealed class CrocomireMelting
             output[line++] = unchecked((ushort)(
                 _bg2.CrocomireBg2Scroll.Y + adjustedY - currentY));
             bool carry = false;
-            fraction = SnesCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
+            fraction = WordCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
             if (!carry)
                 adjustedY++;
             currentY++;

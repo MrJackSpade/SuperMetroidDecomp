@@ -14,9 +14,9 @@ public sealed class EscapeTypewriterState
     /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
     /// <param name="programId">The warning program the state will show.</param>
     /// <param name="tileBase">Complete tilemap word for the letter A, including tile index and presentation attributes.</param>
-    public EscapeTypewriterState(EscapeTypewriterProgramId programId, ushort tileBase)
+    public EscapeTypewriterState(EscapeTypewriterProgramId programId, int tileBase)
     {
-        this.tileBase = new SnesBgTilemapWord(tileBase);
+        this.tileBase = new SnesBgTilemapWord(checked((ushort)tileBase));
         ProgramId = programId;
     }
 
@@ -24,10 +24,10 @@ public sealed class EscapeTypewriterState
     /// <param name="program">Installed Ceres or Zebes warning lines and their native source identity.</param>
     /// <param name="tileBase">Complete tilemap word for the letter A, including tile index and presentation attributes.</param>
     /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
-    public EscapeTypewriterState(EscapeTypewriterProgram program, ushort tileBase)
+    public EscapeTypewriterState(EscapeTypewriterProgram program, int tileBase)
     {
         Ensure.NotNull(program);
-        this.tileBase = new SnesBgTilemapWord(tileBase);
+        this.tileBase = new SnesBgTilemapWord(checked((ushort)tileBase));
         ProgramId = program.Id;
         BindProgram(program);
     }
@@ -109,7 +109,7 @@ public sealed class EscapeTypewriterState
             }
             if (ProgramCharacterIndex == 0)
                 Cell = line.Cell;
-            byte character = (byte)line.Text[ProgramCharacterIndex++];
+            int character = (byte)line.Text[ProgramCharacterIndex++];
             glyph = TypeCharacter(character);
             return false;
         }
@@ -121,7 +121,7 @@ public sealed class EscapeTypewriterState
         cell >= 0 && cell + length <= RoomTilemapOverlay.WordCount;
 
     /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the cell.</summary>
-    private EscapeTypewriterGlyph? TypeCharacter(byte character)
+    private EscapeTypewriterGlyph? TypeCharacter(int character)
     {
         EscapeTypewriterGlyph? glyph = null;
         if (GlyphOf(character, tileBase) is { } tile)
@@ -135,7 +135,7 @@ public sealed class EscapeTypewriterState
     }
 
     /// <summary>The tile word <paramref name="character"/> types from <paramref name="tileBase"/>, or null for a space.</summary>
-    internal static SnesBgTilemapWord? GlyphOf(byte character, SnesBgTilemapWord tileBase)
+    internal static SnesBgTilemapWord? GlyphOf(int character, SnesBgTilemapWord tileBase)
     {
         if (character == (byte)' ')
             return null;

@@ -176,25 +176,25 @@ public sealed class EscapeTimer
         int axesInPosition = 0;
 
         // X advances by 224/256 (0.875) pixel and clamps at pixel 220.
-        ushort settledX = (ushort)SnesEightEight.FromWhole(220);
-        ushort nextX = unchecked((ushort)(Position.X + 224));
+        int settledX = (ushort)SnesEightEight.FromWhole(220);
+        int nextX = unchecked((ushort)(Position.X + 224));
         if (nextX >= settledX)
         {
             axesInPosition++;
             nextX = settledX;
         }
-        Position = Position.WithX(nextX);
+        Position = Position.WithX(checked((ushort)nextX));
 
         // Y moves upward by 193/256 pixel and clamps at pixel 48. The unsigned comparison
         // reproduces CMP/BCS after 16-bit wrapped subtraction.
-        ushort settledY = (ushort)SnesEightEight.FromWhole(48);
-        ushort nextY = unchecked((ushort)(Position.Y - 193));
+        int settledY = (ushort)SnesEightEight.FromWhole(48);
+        int nextY = unchecked((ushort)(Position.Y - 193));
         if (nextY < settledY)
         {
             axesInPosition++;
             nextY = settledY;
         }
-        Position = Position.WithY(nextY);
+        Position = Position.WithY(checked((ushort)nextY));
 
         if (axesInPosition == 2)
         {
@@ -242,7 +242,7 @@ public sealed class EscapeTimer
     /// <summary>Increments the X fraction used as a startup counter while preserving visible X.</summary>
     private void IncrementXLowByte()
     {
-        byte nextCounter = unchecked((byte)((byte)Position.X + 1));
+        int nextCounter = unchecked((byte)((byte)Position.X + 1));
         Position = Position.WithX((ushort)((SnesLittleEndian.HighByteInPlace(Position.X)) | nextCounter));
     }
 

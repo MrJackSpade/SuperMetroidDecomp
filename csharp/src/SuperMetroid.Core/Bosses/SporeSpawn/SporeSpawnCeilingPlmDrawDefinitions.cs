@@ -14,7 +14,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     /// Clear fills with the blank tile; crumble advances through tiles $53..55
     /// in its three successive sixteen-byte records. Every cell uses the same air word.
     /// </summary>
-    internal static bool TryGetWord(PlmDraw request, out ushort word)
+    internal static bool TryGetWord(PlmDraw request, out int word)
     {
         if (request is not PlmFrameDraw<SporeSpawnCeilingDraw>)
         {
@@ -69,9 +69,9 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     internal static bool TryGet(PlmDraw request,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        if (TryGetWord(request, out ushort word))
+        if (TryGetWord(request, out int word))
         {
-            list = Square(request, word);
+            list = Square(request, checked((ushort)word));
             return true;
         }
         list = default;

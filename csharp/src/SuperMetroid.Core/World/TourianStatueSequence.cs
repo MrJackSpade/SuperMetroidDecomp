@@ -102,11 +102,12 @@ public sealed class TourianStatueSequence
     /// <summary>
     /// The whole word of native HDMAObject_Var1:Var0, which descends by $FFFF:C000 per
     /// frame. As a signed 16.16 value its whole word floors toward negative infinity, so
-    /// the first quarter-pixel step already reads -1.
+    /// the first quarter-pixel step already reads -1. The descent stops at its authored distance, so the offset stays
+    /// between minus that distance and zero.
     /// </summary>
-    public short VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-Descent));
+    public int VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-Descent));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
-    public short DisplayedVerticalOffset { get; private set; }
+    public int DisplayedVerticalOffset { get; private set; }
     /// <summary>Captures the current BG2 position for presentation with the corresponding NMI OBJ buffer.</summary>
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 

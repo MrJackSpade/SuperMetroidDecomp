@@ -63,7 +63,7 @@ internal static class NoobTubePlmVerification
         samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var projectiles = new List<NoobTubeProjectileRequest>();
-        var earthquakes = new List<ushort>();
+        var earthquakes = new List<int>();
         bool brokenEvent = false;
         var plms = PlmFixtures.Unbound();
 

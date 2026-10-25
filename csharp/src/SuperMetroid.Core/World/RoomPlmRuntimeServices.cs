@@ -31,10 +31,10 @@ internal sealed class RoomPlmRuntimeServices(
     public bool IsFinished => Enemies.TourianStatue.Finished;
 
     /// <summary>Publishes a PLM-triggered quake countdown to the shared room earthquake.</summary>
-    public void SetTimer(ushort timer) => Enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
+    public void SetTimer(int timer) => Enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
 
     /// <summary>Publishes the native quake selector alongside the shared countdown.</summary>
-    public void SetType(ushort type) => Enemies.Earthquake.EarthquakeType = type;
+    public void SetType(int type) => Enemies.Earthquake.EarthquakeType = type;
 
     /// <summary>Spawns a Noob Tube projectile with the active room width for placement.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

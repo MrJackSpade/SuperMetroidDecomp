@@ -619,7 +619,7 @@ internal static class RoomPlmPopulationVerification
             SamusState samus,
             RoomLayer3FxState fx,
             RoomLevelData level,
-            Action<ushort> writeEarthquake)
+            Action<int> writeEarthquake)
         {
             var plms = PlmFixtures.Unbound();
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = new RoomPlmFx(fx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = writeEarthquake } }),
@@ -642,7 +642,7 @@ internal static class RoomPlmPopulationVerification
         var unequippedSystem = new SharedGameState();
         var unequippedSamus = new SamusState();
         RoomLayer3FxState unequippedFx = CreateFx(0x0300, 0x0100, 0x1234, 5);
-        ushort earthquakeTimer = 7;
+        int earthquakeTimer = 7;
         RoomLevelData unequippedLevel = CreateLevel();
         RoomPlmSystem unequipped = Load(
             unequippedSystem,

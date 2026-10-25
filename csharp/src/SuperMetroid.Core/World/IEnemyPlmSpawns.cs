@@ -29,5 +29,5 @@ internal interface IEnemyPlmSpawns
     RoomEnemyProjectileSlot? SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request);
 
     /// <summary>Spawns one escape explosion.</summary>
-    void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, ushort inheritedX);
+    void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX);
 }

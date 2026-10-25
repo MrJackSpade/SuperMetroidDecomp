@@ -72,7 +72,7 @@ internal static class IntroScientistPartsVerification
             var expected = new OamBuffer(); expected.BeginFrame();
             IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, new(120, 72), 0x0c00);
             expected.FinalizeFrame();
-            foreach (IntroCaretSpriteVersion version in Enum.GetValues<IntroCaretSpriteVersion>())
+            foreach (int version in new[] { IntroCaretSpriteVersion.Previous, IntroCaretSpriteVersion.Current })
             {
                 var frames = new Dictionary<string, SpriteVisualPart[]>();
                 if (version == IntroCaretSpriteVersion.Previous)
@@ -82,7 +82,7 @@ internal static class IntroScientistPartsVerification
                 }
                 else frames.Add("caret-visible", visual);
                 using var json = new MemoryStream();
-                IntroCaretSpritePresentation.Write(json, new() { Version = (int)version, Frames = frames });
+                IntroCaretSpritePresentation.Write(json, new() { Version = version, Frames = frames });
                 json.Position = 0;
                 var presentation = IntroCaretSpritePresentation.Load(json);
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();

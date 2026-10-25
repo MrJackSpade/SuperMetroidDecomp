@@ -21,14 +21,14 @@ internal static class EnemyExtendedLegacyOverridesVerification
         EnemyExtendedFrameCatalog stock = Load(stockDocument);
         string stockIdentity = stock.ContentIdentity;
         ExtendedEnemySchemaFixturesResult[] schemas = ExtendedEnemySchemaFixtures();
-        AssertEqual((int)EnemyExtendedFrameSchema.Current, schemas.Length, "every extended enemy schema has a fixture");
+        AssertEqual(EnemyExtendedFrameSchema.Current, schemas.Length, "every extended enemy schema has a fixture");
         int bindingSchemas = 0;
         for (int index = 0; index < schemas.Length; index++)
         {
             (int version, int count) = schemas[index];
-            AssertEqual((int)EnemyExtendedFrameSchema.First + index, version, "extended schema fixtures are contiguous");
+            AssertEqual(EnemyExtendedFrameSchema.First + index, version, "extended schema fixtures are contiguous");
             var expectedNames = definitions.Take(count).ToDictionary(frame => frame.Name, frame => AuthoredName(frame, version));
-            bool hasBindings = version > (int)EnemyExtendedFrameSchema.PreDisplayBindings;
+            bool hasBindings = version > EnemyExtendedFrameSchema.PreDisplayBindings;
             EnemyExtendedFrameDocument document = stockDocument with
             {
                 Version = version,
@@ -61,7 +61,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             AssertTrue(stockIdentity != merged.ContentIdentity, prefix + "edits change content identity");
             AssertEqual(merged.ContentIdentity, Load(document, stock).ContentIdentity, prefix + "reload preserves identity");
             AssertEqual(stockIdentity, stock.ContentIdentity, prefix + "override does not mutate stock");
-            if (version != (int)EnemyExtendedFrameSchema.Current)
+            if (version != EnemyExtendedFrameSchema.Current)
                 AssertThrows<InvalidDataException>(() => Load(document), prefix + "legacy data requires current stock");
             if (!hasBindings) continue;
             bindingSchemas++;
@@ -79,9 +79,9 @@ internal static class EnemyExtendedLegacyOverridesVerification
             };
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = crossFamily }, stock), prefix + "cross-family targets reject");
         }
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = (int)EnemyExtendedFrameSchema.First - 1 }, stock),
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemyExtendedFrameSchema.First - 1 }, stock),
             "extended enemy rejects obsolete unknown versions");
-        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = (int)EnemyExtendedFrameSchema.Current + 1 }, stock),
+        AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = EnemyExtendedFrameSchema.Current + 1 }, stock),
             "extended enemy rejects future unknown versions");
         Console.WriteLine($"PASS extended enemy overrides: all {schemas.Length} schemas and {bindingSchemas} binding schemas; " +
             "exact component/part order, legacy Spore names, remaps, stock inheritance and invalid bindings. No ROM or gameplay probes.");
@@ -93,7 +93,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             return EnemyExtendedFrameDocuments.Load(json, baseline);
         }
         static string AuthoredName(EnemySpritemapDefinition frame, int version) =>
-            version == (int)EnemyExtendedFrameSchema.PreSporeIdentity && frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
+            version == EnemyExtendedFrameSchema.PreSporeIdentity && frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
                 ? $"draygon_oam_{frame.Pointer:X4}" : frame.Name;
         static void AssertComponents(EnemyExtendedVisualComponent[] expected, ReadOnlySpan<EnemyExtendedDrawComponent> actual, string context)
         {
@@ -113,11 +113,12 @@ internal static class EnemyExtendedLegacyOverridesVerification
     {
         Type catalog = typeof(EnemyExtendedFrameDefinitions);
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-        return Enum.GetValues<EnemyExtendedFrameSchema>()
-            .Select(schema => new ExtendedEnemySchemaFixturesResult(Version:(int)schema, Count:HistoricalCount(schema)))
+        return typeof(EnemyExtendedFrameSchema).GetFields(flags).Where(field => field.IsLiteral)
+            .Select(field => new ExtendedEnemySchemaFixturesResult(Version: (int)field.GetRawConstantValue()!,
+                Count: HistoricalCount(field.Name, (int)field.GetRawConstantValue()!)))
             .OrderBy(schema => schema.Version).ToArray();
 
-        int HistoricalCount(EnemyExtendedFrameSchema schema)
+        int HistoricalCount(string name, int schema)
         {
             if (schema == EnemyExtendedFrameSchema.Current) return EnemyExtendedFrameDefinitions.ExpectedFrameCount;
             if (schema == EnemyExtendedFrameSchema.First) return EnemyExtendedFrameDefinitions.WalkingFrameCount;
@@ -126,7 +127,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             if (schema is EnemyExtendedFrameSchema.PreDisplayBindings or EnemyExtendedFrameSchema.PirateDisplayBindings)
                 return EnemyExtendedFrameDefinitions.PirateFrameCount;
             if (schema == EnemyExtendedFrameSchema.PreSporeIdentity) return EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount;
-            return (int)MetadataShape.ConstantValue(catalog, schema + "FrameCount", flags);
+            return (int)MetadataShape.ConstantValue(catalog, name + "FrameCount", flags);
         }
     }
 }

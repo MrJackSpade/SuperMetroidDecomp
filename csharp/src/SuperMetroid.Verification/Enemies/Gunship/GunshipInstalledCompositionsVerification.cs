@@ -58,7 +58,7 @@ internal static class GunshipInstalledCompositionsVerification
         var oldFrames = EnemySpritemapDefinitions.Frames[..EnemySpritemapDefinitions.PreGunshipFrameCount].ToArray();
         var legacy = stockDocument with
         {
-            Version = (int)EnemySpritemapSchema.PreGunship,
+            Version = EnemySpritemapSchema.PreGunship,
             Frames = oldFrames.ToDictionary(frame => frame.Name, frame => stockDocument.Frames[frame.Name].ToArray()),
             DisplayFrames = oldFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
         };

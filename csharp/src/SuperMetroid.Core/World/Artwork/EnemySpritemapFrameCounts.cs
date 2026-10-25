@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.World.Artwork;
 internal static class EnemySpritemapFrameCounts
 {
     /// <summary>Returns the number of named frames a document of <paramref name="schema"/> carries.</summary>
-    internal static int FrameCount(EnemySpritemapSchema schema) => schema switch
+    internal static int FrameCount(int schema) => schema switch
     {
         EnemySpritemapSchema.Legacy => EnemySpritemapDefinitions.LegacyFrameCount,
         EnemySpritemapSchema.Intermediate => EnemySpritemapDefinitions.IntermediateFrameCount,
@@ -74,6 +74,6 @@ internal static class EnemySpritemapFrameCounts
         EnemySpritemapSchema.PreSingleFrame => EnemySpritemapDefinitions.PreSingleFrameFrameCount,
         EnemySpritemapSchema.PreRidleyBreakup => EnemySpritemapDefinitions.PreRidleyBreakupFrameCount,
         EnemySpritemapSchema.Current => EnemySpritemapDefinitions.Frames.Length,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EnemySpritemapSchema)} {(int)schema}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(EnemySpritemapSchema)} {schema}."),
     };
 }

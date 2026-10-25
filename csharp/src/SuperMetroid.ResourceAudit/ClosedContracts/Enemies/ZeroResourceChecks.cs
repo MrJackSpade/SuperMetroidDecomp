@@ -9,6 +9,6 @@ internal static class ZeroResourceChecks
     /// <summary>Checks every Zero pose the orientation loops show against the PreZero spritemap resource domain.</summary>
     public static void Run() => EnemyCompositionResourceChecks.RunSpritemaps("Zero", ZeroVisualDefinitions.Bank,
         EnemyCompositionSchemaTooling.Family("zero_crawler_").Select(frame => frame.Pointer),
-        ZeroVisualDefinitions.FrameCount, (int)EnemySpritemapSchema.PreZero,
+        ZeroVisualDefinitions.FrameCount, EnemySpritemapSchema.PreZero,
         EnemySpritemapDefinitions.PreZeroFrameCount);
 }

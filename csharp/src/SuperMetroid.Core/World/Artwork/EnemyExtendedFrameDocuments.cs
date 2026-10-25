@@ -20,8 +20,8 @@ public static class EnemyExtendedFrameDocuments
         Ensure.NotNull(json);
         EnemyExtendedFrameDocument document;
         document = JsonAssetDocument.Read<EnemyExtendedFrameDocument>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, }, "extended enemy composition");
-        var schema = (EnemyExtendedFrameSchema)document.Version;
-        if (!Enum.IsDefined(schema) ||
+        int schema = document.Version;
+        if (!EnemyExtendedFrameSchema.IsSupported(schema) ||
             (schema != EnemyExtendedFrameSchema.Current && stockForLegacyOverride is null))
             throw new InvalidDataException(
                 "Extended enemy compositions require the current version and every named frame.");

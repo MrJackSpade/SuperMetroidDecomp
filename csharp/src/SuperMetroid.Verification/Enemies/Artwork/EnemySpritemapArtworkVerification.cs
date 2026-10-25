@@ -540,7 +540,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preYardJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreYard,
+                Version = EnemySpritemapSchema.PreYard,
                 Frames = preYardFrames,
                 DisplayFrames = preYardBindings,
             }, CamelCaseJson)))
@@ -564,7 +564,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preRobotJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreWorkRobot,
+                Version = EnemySpritemapSchema.PreWorkRobot,
                 Frames = preRobotFrames,
                 DisplayFrames = preRobotBindings,
             }, CamelCaseJson)))
@@ -588,7 +588,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preEvirJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreEvir,
+                Version = EnemySpritemapSchema.PreEvir,
                 Frames = preEvirFrames,
                 DisplayFrames = preEvirBindings,
             }, CamelCaseJson)))
@@ -612,7 +612,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preMochtroidJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreMochtroid,
+                Version = EnemySpritemapSchema.PreMochtroid,
                 Frames = preMochtroidFrames,
                 DisplayFrames = preMochtroidBindings,
             }, CamelCaseJson)))
@@ -636,7 +636,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preCorpsesJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreDeadTourianCorpse,
+                Version = EnemySpritemapSchema.PreDeadTourianCorpse,
                 Frames = preCorpsesFrames,
                 DisplayFrames = preCorpsesBindings,
             }, CamelCaseJson)))
@@ -659,7 +659,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preDeadTorizoJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreDeadTorizoStationary,
+                Version = EnemySpritemapSchema.PreDeadTorizoStationary,
                 Frames = preStationaryFrames,
                 DisplayFrames = preStationaryBindings,
             }, CamelCaseJson)))
@@ -682,7 +682,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preRinkaJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreRinka,
+                Version = EnemySpritemapSchema.PreRinka,
                 Frames = preRinkaFrames,
                 DisplayFrames = preRinkaBindings,
             }, CamelCaseJson)))
@@ -704,7 +704,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preViolaJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreViola,
+                Version = EnemySpritemapSchema.PreViola,
                 Frames = preViolaFrames,
                 DisplayFrames = preViolaBindings,
             }, CamelCaseJson)))
@@ -727,7 +727,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preChozoStatueJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreChozoStatue,
+                Version = EnemySpritemapSchema.PreChozoStatue,
                 Frames = preChozoStatueFrames,
                 DisplayFrames = preChozoStatueBindings,
             }, CamelCaseJson)))
@@ -750,7 +750,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preNorfairLavaJumperJson = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreNorfairLavaJumper,
+                Version = EnemySpritemapSchema.PreNorfairLavaJumper,
                 Frames = preNorfairLavaJumperFrames,
                 DisplayFrames = preNorfairLavaJumperBindings,
             }, CamelCaseJson)))
@@ -774,7 +774,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preMultiviolaJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreMultiviola,
+                Version = EnemySpritemapSchema.PreMultiviola,
                 Frames = preMultiviolaFrames,
                 DisplayFrames = preMultiviolaBindings,
             }, CamelCaseJson)))
@@ -796,7 +796,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preDragonJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreDragon,
+                Version = EnemySpritemapSchema.PreDragon,
                 Frames = preDragonFrames,
                 DisplayFrames = preDragonBindings,
             }, CamelCaseJson)))
@@ -818,7 +818,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preTripperKamerJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreTripperKamer,
+                Version = EnemySpritemapSchema.PreTripperKamer,
                 Frames = preTripperKamerFrames,
                 DisplayFrames = preTripperKamerBindings,
             }, CamelCaseJson)))
@@ -841,7 +841,7 @@ internal static class EnemySpritemapArtworkVerification
         using (var preShaktoolJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreShaktool,
+                Version = EnemySpritemapSchema.PreShaktool,
                 Frames = preShaktoolFrames,
                 DisplayFrames = preShaktoolBindings,
             }, CamelCaseJson)))
@@ -1703,7 +1703,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreMetroid,
+                Version = EnemySpritemapSchema.PreMetroid,
                 Frames = preMetroidFrames,
                 DisplayFrames = preMetroidBindings,
             }, CamelCaseJson));
@@ -1714,7 +1714,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-forty-four override inherits Metroid frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreMetroid,
+            Version = EnemySpritemapSchema.PreMetroid,
             Frames = preMetroidFrames,
             DisplayFrames = preMetroidBindings,
         };
@@ -1729,7 +1729,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreShutter,
+                Version = EnemySpritemapSchema.PreShutter,
                 Frames = preShutterFrames,
                 DisplayFrames = preShutterBindings,
             }, CamelCaseJson));
@@ -1740,7 +1740,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-forty-three override inherits shutter frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreShutter,
+            Version = EnemySpritemapSchema.PreShutter,
             Frames = preShutterFrames,
             DisplayFrames = preShutterBindings,
         };
@@ -1755,7 +1755,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreMorphBallEye,
+                Version = EnemySpritemapSchema.PreMorphBallEye,
                 Frames = preMorphBallEyeFrames,
                 DisplayFrames = preMorphBallEyeBindings,
             }, CamelCaseJson));
@@ -1766,7 +1766,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-forty-two override inherits eye frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreMorphBallEye,
+            Version = EnemySpritemapSchema.PreMorphBallEye,
             Frames = preMorphBallEyeFrames,
             DisplayFrames = preMorphBallEyeBindings,
         };
@@ -1781,7 +1781,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreFaceBlock,
+                Version = EnemySpritemapSchema.PreFaceBlock,
                 Frames = preFaceBlockFrames,
                 DisplayFrames = preFaceBlockBindings,
             }, CamelCaseJson));
@@ -1792,7 +1792,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-forty-one override inherits face-block frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreFaceBlock,
+            Version = EnemySpritemapSchema.PreFaceBlock,
             Frames = preFaceBlockFrames,
             DisplayFrames = preFaceBlockBindings,
         };
@@ -1807,7 +1807,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreKago,
+                Version = EnemySpritemapSchema.PreKago,
                 Frames = preKagoFrames,
                 DisplayFrames = preKagoBindings,
             }, CamelCaseJson));
@@ -1818,7 +1818,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-forty override inherits Kago frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreKago,
+            Version = EnemySpritemapSchema.PreKago,
             Frames = preKagoFrames,
             DisplayFrames = preKagoBindings,
         };
@@ -1833,7 +1833,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreFly,
+                Version = EnemySpritemapSchema.PreFly,
                 Frames = preFlyFrames,
                 DisplayFrames = preFlyBindings,
             }, CamelCaseJson));
@@ -1844,7 +1844,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-thirty-nine override inherits fly frame {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreFly,
+            Version = EnemySpritemapSchema.PreFly,
             Frames = preFlyFrames,
             DisplayFrames = preFlyBindings,
         };
@@ -1859,7 +1859,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreSciser,
+                Version = EnemySpritemapSchema.PreSciser,
                 Frames = preSciserFrames,
                 DisplayFrames = preSciserBindings,
             }, CamelCaseJson));
@@ -1870,7 +1870,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-thirty-eight override inherits Sciser {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreSciser,
+            Version = EnemySpritemapSchema.PreSciser,
             Frames = preSciserFrames,
             DisplayFrames = preSciserBindings,
         };
@@ -1885,7 +1885,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreRidleySupplement,
+                Version = EnemySpritemapSchema.PreRidleySupplement,
                 Frames = preRidleyFrames,
                 DisplayFrames = preRidleyBindings,
             }, CamelCaseJson));
@@ -1896,7 +1896,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"version-thirty-seven override inherits Ridley supplement {frame.Name}");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreRidleySupplement,
+            Version = EnemySpritemapSchema.PreRidleySupplement,
             Frames = preRidleyFrames,
             DisplayFrames = preRidleyBindings,
         };
@@ -1911,7 +1911,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreDeadTorizo,
+                Version = EnemySpritemapSchema.PreDeadTorizo,
                 Frames = preDeadTorizoFrames,
                 DisplayFrames = preDeadTorizoBindings,
             }, CamelCaseJson));
@@ -1922,7 +1922,7 @@ internal static class EnemySpritemapArtworkVerification
             "version-thirty-six override inherits Dead Torizo corpse frame");
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreDeadTorizo,
+            Version = EnemySpritemapSchema.PreDeadTorizo,
             Frames = preDeadTorizoFrames,
             DisplayFrames = preDeadTorizoBindings,
         };
@@ -1937,7 +1937,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreMotherBrain,
+                Version = EnemySpritemapSchema.PreMotherBrain,
                 Frames = preMotherBrainFrames,
                 DisplayFrames = preMotherBrainBindings,
             }, CamelCaseJson));
@@ -1949,7 +1949,7 @@ internal static class EnemySpritemapArtworkVerification
         // All earlier migration fixtures start from the previous complete schema.
         document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreMotherBrain,
+            Version = EnemySpritemapSchema.PreMotherBrain,
             Frames = preMotherBrainFrames,
             DisplayFrames = preMotherBrainBindings,
         };
@@ -1964,7 +1964,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreKiHunter,
+                Version = EnemySpritemapSchema.PreKiHunter,
                 Frames = preHunterFrames,
                 DisplayFrames = preHunterBindings,
             }, CamelCaseJson));
@@ -1987,7 +1987,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreYappingMaw,
+                Version = EnemySpritemapSchema.PreYappingMaw,
                 Frames = preMawFrames,
                 DisplayFrames = preMawBindings,
             }, CamelCaseJson));
@@ -2011,7 +2011,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreRoomSpriteObject,
+                Version = EnemySpritemapSchema.PreRoomSpriteObject,
                 Frames = preRoomSpriteFrames,
                 DisplayFrames = preRoomSpriteBindings,
             }, CamelCaseJson));
@@ -2035,7 +2035,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreDraygonBreath,
+                Version = EnemySpritemapSchema.PreDraygonBreath,
                 Frames = preBreathFrames,
                 DisplayFrames = preBreathBindings,
             }, CamelCaseJson));
@@ -2058,7 +2058,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreDraygonIntro,
+                Version = EnemySpritemapSchema.PreDraygonIntro,
                 Frames = preDraygonFrames,
                 DisplayFrames = preDraygonBindings,
             }, CamelCaseJson));
@@ -2080,7 +2080,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreElevator,
+                Version = EnemySpritemapSchema.PreElevator,
                 Frames = preElevatorFrames,
                 DisplayFrames = preElevatorBindings,
             }, CamelCaseJson));
@@ -2102,7 +2102,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreKamer,
+                Version = EnemySpritemapSchema.PreKamer,
                 Frames = preKamerFrames,
                 DisplayFrames = preKamerBindings,
             }, CamelCaseJson));
@@ -2126,7 +2126,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreFuneNamihe,
+                Version = EnemySpritemapSchema.PreFuneNamihe,
                 Frames = preFuneFrames,
                 DisplayFrames = preFuneBindings,
             }, CamelCaseJson));
@@ -2157,7 +2157,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreSbug,
+                Version = EnemySpritemapSchema.PreSbug,
                 Frames = preSbugFrames,
                 DisplayFrames = preSbugBindings,
             }, CamelCaseJson));
@@ -2187,7 +2187,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreHZoomer,
+                Version = EnemySpritemapSchema.PreHZoomer,
                 Frames = preHZoomerFrames,
                 DisplayFrames = preHZoomerBindings,
             }, CamelCaseJson));
@@ -2216,7 +2216,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreChoot,
+                Version = EnemySpritemapSchema.PreChoot,
                 Frames = preChootFrames,
                 DisplayFrames = preChootBindings,
             }, CamelCaseJson));
@@ -2248,7 +2248,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreHopper,
+                Version = EnemySpritemapSchema.PreHopper,
                 Frames = preHopperFrames,
                 DisplayFrames = preHopperBindings,
             }, CamelCaseJson));
@@ -2277,7 +2277,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreBeetom,
+                Version = EnemySpritemapSchema.PreBeetom,
                 Frames = preBeetomFrames,
                 DisplayFrames = preBeetomBindings,
             }, CamelCaseJson));
@@ -2305,7 +2305,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreAlcoon,
+                Version = EnemySpritemapSchema.PreAlcoon,
                 Frames = preAlcoonFrames,
                 DisplayFrames = preAlcoonBindings,
             }, CamelCaseJson));
@@ -2328,7 +2328,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreBull,
+                Version = EnemySpritemapSchema.PreBull,
                 Frames = preBullFrames,
                 DisplayFrames = preBullBindings,
             }, CamelCaseJson));
@@ -2351,7 +2351,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PrePuyo,
+                Version = EnemySpritemapSchema.PrePuyo,
                 Frames = prePuyoFrames,
                 DisplayFrames = prePuyoBindings,
             }, CamelCaseJson));
@@ -2375,7 +2375,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreNorfairRio,
+                Version = EnemySpritemapSchema.PreNorfairRio,
                 Frames = preNorfairRioFrames,
                 DisplayFrames = preNorfairRioBindings,
             }, CamelCaseJson));
@@ -2404,7 +2404,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreLowerNorfairRio,
+                Version = EnemySpritemapSchema.PreLowerNorfairRio,
                 Frames = preLowerRioFrames,
                 DisplayFrames = preLowerRioBindings,
             }, CamelCaseJson));
@@ -2435,7 +2435,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreRio,
+                Version = EnemySpritemapSchema.PreRio,
                 Frames = preRioFrames,
                 DisplayFrames = preRioBindings,
             }, CamelCaseJson));
@@ -2468,7 +2468,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreCeresBaby,
+                Version = EnemySpritemapSchema.PreCeresBaby,
                 Frames = preCeresBabyFrames,
                 DisplayFrames = preCeresBabyBindings,
             }, CamelCaseJson));
@@ -2497,7 +2497,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreCeresDoor,
+                Version = EnemySpritemapSchema.PreCeresDoor,
                 Frames = preCeresDoorFrames,
                 DisplayFrames = preCeresDoorBindings,
             }, CamelCaseJson));
@@ -2519,7 +2519,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreCeresDoor,
+                Version = EnemySpritemapSchema.PreCeresDoor,
                 Frames = preCeresDoorFrames,
                 DisplayFrames = preCeresDoorBindings,
             }, CamelCaseJson));
@@ -2535,7 +2535,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreMagdollite,
+                Version = EnemySpritemapSchema.PreMagdollite,
                 Frames = preMagdolliteFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork preMagdolliteUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2557,7 +2557,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreFireflea,
+                Version = EnemySpritemapSchema.PreFireflea,
                 Frames = preFirefleaFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork preFirefleaUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2579,7 +2579,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreRipper,
+                Version = EnemySpritemapSchema.PreRipper,
                 Frames = preRipperFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork preRipperUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2604,7 +2604,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.PreOwtchStoke,
+                Version = EnemySpritemapSchema.PreOwtchStoke,
                 Frames = preOwtchStokeFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork preOwtchStokeUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2624,7 +2624,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.Previous,
+                Version = EnemySpritemapSchema.Previous,
                 Frames = previousFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork upgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2654,7 +2654,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.Prior,
+                Version = EnemySpritemapSchema.Prior,
                 Frames = priorFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork priorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2675,7 +2675,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.Earlier,
+                Version = EnemySpritemapSchema.Earlier,
                 Frames = earlierFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork earlierUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2706,7 +2706,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.Intermediate,
+                Version = EnemySpritemapSchema.Intermediate,
                 Frames = intermediateFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork intermediateUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2726,7 +2726,7 @@ internal static class EnemySpritemapArtworkVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             new EnemySpritemapDocument
             {
-                Version = (int)EnemySpritemapSchema.Legacy,
+                Version = EnemySpritemapSchema.Legacy,
                 Frames = legacyFrames,
             }, CamelCaseJson));
         InstalledEnemyArtwork legacyUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
@@ -2740,7 +2740,7 @@ internal static class EnemySpritemapArtworkVerification
             "legacy override gains stock Skultera composition");
         var preBindings = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.PreDisplayBindings,
+            Version = EnemySpritemapSchema.PreDisplayBindings,
             Frames = preCeresDoorFrames,
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(

@@ -860,7 +860,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     var fixtureSpriteFrames = EnemySpritemapDefinitions.Frames.ToArray();
     var fixtureSprites = new EnemySpritemapDocument
     {
-        Version = (int)EnemySpritemapSchema.Current,
+        Version = EnemySpritemapSchema.Current,
         Frames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame =>
             frame.Bank == 0xa6 && frame.Pointer == 0xa329
                 ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,

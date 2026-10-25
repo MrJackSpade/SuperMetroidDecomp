@@ -25,17 +25,17 @@ internal sealed class RoomFxAtmosphereTilemap
     /// <summary>Separates authored visual bits from calculable atmosphere attributes in a full native page.</summary>
     public RoomFxAtmosphereTilemap(RoomFxType type, ReadOnlySpan<byte> bytes)
     {
-        ushort mask = RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type);
+        int mask = RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type);
         Ensure.LengthEqual(bytes, RoomFxLayer3TilemapFormat.PageByteCount);
         this.type = type;
         preservedBits = new ushort[RoomFxLayer3TilemapFormat.CellsPerPage];
         for (int index = 0; index < preservedBits.Length; index++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]);
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]);
             preservedBits[index] = (ushort)(word & ~mask);
-            ushort fields = (ushort)(word & mask);
+            int fields = (ushort)(word & mask);
             if (fields != RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index))
-                (customFields ??= []).Add(index, fields);
+                (customFields ??= []).Add(index, checked((ushort)fields));
         }
     }
 
@@ -45,8 +45,8 @@ internal sealed class RoomFxAtmosphereTilemap
         var bytes = new byte[RoomFxLayer3TilemapFormat.PageByteCount];
         for (int index = 0; index < preservedBits.Length; index++)
         {
-            ushort fields = customFields is not null && customFields.TryGetValue(index, out ushort edited)
-                ? edited : RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index);
+            int fields = customFields is not null && customFields.ContainsKey(index)
+                ? customFields[index] : RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index);
             BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), (ushort)(preservedBits[index] | fields));
         }
         return bytes;

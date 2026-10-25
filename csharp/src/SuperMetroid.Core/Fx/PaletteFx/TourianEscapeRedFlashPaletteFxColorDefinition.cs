@@ -8,8 +8,8 @@ public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
         TourianEscapeRedFlashPaletteOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
-        ushort colorByteIndex,
-        ushort duration,
+        int colorByteIndex,
+        int duration,
         int colorsPerFrame)
     {
         Owner = owner;
@@ -27,10 +27,10 @@ public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
     public PaletteFxObject Object { get; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
+    public int ColorByteIndex { get; }
 
     /// <summary>The uniform display duration for every record.</summary>
-    public ushort Duration { get; }
+    public int Duration { get; }
 
     /// <summary>The number of live BGR555 colors in every record.</summary>
     public int ColorsPerFrame { get; }

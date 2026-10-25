@@ -38,7 +38,7 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
             if (pointer == FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject))
                 value = self.InstructionPointer;
             else if (pointer == unchecked((ushort)(FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject) + 2)))
-                value = self.FrameByteCount;
+                value = checked((ushort)self.FrameByteCount);
             else if (pointer == unchecked((ushort)(FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject) + 4)))
                 value = AnimatedTileVramDestinations.WordOf(self.AnimatedObject);
             else if (pointer == self.GotoInstructionPointer)
@@ -52,7 +52,7 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
                     if (pointer != frame.InstructionPointer)
                         continue;
 
-                    value = frame.Duration;
+                    value = checked((ushort)frame.Duration);
                     return true;
                 }
 

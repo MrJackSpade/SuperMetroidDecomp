@@ -1202,7 +1202,7 @@ internal static class MapPresentationVerification
             };
         }
 
-        void AssertOverride(ushort definitionPointer, ushort colorByteIndex,
+        void AssertOverride(ushort definitionPointer, int colorByteIndex,
             string description)
         {
             var stockRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);

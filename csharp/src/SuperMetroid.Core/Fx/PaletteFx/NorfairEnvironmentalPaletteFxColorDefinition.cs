@@ -9,7 +9,7 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
         NorfairEnvironmentalPaletteOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
-        ushort colorByteIndex,
+        int colorByteIndex,
         bool publishesHeatPhase)
     {
         Owner = owner;
@@ -24,7 +24,7 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     /// <summary>The palette-FX object that installs this program.</summary>
     public PaletteFxObject Object { get; }
     /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
+    public int ColorByteIndex { get; }
     /// <summary>Whether each record begins with a byte-sized heat-phase publication.</summary>
     public bool PublishesHeatPhase { get; }
 

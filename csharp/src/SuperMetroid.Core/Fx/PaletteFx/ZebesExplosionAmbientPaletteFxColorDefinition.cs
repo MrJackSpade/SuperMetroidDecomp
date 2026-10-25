@@ -8,7 +8,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
-        ushort colorByteIndex,
+        int colorByteIndex,
         int colorsPerFrame,
         int cycleFrames)
     {
@@ -29,7 +29,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     public PaletteFxObject Object { get; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
+    public int ColorByteIndex { get; }
 
     /// <summary>The number of timed records in the loop.</summary>
     public int FrameCount { get; }

@@ -86,8 +86,11 @@ public sealed class RoomLayer3FxState
     private int waterBg3WavePhase;
     /// <summary>Selected BG2 water displacement frame.</summary>
     private int waterBg2WavePhase;
-    /// <summary>Liquid surface relative to the camera, used to clip the effect plane.</summary>
-    private short waterSurfaceScreenY;
+    /// <summary>
+    /// Liquid surface relative to the camera, used to clip the effect plane: the signed word of the wrapped difference, or
+    /// the largest signed word when no surface is shown.
+    /// </summary>
+    private int waterSurfaceScreenY;
     /// <summary>Countdown for lava or acid's optional BG2 wave.</summary>
     private WrappingCountdown lavaAcidBg2WaveTimer;
     /// <summary>Selected lava or acid BG2 wave displacement frame.</summary>
@@ -215,9 +218,9 @@ public sealed class RoomLayer3FxState
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
-        BaseY = BaseY.WithWhole(definition.BaseYPosition);
-        TargetSurface = new(0, definition.TargetYPosition);
-        YVelocity = new(definition.PackedYVelocity);
+        BaseY = BaseY.WithWhole(checked((ushort)definition.BaseYPosition));
+        TargetSurface = new(0, checked((ushort)definition.TargetYPosition));
+        YVelocity = new(checked((ushort)definition.PackedYVelocity));
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
         Surface = new(0, BaseY.Whole);
@@ -427,18 +430,19 @@ public sealed class RoomLayer3FxState
     /// on its next ordinary effect pass, just as the cartridge does.
     /// </summary>
     internal void SetLiquidMotion(
-        ushort? baseYPosition = null,
-        ushort? targetYPosition = null,
-        ushort? packedYVelocity = null,
-        ushort? timer = null)
+        int? baseYPosition = null,
+        int? targetYPosition = null,
+        int? packedYVelocity = null,
+        int? timer = null)
     {
-        if (baseYPosition is ushort baseY)
-            BaseY = BaseY.WithWhole(baseY);
-        if (targetYPosition is ushort targetY)
-            TargetSurface = new(0, targetY);
-        if (packedYVelocity is ushort velocity)
-            YVelocity = new(velocity);
-        if (timer is ushort newTimer)
+        // Each value is a word the writer copies; the checked conversions reject anything wider.
+        if (baseYPosition is int baseY)
+            BaseY = BaseY.WithWhole(checked((ushort)baseY));
+        if (targetYPosition is int targetY)
+            TargetSurface = new(0, checked((ushort)targetY));
+        if (packedYVelocity is int velocity)
+            YVelocity = new(checked((ushort)velocity));
+        if (timer is int newTimer)
             Timer = WrappingCountdown.FromRaw(newTimer);
     }
 
@@ -450,9 +454,9 @@ public sealed class RoomLayer3FxState
         RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
-        BaseY = BaseY.WithWhole(definition.BaseYPosition);
-        TargetSurface = new(0, definition.TargetYPosition);
-        YVelocity = new(definition.PackedYVelocity);
+        BaseY = BaseY.WithWhole(checked((ushort)definition.BaseYPosition));
+        TargetSurface = new(0, checked((ushort)definition.TargetYPosition));
+        YVelocity = new(checked((ushort)definition.PackedYVelocity));
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
         LayerBlendConfiguration = definition.Layer3LayerBlend;
@@ -576,7 +580,7 @@ public sealed class RoomLayer3FxState
         {
             case LiquidRisePhase.Dormant:
             {
-                short velocity = YVelocity.SignedRawValue;
+                int velocity = YVelocity.SignedRawValue;
                 bool movesTowardTarget = velocity > 0
                     ? TargetSurface.Y > BaseY.Whole
                     : velocity < 0 && TargetSurface.Y < BaseY.Whole;
@@ -671,17 +675,17 @@ public sealed class RoomLayer3FxState
         if (unchecked((short)TargetSurface.Y) < 0)
             return true;
 
-        short velocity = YVelocity.SignedRawValue;
+        int velocity = YVelocity.SignedRawValue;
         int delta = SnesSixteenSixteen.FromEightEight(velocity);
         uint fixedPosition = unchecked(BaseY.RawValue + (uint)delta);
-        ushort candidate = SnesFixedPosition.WholeOf(unchecked((int)fixedPosition));
+        int candidate = SnesFixedPosition.WholeOf(unchecked((int)fixedPosition));
         BaseY = SnesFixedPosition.FromRaw(fixedPosition);
 
         if (velocity >= 0)
         {
             if (unchecked((short)candidate) < 0)
                 candidate = ushort.MaxValue;
-            BaseY = BaseY.WithWhole(candidate);
+            BaseY = BaseY.WithWhole(checked((ushort)candidate));
             if (candidate <= TargetSurface.Y)
                 return false;
         }
@@ -689,7 +693,7 @@ public sealed class RoomLayer3FxState
         {
             if (unchecked((short)candidate) < 0)
                 candidate = 0;
-            BaseY = BaseY.WithWhole(candidate);
+            BaseY = BaseY.WithWhole(checked((ushort)candidate));
             if (candidate > TargetSurface.Y)
                 return false;
         }
@@ -706,8 +710,8 @@ public sealed class RoomLayer3FxState
     internal void StepLiquidTide()
     {
         int scale;
-        ushort positiveDelta;
-        ushort negativeDelta;
+        int positiveDelta;
+        int negativeDelta;
         if ((LiquidOptions & RoomLiquidOptions.SmallTide) != RoomLiquidOptions.None)
         {
             scale = LiquidTideDefinitions.SmallTideScale;
@@ -727,7 +731,7 @@ public sealed class RoomLayer3FxState
         }
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
-        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)SnesEightEight.WholeOf(TidePhase)));
+        int sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)SnesEightEight.WholeOf(TidePhase)));
         TideFixedOffset = SnesSixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }
@@ -751,11 +755,11 @@ public sealed class RoomLayer3FxState
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
     /// <summary>Computes native BG3 vertical scroll from the liquid surface relative to camera Y.</summary>
-    private static ushort ComputeLiquidVerticalScroll(ushort surfaceY, ushort cameraY)
+    private static ushort ComputeLiquidVerticalScroll(int surfaceY, int cameraY)
     {
         if (unchecked((short)surfaceY) < 0)
             return 0;
-        short relative = unchecked((short)(surfaceY - cameraY));
+        int relative = unchecked((short)(surfaceY - cameraY));
         if (relative <= 0)
             return unchecked((ushort)(((relative ^ 31) & 31) | 256));
         return relative < 256

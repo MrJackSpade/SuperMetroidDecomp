@@ -8,8 +8,8 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
         ZebesExplosionLayerFadePaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
         PaletteFxProgram program,
-        ushort colorByteIndex,
-        ushort frameDuration)
+        int colorByteIndex,
+        int frameDuration)
     {
         Owner = owner;
         Object = paletteFxObject;
@@ -26,10 +26,10 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
     public PaletteFxObject Object { get; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
+    public int ColorByteIndex { get; }
 
     /// <summary>The cartridge-authored duration of each timed record.</summary>
-    public ushort FrameDuration { get; }
+    public int FrameDuration { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows { get; }

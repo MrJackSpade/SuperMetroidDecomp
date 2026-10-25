@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Fx;
 public readonly record struct RoomFxAnimatedTileFrameDefinition(
     AnimatedTileObject Object,
     int Index,
-    ushort Duration)
+    int Duration)
 {
 }

@@ -350,8 +350,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restricts target distance to the signed angle routine's supported range.</summary>
-    private static short ClampBotwoonTargetDelta(short value) =>
-        value < -256 ? (short)-255 : value >= 256 ? (short)255 : value;
+    private static short ClampBotwoonTargetDelta(int value) =>
+        (short)(value < -256 ? -255 : value >= 256 ? 255 : value);
 
     /// <summary>Uses health phase, current hole, and native RNG to choose an authored path.</summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)

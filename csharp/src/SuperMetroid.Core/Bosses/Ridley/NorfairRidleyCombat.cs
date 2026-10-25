@@ -474,13 +474,13 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Moves one signed grab-offset component four pixels toward zero.</summary>
-    private static short DecayRidleyGrabOffset(short offset)
+    private static short DecayRidleyGrabOffset(int offset)
     {
         if (offset > 0)
             return (short)Math.Max(0, offset - 4);
         if (offset < 0)
             return (short)Math.Min(0, offset + 4);
-        return offset;
+        return 0;
     }
 
     /// <summary>Tests Samus's radius against the facing and foot-frame adjusted claw point.</summary>

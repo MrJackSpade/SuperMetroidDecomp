@@ -328,7 +328,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameResults.SporeSpawnCeiling = new PlmSpawnRequest(new(7, 30), header);
 
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
-    internal void RegisterSporeSpawnBombReactions(EnemySharedReactions table)
+    internal void AddSporeSpawnBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.SporeSpawnShot)
@@ -339,7 +339,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds spore movement, emitter timing, impact properties, and drop opcodes.</summary>
-    internal void RegisterSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {
@@ -407,7 +407,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
-    internal void RegisterSporeSpawnShotReactions(EnemySharedReactions table)
+    internal void AddSporeSpawnShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SporeSpawnShot)
@@ -442,7 +442,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes vulnerable hitbox touch through common damage while excluding no-op hitboxes.</summary>
-    internal void RegisterSporeSpawnTouch(EnemySharedReactions table)
+    internal void AddSporeSpawnTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SporeSpawnTouch,

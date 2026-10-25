@@ -110,7 +110,7 @@ internal sealed class MotherBrainAscent
         // Bank $88 installs a fixed per-scanline main-screen table that prevents the newly
         // loaded leg sprites from appearing over the floor. The renderer consumes this
         // typed lifetime rather than pretending it is a body-visibility flag.
-        state.RisingHdmaActive = true;
+        state.RisingFloorClipActive = true;
         state.Head.Properties = state.Head.Properties.With(EnemyProperties.Invisible);
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
@@ -209,7 +209,7 @@ internal sealed class MotherBrainAscent
         state.EnemyBg2TilemapTransferRequested = true;
         state.Body.Position = state.Body.Position.WithWholeY(188);
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
-        state.RisingHdmaActive = false;
+        state.RisingFloorClipActive = false;
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.StandAfterCrouchSlow);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched;
     }

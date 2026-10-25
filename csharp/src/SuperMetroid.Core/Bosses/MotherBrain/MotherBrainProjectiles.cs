@@ -75,7 +75,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Registers the encounter-owned bombs, glass, beams, rings, turrets, tubes, and effects.</summary>
-    internal void RegisterMotherBrainProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddMotherBrainProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
         table.AddShotAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());

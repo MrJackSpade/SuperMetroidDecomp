@@ -13,7 +13,7 @@ public sealed class ZebetiteEnemyState
     internal ZebetiteEnemyState(RoomEnemyPopulationRecord population)
     {
         IsSecondaryHalf = population.Parameter1 != 0;
-        LinkedNativeIndex = population.Parameter2;
+        LinkedEnemyIndex = population.Parameter2;
     }
 
     /// <summary>
@@ -38,8 +38,8 @@ public sealed class ZebetiteEnemyState
     /// <summary>Where this half's health program resumes (#641).</summary>
     internal AnimationProgramCursor<ZebetiteProgram> Cursor { get; set; }
 
-    /// <summary>The linked half's native <c>$40</c>-byte slot index (parameter two).</summary>
-    public int LinkedNativeIndex
+    /// <summary>The linked half's enemy index (parameter two).</summary>
+    public int LinkedEnemyIndex
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
@@ -54,7 +54,7 @@ public sealed class ZebetiteEnemyState
         Function = null;
         Generation = 0;
         GenerationFlags = default;
-        LinkedNativeIndex = 0;
+        LinkedEnemyIndex = 0;
         IsSecondaryHalf = false;
     }
 }

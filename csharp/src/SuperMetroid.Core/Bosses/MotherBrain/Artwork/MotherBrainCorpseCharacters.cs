@@ -8,7 +8,7 @@ internal sealed record MotherBrainCorpseCharacters(int Page) : ObjCharacterSourc
 {
     /// <inheritdoc/>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.MotherBrainCorpse ?? throw new InvalidDataException(
+        (InstalledBossSpriteCharacterArtwork.Of(resolver).BossTiles.MotherBrainCorpse ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-corpse-tiles.png.")).Characters.Slice(
             MotherBrainCorpseArtworkDefinitions.PageOffset(Page),
             MotherBrainCorpseArtworkDefinitions.PageByteCount);

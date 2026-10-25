@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class BabyMetroidCompositionDefinitions
 {
     /// <summary>$A9:F9A8/FA40/FAD8: thirty five-byte records in each Baby Metroid pose, arranged as fifteen reflected pairs.</summary>
-    internal const int NativePartCount = 30;
+    internal const int PartCount = 30;
     /// <summary>The three Baby Metroid poses, Spritemap_BabyMetroid_0 to _2, each of thirty parts.</summary>
     internal static ImmutableArray<EnemyFrameId> Poses { get; } = [EnemyFrameId.Shitroid02, EnemyFrameId.Shitroid01, EnemyFrameId.Shitroid00];
 }

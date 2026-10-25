@@ -169,8 +169,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
         {
             RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
-            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex = slot.EnemyIndex;
-            state.LinkedNativeIndex = secondary.EnemyIndex;
+            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedEnemyIndex = slot.EnemyIndex;
+            state.LinkedEnemyIndex = secondary.EnemyIndex;
         }
 
         state.Function = ZebetiteAiFunction.WaitForDoorTransition;
@@ -271,7 +271,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
-        ushort linkedIndex = checked((ushort)struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex);
+        ushort linkedIndex = checked((ushort)struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedEnemyIndex);
         if (linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride ||
             linkedIndex % EnemySlotTable.EnemyIndexStride != 0)
         {
@@ -366,7 +366,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers bombs to share the Zebetite shot tail without generic death handling.</summary>
-    internal void RegisterZebetiteBombReactions(EnemySharedReactions table)
+    internal void AddZebetiteBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.ZebetiteShot)
@@ -383,7 +383,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>
-    internal void RegisterZebetiteShotReactions(EnemySharedReactions table)
+    internal void AddZebetiteShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ZebetiteShot)
@@ -408,7 +408,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>
-    internal void RegisterZebetiteTouch(EnemySharedReactions table)
+    internal void AddZebetiteTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Zebetite &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ZebetiteTouch,

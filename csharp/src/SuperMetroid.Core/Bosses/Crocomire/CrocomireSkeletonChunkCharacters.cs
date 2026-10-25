@@ -8,7 +8,7 @@ internal sealed record CrocomireSkeletonChunkCharacters(int Entry) : ObjCharacte
 {
     /// <inheritdoc/>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.CrocomireSkeleton ?? throw new InvalidOperationException(
+        (InstalledBossSpriteCharacterArtwork.Of(resolver).BossTiles.CrocomireSkeleton ?? throw new InvalidOperationException(
             "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(Entry);
 
     /// <summary>Names the source for diagnostics.</summary>

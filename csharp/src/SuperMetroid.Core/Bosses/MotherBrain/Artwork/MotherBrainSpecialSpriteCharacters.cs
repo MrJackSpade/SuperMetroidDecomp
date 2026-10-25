@@ -12,7 +12,7 @@ internal sealed record MotherBrainSpecialSpriteCharacters(int Sheet, int Page, i
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver)
     {
         MotherBrainSpecialSpriteSheetDefinition sheet = MotherBrainSpecialSpriteArtworkDefinitions.All[Sheet];
-        MotherBrainSpecialSpriteArtworkCatalog artwork = InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.MotherBrainSpecialSprites ??
+        MotherBrainSpecialSpriteArtworkCatalog artwork = InstalledBossSpriteCharacterArtwork.Of(resolver).BossTiles.MotherBrainSpecialSprites ??
             throw new InvalidDataException($"Installed enemy artwork is missing {sheet.FileName}.");
         return artwork.Get(sheet.Sheet).Characters.Slice(Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, ByteCount);
     }

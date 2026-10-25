@@ -175,7 +175,7 @@ internal sealed class MotherBrainLateFightState
             return MotherBrainWalkResult.Reached;
         if (Body.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (NativeAtLeast(Body.Position.X, 128))
+        if (AtLeastBySignedDifference(Body.Position.X, 128))
             return MotherBrainWalkResult.Reached;
         Body.SetProgram(program);
         return MotherBrainWalkResult.WalkInstalled;
@@ -247,8 +247,8 @@ internal sealed class MotherBrainLateFightState
         return false;
     }
 
-    /// <summary>Performs the cartridge's signed 16-bit subtraction test for a lower bound.</summary>
-    internal static bool NativeAtLeast(ushort value, ushort threshold) =>
+    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their 16-bit difference, as the cartridge compares positions.</summary>
+    internal static bool AtLeastBySignedDifference(ushort value, ushort threshold) =>
         unchecked((short)(value - threshold)) >= 0;
 
     /// <summary>How many head instruction lists the phases have requested; a change marks a new request.</summary>

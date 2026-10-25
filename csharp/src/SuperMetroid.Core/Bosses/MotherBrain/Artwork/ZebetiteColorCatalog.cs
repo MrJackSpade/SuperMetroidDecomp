@@ -27,17 +27,17 @@ public sealed class ZebetiteColorCatalog
         edits = [];
         for (int frame = 0; frame < frames.Length; frame++)
             for (int color = 0; color < frames[frame].Length; color++)
-                if (frames[frame][color] != NativeColor(frame, color))
+                if (frames[frame][color] != StockColor(frame, color))
                     edits.Add(new ColourCell(frame, color), frames[frame][color]);
     }
 
     /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
-    private static Bgr555 NativeColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
+    private static Bgr555 StockColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
 
     /// <summary>Selects an edited pulse color when present, otherwise the symmetric native color.</summary>
     private Bgr555 Resolve(int frame, int color) =>
         edits.TryGetValue(new ColourCell(frame, color), out Bgr555 edited)
-            ? edited : NativeColor(frame, color);
+            ? edited : StockColor(frame, color);
 
     /// <summary>Writes the selected pulse row's two colors without advancing the shared palette counter or testing fade/linkage conditions; native <c>HandleZebetitePaletteAnimation</c> at <c>$A6:FD5E</c> targets CGRAM entries 172 and 173 (OBJ palette 2 colors 12 and 13).</summary>
     /// <param name="destination">The two pulsing colours.</param>

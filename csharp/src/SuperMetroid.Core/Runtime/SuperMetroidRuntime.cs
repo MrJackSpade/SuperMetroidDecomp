@@ -1041,7 +1041,7 @@ internal sealed class SuperMetroidRuntime
             sky?.Publish(Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
             crocomireDeath is { MeltingHdmaActive: true } melting
                 ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
-            motherBrain is { RisingHdmaActive: true },
+            motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),
             Artwork.MapPresentation?.RoomFxPaletteBlends,

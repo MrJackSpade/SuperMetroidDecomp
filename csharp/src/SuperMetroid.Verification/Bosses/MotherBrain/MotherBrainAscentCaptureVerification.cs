@@ -15,7 +15,7 @@ internal static class MotherBrainAscentCaptureVerification
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "No ascent mask before the native state starts it");
         (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer = WrappingCountdown.Start(0);
         runtime.Enemies.MotherBrainBehavior.Ascent.PrepareMotherBrainForRising(state);
-        AssertTrue(state.RisingHdmaActive, "Production rising setup activates HDMA");
+        AssertTrue(state.RisingFloorClipActive, "Production rising setup activates HDMA");
         var captured = Layer();
         AssertEqual(192, captured.MainScreenLayersByLine.Length, "Capture owns each gameplay scanline");
         for (int y = 32; y < 224; y++)
@@ -23,7 +23,7 @@ internal static class MotherBrainAscentCaptureVerification
                 captured.MainScreenLayersByLine[y - 32], $"Native $88:E73D main-screen value at line {y}");
         state.Body.Position = state.Body.Position.WithWholeY(0xbd);
         runtime.Enemies.MotherBrainBehavior.Ascent.RaiseMotherBrain(state);
-        AssertTrue(!state.RisingHdmaActive, "Production ascent completion removes HDMA");
+        AssertTrue(!state.RisingFloorClipActive, "Production ascent completion removes HDMA");
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "Completed ascent restores uniform main-screen selection");
         AssertEqual((ScreenLayers)5, captured.MainScreenLayersByLine[191], "Captured frame retains its own mask after the state changes");
         Console.WriteLine("Mother Brain ascent capture: actual room, production start/end and all native scanline masks passed.");

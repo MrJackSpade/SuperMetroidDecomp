@@ -90,7 +90,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 // target or the independent X `$80` limit. Equality still requests a walk.
                 bool reachedForwardTarget =
                     unchecked((short)(Phase3TargetXPosition - _state.Body.Position.X)) < 0 ||
-                    MotherBrainLateFightState.NativeAtLeast(_state.Body.Position.X, 128);
+                    MotherBrainLateFightState.AtLeastBySignedDifference(_state.Body.Position.X, 128);
                 if (reachedForwardTarget)
                 {
                     Phase3WalkCounter = MotherBrainWalkCredit.Of(128);

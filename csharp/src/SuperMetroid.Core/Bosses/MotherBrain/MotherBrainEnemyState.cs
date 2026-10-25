@@ -185,8 +185,8 @@ public sealed class MotherBrainEnemyState
             : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain's ascent shows twelve pages.");
     }
 
-    /// <summary>True while bank-$88's rising layer-mask object is alive.</summary>
-    public bool RisingHdmaActive { get; internal set; }
+    /// <summary>True while the floor clips Mother Brain's body as she rises from the fake death.</summary>
+    public bool RisingFloorClipActive { get; internal set; }
 
     /// <summary>Last verified room layer-blending configuration written by the body AI.</summary>
     public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; internal set; } = LayerBlendingConfiguration.Unconfigured;

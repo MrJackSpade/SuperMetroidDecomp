@@ -120,8 +120,8 @@ internal static class EnemyExtendedFrameDefinitions
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     /// <summary>Expected complete schema length, checked against family enumeration.</summary>
     internal const int ExpectedFrameCount =
-        PirateFrameCount + BossOamFrameDefinitions.RidleyFrameCount +
-        BossOamFrameDefinitions.DraygonOamFrameCount + BossOamFrameDefinitions.SporeSpawnOamFrameCount +
+        PirateFrameCount + BossSpriteFrameDefinitions.RidleyFrameCount +
+        BossSpriteFrameDefinitions.DraygonSpriteFrameCount + BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount +
         CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount +
         CrocomireBodyFrameCount + BombTorizoDormantFrameCount +
         GoldenTorizoInitialFrameCount + KraidArmFrameCount +

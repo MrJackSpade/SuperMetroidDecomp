@@ -11,6 +11,6 @@ internal static class MotherBrainBodyBg2FrameFiles
     internal static byte[] Extract(ISnesAddressSpace bus) => EnemyBg2FrameFiles.Extract(
         bus, MotherBrainBodyVisualDefinitions.Bg2Frames,
         MotherBrainBodyVisualDefinitions.Bg2Version,
-        MotherBrainBodyVisualDefinitions.MaximumNativeComponents, "Mother Brain body",
+        MotherBrainBodyVisualDefinitions.MaximumComponents, "Mother Brain body",
         allowMixedOam: true);
 }

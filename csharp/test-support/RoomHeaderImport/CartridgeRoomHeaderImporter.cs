@@ -89,7 +89,8 @@ public static class CartridgeRoomHeaderImporter
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         ushort statePointer = SelectStatePointer(bus, roomPointer, selection);
         var definition = new RoomHeaderDefinition(RoomHeaderDefinitions.Get(roomPointer).Name, Byte(0), (AreaId)Byte(1),
-            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), (Byte(8) & IsolatedDoorTransitionBit) != 0);
+            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7),
+            (Byte(8) & IsolatedDoorTransitionBit) != 0 ? RoomDoorTransitionStyle.ObjectsOnly : RoomDoorTransitionStyle.Standard);
         return new SelectedRoom(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
     }
 }

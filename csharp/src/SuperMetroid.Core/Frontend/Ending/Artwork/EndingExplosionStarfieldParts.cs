@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
@@ -15,17 +16,16 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Caller-selected star positions and tiles retained when calculated attributes exactly match.</summary>
-    private readonly Star[] stars;
+    private readonly StarfieldPoint[] stars;
     /// <summary>One retained star's drawn offset and chosen glint tile, independent of calculated OAM flags.</summary>
-    private readonly record struct Star(Offset16<OamPixels> Offset, int Tile);
     /// <summary>Owns the selected star drawing after its calculated size and attributes have been validated.</summary>
-    private EndingExplosionStarfieldParts(Star[] stars) => this.stars = stars;
+    private EndingExplosionStarfieldParts(StarfieldPoint[] stars) => this.stars = stars;
 
     /// <summary>Recognizes the star pose and tile family, then substitutes calculated OAM only when every supplied part matches.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         if (shown != EndingExplosionSpriteDefinitions.PoseOf(EndingExplosionSpriteDefinitions.Pose.Stars)) return supplied;
-        var stars = new Star[supplied.PartCount];
+        var stars = new StarfieldPoint[supplied.PartCount];
         for (int index = 0; index < stars.Length; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
@@ -44,7 +44,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-            Star star = stars[index];
+            StarfieldPoint star = stars[index];
             return new(SnesSpritemapXWord.Create(star.Offset.X, star.Tile == SnesCharacterGrid.Cell(14, 13)), SnesSpritemapYByte.Create(star.Offset.Y),
                 SnesObjAttributeWord.Create(star.Tile, 0, 0), true);
         }

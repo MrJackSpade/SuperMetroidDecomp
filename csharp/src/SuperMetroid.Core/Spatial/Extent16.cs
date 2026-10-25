@@ -17,9 +17,6 @@ public readonly record struct Extent16<TSpace>([property: IntegerQuantity("width
     /// <summary>No extent.</summary>
     public static Extent16<TSpace> Zero => default;
 
-    /// <summary>The extent of two sizes that must already be sixteen-bit words, 0 through 65535.</summary>
-    public static Extent16<TSpace> Of(int x, int y) => new(checked((ushort)x), checked((ushort)y));
-
     /// <summary>Replaces the X extent with a size that must already be a sixteen-bit word.</summary>
     public Extent16<TSpace> WithX(int x) => this with { X = checked((ushort)x) };
 

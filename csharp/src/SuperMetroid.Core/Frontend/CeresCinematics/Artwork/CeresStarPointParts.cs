@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
@@ -6,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Calculate the common small-sprite attributes of Ceres star sheets.
 /// Point positions and selected star drawings remain a separate content mapping.</summary>
-internal sealed class CeresStarPointParts(CeresStarPointDefinition[] points, SnesTileFlipFlags flips)
+internal sealed class CeresStarPointParts(StarfieldPoint[] points, SnesTileFlipFlags flips)
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Reconstructs common attributes only for the 25-part Ceres star composition; otherwise retains supplied artwork.</summary>
@@ -20,7 +21,7 @@ internal sealed class CeresStarPointParts(CeresStarPointDefinition[] points, Sne
     /// <summary>Uses calculated common attributes only when all supplied parts already agree with them.</summary>
     internal static IReadOnlyList<CompiledSpritePart> CalculateIfMatching(IReadOnlyList<CompiledSpritePart> supplied, SnesTileFlipFlags flips)
     {
-        var points = new CeresStarPointDefinition[supplied.Count];
+        var points = new StarfieldPoint[supplied.Count];
         for (int index = 0; index < points.Length; index++)
         {
             var part = supplied[index];

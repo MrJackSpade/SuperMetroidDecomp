@@ -14,10 +14,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="Size">The room's size in scroll screens.</param>
 /// <param name="UpScroller">The camera's vertical target offset while Samus moves down, in pixels, 0 through 255.</param>
 /// <param name="DownScroller">The camera's vertical target offset while Samus moves up, in pixels, 0 through 255.</param>
-/// <param name="UsesIsolatedDoorTransition">
-/// Whether door transitions into or out of this room hide BG1 below the HUD and show the objects alone, as the door
-/// transition does when either adjacent room asks for it.
-/// </param>
+/// <param name="DoorTransition">How door transitions into or out of this room draw the screen.</param>
 public sealed record RoomHeaderDefinition(
     string Name,
     int RoomIndex,
@@ -26,4 +23,8 @@ public sealed record RoomHeaderDefinition(
     Extent16<RoomScreens> Size,
     int UpScroller,
     int DownScroller,
-    bool UsesIsolatedDoorTransition);
+    RoomDoorTransitionStyle DoorTransition)
+{
+    /// <summary>Whether door transitions into or out of this room hide BG1 below the HUD and show the objects alone.</summary>
+    public bool UsesIsolatedDoorTransition => DoorTransition == RoomDoorTransitionStyle.ObjectsOnly;
+}

@@ -34,7 +34,7 @@ internal static class SamusRunningCadenceDefinitions
     /// </summary>
     private const int SoundQueueStageFiveReset = 88;
     /// <summary>The bytes the region fills, from the ordinary stream's word to the stage-five reset word.</summary>
-    private const int RegionByteCount = 90;
+    internal const int RegionByteCount = 90;
     /// <summary>Where stage five's stream starts: window position $0303, in the floor update residue the bank's low half aliases.</summary>
     private const int SoundQueueClobberStart = 0x0303;
     /// <summary>Each native running cadence stream has ten frames followed by the $FF loop instruction.</summary>
@@ -120,23 +120,9 @@ internal static class SamusRunningCadenceDefinitions
     /// Calculates the ten-frame delay, loop marker, and reset bytes <paramref name="offset"/> bytes into the region, and
     /// the bytes of the words naming the streams.
     /// </summary>
-    /// <param name="offset">The byte's offset into the region.</param>
+    /// <param name="offset">The byte's offset into the region, which must lie inside it.</param>
     /// <param name="windows">Where the region sits in its bank, which a byte of a word naming a stream needs.</param>
-    /// <param name="value">The byte.</param>
-    /// <returns>Whether the offset lies in the region.</returns>
-    internal static bool TryReadCompiledByte(int offset, SamusAnimationWindows? windows, out int value)
-    {
-        if ((uint)offset >= RegionByteCount)
-        {
-            value = 0;
-            return false;
-        }
-        value = CompiledByte(offset, windows);
-        return true;
-    }
-
-    /// <summary>The byte <paramref name="offset"/> bytes into the region.</summary>
-    private static byte CompiledByte(int offset, SamusAnimationWindows? windows)
+    internal static byte CompiledByte(int offset, SamusAnimationWindows? windows)
     {
         if (offset is OrdinaryStreamWord or OrdinaryStreamWord + 1)
             return WordByte(StreamPosition(windows, SamusRunningCadence.Ordinary), offset - OrdinaryStreamWord);

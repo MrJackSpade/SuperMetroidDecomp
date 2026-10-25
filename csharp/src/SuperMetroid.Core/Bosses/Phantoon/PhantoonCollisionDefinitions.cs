@@ -22,10 +22,6 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>Far horizontal edge of each mirrored side tentacle rectangle.</summary>
     private const int SideTentacleOuterExtent = 23;
 
-    // Centered intervals have left = -right - 1; the side tentacles reflect exactly around that same pixel-centered
-    // axis, while each rectangle's vertical bounds are independent. Declared before the lists below, which read them
-    // during static initialization.
-
     /// <summary>The full body's central rectangle.</summary>
     private static readonly PhantoonCollisionHitbox Body = Centered(BodyHalfWidth, top: -40, bottom: 56);
     /// <summary>The vulnerable eye's rectangle.</summary>
@@ -62,7 +58,11 @@ internal static class PhantoonCollisionDefinitions
     private static PhantoonCollisionHitbox Contact(int left, int top, int right, int bottom) =>
         new(left, top, right, bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
 
-    /// <summary>A body rectangle centered on the component's pixel-centered axis.</summary>
+    /// <summary>
+    /// A body rectangle centered on the component's pixel-centered axis: its left edge is one pixel beyond the negated
+    /// right edge. The side tentacles reflect exactly around the same axis; each rectangle's vertical bounds are
+    /// independent.
+    /// </summary>
     private static PhantoonCollisionHitbox Centered(int halfWidth, int top, int bottom) =>
         Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>

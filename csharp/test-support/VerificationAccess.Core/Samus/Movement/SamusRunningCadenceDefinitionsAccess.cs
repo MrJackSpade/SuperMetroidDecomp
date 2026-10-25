@@ -11,8 +11,9 @@ internal static class SamusRunningCadenceDefinitionsAccess
         /// <summary>Returns one byte from the complete bounded native cadence catalog.</summary>
         internal static byte ReadCompiledByte(int address)
         {
-            if (SamusRunningCadenceDefinitions.TryReadCompiledByte(address - 0x91b5d1, InstalledFixtures.SamusOverreads.AnimationWindows, out int value))
-                return (byte)value;
+            int offset = address - 0x91b5d1;
+            if ((uint)offset < SamusRunningCadenceDefinitions.RegionByteCount)
+                return SamusRunningCadenceDefinitions.CompiledByte(offset, InstalledFixtures.SamusOverreads.AnimationWindows);
             throw new ArgumentOutOfRangeException(
                 nameof(address), address, "Address is outside the compiled Samus running-cadence catalog.");
         }

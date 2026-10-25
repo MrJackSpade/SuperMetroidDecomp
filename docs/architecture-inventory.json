@@ -30146,19 +30146,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonHorizontalExtent",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonHorizontalExtent.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonLayerControl",
       "kind": "enum",
       "scope": "product",
@@ -30495,19 +30482,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonTimerDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonVerticalExtent",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonVerticalExtent.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -53742,6 +53716,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileSamusTouch",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileSamusTouch.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileScatter",
       "kind": "record struct",
       "scope": "product",
@@ -61128,6 +61115,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Artwork.StarfieldPoint",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Artwork/StarfieldPoint.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.AttractDemoSchedule",
       "kind": "class",
       "scope": "product",
@@ -61730,19 +61730,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresStarPointDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresStarPointDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresStarPointParts",
@@ -62953,19 +62940,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingExplosionStarfieldParts.Star",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingExplosionStarfieldParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingFloorArtworkAccess",
@@ -91017,19 +90991,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.LevelData.RoomCreBitsets",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomCreBitsets.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.LevelData.RoomLevelData",
       "kind": "class",
       "scope": "product",
@@ -97126,6 +97087,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomDoorTransitionStyle",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomDoorTransitionStyle.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomGraphicsLayoutTooling",
@@ -129575,6 +129549,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Animals.DachoraPaletteCycleWrapVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraPaletteCycleWrapVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Animals.DachoraRecordStateVerification",
       "kind": "static class",
       "scope": "test",
@@ -131078,6 +131065,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Bull/BullRecordStateVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Bull.BullShotReactionGuardVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Bull/BullShotReactionGuardVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -144702,6 +144702,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Hardware/WramHelperBoundaryVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Hardware.WrappingTimerStepsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Hardware/WrappingTimerStepsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

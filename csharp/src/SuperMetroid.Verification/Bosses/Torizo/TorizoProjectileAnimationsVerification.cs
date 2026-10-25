@@ -229,10 +229,12 @@ internal static class TorizoProjectileAnimationsVerification
                 AssertEqual(first, EnemyProjectilePreInstructionAccess.Word(setPreInstruction.PreInstruction), $"{at}: movement routine");
                 return 2;
             case TorizoProjectileCue.SetProperties setProperties:
-                AssertEqual(first, (ushort)setProperties.Properties, $"{at}: property bits set");
+                // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores.
+                AssertEqual(first, EnemyProjectilePropertyWords.ToNativeWord(setProperties.Properties), $"{at}: property bits set");
                 return 2;
             case TorizoProjectileCue.ClearProperties clearProperties:
-                AssertEqual(first, unchecked((ushort)~(ushort)clearProperties.Properties), $"{at}: property bits kept");
+                // The cue's behaviours, encoded by the import's property-word bits, are the bits the cartridge's AND mask clears.
+                AssertEqual(first, unchecked((ushort)~EnemyProjectilePropertyWords.ToNativeWord(clearProperties.Properties)), $"{at}: property bits kept");
                 return 2;
             case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
                 AssertEqual(first, ProjectileEntry(goToIfEyeBeamExplosionsDisabled.Target), $"{at}: branch target");

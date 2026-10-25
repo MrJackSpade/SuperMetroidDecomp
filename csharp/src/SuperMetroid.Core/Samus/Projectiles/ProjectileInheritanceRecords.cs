@@ -50,7 +50,8 @@ public sealed class ProjectileInheritanceRecords
         var word = new SamusProjectileDirectionWord(directionWord);
         if (word.DirectionIndex > 9)
             throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
-        SamusProjectileDirection direction = word.Direction;
+        SamusProjectileDirection direction = word.Direction
+            ?? throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
         ushort upward = LaunchVelocityWord(SamusCollisionDirection.Up);
         int upContribution = (SnesLittleEndian.HighByteInPlace(upward)) == 0 ? 0 : (upward >> 2) | 3 << 14; // An arithmetic shift by two fills both top bits.
         short x = unchecked((short)(direction switch

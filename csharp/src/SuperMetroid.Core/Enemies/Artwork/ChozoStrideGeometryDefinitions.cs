@@ -58,7 +58,7 @@ internal static class ChozoStrideGeometryDefinitions
                     break;
                 default:
                     throw new InvalidOperationException(
-                        $"Undefined {nameof(FootGlyph)} {part.Attributes.TileNumber}.");
+                        $"Undefined Chozo foot tile {part.Attributes.TileNumber}.");
             }
         }
         if (left < 0 || right < 0) return supplied;

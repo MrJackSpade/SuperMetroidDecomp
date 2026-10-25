@@ -612,7 +612,7 @@ internal static class SamusPoseInputRulesEarly
     private static SamusPoseInputMatch MatchUnusedPose45List(ControllerButton held)
     {
         if (Has(held, Shoot | Left))
-            return Accept(UnusedPose45);
+            return Accept(SamusPoseId.UnusedPose45);
         if (Has(held, Right))
             return Accept(SamusPoseId.MovingRightNormalPose);
         if (Has(held, Left))
@@ -624,7 +624,7 @@ internal static class SamusPoseInputRulesEarly
     private static SamusPoseInputMatch MatchUnusedPose46List(ControllerButton held)
     {
         if (Has(held, Shoot | Right))
-            return Accept(UnusedPose46);
+            return Accept(SamusPoseId.UnusedPose46);
         if (Has(held, Left))
             return Accept(SamusPoseId.MovingLeftNormalPose);
         if (Has(held, Right))

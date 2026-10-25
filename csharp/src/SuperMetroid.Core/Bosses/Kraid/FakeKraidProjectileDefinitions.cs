@@ -27,9 +27,9 @@ internal static class FakeKraidProjectileDefinitions
     internal static short SpikeYOffset(int row) => (uint)row < (uint)Rows.Length
         ? Rows[row] switch
         {
-            FakeKraidSpikeRow.Top => -2,
-            FakeKraidSpikeRow.Middle => 12,
-            FakeKraidSpikeRow.Bottom => 24,
+            FakeKraidSpikeRow.Top => (short)-2,
+            FakeKraidSpikeRow.Middle => (short)12,
+            FakeKraidSpikeRow.Bottom => (short)24,
             _ => throw new InvalidDataException($"Fake Kraid spike row {Rows[row]} is not a body launch port."),
         }
         : throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port.");

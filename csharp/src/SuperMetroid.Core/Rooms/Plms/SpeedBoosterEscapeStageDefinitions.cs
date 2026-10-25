@@ -36,9 +36,9 @@ internal static class SpeedBoosterEscapeStageDefinitions
     /// and advances its timer by six. Offset eighteen completes the event; every other
     /// ushort offset is invalid. No stage data or generated cache is stored.
     /// </summary>
-    internal static SpeedBoosterEscapeStageDefinition? Resolve(ushort tableByteOffset)
+    internal static SpeedBoosterEscapeStageDefinition? Resolve(int tableByteOffset)
     {
-        if (tableByteOffset > TerminatorOffset || tableByteOffset % RecordByteCount != 0)
+        if ((uint)tableByteOffset > TerminatorOffset || tableByteOffset % RecordByteCount != 0)
         {
             throw new InvalidDataException(
                 $"Speed Booster escape PLM timer ${tableByteOffset:X4} is not a valid " +

@@ -16,7 +16,7 @@ public sealed class RoomMetatileCatalog
     {
         Cre = Ensure.NotNull(cre);
         Ensure.NotNull(atlases);
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomBlockSet required = RoomTilesetDefinitions.Get(graphicsSet).Blocks;
             if (!atlases.TryGetValue(required, out RoomMetatileAtlas? value) || value is null)

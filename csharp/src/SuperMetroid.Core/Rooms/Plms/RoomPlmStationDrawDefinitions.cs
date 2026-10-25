@@ -43,7 +43,7 @@ internal static class RoomPlmStationDrawDefinitions
         public sbyte NextX(int run)
         {
             CheckRun(run);
-            return run == 0 ? FirstRunX : (sbyte)0;
+            return run == 0 ? checked((sbyte)FirstRunX) : (sbyte)0;
         }
 
         /// <inheritdoc/>
@@ -64,7 +64,7 @@ internal static class RoomPlmStationDrawDefinitions
         private protected virtual int WordsPerRun => 1;
 
         /// <summary>The horizontal offset after the first run; every later run adds none.</summary>
-        private protected virtual sbyte FirstRunX => 0;
+        private protected virtual int FirstRunX => 0;
 
         /// <summary>The vertical offset after <paramref name="run"/>.</summary>
         private protected virtual sbyte RunY(int run) => 0;
@@ -91,7 +91,7 @@ internal static class RoomPlmStationDrawDefinitions
         public override int RunCount => 2;
 
         /// <inheritdoc/>
-        private protected override sbyte FirstRunX => -1;
+        private protected override int FirstRunX => -1;
 
         /// <inheritdoc/>
         private protected override ushort Word(int run, int cell) => LevelWord(8, 0, 0x10c + Frame * 32 - run);
@@ -159,8 +159,8 @@ internal static class RoomPlmStationDrawDefinitions
         public override int RunCount => Pose == StationAccessPose.Extended ? 1 : 2;
 
         /// <inheritdoc/>
-        private protected override sbyte FirstRunX => Pose == StationAccessPose.Extended ? (sbyte)0
-            : Side == HorizontalDirection.Left ? (sbyte)3 : (sbyte)-3;
+        private protected override int FirstRunX => Pose == StationAccessPose.Extended ? 0
+            : Side == HorizontalDirection.Left ? 3 : -3;
 
         /// <inheritdoc/>
         private protected override ushort Word(int run, int cell) =>

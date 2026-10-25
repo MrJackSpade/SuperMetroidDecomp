@@ -11,8 +11,8 @@ public interface IRoomFxMotion
 
     /// <summary>Sets the liquid's base surface, target surface, vertical speed and motion delay; each null value is left as it is.</summary>
     void SetLiquidMotion(
-        ushort? baseYPosition = null,
-        ushort? targetYPosition = null,
-        ushort? packedYVelocity = null,
-        ushort? timer = null);
+        int? baseYPosition = null,
+        int? targetYPosition = null,
+        int? packedYVelocity = null,
+        int? timer = null);
 }

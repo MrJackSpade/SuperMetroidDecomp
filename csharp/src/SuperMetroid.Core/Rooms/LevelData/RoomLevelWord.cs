@@ -58,9 +58,12 @@ public readonly record struct RoomLevelWord(ushort Raw)
     /// </summary>
     public bool HasSolidProbeBit => (Raw & SolidProbeMask) != 0;
 
+    /// <summary>Wraps a level-data word, 0 through 65535, without normalization.</summary>
+    public static RoomLevelWord FromRaw(int raw) => new((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, raw));
+
     /// <summary>Builds a complete native level word from its three independent fields.</summary>
     public static RoomLevelWord Create(
-        ushort visualBlockIndex,
+        int visualBlockIndex,
         LevelBlockFlipFlags visualFlipFlags,
         RoomCollisionType collisionType)
     {
@@ -74,14 +77,14 @@ public readonly record struct RoomLevelWord(ushort Raw)
     }
 
     /// <summary>Replaces only the visual block index and preserves both flips and collision.</summary>
-    public RoomLevelWord WithVisualBlockIndex(ushort visualBlockIndex)
+    public RoomLevelWord WithVisualBlockIndex(int visualBlockIndex)
     {
         ValidateVisualBlockIndex(visualBlockIndex);
         return new RoomLevelWord(unchecked((ushort)((Raw & ~VisualBlockIndexMask) | visualBlockIndex)));
     }
 
     /// <summary>Replaces both presentation fields while preserving the physical collision nibble.</summary>
-    public RoomLevelWord WithVisualWord(ushort visualWord)
+    public RoomLevelWord WithVisualWord(int visualWord)
     {
         if (!IsValidVisualWord(visualWord))
             throw new ArgumentOutOfRangeException(nameof(visualWord));
@@ -104,7 +107,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
     public RoomLevelWord WithPlmDeactivation() => new(unchecked((ushort)(Raw & (SolidProbeMask | VisualBitsMask))));
 
     /// <summary>Rejects a metatile index that would overwrite flip or collision bits.</summary>
-    private static void ValidateVisualBlockIndex(ushort visualBlockIndex)
+    private static void ValidateVisualBlockIndex(int visualBlockIndex)
     {
         if ((visualBlockIndex & ~VisualBlockIndexMask) != 0)
             throw new ArgumentOutOfRangeException(nameof(visualBlockIndex));

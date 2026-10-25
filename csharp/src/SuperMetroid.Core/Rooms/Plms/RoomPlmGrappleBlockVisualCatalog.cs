@@ -42,7 +42,7 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
                     "Grapple-block visuals changed a compiled draw identity or collision bits.");
             if (!seen.Add(draw.Frame))
                 throw new InvalidDataException($"Grapple-block visuals repeat draw {entry.Id}.");
-            if (entry.VisualWord != new RoomLevelWord(draw.LevelWord).VisualWord)
+            if (entry.VisualWord != draw.LevelWord.VisualWord)
                 selected.Add(draw.Frame, entry.VisualWord);
         }
 
@@ -61,6 +61,6 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
         if (!RoomPlmGrappleBlockDrawDefinitions.TryGet(draw, out var definition))
             throw new InvalidDataException($"Grapple-block visuals lack draw {draw}.");
         return customWords is not null && customWords.TryGetValue(definition.Frame, out int word)
-            ? checked((ushort)word) : new RoomLevelWord(definition.LevelWord).VisualWord;
+            ? checked((ushort)word) : definition.LevelWord.VisualWord;
     }
 }

@@ -25,8 +25,8 @@ public readonly record struct RoomBlockBehavior(int Value)
     /// <summary>The low seven bits: an area or grapple reaction index.</summary>
     private const int LowSevenBits = HighBit - 1;
 
-    /// <summary>Signed block displacement used by horizontal and vertical extensions.</summary>
-    public sbyte ExtensionOffset => unchecked((sbyte)Value);
+    /// <summary>Signed block displacement used by horizontal and vertical extensions: the BTS byte read as signed, -128 through 127.</summary>
+    public int ExtensionOffset => unchecked((sbyte)Value);
 
     /// <summary>Low-five-bit index into the bank-$94 slope-shape tables.</summary>
     public int SlopeShape => Value & SlopeShapeBits;

@@ -34,11 +34,11 @@ public sealed class RoomLevelPlane
         if (definitions.IsDefaultOrEmpty || definitions.Length % DefinitionBytes != 0)
             throw new ArgumentException("Block definitions are whole groups of four tilemap words.", nameof(definitions));
         int loaded = definitions.Length / DefinitionBytes;
-        foreach (ushort word in blocks[..count])
+        foreach (RoomLevelWord word in blocks[..count])
         {
-            int definition = new RoomLevelWord(word).VisualBlockIndex;
+            int definition = word.VisualBlockIndex;
             if (definition >= loaded)
-                throw new InvalidDataException($"Level word ${word:X4} names block ${definition:X3}; the room loaded {loaded}.");
+                throw new InvalidDataException($"Level word ${word.Raw:X4} names block ${definition:X3}; the room loaded {loaded}.");
         }
         Size = size;
         this.blocks = blocks[..count].ToArray();

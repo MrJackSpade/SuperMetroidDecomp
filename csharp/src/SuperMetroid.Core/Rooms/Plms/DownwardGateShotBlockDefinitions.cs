@@ -32,11 +32,11 @@ internal static class DownwardGateShotBlockDefinitions
         }
 
         int index = roomArgument / sizeof(ushort);
-        ushort blockWord = BlueLeftBlockWord.WithVisualBlockIndex((ushort)(BlueLeftBlockWord.VisualBlockIndex + index)).Raw;
+        RoomLevelWord blockWord = BlueLeftBlockWord.WithVisualBlockIndex(BlueLeftBlockWord.VisualBlockIndex + index);
         bool left = (index & 1) == 0;
         return new(
             DownwardGatePlmProgramDefinitions.TriggerPrograms[index],
-            left ? blockWord : (ushort)0,
-            left ? (ushort)0 : blockWord);
+            left ? blockWord.Raw : 0,
+            left ? 0 : blockWord.Raw);
     }
 }

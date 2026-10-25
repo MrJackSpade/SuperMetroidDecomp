@@ -105,8 +105,8 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     private static HashSet<int> Uses(RoomLevelPlane plane)
     {
         var uses = new HashSet<int>();
-        foreach (ushort block in plane.Blocks)
-            uses.Add(new RoomLevelWord(block).VisualBlockIndex);
+        foreach (RoomLevelWord block in plane.Blocks)
+            uses.Add(block.VisualBlockIndex);
         return uses;
     }
 

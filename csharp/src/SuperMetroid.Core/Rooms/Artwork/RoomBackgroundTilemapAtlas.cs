@@ -55,11 +55,11 @@ public sealed class RoomBackgroundTilemapAtlas
                 SnesTileFlipFlags flips =
                     (definition.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
                     (definition.FlipY ? SnesTileFlipFlags.Vertical : 0);
-                ushort word = SnesBgTilemapWord.Create(
-                    definition.TileRow * RoomBackgroundTilemapFormat.TileColumns +
-                    definition.TileColumn, definition.Palette, definition.Priority, flips).Raw;
                 BinaryPrimitives.WriteUInt16LittleEndian(
-                    bytes.AsSpan((page * RoomBackgroundTilemapFormat.CellsPerPage + cell) * 2), word);
+                    bytes.AsSpan((page * RoomBackgroundTilemapFormat.CellsPerPage + cell) * 2),
+                    SnesBgTilemapWord.Create(
+                        definition.TileRow * RoomBackgroundTilemapFormat.TileColumns +
+                        definition.TileColumn, definition.Palette, definition.Priority, flips).Raw);
             }
         }
         return new RoomBackgroundTilemapAtlas(bytes);

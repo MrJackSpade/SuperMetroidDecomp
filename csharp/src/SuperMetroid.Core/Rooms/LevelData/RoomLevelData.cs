@@ -278,43 +278,44 @@ public sealed class RoomLevelData
     /// Logical writes remain visible to collision and streaming; tail writes remain safely
     /// isolated just as their cartridge addresses remain outside the authored room.
     /// </summary>
-    internal void SetPlmForegroundEntry(int blockIndex, ushort levelWord)
+    internal void SetPlmForegroundEntry(int blockIndex, int levelWord)
         => SetPlmForegroundEntry(blockIndex, levelWord,
-            new RoomLevelWord(levelWord).VisualWord);
+            RoomLevelWord.FromRaw(levelWord).VisualWord);
 
     /// <summary>
     /// Applies a native PLM word to collision while selecting an independent visual
     /// block reference for BG1. The visual operand may not set a collision bit.
     /// </summary>
-    internal void SetPlmForegroundEntry(int blockIndex, ushort levelWord, ushort visualWord)
+    internal void SetPlmForegroundEntry(int blockIndex, int levelWord, int visualWord)
     {
         if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         if (!RoomLevelWord.IsValidVisualWord(visualWord))
             throw new ArgumentOutOfRangeException(nameof(visualWord));
 
-        PlmForegroundAllocation[blockIndex] = levelWord;
+        RoomLevelWord word = RoomLevelWord.FromRaw(levelWord);
+        PlmForegroundAllocation[blockIndex] = word.Raw;
         if (!IsLogicalBlockIndex(blockIndex))
             return;
 
-        _foregroundEntries[blockIndex] = levelWord;
+        _foregroundEntries[blockIndex] = word.Raw;
         if (blockIndex < StreamingForegroundAllocation.Length)
-            StreamingForegroundAllocation[blockIndex] = levelWord;
+            StreamingForegroundAllocation[blockIndex] = word.Raw;
         if (blockIndex < VisualStreamingForegroundAllocation.Length)
-            VisualStreamingForegroundAllocation[blockIndex] =
-                new RoomLevelWord(levelWord).WithVisualWord(visualWord).Raw;
+            VisualStreamingForegroundAllocation[blockIndex] = word.WithVisualWord(visualWord).Raw;
         foregroundPlane = null;
     }
 
-    /// <summary>Applies a bank-$84 BTS write through the bounded native PLM allocation.</summary>
-    internal void SetPlmBehavior(int blockIndex, byte behavior)
+    /// <summary>Applies a bank-$84 BTS write, one byte (0 through 255), through the bounded native PLM allocation.</summary>
+    internal void SetPlmBehavior(int blockIndex, int behavior)
     {
         if ((uint)blockIndex >= (uint)PlmBehaviorAllocation.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
 
-        PlmBehaviorAllocation[blockIndex] = behavior;
+        Ensure.BetweenInclusive(0, byte.MaxValue, behavior);
+        PlmBehaviorAllocation[blockIndex] = (byte)behavior;
         if (IsLogicalBlockIndex(blockIndex))
-            BehaviorBytes[blockIndex] = behavior;
+            BehaviorBytes[blockIndex] = (byte)behavior;
     }
 
     /// <summary>Typed overload for a bounded native PLM BTS write.</summary>
@@ -458,17 +459,18 @@ public sealed class RoomLevelData
     /// would be incorrect here: breakable grapple frames intentionally alternate between
     /// type-$E grapple terrain and type-$0 air.
     /// </remarks>
-    public void SetForegroundEntry(int blockIndex, ushort levelWord)
+    public void SetForegroundEntry(int blockIndex, int levelWord)
     {
         if ((uint)blockIndex >= (uint)_foregroundEntries.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
 
-        _foregroundEntries[blockIndex] = levelWord;
-        PlmForegroundAllocation[blockIndex] = levelWord;
+        RoomLevelWord word = RoomLevelWord.FromRaw(levelWord);
+        _foregroundEntries[blockIndex] = word.Raw;
+        PlmForegroundAllocation[blockIndex] = word.Raw;
         if (blockIndex < StreamingForegroundAllocation.Length)
-            StreamingForegroundAllocation[blockIndex] = levelWord;
+            StreamingForegroundAllocation[blockIndex] = word.Raw;
         if (blockIndex < VisualStreamingForegroundAllocation.Length)
-            VisualStreamingForegroundAllocation[blockIndex] = levelWord;
+            VisualStreamingForegroundAllocation[blockIndex] = word.Raw;
         foregroundPlane = null;
     }
 
@@ -480,12 +482,13 @@ public sealed class RoomLevelData
     /// neighboring high byte with <c>AND #$FF00</c>. This model already exposes each logical
     /// low byte separately, so assigning this element is the equivalent operation.
     /// </remarks>
-    public void SetBehavior(int blockIndex, byte behavior)
+    public void SetBehavior(int blockIndex, int behavior)
     {
         if ((uint)blockIndex >= (uint)BehaviorBytes.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        BehaviorBytes[blockIndex] = behavior;
-        PlmBehaviorAllocation[blockIndex] = behavior;
+        Ensure.BetweenInclusive(0, byte.MaxValue, behavior);
+        BehaviorBytes[blockIndex] = (byte)behavior;
+        PlmBehaviorAllocation[blockIndex] = (byte)behavior;
     }
 
     /// <summary>Writes a typed BTS value while retaining the byte-exact room format.</summary>
@@ -503,13 +506,13 @@ public sealed class RoomLevelData
     /// the same block while its four 8x8 children acquire cartridge-defined tile and
     /// palette attributes.
     /// </remarks>
-    public void SetBlockDefinitionWord(int wordIndex, ushort tilemapWord)
+    public void SetBlockDefinitionWord(int wordIndex, int tilemapWord)
     {
         int byteOffset = checked(wordIndex * 2);
         if ((uint)byteOffset >= (uint)(_blockDefinitions.Length - 1))
             throw new ArgumentOutOfRangeException(nameof(wordIndex));
 
-        _blockDefinitions[byteOffset] = unchecked((byte)tilemapWord);
+        _blockDefinitions[byteOffset] = SnesLittleEndian.LowByte(tilemapWord);
         _blockDefinitions[byteOffset + 1] = SnesLittleEndian.HighByte(tilemapWord);
         foregroundPlane = null;
         backgroundPlane = null;

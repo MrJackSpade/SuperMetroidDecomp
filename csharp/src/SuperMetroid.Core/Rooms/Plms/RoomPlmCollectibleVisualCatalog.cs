@@ -58,10 +58,10 @@ public sealed class RoomPlmCollectibleVisualCatalog
     /// <exception cref="InvalidDataException">The draw is not a supported collectible frame.</exception>
     internal ushort GetWord(PlmDraw draw)
     {
-        if (!RoomPlmCollectibleDrawDefinitions.TryGetWord(draw, out ushort physical))
+        if (!RoomPlmCollectibleDrawDefinitions.TryGetWord(draw, out RoomLevelWord physical))
             throw new InvalidDataException($"Collectible visuals lack frame {draw}.");
         return customWords is not null &&
             customWords.TryGetValue(PlmDraw.FrameOf<RoomPlmCollectibleDrawDefinitions.Draw>(draw, "collectible"), out int word)
-            ? checked((ushort)word) : new RoomLevelWord(physical).VisualWord;
+            ? checked((ushort)word) : physical.VisualWord;
     }
 }

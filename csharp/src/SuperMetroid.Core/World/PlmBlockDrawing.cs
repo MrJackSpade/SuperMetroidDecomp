@@ -404,16 +404,16 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
             }
             return;
         }
-        if (RoomPlmCollectibleDrawDefinitions.TryGetWord(draw, out ushort collectible))
+        if (RoomPlmCollectibleDrawDefinitions.TryGetWord(draw, out RoomLevelWord collectible))
         {
-            DrawPlmWordAt(level, draw, origin, collectible, CollectibleVisuals?.GetWord(draw));
+            DrawPlmWordAt(level, draw, origin, collectible.Raw, CollectibleVisuals?.GetWord(draw));
             return;
         }
         if (RoomPlmGrappleBlockDrawDefinitions.TryGet(draw, out var grapple))
         {
             // All five cartridge lists are a single word at the PLM origin. The
             // complete native word retains Grapple/air collision independently of art.
-            DrawPlmWordAt(level, draw, origin, grapple.LevelWord, GrappleBlockVisuals?.GetWord(draw));
+            DrawPlmWordAt(level, draw, origin, grapple.LevelWord.Raw, GrappleBlockVisuals?.GetWord(draw));
             return;
         }
 

@@ -27,10 +27,10 @@ public static class LevelBlockTilemapExpander
                 $"Block index ${blockIndex:X3} exceeds the {blockDefinitions.Length / 8} loaded definitions.");
         }
 
-        ushort topLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[definitionOffset..]);
-        ushort topRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 2)..]);
-        ushort bottomLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 4)..]);
-        ushort bottomRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 6)..]);
+        SnesBgTilemapWord topLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[definitionOffset..]);
+        SnesBgTilemapWord topRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 2)..]);
+        SnesBgTilemapWord bottomLeft = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 4)..]);
+        SnesBgTilemapWord bottomRight = BinaryPrimitives.ReadUInt16LittleEndian(blockDefinitions[(definitionOffset + 6)..]);
 
         // The XORs do two jobs at once: the four children move to their mirrored quadrants,
         // and each 8x8 child's own PPU flip flag toggles so pixels mirror inside that child.

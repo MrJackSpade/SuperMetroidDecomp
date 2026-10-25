@@ -90,7 +90,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
                  RoomPlmGrappleBlockDrawDefinitions.All)
         {
-            ushort expected = new RoomLevelWord(draw.LevelWord).VisualWord;
+            ushort expected = draw.LevelWord.VisualWord;
             if (stock.GetWord(PlmDraw.Of(draw.Frame)) != expected)
                 throw new InvalidDataException(
                     $"Stock Grapple-block visuals {stockPath} differ from {draw.Frame}.");
@@ -126,7 +126,7 @@ public static class RoomPlmGrappleBlockVisualFiles
                 throw new InvalidDataException(
                     $"Grapple-block draw list ${pointer:X4} differs from compiled cartridge data.");
             entries.Add(new RoomPlmVisualWordEntry(RoomPlmGrappleBlockDrawDefinitions.VisualId(draw.Frame),
-                new RoomLevelWord(draw.LevelWord).VisualWord));
+                draw.LevelWord.VisualWord));
         }
 
         return entries.ToArray();

@@ -239,8 +239,7 @@ internal sealed class BlockReactionPlms
             ? BlockReactionPlmPrograms.BombBreak(bts.NormalReactionIndex)
             : BlockReactionPlmPrograms.ReactionBomb(bts.NormalReactionIndex)));
 
-        ushort temporaryLevelWord = slot.RestoreLevelWord.WithPlmDeactivation().Raw;
-        level.SetForegroundEntry(blockIndex, temporaryLevelWord);
+        level.SetForegroundEntry(blockIndex, slot.RestoreLevelWord.WithPlmDeactivation().Raw);
         return true;
     }
 

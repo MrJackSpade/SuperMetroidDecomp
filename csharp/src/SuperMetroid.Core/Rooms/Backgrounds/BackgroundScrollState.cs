@@ -47,7 +47,7 @@ public sealed class BackgroundScrollState
     public void SetBg2Scroll(Position16<Bg2Pixels> scroll) => Bg2Scroll = scroll;
 
     /// <summary>Publishes a room-main write to the BG1VOFS mirror without moving the camera or streaming origin.</summary>
-    public void SetBg1VerticalScroll(ushort vertical) => Bg1Scroll = Bg1Scroll.WithY(vertical);
+    public void SetBg1VerticalScroll(int vertical) => Bg1Scroll = Bg1Scroll.WithY(vertical);
 
     /// <summary>
     /// Implements <c>$80:AE29</c> after a directional door setup has staged its off-screen
@@ -85,9 +85,9 @@ public sealed class BackgroundScrollState
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {
-        if (TryCalculateLayer2Position(parallaxBasis.X, Layer2Scroll.Horizontal, out ushort layer2X))
+        if (TryCalculateLayer2Position(parallaxBasis.X, Layer2Scroll.Horizontal, out int layer2X))
             Layer2Position = Layer2Position.WithX(layer2X);
-        if (TryCalculateLayer2Position(parallaxBasis.Y, Layer2Scroll.Vertical, out ushort layer2Y))
+        if (TryCalculateLayer2Position(parallaxBasis.Y, Layer2Scroll.Vertical, out int layer2Y))
             Layer2Position = Layer2Position.WithY(layer2Y);
         Layer1Position = destination;
     }
@@ -113,13 +113,13 @@ public sealed class BackgroundScrollState
 
         // Mode one means "do not scroll BG2 on this axis". The 65C816 subroutine returns
         // carry set, so the caller skips both the layer-2 position write and PPU mirror.
-        if (TryCalculateLayer2Position(Layer1Position.X, Layer2Scroll.Horizontal, out ushort layer2X))
+        if (TryCalculateLayer2Position(Layer1Position.X, Layer2Scroll.Horizontal, out int layer2X))
         {
             Layer2Position = Layer2Position.WithX(layer2X);
             Bg2Scroll = Bg2Scroll.WithX(unchecked((ushort)(layer2X + Bg2Offset.X)));
         }
 
-        if (TryCalculateLayer2Position(Layer1Position.Y, Layer2Scroll.Vertical, out ushort layer2Y))
+        if (TryCalculateLayer2Position(Layer1Position.Y, Layer2Scroll.Vertical, out int layer2Y))
         {
             Layer2Position = Layer2Position.WithY(layer2Y);
             Bg2Scroll = Bg2Scroll.WithY(unchecked((ushort)(layer2Y + Bg2Offset.Y)));
@@ -136,8 +136,11 @@ public sealed class BackgroundScrollState
         Bg2Scroll = Layer2Position + Bg2Offset;
     }
 
-    /// <summary>Copies, freezes, or parallax-scales one layer-two axis as the room state's scroll selects.</summary>
-    private static bool TryCalculateLayer2Position(ushort layer1Position, Layer2AxisScroll scroll, out ushort result)
+    /// <summary>
+    /// Copies, freezes, or parallax-scales one layer-two axis as the room state's scroll selects. The layer-one
+    /// coordinate is a sixteen-bit word and so is the result: the parallax product keeps its own wrap.
+    /// </summary>
+    private static bool TryCalculateLayer2Position(int layer1Position, Layer2AxisScroll scroll, out int result)
     {
         switch (scroll.Kind)
         {
@@ -157,7 +160,7 @@ public sealed class BackgroundScrollState
         // its high product byte, and factor*high contributes its low product word. Together
         // they equal floor(position * factor / 256), modulo 16 bits.
         uint factor = (uint)scroll.Factor;
-        result = unchecked((ushort)SnesEightEight.WholeOf(layer1Position * factor));
+        result = unchecked((ushort)SnesEightEight.WholeOf(checked((uint)layer1Position) * factor));
         return true;
     }
 

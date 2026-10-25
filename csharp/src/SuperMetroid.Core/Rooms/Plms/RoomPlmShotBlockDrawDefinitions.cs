@@ -12,17 +12,22 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// <summary>The direction/count word's top bit, above its fifteen count bits: set when a vertical run writes down a column.</summary>
     private const int VerticalRunBitIndex = 15;
     /// <summary>The direction/count word's block count.</summary>
-    private const ushort RunCountBits = 0x7fff;
+    private const int RunCountBits = 0x7fff;
 
-    /// <summary>Whether a run's direction/count word writes down a column.</summary>
-    internal static bool IsVerticalRun(ushort directionAndCount) => directionAndCount >> VerticalRunBitIndex != 0;
+    /// <summary>Whether a run's direction/count word, 0 through 65535, writes down a column.</summary>
+    internal static bool IsVerticalRun(int directionAndCount) =>
+        Ensure.BetweenInclusive(0, ushort.MaxValue, directionAndCount) >> VerticalRunBitIndex != 0;
 
-    /// <summary>The blocks a run's direction/count word writes.</summary>
-    internal static int RunCount(ushort directionAndCount) => directionAndCount & RunCountBits;
+    /// <summary>The blocks a run's direction/count word, 0 through 65535, writes.</summary>
+    internal static int RunCount(int directionAndCount) =>
+        Ensure.BetweenInclusive(0, ushort.MaxValue, directionAndCount) & RunCountBits;
 
     /// <summary>One native record: direction/count, complete level words, then the signed offset to the next record.</summary>
+    /// <param name="DirectionAndCount">The run's header word, 0 through 65535: the vertical-run bit above the block count.</param>
+    /// <param name="LevelWords">The level words the run writes.</param>
+    /// <param name="Next">The signed offset to the next record.</param>
     internal readonly record struct Run(
-        ushort DirectionAndCount,
+        int DirectionAndCount,
         ReadOnlyMemory<ushort> LevelWords,
         Offset16<RoomBlocks> Next);
 
@@ -134,7 +139,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         {
             var words = new ushort[shape.WordCount(run)];
             for (int cell = 0; cell < words.Length; cell++) words[cell] = shape.WordAt(run, cell);
-            runs[run] = new((ushort)words.Length, words, new(shape.NextX(run), shape.NextY(run)));
+            runs[run] = new(words.Length, words, new(shape.NextX(run), shape.NextY(run)));
         }
         return new(draw, runs);
     }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Non-breaking reveals of gated shootable parents in bank $84.</summary>
@@ -14,14 +16,14 @@ internal static class RoomPlmBombedRevealDrawDefinitions
             draw = default;
             return false;
         }
-        ushort word = PlmDraw.FrameOf<RoomPlmBombedRevealDraw>(request, "RoomPlmBombedRevealDraw") switch
+        int word = PlmDraw.FrameOf<RoomPlmBombedRevealDraw>(request, "RoomPlmBombedRevealDraw") switch
         {
             RoomPlmBombedRevealDraw.PowerBomb => 0xc057,
             RoomPlmBombedRevealDraw.SuperMissile => 0xc09f,
             RoomPlmBombedRevealDraw.CrumbleSingle => 0xb0bc,
             _ => throw new InvalidOperationException($"Undefined bombed-reveal draw {request}."),
         };
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { word }, new(0, 0)) });
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { RoomLevelWord.FromRaw(word).Raw }, new(0, 0)) });
         return true;
     }
 }

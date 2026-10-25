@@ -17,10 +17,10 @@ internal static class GreyDoorPlmDrawDefinitions
         /// <summary>Left and right caps use a vertical four-cell run.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
         /// <summary>Encodes four blocks and the native vertical-run flag for the draw interpreter.</summary>
-        internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
+        internal int DirectionAndCount => Vertical ? 0x8004 : 4;
 
         /// <summary>The cap run\'s native direction-and-count word.</summary>
-        public ushort DirectionAndCountWord() => DirectionAndCount;
+        public int DirectionAndCountWord() => DirectionAndCount;
 
         /// <summary>
         /// Four cells in native run order. Frame -1 clears collision; frame zero

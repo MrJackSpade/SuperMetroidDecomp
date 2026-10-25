@@ -655,12 +655,13 @@ public sealed class SamusLiquidPhysicsState
     /// chain, so keeping that operation here prevents each producer from quietly dropping
     /// a fractional overflow into the whole-energy word.
     /// </remarks>
-    public void AccumulatePeriodicDamage(ushort subDamage, ushort wholeDamage)
+    /// <remarks>Each damage word is 0 through 65535; the fraction's carry advances the whole damage, which wraps at a word.</remarks>
+    public void AccumulatePeriodicDamage(int subDamage, int wholeDamage)
     {
-        uint fractional = (uint)PeriodicSubDamage + subDamage;
+        uint fractional = (uint)PeriodicSubDamage + (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, subDamage);
         PeriodicSubDamage = unchecked((ushort)fractional);
         PeriodicDamage = unchecked((ushort)(
-            PeriodicDamage + wholeDamage + SnesCarry.OutOfWord(fractional)));
+            PeriodicDamage + Ensure.BetweenInclusive(0, ushort.MaxValue, wholeDamage) + SnesCarry.OutOfWord(fractional)));
     }
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>

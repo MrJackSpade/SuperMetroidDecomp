@@ -6,11 +6,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class PlmLevelWrites
 {
     /// <summary>Updates level collision and BG1 appearance; BG1 shows the new block because it renders from level data.</summary>
-    internal static void DrawLevelWord(RoomLevelData level, int blockIndex, ushort levelWord, ushort? visualWord = null)
-    {
-        ushort renderedWord = visualWord ?? new RoomLevelWord(levelWord).VisualWord;
-        level.SetPlmForegroundEntry(blockIndex, levelWord, renderedWord);
-    }
+    internal static void DrawLevelWord(RoomLevelData level, int blockIndex, int levelWord, int? visualWord = null) =>
+        level.SetPlmForegroundEntry(blockIndex, levelWord, visualWord ?? RoomLevelWord.FromRaw(levelWord).VisualWord);
 
     /// <summary>
     /// Shared Write_Level_Data_Block_Type_and_BTS operation: replaces a block's collision type and BTS, keeping its

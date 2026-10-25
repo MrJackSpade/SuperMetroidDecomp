@@ -11,13 +11,13 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmMaridiaElevatubeVisualCatalog),
-        content => content.Append("visual word", visualWord));
+        content => content.Append("visual word", visualWord.Raw));
 
     /// <summary>
     /// Captured metatile and flip selection for the tube's sole visible cell,
     /// independent of the compiled physical block and hold behavior.
     /// </summary>
-    private readonly ushort visualWord;
+    private readonly RoomLevelWord visualWord;
 
     /// <summary>Validates and selects the elevatube's single visual block without changing its physical word, sixteen-update hold, sound, or deletion.</summary>
     /// <param name="entries">Exactly one entry with the compiled elevatube identity and one visual-only word.</param>
@@ -35,7 +35,7 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
             !RoomLevelWord.IsValidVisualWord(blocks[0]))
             throw new InvalidDataException(
                 "Maridia elevatube visuals require exactly one visual block.");
-        visualWord = blocks[0];
+        visualWord = new RoomLevelWord(blocks[0]);
     }
 
     /// <summary>Resolves the installed elevatube appearance for its sole draw cell; the Kraid crumble that shares its cartridge draw does not share this catalog's selection.</summary>
@@ -50,6 +50,6 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
             runIndex != 0 || blockIndex != 0)
             throw new InvalidDataException(
                 $"Maridia elevatube visuals lack draw {draw} run {runIndex} block {blockIndex}.");
-        return visualWord;
+        return visualWord.VisualWord;
     }
 }

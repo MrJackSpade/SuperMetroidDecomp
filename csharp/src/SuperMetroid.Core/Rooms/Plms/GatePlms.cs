@@ -87,11 +87,12 @@ internal sealed class GatePlms : IPlmFamilySource
     }
 
     /// <summary>Writes a trigger's foreground word and its low-byte behavior to one collision block.</summary>
-    private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, ushort word)
+    /// <remarks>The trigger's BTS is the word's low byte: its visual block index, which selects the trigger's color and side.</remarks>
+    private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, int word)
     {
         _ = level.GetCollisionBlockByIndex(blockIndex);
         level.SetForegroundEntry(blockIndex, word);
-        level.SetBehavior(blockIndex, unchecked((byte)word));
+        level.SetBehavior(blockIndex, SnesLittleEndian.LowByte(word));
     }
 
     /// <summary>Runs the shootable BTS $46-$4D dispatcher and wakes its adjacent gate.</summary>

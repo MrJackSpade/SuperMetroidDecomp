@@ -54,7 +54,7 @@ public sealed class RoomPlmEyeDoorVisualCatalog
             throw new InvalidDataException($"Eye-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= (uint)shape.WordCount)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        ushort word = customBlocks.TryGet(visualSource, out var words)
+        int word = customBlocks.TryGet(visualSource, out var words)
             ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
         return (ushort)(word ^ (draw != visualSource ? LevelBlockFlipFlags.Horizontal.ToLevelWordBits() : 0));
     }

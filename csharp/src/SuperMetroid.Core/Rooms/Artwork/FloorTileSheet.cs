@@ -71,7 +71,7 @@ public sealed class FloorTileSheet
     public void AssertShownBy(BgArtworkBindings bindings, IEnumerable<byte> tiles)
     {
         Ensure.NotNull(bindings);
-        foreach (byte tile in Ensure.NotNull(tiles))
+        foreach (int tile in Ensure.NotNull(tiles))
         {
             BgArtworkShown pictured = Shown[tile] ?? throw new InvalidDataException($"The floor map names tile {tile}, whose characters {Name} does not picture.");
             BgArtworkShown now = bindings.Showing(BgCharacterSet.Tiles, tile * TileCharacters, TileCharacters);

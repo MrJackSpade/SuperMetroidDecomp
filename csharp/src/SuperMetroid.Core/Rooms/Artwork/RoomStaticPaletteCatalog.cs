@@ -14,7 +14,7 @@ public sealed class RoomStaticPaletteCatalog
     public RoomStaticPaletteCatalog(IReadOnlyDictionary<RoomPaletteSet, RoomStaticPalette> palettes)
     {
         Ensure.NotNull(palettes);
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomPaletteSet required = RoomTilesetDefinitions.Get(graphicsSet).Palette;
             if (!palettes.TryGetValue(required, out RoomStaticPalette? value) || value is null)

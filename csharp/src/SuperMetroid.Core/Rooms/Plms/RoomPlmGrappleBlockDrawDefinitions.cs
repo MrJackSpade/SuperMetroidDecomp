@@ -11,7 +11,7 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
 {
 
     /// <summary>A single Grapple-block draw with the level word it installs.</summary>
-    internal readonly record struct DrawList(GrappleBlockDraw Frame, ushort LevelWord)
+    internal readonly record struct DrawList(GrappleBlockDraw Frame, RoomLevelWord LevelWord)
     {
         /// <summary>Native one-word row, followed by signed zero X/Y termination.</summary>
         internal const ushort DirectionAndCount = 1;
@@ -27,7 +27,7 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
         get
         {
             foreach (GrappleBlockDraw frame in Enum.GetValues<GrappleBlockDraw>())
-                yield return new(frame, LevelWord(frame).Raw);
+                yield return new(frame, LevelWord(frame));
         }
     }
 

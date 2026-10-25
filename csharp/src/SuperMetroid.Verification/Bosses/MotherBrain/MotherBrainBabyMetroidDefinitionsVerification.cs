@@ -32,11 +32,19 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             checked((ushort)population.Parameter1),
             checked((ushort)population.Parameter2),
         ];
+        // Word 3 is the record's initialization parameter: the cartridge stores the Baby's first instruction list
+        // there ($CFA2), which the cutscene's typed program replaces, so the compiled record holds zero and the check
+        // asserts that instead of the pointer.
+        const int initializationParameterWord = 3;
         for (int word = 0; word < actual.Length; word++)
         {
+            if (word == initializationParameterWord)
+                continue;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((populationAddress + word * 2)), actual[word],
                 $"Mother Brain Baby population word {word}");
         }
+        AssertEqual(0, population.InitializationParameter,
+            "Mother Brain Baby population carries no instruction-list pointer");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
             population.DefinitionId,
             "Mother Brain Baby population definition");
@@ -81,7 +89,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         }
 
         Console.WriteLine(
-            "Mother Brain Baby definition: all eight population words and the real allocation, initialization AI, palette load, spawn snapshot and duplicate guard pass with the embedded record forbidden.");
+            "Mother Brain Baby definition: seven population words, the absent instruction-list pointer, and the real allocation, initialization AI, palette load, spawn snapshot and duplicate guard pass with the embedded record forbidden.");
     }
 
     /// <summary>Loads the retail cartridge and runs the Baby Metroid spawn-definition check.</summary>

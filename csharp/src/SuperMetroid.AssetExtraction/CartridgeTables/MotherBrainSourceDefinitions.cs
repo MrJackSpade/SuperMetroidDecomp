@@ -158,6 +158,13 @@ internal static class MotherBrainSourceDefinitions
             };
     }
 
+    /// <summary>The Zebetites' colour pulse.</summary>
+    internal static class Zebetite
+    {
+        /// <summary>$A6:FD87..$A6:FDA6, the eight consecutive two-colour pulse images.</summary>
+        internal const int PulseColors = 0xa6fd87;
+    }
+
     /// <summary>The Shitroid's bank-$A9 colour images.</summary>
     internal static class Shitroid
     {

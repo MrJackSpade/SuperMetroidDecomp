@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Fixed generation, health-tier, and respawn definitions for Tourian's Zebetites.</summary>
 internal static class ZebetiteDefinitions
 {
-    /// <summary>Eight two-color pulse records at $A6:FD87..FDA6.</summary>
-    public const int PaletteSource = 0xa6fd87;
-
     /// <summary>The two colours the Zebetites pulse: the third sprite set's colours twelve and thirteen.</summary>
     public static readonly SpriteColourRun PulseColours = new(2, 12, 2);
 

@@ -54,7 +54,7 @@ internal sealed class MotherBrainGlassPlms
     {
         int physicalSlot = _slotTable.IndexOf(slot);
         if (record.RecordIndex != 0 || physicalSlot != _slotTable.Slots.Count - 1 ||
-            record.Block != new Position16<RoomBlocks>(9, 5) || record.RoomArgument != MotherBrainGlassBlockDefinitions.GlassRoomArgument)
+            record.Block != new Position16<RoomBlocks>(9, 5))
         {
             throw new InvalidDataException(
                 $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
@@ -65,7 +65,8 @@ internal sealed class MotherBrainGlassPlms
         slot.StartAnimation(new MotherBrainGlassPlmAnimation());
         slot.RoomArgument = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-        ushort glassLevelWord = unchecked((ushort)((original.PackedWord.Raw & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
+        ushort glassLevelWord = RoomLevelWord.Create(original.PackedWord.VisualBlockIndex, original.PackedWord.VisualFlipFlags,
+            RoomCollisionType.SolidBlock).Raw;
         level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
 

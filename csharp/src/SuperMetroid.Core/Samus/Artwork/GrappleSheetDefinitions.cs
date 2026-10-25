@@ -20,7 +20,17 @@ public static class GrappleSheetDefinitions
 
     /// <summary>A rope segment of an orientation and segment frame, as the rope's direction mirrors it.</summary>
     public static string RopeFrame(GrappleRopeOrientation orientation, int segmentFrame, SpriteMirror mirror) =>
-        $"Rope.{orientation}.{segmentFrame}.{(int)mirror}";
+        $"Rope.{orientation}.{segmentFrame}.{MirrorName(mirror)}";
+
+    /// <summary>The frame-name segment for a rope mirroring, in <see cref="RopeMirrors"/> order.</summary>
+    private static string MirrorName(SpriteMirror mirror) => mirror switch
+    {
+        SpriteMirror.None => "0",
+        SpriteMirror.Horizontal => "1",
+        SpriteMirror.Vertical => "2",
+        SpriteMirror.Horizontal | SpriteMirror.Vertical => "3",
+        _ => throw new ArgumentOutOfRangeException(nameof(mirror), mirror, "Undefined rope mirroring."),
+    };
 
     /// <summary>Every frame the grapple sheet holds.</summary>
     public static IEnumerable<string> Frames =>

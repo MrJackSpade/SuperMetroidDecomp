@@ -190,8 +190,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         bool wasSpinning,
         ControllerButton controllerInput)
     {
-        byte direction = SamusPoseMetadata.ReadPoseXDirection(samus);
-        bool facingLeft = direction == 4;
+        bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
         if (wasSpinning)
         {
             return facingLeft

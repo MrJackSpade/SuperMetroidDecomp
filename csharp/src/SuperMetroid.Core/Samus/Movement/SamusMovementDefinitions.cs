@@ -30,10 +30,11 @@ public static class SamusMovementDefinitions
     {
 
         /// <summary>
-        /// $FF in pose-definition byte two: $91:82F9 retains the current pose after
-        /// input lookup failure. This is metadata, not an installed Samus pose ID.
+        /// The no-input fallback that retains the current pose after input lookup failure ($91:82F9). The cartridge
+        /// spells it as pose $FF, so it is the same identity as <see cref="SamusPoseId.AdjacentCodePoseFF"/>: a record
+        /// whose fallback names pose $FF retains its pose.
         /// </summary>
-        public const SamusPoseId RetainCurrentPoseFallback = (SamusPoseId)0xff;
+        public const SamusPoseId RetainCurrentPoseFallback = SamusPoseId.AdjacentCodePoseFF;
 
         /// <summary>
         /// $FF in pose-definition byte three: the pose has no shot direction. Hurt and

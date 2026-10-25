@@ -32,7 +32,7 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.ShinesparkVerticalRightPose or
         SamusPoseId.LandingAimUpRightPose or
         SamusPoseId.CrouchingTransitionAimUpRightPose or
-        SamusPoseId.StandingTransitionAimUpRightPose => (byte)SamusProjectileDirection.UpFacingRight,
+        SamusPoseId.StandingTransitionAimUpRightPose => SamusProjectileDirection.UpFacingRight.ToAimIndex(),
         SamusPoseId.StandingAimDiagonalUpRightPose or
         SamusPoseId.RunningAimDiagonalUpRightPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
@@ -45,7 +45,7 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.LandingAimDiagonalUpRightPose or
         SamusPoseId.DraygonGrabbedAimUpRightPose or
         SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalUpRightPose => (byte)SamusProjectileDirection.UpRight,
+        SamusPoseId.StandingTransitionAimDiagonalUpRightPose => SamusProjectileDirection.UpRight.ToAimIndex(),
         SamusPoseId.FacingRightNormalPose or
         SamusPoseId.MovingRightNormalPose or
         SamusPoseId.MovingRightGunExtendedPose or
@@ -73,7 +73,7 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.XrayingCrouchingRightPose or
         SamusPoseId.FiringLandingRightPose or
         SamusPoseId.DraygonGrabbedNeutralRightPose or
-        SamusPoseId.DraygonGrabbedFiringRightPose => (byte)SamusProjectileDirection.Right,
+        SamusPoseId.DraygonGrabbedFiringRightPose => SamusProjectileDirection.Right.ToAimIndex(),
         SamusPoseId.StandingAimDiagonalDownRightPose or
         SamusPoseId.RunningAimDiagonalDownRightPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
@@ -89,13 +89,13 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.LandingAimDiagonalDownRightPose or
         SamusPoseId.DraygonGrabbedAimDownRightPose or
         SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownRightPose => (byte)SamusProjectileDirection.DownRight,
+        SamusPoseId.StandingTransitionAimDiagonalDownRightPose => SamusProjectileDirection.DownRight.ToAimIndex(),
         SamusPoseId.NormalJumpAimDownRightPose or
         SamusPoseId.FallingAimDownRightPose or
-        SamusPoseId.UnusedPoseAE => (byte)SamusProjectileDirection.DownFacingRight,
+        SamusPoseId.UnusedPoseAE => SamusProjectileDirection.DownFacingRight.ToAimIndex(),
         SamusPoseId.NormalJumpAimDownLeftPose or
         SamusPoseId.FallingAimDownLeftPose or
-        SamusPoseId.UnusedPoseAF => (byte)SamusProjectileDirection.DownFacingLeft,
+        SamusPoseId.UnusedPoseAF => SamusProjectileDirection.DownFacingLeft.ToAimIndex(),
         SamusPoseId.StandingAimDiagonalDownLeftPose or
         SamusPoseId.RunningAimDiagonalDownLeftPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
@@ -111,7 +111,7 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.RanIntoWallAimDownLeftPose or
         SamusPoseId.LandingAimDiagonalDownLeftPose or
         SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => (byte)SamusProjectileDirection.DownLeft,
+        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusProjectileDirection.DownLeft.ToAimIndex(),
         SamusPoseId.FacingLeftNormalPose or
         SamusPoseId.MovingLeftNormalPose or
         SamusPoseId.MovingLeftGunExtendedPose or
@@ -139,7 +139,7 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.XrayingStandingLeftPose or
         SamusPoseId.DeathSequenceLeftPose or
         SamusPoseId.XrayingCrouchingLeftPose or
-        SamusPoseId.FiringLandingLeftPose => (byte)SamusProjectileDirection.Left,
+        SamusPoseId.FiringLandingLeftPose => SamusProjectileDirection.Left.ToAimIndex(),
         SamusPoseId.StandingAimDiagonalUpLeftPose or
         SamusPoseId.RunningAimDiagonalUpLeftPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
@@ -152,7 +152,7 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.RanIntoWallAimUpLeftPose or
         SamusPoseId.LandingAimDiagonalUpLeftPose or
         SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
-        SamusPoseId.StandingTransitionAimDiagonalUpLeftPose => (byte)SamusProjectileDirection.UpLeft,
+        SamusPoseId.StandingTransitionAimDiagonalUpLeftPose => SamusProjectileDirection.UpLeft.ToAimIndex(),
         SamusPoseId.StandingAimUpLeftPose or
         SamusPoseId.RunningAimUpLeftPose or
         SamusPoseId.NormalJumpAimUpLeftPose or
@@ -162,7 +162,7 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.ShinesparkVerticalLeftPose or
         SamusPoseId.LandingAimUpLeftPose or
         SamusPoseId.CrouchingTransitionAimUpLeftPose or
-        SamusPoseId.StandingTransitionAimUpLeftPose => (byte)SamusProjectileDirection.UpFacingLeft,
+        SamusPoseId.StandingTransitionAimUpLeftPose => SamusProjectileDirection.UpFacingLeft.ToAimIndex(),
         SamusPoseId.TurningRightToLeftAimUpPose or
         SamusPoseId.TurningLeftToRightAimUpPose or
         SamusPoseId.TurningRightToLeftJumpAimUpPose or

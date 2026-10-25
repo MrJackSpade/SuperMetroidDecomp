@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -19,15 +18,18 @@ public static class ChargeFlarePlacementDefinitions
     /// <returns>A key such as <c>standing-00</c> or <c>running-15</c>.</returns>
     public static string Key(bool running, int direction) => $"{(running ? "running" : "standing")}-{direction:D2}";
     /// <summary>The three standing turn rows that follow the ten named aiming directions.</summary>
-    private enum StandingTurnDirection : byte
+    private enum StandingTurnDirection
     {
         /// <summary>$90:C1BC/C1D6: standing turn aiming up or diagonally up.</summary>
-        Up = 10,
+        Up,
         /// <summary>$90:C1BE/C1D8: standing turn with neutral aim.</summary>
-        Neutral = 11,
+        Neutral,
         /// <summary>$90:C1C0/C1DA: standing turn aiming down or diagonally down.</summary>
-        Down = 12,
+        Down,
     }
+    /// <summary>The standing turn rows in table order after the named aiming directions.</summary>
+    private static readonly StandingTurnDirection[] StandingTurnRows =
+        [StandingTurnDirection.Up, StandingTurnDirection.Neutral, StandingTurnDirection.Down];
     /// <summary>$90:C1A8/C1C2 have thirteen named standing origins; running rows C1DC/C1F0 have ten.</summary>
     private const int StandingDirectionCount = 13;
 
@@ -53,7 +55,7 @@ public static class ChargeFlarePlacementDefinitions
             return new()
             {
                 X = -4,
-                Y = ClosedNativeWords.Decode<StandingTurnDirection>((byte)direction, "standing turn flare direction") switch
+                Y = StandingTurnRows[direction - SamusFiringTableDefinitions.DirectionCount] switch
                 {
                     StandingTurnDirection.Up => -20,
                     StandingTurnDirection.Neutral => -2,
@@ -61,7 +63,7 @@ public static class ChargeFlarePlacementDefinitions
                     _ => throw new InvalidOperationException($"Undefined {nameof(StandingTurnDirection)} {direction}."),
                 },
             };
-        var (x, y) = new SamusFiringStance(running, (SamusProjectileDirection)direction) switch
+        var (x, y) = new SamusFiringStance(running, SamusProjectileDirectionCodec.FromAimIndex(direction)) switch
         {
             (false, SamusProjectileDirection.UpFacingRight) => new Offset16<RoomPixels>(2, -28),
             (false, SamusProjectileDirection.UpRight) => new Offset16<RoomPixels>(18, -19),

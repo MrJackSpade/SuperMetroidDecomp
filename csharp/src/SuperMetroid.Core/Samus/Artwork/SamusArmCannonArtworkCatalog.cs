@@ -56,10 +56,10 @@ public sealed class SamusArmCannonArtworkCatalog
         }
         for (int direction = 0; direction < attributes.Length; direction++)
         {
-            if (attributes[direction] != SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction))
+            if (attributes[direction] != SamusArmCannonArtworkFormat.StockSpriteAttributes(SamusProjectileDirectionCodec.FromAimIndex(direction)))
                 this.attributes.Add(direction, attributes[direction]);
             for (int frame = 1; frame <= OpeningFrames; frame++)
-                if (coverTiles[direction][frame - 1] != SamusArmCannonArtworkFormat.StockCoverTile((SamusProjectileDirection)direction, frame))
+                if (coverTiles[direction][frame - 1] != SamusArmCannonArtworkFormat.StockCoverTile(SamusProjectileDirectionCodec.FromAimIndex(direction), frame))
                     this.openingTiles.Add(direction * OpeningFrames + frame - 1, coverTiles[direction][frame - 1]);
         }
         this.tiles = tiles;
@@ -178,7 +178,7 @@ public sealed class SamusArmCannonArtworkCatalog
     {
         if ((uint)direction >= SamusDrawingDefinitions.ArmCannon.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
         return attributes.TryGetValue(direction, out ushort supplied) ? supplied
-            : SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction);
+            : SamusArmCannonArtworkFormat.StockSpriteAttributes(SamusProjectileDirectionCodec.FromAimIndex(direction));
     }
 
     /// <summary>The installed cover tile native direction 0–9 shows at cover frame 0–3; the closed frame 0 shows none.</summary>
@@ -194,7 +194,7 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>The installed cover tile <paramref name="direction"/> shows at opening frame 1–3.</summary>
     private int OpeningTile(int direction, int frame) =>
         openingTiles.TryGetValue(direction * OpeningFrames + frame - 1, out int supplied) ? supplied
-            : SamusArmCannonArtworkFormat.StockCoverTile((SamusProjectileDirection)direction, frame);
+            : SamusArmCannonArtworkFormat.StockCoverTile(SamusProjectileDirectionCodec.FromAimIndex(direction), frame);
 
     /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
     public SpriteArtwork CoverTile(int direction, int frame)

@@ -57,7 +57,7 @@ public static class SamusGrappleMovement
         }
 
         grapple.Phase = GrapplePhase.Firing;
-        grapple.FireDirection = (SamusProjectileDirection)direction;
+        grapple.FireDirection = SamusProjectileDirectionCodec.FromAimIndex(direction);
         grapple.PoseChangeAutoFireTimer = WrappingCountdown.Start(GrappleBeamDefinitions.Firing.PoseChangeAutoFireFrames);
         var launch = GrappleFiringDefinitions.Launch(direction);
         grapple.ExtensionVelocity = launch.Velocity;
@@ -934,7 +934,7 @@ public static class SamusGrappleMovement
             : sourceMovementType == SamusMovementType.Crouching
                 ? GrappleConnectionTable.Crouching
                 : GrappleConnectionTable.Default;
-        var connection = GrappleConnectionDefinitions.ResolveConnection(connectionTable, (int)grapple.FireDirection);
+        var connection = GrappleConnectionDefinitions.ResolveConnection(connectionTable, grapple.FireDirection.ToAimIndex());
         GrappleConnectionFunction nextFunction = connection.Function;
         GrappleConnectionHandler handler = connection.Handler;
 
@@ -1066,8 +1066,8 @@ public static class SamusGrappleMovement
             // Special pose command 10 runs $9B:BEEB. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
-            var origin = GrappleFiringDefinitions.Origin((byte)grapple.FireDirection, running: false);
-            var flare = ReadFlareOrigin(grapple, (byte)grapple.FireDirection, running: false);
+            var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection.ToAimIndex(), running: false);
+            var flare = ReadFlareOrigin(grapple, grapple.FireDirection.ToAimIndex(), running: false);
             samus.Position = samus.Position.WithWhole(grapple.RopeStart - new Offset16<RoomPixels>(origin.X, origin.Y));
             grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
             grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -1200,7 +1200,7 @@ public static class SamusGrappleMovement
             direction = left ? SamusProjectileDirection.DownLeft : SamusProjectileDirection.DownRight;
         else if (outward && (input & ControllerButton.Up) != ControllerButton.None)
             direction = left ? SamusProjectileDirection.UpLeft : SamusProjectileDirection.UpRight;
-        return (byte)direction;
+        return direction.ToAimIndex();
     }
 
     /// <summary>Firing branch of native $9B:C490/$B861, before the selected grapple function runs.</summary>
@@ -1213,7 +1213,7 @@ public static class SamusGrappleMovement
         bool banned = GrappleConnectionDefinitions.CancelsFiring(SamusPoseMetadata.ReadMovementType(samus));
         if (!banned && direction < 16)
         {
-            if (direction == (byte)grapple.FireDirection) return null;
+            if (direction == grapple.FireDirection.ToAimIndex()) return null;
             if (!grapple.PoseChangeAutoFireTimer.IsZero)
             {
                 // Native changes the function pointer before dispatch: restart from

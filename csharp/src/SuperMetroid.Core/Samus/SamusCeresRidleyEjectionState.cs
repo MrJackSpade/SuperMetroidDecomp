@@ -78,7 +78,7 @@ public sealed class SamusCeresRidleyEjectionState
             // refreshes the animation. InitializeSamusPose_1 does not publish the hurt pose's
             // radius, so the `21 - radius` alignment uses the source pose's live radius; the
             // ordinary pose epilogue publishes radius 21 on the following frame.
-            bool facingLeft = SamusPoseMetadata.ReadPoseXDirection(samus) == 4;
+            bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
             samus.Pose = facingLeft
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;

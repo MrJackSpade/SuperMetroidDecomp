@@ -23,7 +23,7 @@ internal static class SamusPoseMetadata
     public static ushort ReadPoseYRadius(SamusPoseId pose) =>
         SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
 
-    /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>
+    /// <summary>Reads pose-definition byte zero, the direction byte other actors' AI reads back.</summary>
     public static byte ReadPoseXDirection(SamusState samus)
     {
         return ReadPoseXDirection(samus.InitializedPose);
@@ -36,20 +36,16 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static byte ReadPoseXDirection(SamusPoseId pose)
     {
-        return SamusPoseDispatchDefinitions.ReadFacing(pose);
+        return SamusPoseRecordCodec.FacingByte(pose);
     }
 
-    /// <summary>
-    /// Typed view of pose-definition byte zero. Raw access remains available for ROM
-    /// diagnostics and unknown records, while gameplay decisions no longer compare an
-    /// unexplained byte to literals four and eight.
-    /// </summary>
+    /// <summary>The way the current pose faces.</summary>
     public static SamusFacingDirection ReadFacingDirection(SamusState samus) =>
-        (SamusFacingDirection)ReadPoseXDirection(samus);
+        ReadFacingDirection(samus.InitializedPose);
 
-    /// <summary>Typed facing view for an arbitrary current or prospective pose.</summary>
+    /// <summary>The way an arbitrary current or prospective pose faces.</summary>
     public static SamusFacingDirection ReadFacingDirection(SamusPoseId pose) =>
-        (SamusFacingDirection)ReadPoseXDirection(pose);
+        SamusPoseDispatchDefinitions.ReadFacing(pose);
 
     /// <summary>Whether the current pose faces <paramref name="direction"/>: pose-definition value four is left, eight right.</summary>
     public static bool IsFacing(SamusState samus, SamusFacingDirection direction) =>
@@ -79,18 +75,8 @@ internal static class SamusPoseMetadata
     /// Values beyond the complete retail dispatcher are corrupt cartridge metadata and
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
-    public static SamusMovementType ReadMovementType(SamusPoseId pose)
-    {
-        byte rawMovementType = SamusPoseDispatchDefinitions.ReadMovement(pose);
-        if (rawMovementType > (byte)SamusMovementType.Special)
-        {
-            throw new InvalidDataException(
-                $"Pose {pose} has invalid movement type ${rawMovementType:X2}; " +
-                $"the retail dispatcher ends at {SamusMovementType.Special}.");
-        }
-
-        return (SamusMovementType)rawMovementType;
-    }
+    public static SamusMovementType ReadMovementType(SamusPoseId pose) =>
+        SamusPoseDispatchDefinitions.ReadMovement(pose);
 
     /// <summary>Compatibility spelling for an arbitrary prospective pose.</summary>
     public static SamusMovementType ReadMovementKind(SamusPoseId pose) =>
@@ -701,7 +687,7 @@ internal static class SamusPoseMetadata
                 // `$90:DFF7` tests the pose-definition direction, not the descriptive pose
                 // number. Any value other than literal four follows the right-facing path.
                 SamusPoseId sourcePose = samus.Pose;
-                SamusPoseId targetPose = ReadPoseXDirection(samus) == (byte)SamusFacingDirection.Left
+                SamusPoseId targetPose = ReadFacingDirection(samus) == SamusFacingDirection.Left
                     ? SamusPoseId.NormalJumpForwardLeftPose
                     : SamusPoseId.NormalJumpForwardRightPose;
 

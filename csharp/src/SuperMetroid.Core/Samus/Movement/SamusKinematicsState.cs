@@ -67,8 +67,8 @@ public sealed class SamusKinematicsState
     /// mover preserve the native test without guessing which higher-level movement caller
     /// happened to reach it.
     /// </summary>
-    /// <remarks>Unsampled state reads as $FF, above every pose the elevator pseudo-doors admit.</remarks>
-    public SamusPoseId CollisionPose { get; internal set; } = (SamusPoseId)byte.MaxValue;
+    /// <remarks>Unsampled state reads as pose $FF, outside every pose the elevator pseudo-doors admit.</remarks>
+    public SamusPoseId CollisionPose { get; internal set; } = SamusPoseId.AdjacentCodePoseFF;
 
     /// <summary>
     /// Current native-order snapshot of WRAM <c>InteractiveEnemyIndices</c> and the collision

@@ -284,10 +284,10 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardP
         // and spin-jump input tables can select the same `$37/$38` initializer. The literal
         // previous-movement-type test below even has a dedicated type-three side effect.
         // Validate only the facing-preserving relationship guaranteed by the ROM table.
-        byte sourceDirection = SamusPoseMetadata.ReadPoseXDirection(samus);
-        bool startsMorphingRight = sourceDirection == 8 &&
+        SamusFacingDirection sourceFacing = SamusPoseMetadata.ReadFacingDirection(samus);
+        bool startsMorphingRight = sourceFacing == SamusFacingDirection.Right &&
             targetPose == SamusPoseId.MorphingTransitionRightPose;
-        bool startsMorphingLeft = sourceDirection == 4 &&
+        bool startsMorphingLeft = sourceFacing == SamusFacingDirection.Left &&
             targetPose == SamusPoseId.MorphingTransitionLeftPose;
         bool startsMorphing = startsMorphingRight || startsMorphingLeft;
         bool startsUnmorphingRight =

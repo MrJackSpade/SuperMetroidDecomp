@@ -412,7 +412,7 @@ public static class SamusArmCannonArtworkFormat
             (ArmCannonDescriptorDefinitions.FacingRightCrouching, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftMoonwalk, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightNormalJumpMovingForward, 0) or
-            (ArmCannonDescriptorDefinitions.FacingRightFallingGunExtended, 0) => (byte)SamusProjectileDirection.Right,
+            (ArmCannonDescriptorDefinitions.FacingRightFallingGunExtended, 0) => SamusProjectileDirection.Right.ToAimIndex(),
             (ArmCannonDescriptorDefinitions.FacingRight, 1) or
             (ArmCannonDescriptorDefinitions.FacingLeft, 1) or
             (ArmCannonDescriptorDefinitions.FacingRightAimingUp, 1) or
@@ -482,35 +482,35 @@ public static class SamusArmCannonArtworkFormat
             (ArmCannonDescriptorDefinitions.FacingLeftCrouching, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightMoonwalk, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftNormalJumpMovingForward, 0) or
-            (ArmCannonDescriptorDefinitions.FacingLeftFallingGunExtended, 0) => (byte)SamusProjectileDirection.Left,
+            (ArmCannonDescriptorDefinitions.FacingLeftFallingGunExtended, 0) => SamusProjectileDirection.Left.ToAimIndex(),
             (ArmCannonDescriptorDefinitions.FacingRightAimingUp, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingUp, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightFallingAimingUp, 0) or
-            (ArmCannonDescriptorDefinitions.FacingRightCrouchingAimingUp, 0) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpRight,
+            (ArmCannonDescriptorDefinitions.FacingRightCrouchingAimingUp, 0) => (byte)(FrameDependentDirectionFlag | SamusProjectileDirection.UpRight.ToAimIndex()),
             (ArmCannonDescriptorDefinitions.FacingRightAimingUp, 2) or
             (ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingUp, 2) or
             (ArmCannonDescriptorDefinitions.FacingRightFallingAimingUp, 2) or
-            (ArmCannonDescriptorDefinitions.FacingRightCrouchingAimingUp, 2) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingRight,
+            (ArmCannonDescriptorDefinitions.FacingRightCrouchingAimingUp, 2) => (byte)(FrameDependentDirectionFlag | SamusProjectileDirection.UpFacingRight.ToAimIndex()),
             (ArmCannonDescriptorDefinitions.FacingLeftAimingUp, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingUp, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftFallingAimingUp, 0) or
-            (ArmCannonDescriptorDefinitions.FacingLeftCrouchingAimingUp, 0) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpLeft,
+            (ArmCannonDescriptorDefinitions.FacingLeftCrouchingAimingUp, 0) => (byte)(FrameDependentDirectionFlag | SamusProjectileDirection.UpLeft.ToAimIndex()),
             (ArmCannonDescriptorDefinitions.FacingLeftAimingUp, 2) or
             (ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingUp, 2) or
             (ArmCannonDescriptorDefinitions.FacingLeftFallingAimingUp, 2) or
-            (ArmCannonDescriptorDefinitions.FacingLeftCrouchingAimingUp, 2) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingLeft,
+            (ArmCannonDescriptorDefinitions.FacingLeftCrouchingAimingUp, 2) => (byte)(FrameDependentDirectionFlag | SamusProjectileDirection.UpFacingLeft.ToAimIndex()),
             (ArmCannonDescriptorDefinitions.FacingRightAimingUpRight, 0) or
             (ArmCannonDescriptorDefinitions.MovingRightAimingUpRight, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingUpRight, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightFallingAimingUpRight, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightCrouchingAimingUpRight, 0) or
-            (ArmCannonDescriptorDefinitions.FacingRightMoonwalkAimingUpRight, 0) => (byte)SamusProjectileDirection.UpRight,
+            (ArmCannonDescriptorDefinitions.FacingRightMoonwalkAimingUpRight, 0) => SamusProjectileDirection.UpRight.ToAimIndex(),
             (ArmCannonDescriptorDefinitions.FacingLeftAimingUpLeft, 0) or
             (ArmCannonDescriptorDefinitions.MovingLeftAimingUpLeft, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingUpLeft, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftFallingAimingUpLeft, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftCrouchingAimingUpLeft, 0) or
-            (ArmCannonDescriptorDefinitions.FacingLeftMoonwalkAimingUpLeft, 0) => (byte)SamusProjectileDirection.UpLeft,
+            (ArmCannonDescriptorDefinitions.FacingLeftMoonwalkAimingUpLeft, 0) => SamusProjectileDirection.UpLeft.ToAimIndex(),
             (ArmCannonDescriptorDefinitions.FacingRightAimingDownRight, 0) or
             (ArmCannonDescriptorDefinitions.MovingRightAimingDownRight, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightNormalJumpTransition, 0) or
@@ -519,20 +519,20 @@ public static class SamusArmCannonArtworkFormat
             (ArmCannonDescriptorDefinitions.FacingRightCrouchingAimingDownRight, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightMoonwalkAimingDownRight, 0) or
             (ArmCannonDescriptorDefinitions.FacingRightLandingFromNormalJump, 0) or
-            (ArmCannonDescriptorDefinitions.FacingRightLandingFromSpinJump, 0) => (byte)SamusProjectileDirection.DownRight,
+            (ArmCannonDescriptorDefinitions.FacingRightLandingFromSpinJump, 0) => SamusProjectileDirection.DownRight.ToAimIndex(),
             (ArmCannonDescriptorDefinitions.FacingLeftAimingDownLeft, 0) or
             (ArmCannonDescriptorDefinitions.MovingLeftAimingDownLeft, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingDownLeft, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftFallingAimingDownLeft, 0) or
             (ArmCannonDescriptorDefinitions.FacingLeftCrouchingAimingDownLeft, 0) or
-            (ArmCannonDescriptorDefinitions.FacingLeftMoonwalkAimingDownLeft, 0) => (byte)SamusProjectileDirection.DownLeft,
+            (ArmCannonDescriptorDefinitions.FacingLeftMoonwalkAimingDownLeft, 0) => SamusProjectileDirection.DownLeft.ToAimIndex(),
             (ArmCannonDescriptorDefinitions.Default, 1) => HiddenDrawingMode,
             (ArmCannonDescriptorDefinitions.FacingRightNormalJumpAimingDown, 0) or
-            (ArmCannonDescriptorDefinitions.FacingRightFallingAimingDown, 0) => (byte)SamusProjectileDirection.DownFacingRight,
+            (ArmCannonDescriptorDefinitions.FacingRightFallingAimingDown, 0) => SamusProjectileDirection.DownFacingRight.ToAimIndex(),
             (ArmCannonDescriptorDefinitions.FacingLeftNormalJumpAimingDown, 0) or
-            (ArmCannonDescriptorDefinitions.FacingLeftFallingAimingDown, 0) => (byte)SamusProjectileDirection.DownFacingLeft,
-            (ArmCannonDescriptorDefinitions.FacingRightTransitionAimingUp, 0) => (byte)SamusProjectileDirection.UpFacingRight,
-            (ArmCannonDescriptorDefinitions.FacingLeftTransitionAimingUp, 0) => (byte)SamusProjectileDirection.UpFacingLeft,
+            (ArmCannonDescriptorDefinitions.FacingLeftFallingAimingDown, 0) => SamusProjectileDirection.DownFacingLeft.ToAimIndex(),
+            (ArmCannonDescriptorDefinitions.FacingRightTransitionAimingUp, 0) => SamusProjectileDirection.UpFacingRight.ToAimIndex(),
+            (ArmCannonDescriptorDefinitions.FacingLeftTransitionAimingUp, 0) => SamusProjectileDirection.UpFacingLeft.ToAimIndex(),
             _ => null,
         };
         value = control ?? 0;
@@ -752,7 +752,15 @@ public static class SamusArmCannonArtworkFormat
                 SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => TileOrientation.Vertical,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined projectile direction."),
         };
-        return (int)orientation * (FramesPerDirection - 1) + frame - 1;
+        int orientationGroup = orientation switch
+        {
+            TileOrientation.Vertical => 0,
+            TileOrientation.Horizontal => 1,
+            TileOrientation.DownwardDiagonal => 2,
+            TileOrientation.UpwardDiagonal => 3,
+            _ => throw new InvalidOperationException($"Undefined {nameof(TileOrientation)} {orientation}."),
+        };
+        return orientationGroup * (FramesPerDirection - 1) + frame - 1;
     }
 
     /// <summary>$90:C791..C7A4 reflects the selected vertical/horizontal/diagonal artwork according to native aiming direction.</summary>

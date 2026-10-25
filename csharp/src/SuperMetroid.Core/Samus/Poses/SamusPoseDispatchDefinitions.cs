@@ -4,22 +4,25 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Pose-specific facing, movement and idle transitions, independent of editable artwork.</summary>
 /// <remarks>
-/// Poses 00..FC use semantic cases. FD..FF retain only the bounded byte observations
-/// of the unrelated $91:BE11 X-ray HDMA machine-code routine. Those instruction encodings
-/// have no managed pose-policy meaning; re-deriving them as pose data would be nonsense.
-/// Exact addresses, instructions and the byte-only consumer contract were reviewed in
-/// #1165 (stream 1, Batch 30). This exemption covers no ordinary pose value.
+/// Every pose has a typed facing and movement here. The three adjacent-code poses FD..FF read the unrelated
+/// $91:BE11 X-ray HDMA machine-code routine as their records; their raw facing and movement bytes, and those of
+/// the two unused glitch-ball poses whose facing bytes are neither left nor right, are owned by
+/// <see cref="SamusPoseRecordCodec"/>, the only place a pose record's bytes exist.
 /// </remarks>
 internal static class SamusPoseDispatchDefinitions
 {
-    /// <summary>Native PoseDefinitions Facing selection, $91:B629 record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static byte ReadFacing(SamusPoseId pose) => pose switch
+    /// <summary>
+    /// The pose's facing, from the native PoseDefinitions facing byte. Poses whose byte names neither left nor right
+    /// (the front view, the unused glitch-ball records and two adjacent-code records) face neither way.
+    /// </summary>
+    internal static SamusFacingDirection ReadFacing(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
-        SamusPoseId.ForwardFacingSuitedPose => (byte)SamusFacingDirection.ForwardOrSpecial,
-        // The unused glitch-ball records use distinct native discriminators, not left/right.
-        SamusPoseId.UnusedPose21 => 1,
-        SamusPoseId.UnusedPose22 => 2,
+        SamusPoseId.ForwardFacingSuitedPose or
+        SamusPoseId.UnusedPose21 or
+        SamusPoseId.UnusedPose22 or
+        SamusPoseId.AdjacentCodePoseFE or
+        SamusPoseId.AdjacentCodePoseFF => SamusFacingDirection.ForwardOrSpecial,
         SamusPoseId.FacingLeftNormalPose or
         SamusPoseId.StandingAimUpLeftPose or
         SamusPoseId.StandingAimDiagonalUpLeftPose or
@@ -145,7 +148,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or
         SamusPoseId.StandingTransitionAimUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => (byte)SamusFacingDirection.Left,
+        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusFacingDirection.Left,
         SamusPoseId.FacingRightNormalPose or
         SamusPoseId.StandingAimUpRightPose or
         SamusPoseId.StandingAimDiagonalUpRightPose or
@@ -268,17 +271,21 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownRightPose => (byte)SamusFacingDirection.Right,
-        // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
-        SamusPoseId.AdjacentCodePoseFD => 8,
-        SamusPoseId.AdjacentCodePoseFE => 41,
-        SamusPoseId.AdjacentCodePoseFF => 18,
+        SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
+        // The adjacent-code record FD happens to read the right-facing byte.
+        SamusPoseId.AdjacentCodePoseFD => SamusFacingDirection.Right,
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
-    /// <summary>Native PoseDefinitions Movement selection, $91:B62A record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static byte ReadMovement(SamusPoseId pose) => pose switch
+    /// <summary>
+    /// The pose's movement type, from the native PoseDefinitions movement byte, which selects the movement handler.
+    /// The adjacent-code records FD and FF read bytes beyond the retail dispatcher, which is corrupt metadata and fails
+    /// here; FE reads a standing byte.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The pose is FD or FF.</exception>
+    internal static SamusMovementType ReadMovement(SamusPoseId pose) => pose switch
     {
+        SamusPoseId.AdjacentCodePoseFE or
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.FacingRightNormalPose or
         SamusPoseId.FacingLeftNormalPose or
@@ -304,7 +311,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.LandingAimDiagonalDownRightPose or
         SamusPoseId.LandingAimDiagonalDownLeftPose or
         SamusPoseId.FiringLandingRightPose or
-        SamusPoseId.FiringLandingLeftPose => (byte)SamusMovementType.Standing,
+        SamusPoseId.FiringLandingLeftPose => SamusMovementType.Standing,
         SamusPoseId.MovingRightNormalPose or
         SamusPoseId.MovingLeftNormalPose or
         SamusPoseId.MovingRightGunExtendedPose or
@@ -316,7 +323,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.RunningAimDiagonalDownRightPose or
         SamusPoseId.RunningAimDiagonalDownLeftPose or
         SamusPoseId.UnusedPose45 or
-        SamusPoseId.UnusedPose46 => (byte)SamusMovementType.Running,
+        SamusPoseId.UnusedPose46 => SamusMovementType.Running,
         SamusPoseId.NormalJumpGunExtendedRightPose or
         SamusPoseId.NormalJumpGunExtendedLeftPose or
         SamusPoseId.NormalJumpAimUpRightPose or
@@ -338,17 +345,17 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.NormalJumpAimDiagonalUpRightPose or
         SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
         SamusPoseId.NormalJumpAimDiagonalDownRightPose or
-        SamusPoseId.NormalJumpAimDiagonalDownLeftPose => (byte)SamusMovementType.NormalJumping,
+        SamusPoseId.NormalJumpAimDiagonalDownLeftPose => SamusMovementType.NormalJumping,
         SamusPoseId.SpinJumpRightPose or
         SamusPoseId.SpinJumpLeftPose or
         SamusPoseId.SpaceJumpRightPose or
         SamusPoseId.SpaceJumpLeftPose or
         SamusPoseId.ScrewAttackRightPose or
-        SamusPoseId.ScrewAttackLeftPose => (byte)SamusMovementType.SpinJumping,
+        SamusPoseId.ScrewAttackLeftPose => SamusMovementType.SpinJumping,
         SamusPoseId.MorphBallGroundRightPose or
         SamusPoseId.MorphBallMovingRightPose or
         SamusPoseId.MorphBallMovingLeftPose or
-        SamusPoseId.MorphBallGroundLeftPose => (byte)SamusMovementType.MorphBallGround,
+        SamusPoseId.MorphBallGroundLeftPose => SamusMovementType.MorphBallGround,
         SamusPoseId.CrouchingRightPose or
         SamusPoseId.CrouchingLeftPose or
         SamusPoseId.CrouchingAimDiagonalUpRightPose or
@@ -358,7 +365,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.CrouchingAimUpRightPose or
         SamusPoseId.CrouchingAimUpLeftPose or
         SamusPoseId.XrayingCrouchingRightPose or
-        SamusPoseId.XrayingCrouchingLeftPose => (byte)SamusMovementType.Crouching,
+        SamusPoseId.XrayingCrouchingLeftPose => SamusMovementType.Crouching,
         SamusPoseId.FallingRightPose or
         SamusPoseId.FallingLeftPose or
         SamusPoseId.FallingAimUpRightPose or
@@ -370,29 +377,29 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.FallingAimDiagonalUpRightPose or
         SamusPoseId.FallingAimDiagonalUpLeftPose or
         SamusPoseId.FallingAimDiagonalDownRightPose or
-        SamusPoseId.FallingAimDiagonalDownLeftPose => (byte)SamusMovementType.Falling,
+        SamusPoseId.FallingAimDiagonalDownLeftPose => SamusMovementType.Falling,
         SamusPoseId.UnusedPose20 or
         SamusPoseId.UnusedPose21 or
         SamusPoseId.UnusedPose22 or
         SamusPoseId.UnusedPose23 or
         SamusPoseId.UnusedPose24 or
-        SamusPoseId.UnusedPose42 => (byte)SamusMovementType.UnusedGlitchBall,
+        SamusPoseId.UnusedPose42 => SamusMovementType.UnusedGlitchBall,
         SamusPoseId.MorphBallFallingRightPose or
-        SamusPoseId.MorphBallFallingLeftPose => (byte)SamusMovementType.MorphBallFalling,
+        SamusPoseId.MorphBallFallingLeftPose => SamusMovementType.MorphBallFalling,
         SamusPoseId.UnusedKnockbackRightPose or
-        SamusPoseId.UnusedKnockbackLeftPose => (byte)SamusMovementType.UnusedGlitchBallAlternate,
+        SamusPoseId.UnusedKnockbackLeftPose => SamusMovementType.UnusedGlitchBallAlternate,
         SamusPoseId.KnockbackRightPose or
         SamusPoseId.KnockbackLeftPose or
         SamusPoseId.DeathSequenceRightPose or
-        SamusPoseId.DeathSequenceLeftPose => (byte)SamusMovementType.Knockback,
+        SamusPoseId.DeathSequenceLeftPose => SamusMovementType.Knockback,
         SamusPoseId.UnusedPose5D or
         SamusPoseId.UnusedPose5E or
         SamusPoseId.UnusedPose5F or
-        SamusPoseId.UnusedPose60 => (byte)SamusMovementType.Unused0B,
+        SamusPoseId.UnusedPose60 => SamusMovementType.Unused0B,
         SamusPoseId.UnusedPose63 or
         SamusPoseId.UnusedPose64 or
         SamusPoseId.UnusedPose65 or
-        SamusPoseId.UnusedPose66 => (byte)SamusMovementType.Unused0D,
+        SamusPoseId.UnusedPose66 => SamusMovementType.Unused0D,
         SamusPoseId.TurningRightToLeftPose or
         SamusPoseId.TurningLeftToRightPose or
         SamusPoseId.TurningRightToLeftCrouchingPose or
@@ -408,7 +415,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
         SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
         SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-        SamusPoseId.MoonwalkTurnJumpAimDownRightPose => (byte)SamusMovementType.TurningOnGround,
+        SamusPoseId.MoonwalkTurnJumpAimDownRightPose => SamusMovementType.TurningOnGround,
         SamusPoseId.CrouchingTransitionRightPose or
         SamusPoseId.CrouchingTransitionLeftPose or
         SamusPoseId.MorphingTransitionRightPose or
@@ -436,29 +443,29 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => (byte)SamusMovementType.PostureTransition,
+        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementType.PostureTransition,
         SamusPoseId.MoonwalkFacingLeftPose or
         SamusPoseId.MoonwalkFacingRightPose or
         SamusPoseId.MoonwalkAimUpLeftPose or
         SamusPoseId.MoonwalkAimUpRightPose or
         SamusPoseId.MoonwalkAimDownLeftPose or
-        SamusPoseId.MoonwalkAimDownRightPose => (byte)SamusMovementType.Moonwalking,
+        SamusPoseId.MoonwalkAimDownRightPose => SamusMovementType.Moonwalking,
         SamusPoseId.SpringBallGroundRightPose or
         SamusPoseId.SpringBallGroundLeftPose or
         SamusPoseId.SpringBallMovingRightPose or
-        SamusPoseId.SpringBallMovingLeftPose => (byte)SamusMovementType.SpringBallGround,
+        SamusPoseId.SpringBallMovingLeftPose => SamusMovementType.SpringBallGround,
         SamusPoseId.SpringBallJumpRightPose or
-        SamusPoseId.SpringBallJumpLeftPose => (byte)SamusMovementType.SpringBallInAir,
+        SamusPoseId.SpringBallJumpLeftPose => SamusMovementType.SpringBallInAir,
         SamusPoseId.SpringBallFallingRightPose or
-        SamusPoseId.SpringBallFallingLeftPose => (byte)SamusMovementType.SpringBallFalling,
+        SamusPoseId.SpringBallFallingLeftPose => SamusMovementType.SpringBallFalling,
         SamusPoseId.WallJumpRightPose or
-        SamusPoseId.WallJumpLeftPose => (byte)SamusMovementType.WallJumping,
+        SamusPoseId.WallJumpLeftPose => SamusMovementType.WallJumping,
         SamusPoseId.RanIntoWallRightPose or
         SamusPoseId.RanIntoWallLeftPose or
         SamusPoseId.RanIntoWallAimUpRightPose or
         SamusPoseId.RanIntoWallAimUpLeftPose or
         SamusPoseId.RanIntoWallAimDownRightPose or
-        SamusPoseId.RanIntoWallAimDownLeftPose => (byte)SamusMovementType.RanIntoWall,
+        SamusPoseId.RanIntoWallAimDownLeftPose => SamusMovementType.RanIntoWall,
         SamusPoseId.UnusedPose5B or
         SamusPoseId.UnusedPose5C or
         SamusPoseId.UnusedPose61 or
@@ -480,7 +487,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.GrappleCrouchingDownRightPose or
         SamusPoseId.GrappleCrouchingDownLeftPose or
         SamusPoseId.GrappleWallContactLeftPose or
-        SamusPoseId.GrappleWallContactRightPose => (byte)SamusMovementType.Grappling,
+        SamusPoseId.GrappleWallContactRightPose => SamusMovementType.Grappling,
         SamusPoseId.TurningRightToLeftJumpPose or
         SamusPoseId.TurningLeftToRightJumpPose or
         SamusPoseId.TurningRightToLeftJumpAimUpPose or
@@ -494,7 +501,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or
         SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or
         SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose => (byte)SamusMovementType.TurningWhileJumping,
+        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose => SamusMovementType.TurningWhileJumping,
         SamusPoseId.TurningRightToLeftFallingPose or
         SamusPoseId.TurningLeftToRightFallingPose or
         SamusPoseId.TurningRightToLeftFallingAimUpPose or
@@ -502,9 +509,9 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.TurningRightToLeftFallingAimDownPose or
         SamusPoseId.TurningLeftToRightFallingAimDownPose or
         SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or
-        SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose => (byte)SamusMovementType.TurningWhileFalling,
+        SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose => SamusMovementType.TurningWhileFalling,
         SamusPoseId.DamageBoostLeftPose or
-        SamusPoseId.DamageBoostRightPose => (byte)SamusMovementType.DamageBoost,
+        SamusPoseId.DamageBoostRightPose => SamusMovementType.DamageBoost,
         SamusPoseId.DraygonGrabbedNeutralLeftPose or
         SamusPoseId.DraygonGrabbedAimUpLeftPose or
         SamusPoseId.DraygonGrabbedFiringLeftPose or
@@ -517,7 +524,7 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.DraygonGrabbedAimUpRightPose or
         SamusPoseId.DraygonGrabbedFiringRightPose or
         SamusPoseId.DraygonGrabbedAimDownRightPose or
-        SamusPoseId.DraygonGrabbedMovingRightPose => (byte)SamusMovementType.DraygonHeld,
+        SamusPoseId.DraygonGrabbedMovingRightPose => SamusMovementType.DraygonHeld,
         SamusPoseId.ShinesparkWindupRightPose or
         SamusPoseId.ShinesparkWindupLeftPose or
         SamusPoseId.ShinesparkHorizontalRightPose or
@@ -531,11 +538,11 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.DrainedCrouchingRightPose or
         SamusPoseId.DrainedCrouchingLeftPose or
         SamusPoseId.DrainedStandingRightPose or
-        SamusPoseId.DrainedStandingLeftPose => (byte)SamusMovementType.Special,
+        SamusPoseId.DrainedStandingLeftPose => SamusMovementType.Special,
         // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
-        SamusPoseId.AdjacentCodePoseFD => 139,
-        SamusPoseId.AdjacentCodePoseFE => 0,
-        SamusPoseId.AdjacentCodePoseFF => 56,
+        SamusPoseId.AdjacentCodePoseFD or
+        SamusPoseId.AdjacentCodePoseFF => throw new InvalidDataException(
+            $"Pose {pose} reads adjacent code as its movement type, beyond the retail dispatcher's {nameof(SamusMovementType.Special)}."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
@@ -796,9 +803,9 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
         // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
-        SamusPoseId.AdjacentCodePoseFD => (SamusPoseId)75,
-        SamusPoseId.AdjacentCodePoseFE => (SamusPoseId)255,
-        SamusPoseId.AdjacentCodePoseFF => (SamusPoseId)229,
+        SamusPoseId.AdjacentCodePoseFD => SamusPoseId.NeutralJumpTransitionRightPose,
+        SamusPoseId.AdjacentCodePoseFE => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
+        SamusPoseId.AdjacentCodePoseFF => SamusPoseId.LandingAimDiagonalDownLeftPose,
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 

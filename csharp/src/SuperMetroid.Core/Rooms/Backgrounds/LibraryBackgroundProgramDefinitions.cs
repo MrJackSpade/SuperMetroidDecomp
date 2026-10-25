@@ -9,9 +9,4 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// The programs are generated from the pinned cartridge by tools/generate-library-background-programs.ps1, holding
 /// fixed command operands only; regenerate them instead of editing the generated declaration.
 /// </remarks>
-public static partial class LibraryBackgroundProgramDefinitions
-{
-
-    /// <summary>All pinned program definitions, in the cartridge's list order.</summary>
-    public static IReadOnlyList<LibraryBackgroundProgram> All => programs;
-}
+public static partial class LibraryBackgroundProgramDefinitions;

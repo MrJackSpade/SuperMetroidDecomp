@@ -29,14 +29,14 @@ internal static class ImplicitScrollResidueVerification
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
         // #1336: past the 50 cells the scroll reads land in the saved explored-map planes, which read as zero.
-        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadStorage(RoomScrollGrid.StorageByteCount),
+        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadCameraStorage(RoomScrollGrid.StorageByteCount),
             "index $32 reads the explored-map byte as the cartridge's zero");
-        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadStorage(ushort.MaxValue),
+        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadCameraStorage(ushort.MaxValue),
             "the last index a 16-bit register selects reads zero too");
-        AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadState(3), "the bottom row is blue");
+        AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadCameraState(3), "the bottom row is blue");
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.StorageByteCount; index++)
             AssertEqual(previousTail[index], grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");
-        AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadState(3 + room.Size.X),
+        AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadCameraState(3 + room.Size.X),
             "the cell below the bottom row is $A7DE's blue, not red");
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");
     }

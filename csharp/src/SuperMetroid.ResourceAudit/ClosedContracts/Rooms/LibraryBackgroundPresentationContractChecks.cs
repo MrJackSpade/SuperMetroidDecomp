@@ -28,7 +28,7 @@ internal static class LibraryBackgroundPresentationContractChecks
         var substituted = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>(owned);
         RoomBackgroundTilemap first = Enum.GetValues<RoomBackgroundTilemap>()[0];
         substituted.Remove(first);
-        substituted.Add((RoomBackgroundTilemap)0, atlas);
+        substituted.Add(default, atlas);
         bool rejected = false;
         try { _ = new RoomBackgroundTilemapCatalog(substituted); }
         catch (InvalidDataException) { rejected = true; }

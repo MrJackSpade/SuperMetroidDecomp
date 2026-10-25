@@ -62,7 +62,7 @@ internal static class PlmDefinitionMigrationVerification
         AssertEqual(48, SamusEaterPlmDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
         AssertEqual(2, SamusEaterPlmDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(0xb123 & 0x8fff, new RoomLevelWord(0xb123).WithPlmDeactivation().Raw, "plant trigger deactivation keeps the former mask's bits");
-        AssertEqual((EventNumber?)null, MetroidsClearedEvents.ResolveEvent(16), "ninth metroids-cleared entry is a no-op");
+        AssertEqual(null, MetroidsClearedEvents.ResolveEvent(16), "ninth metroids-cleared entry is a no-op");
         AssertEqual((EventNumber?)EventNumber.FirstMetroidHallCleared, MetroidsClearedEvents.ResolveEvent(18), "first quota observer");
         AssertEqual((EventNumber?)EventNumber.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(24), "last quota observer");
 

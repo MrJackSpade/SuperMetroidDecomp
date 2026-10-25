@@ -31,7 +31,7 @@ internal static class RoomBackgroundLibraryParityVerification
         HudTileAtlas hud = installed.LoadMaps().HudTiles;
         int cases = 0;
 
-        foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
+        foreach (LibraryBackgroundProgram program in LibraryBackgroundSourceDefinitions.All)
         {
             LibraryBackgroundNativeOperand[] list = sources
                 .Where(source => source.ListPointer == program.Pointer).ToArray();

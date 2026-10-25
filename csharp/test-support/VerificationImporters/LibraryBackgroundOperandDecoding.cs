@@ -60,25 +60,25 @@ internal static class LibraryBackgroundOperandDecoding
 
     /// <summary>Where the cartridge or work RAM holds <paramref name="source"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="source"/> reads nothing.</exception>
-    internal static int Address(LibraryBackgroundSource source) => source.Kind switch
+    internal static int Address(LibraryBackgroundSource source) => source switch
     {
-        LibraryBackgroundSourceKind.Tilemap => RoomBackgroundSourceDefinitions.Tilemaps[source.Tilemap],
-        LibraryBackgroundSourceKind.TilemapStaging => TilemapStaging,
-        LibraryBackgroundSourceKind.EnemyTilemapStaging => EnemyTilemapStaging,
-        LibraryBackgroundSourceKind.SkyPage => LibraryBackgroundOperands.SkyPageAddress(source.SkyPage),
-        LibraryBackgroundSourceKind.TourianStatueGhostCharacters => RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters,
-        LibraryBackgroundSourceKind.HudCharacters => HudTileAtlasFormat.SourceAddress,
-        LibraryBackgroundSourceKind.None => throw new ArgumentOutOfRangeException(nameof(source), source, "A clear command reads nothing."),
+        LibraryBackgroundSource.CompressedTilemap compressed => RoomBackgroundSourceDefinitions.Tilemaps[compressed.Tilemap],
+        LibraryBackgroundSource.StagedTilemap => TilemapStaging,
+        LibraryBackgroundSource.StagedEnemyTilemap => EnemyTilemapStaging,
+        LibraryBackgroundSource.SkyPage sky => LibraryBackgroundOperands.SkyPageAddress(sky.Page),
+        LibraryBackgroundSource.StatueGhostCharacters => RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters,
+        LibraryBackgroundSource.HudCharacterSet => HudTileAtlasFormat.SourceAddress,
+        LibraryBackgroundSource.NothingRead => throw new ArgumentOutOfRangeException(nameof(source), source, "A clear command reads nothing."),
         _ => throw new ArgumentOutOfRangeException(nameof(source), source, "Unknown library-background source."),
     };
 
     /// <summary>The tilemap a decompression from <paramref name="address"/> stages.</summary>
     /// <exception cref="InvalidDataException">No background tilemap is stored there.</exception>
-    internal static LibraryBackgroundSource DecompressedSource(int address)
+    internal static LibraryBackgroundSource.CompressedTilemap DecompressedSource(int address)
     {
         foreach ((RoomBackgroundTilemap tilemap, int stored) in RoomBackgroundSourceDefinitions.Tilemaps)
             if (stored == address)
-                return LibraryBackgroundSource.Compressed(tilemap);
+                return new LibraryBackgroundSource.CompressedTilemap(tilemap);
         throw new InvalidDataException($"No background tilemap is stored at ${address:X6}.");
     }
 

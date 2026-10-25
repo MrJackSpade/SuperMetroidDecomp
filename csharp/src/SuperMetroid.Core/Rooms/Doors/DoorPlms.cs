@@ -227,61 +227,10 @@ internal sealed class DoorPlms : IPlmFamilySource
         out ColoredDoorColor color,
         out ColoredDoorOrientation orientation)
     {
-        switch (header)
-        {
-            case PlmHeaderId.YellowDoorFacingLeft:
-                color = ColoredDoorColor.Yellow;
-                orientation = ColoredDoorOrientation.Left;
-                return true;
-            case PlmHeaderId.YellowDoorFacingRight:
-                color = ColoredDoorColor.Yellow;
-                orientation = ColoredDoorOrientation.Right;
-                return true;
-            case PlmHeaderId.YellowDoorFacingUp:
-                color = ColoredDoorColor.Yellow;
-                orientation = ColoredDoorOrientation.Up;
-                return true;
-            case PlmHeaderId.YellowDoorFacingDown:
-                color = ColoredDoorColor.Yellow;
-                orientation = ColoredDoorOrientation.Down;
-                return true;
-            case PlmHeaderId.GreenDoorFacingLeft:
-                color = ColoredDoorColor.Green;
-                orientation = ColoredDoorOrientation.Left;
-                return true;
-            case PlmHeaderId.GreenDoorFacingRight:
-                color = ColoredDoorColor.Green;
-                orientation = ColoredDoorOrientation.Right;
-                return true;
-            case PlmHeaderId.GreenDoorFacingUp:
-                color = ColoredDoorColor.Green;
-                orientation = ColoredDoorOrientation.Up;
-                return true;
-            case PlmHeaderId.GreenDoorFacingDown:
-                color = ColoredDoorColor.Green;
-                orientation = ColoredDoorOrientation.Down;
-                return true;
-            case PlmHeaderId.RedDoorFacingLeft:
-                color = ColoredDoorColor.Red;
-                orientation = ColoredDoorOrientation.Left;
-                return true;
-            case PlmHeaderId.RedDoorFacingRight:
-                color = ColoredDoorColor.Red;
-                orientation = ColoredDoorOrientation.Right;
-                return true;
-            case PlmHeaderId.RedDoorFacingUp:
-                color = ColoredDoorColor.Red;
-                orientation = ColoredDoorOrientation.Up;
-                return true;
-            case PlmHeaderId.RedDoorFacingDown:
-                color = ColoredDoorColor.Red;
-                orientation = ColoredDoorOrientation.Down;
-                return true;
-            default:
-                color = default;
-                orientation = default;
-                return false;
-        }
+        bool found = DoorPlmHeaderDefinitions.ColoredDoors.TryGetValue(header, out ColoredDoorVariant variant);
+        color = variant.Color;
+        orientation = variant.Orientation;
+        return found;
     }
 
     /// <summary>

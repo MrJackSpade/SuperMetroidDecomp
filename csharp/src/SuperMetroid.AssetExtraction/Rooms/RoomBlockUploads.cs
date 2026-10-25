@@ -320,8 +320,8 @@ internal static class RoomBlockUploads
             ushort firstWord = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
             if (firstWord + transfer.ByteCount / sizeof(ushort) <= GameplayVramLayout.HudCharacters.Offset
                 || firstWord >= GameplayVramLayout.HudCharacters.Offset + GameplayVramLayout.HudCharacters.Count
-                || transfer.Source.Kind is LibraryBackgroundSourceKind.TilemapStaging or LibraryBackgroundSourceKind.EnemyTilemapStaging
-                    or LibraryBackgroundSourceKind.SkyPage)
+                || transfer.Source is LibraryBackgroundSource.StagedTilemap or LibraryBackgroundSource.StagedEnemyTilemap
+                    or LibraryBackgroundSource.SkyPage)
                 continue;
             ReadOnlyMemory<byte> characters = transfer.Source == LibraryBackgroundSource.HudCharacters
                 ? inputs.Hud.Bytes[..transfer.ByteCount]

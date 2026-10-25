@@ -83,7 +83,7 @@ internal static class RoomSkyTilemapsVerification
                 $"Landing Site command {index} is door-selected");
             AssertEqual(DoorDefinitions.PointerOf(compiledDoor), (native.DoorPointer ?? throw new InvalidOperationException("Verification requires native.DoorPointer.")),
                 $"Landing Site command {index} door");
-            AssertEqual(LibraryBackgroundSourceKind.SkyPage, compiled.Source.Kind,
+            AssertTrue(compiled.Source is LibraryBackgroundSource.SkyPage,
                 $"Landing Site command {index} copies a sky page");
             AssertEqual(LibraryBackgroundOperandDecoding.Address(compiled.Source), native.SourceAddress,
                 $"Landing Site command {index} sky source {compiled.Source}");

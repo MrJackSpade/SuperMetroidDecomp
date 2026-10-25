@@ -163,26 +163,6 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     /// </summary>
     internal static bool TryIdentifyGreyDoor(
         PlmHeaderId header,
-        out ColoredDoorOrientation orientation)
-    {
-        switch (header)
-        {
-            case PlmHeaderId.BombTorizoGreyDoor:
-            case PlmHeaderId.GreyDoorFacingRight:
-                orientation = ColoredDoorOrientation.Right;
-                return true;
-            case PlmHeaderId.GreyDoorFacingLeft:
-                orientation = ColoredDoorOrientation.Left;
-                return true;
-            case PlmHeaderId.GreyDoorFacingUp:
-                orientation = ColoredDoorOrientation.Up;
-                return true;
-            case PlmHeaderId.GreyDoorFacingDown:
-                orientation = ColoredDoorOrientation.Down;
-                return true;
-            default:
-                orientation = default;
-                return false;
-        }
-    }
+        out ColoredDoorOrientation orientation) =>
+        DoorPlmHeaderDefinitions.GreyDoors.TryGetValue(header, out orientation);
 }

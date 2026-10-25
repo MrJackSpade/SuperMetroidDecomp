@@ -17,7 +17,7 @@ internal static class LibraryBackgroundProgramsVerification
     internal static void VerifyCompiledLibraryBackgroundPrograms(ISnesAddressSpace bus)
     {
         int instructionCount = 0;
-        foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
+        foreach (LibraryBackgroundProgram program in LibraryBackgroundSourceDefinitions.All)
         {
             ushort cursor = program.Pointer;
             foreach (LibraryBackgroundInstruction instruction in program.Instructions)
@@ -32,7 +32,7 @@ internal static class LibraryBackgroundProgramsVerification
                         CheckTransfer();
                         break;
                     case LibraryBackgroundCommand.Decompress:
-                        AssertEqual(LibraryBackgroundSourceKind.Tilemap, instruction.Source.Kind,
+                        AssertTrue(instruction.Source is LibraryBackgroundSource.CompressedTilemap,
                             $"library BG $8F:{program.Pointer:X4} decompresses a named tilemap");
                         AssertEqual(LibraryBackgroundOperandDecoding.Address(instruction.Source), ReadLong(cursor),
                             $"library BG $8F:{program.Pointer:X4} compressed source {instruction.Source}");
@@ -78,11 +78,11 @@ internal static class LibraryBackgroundProgramsVerification
         }
 
         AssertEqual(LibraryBackgroundProgramDefinitionsConstants.RetailProgramCount,
-            LibraryBackgroundProgramDefinitions.All.Count,
+            LibraryBackgroundSourceDefinitions.All.Count,
             "compiled library BG program count");
         AssertEqual(193, instructionCount, "compiled library BG instruction count");
         Console.WriteLine($"  Library BG programs: {instructionCount} commands in " +
-            $"{LibraryBackgroundProgramDefinitions.All.Count} lists match every native operand.");
+            $"{LibraryBackgroundSourceDefinitions.All.Count} lists match every native operand.");
 
         ushort ReadWord(ushort pointer)
         {

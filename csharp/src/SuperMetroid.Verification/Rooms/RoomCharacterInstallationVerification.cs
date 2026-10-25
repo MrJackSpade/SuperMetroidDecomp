@@ -257,15 +257,14 @@ internal static class RoomCharacterInstallationVerification
             LibraryBackgroundInstruction landingSky = LibraryBackgroundProgramDefinitions.GetDoorTransfer(
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
                 LandingSiteRomData.LandingCutsceneDoorPointer);
-            int skyPage = landingSky.Source.SkyPage;
+            int skyPage = landingSky.Source is LibraryBackgroundSource.SkyPage sky ? sky.Page
+                : throw new InvalidOperationException($"The landing-cutscene door transfer reads {landingSky.Source}, not a sky page.");
             string skyName = RoomSkyTilemapFormat.FileName(skyPage);
             string skyStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory, skyName);
             AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is installed");
             byte[] nativeSky = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                landingSky.SourceAddress, landingSky.ByteCount);
-            AssertTrue(stockSky.TryResolve(landingSky.SourceAddress,
-                    landingSky.ByteCount, out ReadOnlyMemory<byte> installedSky) &&
-                installedSky.Span.SequenceEqual(nativeSky),
+                LibraryBackgroundOperands.SkyPageAddress(skyPage), landingSky.ByteCount);
+            AssertTrue(stockSky.Page(skyPage, landingSky.ByteCount).Span.SequenceEqual(nativeSky),
                 "installed scrolling-sky page retains native door-selected bytes");
             JsonNode skyDocument = JsonNode.Parse(File.ReadAllText(skyStockPath))
                 ?? throw new InvalidDataException("Installed scrolling-sky JSON is empty.");
@@ -276,9 +275,8 @@ internal static class RoomCharacterInstallationVerification
                 installed.RoomBackgroundTilemapOverrideDirectory, skyName);
             File.WriteAllText(skyOverridePath, skyDocument.ToJsonString());
             RoomSkyTilemapCatalog editedSky = installed.LoadRoomSkyTilemaps();
-            AssertTrue(editedSky.TryResolve(landingSky.SourceAddress,
-                    landingSky.ByteCount, out ReadOnlyMemory<byte> changedSky) &&
-                !changedSky.Span[..2].SequenceEqual(nativeSky.AsSpan(0, 2)) &&
+            ReadOnlyMemory<byte> changedSky = editedSky.Page(skyPage, landingSky.ByteCount);
+            AssertTrue(!changedSky.Span[..2].SequenceEqual(nativeSky.AsSpan(0, 2)) &&
                 changedSky.Span[2..].SequenceEqual(nativeSky.AsSpan(2)),
                 "installed sky override changes exactly its selected door tile word");
 
@@ -331,9 +329,7 @@ internal static class RoomCharacterInstallationVerification
             LibraryBackgroundReplay.Execute(repairedBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = repaired.LoadRoomBackgroundTilemaps() });
             AssertTrue(repairedBackgroundVram.ImageEquals(editedBackgroundVram),
                 "repaired installation retains selected user background tilemap");
-            AssertTrue(repaired.LoadRoomSkyTilemaps().TryResolve(landingSky.SourceAddress,
-                    landingSky.ByteCount, out ReadOnlyMemory<byte> repairedSky) &&
-                repairedSky.Span.SequenceEqual(changedSky.Span),
+            AssertTrue(repaired.LoadRoomSkyTilemaps().Page(skyPage, landingSky.ByteCount).Span.SequenceEqual(changedSky.Span),
                 "repaired installation retains selected user scrolling sky");
 
             File.WriteAllBytes(overridePath, "invalid indexed PNG"u8.ToArray());

@@ -158,11 +158,6 @@ try {
         $lines.Add('    ]);')
         $lines.Add('')
     }
-    $lines.Add('    /// <summary>The retail programs in the cartridge''s list order.</summary>')
-    $lines.Add('    private static readonly LibraryBackgroundProgram[] programs =')
-    $lines.Add('    [')
-    foreach ($pointer in $pointers) { $lines.Add(('        {0},' -f $programNames[$pointer])) }
-    $lines.Add('    ];')
     $lines.Add('}')
     [IO.File]::WriteAllLines($target, $lines, [Text.UTF8Encoding]::new($false))
     Write-Output "Generated $($pointers.Count) lists and $instructionCount typed instructions at $target"

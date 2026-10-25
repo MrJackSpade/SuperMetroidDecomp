@@ -110,8 +110,8 @@ internal static class CrocomireCutsceneVerification
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)1280, camera.PixelPosition.X, "melting cutscene camera cannot show left of screen five");
-        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadState(4), "bridge threshold locks screen four");
-        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(5), "screen five remains visible");
+        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadCameraState(4), "bridge threshold locks screen four");
+        AssertEqual(RoomScrollState.Blue, scrolls.ReadCameraState(5), "screen five remains visible");
         samus.Position = samus.Position.WithWholeX(1311);
         run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
@@ -136,9 +136,9 @@ internal static class CrocomireCutsceneVerification
         samus.Position = samus.Position.WithWholeX(639);
         run(body, samus, new Position16<RoomPixels>(544, 0));
         AssertEqual(CrocomireDeathPhase.RumbleHiddenWall, state.DeathSequenceIndex, "left cutscene starts at native Samus threshold");
-        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadState(1), "left cutscene retains red screen one");
-        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(2), "left cutscene retains visible screen two");
-        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadState(3), "left cutscene closes screen three");
+        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadCameraState(1), "left cutscene retains red screen one");
+        AssertEqual(RoomScrollState.Blue, scrolls.ReadCameraState(2), "left cutscene retains visible screen two");
+        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadCameraState(3), "left cutscene closes screen three");
         var point = FixedPosition<RoomPixels>.FromWords(639, 0, 128, 0);
         // Runtime currently selects zero here; the cartridge writes six. Check
         // whether that known difference can explain the reported wall overrun.

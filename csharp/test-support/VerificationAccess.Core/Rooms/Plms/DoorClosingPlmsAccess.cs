@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Plms;
+
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Verification access to <see cref="DoorClosingPlms"/> members production does not use.</summary>
 internal static class DoorClosingPlmsAccess

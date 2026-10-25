@@ -77,4 +77,8 @@ internal static class LibraryBackgroundSourceDefinitions
         [0xe48a] = LibraryBackgroundProgramDefinitions.TourianEPipeRoomDark,
         [0xe4a5] = LibraryBackgroundProgramDefinitions.TourianDEStatueHall,
     };
+
+    /// <summary>Every compiled program, in the cartridge's list order.</summary>
+    internal static IReadOnlyList<LibraryBackgroundProgram> All { get; } =
+        [.. ByPointer.OrderBy(entry => entry.Key).Select(entry => entry.Value)];
 }

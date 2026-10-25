@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 

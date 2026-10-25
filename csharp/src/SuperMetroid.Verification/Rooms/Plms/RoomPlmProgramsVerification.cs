@@ -600,7 +600,7 @@ internal static class RoomPlmProgramsVerification
                 length = 4;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual((ushort)ColoredDoorPlmProgramDefinitions.WakeOf(color), Word(2), $"{color} {orientation} door shot wake");
+                AssertEqual(DoorsNativeWords.ColoredDoorPreInstructions.Word(ColoredDoorPlmProgramDefinitions.WakeOf(color)), Word(2), $"{color} {orientation} door shot wake");
                 cue = ColoredDoorCue.ArmWake;
                 length = 4;
                 return true;

@@ -1,7 +1,4 @@
 namespace SuperMetroid.Core.Rooms.Plms;
-
-using SuperMetroid.Core.Rooms.LevelData;
-
 /// <summary>Verification access to <see cref="RoomPlmMaridiaElevatubeVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
 {

@@ -45,7 +45,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;

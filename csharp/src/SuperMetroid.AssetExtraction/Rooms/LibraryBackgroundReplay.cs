@@ -44,10 +44,10 @@ internal static class LibraryBackgroundReplay
                     Transfer(staging, vram, instruction, artwork, characters);
                     break;
                 case LibraryBackgroundCommand.Decompress:
-                    if (instruction.Destination != LibraryBackgroundDestination.TilemapStaging || instruction.Source.Kind != LibraryBackgroundSourceKind.Tilemap)
+                    if (instruction.Destination != LibraryBackgroundDestination.TilemapStaging || instruction.Source is not LibraryBackgroundSource.CompressedTilemap compressed)
                         throw new InvalidDataException($"A decompression in list {program.Name} stages {instruction.Source} at {instruction.Destination}.");
                     staging.WriteDecompressed(LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset, (artwork.TilemapArt ?? throw new InvalidOperationException(
-                        "Library-background decompression requires installed tilemaps.")).Get(instruction.Source.Tilemap).Bytes.Span,
+                        "Library-background decompression requires installed tilemaps.")).Get(compressed.Tilemap).Bytes.Span,
                         instruction.Source);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
@@ -95,8 +95,8 @@ internal static class LibraryBackgroundReplay
             vram.ExecuteQueuedAssetWrite(staged, destination);
         else if (LibraryBackgroundLoader.TryBindTransferredCharacters(transfer, characters))
             return;
-        else if (transfer.Source.Kind == LibraryBackgroundSourceKind.SkyPage && artwork.SkyArt is { } skies)
-            vram.ExecuteQueuedAssetWrite(skies.Page(transfer.Source.SkyPage, transfer.ByteCount).Span, destination);
+        else if (transfer.Source is LibraryBackgroundSource.SkyPage sky && artwork.SkyArt is { } skies)
+            vram.ExecuteQueuedAssetWrite(skies.Page(sky.Page, transfer.ByteCount).Span, destination);
         else
             // A source no bound catalog owns must not fall back to the cartridge's bytes.
             throw new InvalidDataException(
@@ -130,10 +130,10 @@ internal static class LibraryBackgroundReplay
         /// <exception cref="InvalidDataException">The range leaves the staging.</exception>
         public bool TryRead(LibraryBackgroundSource source, int byteCount, out ReadOnlySpan<byte> bytes)
         {
-            int address = source.Kind switch
+            int address = source switch
             {
-                LibraryBackgroundSourceKind.TilemapStaging => (int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress,
-                LibraryBackgroundSourceKind.EnemyTilemapStaging => (int)LibraryBackgroundStagingDefinitions.EnemyBg2StagingAddress,
+                LibraryBackgroundSource.StagedTilemap => (int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress,
+                LibraryBackgroundSource.StagedEnemyTilemap => (int)LibraryBackgroundStagingDefinitions.EnemyBg2StagingAddress,
                 _ => -1,
             };
             if (address < 0)

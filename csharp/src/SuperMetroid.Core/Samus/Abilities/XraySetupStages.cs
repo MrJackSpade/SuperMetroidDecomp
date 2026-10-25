@@ -10,7 +10,7 @@ public static class XraySetupStages
     public static XraySetupStage Advance(this XraySetupStage stage) => stage switch
     {
         XraySetupStage.Complete => throw new InvalidOperationException("X-ray setup has already completed."),
-        XraySetupStage.FreezeTimeBackupBg2Registers or XraySetupStage.ReadBg1SecondScreen or XraySetupStage.ReadBg1FirstScreen or
+        XraySetupStage.FreezeTimeSaveBackground or XraySetupStage.ReadBg1SecondScreen or XraySetupStage.ReadBg1FirstScreen or
             XraySetupStage.BuildRevealReadBg2FirstScreen or XraySetupStage.ReadBg2SecondScreen or
             XraySetupStage.TransferRevealFirstScreen or XraySetupStage.InitializeTransferRevealSecondScreen or
             XraySetupStage.BackdropColor => EnumOrder.NextWrapping(stage),
@@ -24,7 +24,7 @@ public static class XraySetupStages
     /// </summary>
     public static bool ShowsBlendedRoom(this XraySetupStage stage) => stage switch
     {
-        XraySetupStage.FreezeTimeBackupBg2Registers or XraySetupStage.ReadBg1SecondScreen => false,
+        XraySetupStage.FreezeTimeSaveBackground or XraySetupStage.ReadBg1SecondScreen => false,
         XraySetupStage.ReadBg1FirstScreen or XraySetupStage.BuildRevealReadBg2FirstScreen or
             XraySetupStage.ReadBg2SecondScreen or XraySetupStage.TransferRevealFirstScreen or
             XraySetupStage.InitializeTransferRevealSecondScreen or XraySetupStage.BackdropColor or

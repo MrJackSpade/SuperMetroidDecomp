@@ -426,7 +426,7 @@ internal static void VerifySamusXray()
     AssertEqual(0x3f, standing.AnimationFrameTimer.RawValue, "command five X-ray timer");
     AssertEqual(RotationAngle.QuarterTurn.TableIndex, standing.Xray.Angle.TableIndex,
         "right X-ray initial angle");
-    AssertEqual(XraySetupStage.FreezeTimeBackupBg2Registers, standing.Xray.SetupStage, "X-ray starts setup stage one");
+    AssertEqual(XraySetupStage.FreezeTimeSaveBackground, standing.Xray.SetupStage, "X-ray starts setup stage one");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
     AssertTrue(standing.Xray.ConsumeActivationSoundRequest(),
@@ -638,7 +638,7 @@ internal static void VerifySamusXray()
         "interrupted X-Mode retains beam lifecycle and frozen time");
     AssertTrue(!interrupted.Xray.OwnsSamusControl,
         "interrupted X-Mode retains normal Samus handler ownership");
-    AssertEqual(XraySetupStage.FreezeTimeBackupBg2Registers, interrupted.Xray.SetupStage,
+    AssertEqual(XraySetupStage.FreezeTimeSaveBackground, interrupted.Xray.SetupStage,
         "interrupted X-Mode retains first HDMA setup stage");
     interrupted.Xray.StepBeam(interrupted, ControllerButton.B);
     AssertEqual(XraySetupStage.ReadBg1SecondScreen, interrupted.Xray.SetupStage,

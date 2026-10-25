@@ -13,33 +13,33 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
     private readonly ScreenLayers[] mainScreenLayersByLine;
     /// <summary>How the frame views the gameplay scene: scrolls, layers, windows and mosaic.</summary>
     public OrdinaryGameplayView View { get; }
-    /// <summary>The room backgrounds BG1 and BG2 show, resolved from level data through the scroll registers (#1346).</summary>
+    /// <summary>The room backgrounds BG1 and BG2 show, resolved from level data through the frame's scroll positions (#1346).</summary>
     public RoomBackgrounds Rooms { get; }
     /// <summary>BG2's per-line scrolls for physical lines 32..223; an axis no effect drives uses <see cref="OrdinaryGameplayView.Bg2Scroll"/> on every line.</summary>
     public Bg2LineScrolls Bg2LineScrolls { get; }
     /// <summary>The layers physical lines 32..223 show; nonempty entries replace the gameplay layers, not the separate window mask or fixed HUD composition.</summary>
     public ReadOnlySpan<ScreenLayers> MainScreenLayersByLine => mainScreenLayersByLine;
 
-    /// <summary>Captures immutable register inputs and copies optional scanline tables for the first backdrop/HUD/BG/OBJ operation; Mode-1 priority composition precedes later color-math and overlay operations.</summary>
-    /// <param name="registers">Captured Mode-1 state with a 32- or 64-cell BG2 tilemap on each axis.</param>
-    /// <param name="rooms">The room backgrounds BG1 and BG2 show; BG2 uses the tilemap registers when it has no room plane.</param>
+    /// <summary>Captures the frame's view and copies optional per-line tables for the first backdrop/HUD/background/sprite operation; its layer composition precedes later color-math and overlay operations.</summary>
+    /// <param name="view">How the frame views the gameplay scene, with a 32- or 64-cell BG2 tilemap on each axis.</param>
+    /// <param name="rooms">The room backgrounds BG1 and BG2 show; BG2 shows its loaded tilemap when it has no room plane.</param>
     /// <param name="bg2LineScrolls">Optional per-line BG2 scrolls for physical lines 32..223.</param>
     /// <param name="mainScreenLayersByLine">Empty or exactly 192 per-line layer sets.</param>
     /// <exception cref="ArgumentException">BG2 dimensions are unsupported or a nonempty TM table does not contain exactly 192 values.</exception>
-    public OrdinaryGameplayRenderLayer(OrdinaryGameplayView registers, RoomBackgrounds rooms,
+    public OrdinaryGameplayRenderLayer(OrdinaryGameplayView view, RoomBackgrounds rooms,
         Bg2LineScrolls bg2LineScrolls = default, ReadOnlySpan<ScreenLayers> mainScreenLayersByLine = default)
     {
-        if (registers.Bg2MapSize.X is not (32 or 64) || registers.Bg2MapSize.Y is not (32 or 64)
-            || registers.Bg2MapSize.X * registers.Bg2MapSize.Y is not (1024 or 2048 or 4096))
-            throw new ArgumentException("Gameplay BG2 requires 32 or 64 tiles on each axis.", nameof(registers));
+        if (view.Bg2MapSize.X is not (32 or 64) || view.Bg2MapSize.Y is not (32 or 64)
+            || view.Bg2MapSize.X * view.Bg2MapSize.Y is not (1024 or 2048 or 4096))
+            throw new ArgumentException("Gameplay BG2 requires 32 or 64 tiles on each axis.", nameof(view));
         if (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != Bg2LineScrolls.GameplayLines)
             throw new ArgumentException("Per-line layers cover exactly 192 gameplay lines.");
-        View = registers;
+        View = view;
         Rooms = Ensure.NotNull(rooms);
         Bg2LineScrolls = bg2LineScrolls;
         this.mainScreenLayersByLine = mainScreenLayersByLine.ToArray();
     }
 
-    /// <summary>The BG2 scroll registers on gameplay line <paramref name="line"/> (0..191).</summary>
+    /// <summary>BG2's scroll on gameplay line <paramref name="line"/> (0..191).</summary>
     public Position16<Bg2Pixels> Bg2ScrollAt(int line) => Bg2LineScrolls.At(line, View.Bg2Scroll);
 }

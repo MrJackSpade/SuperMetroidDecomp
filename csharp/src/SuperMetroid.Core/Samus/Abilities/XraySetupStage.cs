@@ -10,8 +10,11 @@ public enum XraySetupStage : byte
 {
     /// <summary>All eight calls ran; the main pre-instruction <c>$91:D27F</c> successor owns the beam.</summary>
     Complete = 0,
-    /// <summary><c>XraySetup_1_FreezeTime_BackupBG2Registers</c>, called at <c>$91:D22E</c>.</summary>
-    FreezeTimeBackupBg2Registers = 1,
+    /// <summary>
+    /// Call one: time freezes and the background's view is kept to restore when the beam ends
+    /// (<c>XraySetup_1_FreezeTime_BackupBG2Registers</c>, called at <c>$91:D22E</c>).
+    /// </summary>
+    FreezeTimeSaveBackground = 1,
     /// <summary><c>XraySetup_2_ReadBG1Tilemap_2ndScreen</c> (<c>$91:CB1C</c>), called at <c>$91:D237</c>.</summary>
     ReadBg1SecondScreen = 2,
     /// <summary><c>XraySetup_3_ReadBG1Tilemap_1stScreen</c> (<c>$91:CB57</c>), called at <c>$91:D240</c>.</summary>

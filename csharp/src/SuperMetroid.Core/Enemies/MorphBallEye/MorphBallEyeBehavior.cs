@@ -88,7 +88,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The cartridge tests collected_items ($09A4), not equipped_items ($09A2). This
         // matters after the player disables Morph Ball in the equipment menu.
-        if (samus is null || (samus.CollectedItems & SamusEquipmentFlags.MorphBall) == 0)
+        if (samus is null || !samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall))
             return;
 
         switch (state.Function)

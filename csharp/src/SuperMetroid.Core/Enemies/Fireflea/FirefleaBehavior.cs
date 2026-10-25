@@ -115,7 +115,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // With ordinary contact, native A still contains the surviving health ($A0:A480).
         // EnemyDeath clamps values above four to the small explosion. Queue that real
         // death program before clearing the actor so its artwork and sound can run.
-        if (slot.DefinitionId != 0)
+        if (slot.DefinitionId != EnemyDefinitionId.None)
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: checked((ushort)slot.Health));
         else
         {

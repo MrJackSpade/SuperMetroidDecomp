@@ -397,7 +397,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.MovingSamus)
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(velocity);
-            if ((controllerInput & (direction == HorizontalDirection.Left ? ControllerButton.Right : ControllerButton.Left)) != 0)
+            if (controllerInput.HasAny(direction == HorizontalDirection.Left ? ControllerButton.Right : ControllerButton.Left))
             {
                 var push = new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
                 samus.Kinematics.ExtraDisplacement = direction == HorizontalDirection.Left
@@ -457,11 +457,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
-        if (samusIsLeft && (controllerInput & ControllerButton.Right) != 0)
+        if (samusIsLeft && controllerInput.HasAny(ControllerButton.Right))
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-HorizontalShutterManualPushPixels).WithFractionY(0);
         }
-        else if (!samusIsLeft && (controllerInput & ControllerButton.Left) != 0)
+        else if (!samusIsLeft && controllerInput.HasAny(ControllerButton.Left))
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(HorizontalShutterManualPushPixels).WithFractionY(0);
         }

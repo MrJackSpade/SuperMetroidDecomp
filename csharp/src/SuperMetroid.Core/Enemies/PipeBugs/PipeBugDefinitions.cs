@@ -45,6 +45,6 @@ internal static class PipeBugDefinitions
             (true, PipeBugAnimationSelector.FacingRight) => PipeBugProgram.ZebboRisingRight,
             (true, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebboShootingRight,
             _ => throw new InvalidDataException(
-                $"Pipe Bug animation selector ${(ushort)selector:X4} exceeds its four-entry table."),
+                $"Pipe Bug animation selector {selector} exceeds its four-entry table."),
         };
 }

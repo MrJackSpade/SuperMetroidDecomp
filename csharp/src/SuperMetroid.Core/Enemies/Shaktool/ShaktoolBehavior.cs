@@ -154,7 +154,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionShaktoolAroundPreviousSegment(slot, state);
         ShaktoolMotionFlags flags = state.MotionFlags;
         int increment;
-        if ((flags & ShaktoolMotionFlags.Straightening) != 0)
+        if ((flags & ShaktoolMotionFlags.Straightening) != ShaktoolMotionFlags.None)
         {
             state.TargetAngle = state.TargetAngle.AddRaw(ShaktoolOrbitDefinitions.TableStep);
             increment = ShaktoolOrbitDefinitions.TableStep;
@@ -164,7 +164,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             increment = state.AngularVelocity;
         }
 
-        state.OrbitAngle = (flags & ShaktoolMotionFlags.Clockwise) != 0
+        state.OrbitAngle = (flags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? state.OrbitAngle.AddRaw(-increment)
             : state.OrbitAngle.AddRaw(increment);
     }
@@ -225,7 +225,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Position = slot.Position.WithWhole(candidate);
         ShaktoolMotionFlags flags = state.MotionFlags;
-        if ((flags & ShaktoolMotionFlags.Straightening) != 0)
+        if ((flags & ShaktoolMotionFlags.Straightening) != ShaktoolMotionFlags.None)
         {
             // DD25 deliberately adds a second $0100 after DCAC's first increment.
             state.TargetAngle = state.TargetAngle.AddRaw(ShaktoolOrbitDefinitions.TableStep);
@@ -259,7 +259,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> previous)
     {
         ShaktoolMotionFlags flags = state.MotionFlags;
-        if ((flags & ShaktoolMotionFlags.ReversedOnce) != 0)
+        if ((flags & ShaktoolMotionFlags.ReversedOnce) != ShaktoolMotionFlags.None)
         {
             SetShaktoolGroupMotionFlags(
                 slot,
@@ -283,7 +283,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot owner = OwnerSlot(state);
         SnesAngle target = EnemyMath.CalculateBearing(
             new(unchecked((short)(slot.Position.X.Whole - owner.Position.X.Whole)), unchecked((short)(slot.Position.Y.Whole - owner.Position.Y.Whole)))).ReinterpretAsTableAngle().ToAngle();
-        target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != 0
+        target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? target.AddRaw(-SnesAngle.QuarterTurn.RawValue)
             : target.AddRaw(SnesAngle.QuarterTurn.RawValue);
         SetShaktoolGroupTargetAngle(slot, target);
@@ -340,7 +340,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the per-segment convergence speed calculation at <c>$AA:DC07</c>: four raw angle units per whole table step left to the target in the orbit direction.</summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
-        ushort difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != 0
+        ushort difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? unchecked((ushort)(state.OrbitAngle.RawValue - state.TargetAngle.RawValue))
             : unchecked((ushort)(state.TargetAngle.RawValue - state.OrbitAngle.RawValue));
         state.AngularVelocity = 4 * SnesLittleEndian.HighByte(difference);

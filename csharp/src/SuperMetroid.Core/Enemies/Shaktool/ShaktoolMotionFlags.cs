@@ -7,6 +7,8 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 [Flags]
 internal enum ShaktoolMotionFlags : ushort
 {
+    /// <summary>No motion state is set.</summary>
+    None = 0,
     /// <summary>The seven-piece chain has already reversed at a wall once.</summary>
     ReversedOnce = 1,
     /// <summary>The chain is returning its angular offsets toward the straight configuration.</summary>

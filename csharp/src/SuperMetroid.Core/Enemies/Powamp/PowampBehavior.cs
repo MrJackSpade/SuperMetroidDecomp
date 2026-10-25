@@ -176,7 +176,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The ordinary rise changes dispatch and executes the grappled routine immediately
         // on the frame common grapple AI publishes bit one.
-        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != 0;
+        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
         if (hold != PowampHold.Grappled && grappleAiActive)
         {
             state.Function = PowampEnemyFunction.GrappledRiseToTargetHeight;
@@ -229,7 +229,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         PowampHold hold)
     {
-        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != 0;
+        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
         if (hold == PowampHold.Grappled && !grappleAiActive)
         {
             state.Function = PowampEnemyFunction.InflatedFinishWiggle;
@@ -259,7 +259,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampEnemyState state,
         PowampBalloon balloon)
     {
-        if ((body.AiStates & EnemyAiStates.Grappled) == 0)
+        if ((body.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
             StartPowampDeflating(state, balloon);
         AlignPowampBalloonY(body, balloon);
     }
@@ -362,12 +362,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolvePowampShotAfterCommon(RoomEnemySlot body)
     {
         PowampBalloon balloon = RequirePowampBalloon(body);
-        if ((body.AiStates & EnemyAiStates.Frozen) != 0)
+        if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
         {
             balloon.Slot.FrozenTimer = body.FrozenTimer;
             balloon.Slot.AiStates = balloon.Slot.AiStates | EnemyAiStates.Frozen;
         }
-        if ((body.AiStates & EnemyAiStates.Hurt) != 0)
+        if ((body.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None)
         {
             balloon.Slot.FlashTimer = body.FlashTimer;
             balloon.Slot.AiStates = balloon.Slot.AiStates | EnemyAiStates.Hurt;

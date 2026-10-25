@@ -192,7 +192,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
             default:
                 throw new InvalidDataException(
-                    $"Elevator status {(ushort)ElevatorStatus} is outside $A3:9540's dispatcher.");
+                    $"Elevator status {ElevatorStatus} is outside the elevator's dispatcher.");
         }
     }
 
@@ -206,7 +206,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     {
         ControllerButton requiredInput =
             ElevatorActorDefinitions.RequiredDirectionInput(state.DirectionTableByteOffset);
-        if ((newlyPressedControllerInput & requiredInput) == 0)
+        if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
             ElevatorFlags = ElevatorJourneyFlag.None;
             return;

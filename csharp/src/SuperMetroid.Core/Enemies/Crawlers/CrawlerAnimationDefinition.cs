@@ -15,6 +15,6 @@ internal readonly record struct CrawlerAnimationDefinition(
         CrawlerSurfaceOrientation.UpsideDown => UpsideDown,
         CrawlerSurfaceOrientation.UpsideUp => UpsideUp,
         _ => throw new InvalidDataException(
-            $"Crawler surface orientation {(ushort)orientation} exceeds four authored values."),
+            $"Crawler surface orientation {orientation} exceeds four authored values."),
     };
 }

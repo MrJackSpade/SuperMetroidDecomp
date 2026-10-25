@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire.Artwork;
 
@@ -24,43 +25,43 @@ internal static class CrocomireSkeletonArtworkVerification
     {
         CrocomireSkeletonArtwork artwork = stock.Bosses.CrocomireSkeleton ??
             throw new InvalidDataException("Installed enemy art omitted Crocomire skeleton tiles.");
-        CrocomireSkeletonTransferSequence frames =
-            CrocomireSkeletonTransferDefinitions.Frames;
-        AssertEqual(6, frames.Length, "Crocomire has six native skeleton uploads");
-        for (int index = 0; index < frames.Length; index++)
+        int frames = CrocomireSkeletonTransferDefinitions.FrameCount;
+        AssertEqual(6, frames, "Crocomire has six native skeleton uploads");
+        for (int index = 0; index < frames; index++)
         {
-            CrocomireSkeletonTransferDefinition frame = frames[index];
+            // The import's source of each chunk is the cartridge's own selection.
+            int chunkSource = CrocomireSourceDefinitions.SkeletonChunk(index);
             ushort destination = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             ushort source = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
             AssertEqual(destination, PlacedUploads.Of(new CrocomireSkeletonChunkCharacters(index)).FirstByte / 2,
                 $"Crocomire skeleton destination {index} matches the cartridge");
-            AssertEqual(0xad0000 | source, frame.SourceAddress,
+            AssertEqual(0xad0000 | source, chunkSource,
                 $"Crocomire skeleton source {index} matches the cartridge");
             AssertEqual(CrocomireSkeletonTransferDefinitions.ChunkByteCount,
                 artwork.Chunk(index).Length,
                 $"Crocomire skeleton upload {index} has the native length");
             for (int offset = 0; offset < artwork.Chunk(index).Length; offset++)
-                AssertEqual(rom.ReadCartridgeByte(frame.SourceAddress + offset),
+                AssertEqual(rom.ReadCartridgeByte(chunkSource + offset),
                     artwork.Chunk(index).Span[offset],
                     $"Crocomire skeleton chunk {index} byte {offset} matches cartridge art");
         }
         AssertEqual((ushort)0xffff, ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords +
-                frames.Length * 2),
+                frames * 2),
             "Crocomire skeleton seventh destination is the native terminator");
-        AssertTrue(!CrocomireSkeletonTransferDefinitions.TryGet(frames.Length, out _),
+        AssertTrue(!CrocomireSkeletonArtwork.IsChunk(frames),
             "compiled Crocomire skeleton terminator ends uploads");
-        int invalidIndex = frames.Length + 1;
+        int invalidIndex = frames + 1;
         AssertThrows<InvalidDataException>(
-            () => CrocomireSkeletonTransferDefinitions.TryGet(invalidIndex, out _),
+            () => CrocomireSkeletonArtwork.IsChunk(invalidIndex),
             "out-of-range Crocomire skeleton upload fails loudly");
 
         (byte[] installedCharacters, CrocomireDeathState installedState,
             CartridgeReadGuard denied) = RunInstalled(stock);
         var nativeCharacters = new byte[SpriteCharacters.TableByteCount];
-        for (int index = 0; index < frames.Length; index++)
+        for (int index = 0; index < frames; index++)
         {
             int destination = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
@@ -72,7 +73,7 @@ internal static class CrocomireSkeletonArtworkVerification
         AssertEqual(nativeCharacters.Length, installedCharacters.Length, "the OBJ page spans the native OBJ characters");
         AssertEqual(-1, Enumerable.Range(0, nativeCharacters.Length).FirstOrDefault(index => installedCharacters[index] != nativeCharacters[index], -1),
             "all six installed Crocomire skeleton uploads match the native OBJ characters (first differing byte)");
-        AssertEqual(frames.Length,
+        AssertEqual(frames,
             installedState.SkeletonChunksShown,
             "the update after the last chunk shows no further chunk");
         AssertEqual(0, denied.ForbiddenReadAttempts,
@@ -131,7 +132,7 @@ internal static class CrocomireSkeletonArtworkVerification
             var state = new CrocomireDeathState();
             SetRuntimeFields(system, guard, vram);
             for (int index = 0;
-                 index <= CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
+                 index <= CrocomireSkeletonTransferDefinitions.FrameCount; index++)
                 ShowNextChunk(system, state);
             // The skeleton's chunks as its sheets picture them: each installed chunk where the cartridge uploads it (#1406).
             var shown = new SpriteCharacters();

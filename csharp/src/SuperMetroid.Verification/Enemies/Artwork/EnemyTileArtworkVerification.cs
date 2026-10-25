@@ -209,10 +209,10 @@ internal static class EnemyTileArtworkVerification
                 "one indexed PNG per distinct retail enemy graphics definition");
             var stockMeltImages = new List<byte[]>();
             ushort[] stockFirstMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
-                bus, stock, CrocomireMeltingTilemapAddress.FirstTilemap,
+                bus, stock, CrocomireMeltingIllustration.First,
                 CrocomireBodyProgram.MeltingOneTopRow);
             ushort[] stockSecondMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
-                bus, stock, CrocomireMeltingTilemapAddress.SecondTilemap,
+                bus, stock, CrocomireMeltingIllustration.Second,
                 CrocomireBodyProgram.MeltingTwoTopRow);
             foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
             {
@@ -306,7 +306,7 @@ internal static class EnemyTileArtworkVerification
             InstalledEnemyArtwork editedMeltMap = EnemyTileArtworkFiles.Load(
                 directory, overrideDirectory);
             ushort[] changedTiles = VerifyInstalledCrocomireMeltingTilemap(
-                bus, editedMeltMap, CrocomireMeltingTilemapAddress.FirstTilemap,
+                bus, editedMeltMap, CrocomireMeltingIllustration.First,
                 CrocomireBodyProgram.MeltingOneTopRow,
                 compareRom: false);
             AssertEqual((ushort)(stockFirstMeltTiles[0] ^ 1), changedTiles[0],
@@ -315,14 +315,14 @@ internal static class EnemyTileArtworkVerification
                 "Crocomire melt JSON edit leaves other BG2 cells unchanged");
             AssertTrue(VerifyInstalledCrocomireMeltingTilemap(
                     bus, editedMeltMap,
-                    CrocomireMeltingTilemapAddress.SecondTilemap,
+                    CrocomireMeltingIllustration.Second,
                     CrocomireBodyProgram.MeltingTwoTopRow,
                     compareRom: false)
                 .SequenceEqual(stockSecondMeltTiles),
                 "first-melt tilemap edit does not change the second melt");
             AssertTrue(VerifyInstalledCrocomireMeltingTilemap(bus,
                     EnemyTileArtworkFiles.Load(directory, overrideDirectory),
-                    CrocomireMeltingTilemapAddress.FirstTilemap,
+                    CrocomireMeltingIllustration.First,
                     CrocomireBodyProgram.MeltingOneTopRow,
                     compareRom: false)
                 .SequenceEqual(changedTiles),

@@ -142,9 +142,9 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingIllustration.Second,
             CrocomireMeltingArtworkFormat.SecondByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            (int)CrocomireMeltingTilemapAddress.FirstTilemap);
+            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.First));
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            (int)CrocomireMeltingTilemapAddress.SecondTilemap);
+            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Second));
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
         File.WriteAllBytes(Path.Combine(directory, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
         File.WriteAllBytes(Path.Combine(directory,
@@ -152,7 +152,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
         byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CrocomireSkeletonTransferDefinitions.Frames[0].SourceAddress,
+            CrocomireSourceDefinitions.SkeletonChunk(0),
             CrocomireSkeletonTransferDefinitions.TotalByteCount);
         byte[] skeletonPixels = SnesGraphics.DecodePlanarTiles(skeletonPlanar, 4,
             RoomCharacterAtlasFormat.TileColumns,
@@ -163,7 +163,7 @@ public static class EnemyTileArtworkFiles
         byte[] skeletonPng = skeletonImage.ToArray();
         CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
             new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonTransferDefinitions.TotalByteCount));
-        for (int index = 0; index < CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
+        for (int index = 0; index < CrocomireSkeletonTransferDefinitions.FrameCount; index++)
         {
             ReadOnlySpan<byte> expected = skeletonPlanar.AsSpan(
                 index * CrocomireSkeletonTransferDefinitions.ChunkByteCount,

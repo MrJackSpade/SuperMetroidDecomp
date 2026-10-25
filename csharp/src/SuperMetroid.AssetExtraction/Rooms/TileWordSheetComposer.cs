@@ -226,8 +226,8 @@ internal static class TileWordSheetComposer
                 foreach (NamedPart part in FrameParts((bosses.CrocomireBg2Frames ?? throw Missing(writer)).Writes))
                     yield return part;
                 CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(writer);
-                foreach (CrocomireMeltingTilemapAddress image in Enum.GetValues<CrocomireMeltingTilemapAddress>())
-                    yield return new NamedPart($"Melting{image}", Rows(melting.Tilemap(image).ToArray()));
+                foreach (CrocomireMeltingIllustration image in Enum.GetValues<CrocomireMeltingIllustration>())
+                    yield return new NamedPart($"Melting{image}Tilemap", Rows(melting.Tilemap(image).ToArray()));
                 yield return Fill(CrocomireBg2.CrocomireBlankBg2Tile);
                 break;
             case TileWordWriter.MotherBrain:

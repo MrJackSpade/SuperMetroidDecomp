@@ -432,7 +432,7 @@ internal sealed class CrocomireCombat
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
-        short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(checked((ushort)projectile.DirectionParameter));
+        short gradient = CrocomireVolley.GradientForSpawnParameter(projectile.DirectionParameter);
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
         projectile.PreInstruction =
@@ -458,9 +458,9 @@ internal sealed class CrocomireCombat
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
             unchecked((short)(EnemyTrigonometryTables.SignedSine(bearing.ReinterpretAsTableAngle()) *
-                CrocomireProjectileRomData.VelocityMultiplier)),
+                CrocomireProjectileDefinitions.VelocityMultiplier)),
             unchecked((short)(EnemyTrigonometryTables.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
-                CrocomireProjectileRomData.VelocityMultiplier)));
+                CrocomireProjectileDefinitions.VelocityMultiplier)));
     }
 
     /// <summary>Ports the byte-precise slot-dependent shard motion at $86:9115.</summary>

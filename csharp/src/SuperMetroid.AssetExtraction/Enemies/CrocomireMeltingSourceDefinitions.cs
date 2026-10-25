@@ -12,6 +12,10 @@ internal static class CrocomireMeltingSourceDefinitions
     internal const int FirstPassFirstChunk = 0xa07d;
     /// <summary>$A4:AC7D, the second pass's first graphics chunk.</summary>
     internal const int SecondPassFirstChunk = 0xac7d;
+    /// <summary>$A4:9C79, the first melting illustration's 256-word tilemap.</summary>
+    internal const int FirstTilemap = 0xa49c79;
+    /// <summary>$A4:9E7B, the second melting illustration's 256-word tilemap.</summary>
+    internal const int SecondTilemap = 0xa49e7b;
     /// <summary>Bytes between consecutive graphics chunks of one pass in the cartridge.</summary>
     internal const int ChunkStride = 512;
     /// <summary>The last word each chunk's copy moves, counted from its first: the cartridge's copy counts inclusively.</summary>

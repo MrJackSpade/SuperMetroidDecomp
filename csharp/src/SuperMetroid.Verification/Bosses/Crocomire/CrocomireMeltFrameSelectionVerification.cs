@@ -28,8 +28,7 @@ internal static class CrocomireMeltFrameSelectionVerification
         {
             int bands = pass == CrocomireMeltingIllustration.First
                 ? CrocomireMeltingDefinitions.FirstPassBandCount : CrocomireMeltingDefinitions.SecondPassBandCount;
-            fixture.InitializeMap((int)(pass == CrocomireMeltingIllustration.First
-                ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap));
+            fixture.InitializeMap(pass);
             fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
             AssertBands(fixture, expected, $"{pass} pass begins");
 

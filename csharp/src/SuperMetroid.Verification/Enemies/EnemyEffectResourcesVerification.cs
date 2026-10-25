@@ -21,12 +21,12 @@ internal static class EnemyEffectResourcesVerification
     {
         // Mother Brain's corpse art is staged and rotted by the extraction (#1392), which fails on missing art; the
         // runtime reads none.
-        CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap),
+        CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap(CrocomireMeltingIllustration.First),
             "missing melt tilemap");
         CheckCrocomireResourceFailure(null, fixture => fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First)),
             "missing melt graphics");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
-        CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap(0), "unknown melt tilemap");
+        CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt tilemap");
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 

@@ -30,8 +30,7 @@ internal static class EnemyEffectIsolationVerification
         var edited = new CrocomireEffectFixture(MeltEffectArtwork(0xaa, seed: 3));
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            int source = (int)(pass == CrocomireMeltingIllustration.First
-                ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap);
+            CrocomireMeltingIllustration source = pass;
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");
             AssertTrue(!baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "authored melt map reaches scratch");

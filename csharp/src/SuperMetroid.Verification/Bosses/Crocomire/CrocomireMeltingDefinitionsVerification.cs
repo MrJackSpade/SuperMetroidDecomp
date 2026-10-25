@@ -176,9 +176,9 @@ internal static class CrocomireMeltingDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire melting tilemap")]
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork artwork,
-        CrocomireMeltingTilemapAddress source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
+        CrocomireMeltingIllustration source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
-        int sourceAddress = (int)source;
+        int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState();
@@ -190,8 +190,8 @@ internal static class CrocomireMeltingDefinitionsVerification
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
-            CrocomireMeltingTilemapAddress.FirstTilemap => enemies.CrocomireBehavior.Melting.LoadFirstCrocomireMeltingTilemap,
-            CrocomireMeltingTilemapAddress.SecondTilemap => enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap,
+            CrocomireMeltingIllustration.First => enemies.CrocomireBehavior.Melting.LoadFirstCrocomireMeltingTilemap,
+            CrocomireMeltingIllustration.Second => enemies.CrocomireBehavior.Melting.LoadSecondCrocomireMeltingTilemap,
             _ => throw new ArgumentOutOfRangeException(nameof(source)),
         };
 

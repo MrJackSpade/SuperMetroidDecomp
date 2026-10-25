@@ -93,7 +93,7 @@ internal static class LookupStream5Verification
             var native = new ushort[2][];
             for (int phase = 0; phase < 2; phase++)
             {
-                CrocomireMeltingTilemapAddress source = phase == 0 ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap;
+                CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
                 native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, (int)source + i * 2)).ToArray();
                 var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, native[phase]);
                 AssertEqual(0, calculated.edits.Count,
@@ -142,9 +142,9 @@ internal static class LookupStream5Verification
                 SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
             VerifyCrocomireSkeletonArtwork(oracle, directory,
                 SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null));
-            AssertThrows<InvalidDataException>(() => CrocomireSkeletonTransferDefinitions.TryGet(-1, out _),
+            AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.IsChunk(-1),
                 "Skeleton negative transfer index rejects");
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSkeletonTransferDefinitions.Frames[6],
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSourceDefinitions.SkeletonChunk(6),
                 "Skeleton view excludes sentinel");
         }
         finally
@@ -523,8 +523,8 @@ internal static class LookupStream5Verification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
     {
-        int[] sources = [CrocomirePaletteRomData.FightBodySource, CrocomirePaletteRomData.InitialWallSource,
-            CrocomirePaletteRomData.InitialProjectileSource, CrocomirePaletteRomData.SkeletonArmSource, CrocomirePaletteRomData.WallSpikesSource];
+        int[] sources = [CrocomireSourceDefinitions.FightBodyColors, CrocomireSourceDefinitions.InitialWallColors,
+            CrocomireSourceDefinitions.InitialProjectileColors, CrocomireSourceDefinitions.SkeletonArmColors, CrocomireSourceDefinitions.WallSpikesColors];
         int[] counts = [8, 17, 17, 16, 16];
         int[] destinations = [112, 160, 208, 144, 176];
         string[] labels = ["fightBody", "initialWall", "initialProjectile", "skeletonArm", "wallSpikes"];

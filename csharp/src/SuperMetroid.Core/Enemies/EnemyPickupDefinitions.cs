@@ -20,6 +20,7 @@ internal static class EnemyPickupDefinitions
             EnemyPickupKind.PowerBomb => new(6, EnemyDeathProjectileProgram.PowerBombs),
             EnemyPickupKind.Missile => new(8, EnemyDeathProjectileProgram.Missiles),
             EnemyPickupKind.SuperMissile => new(10, EnemyDeathProjectileProgram.SuperMissiles),
+            EnemyPickupKind.NoDrop => throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry."),
             _ => throw new InvalidDataException($"Enemy pickup kind {kind} has no animation-table entry."),
         };
     }

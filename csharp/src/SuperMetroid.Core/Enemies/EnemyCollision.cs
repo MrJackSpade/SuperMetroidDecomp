@@ -812,6 +812,8 @@ internal sealed class EnemyCollision
         SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
         SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
         SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
+        SamusProjectileFamily.Beam or SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion =>
+            throw new InvalidDataException($"Projectile family {family} has no translated vulnerability field."),
         _ => throw new InvalidDataException($"Projectile family {family} has no translated vulnerability field."),
     };
 

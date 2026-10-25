@@ -107,9 +107,9 @@ internal static class XrayRevealVisualInstallationVerification
         level.SetPlmBehavior(33, 2);
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
         ushort[] originalMap = XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(0, 0), new(16, 16),
-            (byte)AreaId.Brinstar, stock);
+            AreaId.Brinstar, stock);
         ushort[] editedMap = XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(0, 0), new(16, 16),
-            (byte)AreaId.Brinstar, edited);
+            AreaId.Brinstar, edited);
         AssertEqual(originalTop * 4, originalMap[0], "stock tall reveal top-left metatile");
         AssertEqual((originalTop + 1) * 4, editedMap[0],
             "edited X-ray metatile changes live reveal tilemap");

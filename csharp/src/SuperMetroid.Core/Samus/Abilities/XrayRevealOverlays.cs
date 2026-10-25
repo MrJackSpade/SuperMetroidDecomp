@@ -24,8 +24,15 @@ public static class XrayRevealOverlays
         {
             CollectiblePlmSnapshot item = items[i];
             if (unchecked((short)item.RoomArgument) < 0 || system.HasCollectedItemBit(item.RoomArgument)) continue;
-            int graphics = item.Kind < InWorldCollectibleKind.Bombs
-                ? XrayOverlayVisualCatalog.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
+            // The four tanks draw from the dynamic slots that follow the loaded item graphics, in tank order.
+            int graphics = item.Kind switch
+            {
+                InWorldCollectibleKind.EnergyTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots,
+                InWorldCollectibleKind.MissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 1,
+                InWorldCollectibleKind.SuperMissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 2,
+                InWorldCollectibleKind.PowerBombTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 3,
+                _ => item.GraphicsSlot,
+            };
             if ((uint)graphics >= XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");
             var metatile = new RoomLevelWord(overlays.ItemMetatile(graphics));

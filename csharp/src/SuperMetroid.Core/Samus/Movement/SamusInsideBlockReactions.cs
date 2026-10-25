@@ -102,7 +102,7 @@ public static class SamusInsideBlockReactions
                             break;
                         default:
                             throw new InvalidOperationException(
-                                $"Undefined {nameof(SamusVerticalDirection)} {(int)body.YDirection}.");
+                                $"Undefined {nameof(SamusVerticalDirection)} {body.YDirection}.");
                     }
                     break;
                 case SpecialAirReactionSetup.SubmergingQuicksand:
@@ -130,8 +130,15 @@ public static class SamusInsideBlockReactions
         void ApplyConveyor(int bts)
         {
             // The normal special-air table shares its BTS space; only conveyor entries react here.
-            if (!Enum.IsDefined((ConveyorBlockBts)bts)) return;
-            var conveyor = (ConveyorBlockBts)bts;
+            ConveyorBlockBts? carrier = bts switch
+            {
+                8 => ConveyorBlockBts.GroundedRight,
+                9 => ConveyorBlockBts.GroundedLeft,
+                10 => ConveyorBlockBts.UnconditionalRight,
+                11 => ConveyorBlockBts.UnconditionalLeft,
+                _ => null,
+            };
+            if (carrier is not { } conveyor) return;
             bool groundedOnly = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.GroundedLeft;
             bool rightward = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.UnconditionalRight;
             samus.HorizontalSpeed.SelectNormalAirSpeedTable();
@@ -206,7 +213,7 @@ public static class SamusInsideBlockReactions
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(SamusVerticalDirection)} {(int)body.YDirection}.");
+                    $"Undefined {nameof(SamusVerticalDirection)} {body.YDirection}.");
         }
         if (contact.ContactDamage == SamusContactDamageIndex.SpeedBooster)
         {

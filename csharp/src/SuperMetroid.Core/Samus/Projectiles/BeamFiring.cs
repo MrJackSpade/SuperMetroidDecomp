@@ -455,7 +455,7 @@ internal sealed class BeamFiring
         else
             samus.Missiles = SamusQuantity.DecrementWord(samus.Missiles);
         slot.TrailTimer = WrappingCountdown.Start(4);
-        slot.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile));
+        slot.Type = SamusProjectileTypeWord.Live(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         slot.Variable = 0;
 
         // The producer first calls the generic velocity initializer with base speed zero.

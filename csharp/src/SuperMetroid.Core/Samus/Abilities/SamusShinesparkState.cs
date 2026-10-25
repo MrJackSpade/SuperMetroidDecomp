@@ -773,7 +773,7 @@ false);
                 suitOffset, phaseOffset, out palette);
         if (!catalogued)
             throw new InvalidDataException(
-                $"Shinespark palette type {(int)PaletteType} offset {PaletteFrameOffset} is not compiled.");
+                $"Shinespark palette type {PaletteType} offset {PaletteFrameOffset} is not compiled.");
         (cycleColors ?? throw new InvalidOperationException(
             "Shinespark palette requires installed color assets.")).Apply(colours, palette);
 

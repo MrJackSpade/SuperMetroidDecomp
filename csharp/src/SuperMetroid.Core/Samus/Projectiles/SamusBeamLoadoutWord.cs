@@ -34,12 +34,12 @@ public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
     /// The combination $90:AC8D and $90:ACCD index their tables by, or null when unknown bits
     /// 4-11 make the twelve-bit index exceed $F.
     /// </summary>
-    public SamusBeamCombination? Combination => NativeConfigurationIndex <= 15
-        ? (SamusBeamCombination)NativeConfigurationIndex
+    public SamusBeamCombination? Combination => NativeConfigurationIndex <= CombinationMask
+        ? SamusBeamCombinations.FromTableIndex(NativeConfigurationIndex)
         : null;
 
     /// <summary>The combination FireSBA ($90:CCC0) reads: the low nibble alone, ignoring bits 4-11.</summary>
-    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Beams.ToEquipmentWord() & CombinationMask);
+    public SamusBeamCombination LowNibbleCombination => SamusBeamCombinations.FromTableIndex(Beams.ToEquipmentWord() & CombinationMask);
 
     /// <summary>Only the equipment bits whose meanings are verified.</summary>
     public SamusBeamFlags KnownFlags => Beams & VerifiedBeams;

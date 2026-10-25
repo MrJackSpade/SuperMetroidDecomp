@@ -526,7 +526,7 @@ public sealed class SamusXrayState
         if (SpecialPaletteKind != SamusSpecialPaletteType.Xray)
             return false;
 
-        if (VisorPaletteMode == XrayVisorPaletteMode.Widening && (ushort)BeamPhase >= (ushort)XrayBeamPhase.Full)
+        if (VisorPaletteMode == XrayVisorPaletteMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))
         {
             // `$91:DCEA` enters the full-beam three-color loop at byte offset six.
             SpecialPaletteFrame = XrayScopeDefinitions.Palette.FullCycleFirstWordOffset;

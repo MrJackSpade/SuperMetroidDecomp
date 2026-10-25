@@ -6,18 +6,16 @@ internal static class SamusProjectileCooldownDefinitions
     /// <summary>Cooldown $0CCC that Handle_Samus_Cooldown ($90:AC32) holds while time is frozen.</summary>
     internal const ushort FrozenTime = 0x20;
 
-    /// <summary>The non-beam projectile kinds with a nonzero $90:C27A cooldown; the other kinds are zero.</summary>
-    private enum NonBeamKind
-    {
-        /// <summary>Native non-beam kind one: ordinary missile.</summary>
-        Missile = 1,
-        /// <summary>Native non-beam kind two: super missile.</summary>
-        SuperMissile = 2,
-        /// <summary>Native non-beam kind three: power bomb.</summary>
-        PowerBomb = 3,
-        /// <summary>Native non-beam kind five: morph-ball bomb.</summary>
-        Bomb = 5,
-    }
+    // The $90:C27A rows of the non-beam kinds with a nonzero cooldown; the other kinds' rows are zero.
+
+    /// <summary>The ordinary missile's non-beam cooldown row.</summary>
+    private const int MissileRow = 1;
+    /// <summary>The super missile's non-beam cooldown row.</summary>
+    private const int SuperMissileRow = 2;
+    /// <summary>The power bomb's non-beam cooldown row.</summary>
+    private const int PowerBombRow = 3;
+    /// <summary>The morph-ball bomb's non-beam cooldown row.</summary>
+    private const int BombRow = 5;
     /// <summary>Native low-nibble beam bits: Plasma plus Ice without Wave or Spazer.</summary>
     private const int PlasmaIce = 0x0a;
 
@@ -42,18 +40,14 @@ internal static class SamusProjectileCooldownDefinitions
             return 0;
         if (offset is >= SamusFiringTableDefinitions.NonBeamCooldowns and < SamusFiringTableDefinitions.AutoFireCooldowns)
         {
-            // The table index is the non-beam projectile kind; kinds without a cooldown are zero.
-            int kindIndex = offset - SamusFiringTableDefinitions.NonBeamCooldowns;
-            if (!Enum.IsDefined((NonBeamKind)kindIndex))
-                return 0;
-            var kind = (NonBeamKind)kindIndex;
-            return kind switch
+            // The row is the non-beam projectile kind; kinds without a cooldown are zero.
+            return (offset - SamusFiringTableDefinitions.NonBeamCooldowns) switch
             {
-                NonBeamKind.Missile => 10,
-                NonBeamKind.SuperMissile => 20,
-                NonBeamKind.PowerBomb => 40,
-                NonBeamKind.Bomb => 16,
-                _ => throw new InvalidOperationException($"Undefined {nameof(NonBeamKind)} {(int)kind}."),
+                MissileRow => 10,
+                SuperMissileRow => 20,
+                PowerBombRow => 40,
+                BombRow => 16,
+                _ => 0,
             };
         }
         if ((uint)(offset - SamusFiringTableDefinitions.AutoFireCooldowns) < SamusFiringTableDefinitions.CombinationCount)

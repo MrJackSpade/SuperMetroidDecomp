@@ -36,6 +36,15 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// <summary>Whether the projectile carries any of <paramref name="beams"/> among the equipped beam bits it was fired with.</summary>
     public bool HasAnyBeam(SamusBeamFlags beams) => (Raw & (beams & EquippedBeamBits).ToEquipmentWord()) != 0;
 
+    /// <summary>
+    /// Whether the family field is at or past <paramref name="family"/>'s: the cartridge's ordered family comparison,
+    /// which also orders the unnamed family values.
+    /// </summary>
+    public bool IsFamilyAtOrAfter(SamusProjectileFamily family) => FamilyValue >= (ushort)family;
+
+    /// <summary>The type word of a live projectile of <paramref name="family"/> carrying no beam or control payload.</summary>
+    public static ushort Live(SamusProjectileFamily family) => (ushort)(LiveMarker | (ushort)family);
+
     /// <summary>Tests whether the family nibble exactly matches the requested family.</summary>
     public bool IsFamily(SamusProjectileFamily family) => FamilyValue == (ushort)family;
 

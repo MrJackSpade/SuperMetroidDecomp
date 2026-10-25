@@ -52,7 +52,7 @@ internal sealed class XrayReveal
         // The copy reads the plane's tile words, not its pictures.
         IBgTileSource bg1 = level.ForegroundPlane.Tiles(_backgroundScroll.Bg1Offset.AsBgPlaneOffset());
         var map = XrayRevealTilemap.Build(level, bg1, bg1Scroll, layer1,
-            (byte)room.AreaIndex, XrayRevealVisuals);
+            room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, plms.CollectiblePlms.Collectibles, _system,
             room.State.XrayOverlay, layer1, XrayRevealVisuals);
         map.AsSpan(0, Math.Min(map.Length, _revealTilemap.Length)).CopyTo(_revealTilemap);

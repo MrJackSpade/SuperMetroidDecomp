@@ -1,10 +1,13 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Command bytes in a charge-flare delay stream; every other byte is a delay.</summary>
-internal enum ChargeFlareDelayCommand : byte
+/// <summary>
+/// Commands in a charge-flare delay stream; every other byte is a delay. The values are arbitrary:
+/// <c>ChargeFlareAnimationDefinitions</c> encodes each as its stream byte.
+/// </summary>
+internal enum ChargeFlareDelayCommand
 {
-    /// <summary>$FE subtracts the following byte from the selected frame.</summary>
-    Rewind = 0xfe,
-    /// <summary>$FF resets the frame to zero.</summary>
-    Restart = 0xff,
+    /// <summary>Stream byte $FE: subtracts the following byte from the selected frame.</summary>
+    Rewind,
+    /// <summary>Stream byte $FF: resets the frame to zero.</summary>
+    Restart,
 }

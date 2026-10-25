@@ -108,7 +108,7 @@ internal sealed class ProjectileAnimation
                     delay = ChargeFlareAnimationDefinitions.ReadDelay(component, frame, Overreads?.AnimationWindows);
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined {nameof(ChargeFlareDelayCommand)} {(int)command}.");
+                    throw new InvalidOperationException($"Undefined {nameof(ChargeFlareDelayCommand)} {command}.");
             }
         }
 

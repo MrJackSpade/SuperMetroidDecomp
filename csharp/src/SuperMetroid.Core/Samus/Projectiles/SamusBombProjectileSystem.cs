@@ -1076,7 +1076,7 @@ public sealed class SamusBombProjectileSystem
             SamusBombProjectileSlot slot = _slots[slotIndex];
             if (slot.Damage == 0 ||
                 (slot.Type & SamusProjectileTypeWord.LiveMarker) != 0 ||
-                slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.BeamExplosion ||
+                slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.BeamExplosion) ||
                 (slot.Direction & SamusProjectileDirectionMasks.Spent) != 0)
             {
                 continue;

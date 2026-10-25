@@ -502,7 +502,7 @@ public sealed class SamusLiquidPhysicsState
                 return;
 
             default:
-                throw new InvalidDataException($"Landing graphics area {(byte)AreaIndex} is outside the seven retail areas.");
+                throw new InvalidDataException($"Landing graphics area {AreaIndex} is outside the seven retail areas.");
         }
     }
 

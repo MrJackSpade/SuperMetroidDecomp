@@ -534,8 +534,11 @@ public static class SamusBlockCollision
                         blockX,
                         acceptedDisplacement,
                         targetCenter,
+                        // The cartridge tests the direction's low bit: right, down and the non-directional
+                        // probe react as a floor, left and up as a ceiling.
                         reactsDownward: move.BlockReactionDirection is { } reactionDirection
-                            ? ((ushort)reactionDirection & 1) != 0
+                            ? reactionDirection is SamusCollisionDirection.Right or SamusCollisionDirection.Down or
+                                SamusCollisionDirection.NonDirectionalProbe
                             : acceptedDisplacement >= 0);
                     break;
 

@@ -16,7 +16,7 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
 
     /// <summary>Holds a floor's map and tiles.</summary>
     /// <exception cref="ArgumentException">The cells do not fill the map.</exception>
-    public AffineFloor(ImmutableArray<AffineFloorCell> cells, Mode7TilePictures tiles)
+    public AffineFloor(ImmutableArray<AffineFloorCell> cells, FloorTilePictures tiles)
     {
         Ensure.LengthEqual(cells.AsSpan(), CellCount);
         Cells = cells;
@@ -27,11 +27,11 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     public ImmutableArray<AffineFloorCell> Cells { get; }
 
     /// <summary>What each tile the cells name shows.</summary>
-    public Mode7TilePictures Tiles { get; }
+    public FloorTilePictures Tiles { get; }
 
     /// <summary>The floor whose map is <paramref name="tiles"/>' row-major tile numbers.</summary>
     /// <exception cref="ArgumentException">The tile numbers do not fill the map.</exception>
-    public static AffineFloor Of(ReadOnlySpan<byte> map, Mode7TilePictures tiles)
+    public static AffineFloor Of(ReadOnlySpan<byte> map, FloorTilePictures tiles)
     {
         Ensure.LengthEqual(map, CellCount);
         var cells = ImmutableArray.CreateBuilder<AffineFloorCell>(CellCount);

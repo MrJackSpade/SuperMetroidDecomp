@@ -65,8 +65,8 @@ internal static class ClosedPresentationIdentityDefinitions
              (int)VramAssetId.KraidBg3RestoreQuarter3, (int)VramAssetId.EscapeTimerFirstTiles,
              (int)VramAssetId.EscapeTimerSecondTiles],
         ("RoomBackgroundTilemapCatalog", "Get", "tilemap") => Enum.GetValues<RoomBackgroundTilemap>().Select(tilemap => (int)tilemap).ToArray(),
-        ("RoomVisualLayoutCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
-        ("RoomLevelStreamCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
+        ("RoomVisualLayoutCatalog", "Get", "levelSource") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
+        ("RoomLevelStreamCatalog", "Get", "levelSource") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => (int)sheet.Sheet).ToArray(),
         ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionId") => EnemyTileSourceDefinitions.All

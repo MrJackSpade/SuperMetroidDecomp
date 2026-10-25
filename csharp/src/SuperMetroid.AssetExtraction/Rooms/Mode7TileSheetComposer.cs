@@ -39,28 +39,28 @@ internal static class Mode7TileSheetComposer
         loaded.Colors.CopyTo(colours);
         background.CopyTo(colours, 0);
         SpritePaletteRows coloured = SpritePaletteRows.None;
-        int side = Mode7TileSheet.TilesPerRow * Mode7TileSheet.TilePixels;
+        int side = FloorTileSheet.TilesPerRow * FloorTileSheet.TilePixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(side)), checked((ushort)(side))));
-        var shown = new BgArtworkShown?[Mode7TileSheet.Tiles];
-        for (int tile = 0; tile < Mode7TileSheet.Tiles; tile++)
+        var shown = new BgArtworkShown?[FloorTileSheet.Tiles];
+        for (int tile = 0; tile < FloorTileSheet.Tiles; tile++)
         {
             // A tile whose characters nothing binds is not pictured; the map may not name it.
-            if (!content.TryShowing(BgCharacterSet.Tiles, tile * Mode7TileSheet.TileCharacters, Mode7TileSheet.TileCharacters, out BgArtworkShown bound))
+            if (!content.TryShowing(BgCharacterSet.Tiles, tile * FloorTileSheet.TileCharacters, FloorTileSheet.TileCharacters, out BgArtworkShown bound))
                 continue;
             shown[tile] = bound;
-            Position16<ImagePixels> corner = Mode7TileSheet.Corner(tile);
-            for (int pixel = 0; pixel < Mode7TileSheet.TileWords; pixel++)
+            Position16<ImagePixels> corner = FloorTileSheet.Corner(tile);
+            for (int pixel = 0; pixel < FloorTileSheet.TileWords; pixel++)
             {
-                byte index = tiles[(tile * Mode7TileSheet.TileWords + pixel) * 2 + 1];
+                byte index = tiles[(tile * FloorTileSheet.TileWords + pixel) * 2 + 1];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
                     coloured |= SpritePaletteRowSet.Rows[index / 16];
-                canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % Mode7TileSheet.TilePixels)), checked((ushort)(corner.Y + pixel / Mode7TileSheet.TilePixels))), index, colours);
+                canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % FloorTileSheet.TilePixels)), checked((ushort)(corner.Y + pixel / FloorTileSheet.TilePixels))), index, colours);
             }
         }
         // The frame's rows name the background rows it is coloured from; its sprite rows are the room load's own.
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [Mode7TileSheet.FrameName] = new SpriteSheetFrameDocument
+            [FloorTileSheet.FrameName] = new SpriteSheetFrameDocument
             {
                 Corner = default,
                 Size = new Extent16<ImagePixels>((ushort)side, (ushort)side),

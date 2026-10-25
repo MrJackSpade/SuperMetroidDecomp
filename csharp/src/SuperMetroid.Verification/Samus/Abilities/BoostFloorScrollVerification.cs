@@ -43,7 +43,7 @@ internal static class BoostFloorScrollVerification
             runtime.StepFrame((SnesButton.Right | runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
             if (tick >= 40)
             {
-                AssertEqual(RoomScrollState.Green, runtime.Room.LoadedCamera.Scrolls.ReadNativeState(11),
+                AssertEqual(RoomScrollState.Green, runtime.Room.LoadedCamera.Scrolls.ReadState(11),
                     "lower trigger keeps shaft unlocked after torso leaves upper trigger");
                 int screenY = samus.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y;
                 AssertTrue(screenY is >= 32 and < 224, "falling Samus remains within the viewport without byte wrapping");

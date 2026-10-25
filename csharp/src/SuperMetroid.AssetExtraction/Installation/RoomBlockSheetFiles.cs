@@ -68,7 +68,7 @@ public static class RoomBlockSheetFiles
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet messages) in composition.MessageBoxes)
             store.Write(MessageBoxSheet.NameOf(tileset), messages);
         foreach (ComposedMode7Tiles tiles in composition.FloorTiles.Values)
-            store.Write(Mode7TileSheet.NameOf(tiles.Tileset), tiles.Sheet);
+            store.Write(FloorTileSheet.NameOf(tiles.Tileset), tiles.Sheet);
         store.Finish(sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, Mode7ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new Mode7Manifest(Mode7ManifestVersion, composition.FloorTiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
@@ -140,8 +140,8 @@ public static class RoomBlockSheetFiles
                 StringComparer.Ordinal),
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageWords)),
-            mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new Mode7TileSheet(tileset,
-                    store.Read(Mode7TileSheet.NameOf(tileset)), [.. entry.Value.Select(shown => shown is null ? (BgArtworkShown?)null
+            mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new FloorTileSheet(tileset,
+                    store.Read(FloorTileSheet.NameOf(tileset)), [.. entry.Value.Select(shown => shown is null ? (BgArtworkShown?)null
                         : new BgArtworkShown(new BgArtworkIdentity(shown.Artwork), shown.Offset))])
                 : throw new InvalidDataException($"Mode 7 manifest {mode7Path} names unknown tileset {entry.Key}."))
                 .ToDictionary(tiles => tiles.Tileset))

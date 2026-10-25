@@ -685,7 +685,7 @@ internal static void VerifyBackgroundScrollState()
         "$80:AE29 BG1 offsets are the retained registers minus the staged layer-one origin");
     AssertEqual(new Offset16<Bg2Pixels>(0x0100, 0), rightDoor.Bg2Offset,
         "$80:AE3B BG2 offsets negate the staged layer-one origin on both axes");
-    rightDoor.CalculateScrollRegisters();
+    rightDoor.CalculateLayerScrolls();
     AssertEqual((ushort)0x0124, rightDoor.Bg1Scroll.X,
         "$80:AE29 right-door BG1 retains source plus first step");
     AssertEqual((ushort)0x0004, rightDoor.Bg2Scroll.X,
@@ -699,7 +699,7 @@ internal static void VerifyBackgroundScrollState()
     leftDoor.ConfigureDoorOpeningOffsets(
         retainedBg1Scroll: new(0x0120, 0x0340),
         stagedLayer1: new(0x0100, 0x0000));
-    leftDoor.CalculateScrollRegisters();
+    leftDoor.CalculateLayerScrolls();
     AssertEqual((ushort)0x011c, leftDoor.Bg1Scroll.X,
         "$80:AE29 left-door BG1 retains source minus first step");
     AssertEqual((ushort)0xfffc, leftDoor.Bg2Scroll.X,
@@ -714,7 +714,7 @@ internal static void VerifyBackgroundScrollState()
     upwardDestination.ConfigureDoorOpeningOffsets(
         retainedBg1Scroll: new(0x0120, 0x0340),
         stagedLayer1: new(0, 0x0300));
-    upwardDestination.CalculateScrollRegisters();
+    upwardDestination.CalculateLayerScrolls();
     AssertEqual((ushort)0x033b, upwardDestination.Bg1Scroll.Y,
         "$80:AF89 upward setup preserves source BG1 minus five pixels");
 

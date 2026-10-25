@@ -344,20 +344,20 @@ internal static class RoomBlockPicturesVerification
         runtime.StepFrame(0);
         AssertTrue(runtime.Display.Latched.Rooms?.Mode7 is not null, $"{room.Name} shows its Mode 7 map");
         FloorMap map = runtime.Room.LoadedScope.FloorMap ?? throw new InvalidOperationException($"{room.Name} has no Mode 7 map.");
-        Mode7TileSheet tiles = map.Tiles;
+        FloorTileSheet tiles = map.Tiles;
         AssertTrue(map.NamedTiles.All(tile => tiles.Shown[tile] is not null), $"{room.Name}'s Mode 7 map names only pictured tiles");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         SpriteImage sheet = tiles.Picture.Sheet;
         int pictured = 0;
-        for (int tile = 0; tile < Mode7TileSheet.Tiles; tile++)
+        for (int tile = 0; tile < FloorTileSheet.Tiles; tile++)
         {
             if (tiles.Shown[tile] is null)
                 continue;
             pictured++;
-            Position16<ImagePixels> corner = Mode7TileSheet.Corner(tile);
-            for (int pixel = 0; pixel < Mode7TileSheet.TileWords; pixel++)
+            Position16<ImagePixels> corner = FloorTileSheet.Corner(tile);
+            for (int pixel = 0; pixel < FloorTileSheet.TileWords; pixel++)
             {
-                int expected = vram[(tile * Mode7TileSheet.TileWords + pixel) * 2 + 1];
+                int expected = vram[(tile * FloorTileSheet.TileWords + pixel) * 2 + 1];
                 int at = (tiles.Picture.Corner.Y + corner.Y + pixel / 8) * sheet.Size.X + tiles.Picture.Corner.X + corner.X + pixel % 8;
                 AssertTrue(sheet.Inks[at].PaletteIndex == expected && (expected == 0 || sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32()),
                     $"{tiles.Name}: tile {tile} pixel {pixel} paints index {sheet.Inks[at].PaletteIndex} where its characters name {expected}");

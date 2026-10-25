@@ -60,7 +60,7 @@ internal static class RoomScrollDefinitionsVerification
             else
             {
                 implicitStateCount++;
-                RoomScrollState lastRow = RoomScrollStates.FromCartridge(
+                RoomScrollState lastRow = RoomScrollStates.FromAuthoredByte(
                     unchecked((byte)(scrollPointer + 1)),
                     $"verification implicit scroll word ${scrollPointer:X4}");
                 int logicalCount = header.Size.X * header.Size.Y;
@@ -104,7 +104,7 @@ internal static class RoomScrollDefinitionsVerification
         guardedCeres.RoomLoader.InitializeStartingCeresRoom();
         var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
         int ceresLogicalCount = ceres.Size.X * ceres.Size.Y;
-        RoomScrollState ceresLastRow = RoomScrollStates.FromCartridge(
+        RoomScrollState ceresLastRow = RoomScrollStates.FromAuthoredByte(
             unchecked((byte)(ceres.State.ScrollPointer + 1)),
             "Ceres implicit scroll word");
         for (int index = 0; index < expectedCeres.Length; index++)

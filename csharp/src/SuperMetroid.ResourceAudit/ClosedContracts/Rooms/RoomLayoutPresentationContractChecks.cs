@@ -26,7 +26,7 @@ internal static class RoomLayoutPresentationContractChecks
         Require(rejected, "production construction must reject a missing required source");
         var catalog = new RoomVisualLayoutCatalog(owned, RoomVisualLayoutSourceDefinitions.All);
         owned.Remove(first);
-        Require(catalog.Get(first).SourceAddress == first, "catalog keys must be independent of the input dictionary");
+        Require(catalog.Get(first).LevelSource == first, "catalog keys must be independent of the input dictionary");
         var mismatched = RoomVisualLayoutSourceDefinitions.All.ToDictionary(source => source, Layout);
         mismatched[first] = Layout(0);
         rejected = false;

@@ -46,13 +46,13 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>What the Mode 7 map shows with each Baby Metroid page loaded (#1392), once read; artwork, never saved.</summary>
-    [NonSerialized] private Dictionary<int, Mode7TilePictures>? floorTiles;
+    [NonSerialized] private Dictionary<int, FloorTilePictures>? floorTiles;
 
     /// <summary>What the Mode 7 map shows with Baby Metroid page <paramref name="page"/> loaded.</summary>
-    private Mode7TilePictures FloorTiles(int page)
+    private FloorTilePictures FloorTiles(int page)
     {
         floorTiles ??= [];
-        if (!floorTiles.TryGetValue(page, out Mode7TilePictures? tiles))
+        if (!floorTiles.TryGetValue(page, out FloorTilePictures? tiles))
             floorTiles.Add(page, tiles = TitleScreenTiles.Of(spriteSheets, page));
         return tiles;
     }

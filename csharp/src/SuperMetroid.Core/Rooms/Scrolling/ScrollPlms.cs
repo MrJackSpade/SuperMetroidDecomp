@@ -96,7 +96,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             byte value = program.Span[offset + 1];
             scrolls.SetStorage(
                 scrollIndex,
-                RoomScrollStates.FromCartridge(
+                RoomScrollStates.FromAuthoredByte(
                     value,
                     $"scroll PLM program $8F:{slot.RoomArgument:X4} pair {pairIndex}"));
         }

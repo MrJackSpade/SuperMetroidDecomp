@@ -55,7 +55,7 @@ internal sealed class D3D11FloorImage : IDisposable
         Ensure.NotNull(floor);
         if (floor.Equals(shown))
             return;
-        Mode7TilePictures tiles = floor.Tiles;
+        FloorTilePictures tiles = floor.Tiles;
         for (int cell = 0; cell < AffineFloor.CellCount; cell++)
             LayTile(tiles, floor.Cells[cell].Tile, cell % AffineFloor.Side * TilePixels, cell / AffineFloor.Side * TilePixels);
         LayTile(tiles, 0, Side, 0);
@@ -65,7 +65,7 @@ internal sealed class D3D11FloorImage : IDisposable
     }
 
     /// <summary>Lays tile <paramref name="tile"/>'s picture at (<paramref name="left"/>, <paramref name="top"/>).</summary>
-    private void LayTile(Mode7TilePictures tiles, int tile, int left, int top)
+    private void LayTile(FloorTilePictures tiles, int tile, int left, int top)
     {
         if (tiles.Pictures[tile] is not { } picture)
         {

@@ -44,10 +44,10 @@ public sealed class BackgroundScrollState
     /// uses fixed layer-two room modes, so the ordinary scrolling pass intentionally leaves
     /// these values untouched after the actor supplies them.
     /// </summary>
-    public void SetBg2ScrollRegisters(Position16<Bg2Pixels> scroll) => Bg2Scroll = scroll;
+    public void SetBg2Scroll(Position16<Bg2Pixels> scroll) => Bg2Scroll = scroll;
 
     /// <summary>Publishes a room-main write to the BG1VOFS mirror without moving the camera or streaming origin.</summary>
-    public void SetBg1VerticalScrollRegister(ushort vertical) => Bg1Scroll = Bg1Scroll.WithY(vertical);
+    public void SetBg1VerticalScroll(ushort vertical) => Bg1Scroll = Bg1Scroll.WithY(vertical);
 
     /// <summary>
     /// Implements <c>$80:AE29</c> after a directional door setup has staged its off-screen
@@ -130,7 +130,7 @@ public sealed class BackgroundScrollState
     /// Implements <c>$80:A37B</c>'s register half, used by door transitions that already own the layer positions:
     /// recomputes all four PPU scroll mirrors without changing BG2 parallax state.
     /// </summary>
-    public void CalculateScrollRegisters()
+    public void CalculateLayerScrolls()
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
         Bg2Scroll = Layer2Position + Bg2Offset;

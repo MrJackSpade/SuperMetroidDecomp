@@ -9,7 +9,7 @@ public sealed class RoomVisualLayoutCatalog
     private readonly Dictionary<int, RoomVisualLayout> layouts;
 
     /// <summary>Copies a source-keyed installation and requires each of <paramref name="requiredSources"/> to have a matching non-null layout.</summary>
-    /// <param name="layouts">Initial visual layouts keyed by their own full 24-bit <see cref="RoomVisualLayout.SourceAddress"/>.</param>
+    /// <param name="layouts">Initial visual layouts keyed by their own full 24-bit <see cref="RoomVisualLayout.LevelSource"/>.</param>
     /// <param name="requiredSources">Every room-level source the installation must cover.</param>
     /// <exception cref="InvalidDataException">A value is null, its source differs from its key, or a required source is absent.</exception>
     public RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
@@ -18,7 +18,7 @@ public sealed class RoomVisualLayoutCatalog
         Ensure.NotNull(layouts);
         this.layouts = new Dictionary<int, RoomVisualLayout>(layouts);
         foreach ((int source, RoomVisualLayout layout) in this.layouts)
-            if (layout is null || layout.SourceAddress != source)
+            if (layout is null || layout.LevelSource != source)
                 throw new InvalidDataException(
                     $"Room visual layout key ${source:X6} must contain its matching nonnull layout.");
         foreach (int source in Ensure.NotNull(requiredSources))
@@ -41,12 +41,12 @@ public sealed class RoomVisualLayoutCatalog
     });
 
     /// <summary>Resolves installed initial artwork by the room state's level-data source, without selecting room state or reading cartridge bytes.</summary>
-    /// <param name="sourceAddress">Full 24-bit source identity used as the installation key.</param>
+    /// <param name="levelSource">The level the room state names, used as the installation key.</param>
     /// <returns>The matching validated visual layout.</returns>
     /// <exception cref="InvalidDataException">The requested source is not installed.</exception>
-    public RoomVisualLayout Get(int sourceAddress) =>
-        layouts.TryGetValue(sourceAddress, out RoomVisualLayout? layout)
+    public RoomVisualLayout Get(int levelSource) =>
+        layouts.TryGetValue(levelSource, out RoomVisualLayout? layout)
             ? layout
             : throw new InvalidDataException(
-                $"Installed room visual layouts lack source ${sourceAddress:X6}.");
+                $"Installed room visual layouts lack source ${levelSource:X6}.");
 }

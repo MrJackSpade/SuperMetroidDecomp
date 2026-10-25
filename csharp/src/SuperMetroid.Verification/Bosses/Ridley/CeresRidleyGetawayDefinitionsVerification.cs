@@ -19,12 +19,17 @@ internal static class CeresRidleyGetawayDefinitionsVerification
         {
             int offset = index * 2;
             var frame = CeresRidleyGetawayDefinitions.FromIndex(index);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6ae4d + offset)), frame.Zoom, "Ceres getaway exact native zoom");
+            ushort nativeZoom = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6ae4d + offset);
             if (offset == 224)
             {
-                AssertEqual(CeresRidleyGetawayDefinitions.Finished, frame.Zoom, "Ceres getaway terminator");
+                // The terminator is a finished frame in Core (#1413); the oracle confirms the cartridge ends its zoom
+                // table with the -1 word there and nowhere earlier.
+                AssertEqual(ushort.MaxValue, nativeZoom, "Ceres getaway native terminator");
+                AssertTrue(frame.IsFinished, "Ceres getaway terminator ends the getaway");
                 continue;
             }
+            AssertTrue(!frame.IsFinished, "Ceres getaway authored frames do not end the getaway");
+            AssertEqual(nativeZoom, frame.Zoom, "Ceres getaway exact native zoom");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), frame.Velocity.Y, "Ceres getaway exact native Y increment");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), frame.Velocity.X, "Ceres getaway exact native X subtraction");
         }

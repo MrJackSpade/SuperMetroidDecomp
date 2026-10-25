@@ -1067,7 +1067,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     foreach (RidleyTailSegment segment in state.TailSegments)
     {
         segment.Active = true;
-        segment.StaggerAngle = 0xffff;
+        segment.StaggerAngle = null;
         segment.Clockwise = true;
         segment.TargetDistance = 0;
     }

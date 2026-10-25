@@ -161,7 +161,7 @@ internal sealed class KraidCombat
                 // In particular, $8200 left by a Super Missile changes the next shot's
                 // signed CMP; rebuilding a clean rectangle here doubles close-range damage.
                 scratch.Bottom = shot.Type.Raw;
-                scratch.Top = KraidContactDefinitions.ShotVulnerabilityResidue;
+                scratch.Top = unchecked((ushort)KraidContactDefinitions.ShotUpperBoundAfterHit);
                 // A vulnerability entry's multiplier is its low nibble for charged beams and its low seven bits otherwise.
                 int multiplier = type.Family switch
                 {

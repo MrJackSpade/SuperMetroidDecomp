@@ -335,7 +335,7 @@ internal sealed class KraidHead
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + 16)), unchecked((ushort)(body.Position.Y.Whole - 96))));
-        rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(KraidRockLaunchDefinitions.FromRandom(random)));
+        rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
         rock.Velocity = rock.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-1024));
         rock.GraphicsIndex = EnemyPaletteBits.Palette3;
         return true;

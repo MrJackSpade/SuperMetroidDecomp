@@ -567,7 +567,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(4, segment.StaggerAngle, "native stagger advances before returning");
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
-        segment.StaggerAngle = ushort.MaxValue; segment.Angle = 0x4000;
+        segment.StaggerAngle = null; segment.Angle = 0x4000;
         segment.Clockwise = true; segment.Distance = 0x0200;
         RidleyTail.TickRidleyTailSegment(state, 0);
         AssertEqual(0x3ffe, segment.Angle, "native clockwise comparison decrements then restores one before storing");
@@ -581,7 +581,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual((short)11, segment.Offset.Y, "stop retains Y offset");
         var child = state.TailSegments[1];
         segment.Active = true;
-        child.Active = true; child.StaggerAngle = ushort.MaxValue;
+        child.Active = true; child.StaggerAngle = null;
         child.Angle = 0x4000; child.Clockwise = true; child.Distance = 0x0800;
         RidleyTail.TickRidleyTailSegment(state, 1);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");
@@ -1355,7 +1355,8 @@ internal static class RidleyFullMovieVerification
                         int tailAddress = NativeSnapshotMemory.TailSegments + tailIndex * NativeSnapshotMemory.TailSegmentStride;
                         string tailOwner = $"Ridley tail {tailIndex}";
                         Check(tailOwner + " active", segment.Active ? NativeSnapshotMemory.TailSegmentActive : (ushort)0, tailAddress);
-                        Check(tailOwner + " StaggerAngle", checked((ushort)segment.StaggerAngle), tailAddress + 2);
+                        // A propagated stagger has no angle in the port (#1413); the cartridge stores -1 there.
+                        Check(tailOwner + " StaggerAngle", segment.StaggerAngle is { } stagger ? checked((ushort)stagger) : ushort.MaxValue, tailAddress + 2);
                         Check(tailOwner + " MovementDirection", segment.Clockwise ? (ushort)0x8000 : (ushort)0, tailAddress + 4);
                         Check(tailOwner + " Distance", checked((ushort)segment.Distance), tailAddress + 6);
                         Check(tailOwner + " TargetDistance", checked((ushort)segment.TargetDistance), tailAddress + 8);

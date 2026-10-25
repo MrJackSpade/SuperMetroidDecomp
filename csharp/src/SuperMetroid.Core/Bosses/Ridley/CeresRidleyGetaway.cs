@@ -116,7 +116,7 @@ internal sealed class CeresRidleyGetaway
 
         var frame = CeresRidleyGetawayDefinitions.FromIndex(tableIndex);
         ushort zoom = checked((ushort)frame.Zoom);
-        if (zoom == CeresRidleyGetawayDefinitions.Finished)
+        if (frame.IsFinished)
         {
             // $A6:AB2E restores fake BGMODE=$09 and clears all Mode 7/scroll registers.
             // Preserve that clean handoff explicitly so the renderer cannot accidentally

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
@@ -23,7 +24,7 @@ public static class BotwoonColorExtractor
             bands[band] = new PaletteRgb5[BotwoonHealthPaletteDefinitions.ColorsPerPalette];
             for (int color = 0; color < bands[band].Length; color++)
             {
-                int address = BotwoonHealthPaletteDefinitions.NativePaletteAddress +
+                int address = BotwoonSourceDefinitions.HealthColors +
                     (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) *
                     sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

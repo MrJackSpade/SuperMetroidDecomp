@@ -16,8 +16,6 @@ internal static class RidleyTailDefinitions
     internal static SnesAngle DownAngle { get; } = SnesAngle.QuarterTurn;
     /// <summary>$A6:CD52/CDD8, pogo clockwise whip target.</summary>
     internal static SnesAngle PogoWhipAngle { get; } = SnesAngle.FromRaw(0x3f00);
-    /// <summary>A segment's stagger word once it has activated the next segment (native -1).</summary>
-    internal const ushort StaggerPropagated = 0xffff;
     /// <summary>The whip's extension request while a segment chases a whip target.</summary>
     internal const ushort WhipDistance = 0x0c00;
     /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn ($A6:D3F9).</summary>

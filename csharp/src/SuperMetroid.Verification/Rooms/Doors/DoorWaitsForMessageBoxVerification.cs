@@ -27,7 +27,7 @@ internal static class DoorWaitsForMessageBoxVerification
     internal static void VerifyDoorWaitsForMessageBox()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

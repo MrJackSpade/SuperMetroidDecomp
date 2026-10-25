@@ -24,7 +24,7 @@ internal static class PauseRemappedShoulderVerification
     {
         foreach ((ControllerButton held, bool opensEquipment) in new[] { new VerifyPauseRemappedShoulderCase(ControllerButton.R, true), new VerifyPauseRemappedShoulderCase(ControllerButton.L, false) })
         {
-            var random = new CartridgeRandom();
+            var random = new SharedRandom();
             var runtime = CreateRetailRuntimeFixture(random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -64,7 +64,7 @@ internal static void VerifySamusAerialMovement()
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
 level, samus, ControllerButton.A, nmiFrameCounter: 0);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
-    SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom() });
+    SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "FD installs neutral jump pose");
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "FD target pose");
 
@@ -105,7 +105,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
     // The compiled retail $A4 stream is 05,02,F8,01. Five plus two ticks
     // reach $F8 at byte index two; its operand returns to $01.
     for (int tick = 0; tick < 7; tick++)
-        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "landing F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "landing animation returns to standing");
 
@@ -661,7 +661,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     submergedSpin.ProjectileFlareCounter = 0x003c;
     SamusPresentation.InitializeAnimation(submergedSpin, initialFrame: 0);
     for (int tick = 0; tick < 3; tick++)
-        SamusPresentation.AnimateNoFx(submergedSpin, new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(submergedSpin, new SamusAnimationStep { Random = new SharedRandom() });
     submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100);
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
     SamusAerialMovement.StepSpinJump(empty, submergedSpin, 0, 0, 0);
@@ -861,12 +861,12 @@ internal static void VerifySamusLiquidPhysics()
     sample.LiquidPhysics.ConfigureWater(surfaceY: 110);
     AssertEqual(3, sample.LiquidPhysics.DeterminePoseChangeAnimationBuffer(sample),
         "pose-change water delay below bottom-minus-one");
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new CartridgeRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
     AssertEqual(3, sample.AnimationFrameBuffer, "continuous water animation delay");
     AssertEqual(SamusLiquidMedium.Water, sample.LiquidPhysics.LiquidPhysicsType,
         "continuous water animation remembers medium");
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new CartridgeRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
     AssertEqual(0, sample.AnimationFrameBuffer, "Gravity Suit cancels submerged frame delay");
 
     // Lava's FX handler performs the retail speed-boost cancellation before checking
@@ -879,7 +879,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401);
     sample.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new CartridgeRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
     AssertTrue(!sample.HorizontalSpeed.HasRunningMomentum,
         "lava cancels momentum even with Gravity Suit");
     AssertEqual(0, sample.HorizontalSpeed.SpeedBoostCounter.RawValue,
@@ -897,7 +897,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0201);
     sample.HorizontalSpeed.ExtraRunSpeed = sample.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, RoomFxType.Acid);
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new CartridgeRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
     AssertTrue(sample.HorizontalSpeed.HasRunningMomentum, "acid preserves running momentum");
     AssertEqual(0x0201, sample.HorizontalSpeed.SpeedBoostCounter.RawValue,
         "acid preserves speed-boost timer/counter");
@@ -1067,7 +1067,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Movement type one is a diving splash according to the compiled `$81A4` policy. Keep NMI
     // away from the 128-frame bubble cadence so entry has exactly one sound request.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 110);
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 1);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), nmiFrameCounter: 1);
     SamusAtmosphericEffectSlot entrySplash = samus.LiquidPhysics.AtmosphericEffects.Slots[0];
     AssertEqual(SamusAtmosphericEffectType.DivingSplash, entrySplash.Type, "water entry selects diving-splash type");
     AssertEqual(2, entrySplash.AnimationTimer.RawValue, "diving splash initial timer");
@@ -1079,16 +1079,16 @@ internal static void VerifySamusAtmosphericEffects()
     // Leaving water produces sound `$0E` and replaces the slot through the same movement-
     // type table. A spin/wall-jump-only `$30` request is correctly absent for type one.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 112);
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 2);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), nmiFrameCounter: 2);
     AssertEqual(new SoundRequest(Library2Sound.SplashOut, SoundQueueLimit.Max6),
         samus.LiquidPhysics.SoundRequests.Single(), "water-exit library-two sound");
 
     // Bubble admission samples top-24, every 128th accepted NMI, and slot two availability.
     // Re-enter on frame one first so the cadence call below is an already-submerged pass.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 50);
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 1);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), nmiFrameCounter: 1);
     // The power-on word, $0061.
-    var bubbleRandom = new CartridgeRandom();
+    var bubbleRandom = new SharedRandom();
     samus.LiquidPhysics.PrepareAnimationFrame(samus, bubbleRandom, nmiFrameCounter: 128);
     SamusAtmosphericEffectSlot bubble = samus.LiquidPhysics.AtmosphericEffects.Slots[2];
     AssertEqual(SamusAtmosphericEffectType.Bubbles, bubble.Type, "128-frame submerged cadence creates bubbles");
@@ -1103,7 +1103,7 @@ internal static void VerifySamusAtmosphericEffects()
     samus.Health = 99;
     samus.SubunitHealth = 0;
     samus.EquippedItems = 0;
-    samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 1);
+    samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), nmiFrameCounter: 1);
     AssertTrue(samus.LiquidPhysics.AtmosphericEffects.Slots.All(slot => slot.Type == SamusAtmosphericEffectType.LavaSurfaceDamage),
         "partial lava submersion fills four surface-spray slots");
     AssertEqual(0x8000, samus.LiquidPhysics.PeriodicSubDamage,
@@ -1170,7 +1170,7 @@ internal static void VerifySamusAtmosphericEffects()
     // final tick explicitly instead of relying on the old synthetic ROM delay.
     SamusPresentation.SetAnimationFrameFromSpecialHandler(runner, frame: 2, timer: 1);
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400);
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), nmiFrameCounter: 1);
     AssertEqual(SamusAtmosphericEffectType.AlternateDust, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
         "boost-stage-four foot contact creates dust");
     AssertEqual(0x8002,
@@ -1184,15 +1184,15 @@ internal static void VerifySamusAtmosphericEffects()
     // at $0AD0. Boost buildup must still publish footsteps into the real queue.
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
     runner.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.Start(1);
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), nmiFrameCounter: 1);
     AssertEqual(new SoundRequest(Library3Sound.Footsteps, SoundQueueLimit.Max6),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
     // #1386: $90:A409 reads the live boss ID; the same footstep in a boss room queues no sound.
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1, bossPresent: true);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), nmiFrameCounter: 1, bossPresent: true);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "a nonzero boss ID suppresses footsteps");
     AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "seed stored shine sound gate");
     runner.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.Start(0);
-    runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), nmiFrameCounter: 1);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");
 
     // `$91:F046` runs before animation and before landing clears Y velocity. Norfair selects

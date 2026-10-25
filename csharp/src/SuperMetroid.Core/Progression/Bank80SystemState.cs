@@ -114,13 +114,13 @@ public sealed class Bank80SystemState
 
     /// <summary>Creates the bank-$80 state over its own random-number word, with the game's power-on seed.</summary>
     public Bank80SystemState()
-        : this(new CartridgeRandom())
+        : this(new SharedRandom())
     {
     }
 
     /// <summary>Creates the bank-$80 state over the session's random-number word.</summary>
     /// <param name="random">The session's random-number word, which this state reads and advances.</param>
-    public Bank80SystemState(CartridgeRandom random) => Random = Ensure.NotNull(random);
+    public Bank80SystemState(SharedRandom random) => Random = Ensure.NotNull(random);
 
     /// <summary>
     /// Carry flag inside every <c>MainGameLoop</c> iteration ($82:8948). The loop brackets
@@ -187,7 +187,7 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>The session's random-number word, WRAM <c>$05E5</c>.</summary>
-    public CartridgeRandom Random { get; }
+    public SharedRandom Random { get; }
 
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
     public int RandomNumber => Random.Read();

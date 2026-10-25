@@ -82,7 +82,7 @@ internal static class GenericSpriteArtworkVerification
             characterArtwork: introArtwork, beamPalettes: projectiles.BeamTiles.Palettes,
             samusBodyArtwork: body)
         {
-            Random = new CartridgeRandom(),
+            Random = new SharedRandom(),
             NarrationPresentation = maps.IntroNarration,
             TrailArtwork = projectiles.Trails,
             ProjectileCompositions = projectiles.Catalog,

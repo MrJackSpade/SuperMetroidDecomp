@@ -22,7 +22,7 @@ internal static class UnpauseStationLockReleaseVerification
     /// </summary>
     internal static void VerifyUnpauseStationLockRelease()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

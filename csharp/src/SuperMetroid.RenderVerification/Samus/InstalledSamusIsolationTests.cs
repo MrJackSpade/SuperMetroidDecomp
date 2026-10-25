@@ -426,7 +426,7 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Runs production Samus animation and commits any verified pose transition.</summary>
     private static void Animate(Actor actor, ushort frame)
     {
-        SamusPresentation.AnimateNoFx(actor.Samus, new SamusAnimationStep { Random = new CartridgeRandom(), NmiFrameCounter = frame });
+        SamusPresentation.AnimateNoFx(actor.Samus, new SamusAnimationStep { Random = new SharedRandom(), NmiFrameCounter = frame });
         if (SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Samus)) actor.Samus.CommitPoseHistory();
     }
 

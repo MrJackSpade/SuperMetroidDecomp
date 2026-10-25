@@ -27,7 +27,7 @@ internal static class XrayGameStateVerification
     {
         CreateWithXraySelectedResult CreateWithXraySelected()
         {
-            var random = new CartridgeRandom();
+            var random = new SharedRandom();
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

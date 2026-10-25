@@ -24,10 +24,10 @@ internal static class SuperMetroidRuntimeToolingExtensions
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
             SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null,
-            SuperMetroid.Core.Progression.CartridgeRandom? random = null) =>
+            SuperMetroid.Core.Progression.SharedRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt },
                 new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),
-                random ?? new SuperMetroid.Core.Progression.CartridgeRandom());
+                random ?? new SuperMetroid.Core.Progression.SharedRandom());
     }
 
     /// <summary>Provides direct room-loading seams for ROM-backed debug and extraction hosts.</summary>

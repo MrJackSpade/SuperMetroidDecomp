@@ -131,7 +131,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="floorQueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
-        FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, CartridgeRandom random)
+        FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random)
     {
         Ensure.NotNull(artwork);
         System = new Bank80SystemState(random);

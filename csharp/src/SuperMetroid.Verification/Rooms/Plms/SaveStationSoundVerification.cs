@@ -24,7 +24,7 @@ internal static class SaveStationSoundVerification
     /// </summary>
     internal static void VerifySaveStationSound()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

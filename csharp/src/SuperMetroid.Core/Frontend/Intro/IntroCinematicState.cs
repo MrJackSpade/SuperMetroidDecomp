@@ -96,7 +96,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Host-owned trail programs and appearances the flashback trails run.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork { get; set; }
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
-    public required CartridgeRandom Random { get; init; }
+    public required SharedRandom Random { get; init; }
 
     /// <summary>The session's Mode 7 transfer queue residue, bound into the flashback Samus.</summary>
     public SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; init; }

@@ -60,7 +60,7 @@ internal static class RepositoryInstallation
     internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false,
-        SuperMetroid.Core.Progression.CartridgeRandom? random = null)
+        SuperMetroid.Core.Progression.SharedRandom? random = null)
     {
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes(), random);
         BindRuntime(runtime);

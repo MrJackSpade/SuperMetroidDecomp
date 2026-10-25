@@ -82,7 +82,7 @@ public sealed class SuperMetroidGame
     public SuperMetroidGame(
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null)
-        : this(saves, gameOptions, SuperMetroidGameHostServices.Default, new CartridgeRandom())
+        : this(saves, gameOptions, SuperMetroidGameHostServices.Default, new SharedRandom())
     {
     }
 
@@ -102,7 +102,7 @@ public sealed class SuperMetroidGame
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions,
         SuperMetroidGameHostServices hostServices,
-        CartridgeRandom random)
+        SharedRandom random)
     {
         Session = new FrontendSession(saves, gameOptions, hostServices, random);
     }

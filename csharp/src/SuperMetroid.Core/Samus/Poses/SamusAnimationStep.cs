@@ -20,7 +20,7 @@ public sealed record SamusAnimationStep
     }
 
     /// <summary>The session's random-number word, which Samus's liquid effects draw air bubbles from.</summary>
-    public required CartridgeRandom Random { get; init; }
+    public required SharedRandom Random { get; init; }
 
     /// <summary>Begin liquid sound request frame.</summary>
     public bool BeginLiquidSoundRequestFrame { get; init; } = true;

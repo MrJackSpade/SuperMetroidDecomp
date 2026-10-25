@@ -27,7 +27,7 @@ internal sealed class FrontendSession
     /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
     internal FrontendSession(SaveSlotStore saves, SuperMetroidGameOptions? gameOptions,
-        SuperMetroidGameHostServices hostServices, CartridgeRandom random)
+        SuperMetroidGameHostServices hostServices, SharedRandom random)
     {
         HostServices = Ensure.NotNull(hostServices);
         Random = Ensure.NotNull(random);
@@ -593,7 +593,7 @@ internal sealed class FrontendSession
     /// <summary>The downward elevator's wait before destination loading resumes.</summary>
     internal DownwardsElevatorWait DownwardsElevator { get; } = new();
     /// <summary>The session's random-number word, which the frontend and every gameplay runtime share.</summary>
-    internal CartridgeRandom Random { get; }
+    internal SharedRandom Random { get; }
     /// <summary>A soft reset clears bank $7E, discarding every gameplay owner; the menu owners keep the RNG and NMI counters.</summary>
     internal void DiscardRuntime() => runtime = null;
     /// <summary>Transfers the layer-one position back to the frontend before dropping gameplay state.</summary>

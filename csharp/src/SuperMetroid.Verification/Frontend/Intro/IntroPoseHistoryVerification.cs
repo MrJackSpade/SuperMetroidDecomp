@@ -29,7 +29,7 @@ internal static class IntroPoseHistoryVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var history = samus.PoseHistory;
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         history.PreviousPose = samus.Pose;
         history.PreviousDirectionAndMovement = 4;
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;

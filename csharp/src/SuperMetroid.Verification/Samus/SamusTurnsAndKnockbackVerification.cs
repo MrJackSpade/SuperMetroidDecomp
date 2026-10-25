@@ -63,7 +63,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             endpoint.Control.LockHandlers();
         SamusPresentation.InitializeAnimation(endpoint);
         for (int tick = 0; tick < 6; tick++)
-            SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new CartridgeRandom(), ProspectiveInputPose = selected });
+            SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new SharedRandom(), ProspectiveInputPose = selected });
         bool jumpWins = !locked && selected.HasValue && selected != SamusPoseId.MovingRightNormalPose;
         AssertEqual(jumpWins ? null : SamusPoseId.FacingRightNormalPose,
             endpoint.PendingTransitionalPose, "F8 respects selected jump and disabled-input exception");
@@ -167,7 +167,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(0x00010000, unchecked((int)(turn.Kinematics.Position.X.RawValue - turnXBefore)), "turn retains old rightward momentum after native 0.8000 deceleration");
     AssertEqual(33, turn.Position.X.Whole, "turn moves in old direction despite new facing");
     for (int tick = 0; tick < 6; tick++)
-        SamusPresentation.AnimateNoFx(turn, new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(turn, new SamusAnimationStep { Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(turn), "aerial turn F8 applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
     AssertEqual(SamusAccelerationMode.Accelerating, turn.HorizontalSpeed.AccelerationMode,
@@ -198,7 +198,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         endpoint.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(SnesFixedPosition.WholeOf(unchecked((int)extra)), (ushort)extra);
         for (int tick = 0; tick < 6; tick++)
-            SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new CartridgeRandom() });
+            SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new SharedRandom() });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(endpoint), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? SamusAccelerationMode.Accelerating : SamusAccelerationMode.Decelerating, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
@@ -220,7 +220,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPoseMetadata.RefreshCollisionRadii(lavaEndpoint);
         SamusPresentation.InitializeAnimation(lavaEndpoint);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(lavaEndpoint, 2, 1);
-        SamusPresentation.AnimateNoFx(lavaEndpoint, new SamusAnimationStep { Random = new CartridgeRandom(), NmiFrameCounter = 1 });
+        SamusPresentation.AnimateNoFx(lavaEndpoint, new SamusAnimationStep { Random = new SharedRandom(), NmiFrameCounter = 1 });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(lavaEndpoint), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,
             "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
@@ -382,7 +382,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     // Pose $83's native stream starts 05,05,FB,03; the FB branch occurs
     // after ten ticks, not the old synthetic eight-tick delay.
     for (int tick = 0; tick < 10; tick++)
-        SamusPresentation.AnimateNoFx(eligible, new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(eligible, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
 
     eligible.ProjectileFlareCounter = 0x003c;

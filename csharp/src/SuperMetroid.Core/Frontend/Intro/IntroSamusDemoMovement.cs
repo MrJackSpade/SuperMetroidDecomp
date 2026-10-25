@@ -27,7 +27,7 @@ internal static class IntroSamusDemoMovement
         ControllerButton heldInput,
         ControllerButton newlyPressedInput,
         int frameCounter,
-        CartridgeRandom random)
+        SharedRandom random)
     {
         SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
             samus.Pose,

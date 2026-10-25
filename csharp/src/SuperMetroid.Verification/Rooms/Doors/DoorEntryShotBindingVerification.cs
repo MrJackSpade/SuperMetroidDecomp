@@ -31,7 +31,7 @@ internal static class DoorEntryShotBindingVerification
         };
         foreach ((ControllerButton held, bool cancels) in new[] { new VerifyDoorEntryShotBindingCase(ControllerButton.X, true), new VerifyDoorEntryShotBindingCase(ControllerButton.Y, false) })
         {
-            var random = new CartridgeRandom();
+            var random = new SharedRandom();
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

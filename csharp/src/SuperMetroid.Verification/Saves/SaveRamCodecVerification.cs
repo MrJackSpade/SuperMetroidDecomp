@@ -72,7 +72,7 @@ internal static class SaveRamCodecVerification
 
         // Boot with every slot invalid keeps the carry set, writes the corrupt marker and fixes three demo sets.
         AssertTrue(store.DetermineBootMainLoopCarry(), "an empty store's boot carry is set");
-        AssertEqual(DemoSetUnlockRomData.DefaultSetCount, store.DetermineNumberOfDemoSets(), "an all-invalid boot fixes three demo sets");
+        AssertEqual(DemoSetUnlockDefinitions.SetsBeforeCompletion, store.DetermineNumberOfDemoSets(), "an all-invalid boot fixes three demo sets");
         AssertEqual("madadameyohn", Marker(), "an all-invalid boot writes the corrupt-SRAM marker");
         RoundTrips("an all-invalid boot");
         store.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
@@ -95,7 +95,7 @@ internal static class SaveRamCodecVerification
         store.SetGameCompleted(true);
         AssertEqual("supermetroid", Marker(), "completion writes the signature");
         AssertTrue(store.DetermineBootMainLoopCarry(), "a completed save's boot carry is set");
-        AssertEqual(DemoSetUnlockRomData.SetCount, store.DetermineNumberOfDemoSets(), "a completed save enables the fourth demo set");
+        AssertEqual(DemoSetUnlockDefinitions.SetCount, store.DetermineNumberOfDemoSets(), "a completed save enables the fourth demo set");
         RoundTrips("completing the game");
         store.SetGameCompleted(false);
         AssertTrue(!store.DetermineBootMainLoopCarry(), "a valid incomplete save's boot carry is clear");

@@ -19,7 +19,7 @@ internal static class AttractDemoSceneImporter
     {
         Ensure.NotNull(bus);
         Ensure.AtLeastZero(scene);
-        if ((uint)set >= DemoSetUnlockRomData.SetCount)
+        if ((uint)set >= DemoSetUnlockDefinitions.SetCount)
             throw new ArgumentOutOfRangeException(nameof(set));
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         int roomList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.RoomSetPointers + set * 2);

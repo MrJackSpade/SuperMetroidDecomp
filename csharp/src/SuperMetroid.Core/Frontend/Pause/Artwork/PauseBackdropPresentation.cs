@@ -23,7 +23,7 @@ public sealed class PauseBackdropPresentation
         var result = new byte[PauseBackdropDefinitions.ButtonCells * sizeof(ushort)];
         for (int cell = 0; cell < PauseBackdropDefinitions.ButtonCells; cell++)
             BinaryPrimitives.WriteUInt16LittleEndian(result.AsSpan(cell * sizeof(ushort)),
-                buttons.TryGetValue(cell, out ushort word) ? word : PauseBackdropDefinitions.StockButtonWord(cell));
+                buttons.ContainsKey(cell) ? buttons[cell] : PauseBackdropDefinitions.StockButtonWord(cell));
         return result;
     }
 
@@ -36,7 +36,7 @@ public sealed class PauseBackdropPresentation
         var selected = areas[AreaIds.ToIndex(area)];
         Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.Length);
         for (int cell = 0; cell < PauseBackdropDefinitions.Cells; cell++)
-            destination[cell] = selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell);
+            destination[cell] = selected.ContainsKey(cell) ? selected[cell] : PauseBackdropDefinitions.StockAreaWord(area, cell);
     }
 
     /// <summary>Extracts only tilemap words changed from the stock calculation, preserving independent authored edits.</summary>
@@ -45,8 +45,8 @@ public sealed class PauseBackdropPresentation
         var result = new Dictionary<int, ushort>();
         for (int cell = 0; cell < selected.Length / sizeof(ushort); cell++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(selected.AsSpan(cell * sizeof(ushort)));
-            if (word != calculate(cell)) result.Add(cell, word);
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(selected.AsSpan(cell * sizeof(ushort)));
+            if (word != calculate(cell)) result.Add(cell, (ushort)word);
         }
         return result;
     }

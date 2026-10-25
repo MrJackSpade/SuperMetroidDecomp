@@ -7,9 +7,11 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 internal static class PauseTileGrid
 {
     /// <summary>Decodes a packed pause tile into its selected map or interface atlas cell and display attributes.</summary>
-    public static PauseBackdropCell FromWord(ushort raw, string name)
+    /// <param name="raw">The packed pause tile, 0 through 65535.</param>
+    /// <param name="name">The artwork's name, for errors.</param>
+    public static PauseBackdropCell FromWord(int raw, string name)
     {
-        var word = new SuperMetroid.Core.Map.MapTileWord(raw);
+        var word = new SuperMetroid.Core.Map.MapTileWord(checked((ushort)raw));
         int character = word.CharacterIndex;
         if (character >= PauseBackdropDefinitions.AtlasTileCount * 2)
             throw new InvalidDataException($"Pause artwork {name} references unloaded character {character}.");
@@ -38,10 +40,9 @@ internal static class PauseTileGrid
                 throw new InvalidDataException($"Pause artwork {name} cell {index} has an invalid atlas, coordinate or palette.");
             int character = cell.TileRow * PauseBackdropDefinitions.AtlasColumns + cell.TileColumn;
             if (cell.Atlas == PauseAtlas.Interface) character += PauseBackdropDefinitions.AtlasTileCount;
-            ushort word = (ushort)(character | cell.Palette << MapPresentationFormat.PaletteShift |
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), (ushort)(character | cell.Palette << MapPresentationFormat.PaletteShift |
                 (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
-                (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) | (cell.FlipY ? MapPresentationFormat.FlipYBit : 0));
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), word);
+                (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) | (cell.FlipY ? MapPresentationFormat.FlipYBit : 0)));
         }
         return bytes;
     }

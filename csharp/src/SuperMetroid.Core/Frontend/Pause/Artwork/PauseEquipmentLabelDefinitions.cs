@@ -166,7 +166,7 @@ public static class PauseEquipmentLabelDefinitions
     private static readonly Lazy<Dictionary<PauseEquipmentLabelId, int>> destinations = new(() =>
         Labels().ToDictionary(label => label.Label, label =>
         {
-            var (column, firstRow) = label.Category switch
+            Position16<TilemapCells> first = label.Category switch
             {
                 PauseEquipmentCategory.Beams => new Position16<TilemapCells>(4, 16),
                 PauseEquipmentCategory.Suits => new Position16<TilemapCells>(21, checked((ushort)(9 + (label.Item >= 2 ? 2 : 0)))),
@@ -174,7 +174,7 @@ public static class PauseEquipmentLabelDefinitions
                 PauseEquipmentCategory.Reserves => throw new InvalidDataException("Unknown equipment label category."),
                 _ => throw new InvalidDataException("Unknown equipment label category."),
             };
-            return ((firstRow + label.Item) * TilemapColumns + column) * sizeof(ushort);
+            return ((first.Y + label.Item) * TilemapColumns + first.X) * sizeof(ushort);
         }));
 
     /// <summary>Assembles named equipment text from its packed atlas runs, shared suffixes and padding.</summary>

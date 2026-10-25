@@ -48,7 +48,7 @@ internal sealed class PhantoonPatterns
 
         RoomEnemySlot eye = state.Eye;
         state.Parts[eye.SlotIndex].WaveMode = 0;
-        state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.NmiFrameCounter >> 1) & 3];
+        state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         state.Parts[body.SlotIndex].SpeedFraction = 0;
         state.Parts[body.SlotIndex].SpeedPhase = 0;
@@ -672,7 +672,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         ushort denominator)
     {
-        if ((_frameContext.NmiFrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if ((_frameContext.FrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;
@@ -720,7 +720,7 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot eye = state.Eye;
         state.Parts[body.SlotIndex].FunctionTimer = 60;
         state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Generate() & 7];
-        if ((_frameContext.NmiFrameCounter & 1) != 0)
+        if ((_frameContext.FrameCounter & 1) != 0)
         {
             if (!state.Parts[eye.SlotIndex].FigureEightReversed)
                 state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor == 0 ? (ushort)533 : unchecked((ushort)(state.Parts[body.SlotIndex].PathCursor - 1));

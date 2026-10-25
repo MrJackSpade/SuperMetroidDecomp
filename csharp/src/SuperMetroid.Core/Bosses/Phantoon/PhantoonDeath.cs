@@ -155,7 +155,7 @@ internal sealed class PhantoonDeath
         if (state.Parts[eye.SlotIndex].MosaicRegister != PhantoonDeathDefinitions.MosaicFinished)
         {
             // The mosaic grows one size step every sixteenth frame.
-            if (_frameContext.NmiFrameCounter % 16 != 0)
+            if (_frameContext.FrameCounter % 16 != 0)
                 return;
 
             byte mosaic = unchecked((byte)state.Parts[eye.SlotIndex].MosaicRegister);
@@ -212,7 +212,7 @@ internal sealed class PhantoonDeath
             state.Parts[body.SlotIndex].FunctionTimer = WrappingCounter.Decrement(checked((ushort)state.Parts[body.SlotIndex].FunctionTimer)).Value;
             return;
         }
-        if ((_frameContext.NmiFrameCounter & 3) != 0)
+        if ((_frameContext.FrameCounter & 3) != 0)
             return;
 
         state.Parts[state.Eye.SlotIndex].FadeDenominator = 12;

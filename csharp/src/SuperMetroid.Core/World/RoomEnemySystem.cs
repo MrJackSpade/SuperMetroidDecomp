@@ -878,10 +878,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
-        FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.NmiFrameCounter);
+        FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.FrameCounter);
         Audio.PowerBomb = frame.SharedProjectiles?.PowerBombExplosion;
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
-            frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext.RandomEnemyCounter)));
+            frame.FrameCounterLowByte ?? unchecked((byte)FrameContext.RandomEnemyCounter)));
         FrameResults.Begin();
         BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();

@@ -262,7 +262,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         UpdateSporeSpawnStalks(state);
         // $A5:E9F7 tests the 16-bit NMI_FrameCounter, not the 8-bit $05B5 copy.
-        if (_frameContext.NmiFrameCounter % 16 == 0)
+        if (_frameContext.FrameCounter % 16 == 0)
         {
             int random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(

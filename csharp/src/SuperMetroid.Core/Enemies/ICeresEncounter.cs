@@ -23,5 +23,5 @@ internal interface ICeresEncounter
     void DrawCeresRidleyPostEnemyHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 
     /// <summary>Runs the getaway room's main routine.</summary>
-    void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter);
+    void RunCeresRidleyGetawayRoomMain(SamusState? samus, int frameCounter);
 }

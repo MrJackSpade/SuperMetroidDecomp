@@ -20,6 +20,6 @@ internal static class EnemyFrameContextAccess
 
         /// <summary>Begins a frame with <paramref name="projectiles"/>, keeping the freeze flag and frame counter.</summary>
         internal void SeedSamusProjectiles(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem? projectiles) =>
-            self.BeginFrame(self.TimeIsFrozen, projectiles, self.SamusColours, self.NmiFrameCounter);
+            self.BeginFrame(self.TimeIsFrozen, projectiles, self.SamusColours, self.FrameCounter);
     }
 }

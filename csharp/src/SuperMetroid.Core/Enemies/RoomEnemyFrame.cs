@@ -36,11 +36,11 @@ public sealed record RoomEnemyFrame
     /// <summary>Samus's colours, which Pseudo Screw's enemy contact changes (#1405).</summary>
     public SamusColours? SamusColours { get; init; } = null;
 
-    /// <summary>Current native eight-bit NMI clock; null uses the low byte of the standalone enemy-pass clock.</summary>
-    public int? NmiFrameCounter8 { get; init; } = null;
+    /// <summary>The low byte of the game's frame counter; null uses the low byte of the standalone enemy-pass clock.</summary>
+    public int? FrameCounterLowByte { get; init; } = null;
 
-    /// <summary>Active Mode-7 transform sampled by rotating Ceres steam to derive draw offsets without changing its world collision coordinates.</summary>
-    public SamusMode7Transform? Mode7Transform { get; init; } = null;
+    /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating Ceres steam samples to derive draw offsets without changing its world collision coordinates.</summary>
+    public SamusMode7Transform? TurningFloor { get; init; } = null;
 
     /// <summary>Shared bomb and power-bomb state used by native collision order and actor effects.</summary>
     public SamusBombProjectileSystem? SharedProjectiles { get; init; } = null;
@@ -51,8 +51,8 @@ public sealed record RoomEnemyFrame
     /// <summary>Optional room PLMs participating in the scoped enemy terrain-collision probes.</summary>
     internal EnemyBreakableTerrainPlms? CollisionPlms { get; init; } = null;
 
-    /// <summary>Current independent sixteen-bit NMI clock; null uses the standalone enemy-pass clock.</summary>
-    public int? NmiFrameCounter { get; init; } = null;
+    /// <summary>The game's frame counter; null uses the standalone enemy-pass clock.</summary>
+    public int? FrameCounter { get; init; } = null;
 
     /// <summary>True when <see cref="EnemyProcessingWindow.PrepareEnemyProcessingList"/> already ran at the native pre-Samus boundary; false prepares the lists here for standalone callers.</summary>
     public bool ProcessingListPrepared { get; init; } = false;

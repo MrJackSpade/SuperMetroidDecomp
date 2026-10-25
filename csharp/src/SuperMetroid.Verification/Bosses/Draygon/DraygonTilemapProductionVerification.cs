@@ -62,7 +62,7 @@ internal static class DraygonTilemapProductionVerification
         var oam = new OamBuffer();
         for (int frame = 0; frame < 4096; frame++)
         {
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData, NmiFrameCounter8 = unchecked((byte)frame) });
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData, FrameCounterLowByte = unchecked((byte)frame) });
             functions.Add(boss.Function);
             bool queuedTransfer = false;
             foreach (var queue in enemies.Drawing.QueuesForVerification)

@@ -195,7 +195,7 @@ internal sealed class MotherBrainAscent
     {
         // `$A9:8E4D` gates on NMI_FrameCounter ($05B6), not the separate 8-bit $05B5; the
         // two advance together but are not aligned, so their low two bits differ.
-        if ((_frameContext.NmiFrameCounter & 3) != 0)
+        if ((_frameContext.FrameCounter & 3) != 0)
             return;
 
         SpawnMotherBrainAscentDust(state);

@@ -167,7 +167,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>
         public SamusProjectileSystem? SamusProjectiles => null;
         /// <summary>Unavailable Mode 7 transform in the common grapple wrapper.</summary>
-        public SamusMode7Transform? Mode7Transform => null;
+        public SamusMode7Transform? TurningFloor => null;
         /// <summary>Unavailable shared bomb service in the common grapple wrapper.</summary>
         public SamusBombProjectileSystem? SharedProjectiles => null;
 

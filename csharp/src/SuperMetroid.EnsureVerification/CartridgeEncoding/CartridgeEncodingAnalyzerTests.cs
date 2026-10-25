@@ -168,14 +168,32 @@ internal static class CartridgeEncodingAnalyzerTests
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'sentinel' stores ushort? instance state"));
         ExpectEncoding([new AnalyzerTestSource(functional, "record Slot(ushort Health, int Area);")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Health' stores ushort instance state"));
-        // Constants, statics, wide members, locals, parameters, catalogs, owners and reviewed allowances are not reported.
+        // #1419: every narrow width (short and sbyte too) in parameters and locals, written or inferred, is reported.
+        ExpectEncoding([new AnalyzerTestSource(functional, "class C { short drift; sbyte lean; }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'drift' stores short instance state"),
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'lean' stores sbyte instance state"));
+        ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M(ushort argument) { ushort local = argument; var copy = local; return copy; } }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'argument' holds ushort as a parameter"),
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'local' holds ushort as a local"),
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'copy' holds ushort as a local"));
+        ExpectEncoding([new AnalyzerTestSource(functional,
+            "class C { int M(byte[] bytes, object boxed) { int total = 0; foreach (byte b in bytes) total += b; " +
+            "if (boxed is short s) total += s; return total; } }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'b' holds byte as a local"),
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'s' holds short as a local"));
+        // A catalog file or a same-line comment no longer excuses narrow state.
+        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { } sealed class WalkerRecord { public ushort Word { get; init; } }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Word' stores ushort instance state"));
+        ExpectEncoding([new AnalyzerTestSource(functional, "class C { ushort frameCounter; // cartridge-encoding: allow(Wrap) - wraps by design\n }")],
+            new ExpectedDiagnostic(CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'frameCounter' stores ushort instance state"));
+        // Constants, statics, wide members, arrays, encoding owners and the Compatibility module's stubs are not reported.
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { const ushort Limit = 99; static ushort shared; int wide; ushort[] words = new ushort[2]; " +
-            "int M(ushort argument) { ushort local = argument; return local + Limit + shared; } }")]);
-        ExpectEncoding([new AnalyzerTestSource(catalog, "static class WalkerInstructionLists { } sealed class WalkerRecord { public ushort Word { get; init; } }")]);
+            "int M() => Limit + shared + wide + words.Length; }")]);
         ExpectEncoding([new AnalyzerTestSource(functional,
             "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
-            "[SnesEncodingOwner] readonly struct Word(ushort raw) { readonly ushort value = raw; }")]);
-        ExpectEncoding([new AnalyzerTestSource(functional, "class C { ushort frameCounter; // cartridge-encoding: allow(Wrap) - wraps by design\n }")]);
+            "[SnesEncodingOwner] readonly struct Word(ushort raw) { readonly ushort value = raw; ushort Next(byte step) { ushort sum = (ushort)(value + step); return sum; } }")]);
+        ExpectEncoding([new AnalyzerTestSource(functional,
+            "namespace SuperMetroid.Core.Compatibility { sealed class FrameCounter { byte value; void Step(byte by) { byte next = (byte)(value + by); value = next; } } }")]);
     }
 
     /// <summary>

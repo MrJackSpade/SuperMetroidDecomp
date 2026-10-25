@@ -200,13 +200,24 @@ internal static class CartridgeEncodingScanner
                 }
                 case FieldDeclarationSyntax field when IsInstanceMember(field.Modifiers) && IsNarrowType(field.Declaration.Type):
                     foreach (VariableDeclaratorSyntax variable in field.Declaration.Variables)
-                        occurrences.Add(NarrowMember(variable.Identifier, field.Declaration.Type, field, catalog, text, model, cancellationToken));
+                        occurrences.Add(NarrowMember(variable.Identifier, field.Declaration.Type.ToString(), "instance state", field, model, cancellationToken));
                     break;
                 case PropertyDeclarationSyntax property when IsInstanceMember(property.Modifiers) && IsNarrowType(property.Type):
-                    occurrences.Add(NarrowMember(property.Identifier, property.Type, property, catalog, text, model, cancellationToken));
+                    occurrences.Add(NarrowMember(property.Identifier, property.Type.ToString(), "instance state", property, model, cancellationToken));
                     break;
-                case ParameterSyntax { Parent.Parent: RecordDeclarationSyntax, Type: { } parameterType } parameter when IsNarrowType(parameterType):
-                    occurrences.Add(NarrowMember(parameter.Identifier, parameterType, parameter, catalog, text, model, cancellationToken));
+                case ParameterSyntax { Type: { } parameterType } parameter when IsNarrowType(parameterType):
+                    occurrences.Add(NarrowMember(parameter.Identifier, parameterType.ToString(),
+                        parameter.Parent?.Parent is RecordDeclarationSyntax ? "instance state" : "as a parameter", parameter, model, cancellationToken));
+                    break;
+                case VariableDeclaratorSyntax { Parent.Parent: LocalDeclarationStatementSyntax or ForStatementSyntax or UsingStatementSyntax } local
+                    when NarrowLocalType(local, model, cancellationToken) is { } localType:
+                    occurrences.Add(NarrowMember(local.Identifier, localType, "as a local", local, model, cancellationToken));
+                    break;
+                case ForEachStatementSyntax loop when NarrowLocalType(loop, model, cancellationToken) is { } loopType:
+                    occurrences.Add(NarrowMember(loop.Identifier, loopType, "as a local", loop, model, cancellationToken));
+                    break;
+                case SingleVariableDesignationSyntax designation when NarrowLocalType(designation, model, cancellationToken) is { } designatedType:
+                    occurrences.Add(NarrowMember(designation.Identifier, designatedType, "as a local", designation, model, cancellationToken));
                     break;
                 case InitializerExpressionSyntax initializer when initializer.IsKind(SyntaxKind.ArrayInitializerExpression):
                     if (IsOpaqueWordArray(initializer.Expressions, InitializerElementType(initializer, model, cancellationToken)))
@@ -246,17 +257,51 @@ internal static class CartridgeEncodingScanner
     private static bool IsInstanceMember(SyntaxTokenList modifiers) =>
         !modifiers.Any(SyntaxKind.StaticKeyword) && !modifiers.Any(SyntaxKind.ConstKeyword);
 
-    /// <summary>A <c>byte</c> or <c>ushort</c> type, nullable or not.</summary>
+    /// <summary>A <c>byte</c>, <c>sbyte</c>, <c>short</c> or <c>ushort</c> type, nullable or not.</summary>
     private static bool IsNarrowType(TypeSyntax type) => (type is NullableTypeSyntax nullable ? nullable.ElementType : type) is
-        PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.UShortKeyword or (int)SyntaxKind.ByteKeyword };
+        PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.UShortKeyword or (int)SyntaxKind.ShortKeyword or
+            (int)SyntaxKind.ByteKeyword or (int)SyntaxKind.SByteKeyword };
 
-    /// <summary>The occurrence for one narrow member, owned when a catalog, encoding owner or same-line allowance covers it.</summary>
-    private static CartridgeEncodingOccurrence NarrowMember(SyntaxToken identifier, TypeSyntax type, SyntaxNode declaration, bool catalog,
-        SourceText text, SemanticModel model, CancellationToken cancellationToken)
+    /// <summary>Whether a resolved type is <c>byte</c>, <c>sbyte</c>, <c>short</c> or <c>ushort</c>, nullable or not.</summary>
+    private static bool IsNarrowType(ITypeSymbol? type) =>
+        (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable ? nullable.TypeArguments[0] : type)?.SpecialType is
+            SpecialType.System_UInt16 or SpecialType.System_Int16 or SpecialType.System_Byte or SpecialType.System_SByte;
+
+    /// <summary>The display name of a local's narrow type, written or inferred, or null when the local is not narrow.</summary>
+    private static string? NarrowLocalType(SyntaxNode declaration, SemanticModel model, CancellationToken cancellationToken) =>
+        model.GetDeclaredSymbol(declaration, cancellationToken) is ILocalSymbol local && IsNarrowType(local.Type)
+            ? local.Type.ToDisplayString()
+            : null;
+
+    /// <summary>
+    /// The occurrence for one narrow declaration (#1419). Only the wrapping stubs of the Compatibility module and a type
+    /// that owns an encoding (<c>[SnesEncodingOwner]</c>) may hold gameplay state at a narrow width; a catalog file or a
+    /// same-line comment does not excuse it.
+    /// </summary>
+    private static CartridgeEncodingOccurrence NarrowMember(SyntaxToken identifier, string type, string role, SyntaxNode declaration,
+        SemanticModel model, CancellationToken cancellationToken)
     {
-        bool owned = catalog || IsInEncodingOwner(declaration, model, cancellationToken) || HasAnyAllowance(text, identifier.SpanStart);
+        bool owned = IsInEncodingOwner(declaration, model, cancellationToken) || IsInCompatibilityModule(declaration, model, cancellationToken);
+        string what = role == "instance state" ? $"stores {type} instance state" : $"holds {type} {role}";
         return new(owned ? CartridgeEncodingRule.OwnedNarrowStorageMember : CartridgeEncodingRule.NarrowStorageMember,
-            CartridgeEncodingClass.NumericQuantity, $"'{identifier.ValueText}' stores {type} instance state", identifier.GetLocation());
+            CartridgeEncodingClass.NumericQuantity, $"'{identifier.ValueText}' {what}", identifier.GetLocation());
+    }
+
+    /// <summary>The namespace of Core's compatibility module, whose wrapping stubs own the widths they reproduce.</summary>
+    private const string CompatibilityNamespace = "SuperMetroid.Core.Compatibility";
+
+    /// <summary>Whether a declaration lies in a type of the Compatibility module.</summary>
+    private static bool IsInCompatibilityModule(SyntaxNode node, SemanticModel model, CancellationToken cancellationToken)
+    {
+        for (SyntaxNode? current = node; current is not null; current = current.Parent)
+        {
+            if (current is BaseTypeDeclarationSyntax declaration && model.GetDeclaredSymbol(declaration, cancellationToken) is { } type)
+            {
+                string? space = type.ContainingNamespace?.ToDisplayString();
+                return space is not null && (space == CompatibilityNamespace || space.StartsWith(CompatibilityNamespace + ".", StringComparison.Ordinal));
+            }
+        }
+        return false;
     }
 
     /// <summary>

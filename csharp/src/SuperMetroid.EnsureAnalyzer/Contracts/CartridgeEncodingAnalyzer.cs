@@ -35,7 +35,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <summary>A <c>[Flags]</c> enum value cast to its storage primitive in functional code (#1323).</summary>
     public const string FlagsPrimitiveCastId = "SME6346";
 
-    /// <summary>A <c>byte</c> or <c>ushort</c> instance member in functional code (#1323).</summary>
+    /// <summary>A narrow integral declaration holding gameplay state in Core (#1323, #1419).</summary>
     public const string NarrowStorageMemberId = "SME6347";
 
     /// <summary>Guidance appended to each encoding diagnostic so users can find the reviewed exception policy.</summary>
@@ -129,8 +129,10 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "A byte or ushort field or property stores gameplay state at the cartridge register width. Widen " +
-            "quantities whose wrap does not matter and name the wrap that does (#1323, docs/cartridge-encoding.md).");
+        description: "A byte, sbyte, short or ushort field, property, parameter or local holds gameplay state at a cartridge " +
+            "register width. Widen quantities whose wrap does not matter; a wrap the game observes lives in a named " +
+            "wrapping stub of the Compatibility module, and a width an encoding needs in its [SnesEncodingOwner] codec " +
+            "(#1323, #1419, docs/cartridge-encoding.md).");
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>

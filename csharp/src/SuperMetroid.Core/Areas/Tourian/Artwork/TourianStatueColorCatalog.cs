@@ -9,14 +9,14 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", content =>
         {
-            Span<Bgr555> row = stackalloc Bgr555[TourianStatuePaletteRomData.BaseColorCount];
+            Span<Bgr555> row = stackalloc Bgr555[TourianStatueColorDefinitions.BaseColorCount];
             for (int color = 0; color < row.Length; color++) row[color] = ResolveBase(color);
             content.AppendColors("baseColors", row);
             content.AppendColors("statueColors", statueColors.Words());
-            for (int color = 0; color < TourianStatuePaletteRomData.GreyColorCount; color++) row[color] = ResolveGrey(color);
-            content.AppendColors("greyColors", row[..TourianStatuePaletteRomData.GreyColorCount]);
-            content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatuePaletteRomData.EyeRowCount).Select(row =>
-                Enumerable.Range(0, TourianStatuePaletteRomData.EyeColorCount).Select(color => ResolveEye(row, color)).ToArray()).ToArray());
+            for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) row[color] = ResolveGrey(color);
+            content.AppendColors("greyColors", row[..TourianStatueColorDefinitions.GreyColorCount]);
+            content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatueColorDefinitions.EyeRowCount).Select(row =>
+                Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => ResolveEye(row, color)).ToArray()).ToArray());
         });
 
     /// <summary>Sixteen base-decoration inks installed at OBJ palette seven.</summary>
@@ -43,32 +43,32 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Gets packed RGB5 eye ink 0–3 from row 0–3 of $86:B91E, in Phantoon, Ridley, Draygon, Kraid order.</summary>
     public Bgr555 ResolveEye(int row, int color)
     {
-        if ((uint)row >= TourianStatuePaletteRomData.EyeRowCount)
+        if ((uint)row >= TourianStatueColorDefinitions.EyeRowCount)
             throw new ArgumentOutOfRangeException(nameof(row));
-        if ((uint)color >= TourianStatuePaletteRomData.EyeColorCount)
+        if ((uint)color >= TourianStatueColorDefinitions.EyeColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return eyeColors.Read(row * TourianStatuePaletteRomData.EyeColorCount + color);
+        return eyeColors.Read(row * TourianStatueColorDefinitions.EyeColorCount + color);
     }
     /// <summary>Gets packed RGB5 ink 0–7 from the statue's grey-transition band corresponding to $87:839C; destination and transition ordering remain animation-owned.</summary>
     public Bgr555 ResolveGrey(int color) => greyColors.Read(color);
 
     /// <summary>Installs all sixteen base-decoration inks at CGRAM 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two OBJ palette bands.</summary>
-    public void ApplyEntrance(GameplayColours cgram)
+    public void ApplyEntrance(GameplayColours colours)
     {
-        baseColors.Apply(new AreaColours(cgram).TourianStatueBase);
-        statueColors.Apply(new AreaColours(cgram).TourianStatue);
+        baseColors.Apply(new AreaColours(colours).TourianStatueBase);
+        statueColors.Apply(new AreaColours(colours).TourianStatue);
     }
 
     /// <summary>Installs the selected four-color eye glow at CGRAM 249–252 without altering boss completion or animated-tile state.</summary>
-    /// <param name="cgram">Current palette receiving the selected eye colors.</param>
+    /// <param name="colours">The colours receiving the selected eye glow.</param>
     /// <param name="doubledBossParameter">Native doubled selector: Phantoon 0, Ridley 2, Draygon 4, or Kraid 6.</param>
-    public void ApplyEye(GameplayColours cgram, ushort doubledBossParameter)
+    public void ApplyEye(GameplayColours colours, ushort doubledBossParameter)
     {
         if (doubledBossParameter > 6 || (doubledBossParameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));
-        Ensure.NotNull(cgram);
-        for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
-            new AreaColours(cgram).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
+        Ensure.NotNull(colours);
+        for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
+            new AreaColours(colours).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
     }
 
     /// <summary>Installs the eight selected grey colours in <paramref name="destination"/>, the statue's; this method does not own target-palette fade progression.</summary>

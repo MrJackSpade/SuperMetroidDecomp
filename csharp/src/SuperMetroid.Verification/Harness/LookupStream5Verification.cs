@@ -1065,8 +1065,8 @@ internal static class LookupStream5Verification
             for (int color = 0; color < expected.Base.Length; color++)
             {
                 AssertEqual(Pack(expected.Base[color]), actual.ResolveBase(color), "Exact independent base ramp color");
-                AssertEqual(Pack(expected.Base[color]), cgram.Colors[TourianStatuePaletteRomDataConstants.BaseCgramIndex + color], "Actual base CGRAM");
-                AssertEqual(Pack(expected.Statue[color]), cgram.Colors[TourianStatuePaletteRomDataConstants.StatueCgramIndex + color], "Unchanged statue CGRAM");
+                AssertEqual(Pack(expected.Base[color]), cgram.Colors[TourianStatuePaletteConstants.BaseCgramIndex + color], "Actual base CGRAM");
+                AssertEqual(Pack(expected.Statue[color]), cgram.Colors[TourianStatuePaletteConstants.StatueCgramIndex + color], "Unchanged statue CGRAM");
             }
             actual.ApplyGrey(cgram.BackgroundSets.Set(0).Slice(0, expected.Grey.Length));
             for (int color = 0; color < expected.Grey.Length; color++)
@@ -1078,7 +1078,7 @@ internal static class LookupStream5Verification
             {
                 actual.ApplyEye(cgram, (ushort)(row * 2));
                 for (int color = 0; color < expected.Eye[row].Length; color++)
-                    AssertEqual(Pack(expected.Eye[row][color]), cgram.Colors[TourianStatuePaletteRomDataConstants.EyeCgramIndex + color], "Unchanged eye CGRAM");
+                    AssertEqual(Pack(expected.Eye[row][color]), cgram.Colors[TourianStatuePaletteConstants.EyeCgramIndex + color], "Unchanged eye CGRAM");
             }
             string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
             {

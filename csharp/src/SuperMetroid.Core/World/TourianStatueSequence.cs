@@ -136,7 +136,7 @@ public sealed class TourianStatueSequence
         SpawnAnimatedObjects();
         if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked))
         {
-            Descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
+            Descent = SnesSixteenSixteen.FromWhole(TourianStatueSequenceDefinitions.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
             plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();
@@ -269,11 +269,11 @@ public sealed class TourianStatueSequence
                 || !_system.HasEvent(EventNumber.DraygonStatueGrey) || !_system.HasEvent(EventNumber.KraidStatueGrey)) return;
             _enemies.TourianStatue.AnimationState |= TourianStatueAnimationState.AllReleased;
             if ((_enemies.TourianStatue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != 0) return;
-            delay = TourianStatueRomData.DescentDelay;
+            delay = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }
-        _enemies.Earthquake.EarthquakeType = TourianStatueRomData.DescentEarthquakeType;
-        _enemies.Earthquake.AddTimerBits(TourianStatueRomData.DescentEarthquakeTimer);
+        _enemies.Earthquake.EarthquakeType = TourianStatueSequenceDefinitions.DescentEarthquakeType;
+        _enemies.Earthquake.AddTimerBits(TourianStatueSequenceDefinitions.DescentEarthquakeTimer);
         _roomLayer3Fx.PublishStatueEarthquakeSound(
             _system.RandomNumber, _system.MainGameLoopCarry);
         if (delay >= 0)
@@ -282,11 +282,11 @@ public sealed class TourianStatueSequence
             return;
         }
         if (_freeze.TimeIsFrozen) return;
-        Descent += TourianStatueRomData.DescentStep;
+        Descent += TourianStatueSequenceDefinitions.DescentStep;
         _enemies.TourianStatue.VerticalOffset = VerticalOffset;
         // $88:DC90 compares the whole word against $FF10, which it first reaches
         // three quarter-steps before a full 240 pixels.
-        if (VerticalOffset == -TourianStatueRomData.DescentDistance)
+        if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
         {
             plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Crumble);
             _system.SetEvent(EventNumber.TourianUnlocked);

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -27,17 +26,17 @@ public static class TourianStatueColorFile
         TourianStatueColorDocument document;
         document = JsonAssetDocument.Read<TourianStatueColorDocument>(json, Options, "Tourian statue color");
         if (document.Version != TourianStatueColorFormat.Version ||
-            document.Eye is null || document.Eye.Length != TourianStatuePaletteRomData.EyeRowCount)
+            document.Eye is null || document.Eye.Length != TourianStatueColorDefinitions.EyeRowCount)
             throw new InvalidDataException("Tourian statue colors require four eye rows at the supported version.");
         var eye = new Bgr555[document.Eye.Length][];
         for (int row = 0; row < eye.Length; row++)
-            eye[row] = Compile(document.Eye[row], TourianStatuePaletteRomData.EyeColorCount,
+            eye[row] = Compile(document.Eye[row], TourianStatueColorDefinitions.EyeColorCount,
                 $"eye row {row}");
         return new(
-            Compile(document.Base, TourianStatuePaletteRomData.BaseColorCount, "base"),
-            Compile(document.Statue, TourianStatuePaletteRomData.StatueColorCount, "statue"),
+            Compile(document.Base, TourianStatueColorDefinitions.BaseColorCount, "base"),
+            Compile(document.Statue, TourianStatueColorDefinitions.StatueColorCount, "statue"),
             eye,
-            Compile(document.Grey, TourianStatuePaletteRomData.GreyColorCount, "grey"));
+            Compile(document.Grey, TourianStatueColorDefinitions.GreyColorCount, "grey"));
     }
 
     /// <summary>Serializes the editable colors as indented camel-case UTF-8 JSON, validating version, palette dimensions, and RGB5 bounds before returning the bytes.</summary>

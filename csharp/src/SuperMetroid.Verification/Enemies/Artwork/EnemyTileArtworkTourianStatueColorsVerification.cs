@@ -36,19 +36,19 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         TourianStatueColorCatalog colors = stock.Areas.TourianStatueColors ??
             throw new InvalidDataException("Installed enemy artwork lacks Tourian statue colors.");
         var forbidden = new HashSet<int>();
-        for (int color = 0; color < TourianStatuePaletteRomData.BaseColorCount; color++)
+        for (int color = 0; color < TourianStatueColorDefinitions.BaseColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueBaseColors + color * sizeof(ushort),
                 colors.ResolveBase(color).ToWord());
-        for (int color = 0; color < TourianStatuePaletteRomData.StatueColorCount; color++)
+        for (int color = 0; color < TourianStatueColorDefinitions.StatueColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueColors + color * sizeof(ushort),
                 colors.ResolveStatue(color).ToWord());
-        for (int row = 0; row < TourianStatuePaletteRomData.EyeRowCount; row++)
-        for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
-            CheckSource(TourianStatuePaletteRomData.EyeColors +
-                (row * TourianStatuePaletteRomData.EyeColorCount + color) * sizeof(ushort),
+        for (int row = 0; row < TourianStatueColorDefinitions.EyeRowCount; row++)
+        for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
+            CheckSource(EnemySourceDefinitions.TourianStatueEyeColors +
+                (row * TourianStatueColorDefinitions.EyeColorCount + color) * sizeof(ushort),
                 (colors.ResolveEye(row, color)).ToWord());
-        for (int color = 0; color < TourianStatuePaletteRomData.GreyColorCount; color++)
-            CheckSource(TourianStatuePaletteRomData.GreyColors + color * sizeof(ushort),
+        for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
+            CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
 
         var guard = NewTourianStatueColorGuard(bus, forbidden);
@@ -102,15 +102,15 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         ReferenceEntrance(nativeEntryCgram);
         Initialize(editedEntry, 0);
         CheckOnlyDifferences(nativeEntryCgram, editedEntryCgram,
-            [new Difference(TourianStatuePaletteRomDataConstants.BaseCgramIndex + 1, 1),
-             new Difference(TourianStatuePaletteRomDataConstants.StatueCgramIndex + 1, 1 << 5)],
+            [new Difference(TourianStatuePaletteConstants.BaseCgramIndex + 1, 1),
+             new Difference(TourianStatuePaletteConstants.StatueCgramIndex + 1, 1 << 5)],
             "Tourian entrance edit");
         SamusColourRig nativeEyeCgram = SeedColors();
         (RoomEnemySystem editedEye, SamusColourRig editedEyeCgram) = CreateEnemy(guard, edited);
         ReferenceEye(nativeEyeCgram, 4);
         editedEye.TourianUnlockBehavior.SpawnTourianEyeGlow(4);
         CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
-            [new Difference(TourianStatuePaletteRomDataConstants.EyeCgramIndex + 1, 1 << 10)],
+            [new Difference(TourianStatuePaletteConstants.EyeCgramIndex + 1, 1 << 10)],
             "Tourian eye edit");
 
         // The $87:837F grey instruction is reached on re-entry after each

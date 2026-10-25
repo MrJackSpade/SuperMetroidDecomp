@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -22,22 +21,22 @@ public static class TourianStatueColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var eye = new PaletteRgb5[TourianStatuePaletteRomData.EyeRowCount][];
+        var eye = new PaletteRgb5[TourianStatueColorDefinitions.EyeRowCount][];
         for (int row = 0; row < eye.Length; row++)
             eye[row] = Read(bus,
-                TourianStatuePaletteRomData.EyeColors + row *
-                    TourianStatuePaletteRomData.EyeColorCount * sizeof(ushort),
-                TourianStatuePaletteRomData.EyeColorCount);
+                EnemySourceDefinitions.TourianStatueEyeColors + row *
+                    TourianStatueColorDefinitions.EyeColorCount * sizeof(ushort),
+                TourianStatueColorDefinitions.EyeColorCount);
         return TourianStatueColorFile.Write(new TourianStatueColorDocument
         {
             Version = TourianStatueColorFormat.Version,
             Base = Read(bus, EnemySourceDefinitions.TourianStatueBaseColors,
-                TourianStatuePaletteRomData.BaseColorCount),
+                TourianStatueColorDefinitions.BaseColorCount),
             Statue = Read(bus, EnemySourceDefinitions.TourianStatueColors,
-                TourianStatuePaletteRomData.StatueColorCount),
+                TourianStatueColorDefinitions.StatueColorCount),
             Eye = eye,
-            Grey = Read(bus, TourianStatuePaletteRomData.GreyColors,
-                TourianStatuePaletteRomData.GreyColorCount),
+            Grey = Read(bus, EnemySourceDefinitions.TourianStatueGreyColors,
+                TourianStatueColorDefinitions.GreyColorCount),
         });
     }
 

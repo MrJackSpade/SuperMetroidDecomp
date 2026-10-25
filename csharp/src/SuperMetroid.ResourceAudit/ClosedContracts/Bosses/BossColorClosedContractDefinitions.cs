@@ -54,6 +54,6 @@ internal static class BossColorClosedContractDefinitions
             ["ApplyEntrance", "ApplyEye", "ApplyGrey"],
             [new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatueColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatuePaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatuePaletteRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatueColorDefinitions.cs")]),
     ];
 }

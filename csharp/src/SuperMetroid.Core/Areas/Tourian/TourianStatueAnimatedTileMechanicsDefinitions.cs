@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
@@ -35,7 +36,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             ClearedColours = new SpriteColourRun(2, 12, 3),
             UnlockEffectParameter = 0,
             PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
-            GreyColours = new SpriteColourRun(2, 0, TourianStatuePaletteRomData.GreyColorCount),
+            GreyColours = new SpriteColourRun(2, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
         AnimatedTileObject.TourianStatueRidley => new()
         {
@@ -49,7 +50,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             ClearedColours = new SpriteColourRun(1, 9, 3),
             UnlockEffectParameter = 2,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
-            GreyColours = new SpriteColourRun(1, 0, TourianStatuePaletteRomData.GreyColorCount),
+            GreyColours = new SpriteColourRun(1, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
         AnimatedTileObject.TourianStatueKraid => new()
         {
@@ -63,7 +64,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             ClearedColours = new BackgroundColourRun(7, 12, 3),
             UnlockEffectParameter = 6,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
-            GreyColours = new BackgroundColourRun(7, 0, TourianStatuePaletteRomData.GreyColorCount),
+            GreyColours = new BackgroundColourRun(7, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
         AnimatedTileObject.TourianStatueDraygon => new()
         {
@@ -77,7 +78,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             ClearedColours = new BackgroundColourRun(6, 9, 3),
             UnlockEffectParameter = 4,
             PaletteFx = PaletteFxObject.GreyOutTourianStatueDraygon,
-            GreyColours = new BackgroundColourRun(6, 0, TourianStatuePaletteRomData.GreyColorCount),
+            GreyColours = new BackgroundColourRun(6, 0, TourianStatueColorDefinitions.GreyColorCount),
         },
         AnimatedTileObject.None or AnimatedTileObject.Empty or AnimatedTileObject.HorizontalSpikes or
             AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or

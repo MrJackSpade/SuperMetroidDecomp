@@ -58,6 +58,12 @@ internal static class EnemySourceDefinitions
     /// <summary>$AA:D785: the Tourian entrance statue base decoration's sixteen colours (#1412).</summary>
     internal const int TourianStatueBaseColors = 0xaad785;
 
+    /// <summary>$86:B91E: the Tourian statue's four four-colour eye glows, Phantoon, Ridley, Draygon, Kraid (#1415).</summary>
+    internal const int TourianStatueEyeColors = 0x86b91e;
+
+    /// <summary>$87:839C: the eight grey colours a released Tourian statue turns (#1415).</summary>
+    internal const int TourianStatueGreyColors = 0x87839c;
+
     /// <summary>$A8:CCC1: the Work Robot's six four-colour, timed palette-cycle records (#1412).</summary>
     internal const int WorkRobotPaletteCycleRecords = 0xa8ccc1;
 

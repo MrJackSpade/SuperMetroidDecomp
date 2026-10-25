@@ -8,7 +8,6 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -47,6 +46,9 @@ internal static class EnemyExtendedFrameFiles
         return json;
     }
 
+    /// <summary>$10: the high byte of Ceres steam's spritemap headers, cartridge drawing metadata after the component count (#1415).</summary>
+    private const byte CeresSteamHeaderHighByte = 0x10;
+
     /// <summary>Decodes one declared visual root without importing its gameplay-owned hitboxes.</summary>
     internal static EnemyExtendedVisualComponent[] ExtractComponents(
         ISnesAddressSpace bus, EnemySpritemapDefinition definition)
@@ -62,7 +64,7 @@ internal static class EnemyExtendedFrameFiles
         // walkers consume its low byte as one component and retain the
         // high byte as native presentation metadata.
         byte expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
-            StringComparison.Ordinal) ? CeresSteamDefinitions.OamPadding : (byte)0;
+            StringComparison.Ordinal) ? CeresSteamHeaderHighByte : (byte)0;
         bool motherBrainMixed = MotherBrainBodyVisualDefinitions.HasBg2(definition.Frame);
         bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);
         int maximumNativeComponents = motherBrainMixed

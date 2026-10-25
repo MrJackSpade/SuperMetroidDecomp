@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;

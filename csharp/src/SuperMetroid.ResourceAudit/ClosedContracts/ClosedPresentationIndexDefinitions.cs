@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -25,6 +23,7 @@ using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -64,7 +63,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorDefinitions.HealthBandColorCount),
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorDefinitions.FadeOutCount),
         ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, PhantoonColorDefinitions.PowerOnCount),
-        ("TourianStatueColorCatalog", "ApplyEye", "doubledBossParameter") => new(0, TourianStatuePaletteRomData.EyeRowCount, sizeof(ushort)),
+        ("TourianStatueColorCatalog", "ApplyEye", "doubledBossParameter") => new(0, TourianStatueColorDefinitions.EyeRowCount, sizeof(ushort)),
         ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth" or "ResolveDeath", "color") => new(0, SporeSpawnColorDefinitions.ColorsPerFrame),
         ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorDefinitions.HealthFrameCount),
         ("SporeSpawnColorCatalog", "ResolveDeath", "layer") => new(0, 3),

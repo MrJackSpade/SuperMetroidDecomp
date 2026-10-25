@@ -46,7 +46,7 @@ public sealed class PhantoonWaveEffect
     /// <exception cref="ArgumentOutOfRangeException">The mode is zero, which ends the wave rather than setting one up.</exception>
     public void Begin(int mode)
     {
-        if (mode == 0) throw new ArgumentOutOfRangeException(nameof(mode));
+        ArgumentOutOfRangeException.ThrowIfZero(mode);
         _pendingMode = mode;
         _pendingSetup = true;
     }

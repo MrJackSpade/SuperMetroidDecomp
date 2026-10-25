@@ -17,7 +17,7 @@ internal static class RoomFxSharedRandomVerification
         GameplayColours cgram, RoomFxSession session, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {
         bool swaps = type is RoomFxType.Lava or RoomFxType.Acid;
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetRandomNumber(0x1234);
         fx.AdvanceLiquidMotion(system, false);
         AssertEqual(0x1234, system.RandomNumber, $"{type} first pass installs callback without executing it");

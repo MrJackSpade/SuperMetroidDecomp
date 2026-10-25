@@ -58,7 +58,7 @@ internal sealed class FrontendSession
     internal readonly FrontendDisplay display;
     /// <summary>Battery-backed save slots and the menu selection; the host persists them.</summary>
     internal readonly SaveSlotStore saves;
-    /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
+    /// <summary>Boot-time <see cref="SharedGameState.MainGameLoopCarry"/>; fixed for the session.</summary>
     internal readonly bool bootMainLoopCarry;
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
     internal readonly int bootDemoSetCount;

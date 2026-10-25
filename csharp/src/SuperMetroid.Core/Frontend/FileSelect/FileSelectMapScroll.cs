@@ -28,7 +28,7 @@ public sealed class FileSelectMapScroll
     /// <param name="system">Persistent area-map and explored-cell state.</param>
     /// <param name="player">Player marker's map coordinate in pixels.</param>
     public FileSelectMapScroll(IAreaMapView map,
-        Bank80SystemState system, Position16<MapPixels> player)
+        SharedGameState system, Position16<MapPixels> player)
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);

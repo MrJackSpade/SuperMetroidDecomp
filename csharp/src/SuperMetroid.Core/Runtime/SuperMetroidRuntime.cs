@@ -134,7 +134,7 @@ internal sealed class SuperMetroidRuntime
         FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random)
     {
         Ensure.NotNull(artwork);
-        System = new Bank80SystemState(random);
+        System = new SharedGameState(random);
         Display = new GameplayDisplayState();
         var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState(spriteSets);
@@ -282,7 +282,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Bank-$80 shared random/event/input-filter state, over the session's random-number word.</summary>
-    public Bank80SystemState System { get; }
+    public SharedGameState System { get; }
 
     /// <summary>Gameplay clock mirrored at WRAM $09DA-$09E1 and in each SRAM slot.</summary>
     public GameTimeState GameTime { get; } = new();

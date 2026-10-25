@@ -234,7 +234,7 @@ internal static class RidleyFullMovieVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Hud.EnableMinimapAfterDoorEntry();
-            runtime.System.LoadExploredMapBytes(new byte[Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea]);
+            runtime.System.LoadExploredMapBytes(new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea]);
             if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
             var room = runtime.Room.LoadedRoom;
@@ -641,7 +641,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyPausePageTiming()
     {
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = ReserveTankMode.Auto };
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
         foreach (PauseScreenMode source in Enum.GetValues<PauseScreenMode>())
         {
             PauseScreenMode destination = source == PauseScreenMode.Map ? PauseScreenMode.Equipment : PauseScreenMode.Map;
@@ -979,18 +979,18 @@ internal static class RidleyFullMovieVerification
                         mismatches.Add($"{name}[{index}]: native={expected:X2} port={actual:X2}");
                 }
             }
-            CheckBytes("Boss bits", Bank80SystemState.AreaCount, runtime.System.GetBossBitsRaw, NativeSnapshotMemory.BossBits);
-            CheckBytes("Event bits", Bank80SystemState.EventByteCount, runtime.System.GetEventByteRaw, NativeSnapshotMemory.Events);
-            CheckBytes("Collected item bits", Bank80SystemState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, NativeSnapshotMemory.CollectedItemBits);
-            CheckBytes("Opened door bits", Bank80SystemState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, NativeSnapshotMemory.OpenedDoors);
+            CheckBytes("Boss bits", SharedGameState.AreaCount, runtime.System.GetBossBitsRaw, NativeSnapshotMemory.BossBits);
+            CheckBytes("Event bits", SharedGameState.EventByteCount, runtime.System.GetEventByteRaw, NativeSnapshotMemory.Events);
+            CheckBytes("Collected item bits", SharedGameState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, NativeSnapshotMemory.CollectedItemBits);
+            CheckBytes("Opened door bits", SharedGameState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, NativeSnapshotMemory.OpenedDoors);
             if (game.GameState is not (SuperMetroidGameState.HitDoorBlock or
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
                 for (int tile = 0; tile < HudState.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.Tiles[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
             Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToNativeWord(), NativeSnapshotMemory.PreviousHudSelection);
-            CheckBytes("Save/elevator markers", Bank80SystemState.UsedSaveStationByteCount,
+            CheckBytes("Save/elevator markers", SharedGameState.UsedSaveStationByteCount,
                 runtime.System.GetUsedSaveStationByteRaw, NativeSnapshotMemory.SaveElevatorMarkers);
-            CheckBytes("Map-station markers", Bank80SystemState.MapStationByteCount,
+            CheckBytes("Map-station markers", SharedGameState.MapStationByteCount,
                 runtime.System.GetMapStationByteRaw, NativeSnapshotMemory.MapStationMarkers);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
@@ -1067,11 +1067,11 @@ internal static class RidleyFullMovieVerification
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
                 CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
                     runtime.Room.LoadedCamera.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);
-                for (int area = 0; area < Bank80SystemState.ExploredMapAreaCount; area++)
-                    CheckBytes($"Explored map {area}", Bank80SystemState.ExploredMapBytesPerArea,
+                for (int area = 0; area < SharedGameState.ExploredMapAreaCount; area++)
+                    CheckBytes($"Explored map {area}", SharedGameState.ExploredMapBytesPerArea,
                         index => runtime.System.GetExploredMapByteRaw(area, index),
                         area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
-                            NativeSnapshotMemory.SavedExploredMaps + area * Bank80SystemState.ExploredMapBytesPerArea);
+                            NativeSnapshotMemory.SavedExploredMaps + area * SharedGameState.ExploredMapBytesPerArea);
             }
             // Only the reference's proven hardware-upload NMI count is normalized;
             // gameplay state is never copied back into the production runtime.

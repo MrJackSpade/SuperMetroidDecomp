@@ -49,7 +49,7 @@ internal static class EyeDoorPlmsVerification
         int randomAdvances = 0;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = samus });
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         int plmBlock = 4 * 16 + 7;
 
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
@@ -134,7 +134,7 @@ internal static class EyeDoorPlmsVerification
             new ushort[roomWidth * roomHeight],
             new byte[roomWidth * roomHeight],
             blockDefinitions: new byte[0x400 * 8]);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var samus = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),

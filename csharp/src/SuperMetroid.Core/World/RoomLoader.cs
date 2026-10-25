@@ -90,7 +90,7 @@ internal sealed class RoomLoader
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
     private readonly TourianStatueSequenceDependencies _tourianStatueDependencies;
     /// <summary>Provides persistent event and boss bits used by room-state selectors.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
     /// <summary>Applies tester inventory overrides after saved state is restored.</summary>
     private readonly TesterTools _tester;
     /// <summary>The background character artwork the room binds (#1350).</summary>
@@ -1107,8 +1107,8 @@ internal sealed class RoomLoader
         AreaId areaIndex = Ensure.NotNull(room).AreaIndex;
 
         // RoomStateSelectionContext owns an immutable snapshot. Copying eight bytes is both
-        // cheaper and safer than exposing Bank80SystemState's writable SRAM-mirror arrays.
-        var events = new byte[Bank80SystemState.EventByteCount];
+        // cheaper and safer than exposing SharedGameState's writable SRAM-mirror arrays.
+        var events = new byte[SharedGameState.EventByteCount];
         for (int byteIndex = 0; byteIndex < events.Length; byteIndex++)
             events[byteIndex] = _system.GetEventByteRaw(byteIndex);
 

@@ -16,14 +16,14 @@ internal sealed class DoorPlms : IPlmFamilySource
     }
 
     /// <summary>The room's system and event state.</summary>
-    private readonly Bank80SystemState? _system;
+    private readonly SharedGameState? _system;
     /// <summary>Allocates fallback closing and blue-door actors from the native PLM pool.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Queues the library-two response to rejected colored-door hits.</summary>
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Binds door PLM logic to room persistence, drawing, allocation, and sound owners.</summary>
-    internal DoorPlms(Bank80SystemState? system, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal DoorPlms(SharedGameState? system, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _system = system;
         _slotTable = slotTable;
@@ -47,7 +47,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     public bool TrySpawnDoorClosingPlm(
         RoomLevelData level,
         DoorDefinition door,
-        Bank80SystemState system)
+        SharedGameState system)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(door);
@@ -195,7 +195,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         if (unchecked((short)slot.RoomArgument) >= 0)
         {
             // The native routine leaves the door-bit word it just updated in the argument, marked spent.
-            Bank80SystemState system = RequireSystem();
+            SharedGameState system = RequireSystem();
             system.SetOpenedDoorBit(slot.RoomArgument);
             slot.RoomArgument = (ushort)(NonPersistentArgumentBit | system.GetOpenedDoorWordRaw(slot.RoomArgument >> 3));
         }
@@ -215,7 +215,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     }
 
     /// <summary>The room's door-bit persistence owner.</summary>
-    private Bank80SystemState RequireSystem() =>
+    private SharedGameState RequireSystem() =>
         _system ?? throw new InvalidOperationException("A resident door has no persistence owner.");
 
     /// <summary>

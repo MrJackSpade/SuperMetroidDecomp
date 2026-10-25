@@ -21,7 +21,7 @@ internal static class PauseReserveManualVerification
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
             MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,
             CollectedBeams = SamusBeamFlags.Charge };
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
         AssertEqual(PauseReserveEnergyDefinitions.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
@@ -64,7 +64,7 @@ internal static class PauseReserveManualVerification
             var samus = new SamusState { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var audio = new AudioQueues();
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);
             pause.Step(0, ControllerButton.Up);
             pause.Step(0, ControllerButton.Down);

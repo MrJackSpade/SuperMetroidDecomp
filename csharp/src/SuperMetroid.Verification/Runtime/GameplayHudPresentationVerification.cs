@@ -86,8 +86,8 @@ internal static class GameplayHudPresentationVerification
         AssertEqual(native.SelectionSoundRequestedThisFrame, installed.SelectionSoundRequestedThisFrame,
             "installed HUD retains selection-sound mechanics");
 
-        var nativeSystem = new Bank80SystemState();
-        var installedSystem = new Bank80SystemState();
+        var nativeSystem = new SharedGameState();
+        var installedSystem = new SharedGameState();
         nativeSystem.SetAreaMapAcquired(AreaId.Crateria);
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
         native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
@@ -136,7 +136,7 @@ internal static class GameplayHudPresentationVerification
         var rebind = new HudState();
         rebind.BindPresentation(original.GameplayHud);
         rebind.Initialize(snapshot);
-        var rebindSystem = new Bank80SystemState();
+        var rebindSystem = new SharedGameState();
         rebindSystem.SetAreaMapAcquired(AreaId.Crateria);
         rebind.UpdateMinimap(rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
         ushort[] logicalMap = Enumerable.Range(0, 15)

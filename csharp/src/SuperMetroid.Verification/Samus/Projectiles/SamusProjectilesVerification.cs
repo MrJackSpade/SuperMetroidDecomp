@@ -1248,7 +1248,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var coloredDoorPlms = PlmFixtures.Unbound();
     AssertEqual(
         coloredDoorHeaders.Length,
-        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
@@ -1274,7 +1274,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var residentWords = new ushort[16 * 16];
     residentWords[residentDoorBlock] = 0x8120;
     RoomLevelData residentDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(residentWords, new byte[residentWords.Length], new ushort[residentWords.Length]), new byte[8]);
-    var residentDoorSystem = new Bank80SystemState();
+    var residentDoorSystem = new SharedGameState();
     var residentDoorPlms = PlmFixtures.Unbound();
     AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "resident colored-door loader allocates red door actor");
@@ -1338,7 +1338,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var greyDoorWords = new ushort[16 * 16];
     greyDoorWords[greyDoorBlock] = 0x8220;
     RoomLevelData greyDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(greyDoorWords, new byte[greyDoorWords.Length], new ushort[greyDoorWords.Length]), new byte[8]);
-    var greyDoorSystem = new Bank80SystemState();
+    var greyDoorSystem = new SharedGameState();
     var greyDoorPlms = PlmFixtures.Unbound();
     AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "grey-door loader allocates enemy-quota actor from population");

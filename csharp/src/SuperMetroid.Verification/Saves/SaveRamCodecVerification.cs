@@ -167,7 +167,7 @@ internal static class SaveRamCodecVerification
     /// </summary>
     internal static void VerifyProgressionSavedFields()
     {
-        var system = new Bank80SystemState { LoadedItemCount = SaveFieldValue.MaximumValue };
+        var system = new SharedGameState { LoadedItemCount = SaveFieldValue.MaximumValue };
         AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "the loaded-item count holds a save field's largest value");
         AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = SaveFieldValue.MaximumValue + 1,
             "a loaded-item count past a save field is rejected instead of wrapping");
@@ -181,7 +181,7 @@ internal static class SaveRamCodecVerification
         // An unproven bit beside two named ones: typed operations change only the named bits around it.
         byte unprovenBit = 128;
         byte loaded = (byte)(unprovenBit | (BossBits.AreaBoss | BossBits.AreaTorizo).ToNativeByte());
-        byte[] areas = new byte[Bank80SystemState.AreaCount];
+        byte[] areas = new byte[SharedGameState.AreaCount];
         areas[AreaIds.ToIndex(AreaId.Norfair)] = loaded;
         system.LoadBossBytes(areas);
         AssertEqual(loaded, system.GetBossBitsRaw(AreaId.Norfair), "a loaded boss byte reads back exactly");
@@ -201,7 +201,7 @@ internal static class SaveRamCodecVerification
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)
     {
         var samus = new SamusState { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetEvent(EventNumber.ZebesAwake);
         system.SetBossBits(area, BossBits.AreaBoss);
         system.SetCollectedItemBit(health % 64);

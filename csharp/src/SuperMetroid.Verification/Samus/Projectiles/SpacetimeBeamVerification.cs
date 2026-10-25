@@ -59,7 +59,7 @@ internal static class SpacetimeBeamVerification
             CollectedBeams = (SamusBeamFlags)0x100f,
             EquippedBeams = (SamusBeamFlags)0x1006,
         };
-        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (ControllerButton.Left | ControllerButton.A));
@@ -78,21 +78,21 @@ internal static class SpacetimeBeamVerification
         samus.PowerBombs = 3;
         samus.MaxPowerBombs = 5;
 
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         byte[] a5Events = Enumerable.Repeat((byte)0xa5,
-            Bank80SystemState.EventByteCount).ToArray();
+            SharedGameState.EventByteCount).ToArray();
         byte[] a5Bosses = Enumerable.Repeat((byte)0xa5,
-            Bank80SystemState.AreaCount).ToArray();
+            SharedGameState.AreaCount).ToArray();
         byte[] a5Chozo = Enumerable.Repeat((byte)0xa5,
-            Bank80SystemState.RoomChozoBitByteCount).ToArray();
+            SharedGameState.RoomChozoBitByteCount).ToArray();
         byte[] a5Items = Enumerable.Repeat((byte)0xa5,
-            Bank80SystemState.ItemBitByteCount).ToArray();
+            SharedGameState.ItemBitByteCount).ToArray();
         byte[] a5Doors = Enumerable.Repeat((byte)0xa5,
-            Bank80SystemState.DoorBitByteCount).ToArray();
+            SharedGameState.DoorBitByteCount).ToArray();
         byte[] a5Stations = Enumerable.Repeat((byte)0xa5,
-            Bank80SystemState.UsedSaveStationByteCount).ToArray();
+            SharedGameState.UsedSaveStationByteCount).ToArray();
         byte[] a5Maps = Enumerable.Repeat((byte)0xa5,
-            Bank80SystemState.MapStationByteCount).ToArray();
+            SharedGameState.MapStationByteCount).ToArray();
         system.LoadEventBytes(a5Events);
         system.LoadBossBytes(a5Bosses);
         system.LoadRoomChozoBytes(a5Chozo);
@@ -133,13 +133,13 @@ internal static class SpacetimeBeamVerification
             "save retains invalid SpaceTime equipment");
         AssertEqual(0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
-        AssertTrue(saved.EventBytes.SequenceEqual(OwnedBytes(Bank80SystemState.EventByteCount, system.GetEventByteRaw)),
+        AssertTrue(saved.EventBytes.SequenceEqual(OwnedBytes(SharedGameState.EventByteCount, system.GetEventByteRaw)),
             "save retains corrupted event bytes");
-        AssertTrue(saved.BossBytes.SequenceEqual(OwnedBytes(Bank80SystemState.AreaCount, system.GetBossBitsRaw)),
+        AssertTrue(saved.BossBytes.SequenceEqual(OwnedBytes(SharedGameState.AreaCount, system.GetBossBitsRaw)),
             "save retains corrupted boss bytes");
-        AssertTrue(saved.CollectedItemBytes.SequenceEqual(OwnedBytes(Bank80SystemState.ItemBitByteCount, system.GetCollectedItemByteRaw)),
+        AssertTrue(saved.CollectedItemBytes.SequenceEqual(OwnedBytes(SharedGameState.ItemBitByteCount, system.GetCollectedItemByteRaw)),
             "save retains corrupted item bytes");
-        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(OwnedBytes(Bank80SystemState.DoorBitByteCount, system.GetOpenedDoorByteRaw)),
+        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(OwnedBytes(SharedGameState.DoorBitByteCount, system.GetOpenedDoorByteRaw)),
             "save retains corrupted door bytes");
 
         var restarted = new SamusState();
@@ -182,16 +182,16 @@ internal static class SpacetimeBeamVerification
     /// FNV-1a hash of the owned progression bytes from the event bitset through the map stations, in native mirror
     /// order. The retail probe's hash also covered the eight padding bytes after the door bits, which no game logic reads.
     /// </summary>
-    private static uint HashProgression(Bank80SystemState system)
+    private static uint HashProgression(SharedGameState system)
     {
         uint hash = 2166136261;
-        foreach (byte value in (byte[])[.. OwnedBytes(Bank80SystemState.EventByteCount, system.GetEventByteRaw),
-            .. OwnedBytes(Bank80SystemState.AreaCount, system.GetBossBitsRaw),
-            .. OwnedBytes(Bank80SystemState.RoomChozoBitByteCount, system.GetRoomChozoByteRaw),
-            .. OwnedBytes(Bank80SystemState.ItemBitByteCount, system.GetCollectedItemByteRaw),
-            .. OwnedBytes(Bank80SystemState.DoorBitByteCount, system.GetOpenedDoorByteRaw),
-            .. OwnedBytes(Bank80SystemState.UsedSaveStationByteCount, system.GetUsedSaveStationByteRaw),
-            .. OwnedBytes(Bank80SystemState.MapStationByteCount, system.GetMapStationByteRaw)])
+        foreach (byte value in (byte[])[.. OwnedBytes(SharedGameState.EventByteCount, system.GetEventByteRaw),
+            .. OwnedBytes(SharedGameState.AreaCount, system.GetBossBitsRaw),
+            .. OwnedBytes(SharedGameState.RoomChozoBitByteCount, system.GetRoomChozoByteRaw),
+            .. OwnedBytes(SharedGameState.ItemBitByteCount, system.GetCollectedItemByteRaw),
+            .. OwnedBytes(SharedGameState.DoorBitByteCount, system.GetOpenedDoorByteRaw),
+            .. OwnedBytes(SharedGameState.UsedSaveStationByteCount, system.GetUsedSaveStationByteRaw),
+            .. OwnedBytes(SharedGameState.MapStationByteCount, system.GetMapStationByteRaw)])
         {
             hash ^= value;
             hash *= 16777619;
@@ -285,7 +285,7 @@ internal static class SpacetimeBeamVerification
             "SpaceTime Ceres restart retains Super Missiles");
         AssertEqual(3, runtime.Player.IntroducedSamus.PowerBombs,
             "SpaceTime Ceres restart retains Power Bombs");
-        AssertTrue(Enumerable.Range(0, Bank80SystemState.EventByteCount).All(
+        AssertTrue(Enumerable.Range(0, SharedGameState.EventByteCount).All(
                 index => runtime.System.GetEventByteRaw(index) == 0),
             "SpaceTime Ceres restart begins with fresh progression events");
 

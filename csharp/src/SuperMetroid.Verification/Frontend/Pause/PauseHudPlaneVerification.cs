@@ -23,7 +23,7 @@ internal static class PauseHudPlaneVerification
         var entered = Hud(0x2100);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry
         {
-            Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria,
+            Samus = new SamusState(), System = new SharedGameState(), AreaIndex = AreaId.Crateria,
             RoomMapPosition = new(28, 1), GameplayLayer3 = entered,
         });
         AssertTrue(HudWords(pause).SequenceEqual(entered.Words[..HudWordCount]), "pause entry keeps the plane's four HUD rows");

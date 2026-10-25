@@ -28,7 +28,7 @@ internal sealed class EnemyRoomEffects
     /// <summary>Provides active level, area, FX pointer, and room scroll state.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Records boss bits and the Zebes timebomb event requested by the encounter.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Binds the room systems needed to consume enemy publications immediately after their AI pass.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)

@@ -159,14 +159,14 @@ internal static void VerifyHudState()
     // exploration palette, and the map-station/unexplored palette independently.
     SeedSyntheticCrateriaAreaMap(bus);
 
-    var mapSystem = new Bank80SystemState();
+    var mapSystem = new SharedGameState();
     mapSystem.SetAreaMapAcquired(0);
     hud.UpdateMinimap(mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "minimap Landing Site absolute tile");
     AssertEqual(0x2c99, hud.Tiles[26], "minimap top-left unvisited map-station tile");
     AssertEqual(0x28bb, hud.Tiles[60], "minimap explored center tile");
 
-    var noMapSystem = new Bank80SystemState();
+    var noMapSystem = new SharedGameState();
     hud.UpdateMinimap(noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
@@ -176,7 +176,7 @@ internal static void VerifyHudState()
     foreach (int x in new[] { 31, 32 })
     foreach (ushort slope in new ushort[] { 0x0028, 0x4228, 0x8028, 0xc228 })
     {
-        var slopeSystem = new Bank80SystemState();
+        var slopeSystem = new SharedGameState();
         Position16<MapTiles> currentTile = new(checked((ushort)x), 5);
         Position16<MapTiles> aboveTile = new(checked((ushort)x), 4);
         ushort savedCurrent = ReadFixtureMapWord(bus, currentTile);
@@ -191,7 +191,7 @@ internal static void VerifyHudState()
         SeedFixtureMapWord(bus, currentTile, savedCurrent);
         SeedFixtureMapWord(bus, aboveTile, savedAbove);
     }
-    var ordinaryCornerSystem = new Bank80SystemState();
+    var ordinaryCornerSystem = new SharedGameState();
     // Character $029 is adjacent in the graphics catalog but must not get the $028
     // exploration side effect; this also rejects indiscriminate upper-cell revealing.
     Position16<MapTiles> ordinaryTile = new(30, 5);
@@ -208,7 +208,7 @@ internal static void VerifyHudState()
     const int secretHudY = 4;
     const int publicHudX = 26;
     ClearFixtureMapStationBit(bus, new(secretHudX, secretHudY));
-    var overrideSystem = new Bank80SystemState();
+    var overrideSystem = new SharedGameState();
     hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, MapRevealMode = MapRevealMode.Public, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[26],
         "Public HUD override excludes cartridge secret-only cell");
@@ -238,7 +238,7 @@ internal static void VerifyHudState()
     const int rightPageNeighborX = 35;
     const int rightPageCenterY = 19;
     ResetFixtureMapStationBitsToSingleTile(bus, new(rightPageNeighborX, rightPageCenterY));
-    var rightPageSystem = new Bank80SystemState();
+    var rightPageSystem = new SharedGameState();
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
     hud.UpdateMinimap(rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(34, rightPageCenterY), hud.MinimapCenter, "right-page minimap absolute tile");
@@ -859,7 +859,7 @@ internal static void VerifyCartridgeRoomStateSelection()
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "room selector default inline state");
 
-    var eventBytes = new byte[Bank80SystemState.EventByteCount];
+    var eventBytes = new byte[SharedGameState.EventByteCount];
     eventBytes[0] = 1;
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,

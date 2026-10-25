@@ -21,7 +21,7 @@ internal sealed class RoomMainRoutines
     /// <summary>Active room callback and area identity used to dispatch room-main work.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Boss bits and RNG word sampled by room-main callbacks.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Binds the room, enemy, tile, and memory owners used by room-main callbacks.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)

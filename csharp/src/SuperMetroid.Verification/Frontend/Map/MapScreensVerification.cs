@@ -31,7 +31,7 @@ internal static class MapScreensVerification
     internal static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewMapScreenGuard(bus);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
         {

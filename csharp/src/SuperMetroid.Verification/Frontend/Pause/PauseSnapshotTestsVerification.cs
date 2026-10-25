@@ -34,7 +34,7 @@ internal static class PauseSnapshotTestsVerification
             MaxReserveEnergy = 100, ReserveEnergy = 47,
             Position = FixedPosition<RoomPixels>.FromWhole(new(512, 768)),
         };
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetAreaMapAcquired((byte)AreaId.Maridia);
         system.MarkExploredMapTile((byte)AreaId.Maridia, new(30, 5));
         // Seed retained HUD words rather than testing only the cleared menu background.

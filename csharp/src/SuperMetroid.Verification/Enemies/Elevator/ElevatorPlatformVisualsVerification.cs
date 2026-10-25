@@ -58,7 +58,7 @@ internal static class ElevatorPlatformVisualsVerification
             RoomLevelData level = CreateRoom(new(32, 16), new ushort[32 * 16],
                 new byte[32 * 16], blockDefinitions: definitions);
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmElevatorPlatformVisuals = visuals });
-            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 "elevator visual fixture loads one real PLM");
             plms.Step(level);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>

@@ -37,7 +37,7 @@ internal static void VerifyRandomNumberGeneratorExhaustively()
 {
     for (int seed = ushort.MinValue; seed <= ushort.MaxValue; seed++)
     {
-        var state = new Bank80SystemState();
+        var state = new SharedGameState();
         state.SetRandomNumber((ushort)seed);
         ushort expected = ReferenceNextRandom((ushort)seed);
         int actual = state.NextRandom();
@@ -60,7 +60,7 @@ internal static void VerifyKnownRandomSequence()
         0xe0f2, 0x65cb, 0xfe08, 0xf739,
     ];
 
-    var state = new Bank80SystemState();
+    var state = new SharedGameState();
     int[] actual = Enumerable.Range(0, expected.Length)
         .Select(_ => state.NextRandom())
         .ToArray();
@@ -77,7 +77,7 @@ internal static void VerifyKnownRandomSequence()
 internal static void VerifyTimedHeldInputTimeline()
 {
     const ControllerButton button = ControllerButton.A;
-    var state = new Bank80SystemState();
+    var state = new SharedGameState();
 
     // Frame 0: the button is new, so TRB removes it from the held-only sample.
     state.UpdateHeldInput(timerReset: 3, controllerInput: button, controllerNewInput: button);
@@ -124,8 +124,8 @@ internal static void VerifyTimedHeldInputTimeline()
 /// </summary>
 internal static void VerifyEventBitfield()
 {
-    var state = new Bank80SystemState();
-    for (int eventNumber = 0; eventNumber < Bank80SystemState.EventByteCount * 8; eventNumber++)
+    var state = new SharedGameState();
+    for (int eventNumber = 0; eventNumber < SharedGameState.EventByteCount * 8; eventNumber++)
     {
         state.SetEventRaw(eventNumber);
         AssertTrue(state.HasEventRaw(eventNumber), $"event ${eventNumber:X2} set");
@@ -155,8 +155,8 @@ internal static void VerifyEventBitfield()
 /// </summary>
 internal static void VerifyBossBitfield()
 {
-    var state = new Bank80SystemState();
-    for (int area = 0; area < Bank80SystemState.AreaCount; area++)
+    var state = new SharedGameState();
+    for (int area = 0; area < SharedGameState.AreaCount; area++)
     {
         state.SetBossBits(area, BossBits.AreaBoss | BossBits.AreaTorizo);
         AssertTrue(state.HasAnyBossBits(area, BossBits.AreaBoss), $"area {area} boss bit");
@@ -193,7 +193,7 @@ internal static void VerifyMultiplicationExhaustively()
         for (int left = ushort.MinValue; left <= ushort.MaxValue; left++)
         {
             uint expected = (uint)left * right;
-            uint actual = Bank80SystemState.Multiply16By16((ushort)left, right);
+            uint actual = SharedGameState.Multiply16By16((ushort)left, right);
             AssertEqual(expected, actual, $"multiply ${left:X4} by ${right:X4}");
         }
     }

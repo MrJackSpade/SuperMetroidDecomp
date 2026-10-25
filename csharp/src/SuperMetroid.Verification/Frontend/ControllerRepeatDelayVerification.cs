@@ -22,7 +22,7 @@ internal static void VerifyRepeatAndHeldInputDelays()
     AssertThrows<ArgumentOutOfRangeException>(() => new ControllerInputState(subsequentRepeatDelay: -1),
         "a negative repeat delay is rejected");
 
-    var system = new SuperMetroid.Core.Progression.Bank80SystemState();
+    var system = new SuperMetroid.Core.Progression.SharedGameState();
     system.UpdateHeldInput(0, ControllerButton.Left, ControllerButton.None);
     AssertEqual(ControllerButton.None, system.TimedHeldInput, "a held-input change restarts the delay");
     system.UpdateHeldInput(0, ControllerButton.Left, ControllerButton.None);

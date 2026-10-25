@@ -17,7 +17,7 @@ public static class ExploredMapStorage
     /// <summary>Packs each area's occupied explored-map bytes into the saved field.</summary>
     public static byte[] Pack(ReadOnlySpan<byte> exploredMap, IAreaMapSource? maps)
     {
-        int expectedByteCount = Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea;
+        int expectedByteCount = SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea;
         if (exploredMap.Length != expectedByteCount)
             throw new InvalidDataException($"A save snapshot requires exactly {expectedByteCount} unpacked explored-map bytes.");
 
@@ -31,7 +31,7 @@ public static class ExploredMapStorage
                 int compressedIndex = definition.SaveOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)
                     throw new InvalidDataException("Compiled packed-map table escapes the saved map field.");
-                compressed[compressedIndex] = exploredMap[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndexes[index]];
+                compressed[compressedIndex] = exploredMap[area * SharedGameState.ExploredMapBytesPerArea + areaByteIndexes[index]];
             }
         }
         return compressed;
@@ -42,7 +42,7 @@ public static class ExploredMapStorage
     {
         Ensure.LengthEqual(compressed, PackedByteCount);
 
-        var explored = new byte[Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
+        var explored = new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
         for (int area = 0; area < PackedAreaCount; area++)
         {
             ExploredMapPackingDefinition definition = ExploredMapPackingDefinitions.Area(area, RequireMaps(maps));
@@ -52,7 +52,7 @@ public static class ExploredMapStorage
                 int compressedIndex = definition.SaveOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)
                     throw new InvalidDataException("Compiled packed-map table escapes the saved map field.");
-                explored[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndexes[index]] = compressed[compressedIndex];
+                explored[area * SharedGameState.ExploredMapBytesPerArea + areaByteIndexes[index]] = compressed[compressedIndex];
             }
         }
         return explored;

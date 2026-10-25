@@ -20,10 +20,10 @@ internal sealed class PerLineEffectPhase
     /// <summary>Supplies the authored freeze gate to the shared room liquid update.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Shared system state the liquid's wave step reads.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Connects the per-line effect phase to its live freeze and system owners.</summary>
-    internal PerLineEffectPhase(GameplayTimeFreeze freeze, Bank80SystemState system)
+    internal PerLineEffectPhase(GameplayTimeFreeze freeze, SharedGameState system)
     {
         _freeze = freeze;
         _system = system;

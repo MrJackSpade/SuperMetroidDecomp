@@ -3,26 +3,15 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The small, shared pieces of game state manipulated by the first utility routines in
-/// ROM bank <c>$80</c>. This is intentionally a stateful object: the original routines
-/// communicate through fixed WRAM and SRAM-mirror addresses, not through return values
-/// and neatly isolated objects.
+/// The game state every part of a session shares: the persistent progress a save slot carries (story events, boss
+/// state, Chozo orbs, collected items, opened doors, explored map, used stations, acquired maps), the session's shared
+/// random-number generator, and the held-input repeat that menus use for cursor movement. Lifetime: the session.
 /// </summary>
 /// <remarks>
-/// Source routines:
-/// <list type="bullet">
-/// <item><description><c>$80:8111</c> — generate random number.</description></item>
-/// <item><description><c>$80:8146</c> — update held input.</description></item>
-/// <item><description><c>$80:818E-$80:824E</c> — event and boss bit access.</description></item>
-/// <item><description><c>$80:82D6</c> — unsigned 16-by-16-bit multiplication.</description></item>
-/// </list>
-///
-/// The class does not attempt to emulate the 65C816 CPU. It preserves the externally
-/// visible behavior of these routines while naming the RAM locations they operated on.
-/// That gives the C# debugger useful domain-level state without losing the connection to
-/// the assembly.
+/// The progress tables keep the cartridge's allocation sizes and bit layout, because save slots round-trip them exactly
+/// and SpaceTime's progression overwrite (<see cref="WriteProgressionSliceByte"/>) addresses them byte by byte.
 /// </remarks>
-public sealed class Bank80SystemState
+public sealed class SharedGameState
 {
     /// <summary>
     /// Number of event bytes at SRAM mirror <c>$7E:D820-$7E:D827</c>.
@@ -112,15 +101,15 @@ public sealed class Bank80SystemState
             : throw new ArgumentOutOfRangeException(nameof(value), value, "The saved loading game state is a save field.");
     } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
 
-    /// <summary>Creates the bank-$80 state over its own random-number word, with the game's power-on seed.</summary>
-    public Bank80SystemState()
+    /// <summary>Creates the shared state over its own random-number generator, with the game's power-on seed.</summary>
+    public SharedGameState()
         : this(new SharedRandom())
     {
     }
 
-    /// <summary>Creates the bank-$80 state over the session's random-number word.</summary>
+    /// <summary>Creates the shared state over the session's random-number generator.</summary>
     /// <param name="random">The session's random-number word, which this state reads and advances.</param>
-    public Bank80SystemState(SharedRandom random) => Random = Ensure.NotNull(random);
+    public SharedGameState(SharedRandom random) => Random = Ensure.NotNull(random);
 
     /// <summary>
     /// Carry flag inside every <c>MainGameLoop</c> iteration ($82:8948). The loop brackets
@@ -186,7 +175,7 @@ public sealed class Bank80SystemState
         }
     }
 
-    /// <summary>The session's random-number word, WRAM <c>$05E5</c>.</summary>
+    /// <summary>The session's shared random-number generator.</summary>
     public SharedRandom Random { get; }
 
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>

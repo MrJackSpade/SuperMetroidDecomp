@@ -29,7 +29,7 @@ internal sealed class MessageBoxFlow
     /// <summary>Starts Varia or Gravity transformation after its suspended PLM resumes.</summary>
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Retains the runtime owners needed to resolve message outcomes after NMI-only execution.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)

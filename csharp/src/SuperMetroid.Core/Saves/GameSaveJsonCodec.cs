@@ -205,23 +205,23 @@ public static class GameSaveJsonCodec
             BossFlags = slot.Progression.BossFlagsByAreaIndex.ToArray(),
             RoomChozoBytes = DecodeSetBits(
                 slot.Progression.RoomChozoBits,
-                Bank80SystemState.RoomChozoBitByteCount,
+                SharedGameState.RoomChozoBitByteCount,
                 "progression.roomChozoBits"),
             CollectedItemBytes = DecodeSetBits(
                 slot.Progression.CollectedItemBits,
-                Bank80SystemState.ItemBitByteCount,
+                SharedGameState.ItemBitByteCount,
                 "progression.collectedItemBits"),
             OpenedDoorBytes = DecodeSetBits(
                 slot.Progression.OpenedDoorBits,
-                Bank80SystemState.DoorBitByteCount,
+                SharedGameState.DoorBitByteCount,
                 "progression.openedDoorBits"),
             UsedSaveStationBytes = DecodeSetBits(
                 slot.Progression.UsedSaveStationBits,
-                Bank80SystemState.UsedSaveStationByteCount,
+                SharedGameState.UsedSaveStationByteCount,
                 "progression.usedSaveStationBits"),
             MapStationBytes = DecodeSetBits(
                 slot.Progression.AcquiredMapStationBits,
-                Bank80SystemState.MapStationByteCount,
+                SharedGameState.MapStationByteCount,
                 "progression.acquiredMapStationBits"),
             ExploredMapBytes = DecodeExploredAreas(slot.Progression.ExploredAreas),
         };
@@ -313,18 +313,18 @@ public static class GameSaveJsonCodec
             progression.AcquiredMapStationBits is null || progression.ExploredAreas is null)
             throw new InvalidDataException($"slots[{expectedSlot}].progression is incomplete");
         _ = DecodeEvents(progression.Events);
-        if (progression.BossFlagsByAreaIndex.Length != Bank80SystemState.AreaCount ||
+        if (progression.BossFlagsByAreaIndex.Length != SharedGameState.AreaCount ||
             progression.BossFlagsByAreaIndex.Any(flags => (flags & ~AllBossFlags) != 0))
             throw new InvalidDataException($"slots[{expectedSlot}].progression.bossFlagsByAreaIndex is invalid");
-        _ = DecodeSetBits(progression.RoomChozoBits, Bank80SystemState.RoomChozoBitByteCount,
+        _ = DecodeSetBits(progression.RoomChozoBits, SharedGameState.RoomChozoBitByteCount,
             $"slots[{expectedSlot}].progression.roomChozoBits");
-        _ = DecodeSetBits(progression.CollectedItemBits, Bank80SystemState.ItemBitByteCount,
+        _ = DecodeSetBits(progression.CollectedItemBits, SharedGameState.ItemBitByteCount,
             $"slots[{expectedSlot}].progression.collectedItemBits");
-        _ = DecodeSetBits(progression.OpenedDoorBits, Bank80SystemState.DoorBitByteCount,
+        _ = DecodeSetBits(progression.OpenedDoorBits, SharedGameState.DoorBitByteCount,
             $"slots[{expectedSlot}].progression.openedDoorBits");
-        _ = DecodeSetBits(progression.UsedSaveStationBits, Bank80SystemState.UsedSaveStationByteCount,
+        _ = DecodeSetBits(progression.UsedSaveStationBits, SharedGameState.UsedSaveStationByteCount,
             $"slots[{expectedSlot}].progression.usedSaveStationBits");
-        _ = DecodeSetBits(progression.AcquiredMapStationBits, Bank80SystemState.MapStationByteCount,
+        _ = DecodeSetBits(progression.AcquiredMapStationBits, SharedGameState.MapStationByteCount,
             $"slots[{expectedSlot}].progression.acquiredMapStationBits");
         _ = DecodeExploredAreas(progression.ExploredAreas);
     }
@@ -382,7 +382,7 @@ public static class GameSaveJsonCodec
                 throw new InvalidDataException(
                     $"progression.events[{index}] '{value}' is not a known name or 0xNN bit");
         }
-        return DecodeSetBits(bits, Bank80SystemState.EventByteCount, "progression.events");
+        return DecodeSetBits(bits, SharedGameState.EventByteCount, "progression.events");
     }
 
     /// <summary>Lists set flag positions in byte-order for compact persistent state.</summary>
@@ -423,7 +423,7 @@ public static class GameSaveJsonCodec
     /// <summary>Splits SRAM exploration bytes into named per-area map data.</summary>
     private static ExploredAreaJsonDocument[] CaptureExploredAreas(ReadOnlySpan<byte> bytes)
     {
-        var areas = new ExploredAreaJsonDocument[Bank80SystemState.ExploredMapAreaCount];
+        var areas = new ExploredAreaJsonDocument[SharedGameState.ExploredMapAreaCount];
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int areaIndex = AreaIds.ToIndex(area);
@@ -433,7 +433,7 @@ public static class GameSaveJsonCodec
                 for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
                 {
                     var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
-                    int byteIndex = areaIndex * Bank80SystemState.ExploredMapBytesPerArea +
+                    int byteIndex = areaIndex * SharedGameState.ExploredMapBytesPerArea +
                         AreaMapLayout.GetBitByteIndex(cell);
                     if ((bytes[byteIndex] & AreaMapLayout.GetBitMask(cell.X)) != 0)
                         tiles.Add(MapCoordinateJsonDocument.FromCell(cell));
@@ -447,11 +447,11 @@ public static class GameSaveJsonCodec
     /// <summary>Rebuilds the cartridge's fixed exploration layout from seven area documents.</summary>
     private static byte[] DecodeExploredAreas(ExploredAreaJsonDocument[] areas)
     {
-        if (areas.Length != Bank80SystemState.ExploredMapAreaCount)
+        if (areas.Length != SharedGameState.ExploredMapAreaCount)
             throw new InvalidDataException(
-                $"progression.exploredAreas must contain {Bank80SystemState.ExploredMapAreaCount} areas");
+                $"progression.exploredAreas must contain {SharedGameState.ExploredMapAreaCount} areas");
         var result = new byte[
-            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
+            SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
         for (int areaIndex = 0; areaIndex < areas.Length; areaIndex++)
         {
             ExploredAreaJsonDocument area = areas[areaIndex] ?? throw new InvalidDataException(
@@ -473,7 +473,7 @@ public static class GameSaveJsonCodec
                 if (logicalIndex <= previousIndex)
                     throw new InvalidDataException(
                         $"progression.exploredAreas[{areaIndex}].tiles must be row-major and unique");
-                int byteIndex = areaIndex * Bank80SystemState.ExploredMapBytesPerArea +
+                int byteIndex = areaIndex * SharedGameState.ExploredMapBytesPerArea +
                     AreaMapLayout.GetBitByteIndex(cell);
                 result[byteIndex] |= AreaMapLayout.GetBitMask(cell.X);
                 previousIndex = logicalIndex;

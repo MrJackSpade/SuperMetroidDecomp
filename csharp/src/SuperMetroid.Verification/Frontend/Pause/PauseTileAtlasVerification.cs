@@ -46,7 +46,7 @@ internal static class PauseTileAtlasVerification
         AssertTrue(firstMap.ImageEquals(editedMap), "pause UI override does not alter shared map characters");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {
-            var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);
+            var system = new SharedGameState(); system.SetAreaMapAcquired(area);
             var samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
             var nativeSamus = new SamusState { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
             var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

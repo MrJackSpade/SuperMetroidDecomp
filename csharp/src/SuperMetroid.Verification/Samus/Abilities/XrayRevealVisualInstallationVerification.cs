@@ -124,12 +124,12 @@ internal static class XrayRevealVisualInstallationVerification
         var noRomVisualData = new TestAddressSpace();
         ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],
-            new Bank80SystemState(), null, new(16, 16), edited);
+            new SharedGameState(), null, new(16, 16), edited);
         AssertEqual(((editedItem & 0x03ff) * 4) + ((editedItem & 0x0800) != 0 ? 2 : 0),
             itemMap[0], "edited item art renders without a visual ROM read");
         ushort[] roomMap = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, roomMap, [],
-            new Bank80SystemState(), XrayRoomOverlaySources.Overlay(roomPointer), new(16, 16), edited);
+            new SharedGameState(), XrayRoomOverlaySources.Overlay(roomPointer), new(16, 16), edited);
         AssertEqual(((editedRoomWord & 0x03ff) * 4) +
             ((editedRoomWord & 0x0800) != 0 ? 2 : 0), roomMap[0],
             "edited room overlay renders at its edited position without a ROM read");

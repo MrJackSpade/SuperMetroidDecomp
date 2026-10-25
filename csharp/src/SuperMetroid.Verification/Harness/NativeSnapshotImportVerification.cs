@@ -60,10 +60,10 @@ internal static class NativeSnapshotImportVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Options.MoonwalkEnabled = W(NativeSnapshotMemory.MoonwalkOption) != 0;
-        runtime.System.LoadCollectedItemBytes(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, Bank80SystemState.ItemBitByteCount));
-        runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, Bank80SystemState.AreaCount));
-        runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, Bank80SystemState.EventByteCount));
-        runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
+        runtime.System.LoadCollectedItemBytes(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, SharedGameState.ItemBitByteCount));
+        runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, SharedGameState.AreaCount));
+        runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, SharedGameState.EventByteCount));
+        runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, SharedGameState.DoorBitByteCount));
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(W(NativeSnapshotMemory.Room)), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
@@ -117,12 +117,12 @@ internal static class NativeSnapshotImportVerification
         runtime.Room.LoadedCamera.Scrolls.Storage.Load(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
-            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea).ToArray();
-        memory.AsSpan(NativeSnapshotMemory.LiveExploredMap, Bank80SystemState.ExploredMapBytesPerArea)
-            .CopyTo(initialMaps.AsSpan(W(NativeSnapshotMemory.CurrentArea) * Bank80SystemState.ExploredMapBytesPerArea));
+            SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea).ToArray();
+        memory.AsSpan(NativeSnapshotMemory.LiveExploredMap, SharedGameState.ExploredMapBytesPerArea)
+            .CopyTo(initialMaps.AsSpan(W(NativeSnapshotMemory.CurrentArea) * SharedGameState.ExploredMapBytesPerArea));
         runtime.System.LoadExploredMapBytes(initialMaps);
-        runtime.System.LoadUsedSaveStationBytes(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, Bank80SystemState.UsedSaveStationByteCount));
-        runtime.System.LoadMapStationBytes(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, Bank80SystemState.MapStationByteCount));
+        runtime.System.LoadUsedSaveStationBytes(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, SharedGameState.UsedSaveStationByteCount));
+        runtime.System.LoadMapStationBytes(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, SharedGameState.MapStationByteCount));
 
         SamusState samus = runtime.Player.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");

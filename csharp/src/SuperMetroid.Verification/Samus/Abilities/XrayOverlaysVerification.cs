@@ -40,7 +40,7 @@ internal static class XrayOverlaysVerification
             definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), definitions);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var items = new[]
         {
             new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1, InWorldCollectibleKind.Bombs, 1),

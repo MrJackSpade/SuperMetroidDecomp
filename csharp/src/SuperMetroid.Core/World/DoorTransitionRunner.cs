@@ -41,7 +41,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Holds destination room data, camera, and background streamer.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Provides boss bits and advances main-loop random state.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Captures the runtime services used by native-order door setup and wait dispatch.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)

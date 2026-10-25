@@ -24,7 +24,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Door-bit owner captured when a live eye projectile is spawned.</summary>
-    private Bank80SystemState? _eyeDoorProjectileSystem;
+    private SharedGameState? _eyeDoorProjectileSystem;
 
     /// <summary>
     /// Replays <c>SpawnEprojWithRoomGfx</c> and the definition-specific initializer selected
@@ -34,7 +34,7 @@ internal sealed class EyeDoorBehavior
     public void SpawnEyeDoorProjectile(
         EyeDoorProjectileRequest request,
         int roomWidthInBlocks,
-        Bank80SystemState system)
+        SharedGameState system)
     {
         _room.EnsureLoaded();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
@@ -282,7 +282,7 @@ internal sealed class EyeDoorBehavior
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue +
             ReadEyeDoorAcceleration(angle - 64)))));
 
-        Bank80SystemState system = _eyeDoorProjectileSystem ??
+        SharedGameState system = _eyeDoorProjectileSystem ??
             throw new InvalidOperationException("A live eye-door projectile has no door-bit owner.");
         if (system.HasOpenedDoorBit(projectile.Variable1))
             StartEyeDoorProjectileImpact(projectile);

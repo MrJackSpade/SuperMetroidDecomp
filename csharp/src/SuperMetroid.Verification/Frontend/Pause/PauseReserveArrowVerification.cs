@@ -29,7 +29,7 @@ internal static class PauseReserveArrowVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 2,
             MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto, CollectedBeams = SamusBeamFlags.Charge };
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         pause.Step(0, ControllerButton.Up);
         Rgba32[]? first = null;

@@ -52,7 +52,7 @@ internal static class ScreenTilePicturesVerification
         Check(options.CaptureRenderSnapshot(), options.ShownVram(), "options");
         var fileSelect = new FileSelectMenuState(new SaveSlotStore(maps), new AudioQueues(), maps, InstalledFixtures.SpriteSheets);
         Check(fileSelect.CaptureRenderSnapshot(), fileSelect.ShownVram(), "file select");
-        var explored = new Bank80SystemState();
+        var explored = new SharedGameState();
         explored.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
@@ -163,7 +163,7 @@ internal static class ScreenTilePicturesVerification
     internal static void VerifyPauseScreenTilePictures()
     {
         AreaMapPresentationCatalog maps = InstalledFixtures.Maps;
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
         var pause = new PauseMenuState(new PauseMenuEntry
         {

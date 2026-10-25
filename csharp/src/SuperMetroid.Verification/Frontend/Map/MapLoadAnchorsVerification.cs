@@ -133,7 +133,7 @@ internal static class MapLoadAnchorsVerification
                 anchors++;
                 for (int visibility = 0; visibility < 4; visibility++)
                 {
-                    var system = new Bank80SystemState();
+                    var system = new SharedGameState();
                     if (visibility == 1)
                     {
                         system.MarkExploredMapTile(typedArea, new(0, 0));
@@ -142,7 +142,7 @@ internal static class MapLoadAnchorsVerification
                     if (visibility == 2) system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
                     if (visibility == 3)
                     {
-                        var stations = new byte[Bank80SystemState.MapStationByteCount]; stations[area] = 1;
+                        var stations = new byte[SharedGameState.MapStationByteCount]; stations[area] = 1;
                         system.LoadMapStationBytes(stations);
                     }
                     var native = new FileSelectMapScroll(SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);

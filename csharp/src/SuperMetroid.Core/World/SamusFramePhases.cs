@@ -40,8 +40,8 @@ internal sealed class SamusFramePhases
     private readonly SamusFrameState _player;
     /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Supplies persistent bank-$80 state consulted by movement handlers.</summary>
-    private readonly Bank80SystemState _system;
+    /// <summary>Supplies the shared game state consulted by movement handlers.</summary>
+    private readonly SharedGameState _system;
     /// <summary>Builds X-ray's reveal tilemap at its setup stage.</summary>
     private readonly XrayReveal _xray;
     /// <summary>UpdateSamusPose after normal beta's animation.</summary>

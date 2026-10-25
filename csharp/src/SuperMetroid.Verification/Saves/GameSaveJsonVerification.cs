@@ -48,7 +48,7 @@ internal static class GameSaveJsonVerification
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
             EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
         };
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetEvent(EventNumber.ZebesAwake);
         system.SetEventRaw(63);
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaMiniBoss);
@@ -228,7 +228,7 @@ internal static class GameSaveJsonVerification
         AreaMapPresentationCatalog maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
         var samus = new SamusState { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
-        var system = new Bank80SystemState { LoadedItemCount = ushort.MaxValue };
+        var system = new SharedGameState { LoadedItemCount = ushort.MaxValue };
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
             new SaveSnapshotContext { Area = AreaId.Maridia, SaveStation = SaveFieldValue.MaximumValue }) with
         {

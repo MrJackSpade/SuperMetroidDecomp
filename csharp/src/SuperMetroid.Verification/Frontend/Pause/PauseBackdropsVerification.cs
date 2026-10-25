@@ -115,7 +115,7 @@ internal static class PauseBackdropsVerification
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
         var samus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300, CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
-        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
@@ -167,7 +167,7 @@ internal static class PauseBackdropsVerification
         {
             // Ceres has no map station, so its map byte is never set natively; since #1252 the
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
             return new(new PauseMenuEntry { Samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         }

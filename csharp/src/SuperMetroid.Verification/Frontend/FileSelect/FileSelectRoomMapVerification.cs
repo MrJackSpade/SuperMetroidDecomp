@@ -46,7 +46,7 @@ internal static class FileSelectRoomMapVerification
         foreach (bool downloaded in new[] { false, true })
         {
             AreaId area = (AreaId)areaIndex;
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             byte[] original = map.RawTilemapBytes.ToArray();
             // Deliberately cross both native pages and explore cells outside the map
@@ -129,7 +129,7 @@ internal static class FileSelectRoomMapVerification
         control.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(control.Render()),
             "room cancel must retain the map/icons drawn before input until next coroutine call");
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadMapStationBytes(slot.MapStationBytes);
         Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
@@ -236,7 +236,7 @@ internal static class FileSelectRoomMapVerification
     internal static void VerifyFileSelectMapIcons()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
         landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires a Brinstar boss landmark."))] = new(32, 40);
@@ -443,7 +443,7 @@ internal static class FileSelectRoomMapVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
         ControllerButton[] inputs = [ControllerButton.Left, ControllerButton.Right, ControllerButton.Up, ControllerButton.Down];
@@ -468,7 +468,7 @@ internal static class FileSelectRoomMapVerification
         var precedence = new FileSelectMapScroll(map, system, new(240, 128));
         precedence.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right));
         AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
-        var empty = new FileSelectMapScroll(map, new Bank80SystemState(), new(216, 48));
+        var empty = new FileSelectMapScroll(map, new SharedGameState(), new(216, 48));
         AssertEqual(208, empty.Minimum.X, "empty map uses retail left default");
         AssertEqual(224, empty.Maximum.X, "empty map uses retail right default");
         AssertEqual(32, empty.Minimum.Y, "empty map uses top default then file-select adjustment");

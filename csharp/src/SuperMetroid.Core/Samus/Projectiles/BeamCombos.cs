@@ -223,7 +223,7 @@ internal sealed class BeamCombos
     /// before conditionally falling back into LoadBeamPalette's copy loop at $90:AD12.
     /// </summary>
     internal static void RunSpacetimePaletteCopyTail(
-        SuperMetroid.Core.Progression.Bank80SystemState? progression,
+        SuperMetroid.Core.Progression.SharedGameState? progression,
         SamusOverreadCatalog? overreads,
         SamusProjectileSlot slot)
     {

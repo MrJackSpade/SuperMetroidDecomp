@@ -67,14 +67,14 @@ internal static class SaveLoadRandomAudit
             Console.WriteLine($"SAVE RNG wait={wait} frontendFrames={sequence} dispatches={dispatches} rng={runtime.System.RandomNumber} room={runtime.Room.ActiveRoom?.Pointer:X4} energy={runtime.Player.Samus.Health} PB={runtime.Player.Samus.PowerBombs}/{runtime.Player.Samus.MaxPowerBombs}");
             // The reset vector seeds before the first main-loop/state-zero pass.
             // This empty save room has no random-consuming population initializer.
-            var expected = new Bank80SystemState();
+            var expected = new SharedGameState();
             for (long dispatch = 0; dispatch < dispatches; dispatch++) expected.NextRandom();
             if (runtime.System.RandomNumber != expected.RandomNumber)
                 throw new InvalidDataException($"Menu/load RNG: expected {expected.RandomNumber}, got {runtime.System.RandomNumber} after {dispatches} main-loop dispatches.");
             // Original-CPU probe: GenerateRandomNumber called 426/427/428 times from the
             // reset seed. It validates the generator, not the menu's dispatch count.
             ushort[] nativeLoaded = [51088, 59105, 33654];
-            var probe = new Bank80SystemState();
+            var probe = new SharedGameState();
             for (int call = 0; call < 426 + wait; call++) probe.NextRandom();
             if (probe.RandomNumber != nativeLoaded[wait])
                 throw new InvalidDataException("RNG generator no longer matches its recorded original-CPU words.");

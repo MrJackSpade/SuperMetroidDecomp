@@ -29,7 +29,7 @@ internal static class MapStationLayoutVerification
             var rules = MapStationDiscoveryRules.All.Where(rule => rule.Area == area).ToArray();
             for (int mask = 0; mask < (1 << rules.Length); mask++)
             {
-                var system = new Bank80SystemState();
+                var system = new SharedGameState();
                 for (int i = 0; i < rules.Length; i++)
                     if ((mask & (1 << i)) != 0) system.MarkExploredMapTile(area, rules[i].Cell);
                 var native = new FileSelectMapIcons(system, area);
@@ -57,7 +57,7 @@ internal static class MapStationLayoutVerification
         byte[] bytes = File.ReadAllBytes(replacement);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "station position edit changes catalog identity");
-        var state = new Bank80SystemState();
+        var state = new SharedGameState();
         state.MarkExploredMapTile(AreaId.Brinstar, new(10, 8)); // Edited visual cell, not native discovery cell.
         var baseIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
         var editIcons = new FileSelectMapIcons(state, AreaId.Brinstar);
@@ -77,7 +77,7 @@ internal static class MapStationLayoutVerification
         var graphics = new FileSelectRoomMapGraphics(state, AreaId.Brinstar, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var nativePixels = nativeGraphics.Render(new(0, 0), marker);
         AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "stock station full-menu pixels with ROM layout blocked");
-        byte[] before = Enumerable.Range(0, Bank80SystemState.ExploredMapBytesPerArea)
+        byte[] before = Enumerable.Range(0, SharedGameState.ExploredMapBytesPerArea)
             .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray();
         graphics.BindFixtureArtwork(edited);
         AssertTrue(!nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "edited station changes actual menu pixels after rebind");

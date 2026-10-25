@@ -52,7 +52,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
     private readonly SamusState samus;
     /// <summary>Provides persistent area map and exploration bits.</summary>
-    private readonly Bank80SystemState system;
+    private readonly SharedGameState system;
     /// <summary>Area whose map and pause backdrop are displayed.</summary>
     private readonly AreaId area;
     /// <summary>Room header map origin used to locate Samus on the area map.</summary>

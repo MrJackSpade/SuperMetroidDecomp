@@ -14,7 +14,7 @@ internal sealed class RoomPlmRuntimeServices(
     RoomScopeConstruction destination,
     SamusFrameState player,
     ActiveRoomState room,
-    Bank80SystemState system) :
+    SharedGameState system) :
     IRoomSamusAccess, ITourianStatueProgress, IRoomEarthquakeWriter, IRoomPlmEnemyEffects
 {
     /// <summary>

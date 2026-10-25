@@ -11,7 +11,7 @@ public static class XrayRevealOverlays
 {
     /// <summary>Applies $84:831A in descending PLM slot order, then room-authored record order.</summary>
     public static void Apply(RoomLevelData level, Span<ushort> tilemap,
-        IReadOnlyList<CollectiblePlmSnapshot> items, Bank80SystemState system,
+        IReadOnlyList<CollectiblePlmSnapshot> items, SharedGameState system,
         XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> layer1Position,
         XrayRevealVisualCatalog? visuals = null)
     {

@@ -37,7 +37,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Loads the recorded room and door independently using the demo camera position.</summary>
     private readonly RoomLoader _roomLoader;
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
@@ -81,20 +81,20 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     internal void InitializeAttractDemo(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
-        byte[] itemBits = new byte[Bank80SystemState.ItemBitByteCount];
+        byte[] itemBits = new byte[SharedGameState.ItemBitByteCount];
         Array.Fill(itemBits, byte.MaxValue);
         _system.LoadCollectedItemBytes(itemBits);
         _system.LoadRoomChozoBytes(itemBits);
-        _system.LoadOpenedDoorBytes(new byte[Bank80SystemState.DoorBitByteCount]);
-        _system.LoadEventBytes(new byte[Bank80SystemState.EventByteCount]);
-        _system.LoadBossBytes(new byte[Bank80SystemState.AreaCount]);
-        byte[] mapStations = new byte[Bank80SystemState.MapStationByteCount];
-        mapStations.AsSpan(0, Bank80SystemState.AreaCount).Fill(byte.MaxValue);
+        _system.LoadOpenedDoorBytes(new byte[SharedGameState.DoorBitByteCount]);
+        _system.LoadEventBytes(new byte[SharedGameState.EventByteCount]);
+        _system.LoadBossBytes(new byte[SharedGameState.AreaCount]);
+        byte[] mapStations = new byte[SharedGameState.MapStationByteCount];
+        mapStations.AsSpan(0, SharedGameState.AreaCount).Fill(byte.MaxValue);
         _system.LoadMapStationBytes(mapStations);
-        byte[] usedStations = new byte[Bank80SystemState.UsedSaveStationByteCount];
+        byte[] usedStations = new byte[SharedGameState.UsedSaveStationByteCount];
         Array.Fill(usedStations, byte.MaxValue);
         _system.LoadUsedSaveStationBytes(usedStations);
-        _system.LoadExploredMapBytes(new byte[Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea]);
+        _system.LoadExploredMapBytes(new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea]);
 
         _player.Samus = new SamusState
         {

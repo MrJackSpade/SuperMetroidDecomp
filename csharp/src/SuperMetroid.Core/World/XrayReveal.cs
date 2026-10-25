@@ -16,7 +16,7 @@ internal sealed class XrayReveal
     /// <summary>Supplies the active room, level, area, and X-ray pointer.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies system flags that affect revealed overlays.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
     /// <summary>
     /// The frozen reveal map, owned here (#1406). The cartridge built it in the tilemap staging its library backgrounds
     /// decompress into; nothing reads one through the other, so the map is its own state.
@@ -27,7 +27,7 @@ internal sealed class XrayReveal
     internal ReadOnlySpan<ushort> RevealTilemap => _revealTilemap;
 
     /// <summary>Binds the gameplay owners used to construct the X-ray reveal.</summary>
-    internal XrayReveal(BackgroundScrollState backgroundScroll, ActiveRoomState room, Bank80SystemState system)
+    internal XrayReveal(BackgroundScrollState backgroundScroll, ActiveRoomState room, SharedGameState system)
     {
         _backgroundScroll = backgroundScroll;
         _room = room;

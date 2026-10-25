@@ -16,7 +16,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     }
 
     /// <summary>The room's system and event state.</summary>
-    private readonly Bank80SystemState? _system;
+    private readonly SharedGameState? _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
     /// <summary>The Tourian statue sequence's progress.</summary>
@@ -27,7 +27,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     private readonly DoorPlms _doors;
 
     /// <summary>Binds progression checks, block drawing, and PLM sound requests.</summary>
-    internal GreyDoorPlms(Bank80SystemState? system, AreaId area, ITourianStatueProgress? tourianStatue, PlmSoundQueue sounds, DoorPlms doors)
+    internal GreyDoorPlms(SharedGameState? system, AreaId area, ITourianStatueProgress? tourianStatue, PlmSoundQueue sounds, DoorPlms doors)
     {
         _doors = doors;
         _system = system;
@@ -100,13 +100,13 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     }
 
     /// <summary>The room's progression owner.</summary>
-    private Bank80SystemState RequireSystem() =>
+    private SharedGameState RequireSystem() =>
         _system ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
 
     /// <summary>Whether the unlock check <paramref name="preInstruction"/> passes.</summary>
     private bool IsUnlocked(GreyDoorPreInstruction preInstruction, int enemyDeaths, int enemyDeathQuota)
     {
-        Bank80SystemState system = RequireSystem();
+        SharedGameState system = RequireSystem();
         return preInstruction switch
         {
             GreyDoorPreInstruction.WakeIfAreaBossDead => system.HasAnyBossBits(_area, BossBits.AreaBoss),

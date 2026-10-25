@@ -57,7 +57,7 @@ internal static class MapCrossViewAudit
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
         };
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         if (hasAreaMap)
             system.SetAreaMapAcquired(room.AreaIndex);
 

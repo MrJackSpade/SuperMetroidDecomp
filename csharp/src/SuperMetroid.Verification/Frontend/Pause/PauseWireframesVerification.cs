@@ -57,8 +57,8 @@ internal static class PauseWireframesVerification
             {
                 SamusEquipmentFlags equipped = (SamusEquipmentFlags)items | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
                 var samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
-                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 // Every tick compares the complete render inputs; identical inputs cannot render
                 // differently, so pixels are rasterized once each page change settles.
                 void StepBoth(ControllerButton input)
@@ -102,7 +102,7 @@ internal static class PauseWireframesVerification
         // Exercise selection through real menu actions, not only a direct bit fixture.
         var toggledSamus = new SamusState { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
             EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots) };
-        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
         toggles.Step(0, ControllerButton.Down);

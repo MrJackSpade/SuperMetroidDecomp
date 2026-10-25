@@ -101,41 +101,41 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>The retail area index that owns <see cref="SaveStation"/>.</summary>
     public int Area { get; init; }
 
-    /// <summary>Eight persistent event bytes copied without reinterpretation from bank-$80 state.</summary>
-    public byte[] EventBytes { get; init; } = new byte[Bank80SystemState.EventByteCount];
+    /// <summary>Eight persistent event bytes copied without reinterpretation from the shared game state.</summary>
+    public byte[] EventBytes { get; init; } = new byte[SharedGameState.EventByteCount];
 
     /// <summary>
     /// One boss-state flag set per native area slot, including any unproven bits a corrupting write left, which the
     /// SRAM encoding carries losslessly.
     /// </summary>
-    public BossBits[] BossFlags { get; init; } = new BossBits[Bank80SystemState.AreaCount];
+    public BossBits[] BossFlags { get; init; } = new BossBits[SharedGameState.AreaCount];
 
     /// <summary>The 64-byte room-indexed bitset for opened Chozo item orbs.</summary>
     public byte[] RoomChozoBytes { get; init; } =
-        new byte[Bank80SystemState.RoomChozoBitByteCount];
+        new byte[SharedGameState.RoomChozoBitByteCount];
 
     /// <summary>The 64-byte room-indexed bitset for collected item PLMs.</summary>
     public byte[] CollectedItemBytes { get; init; } =
-        new byte[Bank80SystemState.ItemBitByteCount];
+        new byte[SharedGameState.ItemBitByteCount];
 
     /// <summary>The 64-byte room-indexed bitset for doors permanently opened by the player.</summary>
     public byte[] OpenedDoorBytes { get; init; } =
-        new byte[Bank80SystemState.DoorBitByteCount];
+        new byte[SharedGameState.DoorBitByteCount];
 
     /// <summary>The 16-byte per-area bitset for visited save stations and elevators.</summary>
     public byte[] UsedSaveStationBytes { get; init; } =
-        new byte[Bank80SystemState.UsedSaveStationByteCount];
+        new byte[SharedGameState.UsedSaveStationByteCount];
 
     /// <summary>The 12-byte per-area bitset for activated map stations.</summary>
     public byte[] MapStationBytes { get; init; } =
-        new byte[Bank80SystemState.MapStationByteCount];
+        new byte[SharedGameState.MapStationByteCount];
 
     /// <summary>
     /// Unpacked explored-map bytes in area-major order; SRAM encoding interleaves the six
     /// persisted Zebes areas and omits the Ceres prologue.
     /// </summary>
     public byte[] ExploredMapBytes { get; init; } = new byte[
-        Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
+        SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
 
     /// <summary>Captures the translated gameplay owners into a detached SRAM-encoding snapshot.</summary>
     /// <param name="samus">Source of player inventory, ammunition, energy, and reserve state.</param>
@@ -143,19 +143,19 @@ public sealed record SuperMetroidSaveSnapshot
     /// <param name="context">The save location, timer, bindings and options a save snapshot records with Samus and system state (#633).</param>
     /// <returns>A detached copy safe to pass to <see cref="SaveSlotStore.SaveSlot"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> or <paramref name="system"/> is <see langword="null"/>.</exception>
-    public static SuperMetroidSaveSnapshot Capture(SamusState samus, Bank80SystemState system, SaveSnapshotContext context)
+    public static SuperMetroidSaveSnapshot Capture(SamusState samus, SharedGameState system, SaveSnapshotContext context)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(system);
-        var events = new byte[Bank80SystemState.EventByteCount];
-        var bosses = new BossBits[Bank80SystemState.AreaCount];
-        var roomChozo = new byte[Bank80SystemState.RoomChozoBitByteCount];
-        var collectedItems = new byte[Bank80SystemState.ItemBitByteCount];
-        var openedDoors = new byte[Bank80SystemState.DoorBitByteCount];
-        var usedSaveStations = new byte[Bank80SystemState.UsedSaveStationByteCount];
-        var mapStations = new byte[Bank80SystemState.MapStationByteCount];
+        var events = new byte[SharedGameState.EventByteCount];
+        var bosses = new BossBits[SharedGameState.AreaCount];
+        var roomChozo = new byte[SharedGameState.RoomChozoBitByteCount];
+        var collectedItems = new byte[SharedGameState.ItemBitByteCount];
+        var openedDoors = new byte[SharedGameState.DoorBitByteCount];
+        var usedSaveStations = new byte[SharedGameState.UsedSaveStationByteCount];
+        var mapStations = new byte[SharedGameState.MapStationByteCount];
         var exploredMap = new byte[
-            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
+            SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
         for (int index = 0; index < events.Length; index++)
             events[index] = system.GetEventByteRaw(index);
         for (int index = 0; index < bosses.Length; index++)
@@ -170,13 +170,13 @@ public sealed record SuperMetroidSaveSnapshot
             usedSaveStations[index] = system.GetUsedSaveStationByteRaw(index);
         for (int index = 0; index < mapStations.Length; index++)
             mapStations[index] = system.GetMapStationByteRaw(index);
-        for (int areaIndex = 0; areaIndex < Bank80SystemState.ExploredMapAreaCount; areaIndex++)
+        for (int areaIndex = 0; areaIndex < SharedGameState.ExploredMapAreaCount; areaIndex++)
         {
             for (int byteIndex = 0;
-                byteIndex < Bank80SystemState.ExploredMapBytesPerArea;
+                byteIndex < SharedGameState.ExploredMapBytesPerArea;
                 byteIndex++)
             {
-                exploredMap[areaIndex * Bank80SystemState.ExploredMapBytesPerArea + byteIndex] =
+                exploredMap[areaIndex * SharedGameState.ExploredMapBytesPerArea + byteIndex] =
                     system.GetExploredMapByteRaw(areaIndex, byteIndex);
             }
         }

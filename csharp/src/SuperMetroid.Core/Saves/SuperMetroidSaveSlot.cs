@@ -97,7 +97,7 @@ public sealed record SuperMetroidSaveSlot(
     }
 
     /// <summary>Restores player inventory and all progression bytes represented in SRAM.</summary>
-    public void ApplyTo(SamusState samus, Bank80SystemState system)
+    public void ApplyTo(SamusState samus, SharedGameState system)
     {
         ApplyTo(samus);
         Ensure.NotNull(system);

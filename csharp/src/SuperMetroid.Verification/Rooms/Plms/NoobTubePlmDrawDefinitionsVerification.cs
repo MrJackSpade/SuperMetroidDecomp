@@ -87,7 +87,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         blockDefinitions[0x59 * 8] = 0x59;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmNoobTubeVisuals = visuals });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"n00b tube loads for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
         plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<NoobTubeDraw>(PlmDrawAddressCodec.Of(selected.Draw)));
 

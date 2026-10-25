@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public sealed record PlmRoom
 {
     /// <summary>Creates the room binding; every member is required.</summary>
-    public PlmRoom(RoomLevelData level, BgArtworkBindings backgrounds, Bank80SystemState system, AreaId areaIndex)
+    public PlmRoom(RoomLevelData level, BgArtworkBindings backgrounds, SharedGameState system, AreaId areaIndex)
     {
 
         Level = Ensure.NotNull(level);
@@ -28,7 +28,7 @@ public sealed record PlmRoom
     public BgArtworkBindings Backgrounds { get; }
 
     /// <summary>System state owning item, door and event bits.</summary>
-    public Bank80SystemState System { get; }
+    public SharedGameState System { get; }
 
     /// <summary>The room's area.</summary>
     public AreaId AreaIndex { get; }

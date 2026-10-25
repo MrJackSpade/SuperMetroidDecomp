@@ -17,7 +17,7 @@ internal static class RetailPauseTests
     /// <summary>The pause map and equipment pages, drawn from their screen tiles, match the WARP reference device exactly.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
         var pause = new PauseMenuState(new PauseMenuEntry
         {

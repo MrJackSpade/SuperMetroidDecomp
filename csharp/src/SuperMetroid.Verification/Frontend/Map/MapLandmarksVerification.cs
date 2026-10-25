@@ -31,10 +31,10 @@ internal static class MapLandmarksVerification
         foreach (bool downloaded in new[] { false, true })
         for (int bits = 0; bits <= byte.MaxValue; bits++)
         {
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             // SRAM preserves all eight bits, including unnamed ones; use its raw
             // restore boundary rather than passing unnamed flags to the gameplay API.
-            byte[] bossBytes = new byte[Bank80SystemState.AreaCount];
+            byte[] bossBytes = new byte[SharedGameState.AreaCount];
             bossBytes[(int)area] = (byte)bits;
             system.LoadBossBytes(bossBytes);
             if (downloaded) system.SetAreaMapAcquired(area);
@@ -59,7 +59,7 @@ internal static class MapLandmarksVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "landmark edit changes content identity");
         // An undiscovered living boss remains invisible even after its visual is moved.
-        var unknown = new Bank80SystemState();
+        var unknown = new SharedGameState();
         var hidden = new FileSelectMapIcons(unknown, AreaId.WreckedShip);
         hidden.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
         hidden.BindLandmarks(original.Landmarks); byte[] hiddenBefore = Draw(hidden, AreaId.WreckedShip);
@@ -69,7 +69,7 @@ internal static class MapLandmarksVerification
         // Crateria has the independent gunship marker. Ceres boss data is covered above.
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.WreckedShip })
         {
-            var system = new Bank80SystemState(); system.SetAreaMapAcquired(area); system.SetBossBits(area, (BossBits)1);
+            var system = new SharedGameState(); system.SetAreaMapAcquired(area); system.SetBossBits(area, (BossBits)1);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
             var marker = new FileSelectStationMarker(area, 0, original.SaveMarkers);
             var native = new FileSelectRoomMapGraphics(system, area,

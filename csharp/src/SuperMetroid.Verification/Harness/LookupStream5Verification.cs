@@ -691,7 +691,7 @@ internal static class LookupStream5Verification
         foreach (bool downloaded in new[] { false, true })
         foreach (bool defeated in new[] { false, true })
         {
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             if (downloaded) system.SetAreaMapAcquired(area);
             if (defeated) system.SetBossBits(area, (BossBits)1);
             var icons = new FileSelectMapIcons(system, area);
@@ -894,7 +894,7 @@ internal static class LookupStream5Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor(MapScrollDirection.None), "No direction has no binding");
         AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)5), "Invalid direction");
-        var state = new Bank80SystemState();
+        var state = new SharedGameState();
         state.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         state.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
         var map = new LookupStream5ScrollMap();

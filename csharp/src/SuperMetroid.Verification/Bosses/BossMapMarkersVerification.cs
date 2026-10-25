@@ -36,7 +36,7 @@ internal static class BossMapMarkersVerification
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1) continue;
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (list + record * 4 + 2));
-                var system = new Bank80SystemState();
+                var system = new SharedGameState();
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                 // Center the marker under test without changing its authored position.
@@ -71,7 +71,7 @@ internal static class BossMapMarkersVerification
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
-                var restoredSystem = new Bank80SystemState();
+                var restoredSystem = new SharedGameState();
                 slot.ApplyTo(new SamusState(), restoredSystem);
                 AssertTrue(dead.SequenceEqual(CenteredPause(restoredSystem).Render()),
                     "JSON/SRAM reload preserves the complete defeated pause image");
@@ -101,7 +101,7 @@ internal static class BossMapMarkersVerification
                         "ordinary room load/reload preserves defeated marker and acquired map");
                 }
 
-                PauseMenuState CenteredPause(Bank80SystemState state)
+                PauseMenuState CenteredPause(SharedGameState state)
                 {
                     var reopened = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                     reopened.MapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));

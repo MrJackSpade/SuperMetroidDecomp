@@ -29,7 +29,7 @@ internal static class MapScrollControlsVerification
             AssertEqual(buttons[index], MapScrollControls.Buttons[index], "compiled map controller mask matches native record");
         }
         var guard = NewMapScrollControlGuard(bus);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
         var map = catalog.Get(AreaId.Crateria);

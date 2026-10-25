@@ -14,7 +14,7 @@ internal sealed record PauseMenuEntry
     public required SamusState Samus { get; init; }
 
     /// <summary>System.</summary>
-    public required Bank80SystemState System { get; init; }
+    public required SharedGameState System { get; init; }
 
     /// <summary>Area index.</summary>
     public required AreaId AreaIndex { get; init; }

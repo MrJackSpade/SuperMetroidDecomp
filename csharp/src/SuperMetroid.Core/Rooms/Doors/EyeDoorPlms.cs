@@ -16,7 +16,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     }
 
     /// <summary>The room's system and event state.</summary>
-    private readonly Bank80SystemState? _system;
+    private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The enemy effects room objects trigger.</summary>
@@ -25,7 +25,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Binds eye-door PLM handling to room services and sound requests.</summary>
-    internal EyeDoorPlms(Bank80SystemState? system, IRoomSamusAccess? samus, IRoomPlmEnemyEffects? enemies, PlmSoundQueue sounds)
+    internal EyeDoorPlms(SharedGameState? system, IRoomSamusAccess? samus, IRoomPlmEnemyEffects? enemies, PlmSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -343,7 +343,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         slot.StartAnimation(new EyeDoorPlmAnimation(orientation, component,
             component == EyeDoorComponent.Eye ? EyeDoorPlmProgram.EyeStart : EyeDoorPlmProgram.ComponentStart));
 
-        Bank80SystemState system = _system ??
+        SharedGameState system = _system ??
             throw new InvalidOperationException("Eye-door setup has no persistence owner.");
         if (unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasOpenedDoorBit(slot.RoomArgument))
@@ -371,7 +371,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     {
         EyeDoorPlmState eyeDoor = slot.Family as EyeDoorPlmState
             ?? throw new InvalidOperationException("An eye door's wake ran without its component state.");
-        Bank80SystemState system = _system ??
+        SharedGameState system = _system ??
             throw new InvalidOperationException("A live eye door has no persistence owner.");
         switch (preInstruction)
         {

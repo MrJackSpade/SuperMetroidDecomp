@@ -33,7 +33,7 @@ public sealed class TourianStatueSequence
     /// <summary>Creates the palette effect selected by a statue animated-tile instruction.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
     /// <summary>Tracks boss and statue events, area boss bits, RNG, and the final Tourian unlock event.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
     /// <summary>The unlock option skips tile playback and starts the statue at its completed offset.</summary>
     private readonly TesterTools _tester;
     /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>

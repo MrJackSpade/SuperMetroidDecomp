@@ -6,7 +6,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
-public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
+public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
 {
     /// <summary>The installed map sprite sheet, rebound when a frontend save state is restored.</summary>
     [NonSerialized] private SpriteSheet? sheet;
@@ -21,7 +21,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
     /// <summary>Binds landmark positions used for boss, gunship, and elevator icons.</summary>
     internal void BindLandmarks(SuperMetroid.Core.Frontend.Map.Artwork.MapLandmarkLayout? layout) => landmarks = layout;
     /// <summary>Exposes the retained exploration owner to the menu without duplicating its state.</summary>
-    internal Bank80SystemState MapSystem => system;
+    internal SharedGameState MapSystem => system;
     /// <summary>Area whose map exploration and icons this view draws.</summary>
     internal AreaId MapArea => area;
 

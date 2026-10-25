@@ -100,7 +100,7 @@ internal static class EscapeGateVisualsVerification
         blockDefinitions[0x53 * 8] = 0x53;
         blockDefinitions[0x54 * 8] = 0x54;
         RoomLevelData CreateLevel() => new RoomLevelData(new(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
 
         RoomLevelData closedLevel = CreateLevel();
         var closed = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEscapeGateVisuals = edited });

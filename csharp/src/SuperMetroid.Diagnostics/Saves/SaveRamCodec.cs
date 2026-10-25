@@ -112,13 +112,13 @@ public static class SaveRamCodec
             GameTimeSeconds: ReadWord(payload, SaveRamLayout.GameTimeSecondsOffset),
             GameTimeMinutes: ReadWord(payload, SaveRamLayout.GameTimeMinutesOffset),
             GameTimeHours: ReadWord(payload, SaveRamLayout.GameTimeHoursOffset),
-            EventBytes: payload.Slice(SaveRamLayout.EventsOffset, Bank80SystemState.EventByteCount).ToArray(),
-            BossBytes: payload.Slice(SaveRamLayout.BossBitsOffset, Bank80SystemState.AreaCount).ToArray(),
-            RoomChozoBytes: payload.Slice(SaveRamLayout.RoomChozoBitsOffset, Bank80SystemState.RoomChozoBitByteCount).ToArray(),
-            CollectedItemBytes: payload.Slice(SaveRamLayout.CollectedItemBitsOffset, Bank80SystemState.ItemBitByteCount).ToArray(),
-            OpenedDoorBytes: payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, Bank80SystemState.DoorBitByteCount).ToArray(),
-            UsedSaveStationBytes: payload.Slice(SaveRamLayout.UsedSaveStationsOffset, Bank80SystemState.UsedSaveStationByteCount).ToArray(),
-            MapStationBytes: payload.Slice(SaveRamLayout.MapStationsOffset, Bank80SystemState.MapStationByteCount).ToArray(),
+            EventBytes: payload.Slice(SaveRamLayout.EventsOffset, SharedGameState.EventByteCount).ToArray(),
+            BossBytes: payload.Slice(SaveRamLayout.BossBitsOffset, SharedGameState.AreaCount).ToArray(),
+            RoomChozoBytes: payload.Slice(SaveRamLayout.RoomChozoBitsOffset, SharedGameState.RoomChozoBitByteCount).ToArray(),
+            CollectedItemBytes: payload.Slice(SaveRamLayout.CollectedItemBitsOffset, SharedGameState.ItemBitByteCount).ToArray(),
+            OpenedDoorBytes: payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, SharedGameState.DoorBitByteCount).ToArray(),
+            UsedSaveStationBytes: payload.Slice(SaveRamLayout.UsedSaveStationsOffset, SharedGameState.UsedSaveStationByteCount).ToArray(),
+            MapStationBytes: payload.Slice(SaveRamLayout.MapStationsOffset, SharedGameState.MapStationByteCount).ToArray(),
             ExploredMapBytes: ExploredMapStorage.Unpack(
                 payload.Slice(SaveRamLayout.CompressedMapDataOffset, SaveRamLayout.CompressedMapDataByteCount), maps),
             LoadingGameState: ReadWord(payload, SaveRamLayout.LoadingGameStateOffset),
@@ -188,26 +188,26 @@ public static class SaveRamCodec
             SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker)));
         WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
-        if (snapshot.EventBytes.Length != Bank80SystemState.EventByteCount)
+        if (snapshot.EventBytes.Length != SharedGameState.EventByteCount)
             throw new InvalidDataException("A save snapshot requires exactly eight event bytes.");
-        if (snapshot.BossFlags.Length != Bank80SystemState.AreaCount)
+        if (snapshot.BossFlags.Length != SharedGameState.AreaCount)
             throw new InvalidDataException("A save snapshot requires exactly eight area-boss flag sets.");
         snapshot.EventBytes.CopyTo(payload, SaveRamLayout.EventsOffset);
         for (int area = 0; area < snapshot.BossFlags.Length; area++)
             payload[SaveRamLayout.BossBitsOffset + area] = (byte)snapshot.BossFlags[area];
-        if (snapshot.RoomChozoBytes.Length != Bank80SystemState.RoomChozoBitByteCount)
+        if (snapshot.RoomChozoBytes.Length != SharedGameState.RoomChozoBitByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 64 room-Chozo bytes.");
         snapshot.RoomChozoBytes.CopyTo(payload, SaveRamLayout.RoomChozoBitsOffset);
-        if (snapshot.CollectedItemBytes.Length != Bank80SystemState.ItemBitByteCount)
+        if (snapshot.CollectedItemBytes.Length != SharedGameState.ItemBitByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 64 collected-item bytes.");
         snapshot.CollectedItemBytes.CopyTo(payload, SaveRamLayout.CollectedItemBitsOffset);
-        if (snapshot.OpenedDoorBytes.Length != Bank80SystemState.DoorBitByteCount)
+        if (snapshot.OpenedDoorBytes.Length != SharedGameState.DoorBitByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 64 opened-door bytes.");
         snapshot.OpenedDoorBytes.CopyTo(payload, SaveRamLayout.OpenedDoorBitsOffset);
-        if (snapshot.UsedSaveStationBytes.Length != Bank80SystemState.UsedSaveStationByteCount)
+        if (snapshot.UsedSaveStationBytes.Length != SharedGameState.UsedSaveStationByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 16 used save/elevator bytes.");
         snapshot.UsedSaveStationBytes.CopyTo(payload, SaveRamLayout.UsedSaveStationsOffset);
-        if (snapshot.MapStationBytes.Length != Bank80SystemState.MapStationByteCount)
+        if (snapshot.MapStationBytes.Length != SharedGameState.MapStationByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
         snapshot.MapStationBytes.CopyTo(payload, SaveRamLayout.MapStationsOffset);
         WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,

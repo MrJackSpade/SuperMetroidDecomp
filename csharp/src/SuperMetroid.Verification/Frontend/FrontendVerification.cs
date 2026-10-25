@@ -122,13 +122,13 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // persists the packed representation and ReadSlot reconstructs the seven-plane domain
     // representation without allowing a synthetic ROM to redefine fixed codec metadata.
     var exploredMap = new byte[
-        Bank80SystemState.ExploredMapAreaCount *
-        Bank80SystemState.ExploredMapBytesPerArea];
+        SharedGameState.ExploredMapAreaCount *
+        SharedGameState.ExploredMapBytesPerArea];
     exploredMap[0x07] = 0x80;
     exploredMap[0x84] = 0x04;
-    var usedSaveStations = new byte[Bank80SystemState.UsedSaveStationByteCount];
+    var usedSaveStations = new byte[SharedGameState.UsedSaveStationByteCount];
     usedSaveStations[0] = 0x01;
-    var mapStations = new byte[Bank80SystemState.MapStationByteCount];
+    var mapStations = new byte[SharedGameState.MapStationByteCount];
     mapStations[0] = 0xff;
 
     var addressSpace = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);

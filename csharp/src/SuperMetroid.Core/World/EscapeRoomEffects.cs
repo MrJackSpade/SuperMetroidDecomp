@@ -17,10 +17,10 @@ internal sealed class EscapeRoomEffects
     /// <summary>Provides the active room callback, camera, level, and scratch countdown.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the cartridge random sequence and Zebes timebomb event.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape callbacks.</summary>
-    internal EscapeRoomEffects(GameplayTimeFreeze freeze, FrameClock clock, ActiveRoomState room, Bank80SystemState system)
+    internal EscapeRoomEffects(GameplayTimeFreeze freeze, FrameClock clock, ActiveRoomState room, SharedGameState system)
     {
         _freeze = freeze;
         _clock = clock;

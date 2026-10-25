@@ -157,7 +157,7 @@ public static class PauseAudioSmokeTest
     /// <summary>Writes a Crateria station save with Morph Ball and Bombs so the frontend follows the saved-game route.</summary>
     private static SaveSlotStore SeedCrateriaSave(SuperMetroidAddressSpace bus)
     {
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetBossBits(0, BossBits.AreaTorizo);
         system.MarkSaveStationUsed(0, 0);
         var samus = new SamusState

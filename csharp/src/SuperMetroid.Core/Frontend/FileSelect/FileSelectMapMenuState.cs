@@ -76,7 +76,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         stationIndex = slot.SaveStation;
         if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadMapStationBytes(slot.MapStationBytes);
         system.LoadBossBytes(slot.BossBytes);
         system.LoadExploredMapBytes(slot.ExploredMapBytes);

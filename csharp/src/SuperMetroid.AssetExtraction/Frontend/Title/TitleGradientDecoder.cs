@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Import-time expansion of the title's native direct-mode HDMA tables.</summary>

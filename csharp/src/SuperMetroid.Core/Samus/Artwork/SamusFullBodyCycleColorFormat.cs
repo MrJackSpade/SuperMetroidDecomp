@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Defines the document identity and fixed native full-body palette geometry.</summary>

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Native Maridia sand/waterfall color rotations. Sixteen first-row colors remain required source inputs.</summary>

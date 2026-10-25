@@ -15,6 +15,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid (Shitroid) species owner: its per-room state, AI routines and the interactions it registers.</summary>

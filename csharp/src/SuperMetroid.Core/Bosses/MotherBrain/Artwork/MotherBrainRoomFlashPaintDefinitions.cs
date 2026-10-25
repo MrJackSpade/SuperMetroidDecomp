@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Reviewed room-flash paint composition at $A9:D082-D141: warm background flood

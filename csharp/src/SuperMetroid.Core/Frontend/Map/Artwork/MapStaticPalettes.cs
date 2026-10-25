@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Progression;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Named complete presentation palettes; no native offsets, palette programs or selection rules.</summary>

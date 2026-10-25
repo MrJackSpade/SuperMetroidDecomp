@@ -1,6 +1,7 @@
 using System.Collections;
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Loading tint inputs with derived endpoint channels removed.</summary>

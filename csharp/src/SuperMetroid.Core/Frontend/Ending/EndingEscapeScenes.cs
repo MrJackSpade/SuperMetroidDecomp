@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>

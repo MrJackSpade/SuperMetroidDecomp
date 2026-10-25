@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Sixteen-step logo RGB5 interpolation, stored as two caller-supplied endpoints.

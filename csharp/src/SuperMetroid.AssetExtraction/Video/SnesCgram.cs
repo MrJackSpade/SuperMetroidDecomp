@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
@@ -33,7 +34,7 @@ public sealed class SnesCgram : IPaletteColors
 
         for (int color = 0; color < colorCount; color++)
         {
-            _colors[destinationIndex + color] = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
+            _colors[destinationIndex + color] = RgbColor.FromWordIgnoringTopBit(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
         }
     }
 

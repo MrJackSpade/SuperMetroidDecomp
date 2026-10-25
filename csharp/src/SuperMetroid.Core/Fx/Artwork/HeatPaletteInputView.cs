@@ -1,6 +1,7 @@
 using System.Collections;
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Installed palette inputs with calculated heat endpoint channels.</summary>

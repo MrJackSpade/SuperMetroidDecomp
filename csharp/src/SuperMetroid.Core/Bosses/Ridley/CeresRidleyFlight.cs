@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's flight: liftoff, hovering, fireballs, lunges, swoops, the fake retreat and taking the baby, and the movement integration they share.</summary>

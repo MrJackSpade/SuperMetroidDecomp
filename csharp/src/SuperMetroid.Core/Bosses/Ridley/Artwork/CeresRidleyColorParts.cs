@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>The Ceres Ridley colour tables a Ceres Ridley colour catalog is built from (#633).</summary>

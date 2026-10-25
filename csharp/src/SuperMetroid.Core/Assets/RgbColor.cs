@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// One game colour (#1420): three five-bit channels, red, green and blue, each 0 through <see cref="MaxChannel"/>,
@@ -109,7 +109,7 @@ public readonly record struct RgbColor
 
     /// <summary>
     /// Decodes a stored 15-bit color word. A set bit 15 is rejected: it is not part of any
-    /// color, and only the CGRAM data port (<see cref="FromCgramPortWord"/>) defines a result for it.
+    /// color, and only <see cref="FromWordIgnoringTopBit"/> defines a result for it.
     /// </summary>
     public static RgbColor FromWord(ushort word)
     {
@@ -119,10 +119,11 @@ public readonly record struct RgbColor
     }
 
     /// <summary>
-    /// Decodes a word written through the CGRAM data port (<c>$2122</c>). The PPU stores only
-    /// fifteen bits, so the port discards bit 15 of the second byte.
+    /// The colour a packed word shows when its top bit, which is not a colour bit, may be set: the top bit is dropped. A
+    /// colour step that carries out of the blue channel, and a stored word loaded as a palette, show this colour, as the
+    /// original palette hardware kept only fifteen bits.
     /// </summary>
-    public static RgbColor FromCgramPortWord(ushort word) => new((ushort)(word & ColorBits));
+    public static RgbColor FromWordIgnoringTopBit(ushort word) => new((ushort)(word & ColorBits));
 
     /// <summary>The packed 15-bit word, for ROM, memory, CGRAM and serialization boundaries.</summary>
     public ushort ToWord() => channels;

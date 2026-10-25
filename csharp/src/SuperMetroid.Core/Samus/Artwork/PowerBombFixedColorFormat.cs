@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Palettes;
 
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Installed-resource identity, schema revision, and native sequence dimensions for explosion fixed-color artwork.</summary>

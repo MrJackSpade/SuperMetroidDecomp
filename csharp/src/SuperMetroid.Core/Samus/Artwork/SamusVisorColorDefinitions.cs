@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Calculated native visor color phases with narrowly retained painted-light composition choices.</summary>

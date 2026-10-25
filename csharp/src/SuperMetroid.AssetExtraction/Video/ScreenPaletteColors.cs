@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
@@ -26,6 +27,6 @@ internal sealed class ScreenPaletteColors(ScreenPalette screen) : IPaletteColors
         Ensure.BetweenInclusive(0, ScreenPalette.ColorCount - count, destinationIndex);
         for (int color = 0; color < count; color++)
             screen.All.Write(destinationIndex + color,
-                RgbColor.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1])));
+                RgbColor.FromWordIgnoringTopBit(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1])));
     }
 }

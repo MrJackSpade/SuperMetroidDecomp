@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The definition data of Mother Brain's rainbow beam: where it leaves her mouth, the lines it may cross and its colour.</summary>

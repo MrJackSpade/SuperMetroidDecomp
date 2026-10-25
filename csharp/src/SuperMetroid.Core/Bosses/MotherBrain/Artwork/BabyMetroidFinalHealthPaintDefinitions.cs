@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using InitialSlots = SuperMetroid.Core.Bosses.MotherBrain.Artwork.BabyMetroidInitialPaintDefinitions;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;

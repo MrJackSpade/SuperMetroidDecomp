@@ -81,7 +81,7 @@ internal static void VerifyObjRendering()
         new FramePaint(cgram.Colors, []), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
     RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(
         FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
-    AssertEqual(new SuperMetroid.Core.Hardware.RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
+    AssertEqual(new RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
     // OBJ priority controls only the winning sprite pixel's position relative to BGs.
@@ -98,7 +98,7 @@ internal static void VerifyObjRendering()
     RgbaPixel[] overlap = DisplayRendering.Render(new LayeredScene(
         FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
     AssertEqual(
-        new SuperMetroid.Core.Hardware.RgbaPixel(255, 0, 0),
+        new RgbaPixel(255, 0, 0),
         overlap[20 * 256 + 10],
         "lower-OAM OBJ2 wins cross-priority overlap");
 

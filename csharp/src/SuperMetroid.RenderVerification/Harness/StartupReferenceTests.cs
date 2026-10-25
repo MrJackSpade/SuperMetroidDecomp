@@ -26,7 +26,7 @@ internal static class StartupReferenceTests
     private static void Verify(D3D11RenderDevice device, D3D11FrameRenderer renderer, string referenceDigest, string scene, bool yearOnly)
     {
         var title = RenderRetailFixture.CreateTitle();
-        SuperMetroid.Core.Hardware.RgbaPixel[]? nativePixels = null;
+        RgbaPixel[]? nativePixels = null;
         DisplayPacket? closestPacket = null;
         int closestDifference = int.MaxValue;
         if (!yearOnly)
@@ -34,9 +34,9 @@ internal static class StartupReferenceTests
             byte[] nativeBytes = File.ReadAllBytes("csharp/test-fixtures/issue-321-snes9x-title-pan/title-pan.rgba");
             if (Convert.ToHexString(SHA256.HashData(nativeBytes)) != referenceDigest)
                 throw new InvalidDataException("Decoded native fixture does not match the recorded RGBA hash.");
-            nativePixels = MemoryMarshal.Cast<byte, SuperMetroid.Core.Hardware.RgbaPixel>(nativeBytes).ToArray();
+            nativePixels = MemoryMarshal.Cast<byte, RgbaPixel>(nativeBytes).ToArray();
         }
-        SuperMetroid.Core.Hardware.RgbaPixel[]? lastPixels = null;
+        RgbaPixel[]? lastPixels = null;
         int maximumGlyphRed = 0;
         byte[] channelBytes = new byte[FrontendFrame.Width * FrontendFrame.Height * 4];
         // Match within the named hold phase, not an assumed wall-clock startup tick.

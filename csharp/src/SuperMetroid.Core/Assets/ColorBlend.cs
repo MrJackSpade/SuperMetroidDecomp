@@ -1,9 +1,9 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// Which layers a colour blend applies to and how it combines (#1407): the layers whose shown pixel blends, whether the
 /// blend subtracts rather than adds, and whether it halves the result. The other operand is the layers behind or a
-/// fixed colour (<see cref="Rendering.SceneBlend"/>).
+/// fixed colour (the scene's blend).
 /// </summary>
 /// <remarks>The members combine freely. The Direct3D 11 backend uploads a combination as the bits below.</remarks>
 [Flags]

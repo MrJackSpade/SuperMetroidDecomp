@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="CgramPalette"/> members production does not use.</summary>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>The red and green channel levels of a colour.</summary>
 /// <param name="Red">The red.</param>

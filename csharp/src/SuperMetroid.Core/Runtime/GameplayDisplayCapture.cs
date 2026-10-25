@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>Resolution of one published gameplay display frame into the layered scene the backend draws.</summary>

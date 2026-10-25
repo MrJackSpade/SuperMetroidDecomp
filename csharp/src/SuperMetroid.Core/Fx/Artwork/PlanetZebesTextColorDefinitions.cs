@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>PLANET ZEBES text colors from three independently required bright endpoints.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>How an expired escape countdown whites out the screen.</summary>

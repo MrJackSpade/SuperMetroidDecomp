@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Colosseum/Halfie Climb layer blending, native $88:80CA configuration $16.</summary>

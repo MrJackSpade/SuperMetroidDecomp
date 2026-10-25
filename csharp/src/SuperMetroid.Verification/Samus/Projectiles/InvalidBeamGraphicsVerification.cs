@@ -33,7 +33,7 @@ internal static class InvalidBeamGraphicsVerification
             byte low = color == 0
                 ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
                 : bus.ReadCartridgeByte(highByteAddress - 1);
-            RgbColor native = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
+            RgbColor native = RgbColor.FromWordIgnoringTopBit(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
             AssertEqual(native, ChainsawBeamGraphicsDefinitions.Colours[color],
                 $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
         }

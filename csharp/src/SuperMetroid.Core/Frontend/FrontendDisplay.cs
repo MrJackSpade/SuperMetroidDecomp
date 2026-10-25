@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>

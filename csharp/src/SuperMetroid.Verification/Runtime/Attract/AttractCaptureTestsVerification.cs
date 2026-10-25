@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;

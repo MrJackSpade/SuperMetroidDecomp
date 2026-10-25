@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Frontend;

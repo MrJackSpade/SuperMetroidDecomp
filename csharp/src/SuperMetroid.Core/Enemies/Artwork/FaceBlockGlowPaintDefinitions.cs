@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Reviewed eye/mouth glow composition at $A8:E7CC-E80B, copied to inks9..12 by E893-E8AA.

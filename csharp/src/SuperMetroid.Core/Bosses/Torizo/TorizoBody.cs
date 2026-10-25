@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>

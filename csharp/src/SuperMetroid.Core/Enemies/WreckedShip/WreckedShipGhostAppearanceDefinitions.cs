@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Calculated appearance geometry, palette channels and visibility timing for Wrecked Ship ghost appearances.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Reviewed initial Baby Metroid paints at $A9:94D4-94F0 and their live aliases

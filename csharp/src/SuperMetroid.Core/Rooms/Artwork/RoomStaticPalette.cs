@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>The 128 base BG colors selected by one room graphics-set palette source.</summary>

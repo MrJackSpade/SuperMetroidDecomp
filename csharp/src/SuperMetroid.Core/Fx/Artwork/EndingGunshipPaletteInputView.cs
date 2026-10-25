@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Fx.PaletteFx;
 
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Gunship base inks with shared channels and the middle hull shade calculated.

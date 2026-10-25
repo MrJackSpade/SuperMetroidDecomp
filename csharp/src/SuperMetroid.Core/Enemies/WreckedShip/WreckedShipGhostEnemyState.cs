@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>

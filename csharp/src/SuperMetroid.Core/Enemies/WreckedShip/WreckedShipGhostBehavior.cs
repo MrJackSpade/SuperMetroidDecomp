@@ -254,7 +254,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             // only on red and does not saturate the others: a full green or blue carries
             // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
             palette.Write(color,
-                RgbColor.FromCgramPortWord(unchecked((ushort)(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel))));
+                RgbColor.FromWordIgnoringTopBit(unchecked((ushort)(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel))));
             colorsChanged++;
         }
 

@@ -145,7 +145,7 @@ public static class GameSaveJsonCodec
         Progression = new SaveProgressionJsonDocument
         {
             Events = CaptureEvents(slot.EventBytes),
-            BossFlagsByAreaIndex = slot.BossBytes.Select(value => (BossBits)value).ToArray(),
+            BossFlagsByAreaIndex = slot.BossBytes.Select(BossBitsCodec.FromSaveByte).ToArray(),
             RoomChozoBits = CaptureSetBits(slot.RoomChozoBytes),
             CollectedItemBits = CaptureSetBits(slot.CollectedItemBytes),
             OpenedDoorBits = CaptureSetBits(slot.OpenedDoorBytes),
@@ -289,13 +289,13 @@ public static class GameSaveJsonCodec
         if (slot.GameTime.Frames is < 0 or > 59 || slot.GameTime.Seconds is < 0 or > 59 ||
             slot.GameTime.Minutes is < 0 or > 59 || slot.GameTime.Hours is < 0 or > 99)
             throw new InvalidDataException($"slots[{expectedSlot}].gameTime is outside retail ranges");
-        if ((slot.Inventory.CollectedItems & ~AllEquipmentFlags) != 0 ||
-            (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != 0 ||
-            (slot.Inventory.CollectedBeams & ~AllBeamFlags) != 0 ||
-            (slot.Inventory.EquippedBeams & ~AllBeamFlags) != 0)
+        if ((slot.Inventory.CollectedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
+            (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
+            (slot.Inventory.CollectedBeams & ~AllBeamFlags) != SamusBeamFlags.None ||
+            (slot.Inventory.EquippedBeams & ~AllBeamFlags) != SamusBeamFlags.None)
             throw new InvalidDataException($"slots[{expectedSlot}].inventory contains unknown bits");
-        if ((slot.Inventory.EquippedItems & ~slot.Inventory.CollectedItems) != 0 ||
-            (slot.Inventory.EquippedBeams & ~slot.Inventory.CollectedBeams) != 0)
+        if ((slot.Inventory.EquippedItems & ~slot.Inventory.CollectedItems) != SamusEquipmentFlags.None ||
+            (slot.Inventory.EquippedBeams & ~slot.Inventory.CollectedBeams) != SamusBeamFlags.None)
             throw new InvalidDataException($"slots[{expectedSlot}].inventory equips an uncollected upgrade");
         new ControllerBindings(
             slot.Controller.Shoot,
@@ -314,7 +314,7 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException($"slots[{expectedSlot}].progression is incomplete");
         _ = DecodeEvents(progression.Events);
         if (progression.BossFlagsByAreaIndex.Length != SharedGameState.AreaCount ||
-            progression.BossFlagsByAreaIndex.Any(flags => (flags & ~AllBossFlags) != 0))
+            progression.BossFlagsByAreaIndex.Any(flags => (flags & ~AllBossFlags) != BossBits.None))
             throw new InvalidDataException($"slots[{expectedSlot}].progression.bossFlagsByAreaIndex is invalid");
         _ = DecodeSetBits(progression.RoomChozoBits, SharedGameState.RoomChozoBitByteCount,
             $"slots[{expectedSlot}].progression.roomChozoBits");
@@ -358,8 +358,8 @@ public static class GameSaveJsonCodec
 
     /// <summary>Lists set event bits by their named persistent event identities.</summary>
     private static string[] CaptureEvents(ReadOnlySpan<byte> bytes) =>
-        CaptureSetBits(bytes).Select(bit => Enum.IsDefined((EventNumber)bit)
-            ? ((EventNumber)bit).ToString()
+        CaptureSetBits(bytes).Select(bit => EventNumberCodec.TryFromEventBit(bit, out EventNumber named)
+            ? named.ToString()
             : $"0x{bit:X2}").ToArray();
 
     /// <summary>Rebuilds event bytes from validated symbolic event names.</summary>
@@ -373,7 +373,7 @@ public static class GameSaveJsonCodec
             string value = events[index] ?? throw new InvalidDataException(
                 $"progression.events[{index}] is null");
             if (Enum.TryParse(value, ignoreCase: true, out EventNumber named) && Enum.IsDefined(named))
-                bits[index] = (int)named;
+                bits[index] = named.ToEventBit();
             else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) &&
                      int.TryParse(value[2..], NumberStyles.AllowHexSpecifier,
                          CultureInfo.InvariantCulture, out int raw))

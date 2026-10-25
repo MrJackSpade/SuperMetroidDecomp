@@ -20,7 +20,7 @@ public static class BossBitMasks
             throw new ArgumentOutOfRangeException(
                 nameof(bits),
                 bits,
-                $"{context} contains unproven boss bits ${(byte)unknown:X2}.");
+                $"{context} contains unproven boss bits ${unknown.ToSaveByte():X2}.");
         }
     }
 }

@@ -707,7 +707,7 @@ public sealed class SharedGameState
     /// </summary>
     private static int ResolveNamedEvent(EventNumber eventNumber)
     {
-        if (!Enum.IsDefined(typeof(EventNumber), eventNumber))
+        if (!Enum.IsDefined(eventNumber))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(eventNumber),
@@ -715,7 +715,7 @@ public sealed class SharedGameState
                 "The event has no proven retail EventNumber identity; use the explicit raw API for cartridge data.");
         }
 
-        return (int)eventNumber;
+        return eventNumber.ToEventBit();
     }
 
     /// <summary>Maps a PLM item argument to a checked collected-item byte and bit mask.</summary>

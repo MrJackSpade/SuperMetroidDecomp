@@ -33,12 +33,12 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(ushort.MaxValue + 1), "layer-3 frame random number above the word");
         AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(-1), "negative layer-3 frame random number");
 
-        AssertEqual(ushort.MaxValue, (Conditions(0) with { NmiFrameCounter = ushort.MaxValue }).NmiFrameCounter,
+        AssertEqual(ushort.MaxValue, (Conditions(0) with { FrameCounter = ushort.MaxValue }).FrameCounter,
             "palette-FX frame counter keeps the largest word");
-        AssertEqual(0, Conditions(0).NmiFrameCounter, "palette-FX frame counter defaults to zero");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { NmiFrameCounter = ushort.MaxValue + 1 },
+        AssertEqual(0, Conditions(0).FrameCounter, "palette-FX frame counter defaults to zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { FrameCounter = ushort.MaxValue + 1 },
             "palette-FX frame counter above the word");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { NmiFrameCounter = -1 }, "negative palette-FX frame counter");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { FrameCounter = -1 }, "negative palette-FX frame counter");
 
         var request = new RoomFxEarthquakeRequest(RoomEarthquakeDefinitions.RisingLiquidType, RoomEarthquakeDefinitions.RisingLiquidTimerBits);
         AssertEqual(RoomEarthquakeDefinitions.RisingLiquidType, request.Type, "earthquake request keeps its type");

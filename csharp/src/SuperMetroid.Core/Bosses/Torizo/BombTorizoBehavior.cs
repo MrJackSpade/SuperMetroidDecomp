@@ -84,8 +84,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     public DelayedMusicRequest? LastBombTorizoMusicRequest { get; private set; }
 
     /// <summary>Creates the per-statue gradual color transition against the live CGRAM image on first use.</summary>
-    private CartridgePaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
-        state.PaletteTransition ??= new CartridgePaletteTransition(
+    private GradualPaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
+        state.PaletteTransition ??= new GradualPaletteTransition(
             new ColourImage(TorizoBodyColours), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
 
     /// <summary>The body and belly colours the statue's fades change.</summary>

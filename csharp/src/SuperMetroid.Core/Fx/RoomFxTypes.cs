@@ -15,7 +15,7 @@ public static class RoomFxTypes
         type is RoomFxType.Water or RoomFxType.TourianEntranceStatue;
 
     /// <summary>
-    /// Converts a cartridge byte into its named dispatcher identity. Null table entries
+    /// Converts an FX record's type byte into its named effect. Null table entries
     /// and values outside the retail even-word table fail at the owning record.
     /// </summary>
     /// <remarks>Named semantic cases replace enum metadata lookup. Native $83:AC18..AC44
@@ -23,7 +23,7 @@ public static class RoomFxTypes
     /// rejected by the existing port boundary. Zero is the supported named no-effect
     /// identity, despite sharing that RTL. Odd bytes and bytes above $2C are rejected.
     /// Checked against supported NTSC J/U v1.0 and pinned bank_83.asm for #1165.</remarks>
-    public static RoomFxType FromCartridge(byte value, string sourceContext)
+    public static RoomFxType FromRecordByte(byte value, string sourceContext)
     {
         RoomFxType type = (RoomFxType)value;
         if (type is not (RoomFxType.None or RoomFxType.Lava or RoomFxType.Acid or

@@ -68,7 +68,7 @@ internal static class Bgr555DomainVerification
         colours.Load(cgram.Colors);
         var target = new ColourImage(colours.All);
         target.Fill(Bgr555.White);
-        var fade = new CartridgePaletteTransition(target, denominator: 6, new GradualColorChangeCounter());
+        var fade = new GradualPaletteTransition(target, denominator: 6, new GradualColorChangeCounter());
         for (int step = 0; step < 16 && !fade.Step(); step++) { }
         AssertTrue(colours.All.Colors.IndexOfAnyExcept(Bgr555.White) < 0, "typed palette fade installs its exact target");
 

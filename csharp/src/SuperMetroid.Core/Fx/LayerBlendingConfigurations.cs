@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 public static class LayerBlendingConfigurations
 {
     /// <summary>Converts an FX-record byte into a proven bank-$88 configuration.</summary>
-    public static LayerBlendingConfiguration FromCartridge(byte value, string sourceContext)
+    public static LayerBlendingConfiguration FromRecordByte(byte value, string sourceContext)
     {
         if (!Enum.IsDefined((LayerBlendingConfiguration)value))
             throw new NotSupportedException(

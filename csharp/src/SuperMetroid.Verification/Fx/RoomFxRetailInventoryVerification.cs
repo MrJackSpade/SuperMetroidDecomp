@@ -244,7 +244,7 @@ internal static class RoomFxRetailInventoryVerification
         }
         RoomFxType expectedType = expectedRecord == 0
             ? RoomFxType.None
-            : RoomFxTypes.FromCartridge(
+            : RoomFxTypes.FromRecordByte(
                 ReadRetailFxRecordByte(
                     bus,
                     expectedRecord,

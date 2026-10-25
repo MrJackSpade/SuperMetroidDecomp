@@ -102,7 +102,7 @@ public sealed class RoomLayer3FxState
     /// Records direct deletion of liquid scroll HDMA objects at $A9:8C0C, which stops
     /// their per-frame updates until the next room load.
     /// </summary>
-    internal bool LiquidHdmaObjectsDeleted { get; set; }
+    internal bool LiquidMotionStopped { get; set; }
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
     private WrappingCountdown lavaSoundTimer;
@@ -223,10 +223,10 @@ public sealed class RoomLayer3FxState
         LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
         Surface = new(0, BaseY.Whole);
 
-        Type = RoomFxTypes.FromCartridge(
+        Type = RoomFxTypes.FromRecordByte(
             definition.Type,
             $"room FX {source.Fx?.Name}");
-        LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
+        LayerBlendConfiguration = LayerBlendingConfigurations.FromRecordByte(
             definition.Layer3LayerBlend,
             $"room FX {source.Fx?.Name}");
         animatedTiles.Load(Type);
@@ -271,7 +271,7 @@ public sealed class RoomLayer3FxState
     /// True for the liquids whose BG3 HDMA pre-instruction moves the surface: lava and
     /// acid ($88:B3B0) and water ($88:C48E). That motion belongs to the HDMA pass.
     /// </summary>
-    public bool MovesLiquidInHdmaPass =>
+    public bool MovesLiquidBeforeMainLoop =>
         Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
 
     /// <summary>
@@ -282,10 +282,10 @@ public sealed class RoomLayer3FxState
     /// door fades and pause entry. Visual/VRAM updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
     /// </summary>
-    public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
+    public void AdvanceLiquidMotion(Bank80SystemState system, bool timeIsFrozen)
     {
         Ensure.NotNull(system);
-        if (!MovesLiquidInHdmaPass || LiquidHdmaObjectsDeleted)
+        if (!MovesLiquidBeforeMainLoop || LiquidMotionStopped)
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         EarthquakeRequest = null;
@@ -355,7 +355,7 @@ public sealed class RoomLayer3FxState
         // tilemap can name anything other than stale standard-HUD characters.
         animatedTiles.Step(frames);
 
-        if (LiquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
+        if (LiquidMotionStopped && MovesLiquidBeforeMainLoop)
             return;
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
@@ -460,10 +460,10 @@ public sealed class RoomLayer3FxState
         YVelocity = new(definition.PackedYVelocity);
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
-        LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
+        LayerBlendConfiguration = LayerBlendingConfigurations.FromRecordByte(
             definition.Layer3LayerBlend, "LoadFxEntry");
         ApplyPaletteBlend(colours, definition.PaletteBlend);
-        return LayerBlendingConfigurations.FromCartridge(
+        return LayerBlendingConfigurations.FromRecordByte(
             definition.DefaultLayerBlend, "LoadFxEntry");
     }
 
@@ -800,7 +800,7 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
         LavaAcidBg3PreInstructionInstalled = false;
-        LiquidHdmaObjectsDeleted = false;
+        LiquidMotionStopped = false;
         lavaSoundTimer = WrappingCountdown.Start(0);
         EarthquakeRequest = null;
         EarthquakeSoundTimer = WrappingCountdown.Start(0);
@@ -812,7 +812,7 @@ public sealed class RoomLayer3FxState
     /// later pass moves the liquid, queues its ambient sound or (for lava/acid) swaps the
     /// RNG bytes. Effects without HDMA-owned liquid motion are unaffected.
     /// </summary>
-    public void DeleteLiquidHdmaObjects() => LiquidHdmaObjectsDeleted = true;
+    public void StopLiquidMotion() => LiquidMotionStopped = true;
 
     /// <summary>Rain's texture fall each frame, in 8.8 pixels.</summary>
     private static readonly Offset16<Bg3Subpixels> RainFallVelocity =

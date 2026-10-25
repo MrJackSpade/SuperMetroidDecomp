@@ -15,5 +15,5 @@ public readonly record struct LatchedScrollingSky(bool ShowsBands, Position16<Bg
 {
     /// <summary>The sky as it stands, or null when the room has no scrolling sky.</summary>
     public static LatchedScrollingSky? Capture(ScrollingSkyState? sky) =>
-        sky is null ? null : new(sky.HorizontalHdmaConfigured, sky.Bg2Scroll);
+        sky is null ? null : new(sky.HasBands, sky.Bg2Scroll);
 }

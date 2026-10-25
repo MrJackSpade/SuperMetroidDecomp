@@ -35,7 +35,7 @@ internal sealed class PerLineEffectPhase
     /// </summary>
     internal void Advance(RoomPlmSystem plms, RoomScope room)
     {
-        room.Layer3Fx.AdvanceHdmaSharedState(_system, _freeze.TimeIsFrozen);
+        room.Layer3Fx.AdvanceLiquidMotion(_system, _freeze.TimeIsFrozen);
         room.TourianStatues.StepDescent(plms);
     }
 }

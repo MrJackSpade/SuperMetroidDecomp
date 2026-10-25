@@ -332,7 +332,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             throw new InvalidOperationException("Time-up requires a gameplay runtime.");
         ColourImage white = session.Runtime.Cgram.Capture();
         white.Fill(TimeUpRomData.WhiteColor);
-        session.BeginTimeUpPaletteFade(new CartridgePaletteTransition(white, TimeUpRomData.WhiteOutDenominator,
+        session.BeginTimeUpPaletteFade(new GradualPaletteTransition(white, TimeUpRomData.WhiteOutDenominator,
             session.Runtime.EnemySession.GradualColorChange));
         session.GameState = SuperMetroidGameState.TimeUp;
     }

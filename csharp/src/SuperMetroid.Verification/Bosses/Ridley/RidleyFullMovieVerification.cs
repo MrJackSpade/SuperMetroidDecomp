@@ -303,7 +303,7 @@ internal static class RidleyFullMovieVerification
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
         // The recorded pause enters an already-running room HDMA callback.
-        runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
+        runtime.RoomLayer3Fx.AdvanceLiquidMotion(runtime.System, false);
         foreach (var state in new[] { SuperMetroidGameState.Pausing, SuperMetroidGameState.PausedA,
             SuperMetroidGameState.PausedB, SuperMetroidGameState.UnpausingA, SuperMetroidGameState.UnpausingB,
             SuperMetroidGameState.PausingDarkening, SuperMetroidGameState.Unpausing })
@@ -748,7 +748,7 @@ internal static class RidleyFullMovieVerification
         AssertTrue(found, "native Ridley entry door");
         // Original movie: accepted main-loop samples 155, 156, 157. The source
         // acid callback was installed long before the recorded door collision.
-        runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
+        runtime.RoomLayer3Fx.AdvanceLiquidMotion(runtime.System, false);
         runtime.System.SetRandomNumber(0xd562);
         runtime.Clock.Import(runtime.Clock.Counter8, 0xa4df);
         var samus = runtime.Player.IntroducedSamus;

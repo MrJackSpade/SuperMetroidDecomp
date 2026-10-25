@@ -26,9 +26,9 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         AssertEqual(RoomFxType.Acid, fx.Type, "Mother Brain's room has acid");
 
         // The first HDMA pass installs the pre-instruction; later passes swap the RNG bytes.
-        fx.AdvanceHdmaSharedState(runtime.System, timeIsFrozen: false);
+        fx.AdvanceLiquidMotion(runtime.System, timeIsFrozen: false);
         runtime.System.SetRandomNumber(0xb9ad);
-        fx.AdvanceHdmaSharedState(runtime.System, timeIsFrozen: false);
+        fx.AdvanceLiquidMotion(runtime.System, timeIsFrozen: false);
         AssertEqual(0xadb9, runtime.System.RandomNumber, "the live acid object swaps the RNG bytes");
 
         // The real main-tube landing raises the deletion of HDMA objects 0-3.
@@ -42,9 +42,9 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(tube);
         AssertTrue(runtime.Enemies.LastEnemyFrame.DeleteLiquidHdmaObjects, "the main tube's landing deletes HDMA objects 0-3");
 
-        fx.DeleteLiquidHdmaObjects();
+        fx.StopLiquidMotion();
         runtime.System.SetRandomNumber(0xb9ad);
-        fx.AdvanceHdmaSharedState(runtime.System, timeIsFrozen: false);
+        fx.AdvanceLiquidMotion(runtime.System, timeIsFrozen: false);
         AssertEqual(0xb9ad, runtime.System.RandomNumber, "the deleted acid object no longer touches the RNG");
         Console.WriteLine("Mother Brain tube HDMA deletion: the landing deletes the acid objects and their RNG swap stops.");
     }

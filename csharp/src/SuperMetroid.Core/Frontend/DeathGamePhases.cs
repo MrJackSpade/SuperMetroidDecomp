@@ -109,7 +109,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
         target.Fill(Bgr555.Black);
         ColourRun suit = session.Runtime.Player.Colours.Suit;
         suit.Colors.CopyTo(target.Of(suit));
-        session.BeginDeathPaletteFade(new CartridgePaletteTransition(target, denominator: 6, session.Runtime.EnemySession.GradualColorChange));
+        session.BeginDeathPaletteFade(new GradualPaletteTransition(target, denominator: 6, session.Runtime.EnemySession.GradualColorChange));
     }
 
     /// <summary>

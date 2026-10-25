@@ -287,7 +287,7 @@ internal static class RoomBlockPicturesVerification
         foreach (RoomFxType effect in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
         {
             rooms.Add(RoomHeaderDefinitions.All.First(room => RoomStateSelectionDefinitions.GetStates(room)[0].Fx?.Records
-                .Any(record => RoomFxTypes.FromCartridge(record.Type, room.Name) == effect) == true));
+                .Any(record => RoomFxTypes.FromRecordByte(record.Type, room.Name) == effect) == true));
         }
         foreach (RoomHeaderDefinition room in rooms)
         {

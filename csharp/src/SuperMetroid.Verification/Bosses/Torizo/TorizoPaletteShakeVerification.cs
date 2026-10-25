@@ -72,7 +72,7 @@ internal static class TorizoPaletteShakeVerification
         saved.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
         // The restored fade carries its own copy of the statue's colours, which it steps as the live one steps them.
-        CartridgePaletteTransition restoredFade = restored.PaletteTransition ?? throw new InvalidOperationException("Verification requires restored.PaletteTransition.");
+        GradualPaletteTransition restoredFade = restored.PaletteTransition ?? throw new InvalidOperationException("Verification requires restored.PaletteTransition.");
         for (int call = 2; call < 14; call++)
         {
             Execute(TorizoCueKind.AdvancePaletteFade);

@@ -271,7 +271,7 @@ internal sealed class AcceptedFrameBoundary
         // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's band HDMA; without it, BG2 shows the room's own background.
         SkyPictures? sky = null;
-        if (scope.ScrollingSky is { HorizontalHdmaConfigured: true } scrollingSky)
+        if (scope.ScrollingSky is { HasBands: true } scrollingSky)
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");

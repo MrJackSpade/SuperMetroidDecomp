@@ -1130,11 +1130,11 @@ internal static void VerifyScrollingSkyState()
     AssertEqual(1, layer.GameplayLineScrolls(1)[0], "sky scanline resolves aliased HDMA slot");
 
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: true);
-    AssertEqual(false, sky.HdmaEnabled, "frozen sky terminates HDMA table");
+    AssertEqual(false, sky.BandsShown, "frozen sky terminates HDMA table");
     ScrollingSkyLayer frozen = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
     AssertTrue(!frozen.BandsShown && frozen.GameplayLineScrolls().All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
     AssertEqual(1, frozen.BandOffsets[8], "a frozen frame keeps the band offsets");
-    AssertTrue(new ScrollingSkyState(ScrollingSkyChunkTable.Land, horizontalHdmaConfigured: false).Publish(0) is null,
+    AssertTrue(new ScrollingSkyState(ScrollingSkyChunkTable.Land, hasBands: false).Publish(0) is null,
         "a sky main without the band HDMA object publishes no sky layer");
 
     Console.WriteLine("  Sky: HDMA bands, chunk wrap and the published layer agree.");

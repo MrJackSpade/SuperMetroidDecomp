@@ -24,7 +24,7 @@ internal sealed class DoorTransitionState
 {
     /// <summary>The door's palette transition, which exists from the start of the door fade.</summary>
     [AllowNull]
-    private CartridgePaletteTransition PaletteTransition { get => field ?? throw new InvalidOperationException("The door palette transition has not started."); set; }
+    private GradualPaletteTransition PaletteTransition { get => field ?? throw new InvalidOperationException("The door palette transition has not started."); set; }
     /// <summary>The faded source colours, restored after atomic destination room construction.</summary>
     private ColourImage? fadedSource;
     /// <summary>Door header captured before the destination room replaces the source.</summary>
@@ -61,7 +61,7 @@ internal sealed class DoorTransitionState
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
         destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
         sourceSamus = runtime.Player.Samus.Position;
-        PaletteTransition = new CartridgePaletteTransition(
+        PaletteTransition = new GradualPaletteTransition(
             BuildSourceFadeTarget(runtime),
             denominator: 12,
             runtime.EnemySession.GradualColorChange);
@@ -217,7 +217,7 @@ internal sealed class DoorTransitionState
                     samus.SelectedHudItem = SuperMetroid.Core.Samus.HudItem.Beam;
                     samus.AutoCancelHudItemIndex = SuperMetroid.Core.Samus.HudItem.Beam;
                 }
-                PaletteTransition = new CartridgePaletteTransition(
+                PaletteTransition = new GradualPaletteTransition(
                     destinationTarget,
                     denominator: 12,
                     runtime.EnemySession.GradualColorChange);

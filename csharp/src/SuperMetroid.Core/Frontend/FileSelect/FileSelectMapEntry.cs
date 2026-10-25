@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 public sealed class FileSelectMapEntry
 {
     /// <summary>Native gradual palette fade toward installed file-select colors.</summary>
-    private readonly CartridgePaletteTransition palette;
+    private readonly GradualPaletteTransition palette;
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
     private int revealSteps;
 
@@ -41,7 +41,7 @@ public sealed class FileSelectMapEntry
         Ensure.NotNull(mapPalettes);
         Palette.Load(mapPalettes.FileSelect);
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
-        palette = new CartridgePaletteTransition(
+        palette = new GradualPaletteTransition(
             new ColourImage(Palette.All), FileSelectMapRomData.EntryPaletteDenominator, new GradualColorChangeCounter());
         EntryTarget(mapPalettes.FileSelect).CopyTo(palette.Target.Of(Palette.All));
         // The gradual first-two-palettes routine starts at transition number one,

@@ -2,10 +2,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// Reusable translation of <c>$82:DA02/$82:DA4A/$82:DAA6</c>'s current-to-target CGRAM
-/// interpolation. Death, doors, maps, and several bosses all call this same cartridge math.
+/// The gradual fade of a set of colours toward target colours ($82:DA02/$82:DA4A/$82:DAA6)
+/// that death, doors, maps and several bosses share.
 /// </summary>
-internal sealed class CartridgePaletteTransition
+internal sealed class GradualPaletteTransition
 {
     /// <summary>Native divisor controlling how far each interpolation call moves.</summary>
     private readonly int denominator;
@@ -16,7 +16,7 @@ internal sealed class CartridgePaletteTransition
     /// <param name="target">The colours to fade to, an image of the colours the transition changes.</param>
     /// <param name="denominator">Native interpolation divisor, one through 65534; transition number denominator plus one installs the exact target.</param>
     /// <param name="numerator">The shared <c>$7E:C400</c> transition number this fade advances.</param>
-    public CartridgePaletteTransition(ColourImage target, int denominator, GradualColorChangeCounter numerator)
+    public GradualPaletteTransition(ColourImage target, int denominator, GradualColorChangeCounter numerator)
     {
         Ensure.NotNull(numerator);
         Ensure.NotNull(target);

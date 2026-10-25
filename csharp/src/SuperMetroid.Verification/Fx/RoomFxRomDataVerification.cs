@@ -93,12 +93,12 @@ internal static class RoomFxRomDataVerification
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             if (original.Contains((ushort)value))
-                AssertEqual((ushort)value, (ushort)RoomFxTypes.FromCartridge((byte)value, "record $9000"),
+                AssertEqual((ushort)value, (ushort)RoomFxTypes.FromRecordByte((byte)value, "record $9000"),
                     "Room FX identity conversion preserves every accepted byte");
             else
             {
                 var error = AssertThrows<NotSupportedException>(
-                    () => RoomFxTypes.FromCartridge((byte)value, "record $9000"), "Undefined room FX rejected");
+                    () => RoomFxTypes.FromRecordByte((byte)value, "record $9000"), "Undefined room FX rejected");
                 AssertTrue(error.Message.Contains($"${value:X2}", StringComparison.Ordinal) &&
                     error.Message.Contains("$9000", StringComparison.Ordinal), "Room FX failure retains value/context");
             }
@@ -134,12 +134,12 @@ internal static class RoomFxRomDataVerification
             }
             if (value > byte.MaxValue) continue;
             if (accepted)
-                AssertEqual(configuration, LayerBlendingConfigurations.FromCartridge((byte)value, "record $9000"),
+                AssertEqual(configuration, LayerBlendingConfigurations.FromRecordByte((byte)value, "record $9000"),
                     "Cartridge blend preserves accepted identity");
             else
             {
                 var error = AssertThrows<NotSupportedException>(
-                    () => LayerBlendingConfigurations.FromCartridge((byte)value, "record $9000"), "Undefined cartridge blend rejected");
+                    () => LayerBlendingConfigurations.FromRecordByte((byte)value, "record $9000"), "Undefined cartridge blend rejected");
                 AssertTrue(error.Message.Contains($"{value:X4}", StringComparison.Ordinal) &&
                     error.Message.Contains("$9000", StringComparison.Ordinal), "Cartridge blend failure retains value/context");
             }

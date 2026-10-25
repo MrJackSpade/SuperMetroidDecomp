@@ -23,7 +23,7 @@ internal static class MotherBrainCharacterSources
         MotherBrainSpritePageSheet.Corpse => new MotherBrainCorpseCharacters(page.Page),
         MotherBrainSpritePageSheet.EscapeTimer => new AssetObjCharacters(EscapeTimerTilePages.AssetOf(Enum.GetValues<EscapeTimerTilePage>()[page.Page])),
         MotherBrainSpritePageSheet.EscapeText => new MotherBrainEscapeTextCharacters(page.Page),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {(int)page.Sheet}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {page.Sheet}."),
     };
 
     /// <summary>Page <paramref name="page"/> of special sheet <paramref name="sheet"/>, by its place in <see cref="MotherBrainSpecialSpriteArtworkDefinitions.All"/>.</summary>

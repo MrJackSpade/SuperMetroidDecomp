@@ -9,6 +9,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainFallingTubePopulationDefinitions
 {
+    /// <summary>The five pieces in the order their spawn parameters and frames count them.</summary>
+    internal static readonly IdentitySequence<MotherBrainTubePiece> Pieces = new(
+        MotherBrainTubePiece.BottomLeft, MotherBrainTubePiece.BottomRight, MotherBrainTubePiece.BottomMiddleLeft,
+        MotherBrainTubePiece.BottomMiddleRight, MotherBrainTubePiece.Main);
+
     /// <summary>$A9:8B27: selected center X for the main tube; remains required.</summary>
     private const ushort CenterX = 128;
     /// <summary>$A9:8AE7/8AF7: chosen outside-piece horizontal distance from the center; remains required.</summary>
@@ -35,7 +40,7 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     /// </summary>
     internal static RoomEnemyPopulationRecord Get(MotherBrainTubePiece piece)
     {
-        int index = (int)piece;
+        int index = Pieces.PositionOf(piece);
         bool main = piece == MotherBrainTubePiece.Main;
         bool outer = piece is MotherBrainTubePiece.BottomLeft or MotherBrainTubePiece.BottomRight;
         int horizontalOffset = outer ? OuterOffset : InnerOffset;

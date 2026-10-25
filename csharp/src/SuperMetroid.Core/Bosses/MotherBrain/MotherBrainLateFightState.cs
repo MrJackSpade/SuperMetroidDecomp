@@ -236,7 +236,7 @@ internal sealed class MotherBrainLateFightState
             MotherBrainBodyPose.LeaningDown => MotherBrainBodyProgram.StandAfterLeaning,
             MotherBrainBodyPose.Standing or MotherBrainBodyPose.Walking or
                 MotherBrainBodyPose.CrouchingTransition or MotherBrainBodyPose.DeathBeam => null,
-            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {(int)Body.Pose}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {Body.Pose}."),
         };
         if (program is { } standUp)
         {

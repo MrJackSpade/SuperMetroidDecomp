@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainShotReaction
 {
+    /// <summary>The eight projectile classes of the reaction table, in the order the masked type word counts them.</summary>
+    internal static readonly IdentitySequence<MotherBrainProjectileType> ReactionClasses = new(
+        MotherBrainProjectileType.Beam, MotherBrainProjectileType.Missile, MotherBrainProjectileType.SuperMissile,
+        MotherBrainProjectileType.PowerBomb, MotherBrainProjectileType.ClassFour, MotherBrainProjectileType.Bomb,
+        MotherBrainProjectileType.ClassSix, MotherBrainProjectileType.BeamExplosion);
+
     /// <summary>Updates phase-two/three walk credit after a shot and signals recoil only on form-four Hyper Beam underflow.</summary>
     public static MotherBrainShotReactionResult Resolve(
         MotherBrainForm form,
@@ -14,7 +20,7 @@ internal static class MotherBrainShotReaction
     {
         // `$B58E` masks the projectile type to three bits before indexing an eight-byte
         // table. Validate the host enum so a caller cannot smuggle a larger value past it.
-        if ((uint)projectileType > 7)
+        if (!Enum.IsDefined(projectileType))
             throw new ArgumentOutOfRangeException(nameof(projectileType));
 
         // The table returns two for beams, one for missiles/supers, and zero for every

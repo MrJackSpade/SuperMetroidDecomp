@@ -39,7 +39,7 @@ public readonly record struct MotherBrainSpritePage
         MotherBrainSpritePageSheet.Corpse => MotherBrainCorpseArtworkDefinitions.RowCount,
         MotherBrainSpritePageSheet.EscapeTimer => EscapeTextArtworkDefinitions.TimerPageCount,
         MotherBrainSpritePageSheet.EscapeText => EscapeTextArtworkDefinitions.PageCount,
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {(int)sheet}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpritePageSheet)} {sheet}."),
     };
 
     /// <summary>Every page of every sheet, sheet by sheet in their declared order and page by page within each.</summary>

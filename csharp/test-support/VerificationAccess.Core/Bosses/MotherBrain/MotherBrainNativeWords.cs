@@ -164,6 +164,14 @@ internal static class MotherBrainNativeWords
         [ShitroidAiFunction.ReleasedFollow] = 0xf3be,
     });
 
+    /// <summary>The glass-shard spawn parameter (the emitter's byte offset into the placement tables) naming each <see cref="MotherBrainGlassShard"/>.</summary>
+    internal static readonly NativeWordIdentities<MotherBrainGlassShard> GlassShards = new(new Dictionary<MotherBrainGlassShard, ushort>
+    {
+        [MotherBrainGlassShard.Right] = 0,
+        [MotherBrainGlassShard.Left] = 2,
+        [MotherBrainGlassShard.Centre] = 4,
+    });
+
     /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainTubeFunction"/>.</summary>
     internal static readonly NativeWordIdentities<MotherBrainTubeFunction> MotherBrainTubeFunctions = new(new Dictionary<MotherBrainTubeFunction, ushort>
     {

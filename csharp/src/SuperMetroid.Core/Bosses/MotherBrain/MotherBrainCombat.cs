@@ -173,7 +173,8 @@ internal sealed class MotherBrainCombat
 
         // `$B58E` indexes its reaction table with the type word's high byte masked to three
         // bits, so missile explosions (`$08`) alias beams exactly as natively.
-        var reactionProjectile = (MotherBrainProjectileType)((SnesLittleEndian.HighByte(projectileType.Raw)) & 7);
+        MotherBrainProjectileType reactionProjectile =
+            MotherBrainShotReaction.ReactionClasses.At(SnesLittleEndian.HighByte(projectileType.Raw) & 7);
         if (state.RainbowBeamSequence is { } sequence)
         {
             // The attached sequence shares walk counter `$7E:780E` with the encounter. `$B5BA/$B5BD`

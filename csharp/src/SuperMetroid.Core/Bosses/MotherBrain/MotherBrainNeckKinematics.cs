@@ -90,7 +90,7 @@ internal static class MotherBrainNeckKinematics
             }
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported lower-neck movement index ${(int)lowerMovementIndex:X4}.");
+                    $"Unsupported lower-neck movement {lowerMovementIndex}.");
         }
 
         // Native runs the upper dispatcher after the lower dispatcher, so it observes the
@@ -153,7 +153,7 @@ internal static class MotherBrainNeckKinematics
             }
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported upper-neck movement index ${(int)upperMovementIndex:X4}.");
+                    $"Unsupported upper-neck movement {upperMovementIndex}.");
         }
     }
 

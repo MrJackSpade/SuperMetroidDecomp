@@ -276,7 +276,7 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainProjectileStarts.Initialize(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
-        projectile.Variable0 = (ushort)MotherBrainTopTubeFunction.SpawnDust;
+        projectile.Variable0 = MotherBrainProjectiles.TopTubeDustPending;
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
@@ -303,11 +303,12 @@ internal sealed class MotherBrainFakeDeath
     {
         int tubeIndex = tube.Spawn.Population.Parameter1 / 2;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(tubeIndex);
-        _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
+        MotherBrainTubePiece piece = MotherBrainFallingTubePopulationDefinitions.Pieces.At(tubeIndex);
+        _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start(piece);
         tube.Radius = tubeBody.Radius;
         var state = new MotherBrainFallingTubeState
         {
-            Function = tubeIndex == (int)MotherBrainTubePiece.Main
+            Function = piece == MotherBrainTubePiece.Main
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,
             FloorY = tubeBody.Floor,

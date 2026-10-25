@@ -35,9 +35,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
     /// <summary>Selects a final-health fade endpoint for the fourteen transferred palette slots.</summary>
     internal static Bgr555 Color(int color)
     {
-        var slot = (BabyMetroidInitialColorSlot)color;
-        if (!Enum.IsDefined(slot))
-            throw new ArgumentOutOfRangeException(nameof(color));
+        BabyMetroidInitialColorSlot slot = BabyMetroidInitialPalette.ColorOrder.At(color);
         return slot switch
         {
             BabyMetroidInitialColorSlot.DomeHighlight => DomeHighlight,
@@ -47,7 +45,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
             BabyMetroidInitialColorSlot.InnardGlint => Glint(),
             BabyMetroidInitialColorSlot.InnardLight => InnardLight,
             BabyMetroidInitialColorSlot.InnardLightShade or BabyMetroidInitialColorSlot.InnardDarkShade =>
-                InnardShade(slot - BabyMetroidInitialColorSlot.InnardLight),
+                InnardShade(color - BabyMetroidInitialPalette.ColorOrder.PositionOf(BabyMetroidInitialColorSlot.InnardLight)),
             BabyMetroidInitialColorSlot.InnardDark => DarkContour,
             BabyMetroidInitialColorSlot.FangLight => FangLight,
             BabyMetroidInitialColorSlot.FangMiddle => BabyMetroidInitialPalette.Midpoint(FangLight, FangDark),

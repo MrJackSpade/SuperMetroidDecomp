@@ -21,16 +21,13 @@ public static class MotherBrainRoomColorFile
     {
         MotherBrainRoomColorDocument document = JsonAssetDocument.Read<MotherBrainRoomColorDocument>(
             json, ArtworkJson.Options, "Mother Brain room colors");
-        if (!Enum.IsDefined((MotherBrainRoomColorRevision)document.Version))
+        int version = document.Version;
+        if (version is not (MotherBrainRoomColorFormat.PreRoomEntryVersion or MotherBrainRoomColorFormat.PreRecoveryLightsVersion or
+            MotherBrainRoomColorFormat.Version))
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
-        var revision = (MotherBrainRoomColorRevision)document.Version;
-        bool inheritsRoomEntry = revision == MotherBrainRoomColorRevision.PreRoomEntry;
-        bool inheritsRecoveryLights = revision switch
-        {
-            MotherBrainRoomColorRevision.PreRoomEntry or MotherBrainRoomColorRevision.PreRecoveryLights => true,
-            MotherBrainRoomColorRevision.Current => false,
-            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainRoomColorRevision)} {(int)revision}."),
-        };
+        bool inheritsRoomEntry = version == MotherBrainRoomColorFormat.PreRoomEntryVersion;
+        bool inheritsRecoveryLights = version is MotherBrainRoomColorFormat.PreRoomEntryVersion or
+            MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
         if ((inheritsRecoveryLights && currentStock is null) ||
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)

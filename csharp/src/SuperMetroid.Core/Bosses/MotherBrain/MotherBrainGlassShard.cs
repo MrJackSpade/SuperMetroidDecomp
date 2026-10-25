@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal enum MotherBrainGlassShard : ushort
 {
     /// <summary>Flies right.</summary>
-    Right = 0,
+    Right,
     /// <summary>Flies left.</summary>
-    Left = 2,
+    Left,
     /// <summary>Falls from the centre.</summary>
-    Centre = 4,
+    Centre,
 }

@@ -24,9 +24,9 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         foreach (MotherBrainGlassShard direction in Enum.GetValues<MotherBrainGlassShard>())
         {
             // The direction's spawn parameter is its byte offset into the native emitter tables.
-            ushort parameter = (ushort)direction;
+            ushort parameter = MotherBrainNativeWords.GlassShards.Word(direction);
             MotherBrainGlassShardPlacement placement =
-                MotherBrainGlassShardDefinitions.Placement(parameter);
+                MotherBrainGlassShardDefinitions.Placement(direction);
             for (ushort animationIndex = 0; animationIndex < 16; animationIndex++)
             {
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
@@ -59,8 +59,8 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             () => MotherBrainGlassAnimations.ShardProgram(16),
             "Mother Brain glass-shard animation past table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainGlassShardDefinitions.Placement(1),
-            "Mother Brain glass-shard odd placement parameter");
+            () => MotherBrainGlassShardDefinitions.Placement((MotherBrainGlassShard)99),
+            "Mother Brain glass-shard undefined emitter");
         Console.WriteLine(
             "Mother Brain glass-shard definitions: sixteen instruction selectors, six placement words and 48 real spawns pass with source tables forbidden.");
     }
@@ -91,13 +91,12 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort parameter = (ushort)raw;
-            if (raw is not (0 or 2 or 4))
+            if (!MotherBrainNativeWords.GlassShards.TryDecode(parameter, out MotherBrainGlassShard shard))
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainGlassShardDefinitions.Placement(parameter),
-                    "Glass shard placement rejects every unsupported parameter");
+                AssertTrue(raw is not (0 or 2 or 4), "Only the three emitter parameters name glass shards");
                 continue;
             }
-            var actual = MotherBrainGlassShardDefinitions.Placement(parameter);
+            var actual = MotherBrainGlassShardDefinitions.Placement(shard);
             short expected = unchecked((short)ReadMotherBrainGlassShardWord(rom, (yAxis ? 0x86ce67 : 0x86ce61) + parameter));
             AssertEqual(expected, yAxis ? actual.Offset.Y : actual.Offset.X, "Glass shard original signed placement field");
         }

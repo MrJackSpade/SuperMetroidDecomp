@@ -12,6 +12,6 @@ public static class MotherBrainHandBeamPhases
             or MotherBrainHandBeamPhase.Firing => EnumOrder.Next(phase),
         MotherBrainHandBeamPhase.Finish => throw new InvalidOperationException(
             "Mother Brain's hand-beam phase cannot advance past finishing."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamPhase)} {(int)phase}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamPhase)} {phase}."),
     };
 }

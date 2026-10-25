@@ -289,7 +289,7 @@ internal sealed class MotherBrainBody
         SamusState samus)
     {
         MotherBrainHitboxParts enabled = state.HitboxesEnabled;
-        if ((enabled & MotherBrainHitboxParts.Body) != 0 && ResolveMotherBrainSamusCollisionPart(
+        if ((enabled & MotherBrainHitboxParts.Body) != MotherBrainHitboxParts.None && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
                 MotherBrainContactPart.Body,
@@ -299,7 +299,7 @@ internal sealed class MotherBrainBody
         }
 
         RoomEnemySlot head = state.Head;
-        if ((enabled & MotherBrainHitboxParts.Brain) != 0 && ResolveMotherBrainSamusCollisionPart(
+        if ((enabled & MotherBrainHitboxParts.Brain) != MotherBrainHitboxParts.None && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
                 MotherBrainContactPart.Brain,
@@ -308,7 +308,7 @@ internal sealed class MotherBrainBody
             return true;
         }
 
-        if ((enabled & MotherBrainHitboxParts.Neck) != 0)
+        if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
         {
             // Native tests only middle joints one, two, and three. Joint zero is buried in
             // the body and joint four is already covered by the separate brain rectangles.
@@ -509,7 +509,7 @@ internal sealed class MotherBrainBody
 
         // The turret is stationary, so the initializer repurposes its Y-subposition word: direction in the low byte
         // and signed rotation delta (+1 initially) in the high byte.
-        turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word((byte)direction, 1));
+        turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word(checked((byte)MotherBrainTurretDefinitions.Ring.PositionOf(direction)), 1));
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
 
         // X/Y velocity are likewise timers for a stationary turret. Each initializer makes

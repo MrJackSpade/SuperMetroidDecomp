@@ -14,9 +14,9 @@ internal sealed class EnemyBg2FrameCatalog
     /// <summary>Canonical frames retain command order, destinations and each tile-run boundary.</summary>
     internal string ContentIdentity => SelectedPresentationHash.Create("enemy-bg2-frames-v2", content =>
         {
-            foreach ((EnemyFrameId frame, EnemyBg2TilemapWrite[] writes) in frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
+            foreach ((EnemyFrameId frame, EnemyBg2TilemapWrite[] writes) in frames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
-                content.AppendName("frame", frame.ToString());
+                content.AppendName("frame", EnemyFrameSheetKeys.Of(frame));
                 content.Append("writes", writes.Length);
                 foreach (EnemyBg2TilemapWrite write in writes)
                 {

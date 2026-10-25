@@ -12,9 +12,9 @@ public sealed class EnemyExtendedFrameCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-extended-oam-v2", content =>
         {
-            foreach ((EnemyFrameId frame, EnemyExtendedDrawComponent[] components) in frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
+            foreach ((EnemyFrameId frame, EnemyExtendedDrawComponent[] components) in frames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
-                content.AppendName("frame", frame.ToString());
+                content.AppendName("frame", EnemyFrameSheetKeys.Of(frame));
                 content.Append("components", components.Length);
                 foreach (EnemyExtendedDrawComponent component in components)
                 {
@@ -23,10 +23,10 @@ public sealed class EnemyExtendedFrameCatalog
                     content.AppendEnemyParts(component.Parts);
                 }
             }
-            foreach ((EnemyFrameId native, EnemyFrameId selected) in displayFrames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
+            foreach ((EnemyFrameId native, EnemyFrameId selected) in displayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
-                content.AppendName("native-binding", native.ToString());
-                content.AppendName("selected-binding", selected.ToString());
+                content.AppendName("native-binding", EnemyFrameSheetKeys.Of(native));
+                content.AppendName("selected-binding", EnemyFrameSheetKeys.Of(selected));
             }
         });
 

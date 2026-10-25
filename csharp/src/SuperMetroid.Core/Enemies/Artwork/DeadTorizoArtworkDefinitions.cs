@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class DeadTorizoArtworkDefinitions
 {
     /// <summary>The corpse hook frame drawn after the enemy queue.</summary>
-    internal const EnemyFrameId HookFrame = EnemyFrameId.DeadTorizoCorpseA9D761;
+    internal const EnemyFrameId HookFrame = EnemyFrameId.DeadTorizoCorpseHook;
 }

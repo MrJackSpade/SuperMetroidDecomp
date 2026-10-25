@@ -13,7 +13,7 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     /// The frames that show the shared empty spritemap: the common empty frame, and the Norfair lava jumper frame
     /// catalogued at the same record.
     /// </summary>
-    private static readonly HashSet<EnemyFrameId> EmptySpritemapFrames = [EnemyFrameId.Empty, EnemyFrameId.NorfairLavaJumper804d];
+    private static readonly HashSet<EnemyFrameId> EmptySpritemapFrames = [EnemyFrameId.Empty, EnemyFrameId.NorfairLavaJumperPose0];
     /// <summary>Whether an actor showing <paramref name="frame"/> draws nothing: no frame yet, or the shared empty spritemap.</summary>
     internal static bool DrawsNothing(EnemyFrameId? frame) => frame is not { } shown || EmptySpritemapFrames.Contains(shown);
     /// <summary>Whether <paramref name="frame"/> is the shared point-hitbox extended frame.</summary>

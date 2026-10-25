@@ -82,18 +82,18 @@ internal static class SporeSpawnCollisionDefinitions
     /// </summary>
     private static readonly Dictionary<EnemyFrameId, SporeSpawnCollisionComponent[]> FrameComponents = new()
     {
-        [EnemyFrameId.SporeSpawnOamEE65] = DeadComponents,
-        [EnemyFrameId.SporeSpawnOamEE6F] = ClosedComponents,
-        [EnemyFrameId.SporeSpawnOamEE79] = OpeningComponents[0],
-        [EnemyFrameId.SporeSpawnOamEE8B] = OpeningComponents[1],
-        [EnemyFrameId.SporeSpawnOamEE9D] = OpeningComponents[2],
-        [EnemyFrameId.SporeSpawnOamEEAF] = OpeningComponents[3],
-        [EnemyFrameId.SporeSpawnOamEEC1] = OpeningComponents[4],
-        [EnemyFrameId.SporeSpawnOamEED3] = OpeningComponents[5],
-        [EnemyFrameId.SporeSpawnOamEEE5] = OpeningComponents[6],
-        [EnemyFrameId.SporeSpawnOamEF3D] = FullyOpenComponents[0],
-        [EnemyFrameId.SporeSpawnOamEF4F] = FullyOpenComponents[1],
-        [EnemyFrameId.SporeSpawnOamEF61] = FullyOpenComponents[2],
+        [EnemyFrameId.SporeSpawnDead0] = DeadComponents,
+        [EnemyFrameId.SporeSpawnClosed0] = ClosedComponents,
+        [EnemyFrameId.SporeSpawnOpening0] = OpeningComponents[0],
+        [EnemyFrameId.SporeSpawnOpening1] = OpeningComponents[1],
+        [EnemyFrameId.SporeSpawnOpening2] = OpeningComponents[2],
+        [EnemyFrameId.SporeSpawnOpening3] = OpeningComponents[3],
+        [EnemyFrameId.SporeSpawnOpening4] = OpeningComponents[4],
+        [EnemyFrameId.SporeSpawnOpening5] = OpeningComponents[5],
+        [EnemyFrameId.SporeSpawnOpening6] = OpeningComponents[6],
+        [EnemyFrameId.SporeSpawnOpen0] = FullyOpenComponents[0],
+        [EnemyFrameId.SporeSpawnOpen1] = FullyOpenComponents[1],
+        [EnemyFrameId.SporeSpawnOpen2] = FullyOpenComponents[2],
     };
 
     /// <summary>Whether <paramref name="frame"/> is one of Spore Spawn's collision frames.</summary>

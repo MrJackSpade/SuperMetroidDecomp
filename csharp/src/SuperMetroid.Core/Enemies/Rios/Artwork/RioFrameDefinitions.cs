@@ -12,13 +12,13 @@ internal static class RioFrameDefinitions
     /// <summary>The installed frame each <see cref="RioFrame"/> shows.</summary>
     internal static EnemyFrameTable<RioFrame> ShownFrames { get; } = new()
     {
-        { new(Pose: 0), EnemyFrameId.RioBd6c },
-        { new(Pose: 1), EnemyFrameId.RioBd82 },
-        { new(Pose: 2), EnemyFrameId.RioBd98 },
-        { new(Pose: 3), EnemyFrameId.RioBdae },
-        { new(Pose: 4), EnemyFrameId.RioBdc4 },
-        { new(Pose: 5), EnemyFrameId.RioBdda },
-        { new(Pose: 6), EnemyFrameId.RioBdf0 },
-        { new(Pose: 7), EnemyFrameId.RioBe06 },
+        { new(Pose: 0), EnemyFrameId.RioPose0 },
+        { new(Pose: 1), EnemyFrameId.RioPose1 },
+        { new(Pose: 2), EnemyFrameId.RioPose2 },
+        { new(Pose: 3), EnemyFrameId.RioPose3 },
+        { new(Pose: 4), EnemyFrameId.RioPose4 },
+        { new(Pose: 5), EnemyFrameId.RioPose5 },
+        { new(Pose: 6), EnemyFrameId.RioPose6 },
+        { new(Pose: 7), EnemyFrameId.RioPose7 },
     };
 }

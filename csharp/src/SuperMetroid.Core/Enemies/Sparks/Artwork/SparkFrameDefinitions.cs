@@ -12,7 +12,7 @@ internal static class SparkFrameDefinitions
     /// <summary>The installed frame each <see cref="SparkFrame"/> shows.</summary>
     internal static EnemyFrameTable<SparkFrame> ShownFrames { get; } = new()
     {
-        { new(Pose: 0), EnemyFrameId.NorfairLavaJumper804d },
+        { new(Pose: 0), EnemyFrameId.NorfairLavaJumperPose0 },
         { new(Pose: 1), EnemyFrameId.Spark04 },
         { new(Pose: 2), EnemyFrameId.Spark05 },
         { new(Pose: 3), EnemyFrameId.Spark06 },

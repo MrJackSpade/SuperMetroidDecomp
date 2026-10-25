@@ -12,10 +12,10 @@ internal static class RinkaFrameDefinitions
     /// <summary>The installed frame each <see cref="RinkaFrame"/> shows.</summary>
     internal static EnemyFrameTable<RinkaFrame> ShownFrames { get; } = new()
     {
-        { new(Pose: 0), EnemyFrameId.RinkaSpinBa38 },
-        { new(Pose: 1), EnemyFrameId.RinkaSpinBa3f },
-        { new(Pose: 2), EnemyFrameId.RinkaSpinBa46 },
-        { new(Pose: 3), EnemyFrameId.RinkaSpinBa4d },
-        { new(Pose: 4), EnemyFrameId.RinkaSpinBa54 },
+        { new(Pose: 0), EnemyFrameId.RinkaSpin0 },
+        { new(Pose: 1), EnemyFrameId.RinkaSpin1 },
+        { new(Pose: 2), EnemyFrameId.RinkaSpin2 },
+        { new(Pose: 3), EnemyFrameId.RinkaSpin3 },
+        { new(Pose: 4), EnemyFrameId.RinkaSpin4 },
     };
 }

@@ -1009,10 +1009,10 @@ internal static class LookupStream2Verification
         // stock tile coverage. Native staging must still copy the same artwork rows.
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
-            [EnemyFrameId.DeadTorizoStationaryA9D6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
+            [EnemyFrameId.DeadTorizoStationary] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
                 SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
         };
-        var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationaryA9D6e2] = EnemyFrameId.DeadTorizoStationaryA9D6e2 };
+        var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationary] = EnemyFrameId.DeadTorizoStationary };
         var display = new EnemySpritemapCatalog(displayParts, displayBindings);
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");

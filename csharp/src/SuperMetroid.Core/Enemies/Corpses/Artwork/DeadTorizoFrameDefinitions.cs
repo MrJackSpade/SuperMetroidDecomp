@@ -12,6 +12,6 @@ internal static class DeadTorizoFrameDefinitions
     /// <summary>The installed frame each <see cref="DeadTorizoFrame"/> shows.</summary>
     internal static EnemyFrameTable<DeadTorizoFrame> ShownFrames { get; } = new()
     {
-        { new(Pose: 0), EnemyFrameId.DeadTorizoStationaryA9D6e2 },
+        { new(Pose: 0), EnemyFrameId.DeadTorizoStationary },
     };
 }

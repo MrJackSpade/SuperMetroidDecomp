@@ -11,8 +11,8 @@ internal static class ChozoStrideGeometryDefinitions
     /// <summary>The eight stride compositions, Spritemaps_Chozo_4 onwards: two strides of four phases.</summary>
     internal static ImmutableArray<EnemyFrameId> Poses { get; } =
     [
-        EnemyFrameId.ChozoStatueAaE943, EnemyFrameId.ChozoStatueAaE9ae, EnemyFrameId.ChozoStatueAaEa1e, EnemyFrameId.ChozoStatueAaEa8e,
-        EnemyFrameId.ChozoStatueAaEafe, EnemyFrameId.ChozoStatueAaEb69, EnemyFrameId.ChozoStatueAaEbd9, EnemyFrameId.ChozoStatueAaEc49,
+        EnemyFrameId.ChozoStatuePose4, EnemyFrameId.ChozoStatuePose5, EnemyFrameId.ChozoStatuePose6, EnemyFrameId.ChozoStatuePose7,
+        EnemyFrameId.ChozoStatuePose8, EnemyFrameId.ChozoStatuePose9, EnemyFrameId.ChozoStatuePose10, EnemyFrameId.ChozoStatuePose11,
     ];
     /// <summary>Width of one OBJ glyph, the distance from the left foot to the adjacent right foot.</summary>
     private const int TilePixels = 8;

@@ -95,7 +95,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             }
             if (golden)
             {
-                Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)EnemyExtraProperties.UsesExtendedSpritemap);
+                Actor.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)EnemyExtraProperties.UsesExtendedSpritemap);
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Enemies.BombTorizoBehavior.Access.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {

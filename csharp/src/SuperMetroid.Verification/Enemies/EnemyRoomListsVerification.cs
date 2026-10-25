@@ -42,7 +42,7 @@ internal static class EnemyRoomListsVerification
                 ushort definitionWord = ReadVerificationWord(bus, address);
                 AssertTrue(definitionWord != 0xffff,
                     $"population $A1:{pointer:X4} has no early terminator");
-                RoomEnemyPopulationRecord native = new(EnemyDefinitionIds.FromHeaderPointer(definitionWord), new(ReadVerificationWord(bus, address + 2), ReadVerificationWord(bus, address + 4)), ReadVerificationWord(bus, address + 6), EnemyPropertyWord.FromNativeWord(ReadVerificationWord(bus, address + 8)), EnemyExtraPropertyWord.FromNativeWord(ReadVerificationWord(bus, address + 10)), ReadVerificationWord(bus, address + 12), ReadVerificationWord(bus, address + 14));
+                RoomEnemyPopulationRecord native = new(EnemyDefinitionIds.FromHeaderPointer(definitionWord), new(ReadVerificationWord(bus, address + 2), ReadVerificationWord(bus, address + 4)), ReadVerificationWord(bus, address + 6), EnemyPropertyWord.FromWord(ReadVerificationWord(bus, address + 8)), EnemyExtraPropertyWord.FromWord(ReadVerificationWord(bus, address + 10)), ReadVerificationWord(bus, address + 12), ReadVerificationWord(bus, address + 14));
                 AssertEqual(native, records[index],
                     $"population $A1:{pointer:X4} ordered slot {index}");
             }

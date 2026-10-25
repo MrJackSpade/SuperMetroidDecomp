@@ -328,8 +328,8 @@ internal static void VerifyTypedNativeWords()
         "enemy deletion and processing flags round trip");
     enemyProperties = enemyProperties.Without(EnemyProperties.Invisible | EnemyProperties.Deleted |
         EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions);
-    AssertEqual(0x945a, enemyProperties.ToNativeWord(), "enemy flag operations preserve the family-specific low byte");
-    AssertEqual(enemyProperties, EnemyPropertyWord.FromNativeWord(0x945a), "enemy property word round trips its native word");
+    AssertEqual(0x945a, enemyProperties.ToWord(), "enemy flag operations preserve the family-specific low byte");
+    AssertEqual(enemyProperties, EnemyPropertyWord.FromWord(0x945a), "enemy property word round trips its native word");
     AssertEqual(EnemyProperties.IgnoreSamusCollision | EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus,
         enemyProperties.Flags, "enemy property word exposes only its typed high-byte flags");
     AssertThrows<ArgumentOutOfRangeException>(
@@ -338,9 +338,9 @@ internal static void VerifyTypedNativeWords()
 
     EnemyExtraPropertyWord enemyExtraProperties = new EnemyExtraPropertyWord(EnemyExtraProperties.UsesExtendedSpritemap)
         .WithUntranslatedBits(EnemyExtraPropertyRawBits.CrocomireInitializerBit0400, "typed-word verification");
-    AssertEqual(0x0404, enemyExtraProperties.ToNativeWord(),
+    AssertEqual(0x0404, enemyExtraProperties.ToWord(),
         "enemy extra-property escape hatch preserves explicitly owned untranslated data");
-    AssertEqual(enemyExtraProperties, EnemyExtraPropertyWord.FromNativeWord(0x0404),
+    AssertEqual(enemyExtraProperties, EnemyExtraPropertyWord.FromWord(0x0404),
         "enemy extra-property word splits its native word into flags and untranslated bits");
     AssertThrows<ArgumentException>(
         () => default(EnemyExtraPropertyWord).WithUntranslatedBits(

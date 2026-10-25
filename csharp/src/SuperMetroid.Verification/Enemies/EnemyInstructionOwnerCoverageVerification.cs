@@ -221,7 +221,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                     break;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
-                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6)), EnemyPropertyWord.FromNativeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8))), EnemyExtraPropertyWord.FromNativeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
+                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6)), EnemyPropertyWord.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8))), EnemyExtraPropertyWord.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
                 if (!records.TryGetValue(
                     definitionPointer,
                     out List<RoomEnemyPopulationRecord>? definitionRecords))

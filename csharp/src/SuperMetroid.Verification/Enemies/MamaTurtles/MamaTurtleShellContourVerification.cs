@@ -53,7 +53,7 @@ internal static class MamaTurtleShellContourVerification
         for (short difference = -30; difference <= 30; difference++)
         {
             mama.Radius = mama.Radius.WithY(0xffff);
-            mama.Properties = EnemyPropertyWord.FromNativeWord(0);
+            mama.Properties = EnemyPropertyWord.FromWord(0);
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(mama.Position.X.Whole - difference)));
             runAsleep(mama, state, samus);
 
@@ -61,7 +61,7 @@ internal static class MamaTurtleShellContourVerification
             {
                 AssertEqual((ushort)0, mama.Radius.Y,
                     $"sleeping Mama ignores out-of-contour difference {difference}");
-                AssertEqual((ushort)0, mama.Properties.ToNativeWord(),
+                AssertEqual((ushort)0, mama.Properties.ToWord(),
                     $"sleeping Mama remains nonsolid outside contour at {difference}");
             }
             else

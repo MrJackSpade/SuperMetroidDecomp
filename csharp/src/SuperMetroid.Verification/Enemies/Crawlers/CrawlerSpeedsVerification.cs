@@ -32,7 +32,7 @@ internal static class CrawlerSpeedsVerification
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0xa000 | property));
+                slot.Properties = EnemyPropertyWord.FromWord((ushort)(0xa000 | property));
                 EightEightVector<RoomPixels> velocity = reset(slot, speedParameter, new(new SignedEightEight(123), new SignedEightEight(456)));
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue, "Real crawler X reset without bus");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue, "Real crawler Y reset without bus");
@@ -51,7 +51,7 @@ internal static class CrawlerSpeedsVerification
         {
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = EnemyPropertyWord.FromNativeWord(property);
+                slot.Properties = EnemyPropertyWord.FromWord(property);
                 EightEightVector<RoomPixels> velocity = reset(slot, speedParameter,
                     new(new SignedEightEight((ushort)magnitude), new SignedEightEight((ushort)~magnitude)));
                 AssertEqual(property == 0 ? unchecked((ushort)-magnitude) : (ushort)magnitude, velocity.X.RawValue, "Crawler sentinel X sign");

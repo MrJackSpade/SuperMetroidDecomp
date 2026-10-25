@@ -24,15 +24,15 @@ public readonly record struct EnemyPropertyWord
     /// <summary>
     /// The species-owned family bits, 0 through 255. Every producer supplies a byte (the constructor and
     /// <see cref="WithFamilyData"/> reject anything else, and decoding takes the word's low byte), so the value cannot
-    /// leave that range, and the native word places it unchanged beside the flags.
+    /// leave that range, and the stored word places it unchanged beside the flags.
     /// </summary>
     public int FamilyData { get; }
 
-    /// <summary>A native word as a property value; an unnamed high-byte flag is corrupt.</summary>
-    public static EnemyPropertyWord FromNativeWord(int word) => EnemyPropertyWordCodec.Decode(checked((ushort)word));
+    /// <summary>A stored word as a property value; an unnamed high-byte flag is corrupt.</summary>
+    public static EnemyPropertyWord FromWord(int word) => EnemyPropertyWordCodec.Decode(checked((ushort)word));
 
-    /// <summary>The native word.</summary>
-    public ushort ToNativeWord() => EnemyPropertyWordCodec.Encode(this);
+    /// <summary>The stored word.</summary>
+    public ushort ToWord() => EnemyPropertyWordCodec.Encode(this);
 
     /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
     public bool HasAny(EnemyProperties flags) => (Flags & flags) != EnemyProperties.None;

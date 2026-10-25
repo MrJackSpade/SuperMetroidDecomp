@@ -61,7 +61,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+            Actor.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
                 (fresh ? EnemyExtraProperties.NewInstructionFrame : 0)));
         }
 

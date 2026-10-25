@@ -77,7 +77,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
-    AssertEqual(0x3800, baby.Properties.ToNativeWord(), "Baby population/init property OR");
+    AssertEqual(0x3800, baby.Properties.ToWord(), "Baby population/init property OR");
     AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
     AssertEqual(SuperMetroid.Core.Hardware.SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 0), baby.GraphicsOffset,
         "Baby draws from transferred tile 160 at the base priority");

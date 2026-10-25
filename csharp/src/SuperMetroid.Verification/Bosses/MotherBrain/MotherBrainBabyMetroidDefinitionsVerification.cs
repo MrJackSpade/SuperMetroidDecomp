@@ -27,8 +27,8 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             population.Position.X,
             population.Position.Y,
             checked((ushort)population.InitializationParameter),
-            population.Properties.ToNativeWord(),
-            population.ExtraProperties.ToNativeWord(),
+            population.Properties.ToWord(),
+            population.ExtraProperties.ToWord(),
             checked((ushort)population.Parameter1),
             checked((ushort)population.Parameter2),
         ];

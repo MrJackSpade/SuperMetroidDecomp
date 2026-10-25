@@ -38,13 +38,13 @@ internal static class ShaktoolSegmentDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.SetSpawnParameter2(unchecked((ushort)(index * 2)));
-            slot.Properties = EnemyPropertyWord.FromNativeWord(0x0010);
+            slot.Properties = EnemyPropertyWord.FromWord(0x0010);
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
 
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
             AssertEqual((ushort)(0x0010 | (ushort)definition.PropertyMask),
-                slot.Properties.ToNativeWord(), $"Shaktool production properties {index}");
+                slot.Properties.ToWord(), $"Shaktool production properties {index}");
             AssertEqual(0, state.OwnerSlotIndex,
                 $"Shaktool production owner {index}");
             AssertEqual(definition.PreInstruction, state.PreInstruction,

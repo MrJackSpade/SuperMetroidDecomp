@@ -35,10 +35,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer consumes init0 and the low extra-property word as a two-bit table
         // selector before clearing the latter. Keep native dispatch ordering independent
         // of the origin direction encoded below.
-        int initialFunctionIndex = slot.ExtraProperties.ToNativeWord() * 2 + slot.CurrentInstruction;
+        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 + slot.CurrentInstruction;
         state.Function = GrowingShutterDefinitions.InitialFunction(initialFunctionIndex);
 
-        bool growsUp = slot.ExtraProperties.ToNativeWord() != 0;
+        bool growsUp = slot.ExtraProperties.ToWord() != 0;
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
@@ -248,8 +248,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RightVelocity = ReadShutterLinearSpeed(speedRecordOffset);
         state.LeftVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
-        state.MovedLeftRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
-        state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
+        state.MovedLeftRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToWord());
+        state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToWord());
         state.MovedLeftRestTime = state.MovedLeftRestParameter * RestUpdatesPerParameterUnit;
         state.MovedRightRestTime = state.MovedRightRestParameter * RestUpdatesPerParameterUnit;
 
@@ -751,8 +751,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DownVelocity = ReadShutterLinearSpeed(speedRecordOffset);
         state.UpVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
-        state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
-        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
+        state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToWord());
+        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToWord());
         state.MovedUpRestTime = state.MovedUpRestParameter * RestUpdatesPerParameterUnit;
         state.MovedDownRestTime = state.MovedDownRestParameter * RestUpdatesPerParameterUnit;
 

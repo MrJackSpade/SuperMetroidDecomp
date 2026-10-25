@@ -139,7 +139,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal static int RespawnScratchWord(RoomEnemySlot enemy) =>
         enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
-            ? EnemyProperties.RespawnIfKilled.ToNativeWord()
+            ? EnemyProperties.RespawnIfKilled.ToWord()
             : 0;
 
     /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>

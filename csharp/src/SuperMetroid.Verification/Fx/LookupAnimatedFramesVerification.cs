@@ -30,7 +30,7 @@ internal static class LookupAnimatedFramesVerification
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition),
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
                 "Original animation object resolves");
             int count = (original.End - original.First) / 4;
             AssertEqual(count, (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count, "Native frame count");
@@ -61,7 +61,7 @@ internal static class LookupAnimatedFramesVerification
     {
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition), "Animation resolves");
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition), "Animation resolves");
             int index = 0;
             foreach (var frame in (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames)
             {

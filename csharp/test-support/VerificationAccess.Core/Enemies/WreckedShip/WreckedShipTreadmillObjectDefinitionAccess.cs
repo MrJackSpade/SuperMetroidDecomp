@@ -33,8 +33,8 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
             int listIndex = self.FrameIndex(instructionPointer);
             if (listIndex < 0)
                 throw new InvalidDataException(
-                    $"Treadmill $87:{(int)self.AnimatedObject:X4} has no frame at $87:{instructionPointer:X4}.");
-            return self.FrameSource(listIndex);
+                    $"Treadmill {self.AnimatedObject} has no frame at $87:{instructionPointer:X4}.");
+            return AnimatedTileImageSources.Of(self.Image(listIndex));
         }
         /// <summary>The terminal loop command after the fourth frame.</summary>
         public ushort GotoInstructionPointer =>
@@ -42,11 +42,12 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
         /// <summary>Reads one immutable mechanics word, excluding presentation source operands.</summary>
         public bool TryReadMechanicsWord(ushort pointer, out ushort value)
         {
-            if (pointer == (ushort)self.AnimatedObject)
+            ushort header = FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject);
+            if (pointer == header)
                 value = self.WaitInstructionPointer;
-            else if (pointer == unchecked((ushort)(self.AnimatedObject + 2)))
-                value = WreckedShipTreadmillRomData.FrameByteCount;
-            else if (pointer == unchecked((ushort)(self.AnimatedObject + 4)))
+            else if (pointer == unchecked((ushort)(header + 2)))
+                value = WreckedShipTreadmillMechanicsDefinitions.FrameByteCount;
+            else if (pointer == unchecked((ushort)(header + 4)))
                 value = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
             else if (pointer == self.WaitInstructionPointer)
                 value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;

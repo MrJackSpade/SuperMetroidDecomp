@@ -52,7 +52,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             {
                 AssertTrue(!definition.TryReadMechanicsWord(
                         frame.SourceOperandPointer, out _),
-                    $"object $87:{(int)definition.AnimatedObject:X4} leaves source operand " +
+                    $"object {definition.AnimatedObject} leaves source operand " +
                     $"$87:{frame.SourceOperandPointer:X4} presentation-owned");
                 mechanicsWordCount++;
                 frameCount++;
@@ -71,16 +71,16 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             for (int step = 0; step < steps; step++)
             {
                 state.Step(frames);
-                if (state.LastSourceAddress.HasValue)
+                if (state.LastImage.HasValue)
                     observedFrames++;
             }
 
             AssertEqual(definition.Frames.Count + 1, observedFrames,
-                $"object $87:{(int)definition.AnimatedObject:X4} executes one complete loop");
+                $"object {definition.AnimatedObject} executes one complete loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"object $87:{(int)definition.AnimatedObject:X4} performs no mechanics ROM reads");
+                $"object {definition.AnimatedObject} performs no mechanics ROM reads");
             AssertEqual(0, presentationReadCount,
-                $"object $87:{(int)definition.AnimatedObject:X4} reads no compiled artwork-source operands");
+                $"object {definition.AnimatedObject} reads no compiled artwork-source operands");
         }
 
         AssertEqual(7, RoomFxAnimatedTileMechanicsDefinitions.All.Count(),
@@ -130,7 +130,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             for (int index = 0; index <= definition.Frames.Count; index++)
             {
                 RoomFxAnimatedTileFrameDefinition frame = definition.Frames[index % definition.Frames.Count];
-                expected.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(update, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer)));
+                expected.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(update, AnimatedTileImageSources.OfCursor(definition, frame.InstructionPointer)));
                 update += frame.Duration;
             }
 
@@ -141,7 +141,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             for (int step = 0; step <= expected[^1].Update; step++)
             {
                 state.Step(frames);
-                if (state.LastSourceAddress is int source)
+                if (AnimatedTileImageSources.Of(state.LastImage) is int source)
                     observed.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(step, source));
             }
             AssertTrue(expected.SequenceEqual(observed),

@@ -23,15 +23,15 @@ internal static class SandAnimatedTilesVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual((byte)0x0c, rom.ReadCartridgeByte(0x830000 | (sandFxRecord + 14)),
             "selected retail FX record enables ceiling and falling sand");
-        ushort[] definitions = [(ushort)AnimatedTileObject.MaridiaSandCeiling, (ushort)AnimatedTileObject.MaridiaSandFalling];
+        AnimatedTileObject[] definitions = [AnimatedTileObject.MaridiaSandCeiling, AnimatedTileObject.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {
             AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                    (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
+                    definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
                 $"sand object {slot} resolves compiled mechanics");
             for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
             {
-                int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                int source = AnimatedTileImageSources.OfCursor(
                     definition, definition.Frames[frame].InstructionPointer);
                 bus.WriteBytes(source,
                     Enumerable.Repeat((byte)(1 + slot * 4 + frame),
@@ -46,11 +46,11 @@ internal static class SandAnimatedTilesVerification
         {
             var before = new ArtworkFrame?[2];
             for (int slot = 0; slot < 2; slot++)
-                before[slot] = frames.TryShown(AnimatedTileFrames.Of((AnimatedTileObject)definitions[slot]), out ArtworkFrame previous) ? previous : null;
+                before[slot] = frames.TryShown(AnimatedTileFrames.Of(definitions[slot]), out ArtworkFrame previous) ? previous : null;
             sand.Step(frames);
             for (int slot = 0; slot < 2; slot++)
             {
-                var animatedObject = (AnimatedTileObject)definitions[slot];
+                var animatedObject = definitions[slot];
                 AssertTrue(frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown),
                     $"sand object {slot} shows a frame from its first update");
                 AssertEqual(AnimatedTileFrames.Frame(animatedObject, tick / 10 % 4), shown,
@@ -64,7 +64,7 @@ internal static class SandAnimatedTilesVerification
         var departed = new ArtworkFrameSelections();
         sand.Step(departed);
         for (int slot = 0; slot < 2; slot++)
-            AssertTrue(!departed.TryShown(AnimatedTileFrames.Of((AnimatedTileObject)definitions[slot]), out _),
+            AssertTrue(!departed.TryShown(AnimatedTileFrames.Of(definitions[slot]), out _),
                 "departed room cannot continue showing sand frames");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "sand runtime never reads artwork from ROM");
         Console.WriteLine("  Sand animation: FX selection, timed loops, the frames shown, and room reset agree.");

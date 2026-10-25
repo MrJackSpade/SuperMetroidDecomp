@@ -42,10 +42,10 @@ internal static class TreadmillVisualVerification
             if ((bits & 12) == 0) continue;
             var images = new HashSet<string>();
             int[] sources = (bits & 4) != 0
-                ? [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.FrameSource(1),
-                    WreckedShipTreadmillRomData.FrameSource(2), WreckedShipTreadmillRomData.FrameSource(3)]
-                : [WreckedShipTreadmillRomData.FrameSource(3), WreckedShipTreadmillRomData.FrameSource(2),
-                    WreckedShipTreadmillRomData.FrameSource(1), WreckedShipTreadmillRomData.Frame0Source];
+                ? [AnimatedTileImageSources.Treadmill(0), AnimatedTileImageSources.Treadmill(1),
+                    AnimatedTileImageSources.Treadmill(2), AnimatedTileImageSources.Treadmill(3)]
+                : [AnimatedTileImageSources.Treadmill(3), AnimatedTileImageSources.Treadmill(2),
+                    AnimatedTileImageSources.Treadmill(1), AnimatedTileImageSources.Treadmill(0)];
             // The floor's frames are selected (#1406): the frame boundary shows the frame the previous update selected, which the
             // render places over the room's characters where the cartridge copies it.
             ArtworkAnimation treadmill = AnimatedTileFrames.Of((bits & 4) != 0
@@ -64,7 +64,7 @@ internal static class TreadmillVisualVerification
                 // pointer or unrelated enemy animation.
                 byte[] floor = shown.AsSpan(
                     AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2,
-                    WreckedShipTreadmillRomData.FrameByteCount).ToArray();
+                    WreckedShipTreadmillMechanicsDefinitions.FrameByteCount).ToArray();
                 images.Add(Convert.ToHexString(floor));
                 if (frame > 0)
                 {
@@ -84,8 +84,8 @@ internal static class TreadmillVisualVerification
     {
         var expected = new SnesVram();
         ushort destination = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
-        ImportedVramOracle.ExecuteHardware(expected, bus, source, WreckedShipTreadmillRomData.FrameByteCount, destination);
-        return expected.Bytes.Slice(destination * 2, WreckedShipTreadmillRomData.FrameByteCount).ToArray();
+        ImportedVramOracle.ExecuteHardware(expected, bus, source, WreckedShipTreadmillMechanicsDefinitions.FrameByteCount, destination);
+        return expected.Bytes.Slice(destination * 2, WreckedShipTreadmillMechanicsDefinitions.FrameByteCount).ToArray();
     }
 
     /// <summary>Runs the focused Wrecked Ship treadmill visual comparison.</summary>

@@ -120,7 +120,7 @@ internal static class InstalledSporesTests
                     ushort accumulator = unchecked((ushort)(-tick * 64));
                     Require(capture.Scroll == new Position16<Bg3Pixels>(camera.X,
                         unchecked((ushort)(camera.Y + (sbyte)(SnesLittleEndian.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
-                    int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics,
+                    int source = AnimatedTileImageSources.OfCursor(mechanics,
                         mechanics.Frames[tick / 10 % 3].InstructionPointer);
                     Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     Require(edited.RoomFxAnimatedTiles.TryResolve(source, 48, out var altered), "Missing edited spores frame.");
@@ -204,9 +204,10 @@ internal static class InstalledSporesTests
         int segmentOffset = 0;
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
         {
+            int segmentSource = RoomFxAnimatedTileSources.Of(segment).Value;
             for (int index = 0; index < segment.ByteCount; index++)
-                Require(planar[segmentOffset + index] == SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segment.SourceAddress + index),
-                    $"Installed sheet segment ${segment.SourceAddress:X6} differs from its native bytes at +{index}.");
+                Require(planar[segmentOffset + index] == SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segmentSource + index),
+                    $"Installed sheet segment ${segmentSource:X6} differs from its native bytes at +{index}.");
             segmentOffset += segment.ByteCount;
         }
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
@@ -215,7 +216,7 @@ internal static class InstalledSporesTests
             value => value.AnimatedObject == AnimatedTileObject.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
-            int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(controls, controls.Frames[frame].InstructionPointer);
+            int source = AnimatedTileImageSources.OfCursor(controls, controls.Frames[frame].InstructionPointer);
             Require(stock.TryResolve(source, 48, out var bytes), "Spore frame identity is absent.");
             byte[] pinnedArt = File.ReadAllBytes(Path.Combine(Path.GetFullPath(nativeArtworkDirectory),
                 $"AnimatedTiles_Spores_{frame}.bin"));
@@ -239,9 +240,9 @@ internal static class InstalledSporesTests
             int offset = 0;
             foreach (var segment in RoomFxAnimatedTileAtlasFormat.Segments)
             {
-                if (segment.IsFrame)
+                if (segment is RoomFxAtlasSegment.Image held)
                 {
-                    Require(legacy.TryResolve(segment.SourceAddress, segment.ByteCount, out var actual), "Legacy frame vanished.");
+                    Require(legacy.TryResolve(held.Picture, segment.ByteCount, out var actual), "Legacy frame vanished.");
                     Require(actual.Span.SequenceEqual(expected.AsSpan(offset, segment.ByteCount)),
                         "Legacy sheet edit/tail inheritance changed a transfer.");
                 }
@@ -252,9 +253,9 @@ internal static class InstalledSporesTests
             foreach (var statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
             foreach (var picture in TourianStatueTileStripDefinitions.Pictures)
             {
-                int source = TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture);
+                int source = AnimatedTileImageSources.TourianStatue(statue.AnimatedObject, picture);
                 int statueOffset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
-                    source - TourianStatueTileStripDefinitions.FirstSource;
+                    source - AnimatedTileImageSources.TourianStatueStripStart;
                 Require(legacy.TryResolve(source, statue.FrameByteCount, out var actual) &&
                     actual.Span.SequenceEqual(expected.AsSpan(statueOffset, statue.FrameByteCount)),
                     "Appending spores shifted an existing statue alias.");

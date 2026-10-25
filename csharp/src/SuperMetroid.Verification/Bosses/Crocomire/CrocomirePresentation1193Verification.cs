@@ -179,7 +179,7 @@ internal static class CrocomirePresentation1193Verification
         IndexedPng.Write(legacyPng, new(checked((ushort)oldWidth), 8), pixels, SnesGraphics.DiagnosticPalette(4));
         legacyPng.Position = 0;
         var migrated = RoomFxAnimatedTileAtlasPng.Read(legacyPng, stock);
-        int oldSource = RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource;
+        int oldSource = AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0));
         AssertTrue(stock.TryResolve(oldSource, 0x40, out var original) &&
             migrated.TryResolve(oldSource, 0x40, out var edited) && !original.Span.SequenceEqual(edited.Span),
             "Pre-spike PNG retains the user's existing edited prefix");

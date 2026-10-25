@@ -161,7 +161,7 @@ internal static class RoomBlockUploads
                 foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
                 {
                     yield return AnimatedCharacterPlacement.At(AnimatedTileFrames.Picture(statue.AnimatedObject, picture), AnimatedTileVramDestinations.WordOf(statue.AnimatedObject),
-                        Frame(inputs, TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture), statue.FrameByteCount));
+                        inputs.AnimatedTiles.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameByteCount));
                 }
             }
         }
@@ -300,7 +300,7 @@ internal static class RoomBlockUploads
             yield break;
         RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
-            yield return Animated(inputs, animatedObject, frame, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]),
+            yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
@@ -358,7 +358,7 @@ internal static class RoomBlockUploads
         if (WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out WreckedShipTreadmillObjectDefinition? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return Animated(inputs, animatedObject, frame, treadmill.FrameSource(frame), WreckedShipTreadmillRomData.FrameByteCount,
+                yield return Animated(inputs, animatedObject, frame, treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
                     AnimatedTileVramDestinations.WordOf(animatedObject));
             yield break;
         }
@@ -366,19 +366,19 @@ internal static class RoomBlockUploads
             yield break;
         RoomFxAnimatedTileObjectDefinition mechanics = RoomFxAnimatedTileMechanicsDefinitions.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
-            yield return Animated(inputs, animatedObject, frame, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, mechanics.Frames[frame]),
+            yield return Animated(inputs, animatedObject, frame, mechanics.Image(mechanics.Frames[frame]),
                 mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
     /// <summary>Frame <paramref name="frame"/> of <paramref name="animatedObject"/>'s animation, pictured from its installed characters.</summary>
     private static AnimatedCharacterPlacement Animated(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject, int frame,
-        int sourceAddress, int byteCount, int firstWord) =>
-        AnimatedCharacterPlacement.At(AnimatedTileFrames.Frame(animatedObject, frame), firstWord, Frame(inputs, sourceAddress, byteCount));
+        AnimatedTileImage image, int byteCount, int firstWord) =>
+        AnimatedCharacterPlacement.At(AnimatedTileFrames.Frame(animatedObject, frame), firstWord, Frame(inputs, image, byteCount));
 
-    /// <summary>The installed bytes of an animated tile frame.</summary>
-    private static ReadOnlyMemory<byte> Frame(RoomBlockSheetInputs inputs, int sourceAddress, int byteCount) =>
-        inputs.AnimatedTiles.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> frame) ? frame
-            : throw new InvalidDataException($"Installed animated tiles hold no {byteCount}-byte frame from ${sourceAddress:X6}.");
+    /// <summary>The installed bytes of an animated tile picture.</summary>
+    private static ReadOnlyMemory<byte> Frame(RoomBlockSheetInputs inputs, AnimatedTileImage image, int byteCount) =>
+        inputs.AnimatedTiles.TryResolve(image, byteCount, out ReadOnlyMemory<byte> frame) ? frame
+            : throw new InvalidDataException($"Installed animated tiles hold no {byteCount}-byte picture {image}.");
 
     /// <summary>Each collectible's graphics in each slot, with the block definitions it writes there.</summary>
     private static IEnumerable<CollectibleSlotCharacters> Collectibles(RoomBlockSheetInputs inputs)

@@ -371,7 +371,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            (ushort)AnimatedTileObject.Lava,
+            FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava),
             RoomFxRomData.Layer3AnimatedTiles.LavaFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
@@ -379,7 +379,7 @@ internal static class RoomFxRetailInventoryVerification
             "lava"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            (ushort)AnimatedTileObject.Acid,
+            FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Acid),
             RoomFxRomData.Layer3AnimatedTiles.AcidFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
@@ -387,7 +387,7 @@ internal static class RoomFxRetailInventoryVerification
             "acid"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            (ushort)AnimatedTileObject.Rain,
+            FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Rain),
             RoomFxRomData.Layer3AnimatedTiles.RainFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.RainFrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Rain),

@@ -9,6 +9,31 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class FxNativeWords
 {
+    /// <summary>The bank-$87 object header naming each <see cref="AnimatedTileObject"/>; zero names no object.</summary>
+    internal static readonly NativeWordIdentities<AnimatedTileObject> AnimatedTileObjects = new(new Dictionary<AnimatedTileObject, ushort>
+    {
+        [AnimatedTileObject.None] = 0x0000,
+        [AnimatedTileObject.TourianStatuePhantoon] = 0x854c,
+        [AnimatedTileObject.TourianStatueRidley] = 0x8552,
+        [AnimatedTileObject.TourianStatueKraid] = 0x8558,
+        [AnimatedTileObject.TourianStatueDraygon] = 0x855e,
+        [AnimatedTileObject.Empty] = 0x824b,
+        [AnimatedTileObject.HorizontalSpikes] = 0x8257,
+        [AnimatedTileObject.VerticalSpikes] = 0x8251,
+        [AnimatedTileObject.CrateriaLake] = 0x825d,
+        [AnimatedTileObject.UnusedCrateriaLava] = 0x8263,
+        [AnimatedTileObject.BrinstarPlant] = 0x8281,
+        [AnimatedTileObject.WreckedShipScreen] = 0x826f,
+        [AnimatedTileObject.MaridiaSandCeiling] = 0x8287,
+        [AnimatedTileObject.MaridiaSandFalling] = 0x828d,
+        [AnimatedTileObject.WreckedShipTreadmillRightwards] = 0x8275,
+        [AnimatedTileObject.WreckedShipTreadmillLeftwards] = 0x827b,
+        [AnimatedTileObject.Lava] = 0x82ab,
+        [AnimatedTileObject.Acid] = 0x82c9,
+        [AnimatedTileObject.Rain] = 0x82e7,
+        [AnimatedTileObject.Spores] = 0x82fd,
+    });
+
     /// <summary>The bank-$84 setup routine naming each <see cref="SpecialAirReactionSetup"/>.</summary>
     internal static readonly NativeWordIdentities<SpecialAirReactionSetup> SpecialAirReactionSetups = new(new Dictionary<SpecialAirReactionSetup, ushort>
     {

@@ -21,38 +21,36 @@ public sealed class RoomFxAnimatedTileAtlas
                 $"Room-FX artwork has {characters.Length} bytes, expected {offset}.");
     }
 
-    /// <summary>Returns one complete native frame, rejecting altered frame geometry.</summary>
-    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    /// <summary>Returns the characters of one complete picture, rejecting altered picture geometry.</summary>
+    public bool TryResolve(AnimatedTileImage image, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        int frameOffset = 0;
+        int offset = 0;
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
         {
-            if (segment.IsFrame && segment.SourceAddress == sourceAddress)
+            if (segment is RoomFxAtlasSegment.Image held && held.Picture == image)
             {
                 if (byteCount != segment.ByteCount)
                     throw new InvalidDataException(
-                        $"Room-FX artwork source ${sourceAddress:X6} requires {segment.ByteCount} bytes, not {byteCount}.");
-                data = characters.AsMemory(frameOffset, byteCount);
+                        $"Room-FX picture {image} requires {segment.ByteCount} bytes, not {byteCount}.");
+                data = characters.AsMemory(offset, byteCount);
                 return true;
             }
-            frameOffset += segment.ByteCount;
-        }
-        // Statue operands name overlapping windows of the shared strip.
-        foreach (AnimatedTileObject statue in TourianStatueTileStripDefinitions.Statues)
-        foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
-        {
-            if (TourianStatueTileStripDefinitions.SourceAddress(statue, picture) != sourceAddress)
-                continue;
-            int windowByteCount = TourianStatueTileStripDefinitions.WindowByteCount(statue);
-            if (byteCount != windowByteCount)
-                throw new InvalidDataException(
-                    $"Tourian statue art ${sourceAddress:X6} requires {windowByteCount} bytes, not {byteCount}.");
-            int offset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
-                sourceAddress - TourianStatueTileStripDefinitions.FirstSource;
-            data = characters.AsMemory(offset, byteCount);
-            return true;
+            offset += segment.ByteCount;
         }
         data = default;
         return false;
+    }
+
+    /// <summary>Returns the characters of <paramref name="picture"/> of <paramref name="statue"/>, a window of the shared statue strip.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="byteCount"/> is not the statue's picture size, or <paramref name="statue"/> is not a statue.</exception>
+    public ReadOnlyMemory<byte> TourianStatuePicture(AnimatedTileObject statue, TourianStatueTilePicture picture, int byteCount)
+    {
+        int windowByteCount = TourianStatueTileStripDefinitions.WindowByteCount(statue);
+        if (byteCount != windowByteCount)
+            throw new InvalidDataException(
+                $"Tourian statue {statue} {picture} requires {windowByteCount} bytes, not {byteCount}.");
+        int offset = (RoomFxAnimatedTileAtlasFormat.PreStatueTileCount + TourianStatueTileStripDefinitions.FirstTile(statue, picture)) *
+            TourianStatueTileStripDefinitions.BytesPerTile;
+        return characters.AsMemory(offset, byteCount);
     }
 }

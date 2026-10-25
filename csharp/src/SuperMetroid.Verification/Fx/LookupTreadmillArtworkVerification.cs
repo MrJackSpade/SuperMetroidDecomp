@@ -13,17 +13,17 @@ internal static class LookupTreadmillArtworkVerification
     {
         var right = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);
         var left = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Leftwards);
-        int[] aliases = [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.FrameSource(1),
-            WreckedShipTreadmillRomData.FrameSource(2), WreckedShipTreadmillRomData.FrameSource(3)];
+        int[] aliases = [AnimatedTileImageSources.Treadmill(0), AnimatedTileImageSources.Treadmill(1),
+            AnimatedTileImageSources.Treadmill(2), AnimatedTileImageSources.Treadmill(3)];
         for (int index = 0; index < 4; index++)
         {
             int source = 0x870000 | ReadVerificationWord(rom, 0x8781e5 + 4 * index);
-            AssertEqual(source, WreckedShipTreadmillRomData.FrameSource(index), "Original contiguous treadmill source");
+            AssertEqual(source, AnimatedTileImageSources.Treadmill(index), "Original contiguous treadmill source");
             AssertEqual(source, aliases[index], "Named source alias");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, 5, 255, 65535, int.MaxValue })
             AssertEqual("frameIndex", AssertThrows<ArgumentOutOfRangeException>(
-                () => WreckedShipTreadmillRomData.FrameSource(invalid), "Treadmill frame domain").ParamName,
+                () => AnimatedTileImageSources.Treadmill(invalid), "Treadmill frame domain").ParamName,
                 "Preserved rejection parameter");
         foreach (var pair in new[] { new VerifyTreadmillArtworkSourcesCase(Definition:right, First:0x81e3), new VerifyTreadmillArtworkSourcesCase(Definition:left, First:0x81f9) })
         {

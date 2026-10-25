@@ -29,7 +29,7 @@ internal static class AnimatedTileInstructionCodesVerification
             Enum.GetValues<AnimatedTileInstruction>().Select(code => (ushort)code).ToArray(), 14);
         AssertAnimatedTileCatalog(nameof(AnimatedTileObject),
             Enum.GetValues<AnimatedTileObject>().Where(header => header != AnimatedTileObject.None)
-                .Select(header => (ushort)header).ToArray(), 19);
+                .Select(FxNativeWords.AnimatedTileObjects.Word).ToArray(), 19);
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionListPointers), 4);
         Suite(nameof(VerifyConstructedAnimatedTileStreams), () => VerifyConstructedAnimatedTileStreams());
 
@@ -48,19 +48,19 @@ internal static class AnimatedTileInstructionCodesVerification
             bus,
             WreckedShipTreadmillDirection.Rightwards,
             [
-                WreckedShipTreadmillRomData.Frame0Source,
-                WreckedShipTreadmillRomData.FrameSource(1),
-                WreckedShipTreadmillRomData.FrameSource(2),
-                WreckedShipTreadmillRomData.FrameSource(3),
+                AnimatedTileImageSources.Treadmill(0),
+                AnimatedTileImageSources.Treadmill(1),
+                AnimatedTileImageSources.Treadmill(2),
+                AnimatedTileImageSources.Treadmill(3),
             ]));
         Suite(nameof(VerifyRetailTreadmillStream), () => VerifyRetailTreadmillStream(
             bus,
             WreckedShipTreadmillDirection.Leftwards,
             [
-                WreckedShipTreadmillRomData.FrameSource(3),
-                WreckedShipTreadmillRomData.FrameSource(2),
-                WreckedShipTreadmillRomData.FrameSource(1),
-                WreckedShipTreadmillRomData.Frame0Source,
+                AnimatedTileImageSources.Treadmill(3),
+                AnimatedTileImageSources.Treadmill(2),
+                AnimatedTileImageSources.Treadmill(1),
+                AnimatedTileImageSources.Treadmill(0),
             ]));
 
         Console.WriteLine(
@@ -68,8 +68,8 @@ internal static class AnimatedTileInstructionCodesVerification
             "dispatch, and both retail treadmill streams agree.");
     }
 
-    /// <summary>Words outside <see cref="AnimatedTileObject"/>, including a constructed bank-$87 header.</summary>
-    internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0001, 0x8f00, 0xffff];
+    /// <summary>Values naming no <see cref="AnimatedTileObject"/> member (its values are arbitrary, #1415), including a constructed bank-$87 header word.</summary>
+    internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0100, 0x8f00, 0xffff];
 
     /// <summary>Checks that foreign and direction-mismatched objects are rejected before any program interpretation.</summary>
     private static void VerifyConstructedAnimatedTileStreams()
@@ -106,8 +106,8 @@ internal static class AnimatedTileInstructionCodesVerification
     private static TestAddressSpace CreateConstructedLavaAnimatedTileCartridge(ushort[] program)
     {
         var bus = new TestAddressSpace();
-        WriteTestWords(bus, 0x870000 | (ushort)AnimatedTileObject.Lava, 0x9000,
-            WreckedShipTreadmillRomData.FrameByteCount,
+        WriteTestWords(bus, 0x870000 | FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava), 0x9000,
+            WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards));
         WriteTestWords(bus, 0x879000, program);
         return bus;
@@ -130,7 +130,7 @@ internal static class AnimatedTileInstructionCodesVerification
         for (int frame = 0; frame < expectedSources.Length; frame++)
         {
             state.Step(areaBossDefeated: true, frames);
-            AssertEqual(expectedSources[frame], state.LastSourceAddress,
+            AssertEqual(expectedSources[frame], AnimatedTileImageSources.Of(state.LastImage),
                 $"{direction} retail source frame {frame}");
             AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
                     shown == AnimatedTileFrames.Frame(definition.AnimatedObject, frame),
@@ -138,7 +138,7 @@ internal static class AnimatedTileInstructionCodesVerification
         }
 
         state.Step(areaBossDefeated: true, frames);
-        AssertEqual(expectedSources[0], state.LastSourceAddress,
+        AssertEqual(expectedSources[0], AnimatedTileImageSources.Of(state.LastImage),
             $"{direction} compiled goto returns to frame zero");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{direction} performs no treadmill mechanics ROM reads");

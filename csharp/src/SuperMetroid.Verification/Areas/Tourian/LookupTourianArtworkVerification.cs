@@ -59,14 +59,14 @@ internal static class LookupTourianArtworkVerification
         int pictures = 0;
         foreach (ushort header in LookupTourianDescriptorsVerification.OriginalTourianObjects)
         {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header,
+            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(FxNativeWords.AnimatedTileObjects.Decode(header, "animated-tile object"),
                 out var definition), "Original statue object resolves");
             TourianStatueAnimatedTileProgramDefinition resolved = definition ??
                 throw new InvalidOperationException("Verification requires definition.");
             int[] native = [.. OriginalTourianFrames(rom, header).Select(frame => frame.Source)];
             AssertEqual(9, native.Length, "Nine original timed statue frames");
             int[] produced = [.. TourianStatueTileStripDefinitions.Pictures.Select(picture =>
-                TourianStatueTileStripDefinitions.SourceAddress(resolved.AnimatedObject, picture))];
+                AnimatedTileImageSources.TourianStatue(resolved.AnimatedObject, picture))];
             AssertEqual(produced.Length, produced.Distinct().Count(), "Each statue picture is its own artwork window");
             AssertTrue(native.ToHashSet().SetEquals(produced),
                 "Every native frame source is one statue picture and every picture is shown");

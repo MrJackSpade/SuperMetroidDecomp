@@ -30,13 +30,13 @@ internal static class MapSpriteCasesVerification
         Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(rom, stock));
         foreach (var role in MapSpriteRoleOracle())
         {
-            AssertTrue(!stock.StoresComposition((MapSpriteId)role.NativeId), "regular stock map composition has no stored parts");
+            AssertTrue(!stock.StoresComposition(MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal")), "regular stock map composition has no stored parts");
             var original = document.Frames[role.Name];
             bool worldLabel = role.NativeId is >= 0x39 and <= 0x3e;
             if (worldLabel)
                 AssertEqual(role.NativeId switch { 0x39 => 3, 0x3a => 4, 0x3b => 2, 0x3c => 3, 0x3d => 3, 0x3e => 5, _ => 0 },
-                    stock.StoredLabelHorizontalCount((MapSpriteId)role.NativeId), "only line origins and nonstandard advances remain stored");
-            else AssertEqual(original.Length, MapMarkerGeometry.PartCount((MapSpriteId)role.NativeId), "original marker part count");
+                    stock.StoredLabelHorizontalCount(MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal")), "only line origins and nonstandard advances remain stored");
+            else AssertEqual(original.Length, MapMarkerGeometry.PartCount(MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal")), "original marker part count");
             for (int index = 0; index < original.Length; index++)
             {
                 var part = original[index];
@@ -49,11 +49,11 @@ internal static class MapSpriteCasesVerification
                     var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[role.Name] = parts;
                     var edited = Load(frames);
                     bool horizontalOnly = (change with { OffsetX = part.OffsetX }) == part;
-                    AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition((MapSpriteId)role.NativeId),
+                    AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition(MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal")),
                         "horizontal label edits remain positions; other authored edits retain their composition");
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, new(100, 100), 0x600);
-                    MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), (MapSpriteId)role.NativeId, actual, new(100, 100), 0x600);
+                    MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal"), actual, new(100, 100), 0x600);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
                         "every marker part field preserves independently authored edits");
@@ -72,7 +72,7 @@ internal static class MapSpriteCasesVerification
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
                     DrawImportedSpritemap(rom, expected, pointer, new(100, 100), 0x600);
                 }
-                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), (MapSpriteId)frame.NativeId, actual, new(100, 100), 0x600);
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), actual, new(100, 100), 0x600);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independently edited map sprite role and all unchanged roles");
@@ -80,7 +80,7 @@ internal static class MapSpriteCasesVerification
             frames.Remove(changed.Name);
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
-        foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
+        foreach (ushort invalid in new ushort[] { 0, MapSpriteDefinitions.Count + 1, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)invalid,
                 ScreenSpritesFixtures.Blank(), new(0, 0), 0), "undefined map sprite identity fails");
         AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), 0, ScreenSpritesFixtures.Blank(),
@@ -114,7 +114,7 @@ internal static class MapSpriteCasesVerification
                     installed.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
-                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), (MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), installed, new(x, y), (ushort)(palette << 9));
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertEqual(native.LastFinalizedSpriteCount, installed.LastFinalizedSpriteCount, "map sprite count/capacity matches native");
                 AssertTrue(native.ImageEquals(installed),

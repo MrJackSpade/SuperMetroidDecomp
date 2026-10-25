@@ -675,7 +675,7 @@ internal static class LookupStream5Verification
             while (Read(pointer + count * 6) != ushort.MaxValue)
             {
                 var label = elevators[count];
-                AssertEqual(Read(pointer + count * 6 + 4), (int)MapLandmarkDefinitions.ElevatorSpritemap(label.Destination), "Native destination identity");
+                AssertEqual(Read(pointer + count * 6 + 4), MapSpriteOrdinals.Spritemaps.Word(MapLandmarkDefinitions.ElevatorSpritemap(label.Destination)), "Native destination identity");
                 AssertEqual(Read(pointer + count * 6), layout.Get(label.Id).X, "Native elevator X");
                 AssertEqual(Read(pointer + count * 6 + 2), layout.Get(label.Id).Y, "Native elevator Y");
                 count++;
@@ -723,7 +723,7 @@ internal static class LookupStream5Verification
                 {
                     pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
                     for (int i = 0; Read(pointer + i * 6) != ushort.MaxValue; i++)
-                        Draw((MapSpriteId)Read(pointer + i * 6 + 4), Read(pointer + i * 6), Read(pointer + i * 6 + 2), 0);
+                        Draw(MapSpriteOrdinals.Spritemaps.Decode((ushort)Read(pointer + i * 6 + 4), "map spritemap ordinal"), Read(pointer + i * 6), Read(pointer + i * 6 + 2), 0);
                 }
             }
             actual.FinishFrame(); expected.FinishFrame();

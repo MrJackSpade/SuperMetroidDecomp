@@ -256,7 +256,7 @@ internal static class FileSelectRoomMapVerification
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
-            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
                 Palette = null, FlipX = false, FlipY = false }];
@@ -499,7 +499,7 @@ internal static class FileSelectRoomMapVerification
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {
-            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
                 TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
                 FlipX = false, FlipY = false }];
@@ -513,7 +513,7 @@ internal static class FileSelectRoomMapVerification
         for (int tick = 0; tick < durations[phase]; tick++)
         {
             marker.Step();
-            AssertEqual(expectedFrames[phase], (int)marker.SpritemapId, "station marker exact animation cadence");
+            AssertEqual(expectedFrames[phase], MapSpriteOrdinals.Spritemaps.Word(marker.SpritemapId), "station marker exact animation cadence");
             bool backing = phase is < 3 or >= 7;
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = ScreenSpritesFixtures.Blank();

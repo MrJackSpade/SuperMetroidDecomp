@@ -12,6 +12,20 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 [RoomLifetime]
 internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The facing each authored population parameter-one value selects, also the value its projectile keeps.</summary>
+    private static readonly ParameterVariants<StokeDirection> Directions = new(new Dictionary<int, StokeDirection>
+    {
+        [0] = StokeDirection.Left,
+        [1] = StokeDirection.Right,
+    });
+
+    /// <summary>The movement a Stoke projectile keeps in its variable zero.</summary>
+    private static readonly ParameterVariants<StokeProjectileFunction> ProjectileFunctions = new(new Dictionary<int, StokeProjectileFunction>
+    {
+        [1] = StokeProjectileFunction.MoveLeft,
+        [2] = StokeProjectileFunction.MoveRight,
+    });
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Stoke];
 
@@ -76,7 +90,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             RightVelocity = right,
             LeftVelocity = left,
             Function = StokeAiFunction.Moving,
-            Direction = (StokeDirection)slot.Spawn.Population.Parameter1,
+            Direction = Directions.Decode(slot.Spawn.Population.Parameter1),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -230,10 +244,10 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.StokeProjectile,
             unchecked((ushort)(stoke.PaletteIndex | stoke.TileIndexBase)));
-        projectile.DirectionParameter = (ushort)direction;
-        projectile.Variable0 = direction == StokeDirection.Left
-            ? (ushort)StokeProjectileFunction.MoveLeft
-            : (ushort)StokeProjectileFunction.MoveRight;
+        projectile.DirectionParameter = Directions.Parameter(direction);
+        projectile.Variable0 = ProjectileFunctions.Parameter(direction == StokeDirection.Left
+            ? StokeProjectileFunction.MoveLeft
+            : StokeProjectileFunction.MoveRight);
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));
         projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(256), SnesSignedEightEight.FromSignedRaw(-256));
     }
@@ -243,7 +257,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        ushort horizontalVelocity = ClosedNativeWords.Decode<StokeProjectileFunction>(checked((ushort)projectile.Variable0), "Stoke projectile movement function") switch
+        ushort horizontalVelocity = ProjectileFunctions.Decode(projectile.Variable0) switch
         {
             // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
             StokeProjectileFunction.MoveLeft => projectile.Velocity.Y.RawValue,

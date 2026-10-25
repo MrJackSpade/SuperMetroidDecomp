@@ -78,14 +78,13 @@ internal sealed class GunshipPartState
         internal set => _heightOrStepWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>The function the top hull dispatches, held in the record word the bottom hull uses for its escape speed.</summary>
-    public GunshipFunction Function
-    {
-        get => (GunshipFunction)FunctionWord;
-        internal set => FunctionWord = (ushort)value;
-    }
+    /// <summary>
+    /// The function the top hull dispatches. The cartridge keeps it in the record word the bottom hull uses for its
+    /// escape speed; each hull reads only its own meaning, so the two are kept apart.
+    /// </summary>
+    public GunshipFunction Function { get; internal set; }
 
-    /// <summary>The record word shared by the top hull's function and the bottom hull's escape speed.</summary>
+    /// <summary>The record word holding the bottom hull's escape speed.</summary>
     internal int FunctionWord { get; private set; }
 
     /// <summary>The bottom hull's unsigned 8.8 escape speed in pixels per update, raised each update up to its cap.</summary>
@@ -109,5 +108,6 @@ internal sealed class GunshipPartState
         _timerWord = 0;
         _heightOrStepWord = 0;
         FunctionWord = 0;
+        Function = GunshipFunction.None;
     }
 }

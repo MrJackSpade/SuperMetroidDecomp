@@ -23,7 +23,7 @@ internal static class GunshipRecordStateVerification
         part.BobTimer = 70;
         AssertEqual(70, part.EngineSoundTimer, "the bob timer and the engine-sound timer are one record word");
         part.Function = GunshipFunction.NoOperation;
-        AssertEqual((ushort)GunshipFunction.NoOperation, part.EscapeVelocity, "the function and the escape velocity are one record word");
+        AssertEqual(GunshipFunction.NoOperation, part.Function, "the top hull keeps its function apart from the bottom hull's escape velocity");
 
         part.FunctionTimer = 144;
         part.NextLiftoffPage = 3;
@@ -35,6 +35,7 @@ internal static class GunshipRecordStateVerification
         AssertEqual(0, part.BobTimer, "a kill empties the timer word");
         AssertEqual(0, part.BaseY, "a kill empties the height word");
         AssertEqual(0, part.FunctionWord, "a kill empties the function word");
+        AssertEqual(GunshipFunction.None, part.Function, "a kill empties the function");
         Console.WriteLine("Gunship record state: shared words carry between views, and a kill empties the record.");
     }
 

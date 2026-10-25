@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 internal enum PolypRockFunction : ushort
 {
     /// <summary>$86:BC16.</summary>
-    Rising = 1,
+    Rising,
 
     /// <summary>$86:BC8F.</summary>
     Falling,

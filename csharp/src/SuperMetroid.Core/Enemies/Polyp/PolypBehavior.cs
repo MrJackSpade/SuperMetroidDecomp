@@ -11,6 +11,13 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 [RoomLifetime]
 internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The phase a rock keeps in its variable zero.</summary>
+    private static readonly ParameterVariants<PolypRockFunction> RockFunctions = new(new Dictionary<int, PolypRockFunction>
+    {
+        [1] = PolypRockFunction.Rising,
+        [2] = PolypRockFunction.Falling,
+    });
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.LavaRocks];
 
@@ -170,7 +177,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(source.PaletteIndex | source.TileIndexBase)));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
-        projectile.Variable0 = (ushort)PolypRockFunction.Rising;
+        projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Rising);
         projectile.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(initialYSpeed));
         projectile.Position = source.Position;
     }
@@ -180,7 +187,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (ClosedNativeWords.Decode<PolypRockFunction>(checked((ushort)projectile.Variable0), "Polyp rock function"))
+        switch (RockFunctions.Decode(projectile.Variable0))
         {
             case PolypRockFunction.Rising:
                 StepRisingPolypRock(projectile);
@@ -206,7 +213,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
             projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0));
-            projectile.Variable0 = (ushort)PolypRockFunction.Falling;
+            projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Falling);
             return;
         }
 

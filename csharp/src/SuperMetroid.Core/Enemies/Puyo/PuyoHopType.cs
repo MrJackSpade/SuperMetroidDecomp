@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// The seven concrete indexes into <c>PuyoHopTable</c> at $A2:9A07. This is a discriminant,
+/// The seven hop records of <c>PuyoHopTable</c> at $A2:9A07. This is a discriminant,
 /// not a flags word: every value selects one eight-byte height/speed/function record.
 /// </summary>
 public enum PuyoHopType : ushort
@@ -10,6 +10,8 @@ public enum PuyoHopType : ushort
     NormalSmall = 0,
     /// <summary>Record one at $A2:9A0F: 32-pixel height, packed 8.8 X speed $0100, and the big-hop function; proximity to Samus permits random selection among normal records zero through two.</summary>
     NormalBig = 1,
+    /// <summary>Record two at $A2:9A17: the third ordinary hop, reached only by chance once Samus is within the proximity radius.</summary>
+    NormalHigh = 2,
     /// <summary>Record three at $A2:9A1F: 128-pixel height and packed 8.8 X speed $0140, whose fractional byte is discarded by NTSC movement; selected after a post-drop bounce.</summary>
     Giant = 3,
     /// <summary>Record four at $A2:9A27: no horizontal motion and packed 8.8 downward speed $0100; wall or ceiling collision selects this fall before a recovery bounce.</summary>

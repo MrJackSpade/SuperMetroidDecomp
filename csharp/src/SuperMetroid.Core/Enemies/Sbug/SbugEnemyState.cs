@@ -55,7 +55,7 @@ public sealed class SbugEnemyState
 
     /// <summary>Parameter two high byte; the activation-table selector.</summary>
     public SbugActivationBehavior ActivationBehavior =>
-        ClosedNativeWords.Decode<SbugActivationBehavior>(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter2), "Sbug activation behavior");
+        SbugMovementDefinitions.ActivationBehaviors.At(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter2));
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public SnesUnsignedSixteenSixteen ForwardXVelocity { get; internal set; }

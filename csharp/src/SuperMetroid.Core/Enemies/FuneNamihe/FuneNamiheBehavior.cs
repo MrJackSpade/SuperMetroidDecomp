@@ -11,6 +11,13 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 [RoomLifetime]
 internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The movement a fireball keeps in its variable zero.</summary>
+    private static readonly ParameterVariants<NamiFuneFireballFunction> FireballFunctions = new(new Dictionary<int, NamiFuneFireballFunction>
+    {
+        [1] = NamiFuneFireballFunction.MovingLeft,
+        [2] = NamiFuneFireballFunction.MovingRight,
+    });
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
 
@@ -228,9 +235,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(source.PaletteIndex | source.TileIndexBase)));
         projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
         projectile.PreInstruction = NamiFuneFireballPreInstruction;
-        projectile.Variable0 = direction == HorizontalDirection.Right
-            ? (ushort)NamiFuneFireballFunction.MovingRight
-            : (ushort)NamiFuneFireballFunction.MovingLeft;
+        projectile.Variable0 = FireballFunctions.Parameter(direction == HorizontalDirection.Right
+            ? NamiFuneFireballFunction.MovingRight
+            : NamiFuneFireballFunction.MovingLeft);
         projectile.DirectionParameter = direction == HorizontalDirection.Right ? (ushort)1 : (ushort)0;
 
         projectile.Position = source.Position;
@@ -249,7 +256,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (ClosedNativeWords.Decode<NamiFuneFireballFunction>(checked((ushort)projectile.Variable0), "Fune/Namihe fireball function"))
+        switch (FireballFunctions.Decode(projectile.Variable0))
         {
             case NamiFuneFireballFunction.MovingLeft:
                 // Yes, this is YVelocity. The retail initializer and mover agree on this

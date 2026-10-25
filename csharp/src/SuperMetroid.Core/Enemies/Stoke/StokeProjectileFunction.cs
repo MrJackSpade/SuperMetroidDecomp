@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 internal enum StokeProjectileFunction : ushort
 {
     /// <summary>$86:DB62.</summary>
-    MoveLeft = 1,
+    MoveLeft,
 
     /// <summary>$86:DB8C.</summary>
     MoveRight,

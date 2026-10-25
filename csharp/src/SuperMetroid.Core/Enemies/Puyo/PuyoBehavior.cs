@@ -11,6 +11,15 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 [RoomLifetime]
 internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The hop types in the order of the hop records they select.</summary>
+    private static readonly IdentitySequence<PuyoHopType> HopRecords = new(
+        PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalHigh, PuyoHopType.Giant,
+        PuyoHopType.Dropping, PuyoHopType.DroppedSmall, PuyoHopType.DroppedBig);
+
+    /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
+    private static bool IsNormalHop(PuyoHopType type) =>
+        type is PuyoHopType.NormalSmall or PuyoHopType.NormalBig or PuyoHopType.NormalHigh;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];
 
@@ -112,7 +121,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // Normal follow-up hops are promoted from type zero to type one when Samus is
         // strictly inside parameter-two's horizontal radius. Giant/dropping/dropped types
         // deliberately bypass this proximity rewrite.
-        if ((ushort)state.HopType < (ushort)PuyoHopType.Giant)
+        if (IsNormalHop(state.HopType))
         {
             int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
             state.HopType = distance < slot.Spawn.Population.Parameter2
@@ -133,18 +142,16 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // Types three and above ignore this value but still advance the seed, an observable
         // side effect shared with every other random enemy in the room.
         ushort randomChoice = NextPuyoRandom0To7(slot);
-        int hopType = (ushort)state.HopType;
-        if (hopType < 3)
+        if (IsNormalHop(state.HopType))
         {
-            if (hopType == 0)
+            if (state.HopType == PuyoHopType.NormalSmall)
                 randomChoice &= 1;
             if (randomChoice >= 2)
                 randomChoice = 2;
-            hopType = randomChoice;
-            state.HopType = (PuyoHopType)hopType;
+            state.HopType = HopRecords.At(randomChoice);
         }
 
-        state.HopRecord = hopType;
+        state.HopRecord = HopRecords.PositionOf(state.HopType);
         state.AirborneFunction = Hop(state).Function;
         CalculateInitialPuyoHopSpeed(state);
     }
@@ -413,7 +420,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         PuyoDirection.Right => PuyoDirection.Left,
         PuyoDirection.Left => PuyoDirection.Right,
         _ => throw new InvalidDataException(
-            $"Puyo direction {(ushort)direction} is outside the two-entry ROM domain."),
+            $"Puyo direction {direction} is outside the two-entry ROM domain."),
     };
 
     /// <summary>Starts a selected pose or hop animation with a one-tick instruction countdown.</summary>

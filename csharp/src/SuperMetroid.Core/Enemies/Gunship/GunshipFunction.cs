@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal enum GunshipFunction : ushort
 {
+    /// <summary>A cleared record holds no function.</summary>
+    None = 0,
     /// <summary>Shared no-op function at $A2:804C.</summary>
     NoOperation = 1,
     /// <summary>High-altitude post-Ceres descent at $A2:A80C.</summary>

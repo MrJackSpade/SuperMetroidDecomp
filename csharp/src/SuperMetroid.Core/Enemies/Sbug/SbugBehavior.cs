@@ -41,7 +41,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeSbug(RoomEnemySlot slot)
     {
         byte behavior = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
-        if (behavior > (byte)SbugActivationBehavior.MoveAwayFromSamus)
+        if (!SbugMovementDefinitions.ActivationBehaviors.TryAt(behavior, out _))
         {
             throw new InvalidDataException(
                 $"Sbug activation behavior {behavior} exceeds the seven-entry ROM table.");

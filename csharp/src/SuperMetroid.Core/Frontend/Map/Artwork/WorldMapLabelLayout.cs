@@ -44,6 +44,7 @@ public sealed class WorldMapLabelLayout
         AreaId.WreckedShip => wreckedShip,
         AreaId.Maridia => maridia,
         AreaId.Tourian => tourian,
+        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area)),
         _ => throw new ArgumentOutOfRangeException(nameof(area)),
     };
 

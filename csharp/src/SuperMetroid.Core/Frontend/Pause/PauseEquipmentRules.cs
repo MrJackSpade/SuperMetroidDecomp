@@ -43,11 +43,7 @@ internal static class PauseEquipmentRules
     /// Varia into bit1. All65536 input words are supported; every other bit, including
     /// Gravity, is ignored.</summary>
     public static PauseWireframeKind WireframeKind(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
-        (equippedItems.HasAny(SamusEquipmentFlags.VariaSuit), equippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots)) switch
-        {
-            (false, false) => PauseWireframeKind.PowerSuit,
-            (false, true) => PauseWireframeKind.PowerSuitHiJump,
-            (true, false) => PauseWireframeKind.VariaSuit,
-            (true, true) => PauseWireframeKind.VariaSuitHiJump,
-        };
+        equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+            ? equippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots) ? PauseWireframeKind.VariaSuitHiJump : PauseWireframeKind.VariaSuit
+            : equippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots) ? PauseWireframeKind.PowerSuitHiJump : PauseWireframeKind.PowerSuit;
 }

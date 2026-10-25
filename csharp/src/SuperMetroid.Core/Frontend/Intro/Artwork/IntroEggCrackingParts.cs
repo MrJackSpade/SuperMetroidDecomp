@@ -69,19 +69,24 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
         }
     }
     /// <summary>The row and column <paramref name="cell"/> occupies in the shell's three-by-three grid.</summary>
-    private static (int Row, int Column) GridCell(IntroEggCell cell) => cell switch
+    private static GridPosition GridCell(IntroEggCell cell) => cell switch
     {
-        IntroEggCell.TopLeft => (0, 0),
-        IntroEggCell.TopMiddle => (0, 1),
-        IntroEggCell.TopRight => (0, 2),
-        IntroEggCell.MiddleLeft => (1, 0),
-        IntroEggCell.Center => (1, 1),
-        IntroEggCell.MiddleRight => (1, 2),
-        IntroEggCell.BottomLeft => (2, 0),
-        IntroEggCell.BottomMiddle => (2, 1),
-        IntroEggCell.BottomRight => (2, 2),
+        IntroEggCell.TopLeft => new(0, 0),
+        IntroEggCell.TopMiddle => new(0, 1),
+        IntroEggCell.TopRight => new(0, 2),
+        IntroEggCell.MiddleLeft => new(1, 0),
+        IntroEggCell.Center => new(1, 1),
+        IntroEggCell.MiddleRight => new(1, 2),
+        IntroEggCell.BottomLeft => new(2, 0),
+        IntroEggCell.BottomMiddle => new(2, 1),
+        IntroEggCell.BottomRight => new(2, 2),
         _ => throw new InvalidOperationException($"Undefined egg cell {cell}."),
     };
+
+    /// <summary>A cell's row and column in the shell's three-by-three grid.</summary>
+    /// <param name="Row">The grid row, top first.</param>
+    /// <param name="Column">The grid column, left first.</param>
+    private readonly record struct GridPosition(int Row, int Column);
 
     /// <summary>Enumerates all nine egg cells in the stage's native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()

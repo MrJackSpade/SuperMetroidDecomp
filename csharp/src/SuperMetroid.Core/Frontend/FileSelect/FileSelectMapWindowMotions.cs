@@ -51,6 +51,7 @@ internal static class FileSelectMapWindowMotions
         AreaId.WreckedShip => new Position16<ScreenPixels>(206, 80),
         AreaId.Maridia => new Position16<ScreenPixels>(206, 159),
         AreaId.Tourian => new Position16<ScreenPixels>(135, 139),
+        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have world-map transitions."),
         _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have world-map transitions.")
     };
 

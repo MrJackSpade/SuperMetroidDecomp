@@ -15,6 +15,6 @@ internal static class MotherBrainTurretVisualDefinitionsFramesAccess
         ];
 
         /// <summary>Distinct frames: eight turret poses, eight bullet poses and five smoke frames.</summary>
-        internal static int ProjectileFrameCount => 2 * MotherBrainTurretDefinitions.DirectionCount + MotherBrainTurretAnimations.ImpactPhaseCount;
+        internal static int ProjectileFrameCount => 2 * MotherBrainTurretDefinitions.Ring.Count + MotherBrainTurretAnimations.ImpactPhaseCount;
     }
 }

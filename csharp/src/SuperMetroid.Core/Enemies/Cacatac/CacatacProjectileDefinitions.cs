@@ -3,6 +3,29 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// <summary>Compiled program selection and launch-speed definitions for Cacatac spikes.</summary>
 internal static class CacatacProjectileDefinitions
 {
+    /// <summary>The patrol direction each authored population parameter-one low byte selects.</summary>
+    internal static readonly ParameterVariants<CacatacDirection> Directions = new(new Dictionary<int, CacatacDirection>
+    {
+        [0] = CacatacDirection.Left,
+        [1] = CacatacDirection.Right,
+        [2] = CacatacDirection.InitialStop,
+    });
+
+    /// <summary>The selector a spike keeps for its direction: the authored even direction byte of its spawn cue.</summary>
+    internal static readonly ParameterVariants<CacatacSpikeDirection> SpikeSelectors = new(new Dictionary<int, CacatacSpikeDirection>
+    {
+        [0] = CacatacSpikeDirection.LeftFacingUp,
+        [2] = CacatacSpikeDirection.Up,
+        [4] = CacatacSpikeDirection.RightFacingUp,
+        [6] = CacatacSpikeDirection.LeftFacingDown,
+        [8] = CacatacSpikeDirection.Down,
+        [10] = CacatacSpikeDirection.RightFacingDown,
+        [12] = CacatacSpikeDirection.UpLeft,
+        [14] = CacatacSpikeDirection.UpRight,
+        [16] = CacatacSpikeDirection.DownLeft,
+        [18] = CacatacSpikeDirection.DownRight,
+    });
+
     /// <summary>
     /// Native immediate operands $86:D9BB/$86:D9C1: a cardinal spike moves two pixels per update
     /// (signed 8.8 raw 512) toward its negative or positive side.
@@ -25,13 +48,6 @@ internal static class CacatacProjectileDefinitions
     /// </summary>
     internal static CacatacProjectileProgram Program(CacatacSpikeDirection direction)
     {
-        ushort raw = (ushort)direction;
-        if ((raw & 1) != 0 || raw > (ushort)CacatacSpikeDirection.DownRight)
-        {
-            throw new InvalidDataException(
-                $"Cacatac spike direction ${raw:X4} is outside the ten even native selectors.");
-        }
-
         return direction switch
         {
             CacatacSpikeDirection.LeftFacingUp => CacatacProjectileProgram.LeftFacingUp,
@@ -44,7 +60,7 @@ internal static class CacatacProjectileDefinitions
             CacatacSpikeDirection.UpRight => CacatacProjectileProgram.UpRight,
             CacatacSpikeDirection.DownLeft => CacatacProjectileProgram.DownLeft,
             CacatacSpikeDirection.DownRight => CacatacProjectileProgram.DownRight,
-            _ => throw new InvalidDataException(),
+            _ => throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten native selectors."),
         };
     }
 

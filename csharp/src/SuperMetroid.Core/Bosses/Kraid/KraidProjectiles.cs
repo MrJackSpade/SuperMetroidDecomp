@@ -526,7 +526,7 @@ internal sealed class KraidProjectiles
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 // The callback passes the common routine's remaining-health accumulator
                 // to EnemyDeath; its bounded animation selector normalizes values >= 5.
-                if (context.Slot.DefinitionId != 0)
+                if (context.Slot.DefinitionId != EnemyDefinitionId.None)
                     _deathsAndDrops.StartGenericEnemyDeath(context.Slot, checked((ushort)context.Slot.Health));
             });
     }

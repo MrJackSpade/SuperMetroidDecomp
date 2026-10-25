@@ -78,8 +78,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         var state = new NinjaSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        bool startsAtLeft = ((NinjaSpacePirateParameterFlags)slot.Spawn.Population.Parameter1 &
-            NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0;
+        bool startsAtLeft = (SpacePirateParameters.Ninja(slot.Spawn.Population.Parameter1) &
+            NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != NinjaSpacePirateParameterFlags.None;
         NinjaSpacePirateProgram initial = startsAtLeft
             ? NinjaSpacePirateProgram.InitialFacingRight
             : NinjaSpacePirateProgram.InitialFacingLeft;

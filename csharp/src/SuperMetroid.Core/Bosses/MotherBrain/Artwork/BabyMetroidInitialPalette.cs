@@ -8,6 +8,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// separate background, pulse, health and fade colors are excluded.</summary>
 internal sealed class BabyMetroidInitialPalette
 {
+    /// <summary>The fifteen initial colour slots in palette order.</summary>
+    internal static readonly IdentitySequence<BabyMetroidInitialColorSlot> ColorOrder = new(
+        BabyMetroidInitialColorSlot.DomeHighlight, BabyMetroidInitialColorSlot.DomeSurface,
+        BabyMetroidInitialColorSlot.DomeShadow, BabyMetroidInitialColorSlot.DomeRim,
+        BabyMetroidInitialColorSlot.InnardGlint, BabyMetroidInitialColorSlot.InnardLight,
+        BabyMetroidInitialColorSlot.InnardLightShade, BabyMetroidInitialColorSlot.InnardDarkShade,
+        BabyMetroidInitialColorSlot.InnardDark, BabyMetroidInitialColorSlot.FangLight,
+        BabyMetroidInitialColorSlot.FangMiddle, BabyMetroidInitialColorSlot.FangDark,
+        BabyMetroidInitialColorSlot.FangOutline, BabyMetroidInitialColorSlot.White,
+        BabyMetroidInitialColorSlot.Black);
+
     /// <summary>Complete imported palette retained only when it differs from the reviewed paint calculation.</summary>
     internal readonly Bgr555[]? supplied;
 
@@ -29,9 +40,7 @@ internal sealed class BabyMetroidInitialPalette
     /// <summary>Composes selected material paints, smooth innard shades, and the fang midpoint by palette slot.</summary>
     private static Bgr555 Calculate(int color)
     {
-        var slot = (BabyMetroidInitialColorSlot)color;
-        if (!Enum.IsDefined(slot))
-            throw new ArgumentOutOfRangeException(nameof(color));
+        BabyMetroidInitialColorSlot slot = ColorOrder.At(color);
         return slot switch
         {
             BabyMetroidInitialColorSlot.DomeHighlight => DomeHighlight,
@@ -41,7 +50,7 @@ internal sealed class BabyMetroidInitialPalette
             BabyMetroidInitialColorSlot.InnardGlint => Glint(InnardLightPaint),
             BabyMetroidInitialColorSlot.InnardLight => InnardLightPaint,
             BabyMetroidInitialColorSlot.InnardLightShade or BabyMetroidInitialColorSlot.InnardDarkShade =>
-                InnardShade(InnardLightPaint, InnardDarkPaint, slot - BabyMetroidInitialColorSlot.InnardLight),
+                InnardShade(InnardLightPaint, InnardDarkPaint, color - ColorOrder.PositionOf(BabyMetroidInitialColorSlot.InnardLight)),
             BabyMetroidInitialColorSlot.InnardDark => InnardDarkPaint,
             BabyMetroidInitialColorSlot.FangLight => FangLight,
             BabyMetroidInitialColorSlot.FangMiddle => Midpoint(FangLight, FangDark),

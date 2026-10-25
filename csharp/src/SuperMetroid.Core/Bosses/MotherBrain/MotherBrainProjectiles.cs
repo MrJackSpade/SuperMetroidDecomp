@@ -377,17 +377,23 @@ internal sealed class MotherBrainProjectiles
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
     }
 
+    /// <summary>A ceiling tube's phase in its variable zero while it has yet to puff its dust.</summary>
+    internal const int TopTubeDustPending = 1;
+
+    /// <summary>A ceiling tube's phase in its variable zero once it falls.</summary>
+    private const int TopTubeFalling = 2;
+
     /// <summary>Runs pre-instruction $86:CBE7 for the four falling ceiling-tube actors.</summary>
     internal void RunMotherBrainTopTubePreInstruction(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.Variable0 == (ushort)MotherBrainTopTubeFunction.SpawnDust)
+        if (projectile.Variable0 == TopTubeDustPending)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 new(projectile.Position.X.Whole, unchecked((ushort)(projectile.Position.Y.Whole + 8))),
                 MiscDustAnimation.SmallDustCloud);
-            projectile.Variable0 = (ushort)MotherBrainTopTubeFunction.Fall;
+            projectile.Variable0 = TopTubeFalling;
         }
-        else if (projectile.Variable0 != (ushort)MotherBrainTopTubeFunction.Fall)
+        else if (projectile.Variable0 != TopTubeFalling)
         {
             throw new InvalidDataException(
                 $"Mother Brain ceiling tube function {projectile.Variable0} is not translated.");
@@ -448,7 +454,7 @@ internal sealed class MotherBrainProjectiles
         shard.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
 
         MotherBrainGlassShardPlacement placement =
-            MotherBrainGlassShardDefinitions.Placement((ushort)request.Shard);
+            MotherBrainGlassShardDefinitions.Placement(request.Shard);
         shard.Position = shard.Position.WithWhole(request.PlmBlock.ToRoomPixels() + placement.Offset);
 
         // Position jitter consumes two additional RNG samples in this order. It is not
@@ -757,7 +763,7 @@ internal sealed class MotherBrainProjectiles
             ResetMotherBrainTurretRotationTimer(turret);
             SelectNextMotherBrainTurretDirection(turret);
             MotherBrainTurretDirection direction =
-                (MotherBrainTurretDirection)unchecked((byte)turret.Position.Y.Fraction);
+                MotherBrainTurretDefinitions.Ring.At(unchecked((byte)turret.Position.Y.Fraction));
             turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
         }
 
@@ -777,7 +783,7 @@ internal sealed class MotherBrainProjectiles
         byte candidate = unchecked((byte)((currentDirection + rotationDelta) & 7));
         bool allowed = MotherBrainTurretDefinitions.IsRotationAllowed(
             checked((ushort)turret.DirectionParameter),
-            (MotherBrainTurretDirection)candidate);
+            MotherBrainTurretDefinitions.Ring.At(candidate));
 
         if (allowed)
         {
@@ -836,11 +842,12 @@ internal sealed class MotherBrainProjectiles
             RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
             MotherBrainTurretDefinitions.GraphicsIndex);
         MotherBrainTurretDirection direction =
-            (MotherBrainTurretDirection)unchecked((byte)turret.Position.Y.Fraction);
+            MotherBrainTurretDefinitions.Ring.At(unchecked((byte)turret.Position.Y.Fraction));
         MotherBrainTurretDirectionDefinition definition =
             MotherBrainTurretDefinitions.ForDirection(direction);
-        bullet.DirectionParameter = (byte)direction;
-        bullet.Variable0 = unchecked((ushort)((byte)direction * 2));
+        int ringPosition = MotherBrainTurretDefinitions.Ring.PositionOf(direction);
+        bullet.DirectionParameter = ringPosition;
+        bullet.Variable0 = ringPosition * 2;
         bullet.Variable1 = 0;
         bullet.Velocity = definition.BulletVelocity;
         bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);

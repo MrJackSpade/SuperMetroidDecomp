@@ -7,6 +7,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public enum KraidAiFunction : ushort
 {
+    /// <summary>A cleared record holds no function.</summary>
+    None = 0,
     /// <summary>$A7:804B RTS: an explicit no-op function retaining the part slot.</summary>
     NoOperation = 1,
     /// <summary>$A7:AC4D: breaks ceiling platforms into their authored room mutations as Kraid grows.</summary>

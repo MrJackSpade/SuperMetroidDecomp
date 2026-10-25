@@ -9,6 +9,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [Flags]
 public enum CrocomireFightFlags
 {
+    /// <summary>No latch is set.</summary>
+    None = 0,
     /// <summary>Makes the unused attack chooser at <c>$A4:891B</c> take the move-until-claw-contact branch.</summary>
     UnusedPreferClawAttack = 1,
     /// <summary>Set when the unused attack sequence at <c>$A4:88D2</c> restarts the art.</summary>

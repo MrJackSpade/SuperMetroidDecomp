@@ -138,7 +138,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Uses the collected-item word so unequipping Morph Ball does not put active blocks back to sleep.</summary>
     private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState? samus) =>
         samus is not null &&
-        (samus.CollectedItems & SamusEquipmentFlags.MorphBall) != 0;
+        samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
     /// <summary>
     /// Reproduces the native signed-magnitude helper over one wrapped 16-bit subtraction.

@@ -210,7 +210,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         // The landed ship continuously performs its four-phase bob before dispatching the function itself, in every
         // function from waiting for the landing entrance through loading the liftoff dust.
-        GunshipFunction function = ClosedNativeWords.Decode<GunshipFunction>(checked((ushort)Part(top).FunctionWord), "gunship function");
+        GunshipFunction function = Part(top).Function;
         if (BobsWhileLanded(function))
             StepGunshipBob(top);
 

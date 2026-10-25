@@ -22,7 +22,7 @@ internal static class MotherBrainTurretAnimations
 
     /// <summary>Shows the pose for one update and sleeps.</summary>
     private static Step[] StillPose(MotherBrainTurretPose pose) =>
-        [Step.Show(new(pose.Program, (int)pose.Direction), 1), Step.Hold];
+        [Step.Show(new(pose.Program, MotherBrainTurretDefinitions.Ring.PositionOf(pose.Direction)), 1), Step.Hold];
 
     /// <summary>The impact smoke's steps.</summary>
     private static Step[] BulletImpact() =>

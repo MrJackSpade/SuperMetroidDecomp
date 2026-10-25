@@ -34,12 +34,12 @@ internal static class PirateHitboxShotActions
         {
             if (family == SamusProjectileFamily.SuperMissile && projectile.Variable == 0)
                 return PirateHitboxShotAction.Ignore;
-            return (ushort)family < (ushort)SamusProjectileFamily.PowerBomb
+            return IsBeamOrMissile(family)
                 ? PirateHitboxShotAction.Reflect
                 : PirateHitboxShotAction.Ignore;
         }
 
-        if ((ushort)family >= (ushort)SamusProjectileFamily.PowerBomb)
+        if (!IsBeamOrMissile(family))
             return PirateHitboxShotAction.Ignore;
 
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
@@ -53,9 +53,9 @@ internal static class PirateHitboxShotActions
                 SamusProjectileFamily.Bomb or
                 SamusProjectileFamily.BeamExplosion or
                 SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
-                $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
+                $"Gold Ninja projectile family {family} has no vulnerability field."),
             _ => throw new InvalidDataException(
-                $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
+                $"Gold Ninja projectile family {family} has no vulnerability field."),
         };
         int multiplier = EnemyVulnerabilityDefinitions.LowNibbleMultiplier(EnemyVulnerabilityDefinitions.Read(
             table, vulnerabilityOffset));
@@ -88,6 +88,10 @@ internal static class PirateHitboxShotActions
             ? PirateHitboxShotAction.Ignore
             : PirateHitboxShotAction.Normal;
     }
+
+    /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
+    private static bool IsBeamOrMissile(SamusProjectileFamily family) =>
+        family is SamusProjectileFamily.Beam or SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile;
 
     /// <summary>Outcome chosen from a Pirate component's shot callback before ordinary damage processing.</summary>
     internal enum PirateHitboxShotAction : byte

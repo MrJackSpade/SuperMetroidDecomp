@@ -9,7 +9,7 @@ public static class EscapeTimerTilePages
     {
         EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstByteCount,
         EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondByteCount,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {page}."),
     };
 
     /// <summary>The OBJ character the page begins at.</summary>
@@ -17,7 +17,7 @@ public static class EscapeTimerTilePages
     {
         EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstCharacter,
         EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondCharacter,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {page}."),
     };
 
     /// <summary>The typed VRAM asset installed for the page.</summary>
@@ -25,6 +25,6 @@ public static class EscapeTimerTilePages
     {
         EscapeTimerTilePage.First => VramAssetId.EscapeTimerFirstTiles,
         EscapeTimerTilePage.Second => VramAssetId.EscapeTimerSecondTiles,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {page}."),
     };
 }

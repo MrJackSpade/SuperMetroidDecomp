@@ -19,7 +19,7 @@ public static class EnemyPropertyFlagExtensions
     /// <summary>Rejects low-byte values before changing the named high-byte property flags.</summary>
     internal static void ValidateKnown(EnemyProperties flags)
     {
-        if ((flags & ~NamedProperties) != 0)
+        if ((flags & ~NamedProperties) != EnemyProperties.None)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(flags), flags, "EnemyProperties accepts only named high-byte flags.");
@@ -33,7 +33,7 @@ public static class EnemyPropertyFlagExtensions
     /// <summary>Rejects extra-property bits whose behavior has not been translated.</summary>
     internal static void ValidateKnown(EnemyExtraProperties flags)
     {
-        if ((flags & ~TranslatedExtraFlags) != 0)
+        if ((flags & ~TranslatedExtraFlags) != EnemyExtraProperties.None)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(flags), flags, "EnemyExtraProperties accepts only proven flags.");

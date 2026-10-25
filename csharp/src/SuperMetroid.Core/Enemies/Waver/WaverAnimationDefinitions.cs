@@ -14,6 +14,6 @@ internal static class WaverAnimationDefinitions
         WaverAnimationSelector.Spinning => WaverProgram.SpinningFacingLeft,
         WaverAnimationSelector.Spinning | WaverAnimationSelector.FacingRight => WaverProgram.SpinningFacingRight,
         _ => throw new InvalidDataException(
-            $"Waver animation selector ${(int)selector:X4} exceeds its four-entry table."),
+            $"Waver animation selector {selector} exceeds its four-entry table."),
     };
 }

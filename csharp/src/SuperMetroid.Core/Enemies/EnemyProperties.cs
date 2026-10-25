@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Enemies;
 [Flags]
 public enum EnemyProperties : ushort
 {
+    /// <summary>No property is set.</summary>
+    None = 0,
+
     /// <summary>Suppresses ordinary enemy drawing while leaving the slot's AI and collision state resident.</summary>
     Invisible = 0x0100,
 

@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <summary>Initial and shared surface animation selectors for crawler enemies.</summary>
 internal static class CrawlerAnimationDefinitions
 {
+    /// <summary>The four surface orientations in the order the two-bit orientation index counts them.</summary>
+    internal static readonly IdentitySequence<CrawlerSurfaceOrientation> Orientations = new(
+        CrawlerSurfaceOrientation.UpsideRight, CrawlerSurfaceOrientation.UpsideLeft,
+        CrawlerSurfaceOrientation.UpsideDown, CrawlerSurfaceOrientation.UpsideUp);
+
     /// <summary>
     /// The four-word initial tables at <c>$A3:E2CC</c>, <c>$B667</c>, <c>$96DB</c>,
     /// <c>$992B</c>, and <c>$E03B</c>, indexed by <see cref="CrawlerAnimationFamily"/>.
@@ -35,7 +40,7 @@ internal static class CrawlerAnimationDefinitions
             CrawlerProgram.HZoomerUpsideDown,
             CrawlerProgram.HZoomerUpsideUp),
         _ => throw new InvalidDataException(
-            $"Crawler animation family {(int)family} exceeds five authored tables."),
+            $"Crawler animation family {family} exceeds five authored tables."),
     };
     /// <summary>Returns one family-specific initial animation.</summary>
     internal static CrawlerProgram InitialProgram(

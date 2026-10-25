@@ -28,6 +28,12 @@ public sealed class PhantoonPartState
     /// <summary>The word holding a part's function, the eye's fade-complete flag or rage wave count, the tentacles' explosion index or the mouth's wavy phase delta.</summary>
     private int _wordF;
 
+    /// <summary>
+    /// The function word F holds, or null while it holds a number. Every function is a nonzero word in the cartridge,
+    /// so a held function reads as a completed fade (<see cref="FadeComplete"/>).
+    /// </summary>
+    private PhantoonAiFunction? _function;
+
     /// <summary>The first spawn-parameter word: the eye's wave mode or the tentacles' requested wave mode.</summary>
     private int _parameterOne;
 
@@ -154,19 +160,39 @@ public sealed class PhantoonPartState
     /// nonzero, as every cartridge function word is, so a phase reads as a completed fade through
     /// <see cref="FadeComplete"/>.
     /// </summary>
-    public PhantoonAiFunction Function { get => (PhantoonAiFunction)_wordF; internal set => _wordF = (int)value; }
+    public PhantoonAiFunction Function
+    {
+        get => _function ?? default;
+        internal set
+        {
+            _function = value;
+            _wordF = 0;
+        }
+    }
 
     /// <summary>Whether the eye's current palette fade has completed.</summary>
-    public bool FadeComplete { get => _wordF != 0; internal set => _wordF = value ? 1 : 0; }
+    public bool FadeComplete { get => _function is not null || _wordF != 0; internal set => SetWordF(value ? 1 : 0); }
 
     /// <summary>The eye's completed rage waves.</summary>
-    public int RageWaveCount { get => _wordF; internal set => _wordF = Word(value); }
+    public int RageWaveCount { get => NumberInWordF(); internal set => SetWordF(Word(value)); }
 
     /// <summary>The tentacles' next death explosion.</summary>
-    public int ExplosionIndex { get => _wordF; internal set => _wordF = Word(value); }
+    public int ExplosionIndex { get => NumberInWordF(); internal set => SetWordF(Word(value)); }
 
     /// <summary>The mouth's wavy-distortion phase step per update.</summary>
-    public int WavyPhaseDelta { get => _wordF; internal set => _wordF = Word(value); }
+    public int WavyPhaseDelta { get => NumberInWordF(); internal set => SetWordF(Word(value)); }
+
+    /// <summary>Stores a number in word F, replacing any held function.</summary>
+    private void SetWordF(int value)
+    {
+        _function = null;
+        _wordF = value;
+    }
+
+    /// <summary>The number word F holds; a held function has no number the port reproduces.</summary>
+    private int NumberInWordF() => _function is null
+        ? _wordF
+        : throw new InvalidOperationException($"Phantoon word F holds the function {_function}, not a number.");
 
     /// <summary>
     /// The eye's wavy-distortion mode, which the wave owner reads every pass: zero ends the channel and lets the body
@@ -228,6 +254,7 @@ public sealed class PhantoonPartState
         _wordD = 0;
         _wordE = 0;
         _wordF = 0;
+        _function = null;
         _parameterOne = 0;
         _parameterTwo = 0;
         _swoopTargetX = 0;

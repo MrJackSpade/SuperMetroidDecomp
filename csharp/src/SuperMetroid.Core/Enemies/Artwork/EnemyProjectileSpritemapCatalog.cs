@@ -9,6 +9,24 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Named, editable bank-$8D enemy-projectile OAM compositions.</summary>
 public sealed class EnemyProjectileSpritemapCatalog
 {
+    /// <summary>The schema generation each document version number names.</summary>
+    private static readonly ParameterVariants<EnemyProjectileSpritemapVersion> Versions = new(new Dictionary<int, EnemyProjectileSpritemapVersion>
+    {
+        [1] = EnemyProjectileSpritemapVersion.CeresOnly,
+        [2] = EnemyProjectileSpritemapVersion.PreProgramFrames,
+        [3] = EnemyProjectileSpritemapVersion.FirstProgramFrame,
+        [4] = EnemyProjectileSpritemapVersion.PreAlcoon,
+        [5] = EnemyProjectileSpritemapVersion.PreGoldenTorizo,
+        [6] = EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg,
+        [7] = EnemyProjectileSpritemapVersion.PreTorizoEffects,
+        [8] = EnemyProjectileSpritemapVersion.PreGenericEnemyDeath,
+        [9] = EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack,
+        [10] = EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue,
+        [11] = EnemyProjectileSpritemapVersion.PreWorkRobot,
+        [12] = EnemyProjectileSpritemapVersion.PrePolypRock,
+        [13] = EnemyProjectileSpritemapVersion.Current,
+    });
+
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-projectile-oam-v3", content =>
         {
@@ -63,8 +81,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         Ensure.NotNull(json);
         EnemyProjectileSpritemapDocument document;
         document = JsonAssetDocument.Read<EnemyProjectileSpritemapDocument>(json, Options, "enemy-projectile compositions");
-        var version = (EnemyProjectileSpritemapVersion)document.Version;
-        if (!Enum.IsDefined(version))
+        if (!Versions.TryDecode(document.Version, out EnemyProjectileSpritemapVersion version))
             throw new InvalidDataException(
                 $"Enemy-projectile compositions have unknown schema version {document.Version}.");
         bool legacyOverride = version < EnemyProjectileSpritemapVersion.Current && stock is not null;

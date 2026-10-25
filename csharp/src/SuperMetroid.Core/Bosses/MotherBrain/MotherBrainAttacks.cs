@@ -61,7 +61,7 @@ internal sealed class MotherBrainAttacks
 
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain hand-beam phase {(ushort)state.HandBeamPhase} is " +
+                    $"Mother Brain hand-beam phase {state.HandBeamPhase} is " +
                     "outside the four-entry cartridge dispatcher.");
         }
     }
@@ -163,7 +163,7 @@ internal sealed class MotherBrainAttacks
 
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain attack phase {(ushort)state.AttackPhase} is outside the " +
+                    $"Mother Brain attack phase {state.AttackPhase} is outside the " +
                     "three-entry cartridge dispatcher.");
         }
     }
@@ -178,10 +178,10 @@ internal sealed class MotherBrainAttacks
 
         byte randomLow = unchecked((byte)_room.Random.Read());
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        if ((byte)movementType >= 28)
+        if (!Enum.IsDefined(movementType))
         {
             throw new InvalidDataException(
-                $"Mother Brain attack strategy cannot index Samus movement type ${(byte)movementType:X2}.");
+                $"Mother Brain attack strategy cannot index Samus movement type {movementType}.");
         }
 
         if (IsMotherBrainAirAttackMovement(movementType))

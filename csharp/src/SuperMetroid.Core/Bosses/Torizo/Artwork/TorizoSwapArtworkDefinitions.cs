@@ -46,16 +46,16 @@ internal static class TorizoSwapArtworkDefinitions
         /// <summary>Gets the sequence length for callers using array-style access.</summary>
         public int Length => Count;
         /// <summary>Gets the tile sheet assigned to a stable page-role index.</summary>
-        public TorizoTileSheet this[int index] => (TorizoTilePage)index switch
+        public TorizoTileSheet this[int index] => index switch
         {
-            TorizoTilePage.SharedDeath => SharedDeath,
-            TorizoTilePage.StatueCrumble => StatueCrumble,
-            TorizoTilePage.LeftAttack => LeftAttack,
-            TorizoTilePage.RightAttack => RightAttack,
-            TorizoTilePage.GoldenAwakening => GoldenAwakening,
-            TorizoTilePage.GoldenLeftAttack => GoldenLeftAttack,
-            TorizoTilePage.GoldenRightAttack => GoldenRightAttack,
-            TorizoTilePage.ChozoDebris => ChozoDebris,
+            0 => SharedDeath,
+            1 => StatueCrumble,
+            2 => LeftAttack,
+            3 => RightAttack,
+            4 => GoldenAwakening,
+            5 => GoldenLeftAttack,
+            6 => GoldenRightAttack,
+            7 => ChozoDebris,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Yields every required tile sheet in page-role order.</summary>

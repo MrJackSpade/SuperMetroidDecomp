@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -5,6 +7,18 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresDoorInitializationDefinitions
 {
+    /// <summary>The variant each authored population parameter-one value selects.</summary>
+    private static readonly ParameterVariants<CeresDoorVariant> Variants = new(new Dictionary<int, CeresDoorVariant>
+    {
+        [0] = CeresDoorVariant.NormalFacingRight,
+        [1] = CeresDoorVariant.NormalFacingLeft,
+        [2] = CeresDoorVariant.RotatingElevatorPreExplosionOverlay,
+        [3] = CeresDoorVariant.RidleyRoomFacingRight,
+        [4] = CeresDoorVariant.RotatingElevatorInvisibleWall,
+        [5] = CeresDoorVariant.RidleyEscapeFloorLeftWall,
+        [6] = CeresDoorVariant.RidleyEscapeFloorRightWall,
+    });
+
     /// <summary>
     /// <c>InitAI_CeresDoor.functionPointers</c> at <c>$A6:F72B-$A6:F738</c> paired
     /// with <c>InstListPointers_CeresDoor</c> at <c>$A6:F52C-$A6:F539</c>.
@@ -19,7 +33,7 @@ internal static class CeresDoorInitializationDefinitions
     /// numeric progression of code addresses.
     /// </summary>
     internal static CeresDoorInitializationDefinition For(ushort variant) =>
-        (CeresDoorVariant)variant switch
+        Variants.Decode(variant) switch
         {
             CeresDoorVariant.NormalFacingRight => new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,

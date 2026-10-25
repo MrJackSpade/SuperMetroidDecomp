@@ -505,12 +505,12 @@ public sealed class RoomLayer3FxState
                 (waterBg3WavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
 
-        if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != 0)
+        if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != RoomLiquidOptions.None)
             waterDrift += WaterDriftVelocity;
 
         // FX $26 spawns only the BG3 water object. Its second HDMA object moves
         // the statue vertically instead of installing the ordinary BG2 X wave.
-        if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.Bg2Wave) == 0)
+        if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
             return;
         waterBg2WaveTimer = waterBg2WaveTimer.Decrement().Remaining;
         if (waterBg2WaveTimer.IsZero)
@@ -708,13 +708,13 @@ public sealed class RoomLayer3FxState
         int scale;
         ushort positiveDelta;
         ushort negativeDelta;
-        if ((LiquidOptions & RoomLiquidOptions.SmallTide) != 0)
+        if ((LiquidOptions & RoomLiquidOptions.SmallTide) != RoomLiquidOptions.None)
         {
             scale = LiquidTideDefinitions.SmallTideScale;
             positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
             negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
         }
-        else if ((LiquidOptions & RoomLiquidOptions.LargeTide) != 0)
+        else if ((LiquidOptions & RoomLiquidOptions.LargeTide) != RoomLiquidOptions.None)
         {
             scale = LiquidTideDefinitions.LargeTideScale;
             positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
@@ -744,11 +744,11 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Whether the FX options select vertical BG2 displacement for lava or acid.</summary>
     private bool UsesLavaAcidVerticalWave =>
-        (LiquidOptions & RoomLiquidOptions.Bg2Wave) != 0;
+        (LiquidOptions & RoomLiquidOptions.Bg2Wave) != RoomLiquidOptions.None;
 
     /// <summary>Whether the FX options select horizontal BG2 displacement for lava or acid.</summary>
     private bool UsesLavaAcidHorizontalWave =>
-        (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0;
+        (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
     /// <summary>Computes native BG3 vertical scroll from the liquid surface relative to camera Y.</summary>
     private static ushort ComputeLiquidVerticalScroll(ushort surfaceY, ushort cameraY)

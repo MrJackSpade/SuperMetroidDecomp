@@ -90,7 +90,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mochtroid movement index {(ushort)selectedMode} exceeds its three-entry ROM table.");
+                    $"Mochtroid movement {selectedMode} exceeds its three-entry ROM table.");
         }
     }
 

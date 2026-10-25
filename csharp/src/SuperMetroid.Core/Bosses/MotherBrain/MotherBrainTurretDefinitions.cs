@@ -15,7 +15,6 @@ internal static class MotherBrainTurretDefinitions
     /// <summary>$86:BE89-$BEF8 places four room bays of three turrets.</summary>
     internal const int TurretCount = 12;
     /// <summary>$86:BEB9/$C040 select eight turret poses in left-to-up-left octant order.</summary>
-    internal const int DirectionCount = 8;
     /// <summary>$86:BE89 starts the first bay at X=$398; each later bay is 192 pixels left.</summary>
     private const int FirstBayX = 0x398;
     /// <summary>The native placement rows repeat three mounting positions every twelve tiles.</summary>
@@ -56,17 +55,20 @@ internal static class MotherBrainTurretDefinitions
         return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)), initial, allowed);
     }
 
+    /// <summary>
+    /// The eight turret directions around the compass, from left through down to up-left; a direction's position on
+    /// this ring is the octant the turret's rotation steps through and the launch angle's multiple of 45 degrees.
+    /// </summary>
+    internal static readonly IdentitySequence<MotherBrainTurretDirection> Ring = new(
+        MotherBrainTurretDirection.Left, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Down,
+        MotherBrainTurretDirection.DownRight, MotherBrainTurretDirection.Right, MotherBrainTurretDirection.UpRight,
+        MotherBrainTurretDirection.Up, MotherBrainTurretDirection.UpLeft);
+
     /// <summary>Returns the bullet launch for one of the eight directions.</summary>
     internal static MotherBrainTurretDirectionDefinition ForDirection(
         MotherBrainTurretDirection direction)
     {
-        int index = (byte)direction;
-        if ((uint)index >= DirectionCount)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(direction), direction, "Mother Brain turret direction must be zero through seven.");
-        }
-
+        int index = Ring.PositionOf(direction);
         double angle = index * Math.PI / 4;
         short muzzleY = direction switch
         {
@@ -84,17 +86,11 @@ internal static class MotherBrainTurretDefinitions
     /// <summary>Whether turret <paramref name="turret"/> may rotate to <paramref name="direction"/>.</summary>
     internal static bool IsRotationAllowed(ushort turret, MotherBrainTurretDirection direction)
     {
-        int directionIndex = (byte)direction;
-        if ((uint)directionIndex >= DirectionCount)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(direction), direction, "Mother Brain turret direction must be zero through seven.");
-        }
-
+        int directionIndex = Ring.PositionOf(direction);
         return (ForTurret(turret).AllowedDirectionMask & (1 << directionIndex)) != 0;
     }
 
     /// <summary>Builds the contiguous allowed-direction bit mask between two octants.</summary>
     private static byte Sector(MotherBrainTurretDirection first, MotherBrainTurretDirection last) =>
-        (byte)(((1 << ((int)last - (int)first + 1)) - 1) << (int)first);
+        (byte)(((1 << (Ring.PositionOf(last) - Ring.PositionOf(first) + 1)) - 1) << Ring.PositionOf(first));
 }

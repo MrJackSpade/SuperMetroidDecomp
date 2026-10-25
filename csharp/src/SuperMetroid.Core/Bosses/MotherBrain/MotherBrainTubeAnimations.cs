@@ -11,7 +11,7 @@ internal static class MotherBrainTubeAnimations
         Enum.GetValues<MotherBrainTubePiece>().ToDictionary(piece => piece, piece =>
             new[]
             {
-                AnimationProgramStep<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>.Show(new MotherBrainTubeFrame((int)piece), 1),
+                AnimationProgramStep<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>.Show(new MotherBrainTubeFrame(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece)), 1),
                 AnimationProgramStep<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>.Hold,
             }));
 }

@@ -756,7 +756,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         RoomEnemySlot wings = _slotTable.Slots[body.SlotIndex + 1];
-        if (body.DefinitionId == 0 && initializedBody)
+        if (body.DefinitionId == EnemyDefinitionId.None && initializedBody)
             return wings;
 
         EnemyDefinitionId expected = KiHunterPartDefinitions.Parts[body.DefinitionId] switch

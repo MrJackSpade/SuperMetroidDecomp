@@ -155,7 +155,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Torizo main function $AA:{(int)state.Function:X4} is not translated.");
+                    $"Torizo main function {state.Function} is not translated.");
         }
     }
 

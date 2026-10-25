@@ -41,7 +41,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         RoomEnemySlot killed = fixture.System.SlotTable.Slots[0];
         killed.Bind((EnemyDefinitionId)enemyHeader, killed.Definition);
         killed.Position = killed.Position.WithWhole(new(320, 120));
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, (ushort)EnemyDeathAnimation.SmallExplosion);
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: 0);
         RoomEnemyProjectileSlot dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         int updates = 0;
         while (ProgramOf(dying) == EnemyDeathProjectileProgram.SmallExplosion)

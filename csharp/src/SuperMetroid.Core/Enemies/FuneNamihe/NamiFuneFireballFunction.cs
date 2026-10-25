@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal enum NamiFuneFireballFunction : ushort
 {
     /// <summary>$86:DF40.</summary>
-    MovingLeft = 1,
+    MovingLeft,
 
     /// <summary>$86:DF6A.</summary>
     MovingRight,

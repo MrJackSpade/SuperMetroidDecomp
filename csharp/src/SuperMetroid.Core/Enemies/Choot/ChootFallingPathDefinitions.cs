@@ -114,7 +114,7 @@ internal static class ChootFallingPathDefinitions
         if ((uint)sourceFrame >= (uint)path.Length)
         {
             throw new InvalidDataException(
-                $"Choot falling-pattern frame {frameIndex} exceeds stream ${(int)fallingPath:X4}.");
+                $"Choot falling-pattern frame {frameIndex} exceeds stream {fallingPath}.");
         }
 
         return new ChootFallingPathPoint(path[sourceFrame]);

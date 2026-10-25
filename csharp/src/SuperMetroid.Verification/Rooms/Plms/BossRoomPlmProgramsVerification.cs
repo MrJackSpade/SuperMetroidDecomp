@@ -197,6 +197,7 @@ internal static class BossRoomPlmProgramsVerification
     {
         ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
         MotherBrainGlassPlmProgram Entry(ushort address) => MotherBrainGlassEntries.Single(entry => entry.Entry == address).Program;
+        MotherBrainGlassShard GlassShard(ushort word) => MotherBrainNativeWords.GlassShards.Decode(word, "glass shard spawn parameter");
         RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
         switch (instruction)
         {
@@ -224,8 +225,7 @@ internal static class BossRoomPlmProgramsVerification
                 length = 6;
                 return true;
             case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
-                cue = MotherBrainGlassPlmCue.Burst((MotherBrainGlassShard)Word(2), (MotherBrainGlassShard)Word(4),
-                    (MotherBrainGlassShard)Word(6), (MotherBrainGlassShard)Word(8));
+                cue = MotherBrainGlassPlmCue.Burst(GlassShard(Word(2)), GlassShard(Word(4)), GlassShard(Word(6)), GlassShard(Word(8)));
                 length = 10;
                 return true;
             case RoomPlmInstruction.SetEvent:

@@ -11,6 +11,14 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 [RoomLifetime]
 internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The part each authored population parameter-one value selects.</summary>
+    private static readonly ParameterVariants<MagdollitePart> Parts = new(new Dictionary<int, MagdollitePart>
+    {
+        [0] = MagdollitePart.Head,
+        [1] = MagdollitePart.RisingBody,
+        [2] = MagdollitePart.TrackingOverlay,
+    });
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
 
@@ -56,13 +64,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>NorfairLavaMan_Init</c> at $A8:AF8B.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
     {
-        if (slot.Spawn.Population.Parameter1 > (ushort)MagdollitePart.TrackingOverlay)
+        if (!Parts.TryDecode(slot.Spawn.Population.Parameter1, out MagdollitePart part))
         {
             throw new InvalidDataException(
                 $"Magdollite slot {slot.SlotIndex} has invalid part parameter ${slot.Spawn.Population.Parameter1:X4}.");
         }
 
-        var state = new MagdolliteEnemyState((MagdollitePart)slot.Spawn.Population.Parameter1);
+        var state = new MagdolliteEnemyState(part);
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         switch (state.Part)

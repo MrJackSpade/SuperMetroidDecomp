@@ -83,7 +83,7 @@ public sealed class EscapeTimer
             EscapeTimerState.RunningMovementDelayed => ProcessMovementDelay(frameCounter),
             EscapeTimerState.RunningMovingIntoPlace => ProcessMovement(frameCounter),
             EscapeTimerState.RunningInPlace => Decrement(frameCounter),
-            _ => throw new InvalidOperationException($"Timer status low byte ${(byte)State:X2} has no $80:9DE7 dispatch entry."),
+            _ => throw new InvalidOperationException($"Escape timer state {State} has no dispatch entry."),
         };
 
         // Apply the testing floor before publishing expiration to the gameplay dispatcher.

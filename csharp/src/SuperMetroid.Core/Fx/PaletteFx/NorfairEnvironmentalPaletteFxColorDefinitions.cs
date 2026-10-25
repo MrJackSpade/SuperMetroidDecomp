@@ -21,6 +21,16 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     public const int ColorsPerFrame = 5;
 
+    /// <summary>Each program's owner, in definition order: the heat-phase program, then palettes four, five and six.</summary>
+    private static readonly NorfairEnvironmentalPaletteOwner[] Owners =
+    [
+        NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase,
+        NorfairEnvironmentalPaletteOwner.ForegroundPalette4,
+        NorfairEnvironmentalPaletteOwner.ForegroundPalette5,
+        NorfairEnvironmentalPaletteOwner.ForegroundPalette6,
+    ];
+    /// <summary>The definition-order position of the first regular (palette four) program.</summary>
+    private const int FirstRegularProgram = 1;
     /// <summary>The palette-FX object of each program, by owner.</summary>
     private static readonly PaletteFxObject[] Objects =
     [
@@ -59,9 +69,9 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
             get
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                var owner = (NorfairEnvironmentalPaletteOwner)index;
+                NorfairEnvironmentalPaletteOwner owner = Owners[index];
                 bool heat = owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase;
-                int regular = index - (int)NorfairEnvironmentalPaletteOwner.ForegroundPalette4;
+                int regular = index - FirstRegularProgram;
                 int palette = heat ? HeatPalette : RegularFirstPalette + regular;
                 int color = heat ? HeatFirstColor : RegularFirstColor;
                 return new(owner, Objects[index], Programs[index],

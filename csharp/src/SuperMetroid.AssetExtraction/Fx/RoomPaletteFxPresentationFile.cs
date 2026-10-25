@@ -11,12 +11,11 @@ namespace SuperMetroid.AssetExtraction.Fx;
 public static class RoomPaletteFxPresentationFile
 {
     /// <summary>Distinguishes revision 17's inherited Samus heat rows from revision 18's required rows.</summary>
-    private static bool InheritsHeatRows(RoomPaletteFxPresentationRevision revision) => revision switch
+    private static bool InheritsHeatRows(int version) => version switch
     {
-        RoomPaletteFxPresentationRevision.Previous => true,
-        RoomPaletteFxPresentationRevision.Current => false,
-        _ => throw new InvalidOperationException(
-            $"Undefined {nameof(RoomPaletteFxPresentationRevision)} {(int)revision}."),
+        RoomPaletteFxPresentationFormat.PreviousVersion => true,
+        RoomPaletteFxPresentationFormat.Version => false,
+        _ => throw new InvalidOperationException($"Undefined room palette-FX presentation version {version}."),
     };
 
     /// <summary>Validates editable palette rows and compiles their RGB5 colors into the native bank-$8D color lookup.</summary>
@@ -30,8 +29,8 @@ public static class RoomPaletteFxPresentationFile
         RoomPaletteFxPresentationDocument document = JsonAssetDocument.Read<RoomPaletteFxPresentationDocument>(
             json, ArtworkJson.Options, "room palette-FX presentation");
 
-        bool supported = Enum.IsDefined((RoomPaletteFxPresentationRevision)document.Version);
-        bool inheritsHeatRows = supported && InheritsHeatRows((RoomPaletteFxPresentationRevision)document.Version);
+        bool supported = document.Version is RoomPaletteFxPresentationFormat.PreviousVersion or RoomPaletteFxPresentationFormat.Version;
+        bool inheritsHeatRows = supported && InheritsHeatRows(document.Version);
         if (!supported || (inheritsHeatRows && previousVersionFallback is null))
         {
             throw new InvalidDataException(

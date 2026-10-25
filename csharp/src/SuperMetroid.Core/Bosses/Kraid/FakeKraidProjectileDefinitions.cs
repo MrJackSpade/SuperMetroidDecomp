@@ -24,11 +24,16 @@ internal static class FakeKraidProjectileDefinitions
     /// top/middle/bottom port is respectively2 pixels above,12 below or24 below body Y.
     /// $86:9E4E adds this signed integer offset with16-bit wrap, independently of
     /// animation and facing. This is port selection, not an interpolated motion curve.</summary>
-    internal static short SpikeYOffset(int row) => (FakeKraidSpikeRow)row switch
-    {
-        FakeKraidSpikeRow.Top => -2,
-        FakeKraidSpikeRow.Middle => 12,
-        FakeKraidSpikeRow.Bottom => 24,
-        _ => throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port."),
-    };
+    internal static short SpikeYOffset(int row) => (uint)row < (uint)Rows.Length
+        ? Rows[row] switch
+        {
+            FakeKraidSpikeRow.Top => -2,
+            FakeKraidSpikeRow.Middle => 12,
+            FakeKraidSpikeRow.Bottom => 24,
+            _ => throw new InvalidDataException($"Fake Kraid spike row {Rows[row]} is not a body launch port."),
+        }
+        : throw new InvalidDataException($"Fake Kraid spike row {row} is not a body launch port.");
+
+    /// <summary>The body launch rows in the order the authored row selector counts them.</summary>
+    private static readonly FakeKraidSpikeRow[] Rows = [FakeKraidSpikeRow.Top, FakeKraidSpikeRow.Middle, FakeKraidSpikeRow.Bottom];
 }

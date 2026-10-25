@@ -166,7 +166,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates a linked half when this generation requires one, then enters the door-transition wait.</summary>
     private void RunZebetiteSpawnLinkedHalf(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
+        if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None)
         {
             RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
             secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedEnemyIndex = slot.EnemyIndex;
@@ -233,7 +233,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ZebetiteEnemyState state)
     {
         state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(ZebetiteAnimations.HealthProgram(
-            linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0,
+            linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None,
             slot.Health));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

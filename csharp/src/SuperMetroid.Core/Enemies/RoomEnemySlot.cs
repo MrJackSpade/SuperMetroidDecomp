@@ -89,7 +89,7 @@ public sealed class RoomEnemySlot
     {
         DefinitionId = definitionId;
         Definition = definition;
-        Entity = definitionId == 0 ? null : _registry.Create(this);
+        Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
     }
 
     /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other words.</summary>

@@ -438,7 +438,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         if (projectile.DropChancesOverride is { } chances)
             return chances;
-        EnemyDropTable? table = projectile.DropDefinitionId == 0
+        EnemyDropTable? table = projectile.DropDefinitionId == EnemyDefinitionId.None
             ? null
             : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.DropDefinitionId).DropChances;
         return table is { } selected ? EnemyDropChanceDefinitions.At(selected) : null;
@@ -600,7 +600,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         RoomEnemySlot slot = _slotTable.Slots[slotIndex];
         RoomEnemySpawnSnapshot spawn = slot.Spawn;
-        if (spawn.Population.DefinitionId == 0)
+        if (spawn.Population.DefinitionId == EnemyDefinitionId.None)
         {
             throw new InvalidDataException(
                 $"Enemy slot {slotIndex} has no surviving population snapshot to respawn.");

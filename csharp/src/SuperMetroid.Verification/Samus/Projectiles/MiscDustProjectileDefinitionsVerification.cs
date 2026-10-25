@@ -67,11 +67,11 @@ internal static class MiscDustProjectileDefinitionsVerification
         }
 
         var ridley = CreateMiscDustEnemySystem();
-        Action<Position16<RoomPixels>, ushort> spawnRidley = ridley.RidleyProjectiles.SpawnRidleyDust;
-        spawnRidley(new(0x1234, 0x5678), ushort.MaxValue);
+        Action<Position16<RoomPixels>, MiscDustAnimation> spawnRidley = ridley.RidleyProjectiles.SpawnRidleyDust;
+        spawnRidley(new(0x1234, 0x5678), MiscDustAnimation.BigExplosion);
         AssertTrue(ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).Animation is
                 MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.BigExplosion },
-            "Ridley production dust clamps oversized variants to native selector 29");
+            "Ridley production dust starts the requested animation's program");
 
         var invalidRoom = CreateMiscDustEnemySystem();
         var spawnInvalidRoom = new Action<Position16<RoomPixels>, MiscDustAnimation>(invalidRoom.Projectiles.SpawnRoomGraphicsDustExplosion);

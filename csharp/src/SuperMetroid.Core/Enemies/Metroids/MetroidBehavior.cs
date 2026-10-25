@@ -133,7 +133,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Metroid movement index {(ushort)state.Function} exceeds its four-entry ROM table.");
+                    $"Metroid movement {state.Function} exceeds its four-entry ROM table.");
         }
 
         // The ordinary body supplies the central map. Both outer bank-$B4 objects are

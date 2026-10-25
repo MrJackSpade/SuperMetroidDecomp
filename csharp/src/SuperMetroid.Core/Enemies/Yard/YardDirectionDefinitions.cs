@@ -3,8 +3,15 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>Fixed direction and airborne-animation definitions for Yard.</summary>
 internal static class YardDirectionDefinitions
 {
+    /// <summary>The eight directions in the order the authored direction number counts them.</summary>
+    private static readonly IdentitySequence<SurfaceDirection> Directions = new(
+        SurfaceDirection.UpsideRightMovingUp, SurfaceDirection.UpsideRightMovingDown,
+        SurfaceDirection.UpsideLeftMovingUp, SurfaceDirection.UpsideLeftMovingDown,
+        SurfaceDirection.UpsideDownMovingLeft, SurfaceDirection.UpsideDownMovingRight,
+        SurfaceDirection.UpsideUpMovingLeft, SurfaceDirection.UpsideUpMovingRight);
+
     /// <summary>The eight mutually exclusive surface orientations at $A3:CD42.</summary>
-    private enum SurfaceDirection : ushort
+    private enum SurfaceDirection
     {
         /// <summary>Right-side wall orientation with upward crawl.</summary>
         UpsideRightMovingUp,
@@ -31,7 +38,9 @@ internal static class YardDirectionDefinitions
     /// </summary>
     internal static YardDirectionDefinition ForDirection(int direction)
     {
-        var selected = (SurfaceDirection)direction switch
+        var selected = (Directions.TryAt(direction, out SurfaceDirection surface)
+            ? surface
+            : throw new InvalidDataException($"Yard direction ${direction:X4} exceeds its eight cartridge definitions.")) switch
         {
             SurfaceDirection.UpsideRightMovingUp => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideRightMovingUp, 0,

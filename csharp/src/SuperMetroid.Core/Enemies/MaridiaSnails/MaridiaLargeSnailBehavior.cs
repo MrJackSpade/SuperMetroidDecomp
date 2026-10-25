@@ -399,17 +399,17 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             stop = state.SamusIsLeft
                 ? state.MovingLeft &&
-                    (controllerInput & ControllerButton.Right) != 0
+                    controllerInput.HasAny(ControllerButton.Right)
                 : !state.MovingLeft &&
-                    (controllerInput & ControllerButton.Left) != 0;
+                    controllerInput.HasAny(ControllerButton.Left);
         }
         else if (deltaX < 0)
         {
-            stop = (controllerInput & ControllerButton.Right) != 0;
+            stop = controllerInput.HasAny(ControllerButton.Right);
         }
         else
         {
-            stop = (controllerInput & ControllerButton.Left) != 0;
+            stop = controllerInput.HasAny(ControllerButton.Left);
         }
 
         if (!stop)

@@ -648,7 +648,7 @@ internal sealed class EnemyCollision
             if (_deathsAndDrops.TakeRespawnScratch() is { } deathScratch)
                 horizontalRadius = deathScratch;
             RoomEnemySlot enemy = _slotTable.Slots[slotIndex];
-            if (enemy.DefinitionId is 0 or EnemyDefinitionId.Respawn ||
+            if (enemy.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
             {
@@ -658,9 +658,9 @@ internal sealed class EnemyCollision
             // The radius actor is family `$0300` (power bomb), not the ordinary bomb
             // family `$0500`. Using `$0500` silently indexed byte 14 and made every enemy
             // whose bomb and power-bomb vulnerabilities differ behave incorrectly.
-            byte vulnerability = ReadProjectileVulnerability(
-                enemy,
-                (ushort)SamusProjectileFamily.PowerBomb);
+            byte vulnerability = EnemyVulnerabilityDefinitions.Read(
+                enemy.Definition.Vulnerability,
+                FamilyVulnerabilityOffset(SamusProjectileFamily.PowerBomb));
             if (EnemyVulnerabilityDefinitions.Multiplier(vulnerability) == 0)
                 continue;
 
@@ -737,19 +737,7 @@ internal sealed class EnemyCollision
         SamusProjectileFamily family = projectileType.Family;
         if (family != SamusProjectileFamily.Beam)
         {
-            int byteOffset = family switch
-            {
-                SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
-                SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
-                SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
-                SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
-                SamusProjectileFamily.Beam or
-                    SamusProjectileFamily.BeamExplosion or
-                    SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
-                    $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
-                _ => throw new InvalidDataException(
-                    $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
-            };
+            int byteOffset = FamilyVulnerabilityOffset(family);
             byte familyEntry = EnemyVulnerabilityDefinitions.Read(table, byteOffset);
             return new NormalShotVulnerability(
                 Multiplier: EnemyVulnerabilityDefinitions.Multiplier(familyEntry),
@@ -810,21 +798,22 @@ internal sealed class EnemyCollision
     {
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         SamusProjectileFamily family = projectileType.Family;
-        int byteOffset = family switch
-        {
-            SamusProjectileFamily.Beam => projectileType.BeamCombination.TableIndex,
-            SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
-            SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
-            SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
-            SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
-            SamusProjectileFamily.BeamExplosion or
-                SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
-                $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
-            _ => throw new InvalidDataException(
-                $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
-        };
+        int byteOffset = family == SamusProjectileFamily.Beam
+            ? projectileType.BeamCombination.TableIndex
+            : FamilyVulnerabilityOffset(family);
         return EnemyVulnerabilityDefinitions.Read(table, byteOffset);
     }
+
+    /// <summary>The vulnerability byte a missile, Super Missile, bomb or Power Bomb family reads.</summary>
+    /// <exception cref="InvalidDataException">The family has no vulnerability byte of its own.</exception>
+    private static int FamilyVulnerabilityOffset(SamusProjectileFamily family) => family switch
+    {
+        SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
+        SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
+        SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
+        SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
+        _ => throw new InvalidDataException($"Projectile family {family} has no translated vulnerability field."),
+    };
 
     /// <summary>
     /// Damage multiplier and freezing behavior selected from an ordinary shot's vulnerability byte. A lethal Ice-bearing
@@ -896,7 +885,7 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
-        (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != 0;
+        (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != EnemyCapabilities.None;
 
     /// <summary>
     /// Identifies actors whose ordinary projectile collision actually enters
@@ -909,7 +898,7 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
-        (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != 0;
+        (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != EnemyCapabilities.None;
 
     /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>
     private static EnemyCapabilities Capabilities(RoomEnemySlot enemy) =>
@@ -959,7 +948,7 @@ internal sealed class EnemyCollision
                 vulnerabilityOffset = EnemyVulnerabilityDefinitions.PseudoScrewOffset;
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}.");
+                throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {contactDamageIndex}.");
         }
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         byte vulnerability = EnemyVulnerabilityDefinitions.Read(

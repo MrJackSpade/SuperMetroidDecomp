@@ -289,7 +289,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
                 return (ushort)(0x8000 | (run == 0 && block == 0 ? 0x340 : 0x30f | (run == 1 ? 0x800 : 0)));
             RoomCollisionType collision = run == 1 ? RoomCollisionType.Air :
                 block == 0 ? RoomCollisionType.DoorBlock : RoomCollisionType.VerticalExtension;
-            return (ushort)(((int)collision << 12) | EscapeDoorVisualAt(run, block));
+            return new RoomLevelWord(0).WithVisualWord(EscapeDoorVisualAt(run, block)).WithCollisionType(collision).Raw;
         }
     }
 

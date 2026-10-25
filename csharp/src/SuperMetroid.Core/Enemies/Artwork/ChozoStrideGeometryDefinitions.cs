@@ -18,13 +18,10 @@ internal static class ChozoStrideGeometryDefinitions
     private const int TilePixels = 8;
 
     /// <summary>$AA:E954/E959 and following poses: the adjacent support-foot glyphs.</summary>
-    private enum FootGlyph
-    {
-        /// <summary>OBJ tile $170, the left half of the support foot.</summary>
-        Left = 0x170,
-        /// <summary>OBJ tile $171, the right half of the support foot.</summary>
-        Right = 0x171,
-    }
+    /// <summary>The character of the support foot's left half.</summary>
+    private const int LeftFootTile = 0x170;
+    /// <summary>The character of the support foot's right half.</summary>
+    private const int RightFootTile = 0x171;
     /// <summary>$AA:E959/E9C4/EA34/EAA4: chosen left-foot origins -31/-28/-14/-7.</summary>
     private const int WeightShiftFootX = -31, EarlySupportFootX = -28,
         LateSupportFootX = -14, PushOffFootX = -7;
@@ -49,15 +46,13 @@ internal static class ChozoStrideGeometryDefinitions
         for (int index = 0; index < supplied.Count; index++)
         {
             SpritemapPart part = supplied[index];
-            if (!Enum.IsDefined((FootGlyph)part.Attributes.TileNumber))
-                continue;
-            switch ((FootGlyph)part.Attributes.TileNumber)
+            switch (part.Attributes.TileNumber)
             {
-                case FootGlyph.Left:
+                case LeftFootTile:
                     if (left >= 0 || part.X.SignedOffset != SupportFootX(phase)) return supplied;
                     left = index;
                     break;
-                case FootGlyph.Right:
+                case RightFootTile:
                     if (right >= 0 || part.X.SignedOffset != SupportFootX(phase) + TilePixels) return supplied;
                     right = index;
                     break;

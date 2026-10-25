@@ -6,6 +6,11 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The five states an authored initial state value selects, in its counting order.</summary>
+    private static readonly IdentitySequence<OwtchBehaviorState> InitialStates = new(
+        OwtchBehaviorState.MovingLeft, OwtchBehaviorState.MovingRight, OwtchBehaviorState.Underground,
+        OwtchBehaviorState.Sinking, OwtchBehaviorState.Rising);
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
@@ -76,7 +81,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RightVelocity = right,
             LeftVelocity = left,
-            Behavior = (OwtchBehaviorState)initialState,
+            Behavior = InitialStates.At(initialState),
             BurialDepth = 0,
             UndergroundTimer = WrappingCountdown.FromRaw(undergroundTimer),
             MinimumPosition = new(unchecked((ushort)(slot.Position.X.Whole - travelDistance)), 0),
@@ -151,7 +156,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Owtch state/table index ${(ushort)state.Behavior:X4} is not translated.");
+                    $"Owtch state {state.Behavior} is not translated.");
         }
     }
 
@@ -197,7 +202,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// negative. In shipped states that means moving left (plus the transient $FFFF bug).
     /// </summary>
     private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
-        unchecked((short)((ushort)state.Behavior - 1)) < 0;
+        state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.LeftBoundaryUnderflow;
 
     /// <summary>Restarts the selected facing animation at its first step.</summary>
     private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)

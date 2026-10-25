@@ -7,6 +7,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 public enum DraygonAiFunction : ushort
 {
+    /// <summary>A cleared record holds no function.</summary>
+    None = 0,
     /// <summary><c>$A5:871B Function_DraygonBody_FightIntro_InitialDelay</c>: loads four Evir sprites, then waits 256 gameplay frames.</summary>
     IntroInitialDelay = 1,
     /// <summary><c>$A5:878B Function_DraygonBody_FightIntro_Dance</c>: advances the opening Evir movement stream for 1,232 frames before the first swoop.</summary>

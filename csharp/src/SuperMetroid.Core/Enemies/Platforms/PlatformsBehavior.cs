@@ -11,6 +11,13 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 [RoomLifetime]
 internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The horizontal movement each authored population parameter-one value selects.</summary>
+    private static readonly ParameterVariants<PlatformHorizontalMovement> HorizontalMovements = new(new Dictionary<int, PlatformHorizontalMovement>
+    {
+        [0] = PlatformHorizontalMovement.Left,
+        [1] = PlatformHorizontalMovement.Right,
+    });
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer2, EnemyDefinitionId.Tripper];
 
@@ -58,10 +65,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.IsSuspensorPlatform = isKamer;
-        // Main AI dispatches the complete word through a two-entry table. Initialization's
-        // art branch merely tests zero/nonzero, so preserve a corrupt value here and let the
-        // typed dispatcher reject it instead of silently normalizing it to index one.
-        state.XMovement = (PlatformHorizontalMovement)slot.Spawn.Population.Parameter1;
+        // Main AI dispatches the complete word through a two-entry table, so a value outside it is corrupt room
+        // data and is rejected here rather than normalized to rightward movement.
+        state.XMovement = HorizontalMovements.Decode(slot.Spawn.Population.Parameter1);
 
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformAnimationDefinitions.SelectProgram(
             isKamer, axis: Axis.Horizontal, state.XMovement));
@@ -154,7 +160,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             PlatformHorizontalMovement.Left => true,
             PlatformHorizontalMovement.Right => false,
             _ => throw new InvalidDataException(
-                $"Platform X movement index {(ushort)state.XMovement} exceeds its two-entry table."),
+                $"Platform X movement {state.XMovement} exceeds its two-entry table."),
         };
         int displacement = (movingLeft ? state.LeftSpeed : state.RightSpeed).RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
@@ -192,7 +198,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Platform Y movement index {(ushort)state.YMovement} exceeds its two-entry table.");
+                    $"Platform Y movement {state.YMovement} exceeds its two-entry table.");
         }
     }
 

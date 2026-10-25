@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 [Flags]
 public enum NinjaSpacePirateParameterFlags : ushort
 {
+    /// <summary>No named parameter meaning is set.</summary>
+    None = 0,
+
     /// <summary>Starts at the left post and initially faces toward the right post.</summary>
     StartsAtLeftPostFacingRight = 0x0001,
 }

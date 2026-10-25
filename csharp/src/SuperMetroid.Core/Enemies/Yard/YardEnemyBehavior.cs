@@ -194,10 +194,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool withinVerticalBand = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= -96;
-        byte samusFacing = SamusPoseMetadata.ReadPoseXDirection(samus);
+        SamusFacingDirection samusFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool samusLookingAtYard = slot.Position.X.Whole < samus.Position.X.Whole
-            ? samusFacing == (byte)SamusFacingDirection.Left
-            : samusFacing == (byte)SamusFacingDirection.Right;
+            ? samusFacing == SamusFacingDirection.Left
+            : samusFacing == SamusFacingDirection.Right;
         if (withinVerticalBand && samusLookingAtYard)
         {
             if (state.Behavior == YardBehavior.Hiding)
@@ -561,7 +561,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(slot, state);
         // Only the whole words are stored; both fraction words keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
-            SamusPoseMetadata.ReadPoseXDirection(samus) == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
+            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? (short)-1 : (short)1,
             -1));
     }
 

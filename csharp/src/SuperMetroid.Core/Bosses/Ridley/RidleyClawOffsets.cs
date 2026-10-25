@@ -6,8 +6,10 @@ public static class RidleyClawOffsets
     /// <summary>$A6:B9D5 HoldingSamusXDispacement: left/turning/right displacements decrease twelve pixels per facing.</summary>
     public static short ReadX(RidleyFacing facing) => facing switch
     {
-        RidleyFacing.Left or RidleyFacing.Turning or RidleyFacing.Right => (short)(12 - 12 * (int)facing),
-        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}."),
+        RidleyFacing.Left => 12,
+        RidleyFacing.Turning => 0,
+        RidleyFacing.Right => -12,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
     };
 
     /// <summary>

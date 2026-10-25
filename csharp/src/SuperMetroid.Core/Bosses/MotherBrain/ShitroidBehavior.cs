@@ -793,7 +793,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
     {
         int victimIndex = slot.SlotIndex + 1;
-        if ((uint)victimIndex >= _slotTable.Slots.Count || _slotTable.Slots[victimIndex].DefinitionId == 0)
+        if ((uint)victimIndex >= _slotTable.Slots.Count || _slotTable.Slots[victimIndex].DefinitionId == EnemyDefinitionId.None)
             throw new InvalidDataException("Shitroid's physical slot-one victim is missing.");
         return _slotTable.Slots[victimIndex];
     }

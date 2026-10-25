@@ -77,7 +77,7 @@ internal sealed class RidleyTail
             RidleyFacing.Turning => slot.Position.X.Whole,
             RidleyFacing.Right => unchecked((ushort)(slot.Position.X.Whole - 32 + first.Offset.X)),
             _ => throw new InvalidOperationException(
-                $"Undefined {nameof(RidleyFacing)} {(int)state.FacingDirection}."),
+                $"Undefined {nameof(RidleyFacing)} {state.FacingDirection}."),
         };
         first.Position = new Position16<RoomPixels>(firstX, firstY);
 
@@ -413,7 +413,7 @@ internal sealed class RidleyTail
             ushort y = unchecked((ushort)(segment.Position.Y + (index == tipIndex ? 16 : 18)));
             if ((x >> 4) >= level.Size.X || (y >> 4) >= level.Size.Y)
                 continue;
-            if (level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(x, y)).CollisionType != 0)
+            if (level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(x, y)).CollisionType != RoomCollisionType.Air)
                 return true;
         }
         return false;

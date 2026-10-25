@@ -201,7 +201,7 @@ internal sealed class TorizoMovement
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Bomb Torizo pre-instruction $AA:{(int)state.PreInstruction:X4} is not translated.");
+                    $"Bomb Torizo pre-instruction {state.PreInstruction} is not translated.");
         }
     }
 

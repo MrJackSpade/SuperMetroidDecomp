@@ -13,6 +13,6 @@ internal static class ZoaAnimationDefinitions
         ZoaAnimationSelector.FacingRight => ZoaProgram.FacingRightShooting,
         ZoaAnimationSelector.FacingRight | ZoaAnimationSelector.Rising => ZoaProgram.FacingRightRising,
         _ => throw new InvalidDataException(
-            $"Zoa animation selector ${(int)selector:X4} exceeds its four-entry table."),
+            $"Zoa animation selector {selector} exceeds its four-entry table."),
     };
 }

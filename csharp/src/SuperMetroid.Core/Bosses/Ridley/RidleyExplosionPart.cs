@@ -1,30 +1,30 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Parameters that select one authored component of Ridley's death breakup.</summary>
+/// <summary>One authored component of Ridley's death breakup; <see cref="RidleyExplosionDefinitions.PartParameters"/> holds the spawn parameter selecting each.</summary>
 internal enum RidleyExplosionPart : ushort
 {
     /// <summary>First tail segment.</summary>
-    Tail0 = 0x0000,
+    Tail0,
     /// <summary>Second tail segment.</summary>
-    Tail1 = 0x0002,
+    Tail1,
     /// <summary>Third tail segment.</summary>
-    Tail2 = 0x0004,
+    Tail2,
     /// <summary>Fourth tail segment.</summary>
-    Tail3 = 0x0006,
+    Tail3,
     /// <summary>Fifth tail segment.</summary>
-    Tail4 = 0x0008,
+    Tail4,
     /// <summary>Sixth tail segment.</summary>
-    Tail5 = 0x000a,
+    Tail5,
     /// <summary>Seventh segment, whose image is selected from the combined tip angle.</summary>
-    TailTip = 0x000c,
+    TailTip,
     /// <summary>Wing fragment.</summary>
-    Wings = 0x000e,
+    Wings,
     /// <summary>Leg fragment.</summary>
-    Legs = 0x0010,
+    Legs,
     /// <summary>Open-head and neck fragment.</summary>
-    OpenHeadAndNeck = 0x0012,
+    OpenHeadAndNeck,
     /// <summary>Torso fragment.</summary>
-    Torso = 0x0014,
+    Torso,
     /// <summary>Claw fragment.</summary>
-    Claw = 0x0016,
+    Claw,
 }

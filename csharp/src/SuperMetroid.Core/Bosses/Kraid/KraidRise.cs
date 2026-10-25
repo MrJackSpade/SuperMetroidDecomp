@@ -306,7 +306,7 @@ internal sealed class KraidRise
 
         foreach (KraidLintPart part in Enum.GetValues<KraidLintPart>())
         {
-            int slot = (int)part;
+            int slot = KraidLintInitializationDefinitions.Slot[part];
             RoomEnemySlot lint = _slotTable.Slots[slot];
             state.Parts[lint.SlotIndex].FunctionTimer = KraidLintInitializationDefinitions.InitialDelay(part);
             state.Parts[lint.SlotIndex].Function = KraidAiFunction.AlignPartToKraid;

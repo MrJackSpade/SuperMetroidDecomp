@@ -36,6 +36,10 @@ internal static class EnemyPropertyWordCodec
     internal static ushort Encode(EnemyExtraPropertyWord value) =>
         checked((ushort)((ushort)value.Flags | value.UntranslatedBits));
 
+    /// <summary>Whether a word of bits kept verbatim beside the extra-property flags would carry a translated flag.</summary>
+    internal static bool CarriesTranslatedExtraFlag(ushort bits) =>
+        ((EnemyExtraProperties)bits & EnemyPropertyFlagExtensions.TranslatedExtraFlags) != EnemyExtraProperties.None;
+
     /// <summary>A native extra-property word split into its translated flags and every other bit, verbatim.</summary>
     internal static EnemyExtraPropertyWord DecodeExtra(ushort word) => new(
         (EnemyExtraProperties)word & EnemyPropertyFlagExtensions.TranslatedExtraFlags,

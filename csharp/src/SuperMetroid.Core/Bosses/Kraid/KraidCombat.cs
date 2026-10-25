@@ -191,7 +191,7 @@ internal sealed class KraidCombat
                     // Create_Sprite_Object returns its native word-array index, twice the slot, in $12 only on success.
                     scratch.Bottom = dud is { } created ? checked((ushort)(created.SlotIndex * sizeof(ushort))) : shot.Position.X;
                     scratch.Top = shot.Position.Y;
-                    scratch.Left = (ushort)RoomSpriteObjectKind.EnemyProjectileDud;
+                    scratch.Left = KraidContactDefinitions.ShotLeftBoundAfterDud;
                     _audio.QueueEnemySound(Library1Sound.DudShot, maximumQueued: SoundQueueLimit.Max3);
                 }
                 shots.MarkCollision(index);
@@ -203,7 +203,7 @@ internal sealed class KraidCombat
         {
             state.HurtFrame = 6;
             state.HurtFrameTimer = WrappingCountdown.Start(2);
-            if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != 0)
+            if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&
                 state.Parts[body.SlotIndex].Function < KraidAiFunction.DeathInitialize)
@@ -247,7 +247,7 @@ internal sealed class KraidCombat
         if (bodyHits != 0 && state.Parts[body.SlotIndex].Function == KraidAiFunction.MainloopThinking)
         {
             state.Parts[body.SlotIndex].Function = KraidAiFunction.InitializeEyeGlow;
-            if ((state.MouthFlags & KraidMouthFlags.Hit) != 0)
+            if ((state.MouthFlags & KraidMouthFlags.Hit) != KraidMouthFlags.None)
             {
                 state.MouthFlags |= KraidMouthFlags.ReopenArmed;
                 state.ArmMouthReopens();

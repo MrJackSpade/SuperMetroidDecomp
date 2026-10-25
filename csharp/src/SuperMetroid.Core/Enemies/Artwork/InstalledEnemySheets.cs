@@ -104,7 +104,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
                      .ThenBy(entry => entry.Key.Enemy))
         {
             content.Append("set", System.Text.Encoding.UTF8.GetBytes(key.Set));
-            content.Append("enemy", (int)key.Enemy);
+            content.Append("enemy", System.Text.Encoding.UTF8.GetBytes(key.Enemy.ToString()));
             sheet.AppendIdentity(content);
         }
         foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet sheet) in spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)

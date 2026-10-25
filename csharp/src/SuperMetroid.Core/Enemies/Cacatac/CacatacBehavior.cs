@@ -54,14 +54,14 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
     internal static void InitializeCacatac(RoomEnemySlot slot)
     {
-        var direction = (CacatacDirection)SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
+        int directionParameter = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
         int distanceIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
         int speedIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
-        if (!Enum.IsDefined(direction))
+        if (!CacatacProjectileDefinitions.Directions.TryDecode(directionParameter, out CacatacDirection direction))
         {
             throw new InvalidDataException(
                 $"Cacatac parameter one ${slot.Spawn.Population.Parameter1:X4} selects direction " +
-                $"{(ushort)direction}, outside its three-word function table.");
+                $"{directionParameter}, outside its three-word function table.");
         }
         if (distanceIndex >= 6)
         {
@@ -223,8 +223,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.CacatacSpike,
             unchecked((ushort)(source.PaletteIndex | source.TileIndexBase)));
-        projectile.DirectionParameter = (ushort)direction;
-        projectile.Variable0 = (ushort)direction;
+        int selector = CacatacProjectileDefinitions.SpikeSelectors.Parameter(direction);
+        projectile.DirectionParameter = selector;
+        projectile.Variable0 = selector;
         projectile.InstallAnimation(new CacatacProjectileAnimation(program));
         projectile.Position = source.Position;
         CacatacSpikeSpeedPair speeds = CacatacProjectileDefinitions.SpeedPair(direction);
@@ -245,7 +246,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        CacatacSpikeDirection direction = (CacatacSpikeDirection)projectile.Variable0;
+        CacatacSpikeDirection direction = CacatacProjectileDefinitions.SpikeSelectors.Decode(projectile.Variable0);
         switch (direction)
         {
             case CacatacSpikeDirection.LeftFacingUp:

@@ -10,6 +10,13 @@ internal static class KraidContactDefinitions
     /// </summary>
     internal const short ShotUpperBoundAfterHit = -3750;
 
+    /// <summary>
+    /// The mouth's left bound the next shot is tested against after a rejected shot spawns its dud flash: six pixels
+    /// from the room's left. Spawning the flash leaves its object selector over the bound, and the next shot's compare
+    /// reads that leftover as this coordinate.
+    /// </summary>
+    internal const ushort ShotLeftBoundAfterDud = 6;
+
     /// <summary>$A7:B97C-B983: Hitbox_KraidLint.left ($92B7, -24) minus two.</summary>
     internal const short LintLeadingEdge = -26;
     /// <summary>$A7:B99F-B9A6: Hitbox_KraidLint.top ($92B9, -4) plus two.</summary>

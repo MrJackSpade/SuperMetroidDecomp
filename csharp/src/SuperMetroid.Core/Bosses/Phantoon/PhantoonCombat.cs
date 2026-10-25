@@ -279,7 +279,7 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        if ((body.AiStates & EnemyAiStates.Hurt) == 0)
+        if ((body.AiStates & EnemyAiStates.Hurt) == EnemyAiStates.None)
             return;
 
         state.LastCombatSoundEffect = PhantoonSoundDefinitions.ShotCry;

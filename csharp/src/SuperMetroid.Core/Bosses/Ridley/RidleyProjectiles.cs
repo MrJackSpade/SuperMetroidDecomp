@@ -101,7 +101,7 @@ internal sealed class RidleyProjectiles
     }
 
     /// <summary>Allocates enemy projectile $E509 with one ROM-authored dust variant.</summary>
-    internal void SpawnRidleyDust(Position16<RoomPixels> position, ushort variant)
+    internal void SpawnRidleyDust(Position16<RoomPixels> position, MiscDustAnimation animation)
     {
         RoomEnemyProjectileSlot? dust = _projectiles.AllocateEnemyProjectile();
         if (dust is null)
@@ -112,8 +112,7 @@ internal sealed class RidleyProjectiles
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphicsIndex: 0);
         dust.Position = dust.Position.WithWhole(position);
-        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(
-            (MiscDustAnimation)Math.Min(variant, (ushort)MiscDustAnimation.BigExplosion))));
+        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(animation)));
     }
 
     /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>

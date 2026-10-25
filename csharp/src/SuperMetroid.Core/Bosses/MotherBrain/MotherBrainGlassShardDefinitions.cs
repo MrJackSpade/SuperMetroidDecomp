@@ -7,26 +7,18 @@ internal static class MotherBrainGlassShardDefinitions
     internal const ushort GraphicsIndex = 0x0640;
 
     /// <summary>
-    /// $86:CE61/CE67 select one of three horizontal emitter positions on the glass:
-    /// right (+8), left (-40), or centre (-16), all two blocks below the PLM origin.
-    /// Native parameters 0/2/4 are byte offsets, not a continuous motion sample.
-    /// $86:CE08/CE16 add these signed offsets after scaling block coordinates by 16;
-    /// the initializer then applies independent -8..7 jitter on each axis.
+    /// One of three horizontal emitter positions on the glass: right (+8), left (-40), or centre (-16), all two blocks
+    /// below the PLM origin. These signed offsets are added after scaling block coordinates by 16; the initializer then
+    /// applies independent -8..7 jitter on each axis.
     /// </summary>
-    internal static MotherBrainGlassShardPlacement Placement(ushort parameter)
+    internal static MotherBrainGlassShardPlacement Placement(MotherBrainGlassShard shard)
     {
-        if (parameter is not (0 or 2 or 4))
+        short x = shard switch
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(parameter), parameter,
-                "Mother Brain glass-shard placement parameter must be zero, two, or four.");
-        }
-
-        short x = parameter switch
-        {
-            0 => RightEmitterX,
-            2 => LeftEmitterX,
-            _ => CentreEmitterX,
+            MotherBrainGlassShard.Right => RightEmitterX,
+            MotherBrainGlassShard.Left => LeftEmitterX,
+            MotherBrainGlassShard.Centre => CentreEmitterX,
+            _ => throw new ArgumentOutOfRangeException(nameof(shard), shard, "Undefined Mother Brain glass emitter."),
         };
         return new(new Offset16<RoomPixels>(x, 2 * 16));
     }

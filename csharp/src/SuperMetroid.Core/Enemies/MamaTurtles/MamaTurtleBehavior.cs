@@ -547,7 +547,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                         baby,
                         state,
                         MamaTurtleProgram.BabySpinning);
-                    bool facingRight = (SamusPoseMetadata.ReadPoseXDirection(samus) & 0x0f) == (byte)SamusFacingDirection.Right; // magic-number-audit: allow(PoseOrMovement) - the native low-nibble mask isolating the pose X-direction byte.
+                    bool facingRight = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right;
                     state.Velocity = new Offset16<RoomPixels>(facingRight ? (short)3 : (short)-3, 1);
                     return;
                 }

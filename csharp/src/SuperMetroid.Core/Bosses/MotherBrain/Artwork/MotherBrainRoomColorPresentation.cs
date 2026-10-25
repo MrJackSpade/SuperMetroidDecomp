@@ -188,62 +188,34 @@ public sealed class MotherBrainRoomColorPresentation
             if (color < MotherBrainRoomColorDefinitions.RoomDarkGrayColor)
                 return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorDefinitions.RoomGrayFirst,
                     MotherBrainRoomColorDefinitions.RoomGrayCount - 1);
-            if (!Enum.IsDefined((AccentColor)color))
-                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor);
-            return (AccentColor)color switch
+            // The accent colours past the gray ramp own individual paint; the rest are stock white.
+            return color switch
             {
                 // Metal contour shadow is half the low gray surface intensity.
-                AccentColor.DarkGray or AccentColor.RepeatedDarkGray =>
+                MotherBrainRoomColorDefinitions.RoomDarkGrayColor or MotherBrainRoomColorDefinitions.RoomRepeatedDarkGrayColor =>
                     InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLow, Bgr555.Black, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor - 1, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor),
-                AccentColor.RedLens => MotherBrainFinalRoomPaintDefinitions.RedLens,
-                AccentColor.RedLensShade => new Bgr555(Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0),
-                AccentColor.BlueLens => MotherBrainFinalRoomPaintDefinitions.BlueLens,
-                AccentColor.BlueLensShade => new Bgr555(0, 0, Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop)),
-                AccentColor.Glow => MotherBrainFinalRoomPaintDefinitions.WarmAccent,
-                _ => throw new InvalidOperationException($"Undefined {nameof(AccentColor)} {color}."),
+                MotherBrainRoomColorDefinitions.RoomRedFirst => MotherBrainFinalRoomPaintDefinitions.RedLens,
+                MotherBrainRoomColorDefinitions.RoomRedFirst + 1 => new Bgr555(Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0),
+                MotherBrainRoomColorDefinitions.RoomBlueFirst => MotherBrainFinalRoomPaintDefinitions.BlueLens,
+                MotherBrainRoomColorDefinitions.RoomBlueFirst + 1 => new Bgr555(0, 0, Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop)),
+                MotherBrainRoomColorDefinitions.RoomGlowColor => MotherBrainFinalRoomPaintDefinitions.WarmAccent,
+                _ => MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorDefinitions.WhiteColor),
             };
         }
 
         /// <summary>Selects authored amber and outline panel colors; other panel indexes are black.</summary>
         private static Bgr555 PanelColorAt(int color)
         {
-            if (!Enum.IsDefined((PanelColor)color))
-                return Bgr555.Black;
-            return (PanelColor)color switch
+            return color switch
             {
-                PanelColor.Amber => MotherBrainFinalRoomPaintDefinitions.Amber,
-                PanelColor.Outline => MotherBrainFinalRoomPaintDefinitions.PanelField,
-                _ => throw new InvalidOperationException($"Undefined {nameof(PanelColor)} {color}."),
+                PanelAmberColor => MotherBrainFinalRoomPaintDefinitions.Amber,
+                MotherBrainRoomColorDefinitions.RoomOutlineColor => MotherBrainFinalRoomPaintDefinitions.PanelField,
+                _ => Bgr555.Black,
             };
         }
 
-        /// <summary>The final-room color indexes between the shadow ramp and the gray ramp that own individual paint; the rest are black.</summary>
-        private enum PanelColor
-        {
-            /// <summary>Amber panel light, $A9:D096 between black slots at D092/D094/D098; its pixel role remains unresolved.</summary>
-            Amber = 10,
-            /// <summary>Panel outline field.</summary>
-            Outline = MotherBrainRoomColorDefinitions.RoomOutlineColor,
-        }
-
-        /// <summary>The final-room color indexes past the gray ramp that own individual paint; the rest are stock white.</summary>
-        private enum AccentColor
-        {
-            /// <summary>Metal contour shadow.</summary>
-            DarkGray = MotherBrainRoomColorDefinitions.RoomDarkGrayColor,
-            /// <summary>Red lens.</summary>
-            RedLens = MotherBrainRoomColorDefinitions.RoomRedFirst,
-            /// <summary>Red lens shade.</summary>
-            RedLensShade = MotherBrainRoomColorDefinitions.RoomRedFirst + 1,
-            /// <summary>Blue lens.</summary>
-            BlueLens = MotherBrainRoomColorDefinitions.RoomBlueFirst,
-            /// <summary>Blue lens shade.</summary>
-            BlueLensShade = MotherBrainRoomColorDefinitions.RoomBlueFirst + 1,
-            /// <summary>Repeated metal contour shadow.</summary>
-            RepeatedDarkGray = MotherBrainRoomColorDefinitions.RoomRepeatedDarkGrayColor,
-            /// <summary>Warm glow accent.</summary>
-            Glow = MotherBrainRoomColorDefinitions.RoomGlowColor,
-        }
+        /// <summary>The amber panel light between the shadow ramp and the gray ramp; its pixel role remains unresolved.</summary>
+        private const int PanelAmberColor = 10;
     }
     /// <summary>Interpolates RGB5 channels with nearest rounding, or ceiling rounding for shadow red.</summary>
     private static Bgr555 InterpolateRgb5(Bgr555 start, Bgr555 end, int step, int intervals, bool ceilingRed = false)
@@ -315,24 +287,17 @@ public sealed class MotherBrainRoomColorPresentation
             if (color < MotherBrainRoomColorDefinitions.GlassDarkGrayColor)
                 return InterpolateRgb5(MotherBrainGlassPaintDefinitions.FaceHighlight, room[MotherBrainRoomColorDefinitions.RoomOutlineColor],
                     color - MotherBrainRoomColorDefinitions.GlassRampFirst, MotherBrainRoomColorDefinitions.GlassRampCount - 1);
-            if (!Enum.IsDefined((AccentColor)color))
-                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
-            return (AccentColor)color switch
+            // The glass colours past the ramp that own individual paint; the rest are stock colours.
+            return color switch
             {
-                AccentColor.DarkGray => room[MotherBrainRoomColorDefinitions.RoomDarkGrayColor],
-                AccentColor.Neutral => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
-                _ => throw new InvalidOperationException($"Undefined {nameof(AccentColor)} {color}."),
+                MotherBrainRoomColorDefinitions.GlassDarkGrayColor => room[MotherBrainRoomColorDefinitions.RoomDarkGrayColor],
+                GlassNeutralColor => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
+                _ => MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color),
             };
         }
 
-        /// <summary>The glass color indexes past the ramp that own individual paint; the rest are stock colors.</summary>
-        private enum AccentColor
-        {
-            /// <summary>Glass dark gray, shared with the room's metal contour shadow.</summary>
-            DarkGray = MotherBrainRoomColorDefinitions.GlassDarkGrayColor,
-            /// <summary>Glass neutral casing highlight.</summary>
-            Neutral = 12,
-        }
+        /// <summary>The glass's neutral casing highlight.</summary>
+        private const int GlassNeutralColor = 12;
     }
     /// <summary>Relates tube-projectile casing and outline shades to the final room palette.</summary>
     internal sealed class TubePalette

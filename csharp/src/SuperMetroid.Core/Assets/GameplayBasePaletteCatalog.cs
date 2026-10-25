@@ -23,13 +23,13 @@ public sealed class GameplayBasePaletteCatalog
     });
 
     /// <summary>Loads the complete selected 256-colour starting image into gameplay's colours.</summary>
-    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadCartridgeImage(initial);
+    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStartingImage(initial);
 
     /// <summary>Loads the complete selected 256-colour starting image into a screen's colours.</summary>
-    public void LoadInitial(IPaletteColors cgram)
+    public void LoadInitial(IPaletteColors colours)
     {
-        Ensure.NotNull(cgram);
-        new CgramPalettes(cgram).LoadImage(initial);
+        Ensure.NotNull(colours);
+        new CgramPalettes(colours).LoadImage(initial);
     }
 
     /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -30,8 +31,8 @@ public static class GameplayBasePaletteFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
-            ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
-            ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress,
+            ReadColors(bus, GameplayBasePaletteSourceDefinitions.InitialPalette, CgramPalettes.ColorCount),
+            ReadColors(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette,
                 GameplayBasePaletteFormat.SpriteColorCount));
         byte[] bytes = Write(document);
         File.WriteAllBytes(Path.Combine(directory, GameplayBasePaletteFormat.ArtworkFileName), bytes);
@@ -133,8 +134,8 @@ public static class GameplayBasePaletteFiles
     internal static RgbColor[] RoomLoadSpriteColours(ISnesAddressSpace bus)
     {
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
-            ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
-            ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress, GameplayBasePaletteFormat.SpriteColorCount));
+            ReadColors(bus, GameplayBasePaletteSourceDefinitions.InitialPalette, CgramPalettes.ColorCount),
+            ReadColors(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette, GameplayBasePaletteFormat.SpriteColorCount));
         GameplayBasePaletteCatalog catalog = Read(new MemoryStream(Write(document), writable: false));
         int first = FirstSpriteColour;
         RgbColor[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();

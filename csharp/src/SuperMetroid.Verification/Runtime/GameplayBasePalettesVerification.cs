@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
@@ -31,10 +32,10 @@ internal static class GameplayBasePalettesVerification
             GameplayBasePaletteFiles.Extract(bus, stock, SupportedCartridge.Sha256);
             GameplayBasePaletteCatalog baseline = GameplayBasePaletteFiles.Load(stock, overrides);
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                AssertEqual(ReadWord(bus, GameplayBasePaletteFormat.InitialSourceAddress + color * 2),
+                AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),
                     baseline.Initial[color], $"installed starting CGRAM color {color}");
             for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
-                AssertEqual(ReadWord(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress + color * 2),
+                AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette + color * 2),
                     baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
             var guarded = NewFrontendCartridgeReadGuard(

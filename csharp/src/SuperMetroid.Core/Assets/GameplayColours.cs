@@ -48,10 +48,10 @@ public sealed class GameplayColours
     }
 
     /// <summary>
-    /// Loads the cartridge's initial 256-colour image, the one load that names colours by position: each colour goes to
+    /// Loads the installed 256-colour starting image, the one load that names colours by position: each colour goes to
     /// the owner that holds its position.
     /// </summary>
-    public void LoadCartridgeImage(ReadOnlySpan<RgbColor> image)
+    public void LoadStartingImage(ReadOnlySpan<RgbColor> image)
     {
         Ensure.LengthEqual(image, ColorCount);
         for (int position = 0; position < ColorCount; position++)

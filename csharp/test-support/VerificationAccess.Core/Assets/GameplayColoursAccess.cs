@@ -26,7 +26,7 @@ internal static class GameplayColoursAccess
         {
             RgbColor[] image = colours.Colors.ToArray();
             image[Ensure.BetweenInclusive(0, GameplayColours.ColorCount - 1, index)] = color;
-            colours.LoadCartridgeImage(image);
+            colours.LoadStartingImage(image);
         }
 
         /// <inheritdoc />
@@ -43,7 +43,7 @@ internal static class GameplayColoursAccess
             RgbColor[] image = colours.Colors.ToArray();
             for (int color = 0; color < count; color++)
                 image[destinationIndex + color] = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
-            colours.LoadCartridgeImage(image);
+            colours.LoadStartingImage(image);
         }
     }
 }

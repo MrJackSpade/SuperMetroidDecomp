@@ -34,7 +34,7 @@ internal static class EscapeRunningFootstepsVerification
             samus.Drained.PutCrouchingOrFalling(samus);
             if (!able)
             {
-                AssertTrue(samus.Drained.StepGetUpHandler(samus, SnesButton.Up), "cutscene still accepts failed stand-up");
+                AssertTrue(samus.Drained.StepGetUpHandler(samus, ControllerButton.Up), "cutscene still accepts failed stand-up");
                 AssertEqual(18, samus.AnimationFrame, "native failed stand-up still selects frame eighteen");
             }
 
@@ -61,10 +61,10 @@ internal static class EscapeRunningFootstepsVerification
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 8, 1);
             samus.LiquidPhysics.FxType = RoomFxType.Acid;
             samus.LiquidPhysics.LavaAcidYPosition = 0;
-            samus.Drained.StepGetUpHandler(samus, (SnesButton.Up | SnesButton.A));
+            samus.Drained.StepGetUpHandler(samus, (ControllerButton.Up | ControllerButton.A));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = (SnesButton.Up | SnesButton.A) });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = (ControllerButton.Up | ControllerButton.A) });
             AssertEqual(DrainedGetUpHandler.Inactive, samus.Drained.GetUpHandler,
                 "escape timer replaces the drained hack handler");
             AssertEqual(9, samus.AnimationFrame, "Up edge in acid advances the running animation normally");

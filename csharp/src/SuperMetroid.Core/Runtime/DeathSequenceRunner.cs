@@ -68,7 +68,7 @@ internal sealed class DeathSequenceRunner
     /// room main, or the gameplay clock. This is <c>Samus_DrawWhenNotAnimatingOrDying</c>,
     /// not a shortened state-eight call.
     /// </summary>
-    public void DrawFatalSamusFrame(SnesButton controllerInput)
+    public void DrawFatalSamusFrame(ControllerButton controllerInput)
     {
         if (_player.Samus is null || _room.Camera is null)
             throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
@@ -87,7 +87,7 @@ internal sealed class DeathSequenceRunner
     /// The selected pose or explosion frame becomes visible through the ordinary accepted-
     /// NMI pipeline, while every state-eight actor remains stopped as on the cartridge.
     /// </summary>
-    public SamusDeathSequenceStepResult StepDeathSequenceFrame(SnesButton controllerInput)
+    public SamusDeathSequenceStepResult StepDeathSequenceFrame(ControllerButton controllerInput)
     {
         if (_player.Samus is null || _room.Camera is null || !_player.Samus.DeathSequence.IsActive)
             throw new InvalidOperationException("The bank-$9B death sequence is not active.");

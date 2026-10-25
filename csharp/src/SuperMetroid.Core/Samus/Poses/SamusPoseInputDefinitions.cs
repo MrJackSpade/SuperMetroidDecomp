@@ -227,7 +227,7 @@ internal static class SamusPoseInputDefinitions
     }
 
     /// <summary>Evaluates the selected transition list in its early or late native graph section using held and edge inputs.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, SnesButton held, SnesButton newlyPressed) =>
+    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, ControllerButton held, ControllerButton newlyPressed) =>
         LaterLists.Contains(inputList)
             ? SamusPoseInputRulesLate.Match(inputList, held, newlyPressed)
             : SamusPoseInputRulesEarly.Match(inputList, held, newlyPressed);
@@ -236,13 +236,13 @@ internal static class SamusPoseInputDefinitions
     /// Exchanges Left and Right in <paramref name="input"/>. A left-facing list is its right-facing list read with the
     /// directions exchanged, its selected pose mirrored back.
     /// </summary>
-    internal static SnesButton MirrorButtons(SnesButton input) =>
-        (input & ~(SnesButton.Left | SnesButton.Right)) |
-        ((input & SnesButton.Left) != 0 ? SnesButton.Right : 0) |
-        ((input & SnesButton.Right) != 0 ? SnesButton.Left : 0);
+    internal static ControllerButton MirrorButtons(ControllerButton input) =>
+        (input & ~(ControllerButton.Left | ControllerButton.Right)) |
+        ((input & ControllerButton.Left) != 0 ? ControllerButton.Right : 0) |
+        ((input & ControllerButton.Right) != 0 ? ControllerButton.Left : 0);
 
     /// <summary>Requires every bit of an authored canonical input chord to be present.</summary>
-    internal static bool Has(SnesButton input, CanonicalPoseButtons required) =>
+    internal static bool Has(ControllerButton input, CanonicalPoseButtons required) =>
         (input & Buttons(required)) == Buttons(required);
 
     /// <summary>
@@ -250,7 +250,7 @@ internal static class SamusPoseInputDefinitions
     /// default action buttons standing for their bindings.
     /// </summary>
     [ControllerWordBoundary("authored pose chords are joypad-layout words until #1301 types them")]
-    private static SnesButton Buttons(CanonicalPoseButtons chord) => (SnesButton)(ushort)chord;
+    private static ControllerButton Buttons(CanonicalPoseButtons chord) => (ControllerButton)(ushort)chord;
 
     /// <summary>Marks a selected target as a matched condition, distinct from an empty transition list.</summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target) =>

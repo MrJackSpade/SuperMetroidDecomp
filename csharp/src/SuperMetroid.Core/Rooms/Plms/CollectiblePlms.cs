@@ -19,7 +19,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>The room's system and event state.</summary>
-    private readonly Bank80SystemState? _system;
+    private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The room's layer-3 FX.</summary>
@@ -32,7 +32,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Connects permanent-item PLMs to room state, drawing, and sound services.</summary>
-    internal CollectiblePlms(Bank80SystemState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal CollectiblePlms(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -187,7 +187,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     {
         RoomLevelData level = room.Level;
         BgArtworkBindings backgrounds = room.Backgrounds;
-        Bank80SystemState system = room.System;
+        SharedGameState system = room.System;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasCollectedItemBit(slot.RoomArgument);
@@ -486,7 +486,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
-        Bank80SystemState system = _system
+        SharedGameState system = _system
             ?? throw new InvalidOperationException("A live collectible has no persistence owner.");
 
         if (unchecked((short)slot.RoomArgument) >= 0)

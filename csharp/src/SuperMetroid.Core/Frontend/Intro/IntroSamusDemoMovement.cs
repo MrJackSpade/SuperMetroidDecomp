@@ -24,10 +24,10 @@ internal static class IntroSamusDemoMovement
 
         RoomLevelData level,
         SamusState samus,
-        SnesButton heldInput,
-        SnesButton newlyPressedInput,
+        ControllerButton heldInput,
+        ControllerButton newlyPressedInput,
         int frameCounter,
-        CartridgeRandom random)
+        SharedRandom random)
     {
         SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
             samus.Pose,

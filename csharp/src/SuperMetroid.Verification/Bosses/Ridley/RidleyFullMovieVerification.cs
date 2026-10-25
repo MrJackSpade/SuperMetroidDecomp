@@ -234,7 +234,7 @@ internal static class RidleyFullMovieVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Hud.EnableMinimapAfterDoorEntry();
-            runtime.System.LoadExploredMapBytes(new byte[Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea]);
+            runtime.System.LoadExploredMapBytes(new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea]);
             if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
             var room = runtime.Room.LoadedRoom;
@@ -295,7 +295,7 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks RNG consumption while pause enters a room HDMA callback already in progress.</summary>
     internal static void VerifyPauseDispatcherRandom()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
@@ -524,7 +524,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3); samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0xc000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-        runtime.Controller1.Latch(SnesButton.Left);
+        runtime.Controller1.Latch(ControllerButton.Left);
         // Original movie source 1616 -> 1617: release Left while rolling.
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "spring release retains native final displacement");
@@ -641,11 +641,11 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyPausePageTiming()
     {
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = ReserveTankMode.Auto };
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
         foreach (PauseScreenMode source in Enum.GetValues<PauseScreenMode>())
         {
             PauseScreenMode destination = source == PauseScreenMode.Map ? PauseScreenMode.Equipment : PauseScreenMode.Map;
-            menu.Step((source == PauseScreenMode.Map ? SnesButton.R : SnesButton.L), 0);
+            menu.Step((source == PauseScreenMode.Map ? ControllerButton.R : ControllerButton.L), 0);
             AssertEqual(source, menu.ScreenMode, "page-switch request retains source page");
             for (int update = 1; update <= 15; update++)
             {
@@ -673,7 +673,7 @@ internal static class RidleyFullMovieVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRidleyPaletteSelection()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
@@ -689,7 +689,7 @@ internal static class RidleyFullMovieVerification
         samus.Presentation.LoadSuitPalette(samus, runtime.Player.Colours);
         Bgr555[] expected = runtime.Colours.Colors.Slice(192, 16).ToArray();
         for (int color = 192; color < 208; color++) runtime.Colours.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
-        runtime.StepFrame(SnesButton.Select);
+        runtime.StepFrame(ControllerButton.Select);
         AssertEqual(HudItem.SuperMissile, samus.SelectedHudItem, "selection enters Super Missiles without charge");
         AssertTrue(runtime.Colours.Colors.Slice(192, 16).SequenceEqual(expected),
             "HUD handler restores all suit colors even when charge was zero");
@@ -728,7 +728,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
@@ -810,7 +810,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
         AssertEqual(0, runtime.Clock.Counter8, "door end-drawing IRQ clears the adjacent byte counter");
-        ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToNativeWord());
+        ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToEquipmentWord());
         for (int color = 0; color < 16; color++)
             AssertEqual(beamPalette[color], runtime.Colours.Colors[224 + color], "beam palette is live during door scrolling");
         AssertEqual(0, runtime.Colours.Colors[196], "visor remains faded before scroll completes");
@@ -979,18 +979,18 @@ internal static class RidleyFullMovieVerification
                         mismatches.Add($"{name}[{index}]: native={expected:X2} port={actual:X2}");
                 }
             }
-            CheckBytes("Boss bits", Bank80SystemState.AreaCount, runtime.System.GetBossBitsRaw, NativeSnapshotMemory.BossBits);
-            CheckBytes("Event bits", Bank80SystemState.EventByteCount, runtime.System.GetEventByteRaw, NativeSnapshotMemory.Events);
-            CheckBytes("Collected item bits", Bank80SystemState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, NativeSnapshotMemory.CollectedItemBits);
-            CheckBytes("Opened door bits", Bank80SystemState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, NativeSnapshotMemory.OpenedDoors);
+            CheckBytes("Boss bits", SharedGameState.AreaCount, runtime.System.GetBossBitsRaw, NativeSnapshotMemory.BossBits);
+            CheckBytes("Event bits", SharedGameState.EventByteCount, runtime.System.GetEventByteRaw, NativeSnapshotMemory.Events);
+            CheckBytes("Collected item bits", SharedGameState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, NativeSnapshotMemory.CollectedItemBits);
+            CheckBytes("Opened door bits", SharedGameState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, NativeSnapshotMemory.OpenedDoors);
             if (game.GameState is not (SuperMetroidGameState.HitDoorBlock or
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
                 for (int tile = 0; tile < HudState.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.Tiles[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
             Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToNativeWord(), NativeSnapshotMemory.PreviousHudSelection);
-            CheckBytes("Save/elevator markers", Bank80SystemState.UsedSaveStationByteCount,
+            CheckBytes("Save/elevator markers", SharedGameState.UsedSaveStationByteCount,
                 runtime.System.GetUsedSaveStationByteRaw, NativeSnapshotMemory.SaveElevatorMarkers);
-            CheckBytes("Map-station markers", Bank80SystemState.MapStationByteCount,
+            CheckBytes("Map-station markers", SharedGameState.MapStationByteCount,
                 runtime.System.GetMapStationByteRaw, NativeSnapshotMemory.MapStationMarkers);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
@@ -1067,11 +1067,11 @@ internal static class RidleyFullMovieVerification
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
                 CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
                     runtime.Room.LoadedCamera.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);
-                for (int area = 0; area < Bank80SystemState.ExploredMapAreaCount; area++)
-                    CheckBytes($"Explored map {area}", Bank80SystemState.ExploredMapBytesPerArea,
+                for (int area = 0; area < SharedGameState.ExploredMapAreaCount; area++)
+                    CheckBytes($"Explored map {area}", SharedGameState.ExploredMapBytesPerArea,
                         index => runtime.System.GetExploredMapByteRaw(area, index),
                         area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
-                            NativeSnapshotMemory.SavedExploredMaps + area * Bank80SystemState.ExploredMapBytesPerArea);
+                            NativeSnapshotMemory.SavedExploredMaps + area * SharedGameState.ExploredMapBytesPerArea);
             }
             // Only the reference's proven hardware-upload NMI count is normalized;
             // gameplay state is never copied back into the production runtime.
@@ -1220,10 +1220,10 @@ internal static class RidleyFullMovieVerification
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToNativeWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode), NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", SamusQuantity.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
-            Check("Samus equipped items", samus.EquippedItems.ToNativeWord(), NativeSnapshotMemory.Items);
-            Check("Samus collected items", samus.CollectedItems.ToNativeWord(), NativeSnapshotMemory.CollectedItems);
-            Check("Samus equipped beams", samus.EquippedBeams.ToNativeWord(), NativeSnapshotMemory.Beams);
-            Check("Samus collected beams", samus.CollectedBeams.ToNativeWord(), NativeSnapshotMemory.CollectedBeams);
+            Check("Samus equipped items", samus.EquippedItems.ToEquipmentWord(), NativeSnapshotMemory.Items);
+            Check("Samus collected items", samus.CollectedItems.ToEquipmentWord(), NativeSnapshotMemory.CollectedItems);
+            Check("Samus equipped beams", samus.EquippedBeams.ToEquipmentWord(), NativeSnapshotMemory.Beams);
+            Check("Samus collected beams", samus.CollectedBeams.ToEquipmentWord(), NativeSnapshotMemory.CollectedBeams);
             Check("Samus missiles", SamusQuantity.Encode(samus.Missiles), NativeSnapshotMemory.Missiles);
             Check("Samus missile capacity", SamusQuantity.Encode(samus.MaxMissiles), NativeSnapshotMemory.MaxMissiles);
             Check("Samus super missiles", SamusQuantity.Encode(samus.SuperMissiles), NativeSnapshotMemory.SuperMissiles);
@@ -1751,7 +1751,7 @@ internal static class RidleyFullMovieVerification
                     "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
-                game.Step(SnesButtons.FromRaw((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}"));
+                game.Step(ControllerButtons.FromRaw((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}"));
             }
         }
         AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");

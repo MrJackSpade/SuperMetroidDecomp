@@ -76,7 +76,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
             if (field == 0)
             {
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
-                AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
+                AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
                 plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<ElevatorPlatformDraw>(pointer));
             }
             int drawX = 3, drawY = 4;

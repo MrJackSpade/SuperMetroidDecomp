@@ -13,5 +13,5 @@ internal static class SamusEquipmentFlagExtensionsAccess
     internal static bool HasAll(this SamusBeamFlags beams, SamusBeamFlags flags) => (beams & flags) == flags;
 
     /// <summary>The native mask-table word of a pause equipment control's bit.</summary>
-    internal static ushort ToNativeWord(this PauseEquipmentBit bit) => (ushort)(bit.Beam.ToNativeWord() | bit.Item.ToNativeWord());
+    internal static ushort ToNativeWord(this PauseEquipmentBit bit) => (ushort)(bit.Beam.ToEquipmentWord() | bit.Item.ToEquipmentWord());
 }

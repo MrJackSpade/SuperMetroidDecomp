@@ -35,7 +35,7 @@ public static class SamusHurtFlashPalette
     public static SamusHurtFlashPaletteStepResult Update(
         ColourRun suit,
         SamusState samus,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         SamusHurtColorCatalog? presentationColors = null)
     {
         Ensure.NotNull(samus);
@@ -112,13 +112,13 @@ public static class SamusHurtFlashPalette
     /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever nonzero regardless of the held buttons.</param>
     /// <param name="controllerInput">Current held SNES buttons; X must still be held to queue library-one sound $41.</param>
     /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
-    public static bool ConsumeResumeChargingBeamSound(SamusState samus, SnesButton controllerInput)
+    public static bool ConsumeResumeChargingBeamSound(SamusState samus, ControllerButton controllerInput)
     {
         Ensure.NotNull(samus);
         if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.Clear)
             return false;
 
-        bool queued = (controllerInput & SnesButton.X) != 0;
+        bool queued = (controllerInput & ControllerButton.X) != 0;
         if (queued)
         {
             samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, maximumQueued: SoundQueueLimit.Max9);
@@ -134,7 +134,7 @@ public static class SamusHurtFlashPalette
     /// </summary>
     private static SamusHurtFlashRecoveryAction RecoverInterruptedSound(
         SamusState samus,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         if (samus.Grapple.Phase == GrapplePhase.Inactive)
         {
@@ -149,7 +149,7 @@ public static class SamusHurtFlashPalette
             }
 
             if (samus.ProjectileFlareCounter >= 16 &&
-                (controllerInput & SnesButton.X) != 0)
+                (controllerInput & ControllerButton.X) != 0)
             {
                 samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
                 return SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested;

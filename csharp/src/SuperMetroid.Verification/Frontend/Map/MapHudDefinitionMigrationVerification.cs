@@ -65,7 +65,7 @@ internal static class MapHudDefinitionMigrationVerification
         AssertEqual(360, GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames, "item message duration");
         AssertEqual(Bgr555.FromWord(0x0bb1), GameplayMessageBoxDefinitions.Palette.TemporaryLightColor, "light message colour");
         AssertEqual(0x284e, GameplayMessageBoxDefinitions.Buttons.UnknownGlyph.Raw, "blank button glyph");
-        AssertEqual(0x3ce1, GameplayMessageButtonGlyphs.ResolveGlyphWord(SnesButton.B), "B glyph");
+        AssertEqual(0x3ce1, GameplayMessageButtonGlyphs.ResolveGlyphWord(ControllerButton.B), "B glyph");
         AssertEqual(0x120, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.SpeedBooster), "speed booster glyph offset");
         AssertEqual(0x85869b, HudSourceDefinitions.Messages.DefinitionTable, "message definition table");
         AssertEqual(6, HudSourceDefinitions.Messages.DefinitionBytes, "message definition bytes");

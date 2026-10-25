@@ -25,7 +25,7 @@ internal static class DoorSoundsDuringPowerBombVerification
     /// </summary>
     internal static void VerifyDoorSoundsDuringPowerBomb()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

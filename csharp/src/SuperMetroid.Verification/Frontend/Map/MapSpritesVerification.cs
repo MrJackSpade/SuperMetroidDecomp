@@ -113,7 +113,7 @@ internal static class MapSpritesVerification
         void VerifyRenderedEdit(AreaMapPresentationCatalog replacement)
         {
             var guard = NewMapSpriteGuard(bus);
-            var system = new Bank80SystemState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
+            var system = new SharedGameState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
             var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
                 original.SaveMarkers);

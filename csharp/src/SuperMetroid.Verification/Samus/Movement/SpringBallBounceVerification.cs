@@ -28,7 +28,7 @@ internal static class SpringBallBounceVerification
             samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
 
-            SamusMorphBallMovement.StepSpringBallInAir(room, samus, SnesButton.Right, 0);
+            SamusMorphBallMovement.StepSpringBallInAir(room, samus, ControllerButton.Right, 0);
             string context = $"Spring Ball in air with bounce state ${(int)bounceState:X4}";
             if (bounceState != SamusBallBounceState.None)
             {

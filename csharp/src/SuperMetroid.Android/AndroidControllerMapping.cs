@@ -40,20 +40,20 @@ internal static class AndroidControllerMapping
     /// </remarks>
     [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility",
         Justification = "The switch names every Keycode so that it stays exhaustive; codes from later Android API levels are only compared as constant values, which is valid on every supported version.")]
-    public static SnesButton Map(Keycode code) => code switch
+    public static ControllerButton Map(Keycode code) => code switch
     {
-        Keycode.DpadLeft => SnesButton.Left,
-        Keycode.DpadRight => SnesButton.Right,
-        Keycode.DpadUp => SnesButton.Up,
-        Keycode.DpadDown => SnesButton.Down,
-        Keycode.ButtonA => SnesButton.A,
-        Keycode.ButtonB => SnesButton.B,
-        Keycode.ButtonX => SnesButton.X,
-        Keycode.ButtonY => SnesButton.Y,
-        Keycode.ButtonL1 => SnesButton.L,
-        Keycode.ButtonR1 => SnesButton.R,
-        Keycode.ButtonStart => SnesButton.Start,
-        Keycode.ButtonSelect => SnesButton.Select,
+        Keycode.DpadLeft => ControllerButton.Left,
+        Keycode.DpadRight => ControllerButton.Right,
+        Keycode.DpadUp => ControllerButton.Up,
+        Keycode.DpadDown => ControllerButton.Down,
+        Keycode.ButtonA => ControllerButton.A,
+        Keycode.ButtonB => ControllerButton.B,
+        Keycode.ButtonX => ControllerButton.X,
+        Keycode.ButtonY => ControllerButton.Y,
+        Keycode.ButtonL1 => ControllerButton.L,
+        Keycode.ButtonR1 => ControllerButton.R,
+        Keycode.ButtonStart => ControllerButton.Start,
+        Keycode.ButtonSelect => ControllerButton.Select,
         Keycode.Num0 or
             Keycode.Num1 or
             Keycode.K11 or
@@ -379,7 +379,7 @@ internal static class AndroidControllerMapping
             Keycode.Z or
             Keycode.ZenkakuHankaku or
             Keycode.ZoomIn or
-            Keycode.ZoomOut => SnesButton.None,
-        _ => SnesButton.None,
+            Keycode.ZoomOut => ControllerButton.None,
+        _ => ControllerButton.None,
     };
 }

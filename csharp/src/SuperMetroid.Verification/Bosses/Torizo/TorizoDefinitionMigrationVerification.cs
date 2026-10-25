@@ -35,8 +35,8 @@ internal static class TorizoDefinitionMigrationVerification
         AssertEqual(0x0101, TorizoRandomDefinitions.ForwardLeap.Mask, "forward leap mask");
 
         // The code's inventory is the cartridge's two immediates.
-        AssertEqual(0xf337, GoldenTorizoCodeDefinitions.Items.ToNativeWord(), "code items word");
-        AssertEqual(0x100f, GoldenTorizoCodeDefinitions.Beams.ToNativeWord(), "code beams word");
+        AssertEqual(0xf337, GoldenTorizoCodeDefinitions.Items.ToEquipmentWord(), "code items word");
+        AssertEqual(0x100f, GoldenTorizoCodeDefinitions.Beams.ToEquipmentWord(), "code beams word");
 
         // The tile pages keep their sizes; their sources are the import's.
         AssertEqual(0x0040, TorizoSwapArtworkDefinitions.SharedDeath.ByteCount, "shared death page size");

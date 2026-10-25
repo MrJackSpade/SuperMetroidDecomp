@@ -33,7 +33,7 @@ internal static class YardTrajectoriesVerification
         Suite(nameof(VerifyYardAirborneTrajectories), () => VerifyYardAirborneTrajectories(room));
         for (int focus = 0; focus < 5; focus++)
         {
-            var random = new Bank80SystemState();
+            var random = new SharedGameState();
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
             var actor = enemies.SlotTable.Slots[focus];

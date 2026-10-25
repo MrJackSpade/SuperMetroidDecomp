@@ -221,7 +221,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
-    public void Step(SnesButton controllerInput)
+    public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
         bool rebuildConsolePaletteFxAfterStep = false;

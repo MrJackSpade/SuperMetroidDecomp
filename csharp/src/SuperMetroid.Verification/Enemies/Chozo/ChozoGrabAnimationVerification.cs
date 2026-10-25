@@ -66,7 +66,7 @@ internal static class ChozoGrabAnimationVerification
         int frames = 0;
         while (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && frames < 2000)
         {
-            runtime.StepFrame(SnesButton.Right);
+            runtime.StepFrame(ControllerButton.Right);
             if (powerBomb)
             {
                 if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
@@ -99,7 +99,7 @@ internal static class ChozoGrabAnimationVerification
         bool animationResumed = false;
         for (int frame = 0; frame < 12; frame++)
         {
-            runtime.StepFrame(SnesButton.Right);
+            runtime.StepFrame(ControllerButton.Right);
             if (powerBomb)
             {
                 if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();

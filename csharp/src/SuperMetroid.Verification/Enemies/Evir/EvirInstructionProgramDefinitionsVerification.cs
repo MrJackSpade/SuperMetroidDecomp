@@ -63,7 +63,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             state.Regenerating = true;
             state.Function = EvirAiFunction.ProjectileRegenerating;
             enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledProgram = EvirProgram.BodyFacingLeft });
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int call = 0; call < 10; call++)
             {
                 slot.InstructionTimer = WrappingCountdown.Start(1);

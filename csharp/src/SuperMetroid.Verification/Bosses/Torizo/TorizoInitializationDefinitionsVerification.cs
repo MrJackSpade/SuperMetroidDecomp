@@ -31,7 +31,7 @@ internal static class TorizoInitializationDefinitionsVerification
             enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            Action<RoomEnemySlot, SamusState?, SnesButton> initializeWithInput = enemies.BombTorizoBehavior.Movement.InitializeBombTorizo;
+            Action<RoomEnemySlot, SamusState?, ControllerButton> initializeWithInput = enemies.BombTorizoBehavior.Movement.InitializeBombTorizo;
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);

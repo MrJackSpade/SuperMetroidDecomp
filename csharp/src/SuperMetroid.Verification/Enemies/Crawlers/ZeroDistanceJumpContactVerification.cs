@@ -30,7 +30,7 @@ internal static class ZeroDistanceJumpContactVerification
                     Radius: new(5, 8), Solid: true),
             ];
             uint initialX = unchecked(samus.Kinematics.Position.X.RawValue);
-            SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);
+            SamusAerialMovement.StepNormalJump(level, samus, ControllerButton.A, 0);
             AssertEqual(initialX, unchecked(samus.Kinematics.Position.X.RawValue), "zero-distance jump leaves both X words unchanged");
             AssertEqual(100, samus.Position.Y.Whole, "zero-distance contact leaves whole Y unchanged");
             AssertEqual(gap == 0 ? 0 : 0xffff, samus.Kinematics.Position.Y.Fraction,

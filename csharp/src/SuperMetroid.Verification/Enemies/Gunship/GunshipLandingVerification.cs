@@ -156,7 +156,7 @@ internal static class GunshipLandingVerification
             "idle ship does not publish an entrance sound without Down");
         ushort deckX = samus.Position.X.Whole;
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 16)));
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = SnesButton.Down });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
         AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
             "Down outside entrance does not publish an opening sound");
         samus.Position = samus.Position.WithWholeX(deckX);
@@ -164,14 +164,14 @@ internal static class GunshipLandingVerification
         // Re-entering after Mother Brain's event takes the native function-17 branch at
         // RestoreSamusInGunship: there is no refill wait, save prompt, or ordinary exit.
         zebesTimebombSet = true;
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = SnesButton.Down });
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
         AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastEnemyFrame.Gunship,
             "endgame Down input begins ordinary gunship entry");
         AssertEqual(1, enemies.Audio.SoundRequests.Count(request => request == openingSound),
             "entry frame publishes exactly one library-three $14 Max6 sound");
         if (entrySoundOnly)
         {
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = SnesButton.Down });
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
             AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
                 "opening animation does not republish the entry sound");
             Console.WriteLine("Gunship entry sound: exact entry edge, input/position guards and no repeat verified.");

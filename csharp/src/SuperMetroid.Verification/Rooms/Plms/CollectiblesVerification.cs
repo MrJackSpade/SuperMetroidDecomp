@@ -150,7 +150,7 @@ internal static class CollectiblesVerification
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
-            SnesButton.X, orb.Plms);
+            ControllerButton.X, orb.Plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
         orb.Plms.Step(orb.Level);
@@ -282,7 +282,7 @@ internal static class CollectiblesVerification
             foreground,
             new byte[foreground.Length],
             blockDefinitions: definitions);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         if (precollected)
             system.SetCollectedItemBit(roomArgument);
         if (preopenedChozo)
@@ -465,7 +465,7 @@ internal static class CollectiblesVerification
     /// <summary>Checks SRAM round-trip of edge item bits, Chozo and door bits, events, bosses, and independent beam words.</summary>
     private static void VerifyCollectedItemSaveRoundTrip()
     {
-        var sourceSystem = new Bank80SystemState();
+        var sourceSystem = new SharedGameState();
         sourceSystem.SetCollectedItemBit(0);
         sourceSystem.SetCollectedItemBit(91);
         sourceSystem.SetCollectedItemBit(511);
@@ -489,7 +489,7 @@ internal static class CollectiblesVerification
         SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("collectible save slot checksum failed");
 
-        var restoredSystem = new Bank80SystemState();
+        var restoredSystem = new SharedGameState();
         var restoredSamus = new SamusState();
         slot.ApplyTo(restoredSamus, restoredSystem);
         AssertTrue(restoredSystem.HasCollectedItemBit(0), "first physical item bit round-trips");
@@ -555,13 +555,13 @@ internal static class CollectiblesVerification
         // Held input cannot shorten the fanfare. The frame that decrements 1 -> 0 only
         // enters the input-wait coroutine; its next accepted NMI performs the read.
         for (int waitFrame = 0; waitFrame < 359; waitFrame++)
-            message.Step(SnesButton.X);
+            message.Step(ControllerButton.X);
         AssertEqual(1, message.MinimumDisplayFramesRemaining,
             "item message retains final mandatory wait frame");
-        message.Step(SnesButton.X);
+        message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "item message waits one NMI boundary before reading held input");
-        message.Step(SnesButton.X);
+        message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase,
             "retail held-input fix dismisses item message");
         AssertEqual(24, message.RadiusPixels, "the accepting frame also draws the first close step");
@@ -595,7 +595,7 @@ internal static class CollectiblesVerification
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(GameplayMessageIds.MissileTank, 0, shootBinding: SnesButton.B);
+        message.Begin(GameplayMessageIds.MissileTank, 0, shootBinding: ControllerButton.B);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(6, message.TilemapRowCount, "large item message has four content rows");
@@ -633,10 +633,10 @@ internal static class CollectiblesVerification
         AssertEqual(10, message.MinimumDisplayFramesRemaining,
             "map-station message uses native ten-frame completion wait");
         for (int waitFrame = 0; waitFrame < 10; waitFrame++)
-            message.Step(SnesButton.X);
+            message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "map-station message waits one NMI boundary before held input");
-        message.Step(SnesButton.X);
+        message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase,
             "map-station message accepts held input after ten frames");
         // Twelve more close steps, five restore frames, then the return.
@@ -915,7 +915,7 @@ internal static class CollectiblesVerification
     internal readonly record struct CollectibleFixture(
         RoomPlmSystem Plms,
         RoomLevelData Level,
-        Bank80SystemState System,
+        SharedGameState System,
         SamusState Samus,
         int BlockIndex);
 

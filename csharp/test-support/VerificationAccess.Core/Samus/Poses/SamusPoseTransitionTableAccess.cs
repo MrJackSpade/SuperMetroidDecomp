@@ -20,8 +20,8 @@ internal static class SamusPoseTransitionTableAccess
         /// <param name="canonicalNewInput">Rising-edge form of the same canonical input.</param>
         internal static SamusPoseTransition? Find(
             SamusPoseId currentPose,
-            SnesButton canonicalHeldInput,
-            SnesButton canonicalNewInput) =>
+            ControllerButton canonicalHeldInput,
+            ControllerButton canonicalNewInput) =>
             SamusPoseTransitionTable.Lookup(currentPose, canonicalHeldInput, canonicalNewInput).Transition;
     }
 }

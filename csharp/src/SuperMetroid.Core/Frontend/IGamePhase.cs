@@ -23,5 +23,5 @@ internal interface IGamePhase
     bool ResumesFrameWait { get; }
 
     /// <summary>Runs one dispatch of the state.</summary>
-    void Step(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio);
+    void Step(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio);
 }

@@ -26,14 +26,14 @@ internal sealed class SamusHudSelection
     /// </remarks>
     /// <returns>Whether an item's switched-to handler ran.</returns>
     public HudSelectionOutcome HandleHudSelection(SamusState samus, 
-        SnesButton controllerInput,
-        SnesButton controllerNewInput,
-        SnesButton itemSwitchButton = SnesButton.Select,
-        SnesButton itemCancelButton = SnesButton.Y)
+        ControllerButton controllerInput,
+        ControllerButton controllerNewInput,
+        ControllerButton itemSwitchButton = ControllerButton.Select,
+        ControllerButton itemCancelButton = ControllerButton.Y)
     {
         HudItem previousSelection = samus.SelectedHudItem;
-        SnesButton switchMask = itemSwitchButton;
-        SnesButton cancelMask = itemCancelButton;
+        ControllerButton switchMask = itemSwitchButton;
+        ControllerButton cancelMask = itemCancelButton;
         bool itemHandlerAccepted = (controllerNewInput & (cancelMask | switchMask)) != 0;
 
         if ((controllerNewInput & cancelMask) != 0)

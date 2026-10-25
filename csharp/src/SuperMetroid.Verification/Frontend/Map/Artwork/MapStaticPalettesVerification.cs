@@ -60,7 +60,7 @@ internal static class MapStaticPalettesVerification
         AssertEqual(FileSelectMapDefinitions.AreaCount - 1, world.SelectedArea, "palette bind preserves selected world area");
         AssertTrue(!nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "world palette edit changes rendered pixels");
 
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var room = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

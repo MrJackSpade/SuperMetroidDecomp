@@ -72,7 +72,7 @@ internal static class SaveRamCodecVerification
 
         // Boot with every slot invalid keeps the carry set, writes the corrupt marker and fixes three demo sets.
         AssertTrue(store.DetermineBootMainLoopCarry(), "an empty store's boot carry is set");
-        AssertEqual(DemoSetUnlockRomData.DefaultSetCount, store.DetermineNumberOfDemoSets(), "an all-invalid boot fixes three demo sets");
+        AssertEqual(DemoSetUnlockDefinitions.SetsBeforeCompletion, store.DetermineNumberOfDemoSets(), "an all-invalid boot fixes three demo sets");
         AssertEqual("madadameyohn", Marker(), "an all-invalid boot writes the corrupt-SRAM marker");
         RoundTrips("an all-invalid boot");
         store.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
@@ -95,7 +95,7 @@ internal static class SaveRamCodecVerification
         store.SetGameCompleted(true);
         AssertEqual("supermetroid", Marker(), "completion writes the signature");
         AssertTrue(store.DetermineBootMainLoopCarry(), "a completed save's boot carry is set");
-        AssertEqual(DemoSetUnlockRomData.SetCount, store.DetermineNumberOfDemoSets(), "a completed save enables the fourth demo set");
+        AssertEqual(DemoSetUnlockDefinitions.SetCount, store.DetermineNumberOfDemoSets(), "a completed save enables the fourth demo set");
         RoundTrips("completing the game");
         store.SetGameCompleted(false);
         AssertTrue(!store.DetermineBootMainLoopCarry(), "a valid incomplete save's boot carry is clear");
@@ -167,7 +167,7 @@ internal static class SaveRamCodecVerification
     /// </summary>
     internal static void VerifyProgressionSavedFields()
     {
-        var system = new Bank80SystemState { LoadedItemCount = SaveFieldValue.MaximumValue };
+        var system = new SharedGameState { LoadedItemCount = SaveFieldValue.MaximumValue };
         AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "the loaded-item count holds a save field's largest value");
         AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = SaveFieldValue.MaximumValue + 1,
             "a loaded-item count past a save field is rejected instead of wrapping");
@@ -180,14 +180,14 @@ internal static class SaveRamCodecVerification
 
         // An unproven bit beside two named ones: typed operations change only the named bits around it.
         byte unprovenBit = 128;
-        byte loaded = (byte)(unprovenBit | (BossBits.AreaBoss | BossBits.AreaTorizo).ToNativeByte());
-        byte[] areas = new byte[Bank80SystemState.AreaCount];
+        byte loaded = (byte)(unprovenBit | (BossBits.AreaBoss | BossBits.AreaTorizo).ToSaveByte());
+        byte[] areas = new byte[SharedGameState.AreaCount];
         areas[AreaIds.ToIndex(AreaId.Norfair)] = loaded;
         system.LoadBossBytes(areas);
         AssertEqual(loaded, system.GetBossBitsRaw(AreaId.Norfair), "a loaded boss byte reads back exactly");
         system.SetBossBits(AreaId.Norfair, BossBits.AreaMiniBoss);
         system.ClearBossBits(AreaId.Norfair, BossBits.AreaBoss);
-        AssertEqual((byte)(unprovenBit | (BossBits.AreaMiniBoss | BossBits.AreaTorizo).ToNativeByte()),
+        AssertEqual((byte)(unprovenBit | (BossBits.AreaMiniBoss | BossBits.AreaTorizo).ToSaveByte()),
             system.GetBossBitsRaw(AreaId.Norfair), "typed set and clear keep the unproven bit");
         AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named bit beside an unproven one is found");
         AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named bit is absent");
@@ -201,7 +201,7 @@ internal static class SaveRamCodecVerification
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)
     {
         var samus = new SamusState { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetEvent(EventNumber.ZebesAwake);
         system.SetBossBits(area, BossBits.AreaBoss);
         system.SetCollectedItemBit(health % 64);

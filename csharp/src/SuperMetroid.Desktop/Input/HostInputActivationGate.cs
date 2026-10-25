@@ -20,13 +20,13 @@ internal sealed class HostInputActivationGate
     public void SuppressUntilNeutral() => suppressedUntilNeutral = true;
 
     /// <summary>Returns the buttons safe to deliver in the current activation state.</summary>
-    public SnesButton Filter(SnesButton input)
+    public ControllerButton Filter(ControllerButton input)
     {
         if (!suppressedUntilNeutral)
             return input;
 
-        if (input == SnesButton.None)
+        if (input == ControllerButton.None)
             suppressedUntilNeutral = false;
-        return SnesButton.None;
+        return ControllerButton.None;
     }
 }

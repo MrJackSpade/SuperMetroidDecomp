@@ -146,9 +146,9 @@ public sealed class SaveSlotStore
             HasCompletedGame = false;
             CorruptMarkerWritten = true;
             MarkerRewritten();
-            return DemoSetUnlockRomData.DefaultSetCount;
+            return DemoSetUnlockDefinitions.SetsBeforeCompletion;
         }
-        return HasCompletedGame ? DemoSetUnlockRomData.SetCount : DemoSetUnlockRomData.DefaultSetCount;
+        return HasCompletedGame ? DemoSetUnlockDefinitions.SetCount : DemoSetUnlockDefinitions.SetsBeforeCompletion;
     }
 
     /// <summary>Rejects slot numbers outside A, B and C.</summary>

@@ -30,7 +30,7 @@ internal static class FileSelectNavigationLookupVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() =>
-                FileSelectDataNavigation.MoveSourceOrClear(FileSelectItem.Exit, invalid, SnesButton.None),
+                FileSelectDataNavigation.MoveSourceOrClear(FileSelectItem.Exit, invalid, ControllerButton.None),
                 "unsupported occupancy mask");
         Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states, input priority and rejection pass.");
     }
@@ -59,7 +59,7 @@ internal static class FileSelectNavigationLookupVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() =>
-                FileSelectDataNavigation.MoveCopyDestination(FileSelectItem.Exit, invalid, SnesButton.None),
+                FileSelectDataNavigation.MoveCopyDestination(FileSelectItem.Exit, invalid, ControllerButton.None),
                 "unsupported copy source");
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states, input priority and rejection pass.");
     }
@@ -70,22 +70,22 @@ internal static class FileSelectNavigationLookupVerification
 
     /// <summary>Uses the former ordinal-list behavior to check each selectable row and rejected row under directional inputs.</summary>
     private static void VerifyOriginalSubmenuChoices(int[] original,
-        Func<FileSelectItem, SnesButton, FileSelectItem> actual, string description)
+        Func<FileSelectItem, ControllerButton, FileSelectItem> actual, string description)
     {
         // The complete four directional equivalence classes, also with every
         // irrelevant controller bit set, cover the helper's input masking.
-        foreach (SnesButton direction in new[] { SnesButton.None, SnesButton.Up,
-            SnesButton.Down, SnesButton.Up | SnesButton.Down })
-        foreach (ushort otherBits in new ushort[] { 0, unchecked((ushort)~(SnesButton.Up | SnesButton.Down)) })
+        foreach (ControllerButton direction in new[] { ControllerButton.None, ControllerButton.Up,
+            ControllerButton.Down, ControllerButton.Up | ControllerButton.Down })
+        foreach (ushort otherBits in new ushort[] { 0, unchecked((ushort)~(ControllerButton.Up | ControllerButton.Down)) })
         {
-            SnesButton pressed = direction | (SnesButton)otherBits;
+            ControllerButton pressed = direction | (ControllerButton)otherBits;
             for (int ordinal = 0; ordinal < original.Length; ordinal++)
             {
                 // Original MoveSubmenuSelection clamps an index into the filtered
                 // list; it does not scan slot identities like the replacement.
                 int nextOrdinal = ordinal;
-                if ((pressed & SnesButton.Up) != 0) nextOrdinal = Math.Max(0, ordinal - 1);
-                else if ((pressed & SnesButton.Down) != 0) nextOrdinal = Math.Min(original.Length - 1, ordinal + 1);
+                if ((pressed & ControllerButton.Up) != 0) nextOrdinal = Math.Max(0, ordinal - 1);
+                else if ((pressed & ControllerButton.Down) != 0) nextOrdinal = Math.Min(original.Length - 1, ordinal + 1);
                 AssertEqual(FileSelectItemRows.DataItem(original[nextOrdinal]), actual(FileSelectItemRows.DataItem(original[ordinal]), pressed),
                     $"{description} row={original[ordinal]} input={pressed}");
             }

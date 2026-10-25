@@ -19,10 +19,10 @@ internal interface IEnemyAiFrame
     SamusState? Samus { get; }
 
     /// <summary>Controller buttons newly pressed this frame.</summary>
-    SnesButton NewlyPressedControllerInput { get; }
+    ControllerButton NewlyPressedControllerInput { get; }
 
     /// <summary>Controller buttons held this frame.</summary>
-    SnesButton ControllerInput { get; }
+    ControllerButton ControllerInput { get; }
 
     /// <summary>Room collision data, when the frame has a room.</summary>
     RoomLevelData? Level { get; }

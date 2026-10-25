@@ -27,7 +27,7 @@ internal static class WaveDoorBandsVerification
             var shot = new SamusProjectileSlot(0)
             {
                 Position = new(new(72, 0), new(y, 0)), Radius = new(1, 0),
-                Velocity = new((short)(left ? -1 : 1), 0), Type = SamusBeamFlags.Wave.ToNativeWord(),
+                Velocity = new((short)(left ? -1 : 1), 0), Type = SamusBeamFlags.Wave.ToEquipmentWord(),
             };
             // A one-pixel span avoids testing adjacent-row aggregation at the boundary.
             shot.Radius = shot.Radius.WithY(1);

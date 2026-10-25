@@ -25,10 +25,10 @@ internal static class GrapplePoseRefireVerification
             PrepareRetailSamusFixture(samus);
             SamusGrappleMovement.BeginFiring(samus);
             for (int frame = 1; frame < changeFrame; frame++)
-                SamusGrappleMovement.StepFiring(level, samus, SnesButton.X);
+                SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X);
             samus.Pose = left ? SamusPoseId.StandingAimDiagonalUpLeftPose : SamusPoseId.StandingAimDiagonalUpRightPose;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.StepFiring(level, samus, SnesButton.X);
+            SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X);
             if (changeFrame == 10)
             {
                 AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "expired direction change cancels in same call");
@@ -46,7 +46,7 @@ internal static class GrapplePoseRefireVerification
             AssertEqual(0, grapple.EndpointOffset.Y.RawValue, "restart clears old Y endpoint displacement");
             AssertEqual(samus.Position.X.Whole + grapple.OriginOffset.X, grapple.Anchor.X, "restart hand origin X");
             AssertEqual(samus.Position.Y.Whole + grapple.OriginOffset.Y, grapple.Anchor.Y, "restart hand origin Y");
-            SamusGrappleMovement.StepFiring(level, samus, SnesButton.X);
+            SamusGrappleMovement.StepFiring(level, samus, ControllerButton.X);
             AssertTrue(grapple.Anchor.Y < samus.Position.Y.Whole + grapple.OriginOffset.Y, "restarted beam actually travels up");
             AssertTrue(left ? grapple.EndpointOffset.X.RawValue < 0 : grapple.EndpointOffset.X.RawValue > 0, "restarted beam travels toward aimed side");
         }

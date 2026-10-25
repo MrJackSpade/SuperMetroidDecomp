@@ -35,7 +35,7 @@ internal static class RetailFileMapTests
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(new Bank80SystemState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
+            var room = new FileSelectRoomMapGraphics(new SharedGameState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), $"room={area}, scroll={scroll}");
@@ -51,10 +51,10 @@ internal static class RetailFileMapTests
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {
-                SnesButton input = tick == 48 ? SnesButton.Start
-                    : tick == 130 ? (cancel ? SnesButton.B : SnesButton.Start)
-                    : cancel && tick == 240 ? SnesButton.B
-                    : tick is >= 110 and <= 119 ? SnesButton.Right : 0;
+                ControllerButton input = tick == 48 ? ControllerButton.Start
+                    : tick == 130 ? (cancel ? ControllerButton.B : ControllerButton.Start)
+                    : cancel && tick == 240 ? ControllerButton.B
+                    : tick is >= 110 and <= 119 ? ControllerButton.Right : 0;
                 legacy.Step(input); captured.Step(input);
                 phases.Add(legacy.Phase);
                 Compare(legacy.Render(), captured.CaptureRenderSnapshot(), $"phase={legacy.Phase}, tick={tick}, cancel={cancel}");

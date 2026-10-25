@@ -435,7 +435,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.Function = words.C == 0 ? null : BeetomNativeWords.BeetomEnemyFunctions.Decode(words.C, "recorded BeetomEnemyFunction");
             beetom.FunctionTimer = WrappingCountdown.FromRaw(words.D);
             beetom.ButtonCounter = WrappingCountdown.FromRaw(words.E);
-            beetom.PreviousController1Input = (SnesButton)words.F;
+            beetom.PreviousController1Input = (ControllerButton)words.F;
         }
         if (slot.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
         {

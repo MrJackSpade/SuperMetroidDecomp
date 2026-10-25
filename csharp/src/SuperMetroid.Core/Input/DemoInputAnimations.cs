@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using B = SuperMetroid.Core.Input.SnesButton;
+using B = SuperMetroid.Core.Input.ControllerButton;
 using K = SuperMetroid.Core.Input.DemoInputCue;
 using P = SuperMetroid.Core.Input.DemoInputProgram;
 
@@ -969,7 +969,7 @@ public static class DemoInputAnimations
     });
 
     /// <summary>Holds <paramref name="held"/> and the edges <paramref name="newlyPressed"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue> Show(int duration, SnesButton held, SnesButton newlyPressed) => AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.Show(new(held, newlyPressed), duration);
+    private static AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue> Show(int duration, ControllerButton held, ControllerButton newlyPressed) => AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.Show(new(held, newlyPressed), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue> Publish(DemoInputCue cue) => AnimationProgramStep<DemoInputProgram, DemoInputFrame, DemoInputCue>.Publish(cue);

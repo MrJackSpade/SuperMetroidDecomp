@@ -34,7 +34,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     public bool IsChargedBeam => (Raw & ChargedBeamMarker) != 0;
 
     /// <summary>Whether the projectile carries any of <paramref name="beams"/> among the equipped beam bits it was fired with.</summary>
-    public bool HasAnyBeam(SamusBeamFlags beams) => (Raw & (beams & EquippedBeamBits).ToNativeWord()) != 0;
+    public bool HasAnyBeam(SamusBeamFlags beams) => (Raw & (beams & EquippedBeamBits).ToEquipmentWord()) != 0;
 
     /// <summary>Tests whether the family nibble exactly matches the requested family.</summary>
     public bool IsFamily(SamusProjectileFamily family) => FamilyValue == (ushort)family;
@@ -67,8 +67,8 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// markers; uncharged firing preserves the complete loadout word as the ROM does.
     /// </summary>
     public static ushort CreateBeam(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams, bool charged) => charged
-        ? (ushort)((equippedBeams & EquippedBeamBits).ToNativeWord() | LiveMarker | ChargedBeamMarker)
-        : (ushort)(equippedBeams.ToNativeWord() | LiveMarker);
+        ? (ushort)((equippedBeams & EquippedBeamBits).ToEquipmentWord() | LiveMarker | ChargedBeamMarker)
+        : (ushort)(equippedBeams.ToEquipmentWord() | LiveMarker);
 
     /// <summary>Converts a raw projectile type word to its lossless semantic view.</summary>
     public static implicit operator SamusProjectileTypeWord(ushort raw) => new(raw);

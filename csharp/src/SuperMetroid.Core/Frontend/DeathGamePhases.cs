@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class DeathGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathSequenceStart"/>.</summary>
-    internal void DispatchDeathSequenceStart(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchDeathSequenceStart(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         // State $13 deliberately completes one final state-eight pass under the
         // global freeze word, then snapshots the visible palette and makes every
@@ -32,7 +32,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathBlackOutSurroundings"/>.</summary>
-    internal void DispatchDeathBlackOutSurroundings(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchDeathBlackOutSurroundings(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         bool paletteBlackoutComplete = StepDeathPaletteFade();
@@ -52,7 +52,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathWaitForMusic"/>.</summary>
-    internal void DispatchDeathWaitForMusic(SnesButton controllerInput)
+    internal void DispatchDeathWaitForMusic(ControllerButton controllerInput)
     {
         session.GameplayRuntime.DeathSequence.DrawFatalSamusFrame(controllerInput);
         session.display.PublishGameplay(session.GameplayRuntime);
@@ -64,7 +64,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathPreFlashing"/>, <see cref="SuperMetroidGameState.DeathFlashing"/>, <see cref="SuperMetroidGameState.DeathExplosionWhiteOut"/>.</summary>
-    internal void DispatchDeathFlashing(SnesButton controllerInput)
+    internal void DispatchDeathFlashing(ControllerButton controllerInput)
     {
         SamusDeathSequenceStepResult deathStep =
             session.GameplayRuntime.DeathSequence.StepDeathSequenceFrame(controllerInput);
@@ -81,7 +81,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathFinalBlackOut"/>.</summary>
-    internal void DispatchDeathFinalBlackOut(SnesButton controllerInput)
+    internal void DispatchDeathFinalBlackOut(ControllerButton controllerInput)
     {
         session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
         session.display.PublishGameplay(session.GameplayRuntime);

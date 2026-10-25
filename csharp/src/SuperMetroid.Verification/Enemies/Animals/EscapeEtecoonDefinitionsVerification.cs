@@ -161,7 +161,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         HashSet<ushort> shown)
     {
         object?[] arguments =
-            [etecoon, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+            [etecoon, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int step = 0; step < steps; step++)
         {
             etecoon.InstructionTimer = WrappingCountdown.Start(1);

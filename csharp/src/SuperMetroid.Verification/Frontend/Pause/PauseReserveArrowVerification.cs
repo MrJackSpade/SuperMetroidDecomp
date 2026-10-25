@@ -29,9 +29,9 @@ internal static class PauseReserveArrowVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 2,
             MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto, CollectedBeams = SamusBeamFlags.Charge };
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
-        pause.Step(0, SnesButton.Up);
+        pause.Step(0, ControllerButton.Up);
         Rgba32[]? first = null;
         for (byte frame = 0; frame < 32; frame++)
         {
@@ -47,16 +47,16 @@ internal static class PauseReserveArrowVerification
 
             }
         }
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         CheckArrow(false, 0x0156, 0x039e, "MANUAL mode disables arrow");
-        pause.Step(0, SnesButton.Down);
+        pause.Step(0, ControllerButton.Down);
         CheckArrow(true, 0x0156, 0x039e, "manual transfer selection enables solid arrow");
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         CheckArrow(true, 0x0156, 0x039e, "refill keeps solid arrow");
         pause.Step(0, 0);
         CheckArrow(false, 0x0156, 0x039e, "refill completion disables arrow");
-        pause.Step(0, SnesButton.A, frameCounterByte: 7);
-        pause.Step(0, SnesButton.Down, frameCounterByte: 8);
+        pause.Step(0, ControllerButton.A, frameCounterByte: 7);
+        pause.Step(0, ControllerButton.Down, frameCounterByte: 8);
         CheckArrow(false, 0x0156, 0x039e, "leaving tanks disables arrow on same call");
         Console.WriteLine("Reserve arrow: all 32 AUTO colors, visible pixels, MANUAL selection/refill/completion and exit agree.");
 

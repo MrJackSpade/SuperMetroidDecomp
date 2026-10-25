@@ -14,7 +14,7 @@ internal sealed record GameplayRuntimeStart
     public required HostGameplayOverrides Overrides { get; init; }
 
     /// <summary>The session's random-number word, which the runtime's system state reads and advances.</summary>
-    public required CartridgeRandom Random { get; init; }
+    public required SharedRandom Random { get; init; }
 
     /// <summary>The boot-time main-loop carry the session captured at power-on.</summary>
     public required bool MainGameLoopCarry { get; init; }

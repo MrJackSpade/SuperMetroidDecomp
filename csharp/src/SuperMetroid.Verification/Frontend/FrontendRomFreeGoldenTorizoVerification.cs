@@ -24,7 +24,7 @@ internal static class FrontendRomFreeGoldenTorizoVerification
     /// Both execute the same real-room wake sequence and a forced dodge turn.
     /// </summary>
     internal static void VerifyFrontendRomFreeGoldenTorizo(string sourceRom,
-        int frameCount, SnesButton heldInput = SnesButton.None)
+        int frameCount, ControllerButton heldInput = ControllerButton.None)
     {
         string testDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
         string root = Path.Combine(testDirectory,

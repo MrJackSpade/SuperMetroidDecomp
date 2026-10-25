@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class GoldenTorizoCodeDefinitions
 {
     /// <summary>$AA:C919 CMP operand: exactly held A+B+X+Y, with no other controller bits.</summary>
-    internal const SnesButton ControllerChord = SnesButton.A | SnesButton.B | SnesButton.X | SnesButton.Y;
+    internal const ControllerButton ControllerChord = ControllerButton.A | ControllerButton.B | ControllerButton.X | ControllerButton.Y;
     /// <summary>$AA:C91E immediate: current and maximum energy, exactly 700 rather than 799.</summary>
     internal const ushort Energy = 700;
     /// <summary>$AA:C927 immediate: current and maximum reserve energy; reserve mode is not written.</summary>

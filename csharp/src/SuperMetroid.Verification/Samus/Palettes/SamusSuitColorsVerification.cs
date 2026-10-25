@@ -76,8 +76,8 @@ internal static class SamusSuitColorsVerification
         ushort[] equipment =
         [
             0,
-            SamusEquipmentFlags.VariaSuit.ToNativeWord(),
-            ((SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit).ToNativeWord()),
+            SamusEquipmentFlags.VariaSuit.ToEquipmentWord(),
+            ((SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit).ToEquipmentWord()),
         ];
         int[] sourceAddresses =
         [
@@ -158,8 +158,8 @@ internal static class SamusSuitColorsVerification
         ushort[] equipment =
         [
             0,
-            SamusEquipmentFlags.VariaSuit.ToNativeWord(),
-            ((SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit).ToNativeWord()),
+            SamusEquipmentFlags.VariaSuit.ToEquipmentWord(),
+            ((SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit).ToEquipmentWord()),
         ];
         for (int suit = 0; suit < equipment.Length; suit++)
         {

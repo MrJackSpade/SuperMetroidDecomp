@@ -48,11 +48,11 @@ internal static class MurderBeamVerification
 
         HoldCharge(level, samus, projectiles, shared);
 
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
-        pause.Step(0, (SnesButton.Left | SnesButton.A));
-        AssertEqual((ushort)0x100f, samus.EquippedBeams.ToNativeWord(),
+        pause.Step(0, (ControllerButton.Left | ControllerButton.A));
+        AssertEqual((ushort)0x100f, samus.EquippedBeams.ToEquipmentWord(),
             "same-frame Boots Left+A equips all four beams while retaining Charge");
 
         shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
@@ -170,11 +170,11 @@ internal static class MurderBeamVerification
     {
         for (int frame = 0; frame < BeamChargeDefinitions.FullyChargedCounter; frame++)
         {
-            SnesButton newlyPressed = frame == 0 && !shootAlreadyHeld
-                ? SnesButton.X
+            ControllerButton newlyPressed = frame == 0 && !shootAlreadyHeld
+                ? ControllerButton.X
                 : 0;
-            shared.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.X, newlyPressed);
-            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
+            shared.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.X, newlyPressed);
+            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
         }
         AssertEqual(BeamChargeDefinitions.FullyChargedCounter,
             projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
@@ -215,8 +215,8 @@ internal static class MurderBeamVerification
         };
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
-        SnesButton select = SnesButton.Select;
-        SnesButton cancel = SnesButton.Y;
+        ControllerButton select = ControllerButton.Select;
+        ControllerButton cancel = ControllerButton.Y;
         AssertTrue(SelectionChanged(samus,
                 (select | cancel),
                 select),
@@ -224,8 +224,8 @@ internal static class MurderBeamVerification
         AssertEqual(HudItem.Missile, samus.AutoCancelHudItemIndex,
             "missile auto-cancel request retains the selected HUD index");
 
-        shared.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.X, SnesButton.X);
-        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
+        shared.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.X, ControllerButton.X);
+        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), shared);
         AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "auto-cancel setup fires one Missile");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
@@ -254,7 +254,7 @@ internal static class MurderBeamVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = (SamusBeamFlags)0x100f,
         };
-        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()),
+        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 

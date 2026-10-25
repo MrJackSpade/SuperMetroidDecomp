@@ -7,7 +7,7 @@ public sealed record GitHubErrorContext(
     ushort? FrameNumber = null,
     string? GameState = null,
     string? Phase = null,
-    SnesButton? ControllerInput = null,
+    ControllerButton? ControllerInput = null,
     string? Room = null,
     string? RoomState = null,
     string? Door = null,

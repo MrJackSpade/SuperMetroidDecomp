@@ -38,7 +38,7 @@ internal sealed partial class WindowsGamepadInput
     /// contributes zero input and triggers a throttled rescan, so unplug/replug works while
     /// the game remains open without putting device discovery in the 60-Hz hot path.
     /// </summary>
-    public SnesButton Poll()
+    public ControllerButton Poll()
     {
         if (activeDeviceId != WindowsGamepadCodes.NoDevice &&
             TryRead(activeDeviceId, out JoystickPosition position))
@@ -49,14 +49,14 @@ internal sealed partial class WindowsGamepadInput
 
         long now = Stopwatch.GetTimestamp();
         if (now < nextDiscoveryTimestamp)
-            return SnesButton.None;
+            return ControllerButton.None;
 
         nextDiscoveryTimestamp = now +
             (long)(RediscoveryIntervalSeconds * Stopwatch.Frequency);
         DiscoverFirstConnectedDevice();
         if (activeDeviceId == WindowsGamepadCodes.NoDevice ||
             !TryRead(activeDeviceId, out position))
-            return SnesButton.None;
+            return ControllerButton.None;
 
         return MapAndRemember(position);
     }
@@ -120,7 +120,7 @@ internal sealed partial class WindowsGamepadInput
     }
 
     /// <summary>Stores the normalized snapshot and maps it to SNES buttons for this poll.</summary>
-    private SnesButton MapAndRemember(JoystickPosition position)
+    private ControllerButton MapAndRemember(JoystickPosition position)
     {
         LastSnapshot = CreateSnapshot(position, activeCapabilities);
         return GenericGamepadInput.Map(

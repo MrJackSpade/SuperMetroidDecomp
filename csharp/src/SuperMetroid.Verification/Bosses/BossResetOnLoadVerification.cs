@@ -35,11 +35,11 @@ internal static class BossResetOnLoadVerification
             Missiles = 12, MaxMissiles = 25,
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = SamusEquipmentFlags.MorphBall,
-            BossFlags = Enumerable.Repeat(BossBitMasks.AllKnown, Bank80SystemState.AreaCount).ToArray(),
-            EventBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.EventByteCount).ToArray(),
-            OpenedDoorBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.DoorBitByteCount).ToArray(),
-            CollectedItemBytes = Enumerable.Repeat((byte)0xa5, Bank80SystemState.ItemBitByteCount).ToArray(),
-            RoomChozoBytes = Enumerable.Repeat((byte)0x5a, Bank80SystemState.RoomChozoBitByteCount).ToArray(),
+            BossFlags = Enumerable.Repeat(BossBitMasks.AllKnown, SharedGameState.AreaCount).ToArray(),
+            EventBytes = Enumerable.Repeat((byte)0xff, SharedGameState.EventByteCount).ToArray(),
+            OpenedDoorBytes = Enumerable.Repeat((byte)0xff, SharedGameState.DoorBitByteCount).ToArray(),
+            CollectedItemBytes = Enumerable.Repeat((byte)0xa5, SharedGameState.ItemBitByteCount).ToArray(),
+            RoomChozoBytes = Enumerable.Repeat((byte)0x5a, SharedGameState.RoomChozoBitByteCount).ToArray(),
         };
         // Escape is outside this tester option's scope. Keep this particular save
         // out of escape so room selection can demonstrate both Torizo encounters.
@@ -53,25 +53,25 @@ internal static class BossResetOnLoadVerification
         {
             var runtime = CreateRetailRuntimeFixture();
             runtime.RoomLoader.InitializeSavedGame(slot, resetBossesOnLoad: enabled);
-            for (int area = 0; area < Bank80SystemState.AreaCount; area++)
+            for (int area = 0; area < SharedGameState.AreaCount; area++)
             {
                 bool resetArea = enabled && area < AreaIds.RetailCount && area != (int)AreaId.Tourian;
                 AssertEqual(resetArea ? (byte)0 : (byte)0x07, runtime.System.GetBossBitsRaw(area),
                     $"boss/miniboss/Torizo load policy area {area}, enabled={enabled}");
             }
-            for (int bit = 0; bit < Bank80SystemState.EventByteCount * 8; bit++)
+            for (int bit = 0; bit < SharedGameState.EventByteCount * 8; bit++)
             {
                 bool expected = (snapshot.EventBytes[bit >> 3] & (1 << (bit & 7))) != 0 &&
                     !(enabled && bit == (int)EventNumber.ShaktoolClearedPath);
                 AssertEqual(expected, runtime.System.HasEventRaw(bit),
                     $"only Shaktool's encounter event resets; event {bit}, enabled={enabled}");
             }
-            for (int bit = 0; bit < Bank80SystemState.DoorBitByteCount * 8; bit++)
+            for (int bit = 0; bit < SharedGameState.DoorBitByteCount * 8; bit++)
                 AssertEqual(!(enabled && eyeBits.Contains((ushort)bit)), runtime.System.HasOpenedDoorBit(bit),
                     $"only eye-door deaths reset; door {bit}, enabled={enabled}");
-            for (int index = 0; index < Bank80SystemState.ItemBitByteCount; index++)
+            for (int index = 0; index < SharedGameState.ItemBitByteCount; index++)
                 AssertEqual(snapshot.CollectedItemBytes[index], runtime.System.GetCollectedItemByteRaw(index), "pickups preserved");
-            for (int index = 0; index < Bank80SystemState.RoomChozoBitByteCount; index++)
+            for (int index = 0; index < SharedGameState.RoomChozoBitByteCount; index++)
                 AssertEqual(snapshot.RoomChozoBytes[index], runtime.System.GetRoomChozoByteRaw(index), "Chozo orbs preserved");
             AssertEqual(slot.CollectedItems, runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
             AssertEqual(slot.EquippedItems, runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");

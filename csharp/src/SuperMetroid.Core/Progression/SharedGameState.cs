@@ -3,26 +3,15 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The small, shared pieces of game state manipulated by the first utility routines in
-/// ROM bank <c>$80</c>. This is intentionally a stateful object: the original routines
-/// communicate through fixed WRAM and SRAM-mirror addresses, not through return values
-/// and neatly isolated objects.
+/// The game state every part of a session shares: the persistent progress a save slot carries (story events, boss
+/// state, Chozo orbs, collected items, opened doors, explored map, used stations, acquired maps), the session's shared
+/// random-number generator, and the held-input repeat that menus use for cursor movement. Lifetime: the session.
 /// </summary>
 /// <remarks>
-/// Source routines:
-/// <list type="bullet">
-/// <item><description><c>$80:8111</c> — generate random number.</description></item>
-/// <item><description><c>$80:8146</c> — update held input.</description></item>
-/// <item><description><c>$80:818E-$80:824E</c> — event and boss bit access.</description></item>
-/// <item><description><c>$80:82D6</c> — unsigned 16-by-16-bit multiplication.</description></item>
-/// </list>
-///
-/// The class does not attempt to emulate the 65C816 CPU. It preserves the externally
-/// visible behavior of these routines while naming the RAM locations they operated on.
-/// That gives the C# debugger useful domain-level state without losing the connection to
-/// the assembly.
+/// The progress tables keep the cartridge's allocation sizes and bit layout, because save slots round-trip them exactly
+/// and SpaceTime's progression overwrite (<see cref="WriteProgressionSliceByte"/>) addresses them byte by byte.
 /// </remarks>
-public sealed class Bank80SystemState
+public sealed class SharedGameState
 {
     /// <summary>
     /// Number of event bytes at SRAM mirror <c>$7E:D820-$7E:D827</c>.
@@ -112,15 +101,15 @@ public sealed class Bank80SystemState
             : throw new ArgumentOutOfRangeException(nameof(value), value, "The saved loading game state is a save field.");
     } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
 
-    /// <summary>Creates the bank-$80 state over its own random-number word, with the game's power-on seed.</summary>
-    public Bank80SystemState()
-        : this(new CartridgeRandom())
+    /// <summary>Creates the shared state over its own random-number generator, with the game's power-on seed.</summary>
+    public SharedGameState()
+        : this(new SharedRandom())
     {
     }
 
-    /// <summary>Creates the bank-$80 state over the session's random-number word.</summary>
+    /// <summary>Creates the shared state over the session's random-number generator.</summary>
     /// <param name="random">The session's random-number word, which this state reads and advances.</param>
-    public Bank80SystemState(CartridgeRandom random) => Random = Ensure.NotNull(random);
+    public SharedGameState(SharedRandom random) => Random = Ensure.NotNull(random);
 
     /// <summary>
     /// Carry flag inside every <c>MainGameLoop</c> iteration ($82:8948). The loop brackets
@@ -164,7 +153,7 @@ public sealed class Bank80SystemState
         if (offset < ProgressionSliceLayout.BossBitsOffset)
             _events[offset - ProgressionSliceLayout.EventsOffset] = value;
         else if (offset < ProgressionSliceLayout.RoomChozoBitsOffset)
-            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromNativeByte(value);
+            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromSaveByte(value);
         else if (offset < ProgressionSliceLayout.CollectedItemBitsOffset)
             RoomChozoBits[offset - ProgressionSliceLayout.RoomChozoBitsOffset] = value;
         else if (offset < ProgressionSliceLayout.OpenedDoorBitsOffset)
@@ -186,8 +175,8 @@ public sealed class Bank80SystemState
         }
     }
 
-    /// <summary>The session's random-number word, WRAM <c>$05E5</c>.</summary>
-    public CartridgeRandom Random { get; }
+    /// <summary>The session's shared random-number generator.</summary>
+    public SharedRandom Random { get; }
 
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
     public int RandomNumber => Random.Read();
@@ -212,7 +201,7 @@ public sealed class Bank80SystemState
     /// Despite the C decompilation's name <c>joypad_released_keys</c>, the assembly names
     /// and behavior show that this is the previous value of "held but not newly pressed."
     /// </summary>
-    public SnesButton HeldInputPrevious { get; private set; }
+    public ControllerButton HeldInputPrevious { get; private set; }
 
     /// <summary>
     /// Countdown at WRAM <c>$05DB</c>. A signed underflow from zero to <c>$FFFF</c>
@@ -231,18 +220,18 @@ public sealed class Bank80SystemState
     /// Filtered input at WRAM <c>$05DF</c>. Bits appear after their buttons have remained
     /// stable long enough for the timer to underflow.
     /// </summary>
-    public SnesButton TimedHeldInput { get; internal set; }
+    public ControllerButton TimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Rising-edge bits for <see cref="TimedHeldInput"/>, stored at WRAM <c>$05E1</c>.
     /// </summary>
-    public SnesButton NewlyTimedHeldInput { get; internal set; }
+    public ControllerButton NewlyTimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Prior active filtered input at WRAM <c>$05E3</c>. The original routine updates
     /// this only on timer underflow, not on every frame.
     /// </summary>
-    public SnesButton TimedHeldInputPrevious { get; internal set; }
+    public ControllerButton TimedHeldInputPrevious { get; internal set; }
 
     /// <summary>
     /// Advances the shared RNG word at <c>$7E:05E5</c> exactly as <c>$80:8111</c>
@@ -259,13 +248,13 @@ public sealed class Bank80SystemState
     /// <param name="timerReset">Number of stable frames minus one before activation.</param>
     /// <param name="controllerInput">All buttons currently down (WRAM <c>$8B</c>).</param>
     /// <param name="controllerNewInput">Buttons newly pressed this frame (WRAM <c>$8F</c>).</param>
-    public void UpdateHeldInput(int timerReset, SnesButton controllerInput, SnesButton controllerNewInput)
+    public void UpdateHeldInput(int timerReset, ControllerButton controllerInput, ControllerButton controllerNewInput)
     {
         TimedHeldInputTimerReset = timerReset;
 
         // TRB in the original clears every newly-pressed bit from the current input.
         // A fresh press is deliberately not considered "held" until the following frame.
-        SnesButton heldInput = controllerInput & ~controllerNewInput;
+        ControllerButton heldInput = controllerInput & ~controllerNewInput;
 
         // CMP happens before STA, so remember the comparison result before replacing the
         // previous sample. This ordering is significant when a button changes state.
@@ -355,7 +344,7 @@ public sealed class Bank80SystemState
     public byte GetBossBitsRaw(int areaIndex)
     {
         ValidateAreaIndex(areaIndex);
-        return _bossBitsByArea[areaIndex].ToNativeByte();
+        return _bossBitsByArea[areaIndex].ToSaveByte();
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -382,7 +371,7 @@ public sealed class Bank80SystemState
         Ensure.LengthEqual(bytes, AreaCount);
 
         for (int area = 0; area < AreaCount; area++)
-            _bossBitsByArea[area] = BossBitsCodec.FromNativeByte(bytes[area]);
+            _bossBitsByArea[area] = BossBitsCodec.FromSaveByte(bytes[area]);
     }
 
     /// <summary>

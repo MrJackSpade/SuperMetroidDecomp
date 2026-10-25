@@ -81,7 +81,7 @@ internal sealed class EnemyInstructionInterpreter
         SamusState? samus,
         RoomLevelData? level,
         Position16<RoomPixels> camera,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not { } advance)
         {

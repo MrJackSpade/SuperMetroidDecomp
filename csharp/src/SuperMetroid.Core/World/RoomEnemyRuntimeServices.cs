@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomEnemyRuntimeServices(
-    Bank80SystemState system,
+    SharedGameState system,
     ActiveRoomState room,
     SamusFrameState player,
     RoomPlmSystem plms,

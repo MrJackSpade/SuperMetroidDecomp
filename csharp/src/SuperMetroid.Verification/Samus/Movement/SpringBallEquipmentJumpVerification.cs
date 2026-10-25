@@ -24,7 +24,7 @@ internal static class SpringBallEquipmentJumpVerification
         foreach (bool left in new[] { false, true })
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, new CartridgeRandom());
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, new SharedRandom());
             PrepareRomFreeBindings(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;
@@ -54,12 +54,12 @@ internal static class SpringBallEquipmentJumpVerification
                 AssertEqual(0, samus.AnimationFrame, "cross-family equipment conversion restarts ball animation");
                 ushort beforeY = samus.Position.Y.Whole;
                 runtime.Controller1.Latch(0);
-                runtime.StepFrame(SnesButton.A);
+                runtime.StepFrame(ControllerButton.A);
                 AssertEqual(left ? SamusPoseId.SpringBallJumpLeftPose : SamusPoseId.SpringBallJumpRightPose,
                     samus.Pose, "new jump input enters powered Spring Ball jump");
                 AssertEqual(2, samus.Kinematics.YSpeed.Whole, "native Hi-Jump water launch whole speed");
                 AssertEqual(0x8000, samus.Kinematics.YSpeed.Fraction, "native Hi-Jump water launch fractional speed");
-                runtime.StepFrame(SnesButton.A);
+                runtime.StepFrame(ControllerButton.A);
                 AssertTrue(samus.Position.Y.Whole < beforeY, "mid-air equipment jump gains height");
                 if (jump == 0)
                 {

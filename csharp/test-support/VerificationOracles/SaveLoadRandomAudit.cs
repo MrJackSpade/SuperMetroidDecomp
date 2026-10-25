@@ -37,7 +37,7 @@ internal static class SaveLoadRandomAudit
             long dispatches = 0;
             // Each main-loop dispatch calls GenerateRandomNumber once; an update that only
             // resumes a menu or loading dispatch after its NMI wait does not.
-            void Step(SnesButton input)
+            void Step(ControllerButton input)
             {
                 if (!game.NextUpdateResumesFrameWait) dispatches++;
                 game.StepCaptured(input, ++sequence, 1);
@@ -59,7 +59,7 @@ internal static class SaveLoadRandomAudit
                         bindPresentation(game);
                     }
                 }
-                Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
+                Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
             }
             var runtime = game.RuntimeForVerification;
             if (!insertedWait || runtime?.Player.Samus is null)
@@ -67,14 +67,14 @@ internal static class SaveLoadRandomAudit
             Console.WriteLine($"SAVE RNG wait={wait} frontendFrames={sequence} dispatches={dispatches} rng={runtime.System.RandomNumber} room={runtime.Room.ActiveRoom?.Pointer:X4} energy={runtime.Player.Samus.Health} PB={runtime.Player.Samus.PowerBombs}/{runtime.Player.Samus.MaxPowerBombs}");
             // The reset vector seeds before the first main-loop/state-zero pass.
             // This empty save room has no random-consuming population initializer.
-            var expected = new Bank80SystemState();
+            var expected = new SharedGameState();
             for (long dispatch = 0; dispatch < dispatches; dispatch++) expected.NextRandom();
             if (runtime.System.RandomNumber != expected.RandomNumber)
                 throw new InvalidDataException($"Menu/load RNG: expected {expected.RandomNumber}, got {runtime.System.RandomNumber} after {dispatches} main-loop dispatches.");
             // Original-CPU probe: GenerateRandomNumber called 426/427/428 times from the
             // reset seed. It validates the generator, not the menu's dispatch count.
             ushort[] nativeLoaded = [51088, 59105, 33654];
-            var probe = new Bank80SystemState();
+            var probe = new SharedGameState();
             for (int call = 0; call < 426 + wait; call++) probe.NextRandom();
             if (probe.RandomNumber != nativeLoaded[wait])
                 throw new InvalidDataException("RNG generator no longer matches its recorded original-CPU words.");
@@ -96,7 +96,7 @@ internal static class SaveLoadRandomAudit
             {
                 // The map's final dispatch resumes after its forced-blank NMI wait without a main-loop call.
                 bool resumesFrameWait = game.NextUpdateResumesFrameWait;
-                game.StepCaptured(tick % 47 == 0 ? SnesButton.Start : 0, ++sequence, 1);
+                game.StepCaptured(tick % 47 == 0 ? ControllerButton.Start : 0, ++sequence, 1);
                 if (!resumesFrameWait)
                     expected.NextRandom();
                 if (game.DispatcherRandomNumber != expected.RandomNumber)

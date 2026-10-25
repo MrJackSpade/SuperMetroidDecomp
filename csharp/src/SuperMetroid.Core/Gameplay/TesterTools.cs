@@ -14,10 +14,10 @@ internal sealed class TesterTools
     /// <summary>Current Samus actor receiving tester inventory once per initialization.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Persistent item, event, boss, and door bits adjusted by tester options.</summary>
-    private readonly Bank80SystemState _system;
+    private readonly SharedGameState _system;
 
     /// <summary>Connects tester options to the current player, system state, and palette owners.</summary>
-    internal TesterTools(GameplayColours cgram, SamusFrameState player, Bank80SystemState system)
+    internal TesterTools(GameplayColours cgram, SamusFrameState player, SharedGameState system)
     {
         _cgram = cgram;
         _player = player;
@@ -32,7 +32,7 @@ internal sealed class TesterTools
             _system.ClearBossBits(area, BossBitMasks.AllKnown);
         _system.ClearEvent(EventNumber.ShaktoolClearedPath);
 
-        Span<byte> doors = stackalloc byte[Bank80SystemState.DoorBitByteCount];
+        Span<byte> doors = stackalloc byte[SharedGameState.DoorBitByteCount];
         for (int index = 0; index < doors.Length; index++)
             doors[index] = _system.GetOpenedDoorByteRaw(index);
         foreach (int bit in TesterEncounterResetDefinitions.EyeDoorBits)
@@ -71,7 +71,7 @@ internal sealed class TesterTools
         _player.Samus.Missiles = _player.Samus.MaxMissiles = TesterInventoryDefinitions.Missiles;
         _player.Samus.SuperMissiles = _player.Samus.MaxSuperMissiles = TesterInventoryDefinitions.SuperMissiles;
         _player.Samus.PowerBombs = _player.Samus.MaxPowerBombs = TesterInventoryDefinitions.PowerBombs;
-        for (int bit = 0; bit < Bank80SystemState.ItemBitByteCount * 8; bit++)
+        for (int bit = 0; bit < SharedGameState.ItemBitByteCount * 8; bit++)
             _system.SetCollectedItemBit(bit);
         _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _player.Colours);
     }

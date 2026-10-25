@@ -754,7 +754,7 @@ internal static void VerifySamusGroundedReversal()
     // Three two-tick art frames lead to byte index three, command $F8. Its operand $02 is
     // pending until the transition seam; applying it initializes pose $02 frame zero.
     for (int tick = 0; tick < 6; tick++)
-        SamusPresentation.AnimateNoFx(animatedTurn, new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(animatedTurn, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(SamusPoseId.FacingLeftNormalPose, (animatedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires animatedTurn.PendingTransitionalPose.")), "turn $F8 publishes left-standing pose");
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(animatedTurn), "turn animation transition applies");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.Pose, "turn animation ends facing left");
@@ -870,7 +870,7 @@ internal static void VerifySamusGroundedReversal()
             $"aimed turn preserves old momentum direction case {caseIndex}");
 
         for (int tick = 0; tick < 6; tick++)
-            SamusPresentation.AnimateNoFx(aimedTurn, new SamusAnimationStep { Random = new CartridgeRandom() });
+            SamusPresentation.AnimateNoFx(aimedTurn, new SamusAnimationStep { Random = new SharedRandom() });
         AssertEqual(testCase.Destination, (aimedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires aimedTurn.PendingTransitionalPose.")), $"aimed turn publishes destination case {caseIndex}");
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedTurn), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
@@ -985,7 +985,7 @@ internal static void VerifySamusGroundedReversal()
         }
 
         for (int tick = 0; tick < 6; tick++)
-            SamusPresentation.AnimateNoFx(crouchedTurn, new SamusAnimationStep { Random = new CartridgeRandom() });
+            SamusPresentation.AnimateNoFx(crouchedTurn, new SamusAnimationStep { Random = new SharedRandom() });
         AssertEqual(testCase.Destination, (crouchedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires crouchedTurn.PendingTransitionalPose.")), $"crouched turn publishes destination case {caseIndex}");
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(crouchedTurn), $"crouched turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, crouchedTurn.Pose, $"crouched turn destination case {caseIndex}");
@@ -1754,7 +1754,7 @@ floor, walker, nmiFrameCounter: 0);
     var animated = new SamusState { Pose = SamusPoseId.MoonwalkFacingRightPose };
     SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(animated, SamusPoseId.MoonwalkTurnJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
-        SamusPresentation.AnimateNoFx(animated, new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(animated, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires animated.PendingTransitionalPose.")),
         "moonwalk turn publishes literal spin-left operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(animated),

@@ -25,7 +25,7 @@ internal sealed record MagicNumberFinding(
         MagicNumberCategory.PoseOrMovement => "a Samus pose or movement enum/catalog",
         MagicNumberCategory.ProjectileFamily => "a typed projectile family/kind",
         MagicNumberCategory.AudioId => "SoundEffectId or a named music command",
-        MagicNumberCategory.ControllerBits => "SnesButtons/typed controller input",
+        MagicNumberCategory.ControllerBits => "ControllerButtons/typed controller input",
         MagicNumberCategory.PackedPpuWord => "a packed SNES word wrapper",
         MagicNumberCategory.SramOffset => "SaveRamLayout or another SRAM layout container",
         _ => throw new ArgumentOutOfRangeException(nameof(category), category, "Undefined magic-number category."),

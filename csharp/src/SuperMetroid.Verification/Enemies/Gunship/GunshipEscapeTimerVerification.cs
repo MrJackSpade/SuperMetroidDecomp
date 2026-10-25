@@ -57,7 +57,7 @@ internal static class GunshipEscapeTimerVerification
         samus.Position = samus.Position.WithWholeY(0x0440);
         SamusPresentation.InitializeAnimation(samus);
         var timeBeforeBoarding = Time();
-        runtime.StepFrame(SnesButton.Down);
+        runtime.StepFrame(ControllerButton.Down);
         AssertEqual(GunshipFrameEvent.EntryStarted, runtime.Enemies.LastEnemyFrame.Gunship, "Down starts actual Landing Site boarding");
         AssertEqual(timeBeforeBoarding, Time(), "Boarding handler stops the timer on its installation frame");
         AssertTrue(!TimerSpritesPresent(), "Boarding removes the timer draws immediately");

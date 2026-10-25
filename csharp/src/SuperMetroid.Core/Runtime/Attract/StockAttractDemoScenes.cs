@@ -71,7 +71,7 @@ public static class StockAttractDemoScenes
     /// <summary>Returns a staged demonstration or its exact native end-of-set sentinel.</summary>
     public static AttractDemoScene? Get(int set, int scene)
     {
-        if ((uint)set >= DemoSetUnlockRomData.SetCount) throw new ArgumentOutOfRangeException(nameof(set));
+        if ((uint)set >= DemoSetUnlockDefinitions.SetCount) throw new ArgumentOutOfRangeException(nameof(set));
         int sceneCount = set == 3 ? 5 : 6;
         if ((uint)scene > sceneCount) throw new ArgumentOutOfRangeException(nameof(scene));
         if (scene == sceneCount) return null;

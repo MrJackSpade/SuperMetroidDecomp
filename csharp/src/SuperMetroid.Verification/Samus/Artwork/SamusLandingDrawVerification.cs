@@ -16,8 +16,8 @@ internal static class SamusLandingDrawVerification
     /// <summary>Lands from a standing jump, a running jump and a fall through the production runtime; every update draws Samus's body on screen.</summary>
     internal static void VerifySamusLandingDraws()
     {
-        int landings = CheckLanding("standing jump", setup: _ => { }, update => update < 8 ? SnesButton.A : 0);
-        landings += CheckLanding("running jump", setup: _ => { }, update => update < 8 ? SnesButton.Right | SnesButton.A : SnesButton.Right);
+        int landings = CheckLanding("standing jump", setup: _ => { }, update => update < 8 ? ControllerButton.A : 0);
+        landings += CheckLanding("running jump", setup: _ => { }, update => update < 8 ? ControllerButton.Right | ControllerButton.A : ControllerButton.Right);
         landings += CheckLanding("fall", runtime =>
         {
             SamusState samus = runtime.Player.IntroducedSamus;
@@ -30,7 +30,7 @@ internal static class SamusLandingDrawVerification
     /// Starts Samus grounded in a closed box, applies <paramref name="setup"/>, then steps with <paramref name="input"/>
     /// and checks that every update draws her body on screen. Returns how many updates showed a landing pose.
     /// </summary>
-    private static int CheckLanding(string name, Action<SuperMetroidRuntime> setup, Func<int, SnesButton> input)
+    private static int CheckLanding(string name, Action<SuperMetroidRuntime> setup, Func<int, ControllerButton> input)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

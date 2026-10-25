@@ -68,7 +68,7 @@ internal static class TitleSequenceRomDataVerification
             state.TitleScreenFramesRemaining,
             "natural title arms NTSC demo countdown");
 
-        state.Step(SnesButton.Start);
+        state.Step(ControllerButton.Start);
         AssertEqual(TitleSequencePhase.TitleScreenFadeOut, state.Phase,
             "title confirmation begins cadence fade");
         StepUntil(
@@ -79,7 +79,7 @@ internal static class TitleSequenceRomDataVerification
 
         var skipped = CreateTitleFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom),
             titleGradientPresentation: gradient);
-        skipped.Step(SnesButton.A);
+        skipped.Step(ControllerButton.A);
         AssertEqual(TitleSequencePhase.SkipFadeOut, skipped.Phase,
             "pre-title A press enters native skip fade-out");
         var skipPhases = new HashSet<TitleSequencePhase> { skipped.Phase };
@@ -98,7 +98,7 @@ internal static class TitleSequenceRomDataVerification
             "title skip returns at full brightness");
         for (int idle = 1; idle < TitleSequenceDefinitions.Timing.TitleScreenNtscFrames; idle++)
             skipped.Step(0);
-        skipped.Step(SnesButton.Start);
+        skipped.Step(ControllerButton.Start);
         StepUntil(() => skipped.DemoRequested, _ => skipped.Step(0), 40,
             "title timeout takes priority over same-frame confirmation");
         AssertTrue(!skipped.FileSelectRequested, "timeout routes only to the attract dispatcher");

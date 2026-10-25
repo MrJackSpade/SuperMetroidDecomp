@@ -43,7 +43,7 @@ internal static class GrappleHurtFeedbackVerification
         SamusGrappleMovement.ConnectUnobstructedSwing(bus, samus, new Position16<RoomPixels>(160, 64), 52,
             SnesAngle.QuarterTurn, 0, faceRight: true);
         samus.CommitPoseHistory();
-        runtime.StepFrame(SnesButton.X);
+        runtime.StepFrame(ControllerButton.X);
         AssertEqual(0, samus.HurtFlashCounter, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.SlotTable.Slots[0];
@@ -56,22 +56,22 @@ internal static class GrappleHurtFeedbackVerification
         interactive.Clear();
         interactive.Add(target.EnemyIndex);
         int health = samus.Health;
-        AssertTrue(runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, SnesButton.X), "ordinary enemy contact hits hanging Samus");
+        AssertTrue(runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, ControllerButton.X), "ordinary enemy contact hits hanging Samus");
         AssertEqual((ushort)(health - target.Definition.Damage), samus.Health, "native contact reduces health");
         target.Clear();
-        runtime.StepFrame(SnesButton.X);
+        runtime.StepFrame(ControllerButton.X);
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "damage preserves the attached grapple");
         AssertTrue(!samus.KnockbackActive, "grapple suppresses the knockback mover");
         AssertEqual(1, samus.HurtFlashCounter, "post-draw health loss starts hurt feedback independently of knockback");
-        runtime.StepFrame(SnesButton.X);
+        runtime.StepFrame(ControllerButton.X);
         AssertEqual(2, samus.HurtFlashCounter, "first hurt palette call advances the counter");
         samus.Health--; // Existing feedback must not restart on further health loss.
-        runtime.StepFrame(SnesButton.X);
+        runtime.StepFrame(ControllerButton.X);
         AssertEqual(3, samus.HurtFlashCounter, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
             request.SoundEffect == Library1Sound.SamusDamaged && request.MaximumQueued.Requests == 6),
             "counter two queues exactly one native gasp with Max6");
-        runtime.StepFrame(SnesButton.X);
+        runtime.StepFrame(ControllerButton.X);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count(request =>
             request.SoundEffect == Library1Sound.SamusDamaged),
             "unchanged health does not repeat the gasp");

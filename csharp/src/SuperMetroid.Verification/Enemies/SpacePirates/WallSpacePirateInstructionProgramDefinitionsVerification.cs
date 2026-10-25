@@ -192,7 +192,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             int frames)
         {
             object?[] arguments =
-                [slot, samus, level, Position16<RoomPixels>.Zero, SnesButton.None];
+                [slot, samus, level, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(arguments);
         }

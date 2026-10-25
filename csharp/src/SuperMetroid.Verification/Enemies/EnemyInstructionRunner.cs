@@ -21,7 +21,7 @@ internal static class EnemyInstructionRunner
             Optional<SamusState>(arguments, 1),
             Optional<RoomLevelData>(arguments, 2),
             Value<Position16<RoomPixels>>(arguments, 3),
-            Value<SnesButton>(arguments, 4));
+            Value<ControllerButton>(arguments, 4));
 
     /// <summary>
     /// Processes <paramref name="slot"/>'s animation for <paramref name="updates"/> updates with no Samus, level, camera or
@@ -29,7 +29,7 @@ internal static class EnemyInstructionRunner
     /// </summary>
     internal static string ShownFrames(RoomEnemySlot slot, int updates)
     {
-        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         var shown = new List<string>();
         for (int update = 0; update < updates; update++)
         {

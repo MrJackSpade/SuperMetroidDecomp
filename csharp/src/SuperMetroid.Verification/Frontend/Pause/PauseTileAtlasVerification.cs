@@ -46,7 +46,7 @@ internal static class PauseTileAtlasVerification
         AssertTrue(firstMap.ImageEquals(editedMap), "pause UI override does not alter shared map characters");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {
-            var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);
+            var system = new SharedGameState(); system.SetAreaMapAcquired(area);
             var samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
             var nativeSamus = new SamusState { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
             var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
@@ -54,7 +54,7 @@ internal static class PauseTileAtlasVerification
             int toMap = 2 + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < toMap + PausePageTransitionNativeLength + 2; tick++)
             {
-                SnesButton pressed = tick == 2 ? SnesButton.R : tick == toMap ? SnesButton.L : 0;
+                ControllerButton pressed = tick == 2 ? ControllerButton.R : tick == toMap ? ControllerButton.L : 0;
                 AssertEqual(native.Step(pressed, pressed), pause.Step(pressed, pressed), "pause PNG migration preserves unpause result");
                 AssertEqual(native.ScreenMode, pause.ScreenMode, "pause PNG migration preserves page timing");
                 AssertTrue(native.Render().SequenceEqual(pause.Render()), "pause map/equipment transitions match native pixels with artwork reads blocked");

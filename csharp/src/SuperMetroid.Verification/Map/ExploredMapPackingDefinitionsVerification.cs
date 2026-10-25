@@ -69,8 +69,8 @@ internal static class ExploredMapPackingDefinitionsVerification
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
         var explored = new byte[
-            Bank80SystemState.ExploredMapAreaCount *
-            Bank80SystemState.ExploredMapBytesPerArea];
+            SharedGameState.ExploredMapAreaCount *
+            SharedGameState.ExploredMapBytesPerArea];
         for (int index = 0; index < explored.Length; index++)
             explored[index] = unchecked((byte)(index * 37 + 11));
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { ExploredMapBytes = explored });
@@ -83,7 +83,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             foreach (byte areaByteIndex in
                 ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture()).AreaByteIndexes)
             {
-                exported[area * Bank80SystemState.ExploredMapBytesPerArea +
+                exported[area * SharedGameState.ExploredMapBytesPerArea +
                     areaByteIndex] = true;
             }
         }

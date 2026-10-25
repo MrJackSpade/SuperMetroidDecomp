@@ -27,7 +27,7 @@ internal static class ShutterEmbeddingVerification
         foreach (int stopAt in new[] { 8, 12, 16, 20, 40, 60, 90 })
         {
             int offset = slot == 0 ? 32 : -32;
-            SnesButton direction = slot == 0 ? SnesButton.Left : SnesButton.Right;
+            ControllerButton direction = slot == 0 ? ControllerButton.Left : ControllerButton.Right;
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -46,7 +46,7 @@ internal static class ShutterEmbeddingVerification
             bool carried = false;
             for (int frame = 0; frame < 220; frame++)
             {
-                SnesButton input = frame < stopAt ? direction : SnesButton.None;
+                ControllerButton input = frame < stopAt ? direction : ControllerButton.None;
                 if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings.Shoot;
                 runtime.StepFrame(input);
                 activated |= (runtime.Enemies.VerticalShutterStates[slot] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[slot].")).Function == VerticalShutterFunction.MovingUp;

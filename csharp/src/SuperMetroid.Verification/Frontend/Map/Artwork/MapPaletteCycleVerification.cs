@@ -70,7 +70,7 @@ internal static class MapPaletteCycleVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "palette edit invalidates selected content identity");
 
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         for (int tick = 0; tick < 60; tick++)
@@ -125,8 +125,8 @@ internal static class MapPaletteCycleVerification
         var nativeMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
         var menu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
         for (int tick = 0; tick < 48; tick++) { nativeMenu.Step(0); menu.Step(0); }
-        nativeMenu.Step(SnesButton.Start);
-        menu.Step(SnesButton.Start);
+        nativeMenu.Step(ControllerButton.Start);
+        menu.Step(ControllerButton.Start);
         for (int tick = 0; tick < 54; tick++) { nativeMenu.Step(0); menu.Step(0); }
         AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "palette replacement test reaches file-select room map");
         menu.BindFixtureArtwork(edited);

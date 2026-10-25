@@ -20,8 +20,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class MessageBoxSheetComposer
 {
     /// <summary>The buttons a panel can name for its action.</summary>
-    private static readonly SnesButton[] BindableButtons =
-        [SnesButton.A, SnesButton.B, SnesButton.X, SnesButton.Y, SnesButton.Select, SnesButton.L, SnesButton.R];
+    private static readonly ControllerButton[] BindableButtons =
+        [ControllerButton.A, ControllerButton.B, ControllerButton.X, ControllerButton.Y, ControllerButton.Select, ControllerButton.L, ControllerButton.R];
 
     /// <summary>Every form of every message the message box shows, by image name: the words of each.</summary>
     internal static IReadOnlyDictionary<string, ImmutableArray<ushort>> Messages(RoomBlockSheetInputs inputs)
@@ -31,12 +31,12 @@ internal static class MessageBoxSheetComposer
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (GameplayMessageId message in GameplayMessageBoxState.OrdinaryMessages)
         {
-            foreach (SnesButton shoot in BindableButtons)
-            foreach (SnesButton run in BindableButtons)
+            foreach (ControllerButton shoot in BindableButtons)
+            foreach (ControllerButton run in BindableButtons)
             {
                 var box = new GameplayMessageBoxState();
                 box.BindPresentation(inputs.Maps.GameplayMessageTitles, inputs.Maps.GameplayMessagePanels, inputs.Maps.GameplayMessageNotices);
-                box.Begin(message, SnesButton.None, shoot, run);
+                box.Begin(message, ControllerButton.None, shoot, run);
                 foreach (ImmutableArray<ushort> words in box.Forms())
                 {
                     if (seen.Add(Convert.ToHexString(System.Runtime.InteropServices.MemoryMarshal.AsBytes(words.AsSpan()))))

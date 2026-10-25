@@ -154,7 +154,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         RoomEnemySlot slot,
         ElevatorEnemyState state,
         SamusState? samus,
-        SnesButton newlyPressedControllerInput,
+        ControllerButton newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
         if (ElevatorDoorTransitionActive ||
@@ -201,10 +201,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         RoomEnemySlot slot,
         ElevatorEnemyState state,
         SamusState samus,
-        SnesButton newlyPressedControllerInput,
+        ControllerButton newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
-        SnesButton requiredInput =
+        ControllerButton requiredInput =
             ElevatorActorDefinitions.RequiredDirectionInput(state.DirectionTableByteOffset);
         if ((newlyPressedControllerInput & requiredInput) == 0)
         {

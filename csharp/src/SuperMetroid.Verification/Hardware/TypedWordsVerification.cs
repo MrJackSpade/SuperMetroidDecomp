@@ -34,7 +34,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(equipment.HasAll(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs),
         "typed equipment flags set independently");
     equipment &= ~SamusEquipmentFlags.GravitySuit;
-    AssertEqual(0x1080, equipment.ToNativeWord(), "equipment flags preserve unnamed bits");
+    AssertEqual(0x1080, equipment.ToEquipmentWord(), "equipment flags preserve unnamed bits");
 
     // The snapshot boundary decodes $0A76 and $0DC0 into typed state and rejects undefined words.
     AssertEqual(true, SamusSnapshotWords.DecodeHyperBeam(SamusSnapshotWords.HyperBeamEnabledWord), "hyper beam $8000 imports as enabled");
@@ -569,13 +569,13 @@ internal static void VerifyTypedNativeWords()
     ];
     for (byte rawArea = 0; rawArea < retailAreas.Length; rawArea++)
     {
-        AssertEqual(retailAreas[rawArea], AreaIds.FromCartridge(rawArea, "typed-area test"),
+        AssertEqual(retailAreas[rawArea], AreaIds.FromIndex(rawArea, "typed-area test"),
             $"retail area byte {rawArea} validates");
         AssertEqual(rawArea, AreaIds.ToIndex(retailAreas[rawArea]),
             $"retail area {retailAreas[rawArea]} indexes cartridge tables");
     }
     AssertThrows<InvalidDataException>(
-        () => AreaIds.FromCartridge(AreaIds.RetailCount, "typed-area test"),
+        () => AreaIds.FromIndex(AreaIds.RetailCount, "typed-area test"),
         "non-retail cartridge area rejected");
     AssertThrows<ArgumentOutOfRangeException>(
         () => AreaIds.ToIndex((AreaId)AreaIds.RetailCount),

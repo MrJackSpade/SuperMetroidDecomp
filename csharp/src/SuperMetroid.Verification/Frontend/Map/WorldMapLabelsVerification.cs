@@ -59,7 +59,7 @@ internal static class WorldMapLabelsVerification
         AssertTrue(native.Render(new ushort[6]).SequenceEqual(installed.Render(new ushort[6])), "layout edit does not reveal unavailable areas");
         var navigation = new FileSelectMapNavigation(0);
         navigation.BindLabels(edited.Labels);
-        navigation.Step(SnesButton.A); navigation.Step(0);
+        navigation.Step(ControllerButton.A); navigation.Step(0);
         AssertEqual(areas["Crateria"].X, (navigation.Window ?? throw new InvalidOperationException("Verification requires navigation.Window.")).TopLeft.X, "normal navigation uses edited label/window anchor");
         AssertEqual(areas["Crateria"].Y, navigation.Window.TopLeft.Y, "normal navigation uses edited vertical anchor");
         installed.BindLabels(original.Labels);

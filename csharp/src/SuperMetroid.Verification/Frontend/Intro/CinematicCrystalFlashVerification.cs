@@ -122,7 +122,7 @@ internal static class CinematicCrystalFlashVerification
         failedSamus.Drained.LetFall(failedSamus);
         bool failedTimingAdmitted = failedSamus.CrystalFlash.TryBegin(
             failedSamus,
-            (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X));
+            (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X));
         AssertTrue(failedTimingAdmitted,
             "post-crouch adjacent timing admits the delayed Crystal Flash");
         AssertEqual(DrainedSamusPhase.Inactive, failedSamus.Drained.Phase,
@@ -276,8 +276,8 @@ internal static class CinematicCrystalFlashVerification
         bool admitted = samus.CrystalFlash.TryBegin(
             samus,
             admitFlash
-                ? (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X)
-                : (SnesButton.Down | SnesButton.L | SnesButton.R));
+                ? (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X)
+                : (ControllerButton.Down | ControllerButton.L | ControllerButton.R));
         AssertEqual(admitFlash, admitted, "cinematic Flash fixture admission");
         for (ushort frame = 0; frame < movementCalls; frame++)
             samus.CrystalFlash.Step(samus, frame);

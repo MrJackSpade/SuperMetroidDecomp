@@ -31,7 +31,7 @@ internal static class PauseMapPositionVerification
             new VerifyPauseMapPositionCase(AreaId.Brinstar, 7, 10, 0x80, 0x180),
         })
         {
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + RoomScreenOf.Pixel(samusX))), checked((ushort)(roomY + RoomScreenOf.Pixel(samusY) + 1)));
             system.MarkExploredMapTile(area, samusCell);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))}, System = system, AreaIndex = area, RoomMapPosition = new(checked((ushort)roomX), checked((ushort)roomY)) });

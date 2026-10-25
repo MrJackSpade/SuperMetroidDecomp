@@ -53,7 +53,7 @@ internal static class GameOverMenuIndexesVerification
             var answered = new GameOverMenuState(new AudioQueues(), presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: ceres);
             answered.Phase = GameOverMenuPhase.Main;
             answered.Step(0);
-            answered.Step(SnesButton.A);
+            answered.Step(ControllerButton.A);
             AssertEqual(ceres, answered.CeresArrivalRequested, $"Yes on loading state $1F={ceres} requests the Ceres loader");
             AssertEqual(ceres ? GameOverMenuPhase.Main : GameOverMenuPhase.FadeOutToContinue, answered.Phase,
                 "only an area-map continue fades out");

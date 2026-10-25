@@ -22,7 +22,7 @@ internal static class UnpauseStationLockReleaseVerification
     /// </summary>
     internal static void VerifyUnpauseStationLockRelease()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -40,7 +40,7 @@ internal static class UnpauseStationLockReleaseVerification
         long sequence = 0;
 
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
-            game.StepCaptured(SnesButton.Start, ++sequence, 1);
+            game.StepCaptured(ControllerButton.Start, ++sequence, 1);
         AssertEqual(SuperMetroidGameState.UnpausingA, game.GameState, "Start closes the menu");
         AssertTrue(samus.Control.AlphaLocked && samus.Control.Mode.Beta == SamusBetaHandler.RefillStation, "the station lock holds through the fade");
         while (game.GameState != SuperMetroidGameState.Unpausing)

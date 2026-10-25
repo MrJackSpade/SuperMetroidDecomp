@@ -31,7 +31,7 @@ internal static class PoseInputDefinitionsVerification
             }
             AssertTrue(SamusPoseInputDefinitions.TryGetInputList(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
             AssertEqual(pointer, SamusPoseInputListNative.Address(actualPointer), "Native transition-list diagnostic identity");
-            AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(actualPointer, (SnesButton)ushort.MaxValue, (SnesButton)ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
+            AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(actualPointer, (ControllerButton)ushort.MaxValue, (ControllerButton)ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
             {
                 newMask |= native[i].New; heldMask |= native[i].Held;
@@ -46,15 +46,15 @@ internal static class PoseInputDefinitionsVerification
             for (int pressed = 0; pressed < 64; pressed++)
             for (int noise = 0; noise < 4; noise++)
             {
-                SnesButton input = (SnesButton)((held << 4) | ((noise & 1) == 0 ? 0 : 0xf00f));
-                SnesButton edges = (SnesButton)((pressed << 6) | ((noise & 2) == 0 ? 0 : 0xf03f));
+                ControllerButton input = (ControllerButton)((held << 4) | ((noise & 1) == 0 ? 0 : 0xf00f));
+                ControllerButton edges = (ControllerButton)((pressed << 6) | ((noise & 2) == 0 ? 0 : 0xf03f));
                 SamusPoseTransitionLookup expected;
                 if (input == 0) expected = new(null, true);
                 else
                 {
                     int match = -1;
                     for (int i = 0; i < native.Count; i++)
-                        if ((input & (SnesButton)native[i].Held) == (SnesButton)native[i].Held && (edges & (SnesButton)native[i].New) == (SnesButton)native[i].New)
+                        if ((input & (ControllerButton)native[i].Held) == (ControllerButton)native[i].Held && (edges & (ControllerButton)native[i].New) == (ControllerButton)native[i].New)
                         { match = i; break; }
                     expected = match < 0 ? new(null, native.Count != 0)
                         : native[match].Target == (ushort)pose ? new(null, false)
@@ -74,7 +74,7 @@ internal static class PoseInputDefinitionsVerification
             SamusPoseId invalidPose = (SamusPoseId)pose;
             AssertTrue(!SamusPoseInputDefinitions.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
-                () => SamusPoseTransitionTable.Lookup(invalidPose, (SnesButton)1, (SnesButton)1),
+                () => SamusPoseTransitionTable.Lookup(invalidPose, (ControllerButton)1, (ControllerButton)1),
                 "Non-authored pose graph rejects adjacent code");
             AssertEqual(
                 new SamusPoseTransitionLookup(null, true),
@@ -85,7 +85,7 @@ internal static class PoseInputDefinitionsVerification
         // Extra held bits are admitted by the native subset matcher. With both horizontal
         // bits set, the first authored condition wins: the direction opposite the current
         // facing appears first in each standing table, so the chord begins a turn.
-        const SnesButton leftRight = (SnesButton.Left | SnesButton.Right);
+        const ControllerButton leftRight = (ControllerButton.Left | ControllerButton.Right);
         AssertEqual(
             SamusPoseId.TurningRightToLeftPose,
             (SamusPoseTransitionTable.Lookup(
@@ -104,7 +104,7 @@ internal static class PoseInputDefinitionsVerification
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int accepted = 0;
         for (int i = 0; i < 65536; i++)
-            if (SamusPoseTransitionTable.Lookup((SamusPoseId)(i % 253), (SnesButton)(ushort)i, (SnesButton)(ushort)~i).Transition.HasValue) accepted++;
+            if (SamusPoseTransitionTable.Lookup((SamusPoseId)(i % 253), (ControllerButton)(ushort)i, (ControllerButton)(ushort)~i).Transition.HasValue) accepted++;
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");

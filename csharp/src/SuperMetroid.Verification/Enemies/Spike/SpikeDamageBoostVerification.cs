@@ -58,7 +58,7 @@ internal static class SpikeDamageBoostVerification
         ];
         for (int frame = 0; frame < expected.Length; frame++)
         {
-            runtime.StepFrame(frame < 3 ? SnesButton.Left | SnesButton.A : SnesButton.A);
+            runtime.StepFrame(frame < 3 ? ControllerButton.Left | ControllerButton.A : ControllerButton.A);
             AssertEqual(expected[frame], new SpikeDamageBoostExpected(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                 samus.Pose, samus.HorizontalSpeed.BaseFixed), $"morphed spike release frame {frame}");
             AssertEqual(83, samus.Health, "spike contact damage");
@@ -84,15 +84,15 @@ internal static class SpikeDamageBoostVerification
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
         samus.KnockbackTimer = WrappingCountdown.Start(0);
-        runtime.Controller1.Latch((SnesButton.Right | SnesButton.A));
-        runtime.StepFrame((SnesButton.Right | SnesButton.A));
+        runtime.Controller1.Latch((ControllerButton.Right | ControllerButton.A));
+        runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
         AssertEqual(0x00534000u, samus.Kinematics.Position.X.RawValue, "expired hurt floor probe keeps X");
         AssertEqual(0x00ebffffu, samus.Kinematics.Position.Y.RawValue, "expired hurt floor alignment");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "landing clears residual hurt momentum");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "landing clears vertical direction");
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        runtime.StepFrame((SnesButton.Right | SnesButton.A));
+        runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
         AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "landing movement preserves post-landing hurt-expiry direction");
 
         // Native carry trace contact=5, delay=2, immediately after the contact frame.
@@ -120,7 +120,7 @@ internal static class SpikeDamageBoostVerification
         ];
         foreach (var expectedFrame in carriedFrames)
         {
-            runtime.StepFrame(SnesButtons.FromRaw(expectedFrame.Input, "spike fixture frame"));
+            runtime.StepFrame(ControllerButtons.FromRaw(expectedFrame.Input, "spike fixture frame"));
             AssertEqual(new VerifyMorphedSpikeReleaseCase(expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
                 new VerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                     samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed.Whole),
@@ -156,8 +156,8 @@ internal static class SpikeDamageBoostVerification
             if (retainedPose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or
                 SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningLeftToRightPose)
                 samus.Position = samus.Position.WithWholeY(235);
-            runtime.Controller1.Latch(SnesButton.A);
-            runtime.StepFrame(SnesButton.A);
+            runtime.Controller1.Latch(ControllerButton.A);
+            runtime.StepFrame(ControllerButton.A);
             AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin/turn pose");
             AssertEqual(retainedPose, samus.PoseHistory.LastDifferentPose, "same-pose fallback shifts history");
         }
@@ -177,15 +177,15 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(0, 0x9000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-        runtime.Controller1.Latch((SnesButton.Left | SnesButton.A));
-        runtime.StepFrame((SnesButton.Left | SnesButton.A));
+        runtime.Controller1.Latch((ControllerButton.Left | ControllerButton.A));
+        runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0063c000u, 0x00edffffu, 0x0000a000u),
             new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
             "underwater turn floor contact preserves native accumulated speed");
         AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
         AssertEqual(false, (runtime.Player.LastAerialSamusMovement ?? throw new InvalidOperationException("Verification requires runtime.Player.LastAerialSamusMovement.")).Landed,
             "turn suppresses collision-owned landing presentation");
-        runtime.StepFrame((SnesButton.Left | SnesButton.A));
+        runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0062c000u, 0x00ebffffu, 0u),
             new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
             "following normal fall performs actual landing");

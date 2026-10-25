@@ -14,16 +14,16 @@ public static class PlaybackFrameBatchSmokeTest
         // 10 ms and ends at 30 ms, so the poll at frame two must see it. Sampling
         // only at batch start loses the entire tap despite three game updates.
         int time = 0;
-        var observed = new List<SnesButton>();
+        var observed = new List<ControllerButton>();
         var result = PlaybackFrameBatch.Run(3,
-            () => time is >= 10 and < 30 ? SnesButton.Left : SnesButton.None,
+            () => time is >= 10 and < 30 ? ControllerButton.Left : ControllerButton.None,
             input =>
             {
                 observed.Add(input);
                 time += 20;
                 return default(FrontendFrame);
             });
-        SnesButton[] expected = [0, SnesButton.Left, 0];
+        ControllerButton[] expected = [0, ControllerButton.Left, 0];
         if (!observed.SequenceEqual(expected))
             throw new InvalidDataException(
                 $"Catch-up batch lost or stretched a short tap: [{string.Join(',', observed)}], " +

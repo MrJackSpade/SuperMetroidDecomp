@@ -22,7 +22,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public ScreenPalette Palette => screen.Palette;
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
-    internal Bank80SystemState MapSystem => icons.MapSystem;
+    internal SharedGameState MapSystem => icons.MapSystem;
 
     /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu PPU owner, following $81:A725/$82:9517 without choosing a load station or advancing menu timing.</summary>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
@@ -30,7 +30,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
     /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
     /// <param name="sheets">Required installed sprite sheets, despite the optional parameter syntax: the map sprites and the background tiles.</param>
-    public FileSelectRoomMapGraphics(Bank80SystemState system, AreaId area,
+    public FileSelectRoomMapGraphics(SharedGameState system, AreaId area,
         MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null, InstalledSpriteSheets? sheets = null)
     {
         Ensure.NotNull(system);

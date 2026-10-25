@@ -91,7 +91,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     /// <summary>Builds a retail gameplay session standing in the Landing Site with a reset audio queue.</summary>
     private static SuperMetroidGame CreateLandingSiteSession()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

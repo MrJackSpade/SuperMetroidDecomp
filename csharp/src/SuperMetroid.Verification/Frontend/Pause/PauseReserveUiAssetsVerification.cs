@@ -33,8 +33,8 @@ internal static class PauseReserveUiAssetsVerification
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
-        var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-        var installed = new PauseMenuState(new PauseMenuEntry { Samus = installedSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = new SharedGameState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var installed = new PauseMenuState(new PauseMenuEntry { Samus = installedSamus, System = new SharedGameState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {
@@ -64,8 +64,8 @@ internal static class PauseReserveUiAssetsVerification
         using (var output = File.Create(path)) PauseReserveUiFile.Write(output, editedDocument);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "reserve UI override changes selected content identity");
-        var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-        var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
+        var stockPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new SharedGameState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var editedPause = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new SharedGameState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
         AssertTrue(stockPause.ReadReserveSupplyDigit(2) != editedPause.ReadReserveSupplyDigit(2),
             "edited reserve digit reaches the actual mutable equipment page");
         EnterEquipment(stockPause); EnterEquipment(editedPause);
@@ -119,7 +119,7 @@ internal static class PauseReserveUiAssetsVerification
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, frameCounterByte: nmiFrame++));
+            byte nmiFrame = 0; ChangePausePage(pause, ControllerButton.R, input => pause.Step(input, input, frameCounterByte: nmiFrame++));
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve UI fixture enters equipment");
         }
     }

@@ -96,7 +96,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Host-owned trail programs and appearances the flashback trails run.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork { get; set; }
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
-    public required CartridgeRandom Random { get; init; }
+    public required SharedRandom Random { get; init; }
 
     /// <summary>The session's Mode 7 transfer queue residue, bound into the flashback Samus.</summary>
     public SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; init; }
@@ -357,7 +357,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>Advances the opening cinematic by one gameplay update.</summary>
     /// <param name="controllerInput">The current raw controller-held word.</param>
-    public void Step(SnesButton controllerInput)
+    public void Step(ControllerButton controllerInput)
     {
         flashbackProjectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Cinematic);
         // Cinematic functions consume joypad1_newkeys, not the raw held word. Latching at
@@ -1048,7 +1048,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         SamusState samus = FlashbackSamus;
         RoomLevelData level = FlashbackLevel;
-        SnesButton demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
+        ControllerButton demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
 
         // Accepted NMI transfers the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding ROM graphics rather than

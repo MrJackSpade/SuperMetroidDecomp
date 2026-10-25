@@ -34,7 +34,7 @@ internal sealed class EnemyPlmSpawns(
         noobTube.SpawnNoobTubeProjectile(request, roomWidthInBlocks);
 
     /// <inheritdoc/>
-    public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, int roomWidthInBlocks, Bank80SystemState system) =>
+    public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, int roomWidthInBlocks, SharedGameState system) =>
         eyeDoor.SpawnEyeDoorProjectile(request, roomWidthInBlocks, system);
 
     /// <inheritdoc/>

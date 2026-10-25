@@ -191,7 +191,7 @@ internal static class ProjectileInheritanceProbeVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        for (int frame = 0; frame < 20; frame++) runtime.StepFrame(SnesButton.Right);
+        for (int frame = 0; frame < 20; frame++) runtime.StepFrame(ControllerButton.Right);
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
         AssertTrue((SnesLittleEndian.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
@@ -203,8 +203,8 @@ internal static class ProjectileInheritanceProbeVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(stateStream);
         // The host rebinds nonserialized presentation assets after debugger restore.
         BindRetailRuntimeFixture(restored);
-        runtime.StepFrame((SnesButton.Right | runtime.Options.ControllerBindings.Shoot));
-        restored.StepFrame((SnesButton.Right | restored.Options.ControllerBindings.Shoot));
+        runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Shoot));
+        restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
         var shot = runtime.Projectiles.Slots.First(slot => slot.IsActive);
         AssertEqual(expected, shot.Velocity.X.SignedRawValue,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");

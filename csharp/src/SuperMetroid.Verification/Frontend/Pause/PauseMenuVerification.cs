@@ -103,7 +103,7 @@ internal static class PauseMenuVerification
             ReserveEnergy = 47,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0300)),
         };
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetAreaMapAcquired(0);
         system.MarkExploredMapTile(0, new(30, 5));
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram), MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
@@ -137,7 +137,7 @@ internal static class PauseMenuVerification
         // $82:ABAD-$ABB5 selects the reserve mode control whenever reserve capacity exists (#1266).
         AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Reserves, PauseReserveEnergyDefinitions.ModeItem),
             new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "pause entry selects the reserve mode control");
-        pause.Step(0, SnesButton.Right);
+        pause.Step(0, ControllerButton.Right);
         AssertEqual(PauseEquipmentCategory.Suits, pause.SelectedCategory, "pause Right moves to suits/misc category");
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
@@ -153,7 +153,7 @@ internal static class PauseMenuVerification
         // this catches the original frozen-ROM-template failure rather than merely proving
         // that Samus's underlying reserve field changed.
         samus.ReserveEnergy = 100;
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         AssertEqual(0x0805, pause.ReadReserveSupplyDigit(0).Raw,
             "pause equipment reserve-supply hundreds digit refreshes after rebuild");
         AssertEqual(0x0804, pause.ReadReserveSupplyDigit(1).Raw,
@@ -162,18 +162,18 @@ internal static class PauseMenuVerification
             "pause equipment reserve-supply ones digit refreshes after rebuild");
 
         // D-pad and A use joypad1_newkeys, not the delayed-held word used by L/R/Start.
-        pause.Step(0, SnesButton.Down);
+        pause.Step(0, ControllerButton.Down);
         AssertEqual(3, pause.SelectedItem, "pause Down selects collected Bombs");
         pause.Render();
         AssertEqual(new Position16<OamPixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
             "pause A unequips live Bombs bit");
         pause.Step(0, 0);
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         AssertTrue(samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
             "pause A re-equips live Bombs bit");
-        AssertTrue(pause.Step(SnesButton.Start, 0),
+        AssertTrue(pause.Step(ControllerButton.Start, 0),
             "pause delayed Start requests outer unpause state");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(812) & 0x1c00,
             "pause Start label switches to the native unpause palette");
@@ -188,7 +188,7 @@ internal static class PauseMenuVerification
         AssertEqual(PauseEquipmentCategory.Reserves, beamPause.SelectedCategory,
             "Wave-only pause entry selects the reserve mode control while capacity exists");
         SelectPauseBeams(beamPause);
-        beamPause.Step(0, SnesButton.A);
+        beamPause.Step(0, ControllerButton.A);
         AssertEqual(SamusBeamFlags.Wave, samus.EquippedBeams,
             "pause toggle immediately mutates live Wave equipment word");
 
@@ -212,7 +212,7 @@ internal static class PauseMenuVerification
         // the sampled point. BG2 is also transparent there. The pixel must therefore be
         // backdrop black, proving that `$80:A211`'s $184E fill prevented visible BG3
         // character zero from leaking below the four-row HUD.
-        var blankMapPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram), MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
+        var blankMapPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram), MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
         Rgba32[] blankMapFrame = blankMapPause.Render();
         AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");
@@ -221,7 +221,7 @@ internal static class PauseMenuVerification
         // cell, one secret-only cell, and one entered secret cell prove visibility and the
         // explored-palette distinction independently. Reconstructing None afterward proves
         // the earlier override never wrote either progression plane.
-        var revealSystem = new Bank80SystemState();
+        var revealSystem = new SharedGameState();
         revealSystem.MarkExploredMapTile(
             AreaId.Crateria,
             new(exploredSecretMapX, revealTestMapY));
@@ -257,7 +257,7 @@ internal static class PauseMenuVerification
         revealSaveRam.SaveSlot(0, revealSnapshot);
         SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");
-        var restoredRevealSystem = new Bank80SystemState();
+        var restoredRevealSystem = new SharedGameState();
         restoredRevealSlot.ApplyTo(new SamusState(), restoredRevealSystem);
         var restoredNonePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram), MapRevealMode = MapRevealMode.None, MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),

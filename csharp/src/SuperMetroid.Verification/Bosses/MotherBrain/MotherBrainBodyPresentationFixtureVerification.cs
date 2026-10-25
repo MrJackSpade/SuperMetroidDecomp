@@ -23,7 +23,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>The BG2 scroll placing the body after each production step that has taken BG2 over (#1356).</summary>
         internal List<Position16<Bg2Pixels>> ScrollCalls { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
-        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
+        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
 
         /// <summary>Creates and binds a third-form body with installed artwork and the enemy BG2 image it owns since phase two.</summary>
         internal MotherBrainPresentationFixture(InstalledEnemyArtwork artwork)
@@ -39,7 +39,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             // Her phase-two transition attaches the enemy BG2 image her body draws into (#1356).
             Inner.Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(0));
             Inner.Enemies.Drawing.Enqueue(0, Body.EnemyIndex);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
         }
 
         /// <summary>Selects a body frame and optionally marks it as a new instruction frame.</summary>

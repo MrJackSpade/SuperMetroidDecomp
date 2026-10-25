@@ -14,7 +14,7 @@ The four previously omitted meanings are:
 | --- | --- | --- |
 | `slots[].resources.reserveMissiles` | `$09D8`, excess missile accumulator | `SamusState.ReserveMissiles` |
 | `slots[].japaneseText` | `$09E2`, alternate text option | Options and runtime language setting |
-| `slots[].loadedItemCount` | `$7E:D91A`, cumulative item PLM setup count, wrapping at 65536 | `Bank80SystemState`; incremented on item setup, including already collected items |
+| `slots[].loadedItemCount` | `$7E:D91A`, cumulative item PLM setup count, wrapping at 65536 | `SharedGameState`; incremented on item setup, including already collected items |
 | `gameCompleted` | Exact twelve-byte `supermetroid` signature at `$70:1FE0` | Ending final-message transition; fourth attract-demo set requires this and a valid slot |
 
 The item-load counter is **not** collected item count or completion percentage.

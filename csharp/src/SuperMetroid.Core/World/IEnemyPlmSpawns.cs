@@ -14,7 +14,7 @@ internal interface IEnemyPlmSpawns
     void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request, int roomWidthInBlocks);
 
     /// <summary>Spawns an eye-door projectile.</summary>
-    void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, int roomWidthInBlocks, Bank80SystemState system);
+    void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, int roomWidthInBlocks, SharedGameState system);
 
     /// <summary>Spawns the old Tourian escape-shaft wall's explosion.</summary>
     void SpawnOldTourianEscapeShaftWallExplosion();

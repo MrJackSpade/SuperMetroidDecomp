@@ -29,7 +29,7 @@ internal static class EndingSetupNmiWaitsVerification
         AssertEqual(SuperMetroidGameState.EndingAndCredits, game.GameState, "the fade hands off to state $27");
 
         var ending = game.Session.ScreenAs<EndingCreditsState>();
-        var expected = new Bank80SystemState();
+        var expected = new SharedGameState();
         expected.SetRandomNumber(game.DispatcherRandomNumber);
         for (int call = 1; call <= 11; call++)
         {

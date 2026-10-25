@@ -120,9 +120,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
-    /// <param name="controllerInput">Current held-button word in native <see cref="SnesButton"/> bit layout; only newly pressed buttons affect the interactive menu.</param>
+    /// <param name="controllerInput">Current held-button word in native <see cref="ControllerButton"/> bit layout; only newly pressed buttons affect the interactive menu.</param>
     /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame for 180 updates while fading out.</remarks>
-    public void Step(SnesButton controllerInput)
+    public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
         if (ResumesAfterFrameWait)
@@ -144,7 +144,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             return;
         }
 
-        SnesButton pressed = controller.NewlyPressed;
+        ControllerButton pressed = controller.NewlyPressed;
         // Only indexes three, four, five and seven draw the selection missile.
         if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
@@ -192,14 +192,14 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
             case GameOverMenuPhase.Main:
                 StepBabyMetroid();
-                if ((pressed & (SnesButton.Select | SnesButton.Up | SnesButton.Down)) != 0)
+                if ((pressed & (ControllerButton.Select | ControllerButton.Up | ControllerButton.Down)) != 0)
                 {
                     audio.QueueSound(
                         Library1Sound.MenuCursor,
                         maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }
-                else if ((pressed & SnesButton.A) != 0)
+                else if ((pressed & ControllerButton.A) != 0)
                 {
                     // `$81:914B` holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.

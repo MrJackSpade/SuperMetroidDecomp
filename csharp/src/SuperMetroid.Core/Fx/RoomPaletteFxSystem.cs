@@ -241,7 +241,7 @@ public sealed class RoomPaletteFxSystem
         {
             throw new NotSupportedException(
                 $"Room palette-FX pre-instruction {slot.PreInstruction} is not translated " +
-                $"for object {slot.Object} (Samus Y=${conditions.SamusY:X4}, items=${conditions.EquippedItems.ToNativeWord():X4}).");
+                $"for object {slot.Object} (Samus Y=${conditions.SamusY:X4}, items=${conditions.EquippedItems.ToEquipmentWord():X4}).");
         }
         switch (preInstruction)
         {

@@ -122,13 +122,13 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // persists the packed representation and ReadSlot reconstructs the seven-plane domain
     // representation without allowing a synthetic ROM to redefine fixed codec metadata.
     var exploredMap = new byte[
-        Bank80SystemState.ExploredMapAreaCount *
-        Bank80SystemState.ExploredMapBytesPerArea];
+        SharedGameState.ExploredMapAreaCount *
+        SharedGameState.ExploredMapBytesPerArea];
     exploredMap[0x07] = 0x80;
     exploredMap[0x84] = 0x04;
-    var usedSaveStations = new byte[Bank80SystemState.UsedSaveStationByteCount];
+    var usedSaveStations = new byte[SharedGameState.UsedSaveStationByteCount];
     usedSaveStations[0] = 0x01;
-    var mapStations = new byte[Bank80SystemState.MapStationByteCount];
+    var mapStations = new byte[SharedGameState.MapStationByteCount];
     mapStations[0] = 0xff;
 
     var addressSpace = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
@@ -215,20 +215,20 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // nonempty source, destination one is the first native choice, and YES is the default.
     var copyMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     AdvanceFileSelectToMain(copyMenu);
-    PulseFileSelect(copyMenu, SnesButton.Down);
-    PulseFileSelect(copyMenu, SnesButton.Down);
-    PulseFileSelect(copyMenu, SnesButton.Down);
+    PulseFileSelect(copyMenu, ControllerButton.Down);
+    PulseFileSelect(copyMenu, ControllerButton.Down);
+    PulseFileSelect(copyMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Copy, copyMenu.SelectedItem, "file-select reaches DATA COPY");
-    PulseFileSelect(copyMenu, SnesButton.A);
+    PulseFileSelect(copyMenu, ControllerButton.A);
     AdvanceFileSelectFade(copyMenu, FileSelectPhase.CopySelectSource);
-    PulseFileSelect(copyMenu, SnesButton.A);
+    PulseFileSelect(copyMenu, ControllerButton.A);
     AssertEqual(FileSelectPhase.CopySelectDestination, copyMenu.Phase,
         "copy chooses nonempty source slot");
-    PulseFileSelect(copyMenu, SnesButton.A);
+    PulseFileSelect(copyMenu, ControllerButton.A);
     AssertEqual(FileSelectPhase.CopyConfirm, copyMenu.Phase,
         "copy chooses distinct destination slot");
     copyMenu.Step(0);
-    copyMenu.Step(SnesButton.A);
+    copyMenu.Step(ControllerButton.A);
     AssertTrue(copyMenu.SaveRamChangedThisFrame, "copy publishes SRAM mutation frame");
     AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(1)
@@ -242,15 +242,15 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     var clearMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     AdvanceFileSelectToMain(clearMenu);
     for (int move = 0; move < 4; move++)
-        PulseFileSelect(clearMenu, SnesButton.Down);
+        PulseFileSelect(clearMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Clear, clearMenu.SelectedItem, "file-select reaches DATA CLEAR");
-    PulseFileSelect(clearMenu, SnesButton.A);
+    PulseFileSelect(clearMenu, ControllerButton.A);
     AdvanceFileSelectFade(clearMenu, FileSelectPhase.ClearSelectSlot);
-    PulseFileSelect(clearMenu, SnesButton.A);
+    PulseFileSelect(clearMenu, ControllerButton.A);
     AssertEqual(FileSelectPhase.ClearConfirm, clearMenu.Phase,
         "clear chooses first nonempty slot");
     clearMenu.Step(0);
-    clearMenu.Step(SnesButton.A);
+    clearMenu.Step(ControllerButton.A);
     AssertTrue(clearMenu.SaveRamChangedThisFrame, "clear publishes SRAM mutation frame");
     AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
         "clear reaches DATA CLEARED screen");
@@ -258,7 +258,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertTrue(saveRam.ReadSlot(1) is not null, "file-select CLEAR preserves other slots");
 
     AdvanceFileSelectFade(savedMenu, FileSelectPhase.Main);
-    savedMenu.Step(SnesButton.A);
+    savedMenu.Step(ControllerButton.A);
     for (int guard = 0;
          savedMenu.Phase != FileSelectPhase.FadeOutToOptions && guard < 80;
          guard++)
@@ -307,7 +307,7 @@ static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expe
 }
 
 /// <summary>Sends one button edge followed by its release to the file-select state machine.</summary>
-static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
+static void PulseFileSelect(FileSelectMenuState menu, ControllerButton button)
 {
     menu.Step(button);
     menu.Step(0);
@@ -472,11 +472,11 @@ internal static void VerifyDemoInputObject()
     // The first six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code, not this program, decides each shot.
     int[] boundaries = [90, 1, 40, 1, 29, 70];
-    SnesButton[] held =
-        [0, SnesButton.X, SnesButton.X, SnesButton.X,
-            SnesButton.X, 0];
-    SnesButton[] newlyPressed =
-        [0, SnesButton.X, 0, SnesButton.X, 0, 0];
+    ControllerButton[] held =
+        [0, ControllerButton.X, ControllerButton.X, ControllerButton.X,
+            ControllerButton.X, 0];
+    ControllerButton[] newlyPressed =
+        [0, ControllerButton.X, 0, ControllerButton.X, 0, 0];
     int elapsed = 0, ends = 0;
     void EndRoutine(DemoInputCue cue)
     {
@@ -510,8 +510,8 @@ internal static void VerifyDemoInputObject()
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");
-    AssertEqual(SnesButton.None, demo.Held, "demo delete clears held input");
-    AssertEqual(SnesButton.None, demo.NewlyPressed, "demo delete clears new input");
+    AssertEqual(ControllerButton.None, demo.Held, "demo delete clears held input");
+    AssertEqual(ControllerButton.None, demo.NewlyPressed, "demo delete clears new input");
 
     Console.WriteLine("  Demo input: records, edges, end routine and deletion agree.");
 }

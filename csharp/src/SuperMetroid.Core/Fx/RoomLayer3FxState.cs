@@ -277,7 +277,7 @@ public sealed class RoomLayer3FxState
     /// door fades and pause entry. Visual/VRAM updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
     /// </summary>
-    public void AdvanceLiquidMotion(Bank80SystemState system, bool timeIsFrozen)
+    public void AdvanceLiquidMotion(SharedGameState system, bool timeIsFrozen)
     {
         Ensure.NotNull(system);
         if (!MovesLiquidBeforeMainLoop || LiquidMotionStopped)
@@ -635,7 +635,7 @@ public sealed class RoomLayer3FxState
     /// Carry entering the routine. <c>QueueSound_Lib2_Max6</c> restores it with <c>PLP</c>,
     /// so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' HDMA objects are the first
     /// their FX spawns after the door's <c>Delete_HDMAObjects</c>, so they run in slot zero,
-    /// which inherits <see cref="Bank80SystemState.MainGameLoopCarry"/>; a later slot would
+    /// which inherits <see cref="SharedGameState.MainGameLoopCarry"/>; a later slot would
     /// see the clear carry from <c>CPX #$0C</c>.
     /// </param>
     private void HandleEarthquakeSoundEffect(int randomNumber, bool mainGameLoopCarry)

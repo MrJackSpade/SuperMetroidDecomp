@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// progression and level data. Owner decision on #1318: only the progression slice (<c>$7E:D820-D91B</c>) is kept,
 /// exactly; the other regions are not replicated.
 /// </summary>
-internal readonly struct SpacetimeBeamCorruptionMemory(Bank80SystemState progression, SamusOverreadCatalog overreads)
+internal readonly struct SpacetimeBeamCorruptionMemory(SharedGameState progression, SamusOverreadCatalog overreads)
 {
     /// <summary>
     /// Copies one word from <c>[$00],Y</c> (Y = <paramref name="sourceIndex"/>) to sprite palette six's byte X (X =
@@ -22,7 +22,7 @@ internal readonly struct SpacetimeBeamCorruptionMemory(Bank80SystemState progres
         for (int offset = 0; offset < sizeof(ushort); offset++)
         {
             int sliceOffset = destinationIndex + offset - SpacetimeBeamCopyDefinitions.ProgressionSliceDistance;
-            if (!Bank80SystemState.ProgressionSliceHolds(sliceOffset))
+            if (!SharedGameState.ProgressionSliceHolds(sliceOffset))
                 continue;
             progression.WriteProgressionSliceByte(sliceOffset, overreads.SpacetimeCopySourceAt(source + offset));
         }

@@ -26,7 +26,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Drops emitted as the baby rises past the hatch scanline.</summary>
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
     /// <summary>The session's random-number word, which the demo's Samus animation draws from.</summary>
-    private readonly CartridgeRandom random;
+    private readonly SharedRandom random;
     /// <summary>The egg actor whose list pointer controls the hatch sequence.</summary>
     internal readonly IntroDiscoverySprite egg;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
@@ -36,7 +36,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <param name="random">The session's random-number word, which the demo's Samus animation draws from.</param>
     /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
     /// <param name="existingSamus">The flashback's Samus the scene carries on with, or null for a new one.</param>
-    public IntroBabyDiscoveryState(CartridgeRandom random, AudioQueues? audio = null,
+    public IntroBabyDiscoveryState(SharedRandom random, AudioQueues? audio = null,
         SamusState? existingSamus = null)
     {
         this.random = Ensure.NotNull(random);

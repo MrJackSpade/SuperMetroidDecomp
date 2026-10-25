@@ -102,7 +102,7 @@ internal sealed class AcceptedFrameBoundary
     /// the frame counters. The port has no lagged NMIs; hardware lag is eliminated.
     /// </summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word.</param>
-    public void BeginAcceptedFrame(SnesButton controller1Input)
+    public void BeginAcceptedFrame(ControllerButton controller1Input)
     {
         PublishAcceptedFrameTransfers();
         _input.Latch(controller1Input);

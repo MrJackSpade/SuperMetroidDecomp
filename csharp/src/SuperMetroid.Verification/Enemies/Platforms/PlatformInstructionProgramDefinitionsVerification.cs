@@ -106,7 +106,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         int callCount)
     {
         object?[] arguments =
-            [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+            [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = WrappingCountdown.Start(1);

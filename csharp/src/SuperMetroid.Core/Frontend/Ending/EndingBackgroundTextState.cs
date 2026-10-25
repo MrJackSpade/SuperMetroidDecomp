@@ -141,9 +141,9 @@ internal sealed class EndingBackgroundTextState
                   + inventory.MaxSuperMissiles / 5
                   + inventory.MaxPowerBombs / 5;
         count += BitOperations.PopCount(
-            (inventory.CollectedItems & EndingResultTextLayout.CollectibleItemMask).ToNativeWord());
+            (inventory.CollectedItems & EndingResultTextLayout.CollectibleItemMask).ToEquipmentWord());
         count += BitOperations.PopCount(
-            (inventory.CollectedBeams & EndingResultTextLayout.CollectibleBeamMask).ToNativeWord());
+            (inventory.CollectedBeams & EndingResultTextLayout.CollectibleBeamMask).ToEquipmentWord());
         count = Math.Clamp(count, 0, 100);
 
         int hundreds = count / 100;

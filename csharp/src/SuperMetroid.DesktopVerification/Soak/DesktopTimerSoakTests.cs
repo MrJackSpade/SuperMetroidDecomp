@@ -135,14 +135,14 @@ internal static class DesktopTimerSoakTests
         var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         long sequence = 0;
-        void Step(SnesButton input) => game.StepCaptured(input, ++sequence, 1);
+        void Step(ControllerButton input) => game.StepCaptured(input, ++sequence, 1);
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
-            Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
+            Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
         game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(paused ? RoomHeaderDefinitions.GlassTunnel : RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         Step(0);
-        if (paused) Step(SnesButton.Start);
+        if (paused) Step(ControllerButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);
         var identity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(installation.LoadAudioClips(),
             installation.LoadMaps(), installation.LoadProjectiles());

@@ -39,7 +39,7 @@ internal static class RetailCinematicTests
                     $"{device.Kind}: intro {legacy.Phase}, tick {tick}");
                 count++;
             }
-            SnesButton input = tick % 47 == 0 ? SnesButton.A : SnesButton.None;
+            ControllerButton input = tick % 47 == 0 ? ControllerButton.A : ControllerButton.None;
             legacy.Step(input);
             legacyAudio.AdvanceFrame(default);
             captured.Step(input);

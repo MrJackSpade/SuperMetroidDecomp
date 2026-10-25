@@ -72,12 +72,12 @@ internal sealed class BeamFiring
     internal BeamFiringResult HandleBeamInput(
         RoomLevelData level,
         SamusState samus,
-        SnesButton controllerInput,
-        SnesButton controllerNewInput,
+        ControllerButton controllerInput,
+        ControllerButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms)
     {
-        const SnesButton shoot = SnesButton.X;
+        const ControllerButton shoot = ControllerButton.X;
         _charge.PreviousBeamChargeCounter = _charge.FlareCounter;
 
         // `$90:B80D` gives the Hyper flag priority over Charge equipment. It still uses
@@ -221,12 +221,12 @@ internal sealed class BeamFiring
     internal BeamShot TryFireBeam(
         RoomLevelData level,
         SamusState samus,
-        SnesButton controllerNewInput,
+        ControllerButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms,
         bool charged)
     {
-        const SnesButton shoot = SnesButton.X;
+        const ControllerButton shoot = ControllerButton.X;
 
         // `$90:B823/$90:B986` converge on this allocation gate for every ordinary and
         // charged beam combination. Without Charge Beam, callers attempt a shot every held
@@ -407,11 +407,11 @@ internal sealed class BeamFiring
     /// <summary>Consumes a current or retained Shoot edge, ammo, and cooldown to launch a missile.</summary>
     internal BeamShot TryFireMissile(
         SamusState samus,
-        SnesButton controllerNewInput,
-        SnesButton controllerPreviousNewInput,
+        ControllerButton controllerNewInput,
+        ControllerButton controllerPreviousNewInput,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        const SnesButton shoot = SnesButton.X;
+        const ControllerButton shoot = ControllerButton.X;
 
         // `$90:BE65-$BE72` accepts either the current new-press word or the previous filtered
         // drawing word. Live gameplay retains that edge through the next alpha, allowing

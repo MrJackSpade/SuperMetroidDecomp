@@ -26,14 +26,14 @@ internal static class GameOptionsStartGameVerification
         {
             var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture())) { LoadingGameState = route };
             for (int frame = 0; frame < 80 && options.Phase != GameOptionsPhase.Main; frame++)
-                options.Step(SnesButton.None);
+                options.Step(ControllerButton.None);
             AssertEqual(GameOptionsPhase.Main, options.Phase, $"{route} save reaches the primary options page");
             AssertEqual(0, options.SelectedItem, "the cursor starts on START GAME");
-            options.Step(SnesButton.A);
+            options.Step(ControllerButton.A);
             AssertEqual(afterPress, options.Phase, $"START GAME with a {route} save");
             if (route == SaveLoadingGameState.MainGame)
             {
-                options.Step(SnesButton.A);
+                options.Step(ControllerButton.A);
                 AssertTrue(options.IntroRequested, "a main-game save is dispatched on the next update");
             }
         }

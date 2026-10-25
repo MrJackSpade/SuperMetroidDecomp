@@ -44,8 +44,8 @@ internal static class NativeSnapshotImportPauseVerification
 
         runtime.System.TimedHeldInputTimer = WrappingCountdown.FromRaw(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
-        runtime.System.TimedHeldInput = (SnesButton)W(PauseMemory.TimedHeldInput);
-        runtime.System.NewlyTimedHeldInput = (SnesButton)W(PauseMemory.TimedHeldNew);
-        runtime.System.TimedHeldInputPrevious = (SnesButton)W(PauseMemory.TimedHeldPrevious);
+        runtime.System.TimedHeldInput = (ControllerButton)W(PauseMemory.TimedHeldInput);
+        runtime.System.NewlyTimedHeldInput = (ControllerButton)W(PauseMemory.TimedHeldNew);
+        runtime.System.TimedHeldInputPrevious = (ControllerButton)W(PauseMemory.TimedHeldPrevious);
     }
 }

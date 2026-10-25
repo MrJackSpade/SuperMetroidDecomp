@@ -12,7 +12,7 @@ public sealed class FileSelectMapNavigation
     /// <summary>Saved area index retained while area-map directions are suppressed in normal mode.</summary>
     private readonly int area;
     /// <summary>Previous controller word used to detect new confirm and cancel edges.</summary>
-    private SnesButton previousInput;
+    private ControllerButton previousInput;
     /// <summary>Optional label presentation excluded from serialized navigation state.</summary>
     [NonSerialized] private SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels;
     /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
@@ -21,7 +21,7 @@ public sealed class FileSelectMapNavigation
     /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>
     /// <param name="area">Zero-based saved area index.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
-    public FileSelectMapNavigation(int area, SnesButton initialHeldInput = SnesButton.None)
+    public FileSelectMapNavigation(int area, ControllerButton initialHeldInput = ControllerButton.None)
     {
         if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
@@ -38,27 +38,27 @@ public sealed class FileSelectMapNavigation
     public FileSelectMapWindow ActiveWindow => Window ??
         throw new InvalidOperationException("The file-select map window has not been prepared.");
     /// <summary>Entry/fade owners consume controller samples without executing menu actions.</summary>
-    public void LatchInputWithoutNavigation(SnesButton heldInput) => previousInput = heldInput;
+    public void LatchInputWithoutNavigation(ControllerButton heldInput) => previousInput = heldInput;
 
     /// <summary>
     /// Consumes one held-controller sample. Edges are latched even during transitions:
     /// pressing Confirm while the window expands must not queue a future room confirmation.
     /// </summary>
-    public void Step(SnesButton heldInput)
+    public void Step(ControllerButton heldInput)
     {
         // Same edge rule as ControllerInputState.NewlyPressedButtons, over the native joypad word.
-        SnesButton pressed = heldInput & ~previousInput;
+        ControllerButton pressed = heldInput & ~previousInput;
         previousInput = heldInput;
-        bool cancel = (pressed & SnesButton.B) != 0;
-        bool confirm = (pressed & (SnesButton.Start | SnesButton.A)) != 0;
+        bool cancel = (pressed & ControllerButton.B) != 0;
+        bool confirm = (pressed & (ControllerButton.Start | ControllerButton.A)) != 0;
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.Area:
                 // $81:A800's direction handling changes areas only with enable_debug.
                 // Its non-debug branch replaces the working input word with zero when
                 // a direction/Select edge exists, also suppressing a simultaneous confirm.
-                if ((pressed & (SnesButton.Up | SnesButton.Down | SnesButton.Left |
-                        SnesButton.Right | SnesButton.Select)) != 0) break;
+                if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
+                        ControllerButton.Right | ControllerButton.Select)) != 0) break;
                 // Otherwise B wins over A/Start, and selecting keeps the SRAM area.
                 if (cancel) Phase = FileSelectMapNavigationPhase.OptionsRequested;
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;

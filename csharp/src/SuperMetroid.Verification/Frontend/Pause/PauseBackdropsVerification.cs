@@ -67,8 +67,8 @@ internal static class PauseBackdropsVerification
             int toMap = 2 + PausePageTransitionNativeLength + 1, unpause = toMap + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < unpause + 2; tick++)
             {
-                SnesButton input = tick == 2 ? SnesButton.R : tick == toMap ? SnesButton.L :
-                    tick == unpause ? SnesButton.Start : 0;
+                ControllerButton input = tick == 2 ? ControllerButton.R : tick == toMap ? ControllerButton.L :
+                    tick == unpause ? ControllerButton.Start : 0;
                 AssertEqual(native.Step(input, input), pause.Step(input, input), "backdrop migration preserves Start acceptance and page controls");
                 persistentEdit.Step(input, input);
                 // Each area's complete backdrop is compared word-for-word above, and the fade and
@@ -115,12 +115,12 @@ internal static class PauseBackdropsVerification
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
         var samus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300, CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
-        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
-        glitch.Step(0, (SnesButton.Left | SnesButton.A));
-        AssertEqual((ushort)12, samus.EquippedBeams.ToNativeWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
+        glitch.Step(0, (ControllerButton.Left | ControllerButton.A));
+        AssertEqual((ushort)12, samus.EquippedBeams.ToEquipmentWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");
         glitch.BindFixtureArtwork(edited);
@@ -167,7 +167,7 @@ internal static class PauseBackdropsVerification
         {
             // Ceres has no map station, so its map byte is never set natively; since #1252 the
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
             return new(new PauseMenuEntry { Samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         }

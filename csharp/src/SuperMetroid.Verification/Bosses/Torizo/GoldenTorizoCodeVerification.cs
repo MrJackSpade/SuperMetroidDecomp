@@ -18,17 +18,17 @@ internal static class GoldenTorizoCodeVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => SnesLittleEndian.Word(GoldenTorizoCodeRomByte(rom, address), GoldenTorizoCodeRomByte(rom, address + 1));
-        SnesButton input = (SnesButton)Word(0xaac91a);
+        ControllerButton input = (ControllerButton)Word(0xaac91a);
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
         Check(EnemyDefinitionId.GoldenTorizo, input, false, true);
-        Check(EnemyDefinitionId.GoldenTorizo, (input | SnesButton.L), false, false);
-        Check(EnemyDefinitionId.GoldenTorizo, (input & ~SnesButton.A), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, (input | ControllerButton.L), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, (input & ~ControllerButton.A), false, false);
         Check(EnemyDefinitionId.GoldenTorizo, input, true, false);
         Check(EnemyDefinitionId.BombTorizo, input, false, false);
         Console.WriteLine("Golden Torizo code: production initialization grants exact ROM inventory only for the exact held chord on the undefeated Golden encounter; reserve mode and reserve missiles remain unchanged.");
 
-        void Check(EnemyDefinitionId header, SnesButton held, bool defeated, bool grants)
+        void Check(EnemyDefinitionId header, ControllerButton held, bool defeated, bool grants)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
@@ -60,8 +60,8 @@ internal static class GoldenTorizoCodeVerification
             [.. new[] { samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
                 samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
                 samus.PowerBombs, samus.MaxPowerBombs }.Select(SamusQuantity.Encode),
-             samus.EquippedItems.ToNativeWord(), samus.CollectedItems.ToNativeWord(),
-             samus.EquippedBeams.ToNativeWord(), samus.CollectedBeams.ToNativeWord()];
+             samus.EquippedItems.ToEquipmentWord(), samus.CollectedItems.ToEquipmentWord(),
+             samus.EquippedBeams.ToEquipmentWord(), samus.CollectedBeams.ToEquipmentWord()];
     }
 
     /// <summary>Reads a cartridge byte for the native code's input mask and inventory oracle.</summary>

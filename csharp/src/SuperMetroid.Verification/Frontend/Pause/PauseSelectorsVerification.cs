@@ -81,8 +81,8 @@ internal static class PauseSelectorsVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "selector-only edit changes catalog identity");
         var customSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
-        var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
-        customMenu.Step(SnesButton.R, SnesButton.R);
+        var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
+        customMenu.Step(ControllerButton.R, ControllerButton.R);
         while (customMenu.ScreenMode == PauseScreenMode.Map) customMenu.Step(0, 0);
         AssertEqual(new SelectorAnimation(0, 4), customMenu.ItemSelectorAnimationState, "custom initial duration applies exactly at page setup");
         int expectedFrame = 0, expectedTimer = 4;
@@ -118,7 +118,7 @@ internal static class PauseSelectorsVerification
         AssertEqual(timing, customMenu.ItemSelectorAnimationState, "rebind does not reset saved visual timing");
         customMenu.Render(); AssertEqual((ushort)47, customMenu.LastIndicatorOrigin.X, "restored stock anchor replaces edited anchor");
         customMenu.BindFixtureArtwork(edited); AssertTrue(before.SequenceEqual(customMenu.Render()), "restored edit returns exact pixels without advancing animation");
-        customMenu.Step(0, SnesButton.A);
+        customMenu.Step(0, ControllerButton.A);
         AssertEqual(SamusBeamFlags.None, customSamus.EquippedBeams, "custom hidden/visible selector cannot prevent actual equipment toggle");
         AssertEqual(SamusBeamFlags.Charge, customSamus.CollectedBeams, "selector edit cannot change collection");
         var shortened = Create(guard, catalog, PauseEquipmentCategory.Beams, 0);
@@ -130,7 +130,7 @@ internal static class PauseSelectorsVerification
         AssertEqual(0, shortened.CaptureRenderSnapshot().Paint.SpriteParts().Length, "short cycle safely projects saved phase modulo its new length");
         for (int tick = 0; tick < oldTiming.Timer; tick++) shortened.Step(0, 0);
         AssertEqual(new SelectorAnimation(1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
-        var empty = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
+        var empty = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
         EnterPauseEquipment(empty);
         var emptyTiming = empty.ItemSelectorAnimationState;
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
@@ -162,9 +162,9 @@ internal static class PauseSelectorsVerification
                 samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
                 samus.CollectedItems = samus.EquippedItems = bit.Item;
             }
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
-            if (category == 0 && item == 1) pause.Step(0, SnesButton.Down);
+            if (category == 0 && item == 1) pause.Step(0, ControllerButton.Down);
             return pause;
         }
     }

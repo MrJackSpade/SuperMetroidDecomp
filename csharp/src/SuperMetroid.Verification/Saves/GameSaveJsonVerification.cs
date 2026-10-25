@@ -48,7 +48,7 @@ internal static class GameSaveJsonVerification
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
             EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
         };
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.SetEvent(EventNumber.ZebesAwake);
         system.SetEventRaw(63);
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaMiniBoss);
@@ -63,7 +63,7 @@ internal static class GameSaveJsonVerification
         time.Load(frames: 41, seconds: 32, minutes: 21, hours: 7);
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: 0,
-            physicalButton: SnesButton.Y);
+            physicalButton: ControllerButton.Y);
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = AreaId.Brinstar, SaveStation = 4, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(1, snapshot);
 
@@ -228,7 +228,7 @@ internal static class GameSaveJsonVerification
         AreaMapPresentationCatalog maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
         var samus = new SamusState { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
-        var system = new Bank80SystemState { LoadedItemCount = ushort.MaxValue };
+        var system = new SharedGameState { LoadedItemCount = ushort.MaxValue };
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
             new SaveSnapshotContext { Area = AreaId.Maridia, SaveStation = SaveFieldValue.MaximumValue }) with
         {
@@ -242,7 +242,7 @@ internal static class GameSaveJsonVerification
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
         GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "JSON carries the largest item-load count");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.CartridgeDebugFlag, "JSON carries the largest debug value");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.DebugMode, "JSON carries the largest debug value");
         AssertEqual(0, slot.NewFileMarker, "JSON carries a zero new-file marker");
         AssertEqual(SaveFieldValue.MaximumValue, slot.LoadingGameState, "JSON carries an unnamed dispatcher route unchanged");
         AssertEqual(SaveFieldValue.MaximumValue, slot.Checkpoint.SaveStation, "JSON carries the largest load station");

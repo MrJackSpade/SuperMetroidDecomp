@@ -69,8 +69,8 @@ internal static class MoatFirstEntryVerification
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
                 // pause-state replay. Unpause's beam publication is applied below.
-                pause.Step(SnesButton.R,
-                    SnesButton.R);
+                pause.Step(ControllerButton.R,
+                    ControllerButton.R);
                 for (int frame = 0; frame < 64; frame++) pause.Step(0, 0);
                 AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause fixture reaches equipment graphics");
                 _ = pause.Render();

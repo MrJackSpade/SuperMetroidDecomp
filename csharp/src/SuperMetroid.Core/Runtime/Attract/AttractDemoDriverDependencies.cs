@@ -38,5 +38,5 @@ internal sealed record AttractDemoDriverDependencies
     public required RoomLoader RoomLoader { get; init; }
 
     /// <summary>System.</summary>
-    public required Bank80SystemState System { get; init; }
+    public required SharedGameState System { get; init; }
 }

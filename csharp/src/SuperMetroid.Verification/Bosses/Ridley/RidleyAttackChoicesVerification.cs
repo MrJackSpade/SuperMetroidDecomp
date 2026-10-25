@@ -38,8 +38,8 @@ internal static class RidleyAttackChoicesVerification
 
         var actual = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var reference = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
         ushort random = 0;
         int advances = 0, actualReads = 0, referenceReads = 0;
         actual.VerificationServices().NextRandom = () => { advances++; return random; };

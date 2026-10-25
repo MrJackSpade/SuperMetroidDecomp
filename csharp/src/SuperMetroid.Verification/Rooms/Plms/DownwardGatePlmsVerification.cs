@@ -279,7 +279,7 @@ internal static class DownwardGatePlmsVerification
             new byte[roomWidth * 16],
             blockDefinitions: blockDefinitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDownwardGateVisuals = visuals });
-        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return new CreateDownwardGateFixtureResult(bus, level, plms, gateY * roomWidth + gateX);
     }

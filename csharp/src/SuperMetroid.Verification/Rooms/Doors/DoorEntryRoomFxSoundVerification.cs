@@ -34,12 +34,12 @@ internal static class DoorEntryRoomFxSoundVerification
             .Where(door => door.DestinationRoom == RoomHeaderDefinitions.RisingTide)
             .First(door =>
             {
-                var candidate = LoadRisingTide(door, new CartridgeRandom());
+                var candidate = LoadRisingTide(door, new SharedRandom());
                 for (int frame = 0; frame < 4; frame++)
                     candidate.StepFrame(0);
                 return candidate.RoomLayer3Fx.EarthquakeRequest.HasValue;
             });
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = LoadRisingTide(entry, random);
         var samus = runtime.Player.IntroducedSamus;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
@@ -47,7 +47,7 @@ internal static class DoorEntryRoomFxSoundVerification
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
-        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, CartridgeRandom random)
+        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, SharedRandom random)
         {
             var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
             loaded.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

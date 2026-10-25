@@ -1,68 +1,68 @@
 namespace SuperMetroid.Core.Input;
 
-/// <summary>The demo-input objects' programs (#1300), one per bank-$91 list an object, redirect or loop enters.</summary>
+/// <summary>The demo-input objects' programs (#1300), one per list an object, redirect or loop enters.</summary>
 public enum DemoInputProgram
 {
-    /// <summary>The list at <c>$91:99C8</c>.</summary>
+    /// <summary>The AdvancedGrappleBeam title demonstration's input.</summary>
     AttractAdvancedGrappleBeam,
-    /// <summary>The list at <c>$91:9560</c>.</summary>
+    /// <summary>The BrinstarDiagonalRoom title demonstration's input.</summary>
     AttractBrinstarDiagonalRoom,
-    /// <summary>The list at <c>$91:9DAE</c>.</summary>
+    /// <summary>The CrystalFlash title demonstration's input.</summary>
     AttractCrystalFlash,
-    /// <summary>The list at <c>$91:8E64</c>.</summary>
+    /// <summary>The Dachora title demonstration's input.</summary>
     AttractDachora,
-    /// <summary>The list at <c>$91:8776</c>.</summary>
+    /// <summary>The program that ends a title demonstration's input.</summary>
     AttractDelete,
-    /// <summary>The list at <c>$91:933C</c>.</summary>
+    /// <summary>The DiagonalShinespark title demonstration's input.</summary>
     AttractDiagonalShinespark,
-    /// <summary>The list at <c>$91:9346</c>.</summary>
+    /// <summary>The DiagonalShinespark demonstration's input after its pre-instruction lets the shinespark continue.</summary>
     AttractDiagonalShinesparkContinuation,
-    /// <summary>The list at <c>$91:9154</c>.</summary>
+    /// <summary>The EyeDoor title demonstration's input.</summary>
     AttractEyeDoor,
-    /// <summary>The list at <c>$91:946C</c>.</summary>
+    /// <summary>The FirefleaRoom title demonstration's input.</summary>
     AttractFirefleaRoom,
-    /// <summary>The list at <c>$91:99AE</c>.</summary>
+    /// <summary>The GauntletEntrance title demonstration's input.</summary>
     AttractGauntletEntrance,
-    /// <summary>The list at <c>$91:973A</c>.</summary>
+    /// <summary>The GrappleBeam title demonstration's input.</summary>
     AttractGrappleBeam,
-    /// <summary>The list at <c>$91:989E</c>.</summary>
+    /// <summary>The IceBeam title demonstration's input.</summary>
     AttractIceBeam,
-    /// <summary>The list at <c>$91:9AF0</c>.</summary>
+    /// <summary>The InfiniteBombJump title demonstration's input.</summary>
     AttractInfiniteBombJump,
-    /// <summary>The list at <c>$91:9464</c>.</summary>
+    /// <summary>The Kraid title demonstration's input.</summary>
     AttractKraid,
-    /// <summary>The list at <c>$91:8ACE</c>.</summary>
+    /// <summary>The LandingSite title demonstration's input.</summary>
     AttractLandingSite,
-    /// <summary>The list at <c>$91:8FE4</c>.</summary>
+    /// <summary>The LowerNorfairEntrance title demonstration's input.</summary>
     AttractLowerNorfairEntrance,
-    /// <summary>The list at <c>$91:93CC</c>.</summary>
+    /// <summary>The MissileDoor title demonstration's input.</summary>
     AttractMissileDoor,
-    /// <summary>The list at <c>$91:8F3A</c>.</summary>
+    /// <summary>The PrePhantoonHall title demonstration's input.</summary>
     AttractPrePhantoonHall,
-    /// <summary>The list at <c>$91:965A</c>.</summary>
+    /// <summary>The PreSporeSpawnHall title demonstration's input.</summary>
     AttractPreSporeSpawnHall,
-    /// <summary>The list at <c>$91:8C3E</c>.</summary>
+    /// <summary>The PseudoScrewAttack title demonstration's input.</summary>
     AttractPseudoScrewAttack,
-    /// <summary>The list at <c>$91:8EB4</c>.</summary>
+    /// <summary>The RedBrinstarElevator title demonstration's input.</summary>
     AttractRedBrinstarElevator,
-    /// <summary>The list at <c>$91:950A</c>.</summary>
+    /// <summary>The ScrewAttack title demonstration's input.</summary>
     AttractScrewAttack,
-    /// <summary>The list at <c>$91:9CD8</c>.</summary>
+    /// <summary>The SpecialBeamAttack title demonstration's input.</summary>
     AttractSpecialBeamAttack,
-    /// <summary>The list at <c>$91:8DF0</c>.</summary>
+    /// <summary>The SpeedBooster title demonstration's input.</summary>
     AttractSpeedBooster,
-    /// <summary>The list at <c>$91:9DA6</c>.</summary>
+    /// <summary>The TourianEntrance title demonstration's input.</summary>
     AttractTourianEntrance,
-    /// <summary>The list at <c>$91:864B</c>.</summary>
+    /// <summary>The intro Baby-discovery input's ending.</summary>
     IntroBabyDiscoveryEnd,
-    /// <summary>The list at <c>$91:860D</c>.</summary>
+    /// <summary>The intro Baby-discovery input that runs Samus left.</summary>
     IntroBabyDiscoveryRunningLeft,
-    /// <summary>The list at <c>$91:8619</c>.</summary>
+    /// <summary>The loop that keeps Samus running left in the intro Baby discovery.</summary>
     IntroBabyDiscoveryRunningLeftLoop,
-    /// <summary>The list at <c>$91:8623</c>.</summary>
+    /// <summary>The intro Baby-discovery input that stops Samus and has her look.</summary>
     IntroBabyDiscoveryStopAndLook,
-    /// <summary>The list at <c>$91:8641</c>.</summary>
+    /// <summary>The loop that holds Samus still and looking in the intro Baby discovery.</summary>
     IntroBabyDiscoveryStopAndLookLoop,
-    /// <summary>The list at <c>$91:8694</c>.</summary>
+    /// <summary>The intro Mother Brain flashback's input.</summary>
     IntroMotherBrainFlashback,
 }

@@ -127,7 +127,7 @@ internal static class MapPresentationVerification
         AssertTrue(map.RevealsCellAbove(new(5, 6)), "replaced slope art retains its compiled reveal rule");
         AssertTrue(!map.IsDiscoverable(new(4, 6)), "new artwork cannot create exploration cells");
 
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         byte[] projected = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank, MapRevealMode.Secret);
         ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
             projected.AsSpan(AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
@@ -1318,8 +1318,8 @@ internal static class MapPresentationVerification
         var editedSkip = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
-        stockSkip.Step(SnesButton.Start);
-        editedSkip.Step(SnesButton.Start);
+        stockSkip.Step(ControllerButton.Start);
+        editedSkip.Step(ControllerButton.Start);
         for (int frame = 0; frame < 18; frame++)
         {
             stockSkip.Step(0);
@@ -1378,8 +1378,8 @@ internal static class MapPresentationVerification
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
-        stockTitle.Step(SnesButton.Start);
-        editedTitle.Step(SnesButton.Start);
+        stockTitle.Step(ControllerButton.Start);
+        editedTitle.Step(ControllerButton.Start);
         for (int frame = 0; frame < 16; frame++)
         {
             stockTitle.Step(0);
@@ -1493,7 +1493,7 @@ internal static class MapPresentationVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapCatalog(AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
             AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));

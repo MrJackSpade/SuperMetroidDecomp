@@ -36,7 +36,7 @@ internal static class GateBeamCollisionVerification
         for (int warm = 0; warm < 2; warm++) plms.Step(level);
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
-        SnesButton input = SnesButton.X;
+        ControllerButton input = ControllerButton.X;
         bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
         shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
         var shot = shots.Slots[0];

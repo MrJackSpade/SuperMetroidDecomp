@@ -16,7 +16,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>The room's system and event state.</summary>
-    private readonly Bank80SystemState? _system;
+    private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>
@@ -27,7 +27,7 @@ internal sealed class StationPlms : IPlmFamilySource
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Connects station activation to room state, PLM drawing, resident slots, and sound requests.</summary>
-    internal StationPlms(Bank80SystemState? system, IRoomSamusAccess? samus, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal StationPlms(SharedGameState? system, IRoomSamusAccess? samus, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -172,7 +172,7 @@ internal sealed class StationPlms : IPlmFamilySource
     /// <summary>Installs station collision blocks and animation state, or deactivates an elevator platform's collision bits.</summary>
     internal static bool TrySetupStationOrElevator(
         RoomLevelData level,
-        Bank80SystemState system,
+        SharedGameState system,
         AreaId area,
         PlmSlot slot)
     {
@@ -487,7 +487,7 @@ internal sealed class StationPlms : IPlmFamilySource
     /// <summary>Installs station and access BTS blocks and selects the current animation for saved map state.</summary>
     private static void SetupStation(
         RoomLevelData level,
-        Bank80SystemState system,
+        SharedGameState system,
         AreaId area,
         PlmSlot slot,
         StationKind kind)
@@ -535,7 +535,7 @@ internal sealed class StationPlms : IPlmFamilySource
     /// </summary>
     private static void SetupAccessStation(
         RoomLevelData level,
-        Bank80SystemState system,
+        SharedGameState system,
         AreaId area,
         PlmSlot slot,
         ushort original,
@@ -732,7 +732,7 @@ internal sealed class StationPlms : IPlmFamilySource
             bool canActivate = station.Kind switch
             {
                 StationKind.Map => !(_system ?? throw new InvalidOperationException(
-                    "Map station has no bank-$80 state owner.")).HasAreaMap(station.AreaIndex),
+                    "Map station has no shared game state owner.")).HasAreaMap(station.AreaIndex),
                 StationKind.Energy => samus.Health != samus.MaxHealth,
                 StationKind.Missile => samus.Missiles != samus.MaxMissiles,
                 StationKind.Save => true,
@@ -925,7 +925,7 @@ internal sealed class StationPlms : IPlmFamilySource
         {
             case StationKind.Map:
                 (_system ?? throw new InvalidOperationException(
-                    "Map station has no bank-$80 state owner."))
+                    "Map station has no shared game state owner."))
                     .SetAreaMapAcquired(station.AreaIndex);
                 station.AnimationList = station.CompletedAnimationList;
                 break;

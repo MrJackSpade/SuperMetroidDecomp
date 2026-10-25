@@ -31,21 +31,21 @@ internal static void VerifySamusPoseTransitionMatching()
 
     SamusPoseTransition jumpUp = (SamusPoseTransitionTable.Find(
         currentPose: fixturePose,
-        canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.A,
-        canonicalNewInput: SnesButton.A) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
+        canonicalHeldInput: ControllerButton.Up | ControllerButton.Right | ControllerButton.A,
+        canonicalNewInput: ControllerButton.A) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
     AssertEqual(0x55, (byte)jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
     AssertTrue(SamusPoseInputDefinitions.TryGetInputList(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
     SamusPoseTransition up = (SamusPoseTransitionTable.Find(
         currentPose: fixturePose,
-        canonicalHeldInput: (SnesButton.Up | SnesButton.Y),
+        canonicalHeldInput: (ControllerButton.Up | ControllerButton.Y),
         canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: (usho...."));
     AssertEqual(0x03, (byte)up.ProspectivePose, "Samus transition permits extra held action");
 
     SamusPoseTransition right = (SamusPoseTransitionTable.Find(
         currentPose: fixturePose,
-        canonicalHeldInput: SnesButton.Right,
+        canonicalHeldInput: ControllerButton.Right,
         canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x010...."));
     AssertEqual(0x09, (byte)right.ProspectivePose, "Samus standing Right proposes running pose");
 
@@ -55,21 +55,21 @@ internal static void VerifySamusPoseTransitionMatching()
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(
             SamusPoseId.MovingRightGunExtendedPose,
-            canonicalHeldInput: (SnesButton.Right | SnesButton.X),
+            canonicalHeldInput: (ControllerButton.Right | ControllerButton.X),
             canonicalNewInput: 0),
         "Samus same-pose transition is suppressed");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(fixturePose, canonicalHeldInput: SnesButton.Down, canonicalNewInput: 0),
+        SamusPoseTransitionTable.Find(fixturePose, canonicalHeldInput: ControllerButton.Down, canonicalNewInput: 0),
         "Samus transition terminator returns no match");
 
     SamusPoseTransitionLookup zeroInput = SamusPoseTransitionTable.Lookup(
         fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0);
     SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
         SamusPoseId.MovingRightGunExtendedPose,
-        canonicalHeldInput: (SnesButton.Right | SnesButton.X),
+        canonicalHeldInput: (ControllerButton.Right | ControllerButton.X),
         canonicalNewInput: 0);
     SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
-        fixturePose, canonicalHeldInput: SnesButton.Down, canonicalNewInput: 0);
+        fixturePose, canonicalHeldInput: ControllerButton.Down, canonicalNewInput: 0);
     AssertTrue(zeroInput.UsesPoseDefinitionFallback,
         "Samus zero input enters pose-definition fallback");
     AssertTrue(!samePose.UsesPoseDefinitionFallback,
@@ -80,7 +80,7 @@ internal static void VerifySamusPoseTransitionMatching()
     // Pose $2F uses the authored empty list at $91:A0DC. Its immediate terminator is a
     // direct return for held input, unlike exhaustion after at least one unmatched record.
     const SamusPoseId emptyListPose = SamusPoseId.TurningRightToLeftJumpPose;
-    AssertTrue(!SamusPoseTransitionTable.Lookup(emptyListPose, SnesButton.A, 0).UsesPoseDefinitionFallback,
+    AssertTrue(!SamusPoseTransitionTable.Lookup(emptyListPose, ControllerButton.A, 0).UsesPoseDefinitionFallback,
         "empty pose table preserves turn momentum while Jump remains held");
     AssertTrue(SamusPoseTransitionTable.Lookup(emptyListPose, 0, 0).UsesPoseDefinitionFallback,
         "releasing all input still invokes fallback before reading an empty table");
@@ -146,13 +146,13 @@ internal static void VerifySamusHorizontalSpeed()
     StepFrames(32, _ =>
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
-            controllerInput: SnesButton.B,
+            controllerInput: ControllerButton.B,
             speedBoosterEquipped: false));
     AssertTrue(speed.HasRunningMomentum, "ordinary Dash establishes native momentum flag");
     AssertEqual(0, speed.SpeedBoostCounter.RawValue, "ordinary Dash leaves booster stage zero");
     AssertEqual(2, speed.ExtraRunSpeed.Whole, "ordinary Dash whole-speed cap");
     AssertEqual(0, speed.ExtraRunSpeed.Fraction, "ordinary Dash fractional-speed cap");
-    speed.HandleExtraRunSpeed(SamusMovementType.Running, SnesButton.B, speedBoosterEquipped: false);
+    speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, speedBoosterEquipped: false);
     AssertEqual(2, speed.ExtraRunSpeed.Whole, "ordinary Dash remains clamped on next call");
 
     // B release and an airborne movement type both take `$90:9808`; a set momentum flag
@@ -173,14 +173,14 @@ internal static void VerifySamusHorizontalSpeed()
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: SnesButton.B,
+        controllerInput: ControllerButton.B,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
+        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = ControllerButton.B });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
+        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = ControllerButton.B });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 
@@ -190,7 +190,7 @@ internal static void VerifySamusHorizontalSpeed()
     var booster = new SamusHorizontalSpeedState();
     booster.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: SnesButton.B,
+        controllerInput: ControllerButton.B,
         speedBoosterEquipped: true);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
     AssertEqual(1, booster.SpeedBoostCounter.RawValue, "Speed Booster seeds native stage-zero countdown");
@@ -201,7 +201,7 @@ internal static void VerifySamusHorizontalSpeed()
     {
         booster.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
-            controllerInput: SnesButton.B,
+            controllerInput: ControllerButton.B,
             speedBoosterEquipped: true);
     }
     AssertEqual(7, booster.ExtraRunSpeed.Whole, "Speed Booster reaches exact 7.0000 cap");
@@ -213,7 +213,7 @@ internal static void VerifySamusHorizontalSpeed()
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
             null,
             movementType: SamusMovementType.Running,
-            controllerInput: SnesButton.B,
+            controllerInput: ControllerButton.B,
             animationFrameBuffer: 0,
             ref boostFrame,
             out ushort boostTimer);
@@ -534,7 +534,7 @@ internal static void VerifySamusExtraDisplacement()
 
         level,
         transition,
-        SnesButton.A,
+        ControllerButton.A,
         nmiFrameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.Position.X.RawValue - transitionXBefore)),
         "jump transition applies signed external X with zero base speed");
@@ -555,7 +555,7 @@ internal static void VerifySamusExtraDisplacement()
 
         level,
         rising,
-        SnesButton.A,
+        ControllerButton.A,
         nmiFrameCounter: 0);
     AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.Position.Y.RawValue - risingYBefore)),
         "gravity path adds external Y directly and may reverse actual direction");

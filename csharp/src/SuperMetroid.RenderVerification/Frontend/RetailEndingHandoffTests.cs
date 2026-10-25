@@ -29,7 +29,7 @@ internal static class RetailEndingHandoffTests
         var leftAudio = new short[AudioSession.PcmSamplesPerFrame];
         var rightAudio = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0;
-        void Step(SnesButton input, bool pixels)
+        void Step(ControllerButton input, bool pixels)
         {
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, ++sequence, 1);
@@ -44,7 +44,7 @@ internal static class RetailEndingHandoffTests
                 renderer.RenderForReadback(actual.Snapshot), $"{device.Kind}: ending handoff {sequence}, {expected.Phase}");
         }
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
-            Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None, false);
+            Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None, false);
         if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Ending fixture startup failed.");
         foreach (var game in new[] { legacy, captured })
         {

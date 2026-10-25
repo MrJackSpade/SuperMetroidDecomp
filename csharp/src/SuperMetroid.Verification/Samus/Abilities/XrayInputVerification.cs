@@ -43,7 +43,7 @@ internal static class XrayInputVerification
         samus.EquippedItems = SamusEquipmentFlags.XrayScope;
         samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
         runtime.StepFrame(0);
-        runtime.StepFrame(SnesButton.Select);
+        runtime.StepFrame(ControllerButton.Select);
         AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "held Run activates selected X-ray without diagnostic activation");
@@ -81,7 +81,7 @@ internal static class XrayInputVerification
 
         }
         for (int frame = 0; frame < 240; frame++)
-            runtime.StepFrame((runtime.Options.ControllerBindings.Dash | (frame < 80 ? SnesButton.Up : SnesButton.Down)));
+            runtime.StepFrame((runtime.Options.ControllerBindings.Dash | (frame < 80 ? ControllerButton.Up : ControllerButton.Down)));
         var captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var reveal = captured.LayersOf<GameplayColorMathRenderLayer>().Single();
         AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");

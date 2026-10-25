@@ -70,7 +70,7 @@ internal static class CoreAccess
         /// upload, which the lag-free port does not spend as an update. Only that proven wait
         /// is accepted; replays of any other hardware stall must establish their own contract.
         /// </summary>
-        internal void AcceptDoorMusicWaitControllerRead(SnesButton controllerInput)
+        internal void AcceptDoorMusicWaitControllerRead(ControllerButton controllerInput)
         {
             SuperMetroidRuntime? runtime = game.RuntimeForVerification;
             if (game.GameState != SuperMetroidGameState.LoadingNextRoomB || runtime is null)

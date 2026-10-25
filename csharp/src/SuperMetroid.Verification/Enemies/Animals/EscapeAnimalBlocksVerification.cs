@@ -23,7 +23,7 @@ internal static class EscapeAnimalBlocksVerification
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8192]);
         var plms = PlmFixtures.Unbound();
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
@@ -38,7 +38,7 @@ internal static class EscapeAnimalBlocksVerification
             SeedStationaryGrappleCollisionProbe(samus);
             int before = plms.SlotTable.ActiveCount;
             SamusGrappleMovement.StepFiring(level, samus,
-                SnesButton.X, plms);
+                ControllerButton.X, plms);
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");
             AssertEqual(before, plms.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");

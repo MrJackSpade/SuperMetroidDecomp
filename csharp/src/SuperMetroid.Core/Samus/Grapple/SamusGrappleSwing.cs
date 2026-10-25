@@ -95,17 +95,17 @@ public static class SamusGrappleSwing
     /// <summary>Changes rope length on Up or Down edges and pumps the swing only where directional input can accelerate it.</summary>
     internal static void ApplyRopeAndDirectionInput(
         SamusGrappleState grapple,
-        SnesButton controllerInput,
-        SnesButton newlyPressedInput)
+        ControllerButton controllerInput,
+        ControllerButton newlyPressedInput)
     {
         // $9B:BB64 changes length only on a new directional edge. Once selected, the signed
         // delta remains live until a bound or future collision code clears it.
-        if ((newlyPressedInput & SnesButton.Up) != 0)
+        if ((newlyPressedInput & ControllerButton.Up) != 0)
         {
             if (grapple.RopeLength != 0)
                 grapple.RopeLengthDelta = -2;
         }
-        else if ((newlyPressedInput & SnesButton.Down) != 0)
+        else if ((newlyPressedInput & ControllerButton.Down) != 0)
         {
             if (grapple.RopeLength < 64)
                 grapple.RopeLengthDelta = 2;
@@ -124,7 +124,7 @@ public static class SamusGrappleSwing
             return;
         }
 
-        if ((controllerInput & SnesButton.Left) != 0)
+        if ((controllerInput & ControllerButton.Left) != 0)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = 256;
@@ -134,7 +134,7 @@ public static class SamusGrappleSwing
             return;
         }
 
-        if ((controllerInput & SnesButton.Right) != 0)
+        if ((controllerInput & ControllerButton.Right) != 0)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = -256;
@@ -292,7 +292,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Accepts a fresh Jump during the terrain-reflection window as a temporary angular kick, halved underwater.</summary>
-    internal static void ApplyJumpImpulse(SamusGrappleState grapple, SnesButton newlyPressedInput)
+    internal static void ApplyJumpImpulse(SamusGrappleState grapple, ControllerButton newlyPressedInput)
     {
         // $9B:BD44 only admits this extra angular impulse during the 16-frame terrain-
         // reflection timer. It is separate from ordinary Samus jump velocity and decays
@@ -301,7 +301,7 @@ public static class SamusGrappleSwing
         // must agree with the release-window check, or tight anchors become inescapable
         // using Jump even though the unrelated Run button accidentally supplies the kick.
         if (!grapple.CollisionBounceTimer.IsZero &&
-            (newlyPressedInput & SnesButton.A) != 0)
+            (newlyPressedInput & ControllerButton.A) != 0)
         {
             grapple.JumpImpulse = grapple.AngularVelocity switch
             {

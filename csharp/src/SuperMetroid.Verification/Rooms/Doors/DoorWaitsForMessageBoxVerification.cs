@@ -27,7 +27,7 @@ internal static class DoorWaitsForMessageBoxVerification
     internal static void VerifyDoorWaitsForMessageBox()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -53,7 +53,7 @@ internal static class DoorWaitsForMessageBoxVerification
         {
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the box keeps every frame until it closes");
             // Any held button acknowledges the station notice once its ten-frame wait ends.
-            game.Step(SnesButton.X);
+            game.Step(ControllerButton.X);
             if (++frames > 200)
                 throw new InvalidOperationException("The station notice did not close.");
         }

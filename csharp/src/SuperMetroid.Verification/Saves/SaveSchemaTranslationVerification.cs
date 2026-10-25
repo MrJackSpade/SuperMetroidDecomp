@@ -30,7 +30,7 @@ internal static class SaveSchemaTranslationVerification
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var ram = new SaveSlotStore(RetailPresentationFixture());
         var samus = new SamusState { ReserveMissiles = 27 };
-        var system = new Bank80SystemState { LoadedItemCount = 65535 };
+        var system = new SharedGameState { LoadedItemCount = 65535 };
         ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0, JapaneseText = true }));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
@@ -46,7 +46,7 @@ internal static class SaveSchemaTranslationVerification
             "named schema rebuilds the canonical SRAM image");
         var loaded = targetSaves.ReadSlot(0);
         var restoredSamus = new SamusState();
-        var restoredSystem = new Bank80SystemState();
+        var restoredSystem = new SharedGameState();
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
         AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");
         AssertEqual(65535, restoredSystem.LoadedItemCount, "item load count reaches live progression owner");

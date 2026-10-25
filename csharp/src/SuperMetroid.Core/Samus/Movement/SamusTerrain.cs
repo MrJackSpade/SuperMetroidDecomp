@@ -19,5 +19,5 @@ public readonly record struct SamusTerrain
     /// The session's progression, which SpaceTime's malformed palette copy overwrites as raw bytes (#1318, #1330). Only
     /// the gameplay projectile frame passes it; SpaceTime fails loudly without it.
     /// </summary>
-    public SuperMetroid.Core.Progression.Bank80SystemState? Progression { get; init; }
+    public SuperMetroid.Core.Progression.SharedGameState? Progression { get; init; }
 }

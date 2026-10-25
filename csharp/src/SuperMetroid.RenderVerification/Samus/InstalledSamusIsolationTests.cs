@@ -324,9 +324,9 @@ internal sealed class InstalledSamusIsolationTests
                     SamusPoseMetadata.RefreshCollisionRadii(actor.Samus);
                     GroundedMovementResult result = left
                         ? SamusGroundedMovement.StepRunning(actor.Level, actor.Samus, frame,
-                            (SnesButton.Left | SnesButton.B))
+                            (ControllerButton.Left | ControllerButton.B))
                         : SamusGroundedMovement.StepRunning(actor.Level, actor.Samus, frame,
-                            (SnesButton.Right | SnesButton.B));
+                            (ControllerButton.Right | ControllerButton.B));
                     Animate(actor, frame);
                     return result;
                 });
@@ -376,10 +376,10 @@ internal sealed class InstalledSamusIsolationTests
             {
                 SamusPoseMetadata.RefreshCollisionRadii(actor.Samus);
                 var movement = SamusAerialMovement.StepNormalJump(actor.Level, actor.Samus,
-                    SnesButton.A, frame);
+                    ControllerButton.A, frame);
                 Animate(actor, frame);
                 if (movement.Landed) Require(SamusPoseTransitions.TryApplyAerialLanding(actor.Samus, 
-                    actor.Level, wasSpinning: false, controllerInput: SnesButton.A,
+                    actor.Level, wasSpinning: false, controllerInput: ControllerButton.A,
                     nmiFrameCounter: frame), label + ": landing rejected");
                 return movement;
             });
@@ -427,7 +427,7 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Runs production Samus animation and commits any verified pose transition.</summary>
     private static void Animate(Actor actor, ushort frame)
     {
-        SamusPresentation.AnimateNoFx(actor.Samus, new SamusAnimationStep { Random = new CartridgeRandom(), NmiFrameCounter = frame });
+        SamusPresentation.AnimateNoFx(actor.Samus, new SamusAnimationStep { Random = new SharedRandom(), NmiFrameCounter = frame });
         if (SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Samus)) actor.Samus.CommitPoseHistory();
     }
 
@@ -444,7 +444,7 @@ internal sealed class InstalledSamusIsolationTests
     }
 
     /// <summary>Controller chord used to enter the Crystal Flash sequence in this fixture.</summary>
-    private const SnesButton FlashChord = (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+    private const ControllerButton FlashChord = (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X);
 
     /// <summary>Checks Flash, shine, suit pickup, death, reserve refill, and drained poses with installed art.</summary>
     private void CheckSpecialSequences()
@@ -480,7 +480,7 @@ internal sealed class InstalledSamusIsolationTests
         string context = $"Crystal Flash left={left}";
         pair.Apply(context + " setup", actor => { PrepareFlash(actor.Samus); });
         Require(!pair.Apply(context + " rejected chord", actor => actor.Samus.CrystalFlash.TryBegin(
-            actor.Samus, (FlashChord | SnesButton.A))), "Extra Flash input must be rejected");
+            actor.Samus, (FlashChord | ControllerButton.A))), "Extra Flash input must be rejected");
         ushort initialY = pair.Stock.Samus.Position.Y.Whole;
         Require(pair.Apply(context + " admission", actor => actor.Samus.CrystalFlash.TryBegin(
             actor.Samus, FlashChord)), "Flash was not admitted");
@@ -599,7 +599,7 @@ internal sealed class InstalledSamusIsolationTests
     private void CheckDeath(SamusPoseId source, SamusEquipmentFlags suit)
     {
         Pair pair = Create(source, suit);
-        string context = $"death source {(int)source:X2}, suit {suit.ToNativeWord():X4}";
+        string context = $"death source {(int)source:X2}, suit {suit.ToEquipmentWord():X4}";
         pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Samus, new(0, 240)), draw: false);
         int frames = 0;
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)

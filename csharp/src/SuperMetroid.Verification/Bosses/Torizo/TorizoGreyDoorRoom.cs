@@ -14,5 +14,5 @@ internal readonly record struct TorizoGreyDoorRoom
     public required RoomPlmSystem Plms { get; init; }
 
     /// <summary>System.</summary>
-    public required Bank80SystemState System { get; init; }
+    public required SharedGameState System { get; init; }
 }

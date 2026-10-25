@@ -15,7 +15,7 @@ internal sealed class AcceptedFrameInput(
 {
     /// <summary>Latches <paramref name="controller1Input"/> and advances the frame counters.</summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word.</param>
-    internal void Latch(SnesButton controller1Input)
+    internal void Latch(ControllerButton controller1Input)
     {
         // Bank-$90/$91 action checks use the seven configurable WRAM masks. Canonicalizing
         // here preserves one shared rising-edge latch and prevents different movement

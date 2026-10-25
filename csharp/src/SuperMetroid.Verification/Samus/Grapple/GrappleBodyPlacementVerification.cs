@@ -77,7 +77,7 @@ internal static class GrappleBodyPlacementVerification
             SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
             for (int tick = 0; tick < 16; tick++)
             {
-                SnesButton input = (SuperMetroid.Core.Input.SnesButton.X | (tick < 8 ? SuperMetroid.Core.Input.SnesButton.Left : SuperMetroid.Core.Input.SnesButton.Right));
+                ControllerButton input = (SuperMetroid.Core.Input.ControllerButton.X | (tick < 8 ? SuperMetroid.Core.Input.ControllerButton.Left : SuperMetroid.Core.Input.ControllerButton.Right));
                 AssertEqual(SamusGrappleMovement.Step(new SamusTerrain { Level = empty }, native, input, 0), SamusGrappleMovement.Step(new SamusTerrain { Level = empty }, changed, input, 0), "Edited swing frames preserve actual pendulum results");
                 AssertEqual((native.AnimationFrame + 11) & 31, changed.AnimationFrame, "Edited frame reaches actual pendulum updater");
                 AssertEqual(native.AnimationFrameTimer.RawValue, changed.AnimationFrameTimer.RawValue, "Visual mapping cannot change swing timing");

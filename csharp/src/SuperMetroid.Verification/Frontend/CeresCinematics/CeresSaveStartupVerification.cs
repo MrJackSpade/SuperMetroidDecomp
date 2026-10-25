@@ -33,7 +33,7 @@ internal static class CeresSaveStartupVerification
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var maps = installation.LoadMaps();
-        var bossFlags = new BossBits[Bank80SystemState.AreaCount];
+        var bossFlags = new BossBits[SharedGameState.AreaCount];
         bossFlags[(int)AreaId.Ceres] = BossBits.AreaBoss;
         var departure = new SuperMetroidSaveSnapshot
         {
@@ -176,7 +176,7 @@ internal static class CeresSaveStartupVerification
         (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).Phase = GameOverMenuPhase.Main;
         probeMenu.ResumesAfterFrameWait = false;
         gameOverProbe.Step(0);
-        gameOverProbe.Step(SnesButton.A);
+        gameOverProbe.Step(ControllerButton.A);
         AssertEqual(SuperMetroidGameState.SetUpNewGame, gameOverProbe.GameState,
             "#1275 Yes on a $1F save dispatches the Ceres loader directly");
         gameOverProbe.Step(0);

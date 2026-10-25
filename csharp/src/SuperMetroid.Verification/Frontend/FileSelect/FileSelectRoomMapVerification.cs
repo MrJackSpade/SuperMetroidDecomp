@@ -46,7 +46,7 @@ internal static class FileSelectRoomMapVerification
         foreach (bool downloaded in new[] { false, true })
         {
             AreaId area = (AreaId)areaIndex;
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             byte[] original = map.RawTilemapBytes.ToArray();
             // Deliberately cross both native pages and explore cells outside the map
@@ -121,15 +121,15 @@ internal static class FileSelectRoomMapVerification
         {
             for (int i = 0; i < 48; i++) menu.Step(0);
             AssertEqual(FileSelectMapNavigationPhase.Area, menu.Phase, "cancel fixture finishes area reveal");
-            menu.Step(SnesButton.Start);
+            menu.Step(ControllerButton.Start);
             for (int i = 0; i < 54; i++) menu.Step(0);
             AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "cancel fixture reaches live room map");
         }
-        cancel.Step(SnesButton.B);
+        cancel.Step(ControllerButton.B);
         control.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(control.Render()),
             "room cancel must retain the map/icons drawn before input until next coroutine call");
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.LoadMapStationBytes(slot.MapStationBytes);
         Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
@@ -236,7 +236,7 @@ internal static class FileSelectRoomMapVerification
     internal static void VerifyFileSelectMapIcons()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
         landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires a Brinstar boss landmark."))] = new(32, 40);
@@ -329,17 +329,17 @@ internal static class FileSelectRoomMapVerification
             MapPresentation = RetailPresentationFixture(),
         });
         FrontendFrame frame = game.Step(0);
-        frame = game.Step(SnesButton.Start);
+        frame = game.Step(ControllerButton.Start);
         Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
-        frame = game.Step(SnesButton.Start);
+        frame = game.Step(ControllerButton.Start);
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus, 150);
         // Native entry dispatches and fade-in end on the 35th update.
         Until(() => frame.Phase == nameof(FileSelectPhase.Main), 40);
-        frame = game.Step(SnesButton.A);
+        frame = game.Step(ControllerButton.A);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 200);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
-        frame = game.Step(SnesButton.A);
+        frame = game.Step(ControllerButton.A);
         if (savedArea == 6)
         {
             Until(() => game.RuntimeForVerification is not null, 200);
@@ -352,27 +352,27 @@ internal static class FileSelectRoomMapVerification
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap, 200);
         for (int i = 0; i < 70; i++)
         {
-            frame = game.Step(SnesButton.Start);
+            frame = game.Step(ControllerButton.Start);
         }
         AssertEqual("Area", frame.Phase, "holding confirm during initial reveal cannot skip area selection");
         AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
-        frame = game.Step(SnesButton.B);
+        frame = game.Step(ControllerButton.B);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
-        frame = game.Step(SnesButton.A);
+        frame = game.Step(ControllerButton.A);
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
         for (int i = 0; i < 10; i++) frame = game.Step(0);
-        frame = game.Step(SnesButton.Start);
+        frame = game.Step(ControllerButton.Start);
         Until(() => frame.Phase == "Room", 80);
         for (int i = 0; i < 15; i++) frame = game.Step(0);
 
         AssertTrue(game.RuntimeForVerification is null, "room map does not implicitly load the save");
-        frame = game.Step(SnesButton.B);
+        frame = game.Step(ControllerButton.B);
         Until(() => frame.Phase == "Area", 80);
-        frame = game.Step(SnesButton.Start);
+        frame = game.Step(ControllerButton.Start);
         Until(() => frame.Phase == "Room", 80);
-        frame = game.Step(SnesButton.Start);
+        frame = game.Step(ControllerButton.Start);
         Until(() => game.RuntimeForVerification is not null, 100);
         AssertEqual(SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).Room,
             game.GameplayRuntimeForVerification.Room.LoadedRoom.Definition, "second map confirmation loads selected SRAM station");
@@ -391,14 +391,14 @@ internal static class FileSelectRoomMapVerification
     private static void VerifyFileSelectMapNavigation()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach (SnesButton confirm in new SnesButton[] { SnesButton.Start, SnesButton.A })
+        foreach (ControllerButton confirm in new ControllerButton[] { ControllerButton.Start, ControllerButton.A })
         {
             var navigation = new FileSelectMapNavigation(4, confirm);
             navigation.BindLabels(RetailPresentationFixture().Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
                 "options confirmation carried into map must not immediately confirm the area");
-            navigation.Step((SnesButton.Up | SnesButton.Down | SnesButton.Left | SnesButton.Right | SnesButton.L));
+            navigation.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right | ControllerButton.L));
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase, "non-debug direction/select cannot cycle area");
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.PreparingWindow, navigation.Phase, "area confirm preserves prep boundary");
@@ -414,26 +414,26 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(0);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "fresh second confirm requests gameplay");
-            navigation.Step(SnesButton.B);
+            navigation.Step(ControllerButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
         var cancel = new FileSelectMapNavigation(4);
         cancel.BindLabels(RetailPresentationFixture().Labels);
-        cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.Right | SnesButton.A));
+        cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.Right | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
         cancel.Step(0);
-        cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.A));
+        cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
         var back = new FileSelectMapNavigation(4);
         back.BindLabels(RetailPresentationFixture().Labels);
-        back.Step(SnesButton.Start);
+        back.Step(ControllerButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
-        back.Step(SnesButton.B);
+        back.Step(ControllerButton.B);
         AssertEqual(FileSelectMapNavigationPhase.AreaReturnRequested, back.Phase, "room cancel requests animated return");
-        back.Step(SnesButton.Start);
+        back.Step(ControllerButton.Start);
         back.CompleteAreaReturn();
-        back.Step(SnesButton.Start);
+        back.Step(ControllerButton.Start);
         AssertEqual(FileSelectMapNavigationPhase.Area, back.Phase, "return transition consumes held input without deferred confirmation");
         AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
@@ -443,10 +443,10 @@ internal static class FileSelectRoomMapVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
-        SnesButton[] inputs = [SnesButton.Left, SnesButton.Right, SnesButton.Up, SnesButton.Down];
+        ControllerButton[] inputs = [ControllerButton.Left, ControllerButton.Right, ControllerButton.Up, ControllerButton.Down];
         for (int direction = 1; direction <= 4; direction++)
         {
             var scroll = new FileSelectMapScroll(map, system, new(240, 128));
@@ -455,7 +455,7 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(24, scroll.Minimum.Y, "room-select upper arrow boundary gets delayed 24px adjustment");
             for (int frame = 1; frame <= 8; frame++)
             {
-                bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : SnesButton.None);
+                bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : ControllerButton.None);
                 int delta = frame >= 4 ? 8 : 0;
                 AssertEqual(124 + (direction == 1 ? -delta : direction == 2 ? delta : 0), scroll.Scroll.X,
                     "map scroll horizontal exact pulse frame");
@@ -466,18 +466,18 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
         }
         var precedence = new FileSelectMapScroll(map, system, new(240, 128));
-        precedence.Step((SnesButton.Up | SnesButton.Down | SnesButton.Left | SnesButton.Right));
+        precedence.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right));
         AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
-        var empty = new FileSelectMapScroll(map, new Bank80SystemState(), new(216, 48));
+        var empty = new FileSelectMapScroll(map, new SharedGameState(), new(216, 48));
         AssertEqual(208, empty.Minimum.X, "empty map uses retail left default");
         AssertEqual(224, empty.Maximum.X, "empty map uses retail right default");
         AssertEqual(32, empty.Minimum.Y, "empty map uses top default then file-select adjustment");
         AssertEqual(88, empty.Maximum.Y, "empty map uses retail bottom default");
         // Repeated stepping must stop at the native inequality, not run past the edge.
-        for (int frame = 0; frame < 1000; frame++) precedence.Step(SnesButton.Left);
+        for (int frame = 0; frame < 1000; frame++) precedence.Step(ControllerButton.Left);
         AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");
         ushort stoppedX = precedence.Scroll.X;
-        for (int frame = 0; frame < 16; frame++) precedence.Step(SnesButton.Left);
+        for (int frame = 0; frame < 16; frame++) precedence.Step(ControllerButton.Left);
         AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }
 

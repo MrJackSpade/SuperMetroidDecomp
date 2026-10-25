@@ -27,9 +27,9 @@ internal static class GrappleSoundsVerification
         AssertEqual(new SoundRequest(Library1Sound.GrappleStart, SoundQueueLimit.Max1),
             samus.LiquidPhysics.SoundRequests.Single(), "grapple firing starts native library-one sound five once");
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusGrappleMovement.StepFiring(air, samus, SnesButton.X);
+        SamusGrappleMovement.StepFiring(air, samus, ControllerButton.X);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "extending does not restart grapple sound");
-        SamusGrappleMovement.StepFiring(anchors, samus, SnesButton.X);
+        SamusGrappleMovement.StepFiring(anchors, samus, ControllerButton.X);
         AssertEqual(new SoundRequest(Library1Sound.Grappling, SoundQueueLimit.Max6),
             samus.LiquidPhysics.SoundRequests.Single(), "accepted connection replaces firing sound with attached sound");
         foreach (GrapplePhase phase in new[] { GrapplePhase.CancelPending, GrapplePhase.ReleaseFromSwing, GrapplePhase.Dropped })

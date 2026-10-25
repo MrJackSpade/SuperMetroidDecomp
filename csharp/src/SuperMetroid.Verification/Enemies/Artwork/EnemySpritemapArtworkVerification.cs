@@ -127,7 +127,7 @@ internal static class EnemySpritemapArtworkVerification
         bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
         new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
-            [bull, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+            [bull, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int frame = 0; frame < 41; frame++)
             EnemyInstructionRunner.Process(arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,

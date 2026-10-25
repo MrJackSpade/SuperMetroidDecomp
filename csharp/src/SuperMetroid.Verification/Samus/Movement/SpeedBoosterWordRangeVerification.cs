@@ -31,7 +31,7 @@ internal static class SpeedBoosterWordRangeVerification
         {
             var speed = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(before) };
             ushort frame = 7;
-            bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, SnesButton.B,
+            bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
                 animationFrameBuffer: 0, ref frame, out _);
             AssertTrue(!advanced, $"counter {before}: a borrowing decrement leaves a nonzero cadence, so no stage advances");
             AssertEqual(expected, speed.SpeedBoostCounter.RawValue, $"counter {before}: the decrement wraps across the sixteen-bit counter");
@@ -40,7 +40,7 @@ internal static class SpeedBoosterWordRangeVerification
         // A cadence of one reaching zero advances the stage and reloads the cadence.
         var advancing = new SamusHorizontalSpeedState { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(Counter(1, 1)) };
         ushort advancingFrame = 7;
-        AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, SnesButton.B,
+        AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
             animationFrameBuffer: 0, ref advancingFrame, out _), "cadence one expires and advances the stage");
         AssertEqual(Counter(2, SamusRunningCadenceDefinitions.ReadResetWord(2)), advancing.SpeedBoostCounter.RawValue,
             "stage two with its reloaded cadence");

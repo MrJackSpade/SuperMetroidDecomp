@@ -72,7 +72,7 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>Runs <c>Handle_Mode7Objects</c> ($8B:951D) for one frame.</summary>
     /// <param name="newlyPressed">This frame's controller rising edges ($8F), read by the second subtitle's pre-instruction.</param>
     /// <param name="startInputWait">Receives each page whose second subtitle has started its input wait.</param>
-    public void Step(SnesButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
+    public void Step(ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
     {
         for (int index = SlotCount - 1; index >= 0; index--)
             if (slots[index] is { } subtitle && subtitle.Process(this, newlyPressed, startInputWait))
@@ -119,7 +119,7 @@ internal sealed class IntroJapaneseSubtitles
         /// <c>Process_Mode7Objects_InstList</c> ($8B:9537): the pre-instruction, then the
         /// instruction list once the timer reaches zero. Returns true when the object deleted itself.
         /// </summary>
-        public bool Process(IntroJapaneseSubtitles owner, SnesButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
+        public bool Process(IntroJapaneseSubtitles owner, ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
         {
             if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != 0)
             {

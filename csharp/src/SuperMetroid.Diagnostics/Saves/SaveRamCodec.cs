@@ -112,13 +112,13 @@ public static class SaveRamCodec
             GameTimeSeconds: ReadWord(payload, SaveRamLayout.GameTimeSecondsOffset),
             GameTimeMinutes: ReadWord(payload, SaveRamLayout.GameTimeMinutesOffset),
             GameTimeHours: ReadWord(payload, SaveRamLayout.GameTimeHoursOffset),
-            EventBytes: payload.Slice(SaveRamLayout.EventsOffset, Bank80SystemState.EventByteCount).ToArray(),
-            BossBytes: payload.Slice(SaveRamLayout.BossBitsOffset, Bank80SystemState.AreaCount).ToArray(),
-            RoomChozoBytes: payload.Slice(SaveRamLayout.RoomChozoBitsOffset, Bank80SystemState.RoomChozoBitByteCount).ToArray(),
-            CollectedItemBytes: payload.Slice(SaveRamLayout.CollectedItemBitsOffset, Bank80SystemState.ItemBitByteCount).ToArray(),
-            OpenedDoorBytes: payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, Bank80SystemState.DoorBitByteCount).ToArray(),
-            UsedSaveStationBytes: payload.Slice(SaveRamLayout.UsedSaveStationsOffset, Bank80SystemState.UsedSaveStationByteCount).ToArray(),
-            MapStationBytes: payload.Slice(SaveRamLayout.MapStationsOffset, Bank80SystemState.MapStationByteCount).ToArray(),
+            EventBytes: payload.Slice(SaveRamLayout.EventsOffset, SharedGameState.EventByteCount).ToArray(),
+            BossBytes: payload.Slice(SaveRamLayout.BossBitsOffset, SharedGameState.AreaCount).ToArray(),
+            RoomChozoBytes: payload.Slice(SaveRamLayout.RoomChozoBitsOffset, SharedGameState.RoomChozoBitByteCount).ToArray(),
+            CollectedItemBytes: payload.Slice(SaveRamLayout.CollectedItemBitsOffset, SharedGameState.ItemBitByteCount).ToArray(),
+            OpenedDoorBytes: payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, SharedGameState.DoorBitByteCount).ToArray(),
+            UsedSaveStationBytes: payload.Slice(SaveRamLayout.UsedSaveStationsOffset, SharedGameState.UsedSaveStationByteCount).ToArray(),
+            MapStationBytes: payload.Slice(SaveRamLayout.MapStationsOffset, SharedGameState.MapStationByteCount).ToArray(),
             ExploredMapBytes: ExploredMapStorage.Unpack(
                 payload.Slice(SaveRamLayout.CompressedMapDataOffset, SaveRamLayout.CompressedMapDataByteCount), maps),
             LoadingGameState: ReadWord(payload, SaveRamLayout.LoadingGameStateOffset),
@@ -145,10 +145,10 @@ public static class SaveRamCodec
         Ensure.NotNull(snapshot);
         byte[] payload = new byte[SaveRamLayout.SlotByteCount];
 
-        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems.ToNativeWord());
-        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems.ToNativeWord());
-        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams.ToNativeWord());
-        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams.ToNativeWord());
+        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams.ToEquipmentWord());
 
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
         // Later saves copy the live configurable action words, so do not silently restore
@@ -188,26 +188,26 @@ public static class SaveRamCodec
             SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker)));
         WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
-        if (snapshot.EventBytes.Length != Bank80SystemState.EventByteCount)
+        if (snapshot.EventBytes.Length != SharedGameState.EventByteCount)
             throw new InvalidDataException("A save snapshot requires exactly eight event bytes.");
-        if (snapshot.BossFlags.Length != Bank80SystemState.AreaCount)
+        if (snapshot.BossFlags.Length != SharedGameState.AreaCount)
             throw new InvalidDataException("A save snapshot requires exactly eight area-boss flag sets.");
         snapshot.EventBytes.CopyTo(payload, SaveRamLayout.EventsOffset);
         for (int area = 0; area < snapshot.BossFlags.Length; area++)
             payload[SaveRamLayout.BossBitsOffset + area] = (byte)snapshot.BossFlags[area];
-        if (snapshot.RoomChozoBytes.Length != Bank80SystemState.RoomChozoBitByteCount)
+        if (snapshot.RoomChozoBytes.Length != SharedGameState.RoomChozoBitByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 64 room-Chozo bytes.");
         snapshot.RoomChozoBytes.CopyTo(payload, SaveRamLayout.RoomChozoBitsOffset);
-        if (snapshot.CollectedItemBytes.Length != Bank80SystemState.ItemBitByteCount)
+        if (snapshot.CollectedItemBytes.Length != SharedGameState.ItemBitByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 64 collected-item bytes.");
         snapshot.CollectedItemBytes.CopyTo(payload, SaveRamLayout.CollectedItemBitsOffset);
-        if (snapshot.OpenedDoorBytes.Length != Bank80SystemState.DoorBitByteCount)
+        if (snapshot.OpenedDoorBytes.Length != SharedGameState.DoorBitByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 64 opened-door bytes.");
         snapshot.OpenedDoorBytes.CopyTo(payload, SaveRamLayout.OpenedDoorBitsOffset);
-        if (snapshot.UsedSaveStationBytes.Length != Bank80SystemState.UsedSaveStationByteCount)
+        if (snapshot.UsedSaveStationBytes.Length != SharedGameState.UsedSaveStationByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 16 used save/elevator bytes.");
         snapshot.UsedSaveStationBytes.CopyTo(payload, SaveRamLayout.UsedSaveStationsOffset);
-        if (snapshot.MapStationBytes.Length != Bank80SystemState.MapStationByteCount)
+        if (snapshot.MapStationBytes.Length != SharedGameState.MapStationByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
         snapshot.MapStationBytes.CopyTo(payload, SaveRamLayout.MapStationsOffset);
         WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,
@@ -385,22 +385,22 @@ public static class SaveRamCodec
     /// </summary>
     [ControllerWordBoundary("SRAM stores each binding as its controller word")]
     private static ControllerBindings ReadControllerBindings(ReadOnlySpan<byte> payload) => new(
-        Shoot: (SnesButton)ReadWord(payload, SaveRamLayout.ShootButtonOffset),
-        Jump: (SnesButton)ReadWord(payload, SaveRamLayout.JumpButtonOffset),
-        Dash: (SnesButton)ReadWord(payload, SaveRamLayout.DashButtonOffset),
-        ItemSelect: (SnesButton)ReadWord(payload, SaveRamLayout.SelectButtonOffset),
-        ItemCancel: (SnesButton)ReadWord(payload, SaveRamLayout.CancelButtonOffset),
-        AimUp: (SnesButton)ReadWord(payload, SaveRamLayout.AimUpButtonOffset),
-        AimDown: (SnesButton)ReadWord(payload, SaveRamLayout.AimDownButtonOffset));
+        Shoot: (ControllerButton)ReadWord(payload, SaveRamLayout.ShootButtonOffset),
+        Jump: (ControllerButton)ReadWord(payload, SaveRamLayout.JumpButtonOffset),
+        Dash: (ControllerButton)ReadWord(payload, SaveRamLayout.DashButtonOffset),
+        ItemSelect: (ControllerButton)ReadWord(payload, SaveRamLayout.SelectButtonOffset),
+        ItemCancel: (ControllerButton)ReadWord(payload, SaveRamLayout.CancelButtonOffset),
+        AimUp: (ControllerButton)ReadWord(payload, SaveRamLayout.AimUpButtonOffset),
+        AimDown: (ControllerButton)ReadWord(payload, SaveRamLayout.AimDownButtonOffset));
 
     /// <summary>The eleven controller words a slot stores: the four D-pad directions, then the bindings in WRAM order.</summary>
     [ControllerWordBoundary("SRAM stores the button configuration as controller words")]
     private static ushort[] ButtonConfigurationWords(ControllerBindings bindings) =>
     [
-        (ushort)SnesButton.Up,
-        (ushort)SnesButton.Down,
-        (ushort)SnesButton.Left,
-        (ushort)SnesButton.Right,
+        (ushort)ControllerButton.Up,
+        (ushort)ControllerButton.Down,
+        (ushort)ControllerButton.Left,
+        (ushort)ControllerButton.Right,
         (ushort)bindings.Shoot,
         (ushort)bindings.Jump,
         (ushort)bindings.Dash,

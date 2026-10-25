@@ -155,7 +155,7 @@ internal static class GrappleFlarePresentationVerification
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes, random: random);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);

@@ -30,7 +30,7 @@ internal static class FileCopyArrowVerification
         {
             saves.SelectSlot(0);
             var menu = new FileSelectMenuState(saves, mapPresentation: art, spriteSheets: MenuSheetFixtures.For(art));
-            void Press(SnesButton button) { menu.Step(0); menu.Step(button); }
+            void Press(ControllerButton button) { menu.Step(0); menu.Step(button); }
             void Until(FileSelectPhase phase)
             {
                 for (int frame = 0; frame < 60 && menu.Phase != phase; frame++) menu.Step(0);
@@ -42,15 +42,15 @@ internal static class FileCopyArrowVerification
                 return menu.screen.Objects;
             }
             Until(FileSelectPhase.Main);
-            for (int i = 0; i < 3; i++) Press(SnesButton.Down);
-            Press(SnesButton.A);
+            for (int i = 0; i < 3; i++) Press(ControllerButton.Down);
+            Press(ControllerButton.A);
             Until(FileSelectPhase.CopySelectSource);
-            for (int i = 0; i < pair.Slots.First; i++) Press(SnesButton.Down);
-            Press(SnesButton.A);
+            for (int i = 0; i < pair.Slots.First; i++) Press(ControllerButton.Down);
+            Press(ControllerButton.A);
             int firstDestination = pair.Slots.First == 0 ? 1 : 0;
-            if (pair.Slots.Second != firstDestination) Press(SnesButton.Down);
+            if (pair.Slots.Second != firstDestination) Press(ControllerButton.Down);
             int noArrowCount = Capture().LastFinalizedSpriteCount;
-            Press(SnesButton.A);
+            Press(ControllerButton.A);
             AssertEqual(FileSelectPhase.CopyConfirm, menu.Phase, "arrow appears at confirmation");
             int record = 0x82bb0c + pair.Row * 6;
             ushort id = ReadVerificationWord(rom, record);
@@ -86,7 +86,7 @@ internal static class FileCopyArrowVerification
             Bgr555[] beforeRender = menu.screen.Palette.Colors.ToArray();
             menu.Render(); menu.CaptureRenderSnapshot();
             AssertTrue(beforeRender.SequenceEqual(menu.screen.Palette.Colors), "render leaves palette timing alone");
-            Press(SnesButton.A);
+            Press(ControllerButton.A);
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");
         }

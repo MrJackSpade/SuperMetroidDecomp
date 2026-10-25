@@ -122,9 +122,9 @@ internal static class RoomMainCodeCatalogVerification
                 false,
                 false));
         }
-        for (int eventIndex = 0; eventIndex < Bank80SystemState.EventByteCount * 8; eventIndex++)
+        for (int eventIndex = 0; eventIndex < SharedGameState.EventByteCount * 8; eventIndex++)
         {
-            var events = new byte[Bank80SystemState.EventByteCount];
+            var events = new byte[SharedGameState.EventByteCount];
             events[eventIndex >> 3] = unchecked((byte)(1 << (eventIndex & 7)));
             contexts.Add(new RoomStateSelectionContext(events, BossBits.None, false, false));
         }

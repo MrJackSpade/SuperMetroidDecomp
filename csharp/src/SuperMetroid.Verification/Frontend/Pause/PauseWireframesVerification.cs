@@ -57,11 +57,11 @@ internal static class PauseWireframesVerification
             {
                 SamusEquipmentFlags equipped = (SamusEquipmentFlags)items | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
                 var samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
-                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 // Every tick compares the complete render inputs; identical inputs cannot render
                 // differently, so pixels are rasterized once each page change settles.
-                void StepBoth(SnesButton input)
+                void StepBoth(ControllerButton input)
                 {
                     native.Step(input, input); pause.Step(input, input);
                     var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
@@ -72,9 +72,9 @@ internal static class PauseWireframesVerification
                 void AssertPixels() =>
                     AssertTrue(native.Render().SequenceEqual(pause.Render()), "wireframe migration retains actual native pixels with all artwork reads blocked");
                 // To the equipment page and back, each change run to completion (#1266 cadence).
-                ChangePausePage(pause, SnesButton.R, StepBoth);
+                ChangePausePage(pause, ControllerButton.R, StepBoth);
                 AssertPixels();
-                ChangePausePage(pause, SnesButton.L, StepBoth);
+                ChangePausePage(pause, ControllerButton.L, StepBoth);
                 AssertPixels();
                 AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "wireframe fixture returns to the map page");
                 // Rebind on the map must not replace the map's shared BG1 page.
@@ -102,15 +102,15 @@ internal static class PauseWireframesVerification
         // Exercise selection through real menu actions, not only a direct bit fixture.
         var toggledSamus = new SamusState { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
             EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots) };
-        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
-        toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
-        toggles.Step(0, SnesButton.Down);
+        toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
+        toggles.Step(0, ControllerButton.Down);
         AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Boots, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation reaches Hi-Jump");
-        toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuit);
-        toggles.Step(0, SnesButton.Up);
+        toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuit);
+        toggles.Step(0, ControllerButton.Up);
         AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Suits, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
-        toggles.Step(0, SnesButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
+        toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
 
         void Reject(PauseWireframeDocument invalid) => AssertThrows<InvalidDataException>(() =>
             PauseWireframePresentation.Write(new MemoryStream(), invalid), "invalid wireframe schema/shape/atlas reference rejected");

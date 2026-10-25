@@ -22,7 +22,7 @@ internal static class DoorMusicTimingVerification
     /// <summary>Checks post-scroll stop, upload, and destination-track delays plus unchanged and zero-track handling.</summary>
     internal static void VerifyDoorMusicTiming()
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

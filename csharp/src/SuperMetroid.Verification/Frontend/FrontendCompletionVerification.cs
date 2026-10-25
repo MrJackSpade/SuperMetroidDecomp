@@ -53,18 +53,18 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
 {
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
         action: 0,
-        physicalButton: SnesButton.R);
-    AssertEqual(SnesButton.R, swapped.Shoot, "controller swap assigns requested button");
-    AssertEqual(SnesButton.X, swapped.AimUp, "controller swap preserves permutation");
-    SnesButton normalized = swapped.Normalize(
-        (SnesButton.R | SnesButton.X | SnesButton.Left | SnesButton.Right |
-                 SnesButton.Start));
-    AssertTrue((normalized & SnesButton.X) != 0,
+        physicalButton: ControllerButton.R);
+    AssertEqual(ControllerButton.R, swapped.Shoot, "controller swap assigns requested button");
+    AssertEqual(ControllerButton.X, swapped.AimUp, "controller swap preserves permutation");
+    ControllerButton normalized = swapped.Normalize(
+        (ControllerButton.R | ControllerButton.X | ControllerButton.Left | ControllerButton.Right |
+                 ControllerButton.Start));
+    AssertTrue((normalized & ControllerButton.X) != 0,
         "physical remapped Shoot becomes canonical Shoot");
-    AssertTrue((normalized & SnesButton.R) != 0,
+    AssertTrue((normalized & ControllerButton.R) != 0,
         "displaced physical button becomes canonical Aim Up");
-    AssertTrue((normalized & (SnesButton.Left | SnesButton.Right | SnesButton.Start)) ==
-               (SnesButton.Left | SnesButton.Right | SnesButton.Start),
+    AssertTrue((normalized & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Start)) ==
+               (ControllerButton.Left | ControllerButton.Right | ControllerButton.Start),
         "opposed fixed directions and Start survive binding normalization");
 
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -100,35 +100,35 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 3; row++)
-        PressOptions(options, SnesButton.Down);
+        PressOptions(options, ControllerButton.Down);
     AssertEqual(3, options.SelectedItem, "primary options selects controller settings");
-    PressOptions(options, SnesButton.A);
+    PressOptions(options, ControllerButton.A);
     StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
 
-    PressOptions(options, SnesButton.R);
-    AssertEqual(SnesButton.R, options.ControllerBindings.Shoot,
+    PressOptions(options, ControllerButton.R);
+    AssertEqual(ControllerButton.R, options.ControllerBindings.Shoot,
         "controller page assigns physical R to Shoot");
-    AssertEqual(SnesButton.X, options.ControllerBindings.AimUp,
+    AssertEqual(ControllerButton.X, options.ControllerBindings.AimUp,
         "controller page swaps displaced Shoot button into Aim Up");
 
     for (int row = 0; row < 7; row++)
     {
-        PressOptions(options, SnesButton.Down);
+        PressOptions(options, ControllerButton.Down);
         if (options.Phase == GameOptionsPhase.ScrollControllerDown)
             StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
     }
     AssertEqual(7, options.SelectedItem, "controller page reaches Exit after native scroll");
-    PressOptions(options, SnesButton.A);
+    PressOptions(options, ControllerButton.A);
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 4; row++)
-        PressOptions(options, SnesButton.Down);
-    PressOptions(options, SnesButton.A);
+        PressOptions(options, ControllerButton.Down);
+    PressOptions(options, ControllerButton.A);
     StepOptionsUntil(options, GameOptionsPhase.SpecialSettings);
-    PressOptions(options, SnesButton.A);
+    PressOptions(options, ControllerButton.A);
     AssertTrue(options.IconCancelEnabled, "special page toggles Icon Cancel");
-    PressOptions(options, SnesButton.Down);
-    PressOptions(options, SnesButton.Right);
+    PressOptions(options, ControllerButton.Down);
+    PressOptions(options, ControllerButton.Right);
     AssertTrue(options.MoonwalkEnabled, "special page toggles Moonwalk with Right");
 
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
@@ -448,7 +448,7 @@ internal static void VerifyEndingCreditsState()
 }
 
 /// <summary>Presses and releases an options button so successive menu inputs have distinct edges.</summary>
-private static void PressOptions(GameOptionsMenuState options, SnesButton button)
+private static void PressOptions(GameOptionsMenuState options, ControllerButton button)
 {
     options.Step(button);
     options.Step(0);

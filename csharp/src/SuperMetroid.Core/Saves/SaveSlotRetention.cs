@@ -34,13 +34,13 @@ internal static class SaveSlotRetention
         ushort debugFlag = SaveFieldValue.Encode(snapshot.DebugFlag, nameof(snapshot.DebugFlag));
         ushort newFileMarker = SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker));
 
-        RequireLength(snapshot.EventBytes, Bank80SystemState.EventByteCount, "A save snapshot requires exactly eight event bytes.");
-        RequireLength(snapshot.BossFlags, Bank80SystemState.AreaCount, "A save snapshot requires exactly eight area-boss flag sets.");
-        RequireLength(snapshot.RoomChozoBytes, Bank80SystemState.RoomChozoBitByteCount, "A save snapshot requires exactly 64 room-Chozo bytes.");
-        RequireLength(snapshot.CollectedItemBytes, Bank80SystemState.ItemBitByteCount, "A save snapshot requires exactly 64 collected-item bytes.");
-        RequireLength(snapshot.OpenedDoorBytes, Bank80SystemState.DoorBitByteCount, "A save snapshot requires exactly 64 opened-door bytes.");
-        RequireLength(snapshot.UsedSaveStationBytes, Bank80SystemState.UsedSaveStationByteCount, "A save snapshot requires exactly 16 used save/elevator bytes.");
-        RequireLength(snapshot.MapStationBytes, Bank80SystemState.MapStationByteCount, "A save snapshot requires exactly 12 map-station bytes.");
+        RequireLength(snapshot.EventBytes, SharedGameState.EventByteCount, "A save snapshot requires exactly eight event bytes.");
+        RequireLength(snapshot.BossFlags, SharedGameState.AreaCount, "A save snapshot requires exactly eight area-boss flag sets.");
+        RequireLength(snapshot.RoomChozoBytes, SharedGameState.RoomChozoBitByteCount, "A save snapshot requires exactly 64 room-Chozo bytes.");
+        RequireLength(snapshot.CollectedItemBytes, SharedGameState.ItemBitByteCount, "A save snapshot requires exactly 64 collected-item bytes.");
+        RequireLength(snapshot.OpenedDoorBytes, SharedGameState.DoorBitByteCount, "A save snapshot requires exactly 64 opened-door bytes.");
+        RequireLength(snapshot.UsedSaveStationBytes, SharedGameState.UsedSaveStationByteCount, "A save snapshot requires exactly 16 used save/elevator bytes.");
+        RequireLength(snapshot.MapStationBytes, SharedGameState.MapStationByteCount, "A save snapshot requires exactly 12 map-station bytes.");
         ushort loadingGameState = SaveFieldValue.Encode(snapshot.LoadingGameState, nameof(snapshot.LoadingGameState));
         ushort saveStation = SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation));
         ushort area = SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area));

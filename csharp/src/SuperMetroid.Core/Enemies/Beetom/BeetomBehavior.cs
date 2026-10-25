@@ -75,7 +75,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new BeetomExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
-    internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, SnesButton controllerInput)
+    internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ControllerButton controllerInput)
     {
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
@@ -116,7 +116,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         switch (state.Function)
         {
@@ -413,7 +413,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         HorizontalDirection side)
     {
         if (!state.ButtonCounter.IsZero)

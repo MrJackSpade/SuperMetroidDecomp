@@ -88,7 +88,7 @@ internal sealed class PlmFramePhase
     /// transition-time call. Player-facing events remain with each caller because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
-    private void RunPlmHandlerCore(SnesButton controllerNewInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    private void RunPlmHandlerCore(ControllerButton controllerNewInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (_room.LevelData is null || _room.Camera is null || _player.Samus is null)
         {

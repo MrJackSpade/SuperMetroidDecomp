@@ -57,7 +57,7 @@ internal sealed class BeamCombos
             for (int i = 3; i >= 0; i--)
             {
                 var slot = _slotTable.Slots[i];
-                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits).ToNativeWord() | BeamComboDefinitions.ProjectileTag);
+                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits).ToEquipmentWord() | BeamComboDefinitions.ProjectileTag);
                 slot.Direction = kind == SamusComboKind.Spazer ? (ushort)5 : (ushort)0;
                 slot.PreInstruction = kind switch
                 {
@@ -223,7 +223,7 @@ internal sealed class BeamCombos
     /// before conditionally falling back into LoadBeamPalette's copy loop at $90:AD12.
     /// </summary>
     internal static void RunSpacetimePaletteCopyTail(
-        SuperMetroid.Core.Progression.Bank80SystemState? progression,
+        SuperMetroid.Core.Progression.SharedGameState? progression,
         SamusOverreadCatalog? overreads,
         SamusProjectileSlot slot)
     {

@@ -125,7 +125,7 @@ internal sealed class ControllerInputRecorder : IDisposable
     /// Appends the buttons, as the journal's controller word, before the corresponding game step, preserving the input which
     /// caused an exception even when that frame never returned a rendered image.
     /// </summary>
-    public void RecordFrame(SnesButton controllerInput)
+    public void RecordFrame(ControllerButton controllerInput)
     {
         ushort[]? snapshot = null;
         Task? completedFlush = null;

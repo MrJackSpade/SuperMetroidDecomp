@@ -15,8 +15,8 @@ internal static class PlaybackFrameBatch
     /// <remarks>Stops before polling when the host gate closes, or after an advance returns no frame; zero requested frames do not poll.</remarks>
     internal static PlaybackBatchResult Run(
         int requestedFrames,
-        Func<SnesButton> readInput,
-        Func<SnesButton, FrontendFrame?> advanceFrame,
+        Func<ControllerButton> readInput,
+        Func<ControllerButton, FrontendFrame?> advanceFrame,
         Func<bool>? canAdvance = null)
     {
         Ensure.AtLeastZero(requestedFrames);

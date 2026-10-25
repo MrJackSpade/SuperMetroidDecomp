@@ -12,8 +12,8 @@ internal static class ControllerButtonLookupsVerification
     internal static void VerifyAssignableControllerButtons(ISnesAddressSpace rom)
     {
         // Independent original bytes, never the replacement cases, supply both directions.
-        SnesButton[] original = Enumerable.Range(0, 9)
-            .Select(index => (SnesButton)ReadVerificationWord(rom, 0x82f575 + index * 2)).ToArray();
+        ControllerButton[] original = Enumerable.Range(0, 9)
+            .Select(index => (ControllerButton)ReadVerificationWord(rom, 0x82f575 + index * 2)).ToArray();
         AssertEqual(7, ControllerBindings.AssignableButtonCount, "native set-binding scan count");
         AssertEqual((ushort)12, ReadVerificationWord(rom, 0x82f6ba), "native reverse scan byte offset");
         for (int index = 0; index < 7; index++)
@@ -21,9 +21,9 @@ internal static class ControllerButtonLookupsVerification
                 $"native assignable button {index}");
         for (int button = 0; button <= ushort.MaxValue; button++)
         {
-            int nativeIndex = Array.IndexOf(original, (SnesButton)button, 0, 7);
+            int nativeIndex = Array.IndexOf(original, (ControllerButton)button, 0, 7);
             AssertEqual(nativeIndex < 0 ? null : nativeIndex,
-                ControllerBindings.AssignableButtonIndex((SnesButton)button),
+                ControllerBindings.AssignableButtonIndex((ControllerButton)button),
                 $"assignable inverse {button:X4}");
         }
         foreach (int index in new[] { int.MinValue, -1, 7, 8, int.MaxValue })
@@ -41,8 +41,8 @@ internal static class ControllerButtonLookupsVerification
                     result[row], $"button swap {action}/{requested} row {row}");
             AssertTrue(result.IsRetailPermutation, "swapped buttons remain a permutation");
         }
-        foreach (SnesButton rejected in new SnesButton[] { SnesButton.None, original[7], original[8],
-                     original[0] | original[1], SnesButton.Start, (SnesButton)ushort.MaxValue })
+        foreach (ControllerButton rejected in new ControllerButton[] { ControllerButton.None, original[7], original[8],
+                     original[0] | original[1], ControllerButton.Start, (ControllerButton)ushort.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(0, rejected),
                 $"reject nonassignable {rejected:X}");
@@ -68,7 +68,7 @@ internal static class ControllerButtonLookupsVerification
         }
         ushort[] destinations = [0x09b2, 0x09b4, 0x09b6, 0x09ba, 0x09b8, 0x09be, 0x09bc];
         for (int row = 0; row < destinations.Length; row++)
-            AssertEqual((SnesButton)original[destinations[row]], ControllerBindings.Default[row],
+            AssertEqual((ControllerButton)original[destinations[row]], ControllerBindings.Default[row],
                 $"default action row {row} WRAM {destinations[row]:X4}");
         foreach (int row in new[] { int.MinValue, -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = ControllerBindings.Default[row]; },

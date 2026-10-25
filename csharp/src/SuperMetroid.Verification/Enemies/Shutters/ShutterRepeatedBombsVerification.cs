@@ -38,8 +38,8 @@ internal static class ShutterRepeatedBombsVerification
             runtime.StepFrame(0);
             for (int frame = 0; frame < 320; frame++)
             {
-                SnesButton input = frame < 220 && frame % interval == 0 ? runtime.Options.ControllerBindings.Shoot : 0;
-                if (frame == unmorphAt) input |= SnesButton.Up;
+                ControllerButton input = frame < 220 && frame % interval == 0 ? runtime.Options.ControllerBindings.Shoot : 0;
+                if (frame == unmorphAt) input |= ControllerButton.Up;
                 runtime.StepFrame(input);
                 int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
                 if (Math.Abs(samus.Position.X.Whole - platform.Position.X.Whole) < platform.Radius.X + samus.Kinematics.Radius.X &&

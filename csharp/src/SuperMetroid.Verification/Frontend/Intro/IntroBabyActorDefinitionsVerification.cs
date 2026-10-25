@@ -66,11 +66,11 @@ internal static class IntroBabyActorDefinitionsVerification
 
         var guarded = NewIntroBabyActorDefinitionGuard(retail);
         byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
-        var discovery = new IntroBabyDiscoveryState(new CartridgeRandom(), 
+        var discovery = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var reference = new IntroBabyDiscoveryState(new CartridgeRandom(), 
+        var reference = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {

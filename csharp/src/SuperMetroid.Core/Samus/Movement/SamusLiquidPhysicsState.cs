@@ -302,7 +302,7 @@ public sealed class SamusLiquidPhysicsState
     [IndependentFlag("The liquid sound request frame and boss presence are independent facts of the frame.")]
     public void PrepareAnimationFrame(
         SamusState samus,
-        CartridgeRandom random,
+        SharedRandom random,
         int nmiFrameCounter = 0,
         bool beginSoundRequestFrame = true,
         bool bossPresent = false)
@@ -691,7 +691,7 @@ public sealed class SamusLiquidPhysicsState
         SamusState samus,
         ushort top,
         int nmiFrameCounter,
-        CartridgeRandom random)
+        SharedRandom random)
     {
         ushort mouthY = unchecked((ushort)(top - 24));
         if (unchecked((short)(mouthY - FxYPosition)) < 0 ||

@@ -1943,7 +1943,7 @@ internal static class LookupStream4Verification
             AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
             // The selector reads the controller only after its two native lag frames ($85:84BA): hold Right until it does.
             for (int frame = 0; frame < 3 && state.ConfirmationSelectionYes; frame++)
-                state.Step(SnesButton.Right);
+                state.Step(ControllerButton.Right);
             AssertTrue(!state.ConfirmationSelectionYes, "Right moves the save selection to NO");
             for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
             AssertTrue(expected.SequenceEqual(state.Tilemap), "Actual notice NO selection retains native row and neighboring content; differing cells " +
@@ -1981,16 +1981,16 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for message dispatch")]
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
-        var resolve = new Func<SnesButton, ushort>(GameplayMessageBoxState.ResolveButtonTilemapWord);
+        var resolve = new Func<ControllerButton, ushort>(GameplayMessageBoxState.ResolveButtonTilemapWord);
         for (int bits = 0; bits <= ushort.MaxValue; bits++)
         {
             int winner = 0;
             while (winner < 7 && (bits & CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8583d5 + winner * 8))) == 0) winner++;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858426 + 2 * winner));
-            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyphWord((SnesButton)bits), "Native BIT order and all button glyph attributes");
-            AssertEqual(expected, resolve((SnesButton)bits), "Actual message button resolver retains first-match precedence");
+            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyphWord((ControllerButton)bits), "Native BIT order and all button glyph attributes");
+            AssertEqual(expected, resolve((ControllerButton)bits), "Actual message button resolver retains first-match precedence");
         }
-        Action<GameplayMessageBoxState, GameplayMessageId, SnesButton> patch = (state, message, raw) => state.PatchConfiguredButton(message, raw);
+        Action<GameplayMessageBoxState, GameplayMessageId, ControllerButton> patch = (state, message, raw) => state.PatchConfiguredButton(message, raw);
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var id = (GameplayMessageId)raw;
@@ -2010,7 +2010,7 @@ internal static class LookupStream4Verification
             var state = new GameplayMessageBoxState();
             var cells = Enumerable.Range(0, 192).Select(index => (ushort)(0x4000 + index)).ToArray();
             state.TilemapWords = cells;
-            patch(state, id, (SnesButton)ushort.MaxValue);
+            patch(state, id, (ControllerButton)ushort.MaxValue);
             for (int index = 0; index < cells.Length; index++)
                 AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : (ushort)(0x4000 + index), cells[index],
                     "Actual button patch preserves every independently supplied neighboring cell");

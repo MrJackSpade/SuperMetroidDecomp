@@ -45,7 +45,7 @@ internal static class ReserveAutoFrontendVerification
     internal static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -65,7 +65,7 @@ internal static class ReserveAutoFrontendVerification
         // the first reserve point early or letting Start replace it with pause.
         game.GameState = SuperMetroidGameState.MainGameplay;
         long hostSequence = 0;
-        var entry = game.StepCaptured(SnesButton.Start, ++hostSequence, 1);
+        var entry = game.StepCaptured(ControllerButton.Start, ++hostSequence, 1);
         AssertEqual(SuperMetroidGameState.ReserveTanksAuto, game.GameState,
             "zero-health gameplay routes to automatic reserves before pause admission");
         AssertEqual(0, samus.Health, "entry frame does not transfer reserve energy early");
@@ -87,7 +87,7 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(runtime.Freeze.TimeIsFrozen && samus.Control.AlphaLocked, "nonfinal refill keeps native freeze and input lock");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is null, "nonfinal refill does not execute grounded movement");
         AssertEqual(10, runtime.BombProjectiles.CooldownTimer.RawValue, "nonfinal refill freezes shared projectile clock");
-        game.StepCaptured(SnesButton.Right, ++hostSequence, 1);
+        game.StepCaptured(ControllerButton.Right, ++hostSequence, 1);
         AssertEqual(2, samus.Health, "automatic refill completion frame");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "completion restores outer gameplay state");
         AssertTrue(!runtime.Freeze.TimeIsFrozen && !samus.Control.AlphaLocked, "completion clears native freeze and input lock");

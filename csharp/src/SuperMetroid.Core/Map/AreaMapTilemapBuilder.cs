@@ -10,7 +10,7 @@ public static class AreaMapTilemapBuilder
     /// Projects immutable cartridge cells into native two-page VRAM order. The caller
     /// supplies its screen's hidden-cell character; reveal overrides never modify SRAM.
     /// </summary>
-    public static byte[] Build(IAreaMapView map, Bank80SystemState system,
+    public static byte[] Build(IAreaMapView map, SharedGameState system,
         MapTileWord hiddenCell, MapRevealMode revealMode = MapRevealMode.None)
     {
         Ensure.NotNull(map);

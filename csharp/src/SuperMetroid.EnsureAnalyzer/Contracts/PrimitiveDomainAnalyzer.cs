@@ -96,17 +96,17 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     public const string ControllerWordBoundaryAttributeName = "ControllerWordBoundaryAttribute";
 
     /// <summary>The Core type that carries controller state; its raw words exist only where they are stored or read.</summary>
-    private const string ControllerButtonsType = "SuperMetroid.Core.Input.SnesButton";
+    private const string ControllerButtonsType = "SuperMetroid.Core.Input.ControllerButton";
 
     /// <summary>Reports controller buttons narrowed to or widened from an integer outside a declared boundary.</summary>
     private static readonly DiagnosticDescriptor ControllerWordConversionRule = new(
         ControllerWordConversionId,
         "Controller buttons converted outside a boundary",
-        "'{0}' converts controller buttons {1} a raw word outside a [ControllerWordBoundary]; keep SnesButton and convert only where words are stored or read",
+        "'{0}' converts controller buttons {1} a raw word outside a [ControllerWordBoundary]; keep ControllerButton and convert only where words are stored or read",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Controller state flows through Core as SnesButton; only the declarations that store or read controller words " +
+        description: "Controller state flows through Core as ControllerButton; only the declarations that store or read controller words " +
             "(journals, SRAM, enemy variables, codecs) convert it, and each says why with [ControllerWordBoundary].");
 
     /// <summary>Reports a mask- or shift-extracted local compared with several nonzero values.</summary>
@@ -214,8 +214,8 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// Flags an explicit SnesButton/integer conversion outside a [ControllerWordBoundary] declaration in the assembly that
-    /// declares SnesButton (Core); hosts, tools and tests reference it and convert at their own boundaries.
+    /// Flags an explicit ControllerButton/integer conversion outside a [ControllerWordBoundary] declaration in the assembly that
+    /// declares ControllerButton (Core); hosts, tools and tests reference it and convert at their own boundaries.
     /// </summary>
     private static void AnalyzeControllerWordConversion(OperationAnalysisContext context)
     {

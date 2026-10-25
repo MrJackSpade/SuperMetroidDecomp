@@ -55,15 +55,15 @@ internal static class NativeSnapshotImportVerification
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SaveSlotStore saves = SaveRamCodec.Decode(saveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Options.MoonwalkEnabled = W(NativeSnapshotMemory.MoonwalkOption) != 0;
-        runtime.System.LoadCollectedItemBytes(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, Bank80SystemState.ItemBitByteCount));
-        runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, Bank80SystemState.AreaCount));
-        runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, Bank80SystemState.EventByteCount));
-        runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
+        runtime.System.LoadCollectedItemBytes(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, SharedGameState.ItemBitByteCount));
+        runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, SharedGameState.AreaCount));
+        runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, SharedGameState.EventByteCount));
+        runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, SharedGameState.DoorBitByteCount));
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(W(NativeSnapshotMemory.Room)), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
@@ -117,12 +117,12 @@ internal static class NativeSnapshotImportVerification
         runtime.Room.LoadedCamera.Scrolls.Storage.Load(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
-            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea).ToArray();
-        memory.AsSpan(NativeSnapshotMemory.LiveExploredMap, Bank80SystemState.ExploredMapBytesPerArea)
-            .CopyTo(initialMaps.AsSpan(W(NativeSnapshotMemory.CurrentArea) * Bank80SystemState.ExploredMapBytesPerArea));
+            SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea).ToArray();
+        memory.AsSpan(NativeSnapshotMemory.LiveExploredMap, SharedGameState.ExploredMapBytesPerArea)
+            .CopyTo(initialMaps.AsSpan(W(NativeSnapshotMemory.CurrentArea) * SharedGameState.ExploredMapBytesPerArea));
         runtime.System.LoadExploredMapBytes(initialMaps);
-        runtime.System.LoadUsedSaveStationBytes(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, Bank80SystemState.UsedSaveStationByteCount));
-        runtime.System.LoadMapStationBytes(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, Bank80SystemState.MapStationByteCount));
+        runtime.System.LoadUsedSaveStationBytes(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, SharedGameState.UsedSaveStationByteCount));
+        runtime.System.LoadMapStationBytes(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, SharedGameState.MapStationByteCount));
 
         SamusState samus = runtime.Player.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
@@ -155,8 +155,8 @@ internal static class NativeSnapshotImportVerification
         samus.PoseTransitionShotDirection = W(NativeSnapshotMemory.PoseShotDirection);
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         samus.ResumeChargingBeamSound = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
-        samus.InputSnapshot.PreviousDrawHeldInput = (SnesButton)W(NativeSnapshotMemory.SamusFilteredHeld);
-        samus.InputSnapshot.PreviousDrawNewInput = (SnesButton)W(NativeSnapshotMemory.SamusFilteredNew);
+        samus.InputSnapshot.PreviousDrawHeldInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredHeld);
+        samus.InputSnapshot.PreviousDrawNewInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredNew);
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
         samus.PreviousHealthForHurtCheck = SamusQuantity.Decode(W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
         AssertTrue(W(NativeSnapshotMemory.SamusInputHandler) is
@@ -319,7 +319,7 @@ internal static class NativeSnapshotImportVerification
         samus.SuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.SuperMissiles)); samus.MaxSuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxSuperMissiles));
         samus.PowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxPowerBombs));
         samus.PreviousHealthForHurtCheck = samus.Health;
-        runtime.Controller1.Latch((SnesButton)W(NativeSnapshotMemory.HeldInput));
+        runtime.Controller1.Latch((ControllerButton)W(NativeSnapshotMemory.HeldInput));
         var game = CreateRetailGameFixture(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

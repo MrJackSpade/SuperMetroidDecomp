@@ -213,7 +213,7 @@ public sealed class HudState
     /// Ports the visible 5x3 result of <c>UpdateMinimap</c> at <c>$90:A91B</c> for a
     /// supplied room/map position, including exploration bits and the blinking center tile.
     /// </summary>
-    public void UpdateMinimap(Bank80SystemState system, MinimapFrame frame)
+    public void UpdateMinimap(SharedGameState system, MinimapFrame frame)
     {
         Ensure.NotNull(system);
         if (!IsInitialized)

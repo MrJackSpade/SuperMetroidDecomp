@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class LoadingGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.SetUpNewGame"/>.</summary>
-    internal void DispatchSetUpNewGame(SnesButton controllerInput)
+    internal void DispatchSetUpNewGame(ControllerButton controllerInput)
     {
         if (session.ResumesGameLoadingWait)
         {
@@ -25,7 +25,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingGameData"/>.</summary>
-    internal void DispatchLoadingGameData(SnesButton controllerInput)
+    internal void DispatchLoadingGameData(ControllerButton controllerInput)
     {
         if (session.ResumesGameLoadingWait)
         {
@@ -59,7 +59,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.MainGameplayFadeIn"/>.</summary>
-    internal void DispatchMainGameplayFadeIn(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchMainGameplayFadeIn(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
@@ -83,7 +83,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     /// One native loading wait: the accepted NMI reads the controller and performs its
     /// transfers; no dispatcher runs. The last wait returns into the state store.
     /// </summary>
-    private void StepGameLoadingWait(SnesButton controllerInput)
+    private void StepGameLoadingWait(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         if (!session.GameLoading.CountWait())

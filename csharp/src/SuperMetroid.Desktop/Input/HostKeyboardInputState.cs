@@ -61,24 +61,24 @@ internal sealed class HostKeyboardInputState
     public void Clear() => heldKeys.Clear();
 
     /// <summary>Merges the keyboard producer into an already-polled gamepad sample.</summary>
-    public SnesButton BuildControllerWord(SnesButton gamepadInput)
+    public ControllerButton BuildControllerWord(ControllerButton gamepadInput)
     {
-        SnesButton input = gamepadInput;
-        if (heldKeys.Contains(Keys.Left)) input |= SnesButton.Left;
-        if (heldKeys.Contains(Keys.Right)) input |= SnesButton.Right;
-        if (heldKeys.Contains(Keys.Up)) input |= SnesButton.Up;
-        if (heldKeys.Contains(Keys.Down)) input |= SnesButton.Down;
-        if (heldKeys.Contains(Keys.Z)) input |= SnesButton.B;
+        ControllerButton input = gamepadInput;
+        if (heldKeys.Contains(Keys.Left)) input |= ControllerButton.Left;
+        if (heldKeys.Contains(Keys.Right)) input |= ControllerButton.Right;
+        if (heldKeys.Contains(Keys.Up)) input |= ControllerButton.Up;
+        if (heldKeys.Contains(Keys.Down)) input |= ControllerButton.Down;
+        if (heldKeys.Contains(Keys.Z)) input |= ControllerButton.B;
 
         // Space is a discoverable desktop jump alias; X retains the compact four-face-
         // button layout printed below the viewport. Both become the retail SNES A bit.
-        if (heldKeys.Contains(Keys.X) || heldKeys.Contains(Keys.Space)) input |= SnesButton.A;
-        if (heldKeys.Contains(Keys.A)) input |= SnesButton.Y;
-        if (heldKeys.Contains(Keys.S)) input |= SnesButton.X;
-        if (heldKeys.Contains(Keys.Q)) input |= SnesButton.L;
-        if (heldKeys.Contains(Keys.W)) input |= SnesButton.R;
-        if (heldKeys.Contains(Keys.Enter)) input |= SnesButton.Start;
-        if (heldKeys.Contains(Keys.ShiftKey)) input |= SnesButton.Select;
+        if (heldKeys.Contains(Keys.X) || heldKeys.Contains(Keys.Space)) input |= ControllerButton.A;
+        if (heldKeys.Contains(Keys.A)) input |= ControllerButton.Y;
+        if (heldKeys.Contains(Keys.S)) input |= ControllerButton.X;
+        if (heldKeys.Contains(Keys.Q)) input |= ControllerButton.L;
+        if (heldKeys.Contains(Keys.W)) input |= ControllerButton.R;
+        if (heldKeys.Contains(Keys.Enter)) input |= ControllerButton.Start;
+        if (heldKeys.Contains(Keys.ShiftKey)) input |= ControllerButton.Select;
         return input;
     }
 

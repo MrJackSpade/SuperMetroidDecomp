@@ -52,7 +52,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
     private readonly SamusState samus;
     /// <summary>Provides persistent area map and exploration bits.</summary>
-    private readonly Bank80SystemState system;
+    private readonly SharedGameState system;
     /// <summary>Area whose map and pause backdrop are displayed.</summary>
     private readonly AreaId area;
     /// <summary>Room header map origin used to locate Samus on the area map.</summary>
@@ -184,15 +184,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// The runtime supplies its accepted-NMI byte counter for cartridge palette phase;
     /// standalone diagnostic callers may leave that phase at zero.
     /// </summary>
-    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, int frameCounterByte = 0)
+    public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCounterByte = 0)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(frameCounterByte);
         if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
             MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, MapScrollPosition));
-        SnesButton delayedPressed = delayedHeldInput;
-        SnesButton newlyPressed = newlyPressedInput;
+        ControllerButton delayedPressed = delayedHeldInput;
+        ControllerButton newlyPressed = newlyPressedInput;
         if (Transition != PauseMenuTransition.None)
         {
             StepPageTransition();
@@ -203,7 +203,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             // `$82:9120`: L/R, then Start, then map scrolling. A Start press does not stop
             // the same frame's scroll pulse.
-            if ((delayedPressed & SnesButton.R) != 0)
+            if ((delayedPressed & ControllerButton.R) != 0)
             {
                 audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
                 SetPauseButtonLabelMode(2);
@@ -228,7 +228,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // which would erase the cartridge's same-frame VAR overrun.
         WriteReserveSupplyDigits();
         UploadEquipmentTilemap();
-        if ((delayedPressed & SnesButton.L) != 0)
+        if ((delayedPressed & ControllerButton.L) != 0)
         {
             audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
             SetPauseButtonLabelMode(0);
@@ -243,9 +243,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// pages. It reads the delayed-held word: a fresh press is excluded for three frames by
     /// <c>$80:8146</c> before becoming menu input. True requests game state $10.
     /// </summary>
-    private bool HandleStartButton(SnesButton delayedPressed)
+    private bool HandleStartButton(ControllerButton delayedPressed)
     {
-        if ((delayedPressed & SnesButton.Start) == 0)
+        if ((delayedPressed & ControllerButton.Start) == 0)
             return false;
         audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
         SetPauseButtonLabelMode(1);
@@ -748,7 +748,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         PauseEquipmentRules.Mask(category.Category, item);
 
     /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
-    private void HandleEquipmentInput(SnesButton pressed, int frameCounterByte)
+    private void HandleEquipmentInput(ControllerButton pressed, int frameCounterByte)
     {
         PauseEquipmentCategory dispatchedCategory = SelectedCategory;
         if (dispatchedCategory == PauseEquipmentCategory.Reserves)
@@ -759,7 +759,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
         }
         MoveEquipmentSelector(pressed);
-        if ((pressed & SnesButton.A) == 0)
+        if ((pressed & ControllerButton.A) == 0)
             return;
         if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == 0)
             return;
@@ -854,10 +854,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Applies native directional links among beam, suit, boot, and reserve rows.</summary>
-    private void MoveEquipmentSelector(SnesButton pressed)
+    private void MoveEquipmentSelector(ControllerButton pressed)
     {
-        bool left = (pressed & SnesButton.Left) != 0, right = (pressed & SnesButton.Right) != 0;
-        bool up = (pressed & SnesButton.Up) != 0, down = (pressed & SnesButton.Down) != 0;
+        bool left = (pressed & ControllerButton.Left) != 0, right = (pressed & ControllerButton.Right) != 0;
+        bool up = (pressed & ControllerButton.Up) != 0, down = (pressed & ControllerButton.Down) != 0;
         PauseEquipmentCategory beams = PauseEquipmentCategory.Beams, suits = PauseEquipmentCategory.Suits, boots = PauseEquipmentCategory.Boots;
         switch (SelectedCategory)
         {
@@ -1112,12 +1112,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         : throw new InvalidDataException($"Unsupported native reserve subdispatcher {SelectedItem}.");
 
     /// <summary>Runs the tank subdispatcher before its D-pad response, as at $82:AC70.</summary>
-    private void HandleReserveInput(SnesButton pressed)
+    private void HandleReserveInput(ControllerButton pressed)
     {
         switch (SelectedReserveItem)
         {
             case PauseReserveItem.Mode:
-                if ((pressed & SnesButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
+                if ((pressed & ControllerButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
                 audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
                 samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
                     ? ReserveTankMode.Manual : ReserveTankMode.Auto;
@@ -1131,7 +1131,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         if (ReserveTransferSoundDelay.IsZero)
         {
-            if ((pressed & SnesButton.A) == 0) return;
+            if ((pressed & ControllerButton.A) == 0) return;
             ReserveTransferSoundDelay = WrappingCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
                 PauseReserveEnergyDefinitions.RefillSoundInterval - 1) & -PauseReserveEnergyDefinitions.RefillSoundInterval)));
         }

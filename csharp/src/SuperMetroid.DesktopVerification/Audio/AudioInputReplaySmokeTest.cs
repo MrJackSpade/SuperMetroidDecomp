@@ -59,9 +59,9 @@ public static class AudioInputReplaySmokeTest
         int totalAvailableFrames = recording.ControllerInputs.Length + NeutralTailFrames;
         for (int frameIndex = 0; frameIndex < totalAvailableFrames; frameIndex++)
         {
-            SnesButton input = frameIndex < recording.ControllerInputs.Length
+            ControllerButton input = frameIndex < recording.ControllerInputs.Length
                 ? recording.InputAt(frameIndex)
-                : SnesButton.None;
+                : ControllerButton.None;
             FrontendFrame frame = game.Step(input);
             SoundAcknowledgements<SoundEffectId> acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;

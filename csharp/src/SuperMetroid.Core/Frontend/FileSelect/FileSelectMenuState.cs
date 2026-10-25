@@ -114,11 +114,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     internal bool ResumesAfterFrameWait => Phase is
         FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.InitializeMainAfterFrameWait;
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
-    public void Step(SnesButton controllerInput)
+    public void Step(ControllerButton controllerInput)
     {
         SaveRamChangedThisFrame = false;
         controller.Latch(controllerInput);
-        SnesButton pressed = controller.NewlyPressed;
+        ControllerButton pressed = controller.NewlyPressed;
 
         if (!IsEntryPhase)
             missile.Step(mapPresentation?.FileSelect.CursorFrameDuration);
@@ -184,7 +184,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 StepSelectedHelmet();
                 // $81:9D91: Start/A ends the turn early; otherwise it ends once the
                 // final frame has also used up its own timer, which then reads zero.
-                if ((pressed & (SnesButton.Start | SnesButton.A)) != 0 ||
+                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != 0 ||
                     (HelmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
                     Phase = FileSelectPhase.FadeOutToOptions;
                 break;
@@ -317,27 +317,27 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         FileSelectPhase.CopyCompleted and not FileSelectPhase.ClearCompleted;
 
     /// <summary>Handles slot selection, hidden data-management rows, and options or title handoffs.</summary>
-    private void StepMainMenu(SnesButton pressed)
+    private void StepMainMenu(ControllerButton pressed)
     {
-        if ((pressed & SnesButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != 0)
         {
             MoveMainSelection(direction: VerticalDirection.Up);
             QueueCursorSound();
         }
-        else if ((pressed & SnesButton.Down) != 0)
+        else if ((pressed & ControllerButton.Down) != 0)
         {
             MoveMainSelection(direction: VerticalDirection.Down);
             QueueCursorSound();
         }
 
-        if ((pressed & SnesButton.B) != 0)
+        if ((pressed & ControllerButton.B) != 0)
         {
             QueueCursorSound();
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToTitle;
             return;
         }
-        if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
             return;
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
@@ -420,7 +420,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Dispatches Copy and Clear selection, confirmation, and completed-page input.</summary>
-    private void StepDataManagement(SnesButton pressed)
+    private void StepDataManagement(ControllerButton pressed)
     {
         switch (Phase)
         {
@@ -442,7 +442,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
             case FileSelectPhase.CopyCompleted:
             case FileSelectPhase.ClearCompleted:
-                if (pressed != SnesButton.None)
+                if (pressed != ControllerButton.None)
                 {
                     QueueCursorSound();
                     SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
@@ -468,7 +468,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Chooses an occupied source or clear slot, then opens destination or confirmation.</summary>
-    private void StepSlotSelection(SnesButton pressed, FileSelectDataMode mode)
+    private void StepSlotSelection(ControllerButton pressed, FileSelectDataMode mode)
     {
         int occupiedSlots = 0;
         for (int slot = 0; slot < FileSelectLayout.SaveSlotCount; slot++)
@@ -476,14 +476,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         MoveSubmenuSelection(FileSelectDataNavigation.MoveSourceOrClear(
             submenuSelection, occupiedSlots, pressed));
 
-        if ((pressed & SnesButton.B) != 0 ||
-            ((pressed & (SnesButton.Start | SnesButton.A)) != 0 && submenuSelection == FileSelectItem.Exit))
+        if ((pressed & ControllerButton.B) != 0 ||
+            ((pressed & (ControllerButton.Start | ControllerButton.A)) != 0 && submenuSelection == FileSelectItem.Exit))
         {
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
             return;
 
         QueueCursorSound();
@@ -504,11 +504,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Chooses any slot other than the copy source, preserving B navigation back to source selection.</summary>
-    private void StepCopyDestination(SnesButton pressed)
+    private void StepCopyDestination(ControllerButton pressed)
     {
         MoveSubmenuSelection(FileSelectDataNavigation.MoveCopyDestination(
             submenuSelection, operationSourceSlot, pressed));
-        if ((pressed & SnesButton.B) != 0)
+        if ((pressed & ControllerButton.B) != 0)
         {
             QueueCursorSound();
             submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
@@ -516,7 +516,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.CopySelectSource;
             return;
         }
-        if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
             return;
         QueueCursorSound();
         if (submenuSelection == FileSelectItem.Exit)
@@ -547,21 +547,21 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Accepts Yes or No and mutates checksummed SRAM only after explicit Yes confirmation.</summary>
-    private void StepConfirmation(SnesButton pressed, FileSelectDataMode mode)
+    private void StepConfirmation(ControllerButton pressed, FileSelectDataMode mode)
     {
-        if ((pressed & (SnesButton.Up | SnesButton.Down)) != 0)
+        if ((pressed & (ControllerButton.Up | ControllerButton.Down)) != 0)
         {
             confirmationSelection = confirmationSelection == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
             QueueCursorSound();
             return;
         }
-        if ((pressed & SnesButton.B) != 0)
+        if ((pressed & ControllerButton.B) != 0)
         {
             QueueCursorSound();
             ReturnFromConfirmation(mode);
             return;
         }
-        if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
             return;
 
         audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);

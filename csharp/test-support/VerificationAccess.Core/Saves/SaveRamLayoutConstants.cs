@@ -10,7 +10,7 @@ internal static class SaveRamLayoutConstants
     /// <summary>Size of the unassigned $7E:D8F0-$7E:D8F7 allocation.</summary>
     public const int ProgressionPaddingByteCount = 8;
     /// <summary>Unassigned eight-byte SRAM-mirror allocation at $7E:D8F0-$7E:D8F7.</summary>
-    public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress + Bank80SystemState.DoorBitByteCount;
+    public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress + SharedGameState.DoorBitByteCount;
     /// <summary>Offset of the selected-slot complement immediately after its stored word.</summary>
     public const int SelectedSlotComplementOffset = SaveRamLayout.SelectedSlotOffset + WordByteCount;
     /// <summary>Byte width of one little-endian SRAM layout word.</summary>

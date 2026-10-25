@@ -40,8 +40,8 @@ internal sealed class SamusFramePhases
     private readonly SamusFrameState _player;
     /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Supplies persistent bank-$80 state consulted by movement handlers.</summary>
-    private readonly Bank80SystemState _system;
+    /// <summary>Supplies the shared game state consulted by movement handlers.</summary>
+    private readonly SharedGameState _system;
     /// <summary>Builds X-ray's reveal tilemap at its setup stage.</summary>
     private readonly XrayReveal _xray;
     /// <summary>UpdateSamusPose after normal beta's animation.</summary>
@@ -121,7 +121,7 @@ internal sealed class SamusFramePhases
         }
         else if (!_freeze.TimeIsFrozen &&
                  (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.Overreads)) &&
-                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & SnesButton.X) != 0)
+                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & ControllerButton.X) != 0)
         {
             // Normal HUD item four now reaches the same bank-$9B actor as the
             // diagnostic entry point, after bank-$90's movement-type admission.
@@ -355,7 +355,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                (_controller1.Current & SnesButton.B) != 0 &&
+                (_controller1.Current & ControllerButton.B) != 0 &&
                 TryBeginXrayFromSelectedHudItem(gameState, room.BombProjectiles))
             {
                 frame.MarkXrayActivated();

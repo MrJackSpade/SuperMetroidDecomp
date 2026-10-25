@@ -27,11 +27,11 @@ internal static class PauseScreenPublicationVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry
         {
             Samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge },
-            System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1),
+            System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1),
         });
         for (int frame = 0; frame < 4; frame++) pause.Step(0, 0);
         AssertPublished(pause, "map page");
-        pause.Step(SnesButton.R, SnesButton.R);
+        pause.Step(ControllerButton.R, ControllerButton.R);
         while (pause.ScreenMode == PauseScreenMode.Map) pause.Step(0, 0);
         for (int frame = 0; frame < 4; frame++) pause.Step(0, 0);
         AssertPublished(pause, "equipment page");

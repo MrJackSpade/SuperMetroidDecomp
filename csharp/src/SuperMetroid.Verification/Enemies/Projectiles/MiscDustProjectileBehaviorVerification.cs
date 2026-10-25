@@ -68,7 +68,7 @@ internal static class MiscDustProjectileBehaviorVerification
             smokeEnemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
                 new EyeDoorProjectileRequest(puff, Facing: EyeDoorOrientation.Left, PlmBlockIndex: 4 * 16 + 7, DoorBit: 0),
                 roomWidthInBlocks: 16,
-                new Bank80SystemState());
+                new SharedGameState());
             RoomEnemyProjectileSlot smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
             MiscDustProjectileProgram expected = MiscDustProjectileDefinitions.Program(animation);

@@ -28,5 +28,5 @@ internal sealed record MessageBoxFlowDependencies
     public required SamusSuitPickupState SuitPickup { get; init; }
 
     /// <summary>System.</summary>
-    public required Bank80SystemState System { get; init; }
+    public required SharedGameState System { get; init; }
 }

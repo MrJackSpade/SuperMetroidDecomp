@@ -98,7 +98,7 @@ internal sealed record RoomLoaderDependencies
 
 
     /// <summary>System.</summary>
-    public required Bank80SystemState System { get; init; }
+    public required SharedGameState System { get; init; }
 
     /// <summary>Tester.</summary>
     public required TesterTools Tester { get; init; }

@@ -40,7 +40,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
                 NewNorfairRioInstructionSystem(entry);
             object?[] arguments =
-                [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+                [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             RunNorfairRioInstructionFrames(arguments,
                 slot,
                 calls);

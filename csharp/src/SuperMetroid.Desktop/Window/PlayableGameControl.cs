@@ -313,7 +313,7 @@ public sealed class PlayableGameControl : UserControl
             Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
         }
         // Execute reset once so the first visible debugger frame is state one's native setup.
-        FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: replay is null ? SnesButton.None : null)
+        FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: replay is null ? ControllerButton.None : null)
             ?? throw new InvalidDataException("Replay contains no reset frame.");
         RefreshFrame(resetFrame);
         ResetFrameTimings();
@@ -504,7 +504,7 @@ public sealed class PlayableGameControl : UserControl
     private bool CanAdvanceAudioFrame() => audioDevice is null || audioDevice.CanAcceptFrame;
 
     /// <summary>Advances one accepted frontend frame and refreshes its display if available.</summary>
-    internal void StepFrame(SnesButton? forcedInput = null)
+    internal void StepFrame(ControllerButton? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
         if (frame is not null)
@@ -515,10 +515,10 @@ public sealed class PlayableGameControl : UserControl
     /// Selects exactly one live or replay word, records it before execution, and advances
     /// the translated dispatcher. Null means exhausted replay or deferred audio capacity, never input zero.
     /// </summary>
-    private FrontendFrame? AdvanceOneFrame(SnesButton? forcedInput = null)
+    private FrontendFrame? AdvanceOneFrame(ControllerButton? forcedInput = null)
     {
         if (!CanAdvanceAudioFrame()) return null;
-        SnesButton input;
+        ControllerButton input;
         if (replay is not null)
         {
             if (replayFrameIndex >= replay.ControllerInputs.Length)
@@ -752,12 +752,12 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Merges keyboard and gamepad into one filtered cartridge-format input word.</summary>
-    private SnesButton BuildControllerWord()
+    private ControllerButton BuildControllerWord()
     {
         // Keyboard and gamepad are two host producers for the same physical SNES port.
         // Merge them before recording so replay sees one exact cartridge-format word and
         // never depends on which Windows device generated a particular held bit.
-        SnesButton input = keyboard.BuildControllerWord(gamepad.Poll());
+        ControllerButton input = keyboard.BuildControllerWord(gamepad.Poll());
         return inputActivation.Filter(input);
     }
 

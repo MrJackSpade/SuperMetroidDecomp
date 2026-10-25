@@ -28,7 +28,7 @@ internal static class PauseReserveLabelsVerification
         {
             var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankModes.Decode(mode),
                 CollectedItems = SamusEquipmentFlags.MorphBall };
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve label test reached equipment page");
             var snapshot = pause.CaptureRenderSnapshot();

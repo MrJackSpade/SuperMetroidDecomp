@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 public sealed record SamusAnimationStep
 {
     /// <summary>Controller input.</summary>
-    public SnesButton ControllerInput { get; init; } = 0;
+    public ControllerButton ControllerInput { get; init; } = 0;
 
     /// <summary>
     /// The frame clock's value for this step, 0 through 65535: the clock wraps at sixteen bits and its low bits
@@ -20,7 +20,7 @@ public sealed record SamusAnimationStep
     }
 
     /// <summary>The session's random-number word, which Samus's liquid effects draw air bubbles from.</summary>
-    public required CartridgeRandom Random { get; init; }
+    public required SharedRandom Random { get; init; }
 
     /// <summary>Begin liquid sound request frame.</summary>
     public bool BeginLiquidSoundRequestFrame { get; init; } = true;

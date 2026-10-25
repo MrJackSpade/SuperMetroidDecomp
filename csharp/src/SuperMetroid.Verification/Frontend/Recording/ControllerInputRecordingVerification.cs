@@ -55,7 +55,7 @@ internal static class ControllerInputRecordingVerification
         AssertTrue(inputs.SequenceEqual(actual.ControllerInputs), "input recording frame words");
         // A replay converts each journal word once, where it enters the game; a word with bits no controller
         // produces fails there, naming its frame.
-        AssertEqual(SnesButton.Left | SnesButton.A, actual.InputAt(2), "replay converts a journal word to its buttons");
+        AssertEqual(ControllerButton.Left | ControllerButton.A, actual.InputAt(2), "replay converts a journal word to its buttons");
         try
         {
             actual.InputAt(3);

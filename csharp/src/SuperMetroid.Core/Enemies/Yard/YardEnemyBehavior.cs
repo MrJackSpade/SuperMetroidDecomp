@@ -580,7 +580,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         bool aggressiveCrawlRejectsKick = state.Behavior == YardBehavior.AggressiveCrawling &&
             state.MovementFunction != YardMovementFunction.InstructionPending &&
@@ -615,11 +615,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Interprets the exact held horizontal direction used by Yard's touch callback.</summary>
     private static bool SamusIsDirectingTowardYard(
         YardEnemyState state,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
-        SnesButton heldButtons = controllerInput;
+        ControllerButton heldButtons = controllerInput;
         bool pressingExactlyRight =
-            (heldButtons & SnesButtons.HorizontalDirections) == SnesButton.Right;
+            (heldButtons & ControllerButtons.HorizontalDirections) == ControllerButton.Right;
         bool yardFacesRight = state.AirborneFacingDirection == YardAirborneFacing.Right;
         return pressingExactlyRight ? !yardFacesRight : yardFacesRight;
     }

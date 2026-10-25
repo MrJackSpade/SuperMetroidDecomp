@@ -82,13 +82,13 @@ internal sealed class ShutterBombArcScenario
     private int Toward => SlotIndex == 0 ? -1 : 1;
 
     /// <summary>Controller buttons for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>
-    internal SnesButton Input(int frame)
+    internal ControllerButton Input(int frame)
     {
-        SnesButton input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings.Shoot : SnesButton.None;
+        ControllerButton input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings.Shoot : ControllerButton.None;
         int direction = Approach && frame < 12 ? Toward : 0;
         if (frame >= RollAt && frame < RollAt + Duration) direction = -Toward;
         if (frame >= RollAt + Duration && frame < RollAt + Duration * 2) direction = Toward;
-        if (direction != 0) input |= direction < 0 ? SnesButton.Left : SnesButton.Right;
+        if (direction != 0) input |= direction < 0 ? ControllerButton.Left : ControllerButton.Right;
         return input;
     }
 

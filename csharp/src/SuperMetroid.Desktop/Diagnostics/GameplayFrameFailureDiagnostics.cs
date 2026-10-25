@@ -8,7 +8,7 @@ namespace SuperMetroid.Desktop.Diagnostics;
 internal static class GameplayFrameFailureDiagnostics
 {
     /// <summary>Combines build identities, attempted input, recording location, and before/partial-failure frame states for a report.</summary>
-    internal static string Format(string before, string failed, SnesButton attemptedInput,
+    internal static string Format(string before, string failed, ControllerButton attemptedInput,
         string? recordingPath, int? recordingIndex) =>
         $"Build: {typeof(GameplayFrameFailureDiagnostics).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown"}\n" +
         $"Core build ID: {typeof(SuperMetroidGame).Module.ModuleVersionId}\n" +

@@ -188,7 +188,7 @@ internal static class ProjectileCompositionsVerification
     private static void VerifyRuntimeProjectileSheets(ushort sprite, InstalledSpriteSheets sheets,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
-        var random = new CartridgeRandom();
+        var random = new SharedRandom();
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes, random: random);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);

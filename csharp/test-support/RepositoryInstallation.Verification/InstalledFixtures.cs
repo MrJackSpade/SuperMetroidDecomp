@@ -168,7 +168,7 @@ internal static class InstalledFixtures
         var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,
             characterArtwork ?? IntroArtwork, beamPalettes ?? Projectiles.BeamTiles.Palettes, samusBodyArtwork ?? SamusBody)
         {
-            Random = new CartridgeRandom(),
+            Random = new SharedRandom(),
             ProjectileCompositions = Projectiles.Catalog,
             ProjectileFrameBindings = Projectiles.FrameBindings,
             TrailArtwork = Projectiles.Trails,
@@ -228,13 +228,13 @@ internal static class InstalledFixtures
     /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true,
-        SuperMetroidGameHostServices? hostServices = null, CartridgeRandom? random = null)
+        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null)
     {
         // A fixture game without a supplied word is a session of its own.
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
             services = services with { GameplayFrames = RetainedGameplayFrames.Instance };
-        var game = new SuperMetroidGame(saves, gameOptions, services, random ?? new CartridgeRandom());
+        var game = new SuperMetroidGame(saves, gameOptions, services, random ?? new SharedRandom());
         gameBindings.Value(game);
         return game;
     }

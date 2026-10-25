@@ -13,14 +13,14 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal sealed class ChozoStatuePlms : IChozoStatueHand
 {
     /// <summary>The room's system and event state.</summary>
-    private readonly Bank80SystemState? _system;
+    private readonly SharedGameState? _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
     /// <summary>Descending native PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds Chozo hand behavior to its room services and PLM slot allocation.</summary>
-    internal ChozoStatuePlms(Bank80SystemState? system, AreaId area, PlmSlotTable slotTable)
+    internal ChozoStatuePlms(SharedGameState? system, AreaId area, PlmSlotTable slotTable)
     {
         _system = system;
         _area = area;

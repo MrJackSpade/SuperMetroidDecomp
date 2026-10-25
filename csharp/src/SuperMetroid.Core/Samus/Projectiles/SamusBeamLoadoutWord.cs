@@ -28,7 +28,7 @@ public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
     /// <see cref="SamusProjectileTypeWord.BeamCombination"/>, this deliberately retains unknown/debug-edited bits
     /// so invalid WRAM state still takes the cartridge's rejection branch.
     /// </summary>
-    public int NativeConfigurationIndex => Beams.ToNativeWord() & NativeConfigurationMask;
+    public int NativeConfigurationIndex => Beams.ToEquipmentWord() & NativeConfigurationMask;
 
     /// <summary>
     /// The combination $90:AC8D and $90:ACCD index their tables by, or null when unknown bits
@@ -39,7 +39,7 @@ public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
         : null;
 
     /// <summary>The combination FireSBA ($90:CCC0) reads: the low nibble alone, ignoring bits 4-11.</summary>
-    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Beams.ToNativeWord() & CombinationMask);
+    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Beams.ToEquipmentWord() & CombinationMask);
 
     /// <summary>Only the equipment bits whose meanings are verified.</summary>
     public SamusBeamFlags KnownFlags => Beams & VerifiedBeams;

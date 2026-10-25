@@ -125,7 +125,7 @@ internal static class RoomPlmPopulationVerification
                 SamusSpeed: DoorSamusSpeed.None,
                 SetupCode: DoorSetupCode.None);
             bool spawned = plms.DoorPlms.TrySpawnDoorClosingPlm(
-                level, door, new Bank80SystemState());
+                level, door, new SharedGameState());
             AssertEqual(expectedHeader != 0, spawned,
                 $"door-closing direction {direction} fallback admission matches cartridge");
             if (expectedHeader == 0)
@@ -199,7 +199,7 @@ internal static class RoomPlmPopulationVerification
                 new ushort[64],
                 new byte[64],
                 blockDefinitions: new byte[0x400 * 8]);
-            var system = new Bank80SystemState();
+            var system = new SharedGameState();
             var plms = PlmFixtures.Unbound();
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident door $84:{raw:X4} loads through production setup");
@@ -273,7 +273,7 @@ internal static class RoomPlmPopulationVerification
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var samus = new SamusState
         {
             Health = 25,
@@ -377,7 +377,7 @@ internal static class RoomPlmPopulationVerification
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var samus = new SamusState
         {
             CollectedItems = SamusEquipmentFlags.Bombs,
@@ -488,7 +488,7 @@ internal static class RoomPlmPopulationVerification
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Brinstar pre-map grey door loads through the shared population path");
@@ -555,7 +555,7 @@ internal static class RoomPlmPopulationVerification
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
         RoomPlmSlotSnapshot loaded = plms.PopulationSlots.Single();
         AssertEqual(39, loaded.NativeSlotIndex,
@@ -615,7 +615,7 @@ internal static class RoomPlmPopulationVerification
         }
 
         RoomPlmSystem Load(
-            Bank80SystemState system,
+            SharedGameState system,
             SamusState samus,
             RoomLayer3FxState fx,
             RoomLevelData level,
@@ -627,7 +627,7 @@ internal static class RoomPlmPopulationVerification
             return plms;
         }
 
-        var completedSystem = new Bank80SystemState();
+        var completedSystem = new SharedGameState();
         completedSystem.SetEvent(EventNumber.OutranSpeedBoosterLavaquake);
         RoomLevelData completedLevel = CreateLevel();
         RoomPlmSystem completed = Load(
@@ -639,7 +639,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(0, completed.SlotTable.ActiveCount,
             "event-$15 setup deletes B8AC synchronously");
 
-        var unequippedSystem = new Bank80SystemState();
+        var unequippedSystem = new SharedGameState();
         var unequippedSamus = new SamusState();
         RoomLayer3FxState unequippedFx = CreateFx(0x0300, 0x0100, 0x1234, 5);
         ushort earthquakeTimer = 7;
@@ -663,7 +663,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(0, earthquakeTimer,
             "missing Speed Booster clears global earthquake timer");
 
-        var disabledSystem = new Bank80SystemState();
+        var disabledSystem = new SharedGameState();
         var disabledSamus = new SamusState
         {
             CollectedItems = SamusEquipmentFlags.SpeedBooster,
@@ -680,7 +680,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(0, disabled.SlotTable.ActiveCount,
             "negative FX target deletes collected-Speed-Booster controller");
 
-        var activeSystem = new Bank80SystemState();
+        var activeSystem = new SharedGameState();
         var activeSamus = new SamusState
         {
             CollectedItems = SamusEquipmentFlags.SpeedBooster,
@@ -763,7 +763,7 @@ internal static class RoomPlmPopulationVerification
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
-        AssertEqual(2, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(2, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(39, slots[0].NativeSlotIndex,
@@ -787,7 +787,7 @@ internal static class RoomPlmPopulationVerification
                 new(offRoomX, offRoomY), 0x9800, new byte[] { 0x80 }),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
-            () => PlmFixtures.LoadPopulation(PlmFixtures.Unbound(), new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Brinstar), malformed, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            () => PlmFixtures.LoadPopulation(PlmFixtures.Unbound(), new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), malformed, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room scroll owner fails when setup consumes a required logical block");
     }
 
@@ -841,7 +841,7 @@ internal static class RoomPlmPopulationVerification
         int gateBlock = ordinaryLevel.GetBlockIndex(new(gateX, gateY));
         ordinaryLevel.SetForegroundEntry(gateBlock, originalGateWord);
         var ordinary = PlmFixtures.Unbound();
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref ordinary, new PlmRoom(ordinaryLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "escape gate population record is accepted by the sequential loader");
         AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).PackedWord.Raw,
@@ -974,7 +974,7 @@ internal static class RoomPlmPopulationVerification
             new ushort[64],
             new byte[64],
             blockDefinitions: new byte[0x400 * 8]);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var plms = PlmFixtures.Unbound();
         AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
             "Metroids-cleared population loads all argument families");
@@ -1017,7 +1017,7 @@ internal static class RoomPlmPopulationVerification
             0x00, 0x00,
         ]);
         AssertThrows<InvalidDataException>(
-            () => PlmFixtures.LoadPopulation(PlmFixtures.Unbound(), new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, invalidPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            () => PlmFixtures.LoadPopulation(PlmFixtures.Unbound(), new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, invalidPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "odd Metroids-cleared room argument fails loudly");
     }
 
@@ -1056,7 +1056,7 @@ internal static class RoomPlmPopulationVerification
         RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(),
             new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState();
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var plms = PlmFixtures.Unbound();
         AssertEqual(0, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
             "empty fixture reserves no PLM before Shaktool setup spawn");
@@ -1105,7 +1105,7 @@ internal static class RoomPlmPopulationVerification
             new ushort[width * 16],
             new byte[width * 16],
             blockDefinitions: new byte[0x400 * 8]);
-        var system = new Bank80SystemState();
+        var system = new SharedGameState();
         var samus = new SamusState { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
@@ -1359,9 +1359,9 @@ internal static class RoomPlmPopulationVerification
             "save message begins with native selected-YES row");
         // $85:84BA waits two lag frames before its first ReadControllerInput.
         message.Step(0);
-        message.Step(SnesButton.Left);
+        message.Step(ControllerButton.Left);
         AssertTrue(message.ConfirmationSelectionYes, "save selector does not read during its lag waits");
-        message.Step(SnesButton.Left);
+        message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
         AssertEqual(0x5200, message.Tilemap[128],
@@ -1369,14 +1369,14 @@ internal static class RoomPlmPopulationVerification
         // Later reads come every second frame: the read's frame holds the next first wait.
         // A toggle's redraw wait precedes that cycle once (#1269), so the first read after
         // it comes three frames later.
-        message.Step(SnesButton.Left);
-        message.Step(SnesButton.Left);
-        message.Step(SnesButton.Left);
+        message.Step(ControllerButton.Left);
+        message.Step(ControllerButton.Left);
+        message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "holding a direction does not toggle the newly-pressed save cursor repeatedly");
-        message.Step(SnesButton.A);
+        message.Step(ControllerButton.A);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase, "A is read on the next read frame");
-        message.Step(SnesButton.A);
+        message.Step(ControllerButton.A);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase, "A confirms on a read frame");
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
@@ -1392,7 +1392,7 @@ internal static class RoomPlmPopulationVerification
         }
         message.Step(0);
         message.Step(0);
-        message.Step(SnesButton.A);
+        message.Step(ControllerButton.A);
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
         AssertEqual(true, message.ConsumeConfirmationResult(),

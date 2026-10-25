@@ -35,7 +35,7 @@ internal static class ExploredMapPackingDefinitions
             get
             {
                 int count = 0;
-                for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
+                for (int candidate = 0; candidate < SharedGameState.ExploredMapBytesPerArea; candidate++)
                     if (Contains(candidate)) count++;
                 return count;
             }
@@ -47,7 +47,7 @@ internal static class ExploredMapPackingDefinitions
             get
             {
                 Ensure.AtLeastZero(index);
-                for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
+                for (int candidate = 0; candidate < SharedGameState.ExploredMapBytesPerArea; candidate++)
                     if (Contains(candidate) && index-- == 0) return checked((byte)candidate);
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
@@ -68,7 +68,7 @@ internal static class ExploredMapPackingDefinitions
         /// <summary>Visits occupied bytes in the same page-first order used by bank $81's sparse save lists.</summary>
         public IEnumerator<byte> GetEnumerator()
         {
-            for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
+            for (int candidate = 0; candidate < SharedGameState.ExploredMapBytesPerArea; candidate++)
                 if (Contains(candidate)) yield return checked((byte)candidate);
         }
         /// <summary>Exposes the native sparse byte order through the non-generic collection interface.</summary>

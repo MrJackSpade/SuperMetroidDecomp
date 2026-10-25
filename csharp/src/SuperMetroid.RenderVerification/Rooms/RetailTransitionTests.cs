@@ -51,12 +51,12 @@ internal static class RetailTransitionTests
                 var expected = menu.Render();
                 var packet = new DisplayPacket(new(++menuCount, 2, (ushort)tick), menu.CaptureRenderSnapshot());
                 Check(packet, expected, $"game-over {menu.Phase}, no={chooseNo}, tick {tick}");
-                SnesButton input = 0;
+                ControllerButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)
                 {
-                    if (chooseNo && !toggled) { input = SnesButton.Down; toggled = true; }
+                    if (chooseNo && !toggled) { input = ControllerButton.Down; toggled = true; }
                     else if (!released) released = true;
-                    else input = SnesButton.A;
+                    else input = ControllerButton.A;
                 }
                 menu.Step(input); audio.AdvanceFrame(default);
                 Check(packet, expected, $"retained game-over tick {tick}");

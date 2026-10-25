@@ -7,4 +7,4 @@ namespace SuperMetroid.DesktopVerification.Input;
 /// <param name="Device">The device.</param>
 /// <param name="Snapshot">The snapshot.</param>
 /// <param name="Mapped">The mapped.</param>
-internal readonly record struct GamepadReading(string? Device, GenericGamepadSnapshot Snapshot, SnesButton Mapped);
+internal readonly record struct GamepadReading(string? Device, GenericGamepadSnapshot Snapshot, ControllerButton Mapped);

@@ -134,7 +134,7 @@ internal sealed class PlmPopulationLoader
         RoomPlmPlacement placement)
     {
         RoomLevelData level = room.Level;
-        Bank80SystemState system = room.System;
+        SharedGameState system = room.System;
         AreaId areaIndex = room.AreaIndex;
         PlmHeaderId header = record.Header;
         if (DoorPlms.TryIdentifyColoredDoor(

@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Progression;
-/// <summary>Verification access to <see cref="Bank80SystemState"/> members production does not use.</summary>
-internal static class Bank80SystemStateAccess
+/// <summary>Verification access to <see cref="SharedGameState"/> members production does not use.</summary>
+internal static class SharedGameStateAccess
 {
     /// <summary>Reproduces bank-$80's unsigned 16-by-16 multiply with a full 32-bit product.</summary>
-    extension(Bank80SystemState)
+    extension(SharedGameState)
     {
         /// <summary>
         /// Unsigned <c>16 x 16 -> 32</c> multiplication from <c>$80:82D6</c>.
@@ -15,10 +15,10 @@ internal static class Bank80SystemStateAccess
 
     /// <summary>Resolves a Chozo-room bit into the native 64-byte persistent table.</summary>
     private static ProgressionBit RoomChozoBit(int bitIndex) =>
-        Bank80SystemState.ResolvePersistentRoomBit(bitIndex, Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.");
+        SharedGameState.ResolvePersistentRoomBit(bitIndex, SharedGameState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.");
 
     /// <summary>Reads and sets the room Chozo bit table and addresses explored-map bytes by retail area.</summary>
-    extension(Bank80SystemState self)
+    extension(SharedGameState self)
     {
         /// <summary>Whether the room's Chozo-statue bit is set in the native 64-byte table.</summary>
         internal bool HasRoomChozoBit(int bitIndex)

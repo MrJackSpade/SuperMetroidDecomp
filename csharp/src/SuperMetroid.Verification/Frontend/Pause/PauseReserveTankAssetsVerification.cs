@@ -91,7 +91,7 @@ internal static class PauseReserveTankAssetsVerification
         AssertTrue(!editedPixels.SequenceEqual(menu.Render()), "restore binds current stock artwork instead of frozen edited content");
         menu.BindFixtureArtwork(edited);
         AssertTrue(editedPixels.SequenceEqual(menu.Render()), "restoring current edited content preserves exact pixels and phase");
-        menu.Step(0, SnesButton.Down); menu.Step(0, SnesButton.A);
+        menu.Step(0, ControllerButton.Down); menu.Step(0, ControllerButton.A);
         AssertEqual(51, samus.Health, "custom reserve art cannot change transfer amount");
         AssertEqual(99, samus.ReserveEnergy, "custom reserve art cannot change reserve consumption");
         void Reject(PauseReserveTankDocument invalid) => AssertThrows<InvalidDataException>(() => PauseReserveTankPresentation.Write(new MemoryStream(), invalid), "invalid reserve presentation rejected");
@@ -130,7 +130,7 @@ internal static class PauseReserveTankAssetsVerification
         }
         static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog content)
         {
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             return pause;
         }

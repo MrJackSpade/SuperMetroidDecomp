@@ -116,9 +116,9 @@ internal static class GreenHillGateGlitchVerification
         int openFrame = -1;
         for (int frame = 0; frame < 21; frame++)
         {
-            SnesButton input = SnesButton.Left | SnesButton.A;
+            ControllerButton input = ControllerButton.Left | ControllerButton.A;
             if (frame >= 1)
-                input |= SnesButton.X;
+                input |= ControllerButton.X;
             runtime.StepFrame(input);
             gate = runtime.Plms.PopulationSlots.Single(slot =>
                 slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -142,7 +142,7 @@ internal static class GreenHillGateGlitchVerification
         if (openFrame >= 0)
         {
             for (int frame = 0; frame < 8; frame++)
-                runtime.StepFrame((SnesButton.Left | SnesButton.A | SnesButton.X));
+                runtime.StepFrame((ControllerButton.Left | ControllerButton.A | ControllerButton.X));
             gateActor = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
                 projectile.IsActive &&
                 projectile.Kind is RoomEnemyProjectileKind.DownwardGateClosed or

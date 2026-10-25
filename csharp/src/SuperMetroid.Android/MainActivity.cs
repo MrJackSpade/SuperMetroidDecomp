@@ -134,11 +134,11 @@ public sealed class MainActivity : ComponentActivity
                 return true;
             }
             if (menuOpen) return base.DispatchKeyEvent(e);
-            SnesButton mapped = controllerPreferences.Resolve(e.KeyCode.ToString(), AndroidControllerMapping.Map(e.KeyCode));
-            if (mapped != SnesButton.None)
+            ControllerButton mapped = controllerPreferences.Resolve(e.KeyCode.ToString(), AndroidControllerMapping.Map(e.KeyCode));
+            if (mapped != ControllerButton.None)
             {
                 if (CanRun && e.Action is KeyEventActions.Down or KeyEventActions.Up)
-                    session.Input.Set((int)e.KeyCode, e.Action == KeyEventActions.Down ? mapped : SnesButton.None);
+                    session.Input.Set((int)e.KeyCode, e.Action == KeyEventActions.Down ? mapped : ControllerButton.None);
                 return true;
             }
         }
@@ -192,8 +192,8 @@ public sealed class MainActivity : ComponentActivity
         dialog.SetItems(labels, (_, selected) =>
             {
                 var key = keys[selected.Which];
-                SnesButton[] buttons = Enum.GetValues<SnesButton>()
-                    .Where(button => button == SnesButton.None || (((ushort)button & ((ushort)button - 1)) == 0)).ToArray();
+                ControllerButton[] buttons = Enum.GetValues<ControllerButton>()
+                    .Where(button => button == ControllerButton.None || (((ushort)button & ((ushort)button - 1)) == 0)).ToArray();
                 var current = controllerPreferences.Resolve(key.ToString(), AndroidControllerMapping.Map(key));
                 var choiceDialog = new AlertDialog.Builder(this);
                 choiceDialog.SetTitle($"Map {key} to SNES");

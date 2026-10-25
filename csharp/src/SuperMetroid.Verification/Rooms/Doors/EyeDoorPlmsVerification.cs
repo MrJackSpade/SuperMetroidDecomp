@@ -247,16 +247,16 @@ internal static class EyeDoorPlmsVerification
         ushort convertInstruction;
         if (orientation == EyeDoorOrientation.Right)
         {
-            eyeHeader = (ushort)PlmHeaderId.EyeDoorEyeFacingRight;
-            doorHeader = (ushort)PlmHeaderId.EyeDoorFacingRight;
-            bottomHeader = (ushort)PlmHeaderId.EyeDoorBottomFacingRight;
+            eyeHeader = PlmNativeWords.Word(PlmHeaderId.EyeDoorEyeFacingRight);
+            doorHeader = PlmNativeWords.Word(PlmHeaderId.EyeDoorFacingRight);
+            bottomHeader = PlmNativeWords.Word(PlmHeaderId.EyeDoorBottomFacingRight);
             convertInstruction = (ushort)RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight;
         }
         else
         {
-            eyeHeader = (ushort)PlmHeaderId.EyeDoorEyeFacingLeft;
-            doorHeader = (ushort)PlmHeaderId.EyeDoorFacingLeft;
-            bottomHeader = (ushort)PlmHeaderId.EyeDoorBottomFacingLeft;
+            eyeHeader = PlmNativeWords.Word(PlmHeaderId.EyeDoorEyeFacingLeft);
+            doorHeader = PlmNativeWords.Word(PlmHeaderId.EyeDoorFacingLeft);
+            bottomHeader = PlmNativeWords.Word(PlmHeaderId.EyeDoorBottomFacingLeft);
             convertInstruction = (ushort)RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft;
         }
 

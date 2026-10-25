@@ -159,7 +159,7 @@ internal static class KraidRoomVisualsVerification
         level.SetBlockDefinitionWord(0x0180 * 4, 0x0180);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmKraidVisuals = catalogs.Kraid, RoomPlmMaridiaElevatubeVisuals = catalogs.Tube });
         AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
-            $"Kraid visual owner ${(int)header:X4} allocates");
+            $"Kraid visual owner {header} allocates");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = 5 * width + 5 + blockOffset;

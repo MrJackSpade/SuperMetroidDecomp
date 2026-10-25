@@ -24,8 +24,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
     {
         Suite(nameof(VerifyRetailPopulationMappings), () => VerifyRetailPopulationMappings(rom));
 
-        Suite(nameof(VerifyRetailPlmHeaderSetups), () => VerifyRetailPlmHeaderSetups(rom));
-        Suite(nameof(VerifyRetailPlmHeaderInstructions), () => VerifyRetailPlmHeaderInstructions(rom));
+        Suite(nameof(VerifyRetailPlmHeaders), () => VerifyRetailPlmHeaders(rom));
         Suite(nameof(VerifyCompiledRoomPlmHeaderLoad), () => VerifyCompiledRoomPlmHeaderLoad(rom));
         Suite(nameof(VerifyCompiledRoomScrollPrograms), () => VerifyCompiledRoomScrollPrograms(rom));
         Suite(nameof(VerifyCompiledDynamicCollectibleGraphics), () => VerifyCompiledDynamicCollectibleGraphics(rom));
@@ -86,7 +85,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         if (headerRead is null)
             return guard;
         bool IsHeader(int address) => RoomPlmHeaderDefinitionsTooling.All.Any(header =>
-            address >= (0x840000 | (ushort)header.Header) && address < (0x840000 | (ushort)header.Header) + 4);
+            address >= (0x840000 | PlmNativeWords.Word(header.Header)) && address < (0x840000 | PlmNativeWords.Word(header.Header)) + 4);
         return guard.Observe(IsHeader, _ => headerRead())
             .Forbid(IsHeader, address => $"Retail PLM header was reread at ${address:X6}.");
     }

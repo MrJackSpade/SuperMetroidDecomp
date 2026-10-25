@@ -229,7 +229,7 @@ internal static class CollectiblesVerification
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
         // Retail room $9E9F/$9EB1 places Morph Ball at ($45,$29): block 5317.
-        var fixture = LoadCollectible(bus, (ushort)(PlmHeaderId.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4), 26, precollected: false, layout: new CollectibleRoomLayout { RoomSize = new(128, 48), Block = new(69, 41) });
+        var fixture = LoadCollectible(bus, (ushort)(PlmNativeWords.Word(PlmHeaderId.ExposedEnergyTank) + (int)InWorldCollectibleKind.MorphBall * 4), 26, precollected: false, layout: new CollectibleRoomLayout { RoomSize = new(128, 48), Block = new(69, 41) });
         fixture.Plms.Step(fixture.Level);
         var movement = new SamusKinematicsState
         {

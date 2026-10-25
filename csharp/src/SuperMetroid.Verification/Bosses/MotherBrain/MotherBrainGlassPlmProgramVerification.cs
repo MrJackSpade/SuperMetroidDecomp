@@ -32,8 +32,8 @@ internal static class MotherBrainGlassPlmProgramVerification
         source.WriteBytes(0x848000, bank84);
         source.WriteBytes(0x8f9000,
         [
-            unchecked((byte)PlmHeaderId.MotherBrainGlass),
-            SnesLittleEndian.HighByte((ushort)PlmHeaderId.MotherBrainGlass),
+            unchecked((byte)PlmNativeWords.Word(PlmHeaderId.MotherBrainGlass)),
+            SnesLittleEndian.HighByte(PlmNativeWords.Word(PlmHeaderId.MotherBrainGlass)),
             9, 5, 0, 0x80, 0, 0,
         ]);
         var guarded = NewMotherBrainGlassProgramReadGuard(source);

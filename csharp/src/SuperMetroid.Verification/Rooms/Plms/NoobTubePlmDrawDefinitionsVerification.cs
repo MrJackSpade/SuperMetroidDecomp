@@ -76,8 +76,8 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         TestAddressSpace bus = CreateBank84Cartridge(bank84);
         SeedRoomPlmPopulation(bus, 0x9400, 
         [
-            unchecked((byte)PlmHeaderId.NoobTube),
-            SnesLittleEndian.HighByte((ushort)PlmHeaderId.NoobTube),
+            unchecked((byte)PlmNativeWords.Word(PlmHeaderId.NoobTube)),
+            SnesLittleEndian.HighByte(PlmNativeWords.Word(PlmHeaderId.NoobTube)),
             originX, originY, 0, 0, 0, 0,
         ]);
         // The retail control stream is compiled and immutable. Draw each physical layout through

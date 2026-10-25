@@ -12,7 +12,7 @@ internal sealed class PlmSlot
     /// spawn operations claim a slot; <see cref="Delete"/> and <see cref="Clear"/> free it.
     /// </summary>
     public bool Active { get; private set; }
-    /// <summary>Bank-$84 header selecting the resident PLM's setup and behavior.</summary>
+    /// <summary>The PLM the slot holds, selecting its setup and behavior.</summary>
     public PlmHeaderId Header { get; set; }
     /// <summary>Index of the room block owned by this PLM.</summary>
     public int BlockIndex { get; set; }

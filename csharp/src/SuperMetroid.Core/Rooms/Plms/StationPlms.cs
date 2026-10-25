@@ -214,9 +214,9 @@ internal sealed class StationPlms : IPlmFamilySource
             case PlmHeaderId.UpwardsScrollExtension:
             case PlmHeaderId.WreckedShipEntranceTreadmillFromWest:
             case PlmHeaderId.WreckedShipEntranceTreadmillFromEast:
-            case PlmHeaderId.InsideReactionNothingB653:
-            case PlmHeaderId.InsideReactionNothingB657:
-            case PlmHeaderId.InsideReactionNothingB65B:
+            case PlmHeaderId.InsideReactionNothingFirst:
+            case PlmHeaderId.InsideReactionNothingSecond:
+            case PlmHeaderId.InsideReactionNothingThird:
             case PlmHeaderId.FillMotherBrainsWall:
             case PlmHeaderId.MotherBrainsRoomEscapeDoor:
             case PlmHeaderId.MotherBrainsBackgroundRow2:
@@ -245,8 +245,8 @@ internal sealed class StationPlms : IPlmFamilySource
             case PlmHeaderId.EnergyStationLeftAccess:
             case PlmHeaderId.MissileStationRightAccess:
             case PlmHeaderId.MissileStationLeftAccess:
-            case PlmHeaderId.Nothing84B6F7:
-            case PlmHeaderId.Nothing84B6FB:
+            case PlmHeaderId.NothingSecond:
+            case PlmHeaderId.NothingThird:
             case PlmHeaderId.ScrollTriggerCollision:
             case PlmHeaderId.ScrollTrigger:
             case PlmHeaderId.UnusedSolidScrollPLM:

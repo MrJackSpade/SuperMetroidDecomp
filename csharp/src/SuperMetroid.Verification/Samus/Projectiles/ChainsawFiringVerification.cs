@@ -284,7 +284,7 @@ internal static class ChainsawFiringVerification
         WriteTestWord(
             interferenceBus,
             0x8f0000 | population,
-            (ushort)PlmHeaderId.YellowDoorFacingLeft);
+            PlmNativeWords.Word(PlmHeaderId.YellowDoorFacingLeft));
         interferenceBus.WriteByte(0x8f0000 | (population + 2), 2);
         interferenceBus.WriteByte(0x8f0000 | (population + 3), 1);
         WriteTestWord(

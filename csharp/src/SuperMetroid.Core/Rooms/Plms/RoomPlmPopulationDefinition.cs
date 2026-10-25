@@ -44,7 +44,7 @@ public sealed class RoomPlmPopulationDefinition
     private static RoomPlmPlacement CopyPlacement(RoomPlmPlacement placement)
     {
         Ensure.NotNull(placement);
-        if (placement.Header.Header == 0)
+        if (placement.Header.Header == PlmHeaderId.None)
             throw new InvalidDataException("A decoded PLM placement cannot contain the native zero terminator.");
         byte[] program = placement.ScrollProgram.ToArray();
         RoomScrollProgram? compiledProgram = program.Length == 0 ? placement.CompiledScrollProgram : null;

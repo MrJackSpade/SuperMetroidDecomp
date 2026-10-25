@@ -26,13 +26,13 @@ public static class SpecialAirReactionDefinitions
     public static readonly SpecialAirReactionDefinition ClearCarry = new(PlmHeaderId.CollisionReactionClearCarry, SpecialAirReactionSetup.ClearCarry);
 
     /// <summary><c>$84:B653</c>, Norfair inside-reaction no-op for BTS <c>$80</c>.</summary>
-    public static readonly SpecialAirReactionDefinition NorfairInsideNothing80 = new(PlmHeaderId.InsideReactionNothingB653, SpecialAirReactionSetup.Nothing);
+    public static readonly SpecialAirReactionDefinition NorfairInsideNothing80 = new(PlmHeaderId.InsideReactionNothingFirst, SpecialAirReactionSetup.Nothing);
 
     /// <summary><c>$84:B657</c>, Norfair inside-reaction no-op for BTS <c>$81</c>.</summary>
-    public static readonly SpecialAirReactionDefinition NorfairInsideNothing81 = new(PlmHeaderId.InsideReactionNothingB657, SpecialAirReactionSetup.Nothing);
+    public static readonly SpecialAirReactionDefinition NorfairInsideNothing81 = new(PlmHeaderId.InsideReactionNothingSecond, SpecialAirReactionSetup.Nothing);
 
     /// <summary><c>$84:B65B</c>, Norfair inside-reaction no-op for BTS <c>$82</c>.</summary>
-    public static readonly SpecialAirReactionDefinition NorfairInsideNothing82 = new(PlmHeaderId.InsideReactionNothingB65B, SpecialAirReactionSetup.Nothing);
+    public static readonly SpecialAirReactionDefinition NorfairInsideNothing82 = new(PlmHeaderId.InsideReactionNothingThird, SpecialAirReactionSetup.Nothing);
 
     /// <summary>
     /// <c>$84:B6CB PLMEntries_insideReactionBrinstarFloorPlant</c> and setup

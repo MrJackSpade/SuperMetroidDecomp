@@ -82,7 +82,7 @@ internal sealed class PlmPopulationLoader
             {
                 throw new InvalidDataException(
                     $"Room PLM population {population.Name} record {recordIndex} " +
-                    $"header $84:{(int)header:X4} has block outside safe native allocation " +
+                    $"header {header} has block outside safe native allocation " +
                     $"({record.Block.X},{record.Block.Y}) and argument ${record.RoomArgument:X4}.",
                     error);
             }
@@ -97,13 +97,10 @@ internal sealed class PlmPopulationLoader
                 // intentionally loud and includes every value needed to locate the exact ROM
                 // record without relying on a room-name special case.
                 slot.Clear();
-                ushort setupPointer = placement.Header.Setup;
-                ushort instructionList = placement.Header.InitialInstruction;
                 throw new NotSupportedException(
                     $"Room PLM population {population.Name} record {recordIndex} " +
                     $"uses untranslated header " +
-                    $"$84:{(int)header:X4} (setup $84:{setupPointer:X4}, list " +
-                    $"$84:{instructionList:X4}) at block ({record.Block.X},{record.Block.Y}) " +
+                    $"{header} at block ({record.Block.X},{record.Block.Y}) " +
                     $"with argument ${record.RoomArgument:X4}.");
             }
 

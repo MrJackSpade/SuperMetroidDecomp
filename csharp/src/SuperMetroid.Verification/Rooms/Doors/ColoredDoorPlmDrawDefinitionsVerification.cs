@@ -59,20 +59,20 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
             bank84[offset] = rom.ReadCartridgeByte(0x848000 + offset);
-        ushort[] headers =
+        PlmHeaderId[] headers =
         [
-            (ushort)PlmHeaderId.YellowDoorFacingLeft,
-            (ushort)PlmHeaderId.YellowDoorFacingRight,
-            (ushort)PlmHeaderId.YellowDoorFacingUp,
-            (ushort)PlmHeaderId.YellowDoorFacingDown,
-            (ushort)PlmHeaderId.GreenDoorFacingLeft,
-            (ushort)PlmHeaderId.GreenDoorFacingRight,
-            (ushort)PlmHeaderId.GreenDoorFacingUp,
-            (ushort)PlmHeaderId.GreenDoorFacingDown,
-            (ushort)PlmHeaderId.RedDoorFacingLeft,
-            (ushort)PlmHeaderId.RedDoorFacingRight,
-            (ushort)PlmHeaderId.RedDoorFacingUp,
-            (ushort)PlmHeaderId.RedDoorFacingDown,
+            PlmHeaderId.YellowDoorFacingLeft,
+            PlmHeaderId.YellowDoorFacingRight,
+            PlmHeaderId.YellowDoorFacingUp,
+            PlmHeaderId.YellowDoorFacingDown,
+            PlmHeaderId.GreenDoorFacingLeft,
+            PlmHeaderId.GreenDoorFacingRight,
+            PlmHeaderId.GreenDoorFacingUp,
+            PlmHeaderId.GreenDoorFacingDown,
+            PlmHeaderId.RedDoorFacingLeft,
+            PlmHeaderId.RedDoorFacingRight,
+            PlmHeaderId.RedDoorFacingUp,
+            PlmHeaderId.RedDoorFacingDown,
         ];
         foreach (PlmHeaderId header in headers)
         {
@@ -81,7 +81,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             const ushort population = 0x9000;
             bus.WriteBytes(0x8f0000 | population,
             [
-                unchecked((byte)(ushort)header), SnesLittleEndian.HighByte((ushort)header),
+                unchecked((byte)PlmNativeWords.Word(header)), SnesLittleEndian.HighByte(PlmNativeWords.Word(header)),
                 4, 4, 0, 0,
                 0, 0,
             ]);
@@ -96,20 +96,20 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             var system = new Bank80SystemState();
             var guarded = NewColoredDoorDrawReadGuard(bus, lists);
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-                $"resident colored-door header ${(int)header:X4} loads");
-            ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | ((ushort)header + 2)));
+                $"resident colored-door header {header} loads");
+            ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (PlmNativeWords.Word(header) + 2)));
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
             AssertTrue(ColoredDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(firstDraw), out var selected),
-                $"resident colored-door header ${(int)header:X4} selects compiled art");
+                $"resident colored-door header {header} selects compiled art");
             plms.Step(level);
             bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
                     level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
-                    $"resident colored-door ${(int)header:X4} draws physical block {block}");
+                    $"resident colored-door {header} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"resident colored-door ${(int)header:X4} avoids program and draw ROM reads");
+                $"resident colored-door {header} avoids program and draw ROM reads");
             if (header == PlmHeaderId.GreenDoorFacingLeft)
             {
                 AssertEqual((ushort)0x0053,
@@ -126,12 +126,12 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 SamusDistance: 0,
                 SetupCode: DoorSetupCode.None);
             AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
-                $"resident colored door ${(int)header:X4} selects its native closing list");
+                $"resident colored door {header} selects its native closing list");
             for (int frame = 0; frame < 20 &&
                  plms.ColoredDoors.Single().Phase == ColoredDoorPhase.Closing; frame++)
                 plms.Step(level);
             AssertEqual(ColoredDoorPhase.Waiting, plms.ColoredDoors.Single().Phase,
-                $"resident colored door ${(int)header:X4} finishes closing and resumes its owner");
+                $"resident colored door {header} finishes closing and resumes its owner");
 
             SamusProjectileTypeWord accepted = header switch
             {
@@ -152,9 +152,9 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                     PlmHeaderId.UpwardsScrollExtension or
                     PlmHeaderId.WreckedShipEntranceTreadmillFromWest or
                     PlmHeaderId.WreckedShipEntranceTreadmillFromEast or
-                    PlmHeaderId.InsideReactionNothingB653 or
-                    PlmHeaderId.InsideReactionNothingB657 or
-                    PlmHeaderId.InsideReactionNothingB65B or
+                    PlmHeaderId.InsideReactionNothingFirst or
+                    PlmHeaderId.InsideReactionNothingSecond or
+                    PlmHeaderId.InsideReactionNothingThird or
                     PlmHeaderId.FillMotherBrainsWall or
                     PlmHeaderId.MotherBrainsRoomEscapeDoor or
                     PlmHeaderId.MotherBrainsBackgroundRow2 or
@@ -186,8 +186,8 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                     PlmHeaderId.MissileStation or
                     PlmHeaderId.MissileStationRightAccess or
                     PlmHeaderId.MissileStationLeftAccess or
-                    PlmHeaderId.Nothing84B6F7 or
-                    PlmHeaderId.Nothing84B6FB or
+                    PlmHeaderId.NothingSecond or
+                    PlmHeaderId.NothingThird or
                     PlmHeaderId.ScrollTriggerCollision or
                     PlmHeaderId.ScrollTrigger or
                     PlmHeaderId.UnusedSolidScrollPLM or
@@ -421,34 +421,34 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             for (int hit = 0; hit < hits; hit++)
             {
                 AssertTrue(plms.TryNotifyColoredDoorHit(origin, accepted),
-                    $"resident colored door ${(int)header:X4} accepts hit {hit + 1}");
+                    $"resident colored door {header} accepts hit {hit + 1}");
                 plms.Step(level);
             }
             AssertEqual(ColoredDoorPhase.Opening, plms.ColoredDoors.Single().Phase,
-                $"resident colored door ${(int)header:X4} reaches opening threshold");
+                $"resident colored door {header} reaches opening threshold");
             for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
                 plms.Step(level);
             AssertEqual(0, plms.SlotTable.ActiveCount,
-                $"resident colored door ${(int)header:X4} completes opening and deletes");
+                $"resident colored door {header} completes opening and deletes");
             AssertTrue(system.HasOpenedDoorBit(0),
-                $"resident colored door ${(int)header:X4} persists the opened state");
+                $"resident colored door {header} persists the opened state");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"resident colored door ${(int)header:X4} completes without program/draw ROM reads");
+                $"resident colored door {header} completes without program/draw ROM reads");
 
             var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             var reopened = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = stock });
             AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-                $"opened colored door ${(int)header:X4} reloads");
+                $"opened colored door {header} reloads");
             // $84:8A72 hands the opened cap to the closed blue list, which shows the blue cap for one frame and then
             // deletes on the next pass.
             reopened.Step(reopenedLevel);
             AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorPlmAnimation,
-                $"opened colored door ${(int)header:X4} converts to a blue cap");
+                $"opened colored door {header} converts to a blue cap");
             reopened.Step(reopenedLevel);
             AssertEqual(0, reopened.SlotTable.ActiveCount,
-                $"opened colored door ${(int)header:X4} deletes after its blue frame");
+                $"opened colored door {header} deletes after its blue frame");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"opened colored door ${(int)header:X4} converts without program/draw ROM reads");
+                $"opened colored door {header} converts without program/draw ROM reads");
         }
         editedFrame.Blocks[0] = originalVisual;
         Suite(nameof(VerifyColoredDoorVisualInstallation), () => VerifyColoredDoorVisualInstallation(rom));

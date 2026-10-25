@@ -17,7 +17,7 @@ internal static class RoomPlmHeaderCatalogVerification
     {
         ushort[] cataloguedHeaders = Enum.GetValues<PlmHeaderId>()
             .Where(header => header != PlmHeaderId.None)
-            .Select(header => (ushort)header)
+            .Select(PlmNativeWords.Word)
             .ToArray();
         AssertEqual(cataloguedHeaders.Length, cataloguedHeaders.Distinct().Count(),
             "PLM header catalog has no duplicate native pointers");
@@ -61,7 +61,7 @@ internal static class RoomPlmHeaderCatalogVerification
         }
 
         ushort[] supportedHeaders = retailHeaders
-            .Where(header => RoomPlmSystem.IsSupportedRoomPopulationHeader((PlmHeaderId)header))
+            .Where(header => PlmNativeWords.TryHeader(header, out PlmHeaderId id) && RoomPlmSystem.IsSupportedRoomPopulationHeader(id))
             .Distinct()
             .ToArray();
         foreach (ushort header in supportedHeaders)

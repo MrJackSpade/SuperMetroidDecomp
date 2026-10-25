@@ -41,9 +41,9 @@ internal static class SamusEaterPlmDefinitions
             PlmHeaderId.UpwardsScrollExtension or
             PlmHeaderId.WreckedShipEntranceTreadmillFromWest or
             PlmHeaderId.WreckedShipEntranceTreadmillFromEast or
-            PlmHeaderId.InsideReactionNothingB653 or
-            PlmHeaderId.InsideReactionNothingB657 or
-            PlmHeaderId.InsideReactionNothingB65B or
+            PlmHeaderId.InsideReactionNothingFirst or
+            PlmHeaderId.InsideReactionNothingSecond or
+            PlmHeaderId.InsideReactionNothingThird or
             PlmHeaderId.FillMotherBrainsWall or
             PlmHeaderId.MotherBrainsRoomEscapeDoor or
             PlmHeaderId.MotherBrainsBackgroundRow2 or
@@ -73,8 +73,8 @@ internal static class SamusEaterPlmDefinitions
             PlmHeaderId.MissileStation or
             PlmHeaderId.MissileStationRightAccess or
             PlmHeaderId.MissileStationLeftAccess or
-            PlmHeaderId.Nothing84B6F7 or
-            PlmHeaderId.Nothing84B6FB or
+            PlmHeaderId.NothingSecond or
+            PlmHeaderId.NothingThird or
             PlmHeaderId.ScrollTriggerCollision or
             PlmHeaderId.ScrollTrigger or
             PlmHeaderId.UnusedSolidScrollPLM or
@@ -309,7 +309,7 @@ internal static class SamusEaterPlmDefinitions
             PlmHeaderId.ShotBlockSpaceJump or
             PlmHeaderId.ShotBlockScrewAttack or
             PlmHeaderId.ShotBlockMorphBall or
-            PlmHeaderId.ShotBlockReserveTank => throw new InvalidDataException($"Unsupported Samus Eater PLM ${(int)header:X4}."),
-        _ => throw new InvalidDataException($"Unsupported Samus Eater PLM ${(int)header:X4}."),
+            PlmHeaderId.ShotBlockReserveTank => throw new InvalidDataException($"Unsupported Samus Eater PLM {header}."),
+        _ => throw new InvalidDataException($"Unsupported Samus Eater PLM {header}."),
     };
 }

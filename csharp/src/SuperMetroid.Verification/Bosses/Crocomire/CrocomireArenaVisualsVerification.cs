@@ -114,17 +114,17 @@ internal static class CrocomireArenaVisualsVerification
         level.SetBlockDefinitionWord(0x0080 * 4, 0x0080);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmCrocomireVisuals = visuals });
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
-            $"Crocomire visual header ${(int)header:X4} allocates");
+            $"Crocomire visual header {header} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-            $"Crocomire visual header ${(int)header:X4} retains physical block");
+            $"Crocomire visual header {header} retains physical block");
         AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
-            $"Crocomire visual header ${(int)header:X4} presents edited tile");
+            $"Crocomire visual header {header} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Crocomire visual header ${(int)header:X4} reads no compiled source");
+            $"Crocomire visual header {header} reads no compiled source");
     }
 
     /// <summary>Runs the focused Crocomire arena artwork and PLM checks.</summary>

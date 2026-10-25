@@ -70,7 +70,7 @@ internal static class TourianAccessPlmDefinitionsVerification
                     $"Tourian native spawn clear={item.Clear} starts its typed program");
             }
             else
-                AssertEqual(header, (ushort)actual.Header, $"Tourian native spawn header clear={item.Clear}");
+                AssertEqual(header, PlmNativeWords.Word(actual.Header), $"Tourian native spawn header clear={item.Clear}");
             AssertEqual((byte)6, rom.ReadCartridgeByte(item.SpawnOperand - 2), "Tourian native spawn column");
             AssertEqual((byte)12, rom.ReadCartridgeByte(item.SpawnOperand - 1), "Tourian native spawn row");
         }

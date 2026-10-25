@@ -91,7 +91,7 @@ internal static class RoomPlmPopulationVerification
                     "Fallback original initial list or no-actor zero");
             else
             {
-                AssertEqual(header, (ushort)(actual?.Header ?? PlmHeaderId.None), "Fallback original direction header");
+                AssertEqual(header, PlmNativeWords.Word(actual?.Header ?? PlmHeaderId.None), "Fallback original direction header");
                 AssertEqual(header, DoorClosingPlms.GetHeader(direction), "Fallback public original header");
             }
         }
@@ -130,7 +130,7 @@ internal static class RoomPlmPopulationVerification
             if (expectedHeader == 0)
                 continue;
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-            AssertEqual(expectedHeader, (ushort)slot.HeaderPointer,
+            AssertEqual(expectedHeader, PlmNativeWords.Word(slot.HeaderPointer),
                 $"door-closing direction {direction} installs compiled header");
             AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStartOracle.ForNativeList(expectedList), slot),
                 $"door-closing direction {direction} starts the program of its compiled initial list");
@@ -162,15 +162,15 @@ internal static class RoomPlmPopulationVerification
         PlmHeaderId[] identityClosers = [PlmHeaderId.MotherBrainEscapeRoomGate, PlmHeaderId.EyeDoorFacingRight, PlmHeaderId.EyeDoorFacingLeft];
         AssertTrue(resolved.SequenceEqual(identityClosers),
             "Only the escape gate and the eye doors keep a closing start by identity");
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            if (!resolved.Contains((PlmHeaderId)raw))
-                AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)raw),
+        foreach (PlmHeaderId other in Enum.GetValues<PlmHeaderId>())
+            if (!resolved.Contains(other))
+                AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve(other),
                     "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
         foreach (ushort raw in headers)
         {
-            PlmHeaderId header = (PlmHeaderId)raw;
+            PlmHeaderId header = PlmNativeWords.Header(raw);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
             ushort? typedClosing = DoorPlmNativeListAddresses.TypedClosingEntry(header);
             if (typedClosing is { } typed)
@@ -189,11 +189,8 @@ internal static class RoomPlmPopulationVerification
             var decoded = new RoomPlmPopulationDefinition($"$8F:{population:X4}",
             [
                 // Two directional caps are not placed in any retail room population,
-                // so they are absent from the 70-header population catalog. Decode
-                // their setup/first-list metadata here, in the import-side oracle.
-                new RoomPlmPlacement(new RoomPlmHeaderDefinition(header,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | raw)),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 2))))),
+                // so they are absent from the 70-header population catalog.
+                new RoomPlmPlacement(new RoomPlmHeaderDefinition(header),
                     new(blockX, blockY), 0x8000), // Negative argument always closes.
             ]);
 
@@ -290,11 +287,11 @@ internal static class RoomPlmPopulationVerification
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(3, slots.Length, "extension setup deletes its preallocated actor");
         AssertEqual(39, slots[0].NativeSlotIndex, "first ROM record receives highest native slot");
-        AssertEqual(0xb703, (ushort)slots[0].HeaderPointer, "first resident preserves record identity");
+        AssertEqual(0xb703, PlmNativeWords.Word(slots[0].HeaderPointer), "first resident preserves record identity");
         AssertEqual(38, slots[1].NativeSlotIndex, "post-delete record reuses next native slot");
-        AssertEqual(0xb70b, (ushort)slots[1].HeaderPointer, "elevator follows ROM order, not family order");
+        AssertEqual(0xb70b, PlmNativeWords.Word(slots[1].HeaderPointer), "elevator follows ROM order, not family order");
         AssertEqual(37, slots[2].NativeSlotIndex, "later station receives descending slot");
-        AssertEqual(0xb6df, (ushort)slots[2].HeaderPointer, "station header remains observable");
+        AssertEqual(0xb6df, PlmNativeWords.Word(slots[2].HeaderPointer), "station header remains observable");
         AssertEqual(1, plms.ElevatorPlatforms.Count, "elevator platform family is resident");
         AssertEqual(0x0000, level.GetCollisionBlock(new(12, 8)).PackedWord.Raw,
             "elevator setup clears collision bits through shared setup dispatcher");
@@ -359,10 +356,10 @@ internal static class RoomPlmPopulationVerification
         const ushort initialList = 0xba7f;
         const ushort closingList = 0xba4c;
 
-        SeedPlmProgramWords(bus, (ushort)PlmHeaderId.BombTorizoGreyDoor, 0xc794);
-        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 2)),
+        SeedPlmProgramWords(bus, PlmNativeWords.Word(PlmHeaderId.BombTorizoGreyDoor), 0xc794);
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmNativeWords.Word(PlmHeaderId.BombTorizoGreyDoor) + 2)),
             initialList);
-        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.BombTorizoGreyDoor + 4)),
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmNativeWords.Word(PlmHeaderId.BombTorizoGreyDoor) + 4)),
             closingList);
 
         // The PLM program and its draw pointers are compiled cartridge data. Do
@@ -441,10 +438,10 @@ internal static class RoomPlmPopulationVerification
         const ushort closingDraw = 0xa600;
         const ushort lockedDraw = 0xa610;
 
-        SeedPlmProgramWords(bus, (ushort)PlmHeaderId.GreyDoorFacingLeft, 0xc794);
-        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 2)),
+        SeedPlmProgramWords(bus, PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft), 0xc794);
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft) + 2)),
             initialList);
-        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 4)),
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft) + 4)),
             closingList);
         SeedPlmProgramWords(bus, unchecked(initialList + 2), closedBlueList);
         SeedPlmProgramWords(bus, unchecked(initialList + 6), activationList);
@@ -478,8 +475,8 @@ internal static class RoomPlmPopulationVerification
 
         SeedRoomPlmPopulation(bus, population,
         [
-            unchecked((byte)PlmHeaderId.GreyDoorFacingLeft),
-            SnesLittleEndian.HighByte((ushort)PlmHeaderId.GreyDoorFacingLeft),
+            unchecked((byte)PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft)),
+            SnesLittleEndian.HighByte(PlmNativeWords.Word(PlmHeaderId.GreyDoorFacingLeft)),
             doorX,
             doorY,
             unchecked((byte)roomArgument),
@@ -535,7 +532,7 @@ internal static class RoomPlmPopulationVerification
         const int blockX = 3;
         const int blockY = 4;
 
-        SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.WreckedShipAttic + 2)),
+        SeedPlmProgramWords(bus, unchecked((ushort)(PlmNativeWords.Word(PlmHeaderId.WreckedShipAttic) + 2)),
             RoomPlmNativeListAddresses.WreckedShipAtticEntries[0].Entry);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
@@ -1287,7 +1284,11 @@ internal static class RoomPlmPopulationVerification
             "save electricity reaches the ordinary room enemy-projectile draw path");
     }
 
-    /// <summary>Checks that an unsupported resident header reports its room pointer, record, block and argument at load time.</summary>
+    /// <summary>
+    /// Checks that an unlabelled resident header word reports its room pointer, record, block and argument. PlmHeaderId's
+    /// values are arbitrary (#1414), so such a word is rejected by the import instead of reaching the loader; the check
+    /// now asserts the import's message.
+    /// </summary>
     private static void VerifyUnsupportedPopulationContext(TestAddressSpace bus)
     {
         const ushort population = 0x9400;
@@ -1297,22 +1298,17 @@ internal static class RoomPlmPopulationVerification
         SeedRoomPlmPopulation(bus, population, [
             0x23, 0xb1, 0x03, 0x04, 0x55, 0xaa, 0x00, 0x00,
         ]);
-        RoomLevelData level = CreateRoom(new(8, 8),
-            new ushort[64],
-            new byte[64],
-            blockDefinitions: new byte[0x400 * 8]);
-        var plms = PlmFixtures.Unbound();
-        NotSupportedException? error = null;
+        InvalidDataException? error = null;
         try
         {
-            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            RoomPlmPopulationImporter.Read(bus, population);
         }
-        catch (NotSupportedException caught)
+        catch (InvalidDataException caught)
         {
             error = caught;
         }
         AssertTrue(error is not null,
-            "unsupported room-population header fails at load time");
+            "unlabelled room-population header fails at import");
         AssertTrue((error ?? throw new InvalidOperationException("Verification requires error.")).Message.Contains("$8F:9400", StringComparison.Ordinal) &&
             error.Message.Contains("record 0", StringComparison.Ordinal) &&
             error.Message.Contains("$84:B123", StringComparison.Ordinal) &&

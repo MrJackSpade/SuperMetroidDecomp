@@ -121,18 +121,18 @@ internal static class MotherBrainFakeDeathVisualsVerification
         level.SetBlockDefinitionWord(0x0249 * 4, 0x0249);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainFakeDeathVisuals = visuals });
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
-            $"Mother Brain visual header ${(int)header:X4} allocates");
+            $"Mother Brain visual header {header} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-            $"Mother Brain visual header ${(int)header:X4} retains physical block");
+            $"Mother Brain visual header {header} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
         AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
-            $"Mother Brain visual header ${(int)header:X4} presents edited tile");
+            $"Mother Brain visual header {header} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Mother Brain visual header ${(int)header:X4} reads no compiled source");
+            $"Mother Brain visual header {header} reads no compiled source");
     }
 
     /// <summary>Runs the Mother Brain fake-death visual asset suite.</summary>

@@ -27,7 +27,7 @@ public static class XrayRevealOverlays
             int graphics = item.Kind < InWorldCollectibleKind.Bombs
                 ? XrayOverlayVisualCatalog.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
             if ((uint)graphics >= XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
-                throw new InvalidDataException($"Item ${(int)item.Header:X4} has invalid X-ray graphics slot {graphics}.");
+                throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");
             var metatile = new RoomLevelWord(overlays.ItemMetatile(graphics));
             Write(level, tilemap, metatile, level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);
         }

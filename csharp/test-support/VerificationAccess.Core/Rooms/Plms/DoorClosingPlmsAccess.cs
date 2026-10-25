@@ -9,6 +9,6 @@ internal static class DoorClosingPlmsAccess
     {
         /// <summary>Returns the bank-$84 header selected by a raw orientation byte, or the table's zero word.</summary>
         internal static ushort GetHeader(byte orientation) =>
-            (ushort)(DoorClosingPlms.GetDefinition(CartridgeDoorOrientation.Decode(orientation))?.Header ?? PlmHeaderId.None);
+            PlmNativeWords.Word(DoorClosingPlms.GetDefinition(CartridgeDoorOrientation.Decode(orientation))?.Header ?? PlmHeaderId.None);
     }
 }

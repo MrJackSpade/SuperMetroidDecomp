@@ -218,46 +218,70 @@ internal sealed class DoorPlms : IPlmFamilySource
     private Bank80SystemState RequireSystem() =>
         _system ?? throw new InvalidOperationException("A resident door has no persistence owner.");
 
-    /// <summary>Decodes a colored-door header into its color family and four-way orientation.</summary>
+    /// <summary>
+    /// Names the color and facing of a colored-door PLM (#1414: each of the twelve doors is matched by member, replacing
+    /// the color ranges and six-byte header stride the cartridge's header words implied).
+    /// </summary>
     internal static bool TryIdentifyColoredDoor(
         PlmHeaderId header,
         out ColoredDoorColor color,
         out ColoredDoorOrientation orientation)
     {
-        PlmHeaderId firstHeader;
-        if (header is >= PlmHeaderId.YellowDoorFacingLeft and
-            <= PlmHeaderId.YellowDoorFacingDown)
+        switch (header)
         {
-            color = ColoredDoorColor.Yellow;
-            firstHeader = PlmHeaderId.YellowDoorFacingLeft;
+            case PlmHeaderId.YellowDoorFacingLeft:
+                color = ColoredDoorColor.Yellow;
+                orientation = ColoredDoorOrientation.Left;
+                return true;
+            case PlmHeaderId.YellowDoorFacingRight:
+                color = ColoredDoorColor.Yellow;
+                orientation = ColoredDoorOrientation.Right;
+                return true;
+            case PlmHeaderId.YellowDoorFacingUp:
+                color = ColoredDoorColor.Yellow;
+                orientation = ColoredDoorOrientation.Up;
+                return true;
+            case PlmHeaderId.YellowDoorFacingDown:
+                color = ColoredDoorColor.Yellow;
+                orientation = ColoredDoorOrientation.Down;
+                return true;
+            case PlmHeaderId.GreenDoorFacingLeft:
+                color = ColoredDoorColor.Green;
+                orientation = ColoredDoorOrientation.Left;
+                return true;
+            case PlmHeaderId.GreenDoorFacingRight:
+                color = ColoredDoorColor.Green;
+                orientation = ColoredDoorOrientation.Right;
+                return true;
+            case PlmHeaderId.GreenDoorFacingUp:
+                color = ColoredDoorColor.Green;
+                orientation = ColoredDoorOrientation.Up;
+                return true;
+            case PlmHeaderId.GreenDoorFacingDown:
+                color = ColoredDoorColor.Green;
+                orientation = ColoredDoorOrientation.Down;
+                return true;
+            case PlmHeaderId.RedDoorFacingLeft:
+                color = ColoredDoorColor.Red;
+                orientation = ColoredDoorOrientation.Left;
+                return true;
+            case PlmHeaderId.RedDoorFacingRight:
+                color = ColoredDoorColor.Red;
+                orientation = ColoredDoorOrientation.Right;
+                return true;
+            case PlmHeaderId.RedDoorFacingUp:
+                color = ColoredDoorColor.Red;
+                orientation = ColoredDoorOrientation.Up;
+                return true;
+            case PlmHeaderId.RedDoorFacingDown:
+                color = ColoredDoorColor.Red;
+                orientation = ColoredDoorOrientation.Down;
+                return true;
+            default:
+                color = default;
+                orientation = default;
+                return false;
         }
-        else if (header is >= PlmHeaderId.GreenDoorFacingLeft and
-            <= PlmHeaderId.GreenDoorFacingDown)
-        {
-            color = ColoredDoorColor.Green;
-            firstHeader = PlmHeaderId.GreenDoorFacingLeft;
-        }
-        else if (header is >= PlmHeaderId.RedDoorFacingLeft and
-            <= PlmHeaderId.RedDoorFacingDown)
-        {
-            color = ColoredDoorColor.Red;
-            firstHeader = PlmHeaderId.RedDoorFacingLeft;
-        }
-        else
-        {
-            color = default;
-            orientation = default;
-            return false;
-        }
-
-        int byteOffset = (int)header - (int)firstHeader;
-        if (byteOffset % 6 != 0 || byteOffset > 18)
-        {
-            orientation = default;
-            return false;
-        }
-        orientation = ColoredDoorOrientations.AtTableIndex(byteOffset / 6);
-        return true;
     }
 
     /// <summary>

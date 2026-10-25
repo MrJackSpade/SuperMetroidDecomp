@@ -15,7 +15,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         for (int index = 0; index < 16; index++)
         {
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0c2da + index * 2));
-            AssertEqual(index == 15 ? (ushort)PlmHeaderId.EnemyBreakableBlock : (ushort)0,
+            AssertEqual(index == 15 ? PlmNativeWords.Word(PlmHeaderId.EnemyBreakableBlock) : (ushort)0,
                 header,
                 $"enemy spike reaction header {index}");
         }

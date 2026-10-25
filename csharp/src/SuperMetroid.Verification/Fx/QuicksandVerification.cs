@@ -159,20 +159,21 @@ internal static class QuicksandVerification
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // PlmHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
+        foreach (PlmHeaderId candidate in Enum.GetValues<PlmHeaderId>())
         {
-            ushort header = (ushort)raw;
+            ushort header = PlmNativeWords.Word(candidate);
             bool expected = headers.Contains(header);
-            bool found = QuicksandDefinitions.TryGetReaction((PlmHeaderId)header, out var actual);
+            bool found = QuicksandDefinitions.TryGetReaction(candidate, out var actual);
             AssertEqual(expected, found, "quicksand header ownership");
             if (!expected)
             {
                 AssertEqual(default(QuicksandReactionDefinition), actual, "missing quicksand clears result");
-                AssertThrows<ArgumentOutOfRangeException>(() => QuicksandDefinitions.ResolveReaction((PlmHeaderId)header),
+                AssertThrows<ArgumentOutOfRangeException>(() => QuicksandDefinitions.ResolveReaction(candidate),
                     "quicksand allocator rejects unsupported headers including clone gaps");
                 continue;
             }
-            AssertEqual(actual, QuicksandDefinitions.ResolveReaction((PlmHeaderId)header), "quicksand allocator resolution");
+            AssertEqual(actual, QuicksandDefinitions.ResolveReaction(candidate), "quicksand allocator resolution");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             if (instruction)
                 AssertEqual(PlmProgramStartOracle.ForNativeList(native), actual.Program, $"quicksand header {(int)header:X4} program");
@@ -273,7 +274,7 @@ internal static class QuicksandVerification
             AssertEqual(true, bts.UsesAreaReactionTable, "special-air BTS sign selects area dispatch");
             AssertEqual((byte)index, bts.AreaReactionIndex, "special-air BTS clears its sign bit");
             SpecialAirReactionDefinition actual = resolve(area, bts.AreaReactionIndex);
-            AssertEqual(expected, setup ? (ushort)actual.Setup : (ushort)actual.Header,
+            AssertEqual(expected, setup ? (ushort)actual.Setup : PlmNativeWords.Word(actual.Header),
                 $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
         }
     }

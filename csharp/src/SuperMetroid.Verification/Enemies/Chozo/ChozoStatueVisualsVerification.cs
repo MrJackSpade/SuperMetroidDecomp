@@ -81,15 +81,15 @@ internal static class ChozoStatueVisualsVerification
                 var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmChozoStatueVisuals = selected });
                 AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
-                    $"Chozo actor ${(int)header:X4} spawns in a bounded test room");
+                    $"Chozo actor {header} spawns in a bounded test room");
                 plms.Step(level);
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
                     level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
-                    $"edited Chozo art retains native physical word for ${(int)header:X4}");
+                    $"edited Chozo art retains native physical word for {header}");
                 AssertEqual(visual,
                     level.DisplayedBlockTiles(origin).TopLeft.Raw,
-                    $"edited Chozo art reaches streamed tilemap for ${(int)header:X4}");
+                    $"edited Chozo art reaches streamed tilemap for {header}");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo slope PLMs did not reread compiled program or draw bytes");

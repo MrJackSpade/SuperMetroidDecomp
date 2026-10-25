@@ -34,8 +34,8 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, ushort> spawnStalk = enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk;
-        Action<RoomEnemySlot, ushort> spawnSpawner = enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner;
+        Action<RoomEnemySlot, ushort> spawnStalk = (stalkBody, stalkArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, stalkArgument);
+        Action<RoomEnemySlot, ushort> spawnSpawner = (spawnerBody, spawnerArgument) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, spawnerArgument);
         Action<RoomEnemyProjectileSlot> move = SporeSpawnBehavior.RunSporeSpawnSporePreInstruction;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));

@@ -25,21 +25,22 @@ internal static class SporeSpawnProjectileDefinitions
     ];
 
     /// <summary>$86:DCB9: four stalk segments spaced eight pixels apart, starting 64 pixels above the owner.</summary>
-    internal static ushort StalkYOffset(ushort spawnArgument) =>
+    internal static ushort StalkYOffset(int spawnArgument) =>
         unchecked((ushort)(-64 + 8 * SpawnIndex(spawnArgument)));
 
     /// <summary>$86:DCE6: four ceiling emitters centered in successive 64-pixel room columns.</summary>
-    internal static ushort SpawnerX(ushort spawnArgument) =>
+    internal static ushort SpawnerX(int spawnArgument) =>
         (ushort)(32 + 64 * SpawnIndex(spawnArgument));
 
     /// <summary>One signed pixel delta pair from the wrapped movement stream: X at the offset and Y at the next byte.</summary>
-    internal static Offset16<RoomPixels> MovementAt(byte offset) =>
+    /// <param name="offset">The byte offset into the stream, 0 through 255; the Y delta's offset wraps within it.</param>
+    internal static Offset16<RoomPixels> MovementAt(int offset) =>
         new(Movement[offset], Movement[unchecked((byte)(offset + 1))]);
 
     /// <summary>Accepts only the four stalk or ceiling-emitter ordinals used by the native spawn routines.</summary>
-    private static int SpawnIndex(ushort spawnArgument)
+    private static int SpawnIndex(int spawnArgument)
     {
-        if (spawnArgument > 3)
+        if (spawnArgument is < 0 or > 3)
             throw new ArgumentOutOfRangeException(nameof(spawnArgument));
         return spawnArgument;
     }

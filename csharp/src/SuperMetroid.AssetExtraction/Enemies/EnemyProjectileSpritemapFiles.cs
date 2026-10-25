@@ -28,7 +28,7 @@ public static class EnemyProjectileSpritemapFiles
         var programFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         // The installed file lists program frames in the order their operands are stored in bank $86.
         foreach ((EnemyProjectilePresentationFrameDefinition frame, ushort operand) in EnemyProjectilePresentationFrameSets.All.ToArray()
-                     .Select(frame => (frame, EnemyProjectileProgramFrameSources.Operand(frame.Frame))).OrderBy(pair => pair.Item2))
+                     .Select(definition => (definition, EnemyProjectileProgramFrameSources.Operand(definition.Frame))).OrderBy(pair => pair.Item2))
         {
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));

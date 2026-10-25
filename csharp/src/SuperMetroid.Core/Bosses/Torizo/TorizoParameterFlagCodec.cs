@@ -12,21 +12,24 @@ internal static class TorizoParameterFlagCodec
     /// <summary>The bits of parameter 1 below the posture bits.</summary>
     internal const int PostureLowBitsMask = (1 << 13) - 1;
 
+    /// <summary>One latch and the parameter-word bit that holds it.</summary>
+    private readonly record struct LatchBit<TFlags>(TFlags Flag, int Bit) where TFlags : struct, Enum;
+
     /// <summary>Each posture latch's bit in parameter 1.</summary>
-    private static readonly (TorizoPostureFlags Flag, int Bit)[] PostureBits =
+    private static readonly LatchBit<TorizoPostureFlags>[] PostureBits =
     [
-        (TorizoPostureFlags.OppositeLegForward, 1 << 13),
-        (TorizoPostureFlags.TurningAround, 1 << 14),
-        (TorizoPostureFlags.FacingRight, 1 << 15),
+        new(TorizoPostureFlags.OppositeLegForward, 1 << 13),
+        new(TorizoPostureFlags.TurningAround, 1 << 14),
+        new(TorizoPostureFlags.FacingRight, 1 << 15),
     ];
 
     /// <summary>Each behaviour latch's bit in parameter 2; its other bits name no behaviour.</summary>
-    private static readonly (TorizoBehaviorFlags Flag, int Bit)[] BehaviorBits =
+    private static readonly LatchBit<TorizoBehaviorFlags>[] BehaviorBits =
     [
-        (TorizoBehaviorFlags.CaughtSuperMissile, 1 << 12),
-        (TorizoBehaviorFlags.Stunned, 1 << 13),
-        (TorizoBehaviorFlags.FaceBlownUp, 1 << 14),
-        (TorizoBehaviorFlags.GutBlownUp, 1 << 15),
+        new(TorizoBehaviorFlags.CaughtSuperMissile, 1 << 12),
+        new(TorizoBehaviorFlags.Stunned, 1 << 13),
+        new(TorizoBehaviorFlags.FaceBlownUp, 1 << 14),
+        new(TorizoBehaviorFlags.GutBlownUp, 1 << 15),
     ];
 
     /// <summary>The posture and the low bits beside it as one parameter word, the form an egg carries.</summary>

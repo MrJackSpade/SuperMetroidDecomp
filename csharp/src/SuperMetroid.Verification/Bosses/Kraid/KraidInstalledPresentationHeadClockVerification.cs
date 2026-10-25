@@ -102,8 +102,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 KraidHeadFrame shown = baseline.State.DisplayedHeadFrame
                     ?? throw new InvalidOperationException("Verification requires a displayed Kraid head frame.");
                 AssertEqual(physical, KraidHeadFrameDefinitions.PresentationKey(shown), "compiled physical head selector survives art replacement");
-                AssertEqual(outer, (ushort)shown.VulnerableShape, "outer mouth window follows compiled admission");
-                AssertEqual(inner, shown.InvulnerableShape is { } innerShape ? (ushort)innerShape : ushort.MaxValue,
+                AssertEqual(outer, KraidNativeWords.MouthHitboxes.Word(shown.VulnerableShape), "outer mouth window follows compiled admission");
+                AssertEqual(inner, shown.InvulnerableShape is { } innerShape ? KraidNativeWords.MouthHitboxes.Word(innerShape) : ushort.MaxValue,
                     "inner mouth window follows compiled admission");
                 AssertEqual(soundCount, baseline.State.RoarRequestCount, "roar callback count on every tick");
                 AssertTrue(expectedStock.SequenceEqual(baseline.Shown()), "exact stock head and untouched body");

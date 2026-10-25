@@ -45,8 +45,9 @@ internal static class KraidHeadCommandMappingVerification
                     AssertEqual(record.Opcode, show.Duration, $"{at} pose duration");
                     AssertEqual(stageTilemaps.IndexOf(record.Tilemap), show.Frame.MouthStage, $"{at} mouth stage");
                     AssertEqual(record.Tilemap, KraidHeadFrameDefinitions.PresentationKey(show.Frame), $"{at} head image");
-                    AssertEqual(record.OuterShape, (ushort)show.Frame.VulnerableShape, $"{at} vulnerable shape");
-                    AssertEqual(record.InnerShape, show.Frame.InvulnerableShape is { } inner ? (ushort)inner : ushort.MaxValue,
+                    AssertEqual(record.OuterShape, KraidNativeWords.MouthHitboxes.Word(show.Frame.VulnerableShape), $"{at} vulnerable shape");
+                    AssertEqual(record.InnerShape,
+                        show.Frame.InvulnerableShape is { } inner ? KraidNativeWords.MouthHitboxes.Word(inner) : ushort.MaxValue,
                         $"{at} invulnerable shape");
                 }
                 else if (record.IsTerminator)

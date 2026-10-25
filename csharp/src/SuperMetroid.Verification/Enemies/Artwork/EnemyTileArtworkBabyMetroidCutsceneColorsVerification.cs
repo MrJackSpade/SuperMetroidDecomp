@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Baby Metroid cutscene colors and fade palettes in live CGRAM.</summary>
 internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 {
+    /// <summary>$AD:E8E2, the seven fade-image pointers the cartridge selects through; index zero is never displayed.</summary>
+    private const int FadePointerTable = 0xade8e2;
+
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
@@ -38,7 +41,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             int source = MotherBrainSourceDefinitions.BabyMetroid.FadeColors(index);
             AssertEqual(unchecked((ushort)source),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    MotherBrainSourceDefinitions.BabyMetroid.FadePointerTable + index * 2),
+                    FadePointerTable + index * 2),
                 $"native cutscene Baby fade selector {index}");
             for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.FadeColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),

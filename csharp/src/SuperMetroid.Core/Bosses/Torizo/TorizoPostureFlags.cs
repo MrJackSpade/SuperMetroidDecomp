@@ -19,6 +19,4 @@ internal enum TorizoPostureFlags
     TurningAround = 2,
     /// <summary>Facing right.</summary>
     FacingRight = 4,
-    /// <summary>Every posture latch.</summary>
-    All = OppositeLegForward | TurningAround | FacingRight,
 }

@@ -93,7 +93,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle);
         state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
         if (RainbowSequenceFunctions.Contains(state.Function))
-            ImportNativeMotherBrainRainbowSequence(runtime, state, state.Function, W);
+            ImportNativeMotherBrainRainbowSequence(state, state.Function, W);
     }
 
     /// <summary>The body functions the live rainbow sequence runs, which a recorded function in this set resumes.</summary>
@@ -175,7 +175,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// sequence keeps its own copies of native words; live actor words are re-synchronized
     /// before each step, so only the sequence-owned words are imported here.
     /// </summary>
-    private static void ImportNativeMotherBrainRainbowSequence(SuperMetroidRuntime runtime, MotherBrainEnemyState state,
+    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state,
         MotherBrainBodyFunction phase, Func<int, ushort> W)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();

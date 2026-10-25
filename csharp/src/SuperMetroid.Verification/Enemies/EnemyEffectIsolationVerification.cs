@@ -8,13 +8,10 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks that replacement effect artwork changes pixels without changing Crocomire or Mother Brain timing.</summary>
 internal static class EnemyEffectIsolationVerification

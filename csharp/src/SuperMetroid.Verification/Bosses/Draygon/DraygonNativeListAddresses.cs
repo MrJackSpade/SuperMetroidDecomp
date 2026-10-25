@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;

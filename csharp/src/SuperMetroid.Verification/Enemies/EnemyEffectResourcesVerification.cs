@@ -1,17 +1,10 @@
-using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks missing boss-effect art failures and Crocomire melt document validation.</summary>
 internal static class EnemyEffectResourcesVerification

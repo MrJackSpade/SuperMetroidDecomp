@@ -1165,7 +1165,7 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo page dispatch")]
     internal static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
     {
-        TileSheetDefinition[] original =
+        TorizoTileSheet[] original =
         [
             TorizoSwapArtworkDefinitions.SharedDeath, TorizoSwapArtworkDefinitions.StatueCrumble,
             TorizoSwapArtworkDefinitions.LeftAttack, TorizoSwapArtworkDefinitions.RightAttack,
@@ -1179,7 +1179,9 @@ internal static class LookupStream2Verification
         {
             AssertEqual(original[ordinal], page, "Torizo page manifest order/source/extent/filename");
             AssertEqual(page, TorizoSwapArtworkDefinitions.All[ordinal], "Torizo page enumeration/index agreement");
-            native[ordinal] = Enumerable.Range(0, page.ByteCount).Select(offset => rom.ReadCartridgeByte(page.SourceAddress + offset)).ToArray();
+            AssertEqual((TorizoTilePage)ordinal, page.Page, "Torizo page identity follows manifest order");
+            int source = TorizoSourceDefinitions.PageSources[page.Page];
+            native[ordinal] = Enumerable.Range(0, page.ByteCount).Select(offset => rom.ReadCartridgeByte(source + offset)).ToArray();
             byte[] pixels = SnesGraphics.DecodePlanarTiles(native[ordinal], 4,
                 Math.Min(RoomCharacterAtlasFormat.TileColumns, page.ByteCount / RoomCharacterAtlasFormat.BytesPerTile), out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
@@ -1198,12 +1200,9 @@ internal static class LookupStream2Verification
         for (int index = 0; index < original.Length; index++)
         {
             var page = original[index];
-            AssertTrue(artwork.TryResolve(page.SourceAddress, page.ByteCount, out var whole), "Actual resolver accepts complete named page");
-            AssertTrue(whole.Span.SequenceEqual(native[index]), "Actual resolver returns exact native page bytes");
-            AssertTrue(artwork.TryResolve(page.SourceAddress + page.ByteCount - 1, 1, out var tail), "Actual resolver accepts final byte");
-            AssertEqual(native[index][^1], tail.Span[0], "Actual resolver returns correct final byte");
-            AssertTrue(!artwork.TryResolve(page.SourceAddress, page.ByteCount + 1, out _), "Actual resolver rejects page overrun");
-            AssertTrue(!artwork.TryResolve(page.SourceAddress, 0, out _), "Actual resolver rejects empty slice");
+            AssertTrue(artwork.Characters(page.Page, 0, page.ByteCount).Span.SequenceEqual(native[index]), "Actual resolver returns exact native page bytes");
+            AssertEqual(native[index][^1], artwork.Characters(page.Page, page.ByteCount - 1, 1).Span[0], "Actual resolver returns correct final byte");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = artwork.Characters(page.Page, 0, page.ByteCount + 1), "Actual resolver rejects page overrun");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[-1], "Torizo page lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = TorizoSwapArtworkDefinitions.All[8], "Torizo page upper bound");

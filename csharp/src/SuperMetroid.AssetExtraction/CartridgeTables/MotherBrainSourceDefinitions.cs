@@ -21,9 +21,6 @@ internal static class MotherBrainSourceDefinitions
         /// <summary>$A9:94D4, colours 1..15 of the Baby's initial image.</summary>
         internal const int InitialColors = 0xa994d4;
 
-        /// <summary>$AD:E8E2, the seven fade-image pointers; index zero is never displayed.</summary>
-        internal const int FadePointerTable = 0xade8e2;
-
         /// <summary>$AD:E90C, the first displayed fourteen-colour fade-to-black image; the six images follow in order.</summary>
         internal const int FirstFadeColors = 0xade90c;
 
@@ -40,9 +37,6 @@ internal static class MotherBrainSourceDefinitions
     {
         /// <summary>The bank every Mother Brain palette pointer table's bank-local pointers resolve in.</summary>
         internal const int PaletteBank = 0xad0000;
-
-        /// <summary>The bytes of one bank-local pointer in a palette pointer table.</summary>
-        internal const int PointerBytes = sizeof(ushort);
 
         /// <summary>$AD:E434, the zero-terminated rainbow image pointers the rainbow handler at $A9:BCFD consumes.</summary>
         internal const int RainbowPointerTable = 0xade434;
@@ -100,14 +94,8 @@ internal static class MotherBrainSourceDefinitions
     /// <summary>Mother Brain's death and escape colour images.</summary>
     internal static class Death
     {
-        /// <summary>$AD:E9E8, the body fade pointers followed by a null word.</summary>
-        internal const int BodyFadeTable = 0xade9e8;
-
         /// <summary>$AD:EA0A, the first of sixteen consecutive body-and-leg fade images, each fourteen body then fourteen leg colours.</summary>
         internal const int FirstBodyFadeColors = 0xadea0a;
-
-        /// <summary>$AD:F107, the corpse fade pointers followed by a null word.</summary>
-        internal const int CorpseFadeTable = 0xadf107;
 
         /// <summary>$AD:F119, the first of eight consecutive fifteen-colour corpse-head images.</summary>
         internal const int FirstCorpseFadeColors = 0xadf119;

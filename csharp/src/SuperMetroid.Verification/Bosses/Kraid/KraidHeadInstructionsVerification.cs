@@ -64,7 +64,7 @@ internal static class KraidHeadInstructionsVerification
                     ?? throw new InvalidOperationException("Verification requires a displayed Kraid head pose.");
                 AssertEqual(displayed.Tilemap, KraidHeadFrameDefinitions.PresentationKey(shown),
                     $"Kraid command ${record.Pointer:X4} displays its pose's image");
-                AssertEqual(displayed.OuterShape, (ushort)shown.VulnerableShape, $"Kraid command ${record.Pointer:X4} outer shape");
+                AssertEqual(displayed.OuterShape, KraidNativeWords.MouthHitboxes.Word(shown.VulnerableShape), $"Kraid command ${record.Pointer:X4} outer shape");
                 AssertEqual(native.CursorAt(unchecked((ushort)(displayed.Pointer + 8))), state.HeadProgram,
                     $"Kraid command ${record.Pointer:X4} advances cursor");
             }

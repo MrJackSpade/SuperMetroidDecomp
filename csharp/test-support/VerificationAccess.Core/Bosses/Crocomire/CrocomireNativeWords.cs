@@ -16,7 +16,7 @@ internal static class CrocomireNativeWords
         [CrocomireFightFlags.UnusedAttackSequenceStarted] = 0x0200,
         [CrocomireFightFlags.UnusedClawsMoving] = 0x0400,
         [CrocomireFightFlags.DamageReactionPending] = 0x0800,
-        [CrocomireFightFlags.UnresolvedBit12] = 0x1000,
+        [CrocomireFightFlags.UnusedKeptByChargeReset] = 0x1000,
         [CrocomireFightFlags.UnusedForwardStepsDone] = 0x2000,
         [CrocomireFightFlags.ClawTouchedSamus] = 0x4000,
         [CrocomireFightFlags.Engaged] = 0x8000,

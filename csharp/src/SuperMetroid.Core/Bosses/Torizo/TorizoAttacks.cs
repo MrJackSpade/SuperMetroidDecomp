@@ -848,14 +848,14 @@ internal sealed class TorizoAttacks
     /// thirty-two, the range whose top four bits the cartridge compares with one.
     /// </summary>
     private static bool IsRunaway(SnesSignedEightEight speed) =>
-        speed.RawValue >= TorizoMotionDefinitions.RunawaySpeed && speed.RawValue < 2 * TorizoMotionDefinitions.RunawaySpeed;
+        speed.RawValue is >= TorizoMotionDefinitions.RunawaySpeed and < 2 * TorizoMotionDefinitions.RunawaySpeed;
 
     /// <summary>
     /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame, the range whose
     /// top nine bits the cartridge tests all set.
     /// </summary>
     private static bool HasSettled(SnesSignedEightEight speed) =>
-        speed.SignedRawValue is < 0 && speed.SignedRawValue >= -TorizoMotionDefinitions.SettledBounceSpeed;
+        speed.SignedRawValue is < 0 and >= -TorizoMotionDefinitions.SettledBounceSpeed;
 
     /// <summary>The top of the room block a whole pixel coordinate lies in.</summary>
     private static int BlockTop(int whole) => whole - whole % TorizoMotionDefinitions.BlockPixels;

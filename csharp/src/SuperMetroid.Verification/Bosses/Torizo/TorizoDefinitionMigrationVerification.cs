@@ -22,7 +22,8 @@ internal static class TorizoDefinitionMigrationVerification
         // The latches sit where the cartridge's parameter words keep them.
         AssertEqual(0xb234, TorizoParameterFlagCodec.ToParameterWord(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, 0x1234),
             "posture word facing right, opposite leg forward");
-        AssertEqual(TorizoPostureFlags.All, TorizoParameterFlagCodec.PostureOf(0xe123), "posture of an authored word");
+        AssertEqual(TorizoPostureFlags.OppositeLegForward | TorizoPostureFlags.TurningAround | TorizoPostureFlags.FacingRight,
+            TorizoParameterFlagCodec.PostureOf(0xe123), "posture of an authored word");
         AssertEqual(0x0123, TorizoParameterFlagCodec.PostureLowBitsOf(0xe123), "low bits of an authored word");
         AssertEqual(TorizoBehaviorFlags.CaughtSuperMissile, TorizoParameterFlagCodec.BehaviorOf(0x1000), "caught Super Missile bit");
         AssertEqual(TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp, TorizoParameterFlagCodec.BehaviorOf(0xc00f), "blown-up bits");

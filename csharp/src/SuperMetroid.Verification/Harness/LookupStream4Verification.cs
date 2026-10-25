@@ -1851,7 +1851,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index)), segments[index].Angle, "Actual initialized link angle matches native progression");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance, "Unresolved independent tail distance remains unchanged");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
-            AssertEqual((int?)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1), segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1, segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
         }
         var expectedFrames = new SortedSet<ushort> { 0xdc90, 0xdc97, 0xdc9e };
         for (int direction = 0; direction < 16; direction++)

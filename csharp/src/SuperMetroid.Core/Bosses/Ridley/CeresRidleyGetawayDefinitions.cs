@@ -9,7 +9,7 @@ public static class CeresRidleyGetawayDefinitions
         if (frame is < 0 or > 112)
             throw new InvalidDataException($"Ceres Ridley getaway frame {frame} is outside its authored entries.");
         if (frame == 112)
-            return new(0, Offset16<Mode7Pixels>.Zero, IsFinished: true);
+            return CeresRidleyGetawayFrame.Finished;
         int zoom = frame switch
         {
             < 32 => 0x800,

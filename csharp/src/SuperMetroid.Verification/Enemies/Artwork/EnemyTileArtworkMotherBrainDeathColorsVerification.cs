@@ -17,6 +17,12 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Mother Brain death palettes against retail data and verifies editable colors reach CGRAM without cartridge reads.</summary>
 internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 {
+    /// <summary>$AD:E9E8, the body fade pointers the cartridge selects through, followed by a null word.</summary>
+    private const int BodyFadeTable = 0xade9e8;
+
+    /// <summary>$AD:F107, the corpse fade pointers the cartridge selects through, followed by a null word.</summary>
+    private const int CorpseFadeTable = 0xadf107;
+
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
@@ -33,7 +39,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             int source = MotherBrainSourceDefinitions.Death.BodyFadeColors(frame);
             AssertEqual(unchecked((ushort)source),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    MotherBrainSourceDefinitions.Death.BodyFadeTable + frame * sizeof(ushort)),
+                    BodyFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain body death-fade selector {frame}");
             for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
             {
@@ -51,7 +57,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             int source = MotherBrainSourceDefinitions.Death.CorpseFadeColors(frame);
             AssertEqual(unchecked((ushort)source),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    MotherBrainSourceDefinitions.Death.CorpseFadeTable + frame * sizeof(ushort)),
+                    CorpseFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain corpse death-fade selector {frame}");
             for (int color = 0; color < MotherBrainDeathDefinitions.CorpseColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
@@ -106,11 +112,11 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             "Mother Brain death color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
-            address => address >= MotherBrainSourceDefinitions.Death.BodyFadeTable &&
+            address => address >= BodyFadeTable &&
                     address < MotherBrainSourceDefinitions.Death.BodyFadeColors(
                         MotherBrainDeathDefinitions.BodyFadeFrameCount - 1) +
                         MotherBrainDeathDefinitions.BodyColorCount * 2 * sizeof(ushort) ||
-                address >= MotherBrainSourceDefinitions.Death.CorpseFadeTable &&
+                address >= CorpseFadeTable &&
                     address < MotherBrainSourceDefinitions.Death.CorpseFadeColors(
                         MotherBrainDeathDefinitions.CorpseFadeFrameCount - 1) +
                         MotherBrainDeathDefinitions.CorpseColorCount * sizeof(ushort) ||

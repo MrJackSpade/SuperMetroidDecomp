@@ -85,7 +85,7 @@ internal static class PhantoonCasualFlamesVerification
                 step(mouth);
                 AssertEqual(timer, state.Parts[mouth.SlotIndex].CasualFlameHold, "Actual casual frame timer");
                 // The count is the signed value the cartridge's word holds.
-                AssertEqual((int)unchecked((short)count), state.Parts[mouth.SlotIndex].CasualFlameCount, "Actual casual frame remaining count");
+                AssertEqual(unchecked((short)count), state.Parts[mouth.SlotIndex].CasualFlameCount, "Actual casual frame remaining count");
                 AssertEqual(draw ? AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame) : default, state.PartProgram(mouth), "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.InstructionTimer.RawValue, "Exact casual instruction timer reset");
             }

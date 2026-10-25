@@ -77,13 +77,13 @@ internal static class RoomPlmPopulationVerification
             if (raw >= DoorClosingTableEntries)
             {
                 AssertThrows<InvalidDataException>(() => CartridgeDoorOrientation.Decode(direction), "Orientation beyond Door_Closing_PLMs rejected");
-                if (!list) AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetHeader(direction), "Fallback door public rejected direction");
+                if (!list) AssertThrows<InvalidDataException>(() => DoorClosingPlms.GetHeader(direction), "Fallback door public rejected direction");
                 continue;
             }
             ushort header = ReadSamusEaterPlmWord(rom, 0x8fe68a + raw * 2);
             CartridgeDoorOrientation orientation = CartridgeDoorOrientation.Decode(direction);
             AssertEqual(direction, orientation.Encode(), "Orientation byte round-trips");
-            var actual = DoorClosingPlmRomData.GetDefinition(orientation);
+            var actual = DoorClosingPlms.GetDefinition(orientation);
             AssertEqual(header == 0, actual is null, "Non-closing table entries select no actor");
             if (list)
                 AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
@@ -92,7 +92,7 @@ internal static class RoomPlmPopulationVerification
             else
             {
                 AssertEqual(header, (ushort)(actual?.Header ?? PlmHeaderId.None), "Fallback original direction header");
-                AssertEqual(header, DoorClosingPlmRomData.GetHeader(direction), "Fallback public original header");
+                AssertEqual(header, DoorClosingPlms.GetHeader(direction), "Fallback public original header");
             }
         }
     }
@@ -106,7 +106,7 @@ internal static class RoomPlmPopulationVerification
         Suite(nameof(VerifyFallbackDoorLists), () => VerifyFallbackDoorLists(rom));
         for (byte direction = 0; direction < DoorClosingTableEntries; direction++)
         {
-            ushort expectedHeader = CartridgeImportSource.Require(rom).ReadCartridgeWord((DoorClosingPlmRomData.HeaderTableAddress + direction * sizeof(ushort)));
+            ushort expectedHeader = CartridgeImportSource.Require(rom).ReadCartridgeWord((DoorClosingPlms.HeaderTableAddress + direction * sizeof(ushort)));
             ushort expectedList = expectedHeader == 0
                 ? (ushort)0
                 : CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(expectedHeader + 2))));
@@ -698,13 +698,13 @@ internal static class RoomPlmPopulationVerification
             _ => { });
         active.Step(activeLevel);
         active.Step(activeLevel);
-        AssertEqual(SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity,
+        AssertEqual(SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue,
             activeFx.YVelocity.RawValue,
             "collected Speed Booster starts the regional lavaquake velocity");
         active.Step(activeLevel);
         AssertEqual(0, activeFx.Timer.RawValue,
             "Samus right of $0AE0 leaves FX motion sleeping");
-        activeSamus.Position = activeSamus.Position.WithWholeX(SpeedBoosterEscapePlmRomData.StartFxMotionSamusX);
+        activeSamus.Position = activeSamus.Position.WithWholeX(SpeedBoosterEscapeDefinitions.StartFxMotionSamusX);
         active.Step(activeLevel);
         AssertEqual(1, activeFx.Timer.RawValue,
             "Samus reaching $0AE0 starts FX motion");

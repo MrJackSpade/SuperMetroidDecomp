@@ -59,7 +59,7 @@ internal sealed class SpeedBoosterEscapePlms
                 return;
 
             case SpeedBoosterEscapePreInstruction.WaitForSamusLeft:
-                if (samus.Position.X.Whole > SpeedBoosterEscapePlmRomData.StartFxMotionSamusX)
+                if (samus.Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
                     return;
                 fx.SetLiquidMotion(timer: 1);
                 WakeAtNextInstruction(slot);
@@ -102,7 +102,7 @@ internal sealed class SpeedBoosterEscapePlms
         }
 
         fx.SetLiquidMotion(
-            packedYVelocity: SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity);
+            packedYVelocity: SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue);
         WakeAtNextInstruction(slot);
     }
 

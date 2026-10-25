@@ -414,7 +414,7 @@ internal static class RoomPlmProgramsVerification
             AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving, operand, "downward gate moving projectile");
         if (cue == DownwardGateCue.QueueMovementSound)
         {
-            AssertEqual(DownwardGatePlmRomData.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
+            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
             AssertEqual(SoundQueueLimit.Max6, DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued, "downward gate movement sound queue cap");
         }
         return true;
@@ -1090,10 +1090,10 @@ internal static class RoomPlmProgramsVerification
         if (!known)
             return false;
         if (cue == SamusEaterCue.HoldSamus)
-            AssertEqual(SamusEaterPlmRomDataConstants.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
+            AssertEqual(SamusEaterPlmDefinitionsConstants.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
         if (cue == SamusEaterCue.QueueChewSound)
         {
-            AssertEqual(SamusEaterPlmRomData.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
+            AssertEqual(SamusEaterPlmDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
             AssertEqual(SoundQueueLimit.Max6, SamusEaterPlmProgramDefinitions.ChewSoundMaximumQueued, "plant chew sound queue cap");
         }
         return true;
@@ -1171,7 +1171,7 @@ internal static class RoomPlmProgramsVerification
         switch (cue)
         {
             case NoobTubeCue.SkipIfBroken:
-                AssertEqual((ushort)NoobTubePlmRomData.BrokenEvent, Operand(2), "n00b tube skip event");
+                AssertEqual((ushort)NoobTubePlmDefinitions.BrokenEvent, Operand(2), "n00b tube skip event");
                 AssertEqual(NoobTubeProgram.AlreadyBroken, Entry(Operand(4)), "n00b tube skip target");
                 break;
             case NoobTubeCue.LinkBreak:
@@ -1181,11 +1181,11 @@ internal static class RoomPlmProgramsVerification
                 AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput, Operand(2), "n00b tube input wake");
                 break;
             case NoobTubeCue.QueueBreakSound:
-                AssertEqual(NoobTubePlmRomData.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
+                AssertEqual(NoobTubePlmDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
                 AssertEqual(SoundQueueLimit.Max6, NoobTubePlmProgramDefinitions.BreakSoundMaximumQueued, "n00b tube break sound queue cap");
                 break;
             case NoobTubeCue.SetBrokenEvent:
-                AssertEqual((ushort)NoobTubePlmRomData.BrokenEvent, Operand(2), "n00b tube broken event");
+                AssertEqual((ushort)NoobTubePlmDefinitions.BrokenEvent, Operand(2), "n00b tube broken event");
                 break;
             case NoobTubeCue.LinkInputWait:
             case NoobTubeCue.ArmPowerBombWake:

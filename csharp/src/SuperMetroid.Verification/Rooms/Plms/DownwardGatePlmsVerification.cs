@@ -112,9 +112,9 @@ internal static class DownwardGatePlmsVerification
         AssertTrue(slots[1].Animation is DownwardGatePlmAnimation { Program: DownwardGateProgram.TriggerBlueLeft },
             "argument zero selects the blue-left trigger program");
 
-        for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
+        for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
-            AssertEqual(DownwardGatePlmRomData.ClosedGateBts,
+            AssertEqual(DownwardGateDefinitions.ClosedGateBts,
                 level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Bts.Value,
                 $"gate setup writes BTS $10 to row {row}");
         }
@@ -168,7 +168,7 @@ internal static class DownwardGatePlmsVerification
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
             "closed gate publishes a wake request");
         AssertTrue(plms.Sounds.SoundRequests.Any(sound =>
-                sound.SoundEffect == DownwardGatePlmRomData.MovementSound),
+                sound.SoundEffect == DownwardGateDefinitions.MovementSound),
             "opening gate queues its cartridge movement sound");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(wake, level.Size.X);
 

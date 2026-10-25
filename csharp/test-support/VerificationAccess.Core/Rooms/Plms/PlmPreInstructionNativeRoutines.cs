@@ -31,7 +31,7 @@ internal static class PlmPreInstructionNativeRoutines
     /// <summary>The routine a Metroids-cleared PLM installs for <paramref name="roomArgument"/>.</summary>
     internal static ushort MetroidsCleared(ushort roomArgument)
     {
-        MetroidsClearedPlmRomData.ResolveEvent(roomArgument);
+        MetroidsClearedEvents.ResolveEvent(roomArgument);
         int entry = roomArgument / 2;
         return (ushort)(entry < 9 ? MetroidsClearedFirstNoOp + entry : MetroidsClearedFirstQuotaObserver + (entry - 9) * 16);
     }
@@ -49,7 +49,7 @@ internal static class PlmPreInstructionNativeRoutines
             [ChozoStatuePreInstructions.WaitForLowerNorfairHand] = ChozoStatuePlmNativeRoutines.WaitForLowerNorfairHand,
             [ShaktoolRoomPreInstructions.Controller] = ShaktoolRoomPlmNativeProgram.PreInstruction,
             [WreckedShipAtticPreInstructions.NoOpCallback] = WreckedShipAtticPlmRomData.NoOpCallback,
-            [SamusEaterPreInstructions.Hold] = SamusEaterPlmRomDataConstants.HoldPreInstruction,
+            [SamusEaterPreInstructions.Hold] = SamusEaterPlmDefinitionsConstants.HoldPreInstruction,
             [ColoredDoorPreInstructions.WakeOnPowerBomb] = (ushort)ColoredDoorPreInstruction.WakeOnPowerBomb,
             [ColoredDoorPreInstructions.WakeOnMissile] = (ushort)ColoredDoorPreInstruction.WakeOnMissile,
             [ColoredDoorPreInstructions.WakeOnSuperMissile] = (ushort)ColoredDoorPreInstruction.WakeOnSuperMissile,

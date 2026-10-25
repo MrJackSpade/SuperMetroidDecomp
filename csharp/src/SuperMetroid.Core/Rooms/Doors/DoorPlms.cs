@@ -80,7 +80,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             return true;
         }
 
-        if (DoorClosingPlmRomData.GetDefinition(door.Orientation) is not { } fallback)
+        if (DoorClosingPlms.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
         if (_slotTable.SpawnRoomPlm() is not { } slot)

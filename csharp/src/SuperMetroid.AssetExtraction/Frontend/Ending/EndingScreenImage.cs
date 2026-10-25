@@ -68,9 +68,9 @@ internal static class EndingScreenImage
                 break;
             case EndingUploadKind.RewardChunk:
                 // The queued transfer writes both VRAM ports with increment-after-high; the bytes are already interleaved.
-                int source = EndingRewardGraphicsUploadDefinitions.SourceWord(upload.Key);
+                int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.Key);
                 vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(upload.Key) * sizeof(ushort),
-                    EndingRewardIconCharacters.Of(Mode7(artwork).RewardIcon).Bytes.Span.Slice(source - EndingRewardGraphicsUploadDefinitions.SourceBase,
+                    EndingRewardIconCharacters.Of(Mode7(artwork).RewardIcon).Bytes.Span.Slice(source,
                         EndingRewardGraphicsUploadDefinitions.ChunkBytes));
                 break;
             case EndingUploadKind.PostShotTransfer:

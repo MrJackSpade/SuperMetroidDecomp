@@ -40,8 +40,8 @@ internal static class EndingRewardGestureVerification
         {
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.SourceTable + chunk * sizeof(ushort)),
-                EndingRewardGraphicsUploadDefinitions.SourceWord(chunk),
-                $"reward graphics source address {chunk} matches pinned cartridge");
+                RewardIconStagingWord + EndingRewardGraphicsUploadDefinitions.ChunkOffset(chunk),
+                $"reward graphics chunk {chunk}'s offset is its native source word's offset from the staging buffer");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(chunk),
@@ -57,7 +57,7 @@ internal static class EndingRewardGestureVerification
         AssertEqual(0, uploadBus.ForbiddenReadAttempts,
             "reward icon upload no longer rereads either native address table");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingRewardGraphicsUploadDefinitions.SourceWord(16),
+            () => EndingRewardGraphicsUploadDefinitions.ChunkOffset(16),
             "reward icon source rejects the seventeenth transfer");
         AssertThrows<ArgumentOutOfRangeException>(
             () => SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(-1),
@@ -119,6 +119,12 @@ internal static class EndingRewardGestureVerification
                     address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
                     EndingRewardJumpDefinitions.IconChunkCount * sizeof(ushort),
                 address => $"Reward icon upload reread address-table byte ${address:X6}.");
+
+    /// <summary>
+    /// $7F:4000: the bank-$7F work-RAM word the cartridge stages the decompressed icon at; its chunk source words are this
+    /// plus each chunk's offset (#1416: production holds only the offsets).
+    /// </summary>
+    private const int RewardIconStagingWord = 0x4000;
 
     /// <summary>The ten reward gesture and jump actors, in native spawn order.</summary>
     private static readonly ushort[] RewardActorPointers =

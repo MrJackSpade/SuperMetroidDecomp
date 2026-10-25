@@ -447,8 +447,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         EndingRewardIconArtwork icon = artwork ?? throw new InvalidOperationException(
             "Ending reward requires installed icon artwork.");
-        if (icon.Map.Length + icon.CharacterCount * EndingFloorArtworkFormat.CharacterBytes < EndingRewardGraphicsUploadDefinitions.SourceBytes)
-            throw new InvalidDataException("Post-credits icon graphics do not fill the native WRAM upload range.");
+        if (icon.Map.Length + icon.CharacterCount * EndingFloorArtworkFormat.CharacterBytes < EndingRewardGraphicsUploadDefinitions.ArtworkBytes)
+            throw new InvalidDataException("Post-credits icon graphics do not cover the sixteen icon chunks.");
     }
 
     /// <summary>Rotates Mode 7 every other cinematic call while applying the current zoom delta.</summary>

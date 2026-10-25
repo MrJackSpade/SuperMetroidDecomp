@@ -35,7 +35,7 @@ internal static class EndingScreenFloor
                 case EndingUploadKind.RewardChunk:
                     // Each reward chunk uploads words of a map cell and a tile pixel; it lays out the cells of its words.
                     int chunkCells = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort);
-                    int source = (EndingRewardGraphicsUploadDefinitions.SourceWord(upload.Key) - EndingRewardGraphicsUploadDefinitions.SourceBase) / sizeof(ushort);
+                    int source = EndingRewardGraphicsUploadDefinitions.ChunkOffset(upload.Key) / sizeof(ushort);
                     Floor(floor).RewardIcon.Map.Span.Slice(source, chunkCells).CopyTo(cells.AsSpan(upload.Key * chunkCells));
                     break;
                 case EndingUploadKind.FlyawayChunk:

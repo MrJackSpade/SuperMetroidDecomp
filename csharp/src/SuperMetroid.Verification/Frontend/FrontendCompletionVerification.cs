@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAlignmentVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -201,15 +202,15 @@ internal static void VerifyDoorOpeningTrajectories()
     {
         AssertEqual(
             direction >= 2,
-            RoomLoader.DoorTransitionAlignsX((DoorDirection)direction),
+            RoomLoader.DoorTransitionAlignsX(DoorRecordCodec.DecodeOrientation(checked((byte)direction)).Direction),
             $"door direction {direction} alignment axis");
         var door = new DoorDefinition(
             Name: "fixture door",
             DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
-            Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
+            Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
             PlmBlock: new(0, 0),
             DestinationScreen: new(3, 2),
-            SamusDistance: 0x0100,
+            SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
             SetupCode: DoorSetupCode.None);
         ushort finalCameraY = direction == 3
             ? (ushort)(destinationY + 0x20)

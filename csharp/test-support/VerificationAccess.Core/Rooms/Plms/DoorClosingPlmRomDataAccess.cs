@@ -1,4 +1,5 @@
 namespace SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Verification access to <see cref="DoorClosingPlmRomData"/> members production does not use.</summary>
@@ -9,6 +10,6 @@ internal static class DoorClosingPlmRomDataAccess
     {
         /// <summary>Returns the bank-$84 header selected by a raw orientation byte, or the table's zero word.</summary>
         internal static ushort GetHeader(byte orientation) =>
-            (ushort)(DoorClosingPlmRomData.GetDefinition(DoorOrientation.Decode(orientation))?.Header ?? PlmHeaderId.None);
+            (ushort)(DoorClosingPlmRomData.GetDefinition(DoorRecordCodec.DecodeOrientation(orientation))?.Header ?? PlmHeaderId.None);
     }
 }

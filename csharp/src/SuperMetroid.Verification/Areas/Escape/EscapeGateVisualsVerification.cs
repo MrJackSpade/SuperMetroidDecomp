@@ -124,7 +124,7 @@ internal static class EscapeGateVisualsVerification
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),
-            SamusDistance: 0x8000,
+            SamusSpeed: DoorSamusSpeed.AxisDefault,
             SetupCode: DoorSetupCode.None);
         AssertTrue(closing.DoorPlms.TrySpawnDoorClosingPlm(closingLevel,
                 enteringDoor, system),

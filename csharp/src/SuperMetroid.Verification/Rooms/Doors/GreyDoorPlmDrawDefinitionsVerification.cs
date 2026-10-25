@@ -118,7 +118,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                     Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                     PlmBlock: new(4, 4),
                     DestinationScreen: new(0, 0),
-                    SamusDistance: 0,
+                    SamusSpeed: DoorSamusSpeed.None,
                     SetupCode: DoorSetupCode.None);
                 AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor,
                         system),
@@ -199,7 +199,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(4, 4),
             DestinationScreen: new(0, 0),
-            SamusDistance: 0,
+            SamusSpeed: DoorSamusSpeed.None,
             SetupCode: DoorSetupCode.None);
         AssertTrue(room.Plms.DoorPlms.TrySpawnDoorClosingPlm(room.Level, enteringDoor, room.System),
             "Bomb Torizo door selects its Bomb-gated closing list");

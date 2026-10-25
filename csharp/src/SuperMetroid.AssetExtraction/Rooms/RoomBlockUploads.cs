@@ -229,7 +229,7 @@ internal static class RoomBlockUploads
         var vram = new SnesVram();
         // A door no transfer names stands for every door the program does not tell apart.
         DoorDefinition entry = door ?? new DoorDefinition("no library background door", room,
-            new DoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, 0, DoorSetupCode.None);
+            new DoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, DoorSamusSpeed.None, DoorSetupCode.None);
         LibraryBackgroundExecutionResult result = LibraryBackgroundReplay.Execute(vram, program,
             entry, new LibraryBackgroundArtwork
             {

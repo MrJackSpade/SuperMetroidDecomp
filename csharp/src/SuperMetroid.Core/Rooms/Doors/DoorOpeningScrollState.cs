@@ -126,16 +126,13 @@ internal sealed class DoorOpeningScrollState
         samus.Advance(GetSamusStep(door));
 
     /// <summary>
-    /// Samus's fixed-point displacement for one native door IRQ call: the door's distance
-    /// (or the native default) times $100 subpixels, added along right/down and subtracted
-    /// along left/up with the native 32-bit wrap.
+    /// Samus's fixed-point displacement for one native door IRQ call: the door's speed
+    /// (or the axis default), added along right/down and subtracted along left/up with
+    /// the native 32-bit wrap.
     /// </summary>
     internal static FixedVector<RoomPixels> GetSamusStep(DoorDefinition door)
     {
-        int distance = unchecked((short)door.SamusDistance);
-        if (distance < 0)
-            distance = door.Orientation.IsVertical ? 384 : 200;
-        int magnitude = SnesSixteenSixteen.FromEightEight(distance);
+        int magnitude = SnesSixteenSixteen.FromEightEight(door.SamusSpeed.StepSubpixels(door.Orientation.Direction));
         var step = SnesSignedSixteenSixteen.FromRaw(magnitude);
         var back = SnesSignedSixteenSixteen.FromRaw(-magnitude);
         return door.Orientation.Direction switch

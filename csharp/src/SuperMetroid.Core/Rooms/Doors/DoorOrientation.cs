@@ -1,13 +1,12 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The door header's orientation byte (<c>$83</c> record offset 3) decoded into its proven
-/// fields. <c>Door_Closing_PLMs</c> defines exactly twelve values, $00-$0B; any other byte
-/// would index past that table and is rejected where the header is loaded.
+/// How a door is passed: the direction Samus travels through it and what closes behind her on arrival. The import
+/// pipeline decodes the cartridge's orientation byte into these two fields.
 /// </summary>
 public readonly record struct DoorOrientation
 {
-    /// <summary>Creates an orientation from its decoded fields.</summary>
+    /// <summary>Creates an orientation from its fields.</summary>
     public DoorOrientation(DoorDirection direction, DoorClosingBehavior closing)
     {
         if (!Enum.IsDefined(direction))
@@ -24,23 +23,6 @@ public readonly record struct DoorOrientation
     /// <summary>What the arrival spawns behind Samus.</summary>
     public DoorClosingBehavior Closing { get; }
 
-    /// <summary>True for <see cref="DoorDirection.Down"/> and <see cref="DoorDirection.Up"/> (<c>$82:DE55</c> bit 1).</summary>
+    /// <summary>True for <see cref="DoorDirection.Down"/> and <see cref="DoorDirection.Up"/>.</summary>
     public bool IsVertical => Direction.IsVertical();
-
-    /// <summary>The closing behavior of row <paramref name="row"/> of <c>Door_Closing_PLMs</c>.</summary>
-    private static DoorClosingBehavior ClosingRow(int row) => row switch
-    {
-        0 => DoorClosingBehavior.None,
-        1 => DoorClosingBehavior.BlueDoorCloses,
-        2 => DoorClosingBehavior.EscapeGateCloses,
-        _ => throw new InvalidDataException($"Door_Closing_PLMs has no row {row}."),
-    };
-
-    /// <summary>Decodes the cartridge byte, rejecting values outside <c>Door_Closing_PLMs</c>.</summary>
-    public static DoorOrientation Decode(byte raw)
-    {
-        if (raw > 11)
-            throw new InvalidDataException($"Door orientation byte ${raw:X2} is outside Door_Closing_PLMs ($00-$0B).");
-        return new DoorOrientation((DoorDirection)(raw & 3), ClosingRow(raw >> 2));
-    }
 }

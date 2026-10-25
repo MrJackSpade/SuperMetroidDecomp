@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -76,12 +77,12 @@ internal static class RoomPlmPopulationVerification
             byte direction = (byte)raw;
             if (raw >= DoorClosingTableEntries)
             {
-                AssertThrows<InvalidDataException>(() => DoorOrientation.Decode(direction), "Orientation beyond Door_Closing_PLMs rejected");
+                AssertThrows<InvalidDataException>(() => DoorRecordCodec.DecodeOrientation(direction), "Orientation beyond Door_Closing_PLMs rejected");
                 if (!list) AssertThrows<InvalidDataException>(() => DoorClosingPlmRomData.GetHeader(direction), "Fallback door public rejected direction");
                 continue;
             }
             ushort header = ReadSamusEaterPlmWord(rom, 0x8fe68a + raw * 2);
-            DoorOrientation orientation = DoorOrientation.Decode(direction);
+            DoorOrientation orientation = DoorRecordCodec.DecodeOrientation(direction);
             AssertEqual(direction, orientation.Encode(), "Orientation byte round-trips");
             var actual = DoorClosingPlmRomData.GetDefinition(orientation);
             AssertEqual(header == 0, actual is null, "Non-closing table entries select no actor");
@@ -118,10 +119,10 @@ internal static class RoomPlmPopulationVerification
             var door = new DoorDefinition(
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
-                Orientation: DoorOrientation.Decode(direction),
+                Orientation: DoorRecordCodec.DecodeOrientation(direction),
                 PlmBlock: new(1, 1),
                 DestinationScreen: new(0, 0),
-                SamusDistance: 0,
+                SamusSpeed: DoorSamusSpeed.None,
                 SetupCode: DoorSetupCode.None);
             bool spawned = plms.DoorPlms.TrySpawnDoorClosingPlm(
                 level, door, new Bank80SystemState());
@@ -137,7 +138,7 @@ internal static class RoomPlmPopulationVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => DoorOrientation.Decode(DoorClosingTableEntries),
+            () => DoorRecordCodec.DecodeOrientation(DoorClosingTableEntries),
             "out-of-range door orientation fails loudly");
         if (fallbackOnly) return;
         Suite(nameof(VerifyResidentDoorClosingDefinitions), () => VerifyResidentDoorClosingDefinitions(rom));
@@ -212,7 +213,7 @@ internal static class RoomPlmPopulationVerification
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                 PlmBlock: new(blockX, blockY),
                 DestinationScreen: new(0, 0),
-                SamusDistance: 0,
+                SamusSpeed: DoorSamusSpeed.None,
                 SetupCode: DoorSetupCode.None);
             AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
@@ -394,7 +395,7 @@ internal static class RoomPlmPopulationVerification
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
-            SamusDistance: 0x8000,
+            SamusSpeed: DoorSamusSpeed.AxisDefault,
             SetupCode: DoorSetupCode.None);
         AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "Bomb Torizo entry redirects the resident door to its secondary list");
@@ -501,7 +502,7 @@ internal static class RoomPlmPopulationVerification
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
-            SamusDistance: 0x8000,
+            SamusSpeed: DoorSamusSpeed.AxisDefault,
             SetupCode: DoorSetupCode.None);
         AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "room $9B9D redirects its resident grey door to closing list $BE59");
@@ -874,7 +875,7 @@ internal static class RoomPlmPopulationVerification
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),
-            SamusDistance: 0x8000,
+            SamusSpeed: DoorSamusSpeed.AxisDefault,
             SetupCode: DoorSetupCode.None);
         AssertTrue(escape.DoorPlms.TrySpawnDoorClosingPlm(escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");

@@ -54,7 +54,7 @@ internal static class RoomScopeVerification
             Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
             PlmBlock: default,
             DestinationScreen: camera.ToRoomScreen(),
-            SamusDistance: 0,
+            SamusSpeed: DoorSamusSpeed.None,
             SetupCode: DoorSetupCode.None);
         runtime.RoomLoader.LoadCartridgeRoom(door, parlor, camera, RoomViewportLoadMode.StreamThroughDoor);
 

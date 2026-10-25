@@ -18,6 +18,6 @@ internal static class FixtureRoomHeaders
         Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
         PlmBlock: default,
         DestinationScreen: default,
-        SamusDistance: 0,
+        SamusSpeed: DoorSamusSpeed.None,
         SetupCode: DoorSetupCode.None);
 }

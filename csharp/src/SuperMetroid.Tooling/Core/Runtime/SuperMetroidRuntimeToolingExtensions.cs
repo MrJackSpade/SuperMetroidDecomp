@@ -63,7 +63,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmBlock: default,
                 DestinationScreen: camera.ToRoomScreen(),
-                SamusDistance: 0,
+                SamusSpeed: DoorSamusSpeed.None,
                 SetupCode: DoorSetupCode.None);
 
             // A door arrives with the HUD's characters at their ordinary base, which a direct load from mid-fight in Kraid's

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
 using System.Globalization;
 using SuperMetroid.Core.Input;
@@ -39,7 +40,7 @@ internal static class DoorAlignmentVerification
             ushort nextFunction = ParseHex(fields[8]);
 
             DoorCameraAlignmentState actual = DoorCameraAlignmentState.Step(
-                (DoorDirection)direction,
+                DoorRecordCodec.DecodeOrientation(checked((byte)direction)).Direction,
                 new Position16<RoomPixels>(beforeX, beforeY));
             string context =
                 $"door alignment direction {direction}, start ${startX:X4}/${startY:X4}, call {call}";
@@ -63,10 +64,10 @@ internal static class DoorAlignmentVerification
             var door = new DoorDefinition(
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
-                Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
+                Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
                 PlmBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
-                SamusDistance: 0x0100,
+                SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
                 SetupCode: DoorSetupCode.None);
             DoorOpeningScrollState transition = DoorOpeningScrollState.Create(
                 door,

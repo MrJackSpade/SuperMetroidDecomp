@@ -14,7 +14,7 @@ internal static class EndingVramDestinations
     {
         EndingPostShotUploadSource.Subtitle => EndingVramDestinationDefinitions.SubtitleWord,
         EndingPostShotUploadSource.LogoTiles => checked((ushort)(EndingVramDestinationDefinitions.FirstLogoTileWord +
-            (transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource) / sizeof(ushort))),
+            transfer.Offset / sizeof(ushort))),
         EndingPostShotUploadSource.LogoMap => EndingVramDestinationDefinitions.LogoMapWord,
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
     };

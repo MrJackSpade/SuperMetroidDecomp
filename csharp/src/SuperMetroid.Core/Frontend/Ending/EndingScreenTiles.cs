@@ -96,7 +96,7 @@ internal static class EndingScreenTiles
                 Place(SpriteSheetId.EndingSubtitleTiles, EndingTileSetDefinitions.SubtitleFirstTile, 0, transfer.Length);
             else if (transfer.Source == EndingPostShotUploadSource.LogoTiles)
             {
-                int offset = transfer.SourceAddress - EndingPostShotDefinitions.LogoTileSource;
+                int offset = transfer.Offset;
                 Place(SpriteSheetId.EndingLogoTiles, logoFirstTile, offset, transfer.Length, offset);
             }
         }

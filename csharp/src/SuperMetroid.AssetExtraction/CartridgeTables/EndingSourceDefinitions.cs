@@ -13,6 +13,16 @@ internal static class EndingSourceDefinitions
     internal static readonly CpuBusCell LogoPaletteBank = CpuBusCell.CartridgeBytes(nameof(LogoPaletteBank), 0x8c8000, 0x8000,
         "BGR555 palette rows (u16 little-endian)");
 
+    /// <summary>The ending's compressed artwork sources (#1416: moved from Core's ending catalogs).</summary>
+    internal static class Artwork
+    {
+        /// <summary>$99:E089: the compressed Super Metroid logo tiles the post-shot transition shows.</summary>
+        internal const int PostShotLogoTiles = 0x99e089;
+
+        /// <summary>$99:ECC4: the compressed logo map the post-shot transition shows.</summary>
+        internal const int PostShotLogoMap = 0x99ecc4;
+    }
+
     /// <summary>The ending's palette sources (#1416: moved from Core's ending catalogs).</summary>
     internal static class Palettes
     {

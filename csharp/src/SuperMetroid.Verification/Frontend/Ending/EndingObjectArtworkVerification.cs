@@ -24,6 +24,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
@@ -156,11 +157,11 @@ internal static class EndingObjectArtworkVerification
             EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
             "post-credits fragment B");
-        AssertSheet(stock.PostShotLogoTiles, EndingPostShotDefinitions.LogoTiles,
+        AssertSheet(stock.PostShotLogoTiles, EndingSourceDefinitions.Artwork.PostShotLogoTiles,
             EndingObjectArtworkFormat.PostShotLogoTileByteCount,
             "post-shot logo tiles");
         byte[] nativeLogoMap = RomDataReader.Decompress(bus,
-            EndingPostShotDefinitions.LogoMap,
+            EndingSourceDefinitions.Artwork.PostShotLogoMap,
             EndingCreditsRomData.Rendering.DecompressionLimit);
         AssertTrue(stock.PostShotLogoMap.Bytes.Span.SequenceEqual(
                 nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
@@ -500,8 +501,8 @@ internal static class EndingObjectArtworkVerification
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentA or
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentB or
                 EndingCreditsRomData.Assets.PostCreditsFloorCharacters or
-                EndingPostShotDefinitions.LogoTiles or
-                EndingPostShotDefinitions.LogoMap,
+                EndingSourceDefinitions.Artwork.PostShotLogoTiles or
+                EndingSourceDefinitions.Artwork.PostShotLogoMap,
             address => $"Ending OBJ reread cartridge source ${address:X6}.");
         return guard;
     }

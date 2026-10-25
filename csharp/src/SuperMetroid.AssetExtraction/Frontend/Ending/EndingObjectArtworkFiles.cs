@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -62,10 +63,10 @@ public static class EndingObjectArtworkFiles
             EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
             EndingObjectArtworkFormat.PostCreditsFragmentBByteCount);
         Export(EndingObjectArtworkFormat.PostShotLogoTileFileName,
-            EndingPostShotDefinitions.LogoTiles,
+            EndingSourceDefinitions.Artwork.PostShotLogoTiles,
             EndingObjectArtworkFormat.PostShotLogoTileByteCount);
         ExportMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
-            EndingPostShotDefinitions.LogoMap,
+            EndingSourceDefinitions.Artwork.PostShotLogoMap,
             EndingObjectArtworkFormat.PostShotLogoMapByteCount);
 
         var cloudFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);

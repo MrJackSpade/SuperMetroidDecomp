@@ -90,7 +90,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
                     block.CollisionType,
                     "Wrecked Ship hand installs special-block collision");
                 AssertEqual(
-                    ChozoStatuePlmRomData.WreckedShipHandBts.Value,
+                    ChozoStatueRoomDefinitions.WreckedShipHandBts.Value,
                     block.Bts.Value,
                     "Wrecked Ship hand installs native BTS");
             }

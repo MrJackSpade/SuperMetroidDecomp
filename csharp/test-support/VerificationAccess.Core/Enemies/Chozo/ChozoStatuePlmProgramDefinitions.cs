@@ -127,7 +127,7 @@ internal static class ChozoStatuePlmProgramDefinitions
                     2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid,
                     4 => RestoreLoweredAcid,
                     6 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-                    8 => ChozoStatuePlmRomDataConstants.WaitForLowerNorfairHand,
+                    8 => ChozoStatuePlmNativeRoutines.WaitForLowerNorfairHand,
                     10 => (ushort)RoomPlmInstruction.Sleep,
                     14 => (ushort)RoomPlmInstruction.SetLoweredAcidHeight,
                     16 => 1,

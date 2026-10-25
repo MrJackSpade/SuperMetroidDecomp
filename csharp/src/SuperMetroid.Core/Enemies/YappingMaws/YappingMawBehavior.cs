@@ -208,8 +208,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Native BMI skips the assignment for a shorter target. Inflating a short
         // distance instead makes the mouth overshoot the position it aimed at.
-        if (state.DistanceToSamus >= YappingMawRomData.MaximumTargetDistance)
-            state.DistanceToSamus = YappingMawRomData.MaximumTargetDistance;
+        if (state.DistanceToSamus >= YappingMawAttackGeometry.MaximumTargetDistance)
+            state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
 
         state.AimAngle = bearing;
         state.Function = YappingMawAiFunction.BeginExtension;
@@ -238,7 +238,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        state.HeldSamusOffset = YappingMawRomData.HeldSamusOffset(direction);
+        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(direction);
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
     }
 
@@ -498,7 +498,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         int directionIndex)
     {
-        state.HeldSamusOffset = YappingMawRomData.HeldSamusOffset(directionIndex);
+        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(directionIndex);
     }
 
     /// <summary>Publishes the attack sound only when this Maw is visible.</summary>

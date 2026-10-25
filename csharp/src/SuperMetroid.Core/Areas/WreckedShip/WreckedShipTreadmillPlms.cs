@@ -50,8 +50,8 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         };
 
         int origin = level.GetBlockIndex(
-            new(WreckedShipTreadmillPlmRomData.BlockX, WreckedShipTreadmillPlmRomData.BlockY));
-        EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillPlmRomData.BlockCount);
+            new(WreckedShipTreadmillBlockDefinitions.BlockX, WreckedShipTreadmillBlockDefinitions.BlockY));
+        EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
 
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
@@ -64,10 +64,10 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             areaBossDefeated);
 
         // Setup $84:B04A writes exact level words and deliberately leaves BTS alone.
-        for (int offset = 0; offset < WreckedShipTreadmillPlmRomData.BlockCount; offset++)
+        for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
             int blockIndex = origin + offset;
-            level.SetForegroundEntry(blockIndex, WreckedShipTreadmillPlmRomData.BlankAirWord);
+            level.SetForegroundEntry(blockIndex, WreckedShipTreadmillBlockDefinitions.BlankAirWord);
         }
         return true;
     }
@@ -107,20 +107,20 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             EnsureHorizontalRangeFits(
                 level,
                 slot.BlockIndex,
-                WreckedShipTreadmillPlmRomData.BlockCount);
+                WreckedShipTreadmillBlockDefinitions.BlockCount);
             byte bts = state.Direction == WreckedShipTreadmillDirection.Rightwards
-                ? WreckedShipTreadmillPlmRomData.RightwardsBehavior
-                : WreckedShipTreadmillPlmRomData.LeftwardsBehavior;
+                ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
+                : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior;
 
             // Instructions $AD43/$AD58 call the shared raw row writer. The level word's
             // low twelve bits stay $0FF, so the visual block definition is unchanged;
             // only collision type three and direction BTS become active.
-            for (int offset = 0; offset < WreckedShipTreadmillPlmRomData.BlockCount; offset++)
+            for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
             {
                 int blockIndex = slot.BlockIndex + offset;
                 level.SetForegroundEntry(
                     blockIndex,
-                    WreckedShipTreadmillPlmRomData.ActiveTreadmillWord);
+                    WreckedShipTreadmillBlockDefinitions.ActiveTreadmillWord);
                 level.SetBehavior(blockIndex, bts);
             }
         }

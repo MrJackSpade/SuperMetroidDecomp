@@ -253,7 +253,7 @@ internal sealed class BlockReactionPlms
         bool solidBlock)
     {
         Ensure.NotNull(level);
-        if (bts.Value == EscapeAnimalPlmRomData.ReactionBts)
+        if (bts.Value == EscapeAnimalWallDefinitions.ReactionBts)
             return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, blockIndex, projectileType);
         bool areaDependent = bts.UsesAreaReactionTable;
         if (areaDependent && !bts.IsAreaReactionIndex(8))

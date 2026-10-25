@@ -26,10 +26,11 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         // Hardcoded spawn cannot execute setup when every native PLM slot is occupied.
         if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
-        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalPlmRomData.OriginCollision);
+        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalWallDefinitions.OriginCollisionType,
+            EscapeAnimalWallDefinitions.ReactionBts);
         for (int row = 1; row <= 2; row++)
             PlmLevelWrites.WritePlmCollisionTypeAndBts(level, blockIndex + row * level.Size.X,
-                EscapeAnimalPlmRomData.ExtensionCollision);
+                EscapeAnimalWallDefinitions.ExtensionCollisionType, EscapeAnimalWallDefinitions.ExtensionBts);
     }
 
     /// <summary>
@@ -75,8 +76,10 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EscapeAnimalReaction));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.RestoreLevelWord = (ushort)((block.PackedWord.Raw & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
-        level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord.Raw & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
+        // The reaction keeps the wall's collision type and shows the reaction block; until its list runs, the block
+        // is deactivated, staying solid only when it was.
+        slot.RestoreLevelWord = block.PackedWord.WithVisualWord(EscapeAnimalWallDefinitions.ReactionVisualBlock);
+        level.SetForegroundEntry(blockIndex, slot.RestoreLevelWord.WithPlmDeactivation().Raw);
         return true;
     }
 }

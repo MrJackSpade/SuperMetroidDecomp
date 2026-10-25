@@ -1229,7 +1229,7 @@ internal static class LookupStream5Verification
         var state = new YappingMawEnemyState(slot) { DistanceToSamus = 32 };
         for (int direction = 0; direction < 8; direction++)
         {
-            var offset = YappingMawRomData.HeldSamusOffset(direction);
+            var offset = YappingMawAttackGeometry.HeldSamusOffset(direction);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)offset.X), "Native held X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)offset.Y), "Native held Y");
             set(state, direction);
@@ -1244,8 +1244,8 @@ internal static class LookupStream5Verification
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(-1), "Held direction lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(8), "Held direction upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawAttackGeometry.HeldSamusOffset(-1), "Held direction lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawAttackGeometry.HeldSamusOffset(8), "Held direction upper bound");
         Console.WriteLine("Yapping Maw offsets:16 native words, eight actual held callbacks,256 angle-quantized begin-extension writes and direction bounds pass.");
 
         void Check(int direction, string context)

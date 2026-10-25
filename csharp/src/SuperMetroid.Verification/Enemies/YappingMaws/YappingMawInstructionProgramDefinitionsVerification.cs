@@ -126,7 +126,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, Frame(samus));
             string context = $"Yapping Maw activation distance {activationDistance}";
             AssertEqual(attacks ? YappingMawAiFunction.BeginExtension : YappingMawAiFunction.WaitingForSamus, state.Function, $"{context} attack decision");
-            AssertEqual(attacks ? YappingMawRomData.MaximumTargetDistance : 300, state.DistanceToSamus, $"{context} target distance");
+            AssertEqual(attacks ? YappingMawAttackGeometry.MaximumTargetDistance : 300, state.DistanceToSamus, $"{context} target distance");
             if (!attacks)
                 continue;
 
@@ -140,7 +140,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         foreach ((int aim, int curl, bool mirrored, int direction) in new[] { new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(240, 80, false, 0), new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(200, 120, false, 6), new YappingMawInstructionProgramDefinitionsVerifyYappingMawTargetingCase(150, 170, true, 5) })
         {
             (_, RoomEnemySlot slot, YappingMawEnemyState state) = NewInitializedYappingMaw(301);
-            state.DistanceToSamus = YappingMawRomData.MaximumTargetDistance;
+            state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
             state.AimAngle = new SnesBearing(checked((byte)aim));
             YappingMawBehavior.BeginYappingMawExtension(slot, state);
             AssertEqual(SnesAngle.FromTableIndex(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");

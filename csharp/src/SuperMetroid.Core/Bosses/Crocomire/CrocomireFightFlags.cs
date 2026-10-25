@@ -1,28 +1,28 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's fight latches in body variable B. The cartridge sets, clears and tests each bit on
-/// its own, so the bits compose. The word's low nibble is a separate saturating hit count, kept apart
-/// as <see cref="CrocomireEnemyState.HitCount"/> and combined only by <see cref="CrocomireFightFlagBits"/>.
-/// The unused attack branches give some bits meanings that the retail fight never reaches.
+/// Crocomire's fight latches. The cartridge sets, clears and tests each one on its own, so they compose; it keeps
+/// them in body variable B above the mouth-hit count (<see cref="CrocomireEnemyState.HitCount"/>), and the values here
+/// are arbitrary bits (#1413). The unused attack branches give some latches meanings that the retail fight never
+/// reaches.
 /// </summary>
 [Flags]
-public enum CrocomireFightFlags : ushort
+public enum CrocomireFightFlags
 {
-    /// <summary>Bit $0100: makes the unused attack chooser at <c>$A4:891B</c> take the move-until-claw-contact branch.</summary>
-    UnusedPreferClawAttack = 0x0100,
-    /// <summary>Bit $0200: set when the unused attack sequence at <c>$A4:88D2</c> restarts the art.</summary>
-    UnusedAttackSequenceStarted = 0x0200,
-    /// <summary>Bit $0400: set while the unused claw-moving branch at <c>$A4:89A8</c> runs.</summary>
-    UnusedClawsMoving = 0x0400,
-    /// <summary>Bit $0800: a mouth hit is waiting for the fight AI to start a backward step.</summary>
-    DamageReactionPending = 0x0800,
-    /// <summary>Bit $1000: kept by the unused near-spike-wall charge's reset mask, but no shipped routine sets or tests it.</summary>
-    UnresolvedBit12 = 0x1000,
-    /// <summary>Bit $2000: set when the unused forward steps at <c>$A4:8940</c> run out.</summary>
-    UnusedForwardStepsDone = 0x2000,
-    /// <summary>Bit $4000: a claw touched Samus since the claw-contact branch last cleared it.</summary>
-    ClawTouchedSamus = 0x4000,
-    /// <summary>Bit $8000: Crocomire has woken and engaged Samus, or a power bomb restarted that engagement.</summary>
-    Engaged = 0x8000,
+    /// <summary>Makes the unused attack chooser at <c>$A4:891B</c> take the move-until-claw-contact branch.</summary>
+    UnusedPreferClawAttack = 1,
+    /// <summary>Set when the unused attack sequence at <c>$A4:88D2</c> restarts the art.</summary>
+    UnusedAttackSequenceStarted = 2,
+    /// <summary>Set while the unused claw-moving branch at <c>$A4:89A8</c> runs.</summary>
+    UnusedClawsMoving = 4,
+    /// <summary>A mouth hit is waiting for the fight AI to start a backward step.</summary>
+    DamageReactionPending = 8,
+    /// <summary>Kept by the unused near-spike-wall charge's reset mask, but no shipped routine sets or tests it.</summary>
+    UnusedKeptByChargeReset = 16,
+    /// <summary>Set when the unused forward steps at <c>$A4:8940</c> run out.</summary>
+    UnusedForwardStepsDone = 32,
+    /// <summary>A claw touched Samus since the claw-contact branch last cleared it.</summary>
+    ClawTouchedSamus = 64,
+    /// <summary>Crocomire has woken and engaged Samus, or a power bomb restarted that engagement.</summary>
+    Engaged = 128,
 }

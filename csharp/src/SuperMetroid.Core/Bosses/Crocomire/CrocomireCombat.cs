@@ -169,7 +169,7 @@ internal sealed class CrocomireCombat
                 // $B951 increments a temporary low-nibble value, then ORs it back into the
                 // flags word instead of replacing the nibble. Preserve that odd instruction
                 // sequence; changing it to an ordinary counter disagrees for several values.
-                state.HitCount |= CrocomireFightFlagBits.NextHitCount(state.HitCount);
+                state.HitCount |= CrocomireMouthHits.Next(state.HitCount);
                 return;
             }
 
@@ -354,7 +354,7 @@ internal sealed class CrocomireCombat
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
             state.StepCounter += stepCount;
-            int hitCount = CrocomireFightFlagBits.NextHitCount(state.HitCount);
+            int hitCount = CrocomireMouthHits.Next(state.HitCount);
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
             {
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
@@ -510,9 +510,9 @@ internal sealed class CrocomireCombat
 
         ushort impactX = projectile.Position.X.Whole;
         ushort impactY = projectile.Position.Y.Whole;
-        int nativeIndex = projectile.SlotIndex * 2;
+        bool evenSlot = projectile.SlotIndex % 2 == 0;
         projectile.Clear();
-        if ((nativeIndex & 2) == 0)
+        if (evenSlot)
             _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.BigDustCloud);
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;

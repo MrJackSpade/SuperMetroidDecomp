@@ -86,8 +86,8 @@ public enum CrocomireDeathPhase : ushort
     ClearWallAndOpenScrolls,
     /// <summary>Waits for the stable skeleton frame.</summary>
     WaitForStableSkeleton,
-    /// <summary>Native one-frame index-only state.</summary>
-    NativeOneFrameSpacer,
+    /// <summary>Waits one update, doing nothing but advancing the phase.</summary>
+    WaitOneUpdate,
     /// <summary>Publishes the miniboss bit and restores boss music.</summary>
     PublishDefeatAndRestoreMusic,
     /// <summary>Final live-room corpse state; intentionally inert.</summary>

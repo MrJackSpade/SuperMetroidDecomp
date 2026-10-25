@@ -63,7 +63,7 @@ internal static class EnemyEffectIsolationVerification
             {
                 baseline.Dissolve(); edited.Dissolve();
                 AssertCrocomireEffectMechanics(baseline, edited, "melt dissolve call " + call);
-                AssertEqual(call < calls, baseline.Effect.MeltingHdmaActive, "exact HDMA lifetime");
+                AssertEqual(call < calls, baseline.Effect.MeltingScrollActive, "exact HDMA lifetime");
                 AssertEqual(call == calls ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
                 AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), baseline.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,

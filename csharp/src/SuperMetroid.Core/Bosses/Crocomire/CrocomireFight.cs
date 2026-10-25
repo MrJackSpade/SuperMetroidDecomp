@@ -456,7 +456,7 @@ internal sealed class CrocomireFight
                 if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
                 {
                     state.FightFlags = (state.FightFlags & (CrocomireFightFlags.UnusedPreferClawAttack | CrocomireFightFlags.UnusedAttackSequenceStarted |
-                        CrocomireFightFlags.UnusedClawsMoving | CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.UnresolvedBit12)) |
+                        CrocomireFightFlags.UnusedClawsMoving | CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.UnusedKeptByChargeReset)) |
                         CrocomireFightFlags.Engaged | CrocomireFightFlags.UnusedForwardStepsDone;
                     state.StepCounter = 1;
                     state.ReactionTimer = 10;

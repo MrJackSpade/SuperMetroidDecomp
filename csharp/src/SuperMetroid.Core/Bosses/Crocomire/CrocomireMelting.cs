@@ -168,7 +168,7 @@ internal sealed class CrocomireMelting
     internal void BeginCrocomireMelting(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        death.MeltingHdmaActive = true;
+        death.MeltingScrollActive = true;
         int lineCount = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
         scrolls.Slice(0, lineCount).Fill(_bg2.CrocomireBg2Scroll.Y);
@@ -254,7 +254,7 @@ internal sealed class CrocomireMelting
     internal void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        death.MeltingHdmaActive = false;
+        death.MeltingScrollActive = false;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.NextMeltBand = 0;
     }

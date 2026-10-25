@@ -4,8 +4,11 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>Fixed hidden-wall rumble schedule from <c>$A4:98CA-$A4:9909</c>.</summary>
 internal static class CrocomireRumbleDefinitions
 {
-    /// <summary>$A4:9902-9909: sentinel words ending the hidden-wall waveform.</summary>
-    private const ushort EndMarker = 0x8080;
+    /// <summary>
+    /// $A4:9902-9909: the words ending the hidden-wall waveform, also the last oscillation's timing words: the same
+    /// both-bytes-128 word the terminator hands to the melt shake counter.
+    /// </summary>
+    private const ushort EndMarker = CrocomireBehavior.MeltShakeCounterAfterRumble;
     /// <summary>$A4:9867 installs this completed rumble cursor at the terminator.</summary>
     private const ushort CompletedCursor = 0x0080;
 

@@ -46,7 +46,7 @@ internal static class RetailCrocomireCaptureTests
             if (previousScroll != runtime.Enemies.CrocomireBehavior.Bg2.CrocomireBg2Scroll) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
             var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-            if (baseLayer.Bg2LineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive)
+            if (baseLayer.Bg2LineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
@@ -64,7 +64,7 @@ internal static class RetailCrocomireCaptureTests
                 samus.Position = samus.Position.WithWholeX(CrocomireCaptureFixture.ReturnSamusX);
             runtime.StepFrame(0);
             bool shouldMelt = boss.DeathSequenceIndex is CrocomireDeathPhase.DissolveFirstImage or CrocomireDeathPhase.DissolveSecondImage;
-            if ((death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive != shouldMelt)
+            if ((death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive != shouldMelt)
                 throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {(int)boss.DeathSequenceIndex:X2}.");
             bool changed = phases.Add(boss.DeathSequenceIndex);
             bool nonuniform = death.Bg2ScrollByScanline.Any(y => y != death.Bg2ScrollByScanline[0]);

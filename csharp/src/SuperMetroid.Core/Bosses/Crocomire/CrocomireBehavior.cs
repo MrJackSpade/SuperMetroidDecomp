@@ -254,7 +254,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable)
                     state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
-            case CrocomireDeathPhase.NativeOneFrameSpacer:
+            case CrocomireDeathPhase.WaitOneUpdate:
                 state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
                 return;
             case CrocomireDeathPhase.PublishDefeatAndRestoreMusic:

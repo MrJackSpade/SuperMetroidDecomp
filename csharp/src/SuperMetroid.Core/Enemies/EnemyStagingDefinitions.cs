@@ -1,30 +1,28 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Native addresses and sizes of the cartridge's two enemy staging surfaces in bank-$7E WRAM.</summary>
+/// <summary>
+/// The sizes of the enemies' two staging surfaces, the BG2 staging image and the corpse-rotting heap, and where in the
+/// heap Mother Brain's rot table and Dead Torizo's sand strips sit. Where the cartridge keeps the surfaces in work memory
+/// is the import's knowledge (#1412).
+/// </summary>
 [SnesEncodingOwner]
 internal static class EnemyStagingDefinitions
 {
-    /// <summary><c>$7E:2000</c> <c>EnemyBG2Tilemap</c>, the start of group A.</summary>
-    internal const int Bg2NativeAddress = 0x7e2000;
-
-    /// <summary>Group A spans <c>$7E:2000-$7E:2FFF</c>.</summary>
+    /// <summary>The bytes of the BG2 staging image.</summary>
     internal const int Bg2ByteCount = 0x1000;
 
-    /// <summary><c>$7E:9000</c>, the start of the corpse-rotting heap (group B).</summary>
-    internal const int RottingHeapNativeAddress = 0x7e9000;
-
-    /// <summary>Group B spans <c>$7E:9000-$7E:97FF</c>.</summary>
+    /// <summary>The bytes of the corpse-rotting heap.</summary>
     internal const int RottingHeapByteCount = 0x800;
 
-    /// <summary>Mother Brain's rot table at <c>$7E:9700</c>, as a heap offset.</summary>
+    /// <summary>Where Mother Brain's rot table starts in the heap.</summary>
     internal const int MotherBrainRotTableOffset = 0x700;
 
     /// <summary>Entries in Mother Brain's rot table.</summary>
     internal const int MotherBrainRotTableEntryCount = 48;
 
-    /// <summary>Dead Torizo's sand strips at <c>$7E:9500</c>, as a heap offset.</summary>
+    /// <summary>Where Dead Torizo's sand strips start in the heap.</summary>
     internal const int DeadTorizoSandOffset = 0x500;
 
-    /// <summary>The sand strips span <c>$7E:9500-$7E:973F</c>.</summary>
+    /// <summary>The bytes Dead Torizo's sand strips span.</summary>
     internal const int DeadTorizoSandByteCount = 0x240;
 }

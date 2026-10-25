@@ -1455,7 +1455,7 @@ internal static class LookupStream3Verification
             AssertEqual(row, rotRow.Row, "stream 3 corpse rot rows in row order");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), rotRow.ByteCount, "stream 3 native corpse rot row bytes");
             int nativeStaging = (int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
-            AssertEqual(nativeStaging, EnemyStagingDefinitions.RottingHeapNativeAddress + rotRow.RottingOffset, "stream 3 native corpse rot row source");
+            AssertEqual(nativeStaging, EnemySourceDefinitions.CorpseRottingHeap + rotRow.RottingOffset, "stream 3 native corpse rot row source");
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 rotRow.FirstCharacter * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
@@ -1514,7 +1514,7 @@ internal static class LookupStream3Verification
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
             {
                 int first = row * MotherBrainCorpseArtworkDefinitions.RowBytes;
-                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, EnemyStagingDefinitions.RottingHeapNativeAddress + first,
+                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + first,
                     MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
                 for (int offset = 0; offset < staged.Length; offset++)
                     AssertEqual(expectedTiles[first + offset], staged[offset], "stream 3 corpse row geometry");

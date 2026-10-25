@@ -61,6 +61,12 @@ internal static class EnemySourceDefinitions
     /// <summary>$A8:CCC1: the Work Robot's six four-colour, timed palette-cycle records (#1412).</summary>
     internal const int WorkRobotPaletteCycleRecords = 0xa8ccc1;
 
+    /// <summary>$7E:2000: the work-memory enemy BG2 staging image, whose corpse rows a rot upload may read (#1412).</summary>
+    internal const int EnemyBg2Staging = 0x7e2000;
+
+    /// <summary>$7E:9000: the work-memory corpse-rotting heap (#1412).</summary>
+    internal const int CorpseRottingHeap = 0x7e9000;
+
     /// <summary>$FFFE: the word an extended spritemap component starts with when it is a BG2 command stream (#1412).</summary>
     internal const ushort Bg2StreamMarker = 0xfffe;
 

@@ -1068,7 +1068,7 @@ internal static class LookupStream2Verification
 
         void Compare(byte[] bytes, string context)
         {
-            byte[] staged = corpseTiles.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress, bytes.Length, 0));
+            byte[] staged = corpseTiles.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging, bytes.Length, 0));
             for (int index = 0; index < bytes.Length; index++)
                 AssertEqual(bytes[index], staged[index], context);
         }

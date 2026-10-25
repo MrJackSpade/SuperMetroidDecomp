@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
@@ -230,11 +231,11 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>The <paramref name="length"/> staged corpse bytes from <paramref name="offset"/>.</summary>
     private static byte[] Staged(CorpseStaging staging, int offset, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress + offset, length, 0));
+        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging + offset, length, 0));
 
     /// <summary>The first <paramref name="length"/> bytes of the staged sand strips.</summary>
     private static byte[] Sand(CorpseStaging staging, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.RottingHeapNativeAddress + EnemyStagingDefinitions.DeadTorizoSandOffset, length, 0));
+        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.CorpseRottingHeap + EnemyStagingDefinitions.DeadTorizoSandOffset, length, 0));
 
     /// <summary>Renders the corpse hook's published frame as the OAM image it stands for.</summary>
     internal static OamBuffer DrawDeadTorizoCorpseFrame(InstalledEnemyArtwork artwork, Position16<RoomPixels> camera)

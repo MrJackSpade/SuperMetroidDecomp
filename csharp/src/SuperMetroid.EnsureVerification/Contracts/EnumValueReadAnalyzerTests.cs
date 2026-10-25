@@ -34,6 +34,11 @@ internal static class EnumValueReadAnalyzerTests
             "'System.Enum.ToObject(typeof(Draw), word)' reads the numeric value of 'Draw'" + Advice);
         Expect(Types + "class Dispatch { int Run(Draw draw) => System.Convert.ToInt32(draw); }",
             "'System.Convert.ToInt32(draw)' reads the numeric value of 'Draw'" + Advice);
+        // A reinterpretation is the same read as a cast, including into an enum-constrained type parameter.
+        Expect(Types + "class Dispatch { Draw Run(int word) => System.Runtime.CompilerServices.Unsafe.BitCast<int, Draw>(word); }",
+            "'System.Runtime.CompilerServices.Unsafe.BitCast<int, Draw>(word)' reads the numeric value of 'Draw'" + Advice);
+        Expect(Types + "class Words { T Run<T>(ushort word) where T : struct, System.Enum => System.Runtime.CompilerServices.Unsafe.BitCast<ushort, T>(word); }",
+            "reads the numeric value of 'T'" + Advice);
         // An enum value combined with an integral literal: a comparison and arithmetic.
         Expect(Types + "class Suits { bool Run(Items items) => (items & Items.Gravity) != 0; }",
             "'(items & Items.Gravity) != 0' reads the numeric value of 'Items'" + Advice);

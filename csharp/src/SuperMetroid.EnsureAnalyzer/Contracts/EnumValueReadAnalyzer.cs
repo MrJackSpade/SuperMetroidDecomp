@@ -88,6 +88,14 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
             Unconverted(invocation.Arguments[0].Value).Type is { } argument && IsEnum(argument))
         {
             Report(context, invocation.Syntax, $"'{invocation.Syntax}'", argument);
+            return;
+        }
+        // A reinterpretation between an enum and an integral type is the same read as a cast.
+        if (owner == "System.Runtime.CompilerServices.Unsafe" && method.Name is "BitCast" or "As" &&
+            method.TypeArguments.Length == 2 && method.TypeArguments[0] is { } source && method.TypeArguments[1] is { } target &&
+            (IsEnum(source) && IsIntegral(target) || IsIntegral(source) && IsEnum(target) || IsEnum(source) && IsEnum(target)))
+        {
+            Report(context, invocation.Syntax, $"'{invocation.Syntax}'", IsEnum(target) ? target : source);
         }
     }
 
@@ -119,8 +127,9 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
         return operand;
     }
 
-    /// <summary>Whether a type is an enum.</summary>
-    private static bool IsEnum(ITypeSymbol type) => type.TypeKind == TypeKind.Enum;
+    /// <summary>Whether a type is an enum, or a type parameter constrained to one.</summary>
+    private static bool IsEnum(ITypeSymbol type) => type.TypeKind == TypeKind.Enum ||
+        type is ITypeParameterSymbol parameter && parameter.ConstraintTypes.Any(constraint => constraint.SpecialType == SpecialType.System_Enum);
 
     /// <summary>Whether a type is a built-in integral type.</summary>
     private static bool IsIntegral(ITypeSymbol type) => type.SpecialType is SpecialType.System_Byte or SpecialType.System_SByte

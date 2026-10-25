@@ -125,7 +125,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
     {
         bool moved = false;
         object?[] arguments =
-            [segment, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+            [segment, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int step = 0; step < steps; step++)
         {
             MotherBrainRinkaDoorSpawnExpected before = new MotherBrainRinkaDoorSpawnExpected(segment.Position.X.Whole, segment.Position.Y.Whole);

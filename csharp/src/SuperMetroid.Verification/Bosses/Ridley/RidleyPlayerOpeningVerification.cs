@@ -70,7 +70,7 @@ internal static class RidleyPlayerOpeningVerification
             samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
             samus.Pose = (SamusPoseId)W(expected, 0xa1c); SamusPoseMetadata.RefreshCollisionRadii(samus);
             random = W(expected, 0x5e5);
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = (SnesButton)W(expected, 0x8b), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = (ControllerButton)W(expected, 0x8b), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
             string actual = $"{(ushort)(state ?? throw new InvalidOperationException("Verification requires state.")).Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", ComparedRidleyStateAddresses.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)

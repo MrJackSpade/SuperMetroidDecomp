@@ -24,8 +24,8 @@ internal static class IntroSamusDemoMovement
 
         RoomLevelData level,
         SamusState samus,
-        SnesButton heldInput,
-        SnesButton newlyPressedInput,
+        ControllerButton heldInput,
+        ControllerButton newlyPressedInput,
         int frameCounter,
         CartridgeRandom random)
     {

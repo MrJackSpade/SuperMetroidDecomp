@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusCrystalFlashState
 {
     /// <summary>The exact normal-game controller chord: Down + L + R + the Shot binding.</summary>
-    public const SnesButton RequiredInputWithoutShot = SnesButtons.CrystalFlashWithoutShot;
+    public const ControllerButton RequiredInputWithoutShot = ControllerButtons.CrystalFlashWithoutShot;
 
     /// <summary>Debugger-readable equivalent of the active bank-$90 movement-handler pointer.</summary>
     public CrystalFlashPhase Phase { get; private set; }
@@ -121,17 +121,17 @@ public sealed class SamusCrystalFlashState
     /// <exception cref="InvalidDataException">A controller word contains non-controller bits or the Crystal Flash pose no longer has native movement type $1B.</exception>
     public bool TryBegin(
         SamusState samus,
-        SnesButton controllerInput,
-        SnesButton shotBinding = SnesButton.X,
+        ControllerButton controllerInput,
+        ControllerButton shotBinding = ControllerButton.X,
         CrystalFlashInputCheck inputCheck = CrystalFlashInputCheck.Required)
     {
         Ensure.NotNull(samus);
 
         // `$90:D5AD-$D5B9` uses CMP, not a bit test. This deliberately rejects any extra
         // held button, including Jump, Dash, Select, or the opposite D-pad directions.
-        SnesButton heldButtons = controllerInput;
-        SnesButton shotButton = shotBinding;
-        SnesButton requiredInput = RequiredInputWithoutShot | shotButton;
+        ControllerButton heldButtons = controllerInput;
+        ControllerButton shotButton = shotBinding;
+        ControllerButton requiredInput = RequiredInputWithoutShot | shotButton;
         if (inputCheck != CrystalFlashInputCheck.Skipped && heldButtons != requiredInput)
             return false;
 

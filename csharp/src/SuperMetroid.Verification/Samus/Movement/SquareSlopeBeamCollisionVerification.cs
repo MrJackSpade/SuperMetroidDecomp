@@ -67,7 +67,7 @@ internal static class SquareSlopeBeamCollisionVerification
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 
-        runtime.StepFrame(SnesButton.X);
+        runtime.StepFrame(ControllerButton.X);
         for (int frame = 0; frame < 120; frame++)
         {
             runtime.StepFrame(0);

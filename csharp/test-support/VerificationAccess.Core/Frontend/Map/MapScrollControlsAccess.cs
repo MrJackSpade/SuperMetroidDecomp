@@ -8,7 +8,7 @@ internal static class MapScrollControlsAccess
     extension(MapScrollControls)
     {
         /// <summary>Controller buttons corresponding to all defined map scroll directions.</summary>
-        internal static SnesButton[] Buttons =>
+        internal static ControllerButton[] Buttons =>
             [.. Enumerable.Range(1, MapScrollControls.DirectionCount).Select(direction => MapScrollControls.ButtonFor((MapScrollDirection)direction))];
     }
 }

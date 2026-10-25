@@ -63,7 +63,7 @@ internal sealed class EnemyCollision
     /// <param name="onlyEnemyIndex">EnemyMain's current physical index, or null for a standalone whole-list audit.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         RoomLevelData? level = null,
         int? onlyEnemyIndex = null)
     {

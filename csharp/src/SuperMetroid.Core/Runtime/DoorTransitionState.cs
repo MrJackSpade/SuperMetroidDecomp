@@ -73,7 +73,7 @@ internal sealed class DoorTransitionState
     public void Step(
         SuperMetroidRuntime runtime,
         AudioQueues audio,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         IRoomLoadProgress loaderProgress,
         Action? publishSoundWaitAudio = null)
     {

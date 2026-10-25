@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class PauseGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Pausing"/>.</summary>
-    internal void DispatchPausing(SnesButton controllerInput)
+    internal void DispatchPausing(ControllerButton controllerInput)
     {
         // `$82:8CEF` owns the force-blank setup frame: pause tiles, base maps,
         // palette, inventory labels, and PPU bases are installed before state $0E.
@@ -34,7 +34,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedA"/>.</summary>
-    internal void DispatchPausedA(SnesButton controllerInput)
+    internal void DispatchPausedA(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.AdvanceScreenFadeIn();
@@ -46,7 +46,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedB"/>.</summary>
-    internal void DispatchPausedB(SnesButton controllerInput)
+    internal void DispatchPausedB(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedLayer3Plane);
@@ -72,7 +72,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingA"/>.</summary>
-    internal void DispatchUnpausingA(SnesButton controllerInput)
+    internal void DispatchUnpausingA(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedLayer3Plane);
@@ -83,7 +83,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingB"/>.</summary>
-    internal void DispatchUnpausingB(SnesButton controllerInput)
+    internal void DispatchUnpausingB(ControllerButton controllerInput)
     {
         // Native state $11 restores gameplay PPU state, BG2, beam tiles, palette,
         // hooks, HDMA, and animtiles under forced blank. Pause graphics live in a

@@ -40,7 +40,7 @@ internal static class GameplayMessageNoticesVerification
             // $85:84BA's two lag waits precede each ReadControllerInput; press on the read frame.
             for (int lag = 0; lag < GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames; lag++)
                 installed.Step(0);
-            installed.Step(SnesButton.Right);
+            installed.Step(ControllerButton.Right);
             AssertTrue(!yesSelected.SequenceEqual(installed.Tilemap),
                 $"installed gameplay-message notice {id} redraws its NO-selection row without cartridge reads");
             comparedWords += installed.Tilemap.Length;

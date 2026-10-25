@@ -105,9 +105,9 @@ internal static class PauseEquipmentRulesVerification
                 var pause = Create(samus);
                 EnterPauseEquipment(pause);
                 AssertEqual(new CursorBeforeRestore(category, item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "single owned upgrade selects its actual native menu entry");
-                pause.Step(0, SnesButton.A);
+                pause.Step(0, ControllerButton.A);
                 AssertEqual(default(PauseEquipmentBit), new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit off");
-                pause.Step(0, 0); pause.Step(0, SnesButton.A);
+                pause.Step(0, 0); pause.Step(0, ControllerButton.A);
                 AssertEqual(masks[item], new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit on");
                 AssertEqual(masks[item], new PauseEquipmentBit(samus.CollectedBeams, samus.CollectedItems), "menu toggle cannot change collection");
             }
@@ -129,7 +129,7 @@ internal static class PauseEquipmentRulesVerification
         var startAndA = Create(unpausing);
         EnterPauseEquipment(startAndA);
         AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Boots, 2), new CursorBeforeRestore(startAndA.SelectedCategory, startAndA.SelectedItem), "the Speed Booster is selected");
-        AssertTrue(startAndA.Step(SnesButton.Start, SnesButton.A), "Start unpauses");
+        AssertTrue(startAndA.Step(ControllerButton.Start, ControllerButton.A), "Start unpauses");
         AssertEqual(SamusEquipmentFlags.None, unpausing.EquippedItems, "the same frame's A still unequips the Speed Booster");
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             EquipmentSetTable + index * 2)).ToArray();
@@ -154,7 +154,7 @@ internal static class PauseEquipmentRulesVerification
             var samus = new SamusState { Health = (ushort)scenario.Health, MaxHealth = 99, ReserveEnergy = (ushort)scenario.Reserve,
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var pause = Create(samus); EnterPauseEquipment(pause);
-            pause.Step(0, SnesButton.Up); pause.Step(0, SnesButton.Down);
+            pause.Step(0, ControllerButton.Up); pause.Step(0, ControllerButton.Down);
             AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Reserves, 1), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");
             int health = scenario.Health, reserve = scenario.Reserve;
             for (int tick = 0; tick < scenario.Reserve && reserve != 0; tick++)
@@ -162,7 +162,7 @@ internal static class PauseEquipmentRulesVerification
                 health += nativeAmount;
                 if (health >= 99) { health = 99; reserve = 0; }
                 else reserve -= nativeAmount;
-                pause.Step(0, tick == 0 ? SnesButton.A : 0);
+                pause.Step(0, tick == 0 ? ControllerButton.A : 0);
                 AssertEqual(new PauseEquipmentRulesVerifyCompiledPauseEquipmentRulesCase(health, reserve), new PauseEquipmentRulesVerifyCompiledPauseEquipmentRulesCase(samus.Health, samus.ReserveEnergy), "real manual-transfer frames retain native rate and full-health reserve discard");
             }
         }
@@ -194,7 +194,7 @@ internal static class PauseEquipmentRulesVerification
     /// <paramref name="step"/> (default: the pause menu alone). Page input is accepted only once the
     /// transition completes, so fixtures wait for it rather than a fixed tick count.
     /// </summary>
-    internal static void ChangePausePage(PauseMenuState pause, SnesButton page, Action<SnesButton>? step = null)
+    internal static void ChangePausePage(PauseMenuState pause, ControllerButton page, Action<ControllerButton>? step = null)
     {
         step ??= input => pause.Step(input, input);
         step(page);
@@ -214,9 +214,9 @@ internal static class PauseEquipmentRulesVerification
     /// </summary>
     internal static void SelectPauseBoots(PauseMenuState pause)
     {
-        pause.Step(0, SnesButton.Right);
+        pause.Step(0, ControllerButton.Right);
         for (int step = 0; pause.SelectedCategory != PauseEquipmentCategory.Boots && step < 6; step++)
-            pause.Step(0, SnesButton.Down);
+            pause.Step(0, ControllerButton.Down);
         AssertEqual(PauseEquipmentCategory.Boots, pause.SelectedCategory, "fixture moves the equipment selector to Boots");
     }
 
@@ -227,14 +227,14 @@ internal static class PauseEquipmentRulesVerification
     internal static void SelectPauseBeams(PauseMenuState pause)
     {
         for (int step = 0; pause.SelectedCategory != PauseEquipmentCategory.Beams && step < 6; step++)
-            pause.Step(0, SnesButton.Down);
+            pause.Step(0, ControllerButton.Down);
         AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "fixture moves the equipment selector to the beams");
     }
 
     /// <summary>Presses R and steps until the equipment page is ready for input (#1266 cadence).</summary>
     internal static void EnterPauseEquipment(PauseMenuState pause)
     {
-        ChangePausePage(pause, SnesButton.R);
+        ChangePausePage(pause, ControllerButton.R);
         AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "fixture actually enters equipment screen");
     }
 }

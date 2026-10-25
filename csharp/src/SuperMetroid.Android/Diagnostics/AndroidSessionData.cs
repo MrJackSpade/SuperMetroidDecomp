@@ -96,7 +96,7 @@ internal sealed class AndroidSessionData : IDisposable
     public long Generation { get; private set; } = 1;
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
-    public void Record(SnesButton input) => recorder.RecordFrame(input);
+    public void Record(ControllerButton input) => recorder.RecordFrame(input);
     /// <summary>Atomically writes the live saves as JSON.</summary>
     public void PersistSave() => saveFile.Persist(Game.Saves);
     /// <summary>Flushes accepted input frames after a worker failure.</summary>

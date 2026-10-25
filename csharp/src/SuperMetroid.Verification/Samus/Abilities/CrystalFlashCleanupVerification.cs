@@ -73,7 +73,7 @@ internal static class CrystalFlashCleanupVerification
         ushort startingY = samus.Position.Y.Whole;
         runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
         AssertEqual(capacity - 1, samus.PowerBombs, "normal placement consumes one Power Bomb");
-        SnesButton chord = (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+        ControllerButton chord = (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X);
         int started = -1, finished = -1;
         bool bubble = false, drained = false;
         RoomEnemySlot? contactEnemy = null;
@@ -113,7 +113,7 @@ internal static class CrystalFlashCleanupVerification
             // Read the contact damage before stepping, not from a recycled slot.
             ushort contactDamage = testContact ? (contactEnemy ?? throw new InvalidOperationException("Verification requires contactEnemy.")).Definition.Damage : (ushort)0;
             // Once activated, challenge the inert input handler with movement/jump.
-            SnesButton input = active ? (SnesButton.Right | SnesButton.A) : chord;
+            ControllerButton input = active ? (ControllerButton.Right | ControllerButton.A) : chord;
             runtime.StepFrame(input);
             if (testContact)
             {
@@ -163,7 +163,7 @@ internal static class CrystalFlashCleanupVerification
         // global eight-frame cadence, shortening this particular body's lifetime by one.
         AssertEqual(249, visibleBodyFrames, "complete observed Crystal Flash body visibility duration");
         AssertEqual(34, visibleWindowFrames, "native Crystal Flash color window visibility duration");
-        for (int frame = 0; frame < 30; frame++) runtime.StepFrame(SnesButton.Right);
+        for (int frame = 0; frame < 30; frame++) runtime.StepFrame(ControllerButton.Right);
         AssertTrue(samus.Position.X.Whole > 512, "normal movement resumes after Crystal Flash");
         Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");
     }

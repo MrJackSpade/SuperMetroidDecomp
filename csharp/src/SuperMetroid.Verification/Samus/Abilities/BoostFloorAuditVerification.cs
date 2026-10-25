@@ -35,7 +35,7 @@ internal static class BoostFloorAuditVerification
         bool accelerated = false;
         for (int frame = 0; frame < 240; frame++)
         {
-            runtime.StepFrame((SnesButton.Right | runtime.Options.ControllerBindings.Dash));
+            runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Dash));
             accelerated |= samus.HorizontalSpeed.ExtraRunSpeed.Whole >= 4;
             if (samus.Position.X.Whole is >= 352 and < 416)
             {

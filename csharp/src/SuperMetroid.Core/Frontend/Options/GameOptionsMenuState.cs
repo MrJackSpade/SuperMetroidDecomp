@@ -158,10 +158,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     public bool FileSelectRequested { get; private set; }
 
     /// <summary>Advances one options-menu update using the raw held controller word.</summary>
-    public void Step(SnesButton controllerInput)
+    public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
-        SnesButton pressed = controller.NewlyPressed;
+        ControllerButton pressed = controller.NewlyPressed;
         // The selection missile is spawned by index one ($82:ECD3); the object handler
         // then runs after every index's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
@@ -284,16 +284,16 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Handles primary rows for language, subpages, start, and cancel.</summary>
-    private void StepPrimary(SnesButton pressed)
+    private void StepPrimary(ControllerButton pressed)
     {
-        if ((pressed & SnesButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != 0)
         {
             SelectedItem = SelectedItem == 0
                 ? GameOptionsDefinitions.Rows.PrimaryCount - 1
                 : SelectedItem - 1;
             QueueMoveSound();
         }
-        else if ((pressed & SnesButton.Down) != 0)
+        else if ((pressed & ControllerButton.Down) != 0)
         {
             SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.PrimaryCount - 1
                 ? 0
@@ -301,12 +301,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             QueueMoveSound();
         }
 
-        if ((pressed & SnesButton.B) != 0)
+        if ((pressed & ControllerButton.B) != 0)
         {
             Phase = GameOptionsPhase.FadeOutToFileSelect;
             return;
         }
-        if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
             return;
 
         QueueSelectSound();
@@ -341,9 +341,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Handles button swaps, reset and exit rows, and upper/lower page scrolling.</summary>
-    private void StepController(SnesButton pressed)
+    private void StepController(ControllerButton pressed)
     {
-        if ((pressed & SnesButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != 0)
         {
             QueueMoveSound();
             SelectedItem--;
@@ -358,7 +358,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             }
             return;
         }
-        if ((pressed & SnesButton.Down) != 0)
+        if ((pressed & ControllerButton.Down) != 0)
         {
             QueueMoveSound();
             SelectedItem++;
@@ -373,7 +373,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             }
             return;
         }
-        if (pressed == SnesButton.None)
+        if (pressed == ControllerButton.None)
             return;
 
         // Native queues the confirmation sound for any newly pressed word on this page,
@@ -384,8 +384,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         {
             for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
             {
-                SnesButton physicalButton = Input.ControllerBindings.AssignableButton(button);
-                if ((pressed & physicalButton) == SnesButton.None)
+                ControllerButton physicalButton = Input.ControllerBindings.AssignableButton(button);
+                if ((pressed & physicalButton) == ControllerButton.None)
                     continue;
                 ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, physicalButton);
                 ApplyControllerLabels();
@@ -395,7 +395,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             return;
         }
 
-        if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
             return;
         switch (kind)
         {
@@ -415,16 +415,16 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Handles icon-cancel and moonwalk toggles or returns to the primary page.</summary>
-    private void StepSpecial(SnesButton pressed)
+    private void StepSpecial(ControllerButton pressed)
     {
-        if ((pressed & SnesButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != 0)
         {
             SelectedItem = SelectedItem == 0
                 ? GameOptionsDefinitions.Rows.SpecialCount - 1
                 : SelectedItem - 1;
             QueueMoveSound();
         }
-        else if ((pressed & SnesButton.Down) != 0)
+        else if ((pressed & ControllerButton.Down) != 0)
         {
             SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.SpecialCount - 1
                 ? 0
@@ -432,13 +432,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             QueueMoveSound();
         }
 
-        if ((pressed & SnesButton.B) != 0)
+        if ((pressed & ControllerButton.B) != 0)
         {
             QueueSelectSound();
             BeginDissolveTo(GameOptionsPage.Primary);
             return;
         }
-        if ((pressed & (SnesButton.Start | SnesButton.Left | SnesButton.Right | SnesButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.Left | ControllerButton.Right | ControllerButton.A)) == 0)
             return;
 
         QueueSelectSound();

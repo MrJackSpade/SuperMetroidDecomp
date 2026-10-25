@@ -524,7 +524,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3); samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0xc000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-        runtime.Controller1.Latch(SnesButton.Left);
+        runtime.Controller1.Latch(ControllerButton.Left);
         // Original movie source 1616 -> 1617: release Left while rolling.
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "spring release retains native final displacement");
@@ -645,7 +645,7 @@ internal static class RidleyFullMovieVerification
         foreach (PauseScreenMode source in Enum.GetValues<PauseScreenMode>())
         {
             PauseScreenMode destination = source == PauseScreenMode.Map ? PauseScreenMode.Equipment : PauseScreenMode.Map;
-            menu.Step((source == PauseScreenMode.Map ? SnesButton.R : SnesButton.L), 0);
+            menu.Step((source == PauseScreenMode.Map ? ControllerButton.R : ControllerButton.L), 0);
             AssertEqual(source, menu.ScreenMode, "page-switch request retains source page");
             for (int update = 1; update <= 15; update++)
             {
@@ -689,7 +689,7 @@ internal static class RidleyFullMovieVerification
         samus.Presentation.LoadSuitPalette(samus, runtime.Player.Colours);
         Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
         for (int color = 192; color < 208; color++) runtime.Cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
-        runtime.StepFrame(SnesButton.Select);
+        runtime.StepFrame(ControllerButton.Select);
         AssertEqual(HudItem.SuperMissile, samus.SelectedHudItem, "selection enters Super Missiles without charge");
         AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
             "HUD handler restores all suit colors even when charge was zero");
@@ -1751,7 +1751,7 @@ internal static class RidleyFullMovieVerification
                     "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
-                game.Step(SnesButtons.FromRaw((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}"));
+                game.Step(ControllerButtons.FromRaw((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}"));
             }
         }
         AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");

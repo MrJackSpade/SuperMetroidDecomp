@@ -357,7 +357,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>Advances the opening cinematic by one gameplay update.</summary>
     /// <param name="controllerInput">The current raw controller-held word.</param>
-    public void Step(SnesButton controllerInput)
+    public void Step(ControllerButton controllerInput)
     {
         flashbackProjectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Cinematic);
         // Cinematic functions consume joypad1_newkeys, not the raw held word. Latching at
@@ -1048,7 +1048,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         SamusState samus = FlashbackSamus;
         RoomLevelData level = FlashbackLevel;
-        SnesButton demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
+        ControllerButton demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
 
         // Accepted NMI transfers the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding ROM graphics rather than

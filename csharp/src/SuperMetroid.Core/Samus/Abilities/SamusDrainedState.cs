@@ -108,11 +108,11 @@ public sealed class SamusDrainedState
     /// it after movement and immediately before animation, so a written timer of one is
     /// decremented and the selected art begins advancing in that same beta pass.
     /// </summary>
-    public bool StepGetUpHandler(SamusState samus, SnesButton newlyPressedInput)
+    public bool StepGetUpHandler(SamusState samus, ControllerButton newlyPressedInput)
     {
         Ensure.NotNull(samus);
-        SnesButton newlyPressed = newlyPressedInput;
-        if (!newlyPressed.HasAny(SnesButton.Up))
+        ControllerButton newlyPressed = newlyPressedInput;
+        if (!newlyPressed.HasAny(ControllerButton.Up))
             return false;
 
         if (GetUpHandler == DrainedGetUpHandler.AbleToStand &&

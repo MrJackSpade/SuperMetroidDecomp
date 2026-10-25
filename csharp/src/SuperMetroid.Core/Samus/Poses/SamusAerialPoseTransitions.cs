@@ -42,7 +42,7 @@ internal static class SamusAerialPoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        SnesButton controllerNewInput,
+        ControllerButton controllerNewInput,
         ISamusRoomPlms? plms = null)
     {
 
@@ -107,7 +107,7 @@ internal static class SamusAerialPoseTransitions
 
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
-        if ((controllerNewInput & SnesButton.X) != 0)
+        if ((controllerNewInput & ControllerButton.X) != 0)
             samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -835,7 +835,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     /// </summary>
     public static void ApplyOrdinaryJumpTransition(SamusState samus, 
         SamusPoseId targetPose,
-        SnesButton controllerNewInput = SnesButton.None)
+        ControllerButton controllerNewInput = ControllerButton.None)
     {
         bool verified =
             SamusPoseMetadata.IsStandingGroundTurnToJumpTransition(samus.Pose, targetPose) ||
@@ -905,7 +905,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         SamusAerialMovement.InitializeJump(samus);
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & SnesButton.X) != 0)
+            (controllerNewInput & ControllerButton.X) != 0)
         {
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
@@ -932,7 +932,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     /// <returns>True when the initializer began a shinespark windup instead.</returns>
     internal static bool InitializeInstalledNormalJumpPose(SamusState samus, 
         SamusMovementType previousMovementType,
-        SnesButton controllerNewInput)
+        ControllerButton controllerNewInput)
     {
         if (TryBeginShinesparkWindup(samus, samus.Pose, previousMovementType))
             return true;
@@ -943,10 +943,10 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
 
     /// <summary>Publishes $91:F5CF-F5E6 after an accepted normal-jump pose initializer.</summary>
-    internal static void PublishNormalJumpPoseShotDirection(SamusState samus, SnesButton controllerNewInput)
+    internal static void PublishNormalJumpPoseShotDirection(SamusState samus, ControllerButton controllerNewInput)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & SnesButton.X) != 0)
+            (controllerNewInput & ControllerButton.X) != 0)
             samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
     }
 

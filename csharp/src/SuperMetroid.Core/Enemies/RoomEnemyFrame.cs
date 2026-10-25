@@ -22,13 +22,13 @@ public sealed record RoomEnemyFrame
     public SamusState? Samus { get; init; } = null;
 
     /// <summary>Raw SNES button-edge mask for this update, distinct from held buttons.</summary>
-    public SnesButton NewlyPressedControllerInput { get; init; } = 0;
+    public ControllerButton NewlyPressedControllerInput { get; init; } = 0;
 
     /// <summary>Room terrain and collision data required by terrain-dependent actors.</summary>
     public RoomLevelData? Level { get; init; } = null;
 
     /// <summary>Raw held SNES controller-button mask for this update.</summary>
-    public SnesButton ControllerInput { get; init; } = 0;
+    public ControllerButton ControllerInput { get; init; } = 0;
 
     /// <summary>Player shot system used by enemy collision and custom touch paths.</summary>
     public SamusProjectileSystem? SamusProjectiles { get; init; } = null;

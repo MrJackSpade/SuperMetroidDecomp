@@ -127,7 +127,7 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(0x55aa, grapple.FlareOffset.X, "Presentation override is actually consumed");
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiring(empty, samus, SnesButton.X);
+                SamusGrappleMovement.StepFiring(empty, samus, ControllerButton.X);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
@@ -140,15 +140,15 @@ internal static class GrappleFiringDefinitionsVerification
         // Moving Draygon-held poses use controller-derived direction and a fixed six-
         // pixel correction. Only the four direction bits select the aim, so exercise all
         // sixteen combinations with the other buttons clear, all set, and mixed.
-        int directionBits = (int)(SnesButton.Left | SnesButton.Right | SnesButton.Up | SnesButton.Down);
+        int directionBits = (int)(ControllerButton.Left | ControllerButton.Right | ControllerButton.Up | ControllerButton.Down);
         var heldInputs = new List<int>();
         for (int combination = 0; combination < 16; combination++)
         {
             int bits = 0;
-            if ((combination & 1) != 0) bits |= (int)SnesButton.Left;
-            if ((combination & 2) != 0) bits |= (int)SnesButton.Right;
-            if ((combination & 4) != 0) bits |= (int)SnesButton.Up;
-            if ((combination & 8) != 0) bits |= (int)SnesButton.Down;
+            if ((combination & 1) != 0) bits |= (int)ControllerButton.Left;
+            if ((combination & 2) != 0) bits |= (int)ControllerButton.Right;
+            if ((combination & 4) != 0) bits |= (int)ControllerButton.Up;
+            if ((combination & 8) != 0) bits |= (int)ControllerButton.Down;
             foreach (int others in new[] { 0, 0xffff & ~directionBits, 0x5555 & ~directionBits })
                 heldInputs.Add(bits | others);
         }
@@ -157,12 +157,12 @@ internal static class GrappleFiringDefinitionsVerification
         {
             samus.Pose = left ? SamusPoseId.DraygonGrabbedMovingLeftPose : SamusPoseId.DraygonGrabbedMovingRightPose;
             samus.Position = samus.Position.WithWhole(new(512, 512));
-            bool outward = (input & (int)(left ? SnesButton.Left : SnesButton.Right)) != 0;
-            int direction = outward && (input & (int)SnesButton.Down) != 0 ? (left ? 6 : 3) :
-                outward && (input & (int)SnesButton.Up) != 0 ? (left ? 8 : 1) : (left ? 7 : 2);
+            bool outward = (input & (int)(left ? ControllerButton.Left : ControllerButton.Right)) != 0;
+            int direction = outward && (input & (int)ControllerButton.Down) != 0 ? (left ? 6 : 3) :
+                outward && (input & (int)ControllerButton.Up) != 0 ? (left ? 8 : 1) : (left ? 7 : 2);
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(samus, (SnesButton)input);
+            SamusGrappleMovement.BeginFiring(samus, (ControllerButton)input);
             AssertEqual((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction, grapple.FireDirection, "Held aim selection");
             AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.SignedRawValue, "Held launch X");
             AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.SignedRawValue, "Held launch Y");

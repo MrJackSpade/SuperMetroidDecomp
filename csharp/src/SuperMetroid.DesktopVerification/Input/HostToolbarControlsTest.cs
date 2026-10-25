@@ -32,7 +32,7 @@ internal static class HostToolbarControlsTest
                 throw new InvalidDataException("Toolbar items overlap after removing Press Start.");
         HostKeyboardInputSmokeTest.Run();
         var keyboard = new HostKeyboardInputState();
-        if (keyboard.BuildControllerWord(SnesButton.Start) != SnesButton.Start)
+        if (keyboard.BuildControllerWord(ControllerButton.Start) != ControllerButton.Start)
             throw new InvalidDataException("Polled gamepad Start was not preserved.");
         HostViewportLayoutSmokeTest.Run();
         Console.WriteLine("Production toolbar contains five expected buttons and no Press Start; layout, keyboard Enter and polled controller Start pass.");

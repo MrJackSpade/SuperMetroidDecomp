@@ -76,7 +76,7 @@ internal static class PauseMapAreaLabelsVerification
                 pause.BindFixtureArtwork(RetailPresentationFixture());
             }
             AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
-            pause.Step(SnesButton.R, 0); _ = pause.Render();
+            pause.Step(ControllerButton.R, 0); _ = pause.Render();
             AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
             pause.Step(0, 0); _ = pause.Render();
             AssertLabels(0, "map-to-equipment fade-out");
@@ -90,7 +90,7 @@ internal static class PauseMapAreaLabelsVerification
                 AssertTrue(frame < PausePageTransitionNativeLength, "equipment fade-in completes within its native length");
                 pause.Step(0, 0);
             }
-            pause.Step(SnesButton.L, 0);
+            pause.Step(ControllerButton.L, 0);
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
             _ = pause.Render();
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "map fade-in reached");

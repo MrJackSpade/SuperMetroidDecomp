@@ -29,7 +29,7 @@ internal static class GenericGamepadInput
     /// accepted. The extra aliases do not alter recordings: only the resulting SNES word is
     /// written to disk.
     /// </remarks>
-    public static SnesButton Map(
+    public static ControllerButton Map(
         GenericGamepadSnapshot snapshot,
         int axisDeadZone = DefaultAxisDeadZone,
         GenericGamepadFaceButtonLayout faceButtonLayout =
@@ -67,11 +67,11 @@ internal static class GenericGamepadInput
             down = snapshot.Stick.Y > axisDeadZone;
         }
 
-        SnesButton result = SnesButton.None;
-        if (left) result |= SnesButton.Left;
-        if (right) result |= SnesButton.Right;
-        if (up) result |= SnesButton.Up;
-        if (down) result |= SnesButton.Down;
+        ControllerButton result = ControllerButton.None;
+        if (left) result |= ControllerButton.Left;
+        if (right) result |= ControllerButton.Right;
+        if (up) result |= ControllerButton.Up;
+        if (down) result |= ControllerButton.Down;
 
         // WinMM button one occupies bit zero. Standard DirectInput pads number the diamond
         // by position (south/east/west/north), but the explicitly supported 0079:0011 SNES
@@ -79,28 +79,28 @@ internal static class GenericGamepadInput
         // ensures the game receives the same SNES word from either device; the
         // cartridge's separate options bindings still decide what those SNES buttons do.
         // The SNES buttons host face buttons 0 to 3 report.
-        SnesButton[] faceButtons =
+        ControllerButton[] faceButtons =
             faceButtonLayout switch
             {
                 GenericGamepadFaceButtonLayout.Positional =>
-                    [SnesButton.B, SnesButton.A, SnesButton.Y, SnesButton.X],
+                    [ControllerButton.B, ControllerButton.A, ControllerButton.Y, ControllerButton.X],
                 GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011 =>
-                    [SnesButton.X, SnesButton.A, SnesButton.B, SnesButton.Y],
+                    [ControllerButton.X, ControllerButton.A, ControllerButton.B, ControllerButton.Y],
                 _ => throw new ArgumentOutOfRangeException(nameof(faceButtonLayout)),
             };
         for (int faceButton = 0; faceButton < faceButtons.Length; faceButton++)
         {
             if (IsPressed(snapshot.Buttons, faceButton)) result |= faceButtons[faceButton];
         }
-        if (IsPressed(snapshot.Buttons, 4)) result |= SnesButton.L;
-        if (IsPressed(snapshot.Buttons, 5)) result |= SnesButton.R;
+        if (IsPressed(snapshot.Buttons, 4)) result |= ControllerButton.L;
+        if (IsPressed(snapshot.Buttons, 5)) result |= ControllerButton.R;
 
         // Eight-button pads normally use 7/8; generic ten-button SNES-style adapters often
         // use 9/10. Supporting both makes either device usable without a calibration dialog.
         if (IsPressed(snapshot.Buttons, 6) || IsPressed(snapshot.Buttons, 8))
-            result |= SnesButton.Select;
+            result |= ControllerButton.Select;
         if (IsPressed(snapshot.Buttons, 7) || IsPressed(snapshot.Buttons, 9))
-            result |= SnesButton.Start;
+            result |= ControllerButton.Start;
 
         return result;
     }

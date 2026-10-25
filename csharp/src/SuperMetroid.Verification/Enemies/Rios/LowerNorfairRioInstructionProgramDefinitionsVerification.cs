@@ -38,7 +38,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         foreach ((LowerNorfairRioProgram entry, int calls, bool visible, bool signal, string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, LowerNorfairRioEnemyState state) = NewLowerNorfairRioInstructionSystem(entry);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int call = 0; call < calls; call++)
             {
                 slot.InstructionTimer = WrappingCountdown.Start(1);

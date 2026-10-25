@@ -77,7 +77,7 @@ internal static class PauseEquipmentLabelsVerification
         var glitch = new PauseMenuState(new PauseMenuEntry { Samus = glitchSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EquipmentPage(glitch);
         SelectPauseBoots(glitch);
-        glitch.Step(0, (SnesButton.Left | SnesButton.A));
+        glitch.Step(0, (ControllerButton.Left | ControllerButton.A));
         glitch.BindFixtureArtwork(edited);
         byte[] glitchPage = glitch.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         int plasma = (document.Labels["Beam.Plasma"].Row * PauseEquipmentLabelDefinitions.TilemapColumns +

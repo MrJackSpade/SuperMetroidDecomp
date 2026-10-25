@@ -259,8 +259,8 @@ internal static class TitleGradientVerification
         }
         var nativeSkip = CreateTitlePresentationFixture();
         var installedSkip = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
-        nativeSkip.Step(SnesButton.Start);
-        installedSkip.Step(SnesButton.Start);
+        nativeSkip.Step(ControllerButton.Start);
+        installedSkip.Step(ControllerButton.Start);
         for (int frame = 0; frame < 18; frame++)
         {
             nativeSkip.Step(0);
@@ -501,7 +501,7 @@ internal static class TitleGradientVerification
     {
         var title = CreateTitlePresentationFixture(titleGradientPresentation: presentation,
             titlePalettePresentation: palette, titleGraphicsPresentation: graphics);
-        title.Step(SnesButton.Start);
+        title.Step(ControllerButton.Start);
         for (int frame = 0; frame < 16; frame++)
         {
             title.Step(0);

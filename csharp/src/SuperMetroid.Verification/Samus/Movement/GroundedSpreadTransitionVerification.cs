@@ -58,12 +58,12 @@ internal static class GroundedSpreadTransitionVerification
         SamusPresentation.InitializeAnimation(samus);
         for (int frame = 0; frame < 120; frame++)
         {
-            SnesButton input = runtime.Options.ControllerBindings.Shoot;
-            if (frame is >= 70 and < 110 and not 75) input |= SnesButton.Down;
+            ControllerButton input = runtime.Options.ControllerBindings.Shoot;
+            if (frame is >= 70 and < 110 and not 75) input |= ControllerButton.Down;
             if (frame == 100)
             {
                 if (scenario != 3) input |= runtime.Options.ControllerBindings.Jump;
-                if (scenario == 1) input &= ~SnesButton.Down;
+                if (scenario == 1) input &= ~ControllerButton.Down;
                 if (scenario == 2) input &= ~runtime.Options.ControllerBindings.Shoot;
             }
             runtime.StepFrame(input);

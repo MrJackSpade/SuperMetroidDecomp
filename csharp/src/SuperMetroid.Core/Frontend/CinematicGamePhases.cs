@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class CinematicGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.IntroCinematic"/>.</summary>
-    internal void DispatchIntroCinematic(SnesButton controllerInput)
+    internal void DispatchIntroCinematic(ControllerButton controllerInput)
     {
         session.ActiveIntro.Step(controllerInput);
         session.display.PublishIntro(session.ActiveIntro);
@@ -28,7 +28,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.WhitingOutFromTimeUp"/>.</summary>
-    internal void DispatchWhitingOutFromTimeUp(SnesButton controllerInput)
+    internal void DispatchWhitingOutFromTimeUp(ControllerButton controllerInput)
     {
         // `$82:8431` runs no gameplay: it fades the whitened frame to forced blank.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
@@ -37,7 +37,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.CeresGoesBoomWithSamus"/>.</summary>
-    internal void DispatchCeresGoesBoomWithSamus(SnesButton controllerInput)
+    internal void DispatchCeresGoesBoomWithSamus(ControllerButton controllerInput)
     {
         session.Runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
         CeresDestructionCinematicState fatalDestruction = session.ActiveCeresDestruction;
@@ -59,7 +59,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.CeresGoesBoom"/>.</summary>
-    internal void DispatchCeresGoesBoom(SnesButton controllerInput)
+    internal void DispatchCeresGoesBoom(ControllerButton controllerInput)
     {
         // Each update begins with an accepted NMI. A gameplay owner kept from Ceres
         // counts $05B5/$05B6 and latches input; without one the frontend counted it.

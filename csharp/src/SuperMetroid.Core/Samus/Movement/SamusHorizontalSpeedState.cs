@@ -194,11 +194,11 @@ public sealed class SamusHorizontalSpeedState
     [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
         SamusMovementType movementType,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         bool speedBoosterEquipped,
         bool liquidImpeded = false)
     {
-        const SnesButton dashButton = SnesButton.B;
+        const ControllerButton dashButton = ControllerButton.B;
         // `$90:9746-$9763` diverts a non-Gravity submerged body to the same no-acceleration
         // branch as releasing Dash. Existing momentum retains its numeric extra component;
         // without momentum, both words are cleared. This is not a multiplier or hard reset.
@@ -285,15 +285,15 @@ public sealed class SamusHorizontalSpeedState
     public bool TryAdvanceSpeedBoosterAnimationStage(
         SuperMetroid.Core.Compatibility.IFloorUpdateResidue? mode7Residue,
         SamusMovementType movementType,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         int animationFrameBuffer,
         ref ushort animationFrame,
         out ushort animationFrameTimer,
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
         animationFrameTimer = 0;
-        const SnesButton dashButton = SnesButton.B;
-        SnesButton heldButtons = controllerInput;
+        const ControllerButton dashButton = ControllerButton.B;
+        ControllerButton heldButtons = controllerInput;
         if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 

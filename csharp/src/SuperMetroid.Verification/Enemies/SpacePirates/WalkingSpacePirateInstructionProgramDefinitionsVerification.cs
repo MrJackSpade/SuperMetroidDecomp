@@ -120,7 +120,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             int frames)
         {
             object?[] arguments =
-                [slot, samus, null, Position16<RoomPixels>.Zero, SnesButton.None];
+                [slot, samus, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(arguments);
         }

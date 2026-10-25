@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="ControllerInput">The frame's controller input.</param>
 /// <param name="Camera">The destination camera's position.</param>
 [RoomScopeBoundary("A per-call input, built for one population load and never kept.")]
-internal sealed record EnemySpawnSurroundings(RoomLevelData? Level, SamusState? Samus, SnesButton ControllerInput, Position16<RoomPixels> Camera)
+internal sealed record EnemySpawnSurroundings(RoomLevelData? Level, SamusState? Samus, ControllerButton ControllerInput, Position16<RoomPixels> Camera)
 {
     /// <summary>The surroundings of a spawn outside a population load.</summary>
-    public static EnemySpawnSurroundings None { get; } = new(null, null, SnesButton.None, default);
+    public static EnemySpawnSurroundings None { get; } = new(null, null, ControllerButton.None, default);
 }

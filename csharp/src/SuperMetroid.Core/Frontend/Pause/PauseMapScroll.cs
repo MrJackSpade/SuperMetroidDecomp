@@ -26,19 +26,19 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
     };
 
     /// <summary>Arbitrates held arrows left-first, advances one map offset during each eight-update pulse, and reports pulse completion.</summary>
-    public bool Step(SnesButton heldInput, ref Position16<MapPixels> scroll)
+    public bool Step(ControllerButton heldInput, ref Position16<MapPixels> scroll)
     {
         bool left = CanScroll(MapScrollDirection.Left, scroll);
         bool right = CanScroll(MapScrollDirection.Right, scroll);
         bool up = CanScroll(MapScrollDirection.Up, scroll);
         bool down = CanScroll(MapScrollDirection.Down, scroll);
-        SnesButton held = heldInput;
+        ControllerButton held = heldInput;
         if (direction == MapScrollDirection.None)
         {
-            if (left && held.HasFlag(SnesButton.Left)) direction = MapScrollDirection.Left;
-            else if (right && held.HasFlag(SnesButton.Right)) direction = MapScrollDirection.Right;
-            else if (up && held.HasFlag(SnesButton.Up)) direction = MapScrollDirection.Up;
-            else if (down && held.HasFlag(SnesButton.Down)) direction = MapScrollDirection.Down;
+            if (left && held.HasFlag(ControllerButton.Left)) direction = MapScrollDirection.Left;
+            else if (right && held.HasFlag(ControllerButton.Right)) direction = MapScrollDirection.Right;
+            else if (up && held.HasFlag(ControllerButton.Up)) direction = MapScrollDirection.Up;
+            else if (down && held.HasFlag(ControllerButton.Down)) direction = MapScrollDirection.Down;
         }
         // Native explicitly cancels a downward step at its lower limit. Other directions
         // finish the accepted pulse even when their button has since been released.

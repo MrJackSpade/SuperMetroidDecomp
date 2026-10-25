@@ -44,19 +44,19 @@ internal static class RedTowerHeroVerification
             for (int frame = 0; frame < 120; frame++)
             {
                 runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 160));
-                runtime.StepFrame(SnesButton.Up);
+                runtime.StepFrame(ControllerButton.Up);
             }
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 450));
-            for (int frame = 0; frame < 120; frame++) runtime.StepFrame(SnesButton.Up);
+            for (int frame = 0; frame < 120; frame++) runtime.StepFrame(ControllerButton.Up);
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(new(7, 10)).CollisionType,
                 "Red Tower top target is still intact before firing");
             AssertEqual(587, samus.Position.Y.Whole, "Retail platform supports the launch position");
             int impact = -1, deleted = -1;
             for (int frame = 0; frame < 100; frame++)
             {
-                SnesButton input = frame == 0
-                    ? SnesButton.Up | runtime.Options.ControllerBindings.Shoot
-                    : SnesButton.Up;
+                ControllerButton input = frame == 0
+                    ? ControllerButton.Up | runtime.Options.ControllerBindings.Shoot
+                    : ControllerButton.Up;
                 if (followShot && frame > 0 && runtime.Projectiles.Slots[0].IsActive)
                     runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].Position.Y.Whole - 160)));
                 runtime.StepFrame(input);

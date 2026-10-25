@@ -72,8 +72,8 @@ internal static class PillarFirstEntryVerification
         var visiblePositions = new HashSet<MotherBrainRinkaDoorSpawnExpected>[] { new(), new() };
         for (int frame = 0; frame < 600; frame++)
         {
-            SnesButton input = SnesButton.Right;
-            if (frame % 20 is >= 3 and < 18) input |= SnesButton.A;
+            ControllerButton input = ControllerButton.Right;
+            if (frame % 20 is >= 3 and < 18) input |= ControllerButton.A;
             runtime.StepFrame(input);
             var heads = runtime.Enemies.SlotTable.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();

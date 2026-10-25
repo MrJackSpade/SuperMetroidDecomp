@@ -121,7 +121,7 @@ internal sealed class SamusFramePhases
         }
         else if (!_freeze.TimeIsFrozen &&
                  (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.Overreads)) &&
-                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & SnesButton.X) != 0)
+                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & ControllerButton.X) != 0)
         {
             // Normal HUD item four now reaches the same bank-$9B actor as the
             // diagnostic entry point, after bank-$90's movement-type admission.
@@ -355,7 +355,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                (_controller1.Current & SnesButton.B) != 0 &&
+                (_controller1.Current & ControllerButton.B) != 0 &&
                 TryBeginXrayFromSelectedHudItem(gameState, room.BombProjectiles))
             {
                 frame.MarkXrayActivated();

@@ -25,21 +25,21 @@ internal static class PauseReserveManualVerification
         EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
         AssertEqual(PauseReserveEnergyDefinitions.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "A changes AUTO to MANUAL");
-        pause.Step(0, SnesButton.Down);
+        pause.Step(0, ControllerButton.Down);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "manual Down stays in tanks");
         AssertEqual(1, pause.SelectedItem, "manual Down selects transfer");
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         AssertEqual(21, samus.Health, "first manual transfer occurs on A call");
         AssertEqual(9, samus.ReserveEnergy, "first manual transfer consumes one reserve");
-        pause.Step(0, SnesButton.Down);
+        pause.Step(0, ControllerButton.Down);
         AssertEqual(22, samus.Health, "transfer precedes leaving reserve item");
         AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "Down leaves reserve item");
         for (int i = 0; i < 5; i++) pause.Step(0, 0);
         AssertEqual(22, samus.Health, "transfer pauses while another category owns input");
-        pause.Step(0, SnesButton.Up);
-        pause.Step(0, SnesButton.Down);
+        pause.Step(0, ControllerButton.Up);
+        pause.Step(0, ControllerButton.Down);
         AssertEqual(22, samus.Health, "selecting transfer does not dispatch it early");
         for (int i = 0; i < 8; i++)
         {
@@ -50,7 +50,7 @@ internal static class PauseReserveManualVerification
                 pause.ReadReserveSupplyDigit(2).Raw, "visible supply digit updates on transfer frame");
         }
         AssertEqual(0, pause.SelectedItem, "exhaustion returns to mode item");
-        pause.Step(0, SnesButton.A);
+        pause.Step(0, ControllerButton.A);
         AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode, "A restores AUTO");
         Suite(nameof(VerifyManualReserveSoundAndClamp), () => VerifyManualReserveSoundAndClamp());
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
@@ -66,15 +66,15 @@ internal static class PauseReserveManualVerification
             var audio = new AudioQueues();
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);
-            pause.Step(0, SnesButton.Up);
-            pause.Step(0, SnesButton.Down);
+            pause.Step(0, ControllerButton.Up);
+            pause.Step(0, ControllerButton.Down);
             audio.Reset();
             var positions = audio.SoundWritePositions;
             var queues = audio.SoundQueues;
             int count = startingHealth == 98 ? 1 : 10;
             for (int frame = 0; frame < count; frame++)
             {
-                pause.Step(0, frame == 0 ? SnesButton.A : 0);
+                pause.Step(0, frame == 0 ? ControllerButton.A : 0);
                 // The shared pause palette loop also uses library three. Count
                 // refill identities, not unrelated requests in the same ring.
                 int refills = Enumerable.Range(0, positions[2]).Count(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Library3, 0x2d));

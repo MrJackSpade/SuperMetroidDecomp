@@ -29,8 +29,8 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
     internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
     /// <summary>The assignable buttons whose glyphs the controller page shows, in native selector order: X, A, B, Select, Y, L, R.</summary>
-    public static IReadOnlyList<SnesButton> ControllerLabelButtons { get; } =
-        [SnesButton.X, SnesButton.A, SnesButton.B, SnesButton.Select, SnesButton.Y, SnesButton.L, SnesButton.R];
+    public static IReadOnlyList<ControllerButton> ControllerLabelButtons { get; } =
+        [ControllerButton.X, ControllerButton.A, ControllerButton.B, ControllerButton.Select, ControllerButton.Y, ControllerButton.L, ControllerButton.R];
     /// <summary>The two special settings, icon cancel then moonwalk.</summary>
     public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Enum.GetValues<GameOptionsToggle>();
     /// <summary>The missile cursor's looping animation frames.</summary>
@@ -85,16 +85,16 @@ public static class GameOptionsPresentationDefinitions
         (uint)frame < cursorSpriteNames.Length ? cursorSpriteNames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
-    public static string ControllerLabelName(SnesButton button) => button switch
+    public static string ControllerLabelName(ControllerButton button) => button switch
     {
-        SnesButton.X => "X",
-        SnesButton.A => "A",
-        SnesButton.B => "B",
-        SnesButton.Select => "Select",
-        SnesButton.Y => "Y",
-        SnesButton.L => "L",
-        SnesButton.R => "R",
-        SnesButton.None or SnesButton.Right or SnesButton.Left or SnesButton.Down or SnesButton.Up or SnesButton.Start =>
+        ControllerButton.X => "X",
+        ControllerButton.A => "A",
+        ControllerButton.B => "B",
+        ControllerButton.Select => "Select",
+        ControllerButton.Y => "Y",
+        ControllerButton.L => "L",
+        ControllerButton.R => "R",
+        ControllerButton.None or ControllerButton.Right or ControllerButton.Left or ControllerButton.Down or ControllerButton.Up or ControllerButton.Start =>
             throw new ArgumentOutOfRangeException(nameof(button), $"{button} is not an assignable button."),
         _ => throw new ArgumentOutOfRangeException(nameof(button)),
     };
@@ -110,7 +110,7 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>The assignable button a native selector names.</summary>
     /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
-    public static SnesButton ControllerLabelButton(int index) =>
+    public static ControllerButton ControllerLabelButton(int index) =>
         (uint)index < ControllerLabelButtons.Count ? ControllerLabelButtons[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
@@ -135,7 +135,7 @@ public static class GameOptionsPresentationDefinitions
     private const int ButtonAtlasRowStride = 16;
 
     /// <summary>Builds the native button glyph from its letter, atlas rows and geometric reflections.</summary>
-    internal static ushort ControllerLabelWord(SnesButton label, int cell)
+    internal static ushort ControllerLabelWord(ControllerButton label, int cell)
     {
         if ((uint)cell >= ControllerLabelCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / ControllerLabelWidth;
@@ -144,34 +144,34 @@ public static class GameOptionsPresentationDefinitions
         SnesTileFlipFlags flips = SnesTileFlipFlags.None;
         switch (label)
         {
-            case SnesButton.A:
-            case SnesButton.Y:
-                tile = column == 2 ? ButtonPaddingTile : (label == SnesButton.A ? AButtonTile : YButtonTile) + row * ButtonAtlasRowStride;
+            case ControllerButton.A:
+            case ControllerButton.Y:
+                tile = column == 2 ? ButtonPaddingTile : (label == ControllerButton.A ? AButtonTile : YButtonTile) + row * ButtonAtlasRowStride;
                 if (column == 1) flips = SnesTileFlipFlags.Horizontal;
                 break;
-            case SnesButton.X:
+            case ControllerButton.X:
                 tile = column == 2 ? ButtonPaddingTile : XButtonTile + (row ^ column) * ButtonAtlasRowStride;
                 if (column == 1) flips = SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical;
                 break;
-            case SnesButton.B:
+            case ControllerButton.B:
                 tile = column == 2 ? ButtonPaddingTile : BButtonTile + column + row * ButtonAtlasRowStride;
                 break;
-            case SnesButton.Select:
+            case ControllerButton.Select:
                 tile = SelectButtonTile + column + row * ButtonAtlasRowStride;
                 break;
-            case SnesButton.L:
-            case SnesButton.R:
-                tile = column == 1 ? (label == SnesButton.L ? LeftShoulderTile : RightShoulderTile) + row * ButtonAtlasRowStride : ShoulderCornerTile;
+            case ControllerButton.L:
+            case ControllerButton.R:
+                tile = column == 1 ? (label == ControllerButton.L ? LeftShoulderTile : RightShoulderTile) + row * ButtonAtlasRowStride : ShoulderCornerTile;
                 if (column != 1)
                     flips = (row == 1 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)
                         | (column == 2 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None);
                 break;
-            case SnesButton.None:
-            case SnesButton.Right:
-            case SnesButton.Left:
-            case SnesButton.Down:
-            case SnesButton.Up:
-            case SnesButton.Start:
+            case ControllerButton.None:
+            case ControllerButton.Right:
+            case ControllerButton.Left:
+            case ControllerButton.Down:
+            case ControllerButton.Up:
+            case ControllerButton.Start:
             default:
                 throw new ArgumentOutOfRangeException(nameof(label));
         }

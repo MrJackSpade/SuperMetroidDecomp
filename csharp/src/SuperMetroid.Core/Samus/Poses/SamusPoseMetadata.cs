@@ -666,7 +666,7 @@ internal static class SamusPoseMetadata
         RoomLevelData level,
         bool timeIsFrozen,
         int nmiFrameCounter,
-        SnesButton controllerNewInput,
+        ControllerButton controllerNewInput,
         ISamusRoomPlms? plms = null)
     {
 

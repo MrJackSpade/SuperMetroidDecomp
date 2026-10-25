@@ -45,33 +45,33 @@ internal static class FileSelectPresentationVerification
         var installed = new FileSelectMenuState(saveRam, installedAudio, original, MenuSheetFixtures.For(original));
         int comparedFrames = 0;
         Until(FileSelectPhase.Main);
-        for (int row = 0; row < 3; row++) Press(SnesButton.Down);
-        Press(SnesButton.A);
+        for (int row = 0; row < 3; row++) Press(ControllerButton.Down);
+        Press(ControllerButton.A);
         Until(FileSelectPhase.CopySelectSource);
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         AssertEqual(FileSelectPhase.CopySelectDestination, native.Phase,
             "copy source advances to destination");
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         AssertEqual(FileSelectPhase.CopyConfirm, native.Phase,
             "copy destination advances to confirmation");
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         AssertEqual(FileSelectPhase.CopyCompleted, native.Phase,
             "copy confirmation reaches completion");
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         Until(FileSelectPhase.Main);
-        for (int row = 0; row < 4; row++) Press(SnesButton.Down);
-        Press(SnesButton.A);
+        for (int row = 0; row < 4; row++) Press(ControllerButton.Down);
+        Press(ControllerButton.A);
         Until(FileSelectPhase.ClearSelectSlot);
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         AssertEqual(FileSelectPhase.ClearConfirm, native.Phase,
             "clear selection advances to confirmation");
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         AssertEqual(FileSelectPhase.ClearCompleted, native.Phase,
             "clear confirmation reaches completion");
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         Until(FileSelectPhase.Main);
-        Press(SnesButton.Down);
-        Press(SnesButton.A);
+        Press(ControllerButton.Down);
+        Press(ControllerButton.A);
         Until(FileSelectPhase.FadeOutToOptions, maximumFrames: 80);
         for (int frame = 0; frame < 16; frame++) Frame(0);
         AssertEqual(native.SelectedHelmetFrame, installed.SelectedHelmetFrame,
@@ -157,13 +157,13 @@ internal static class FileSelectPresentationVerification
             AssertEqual(expected, installed.Phase, $"installed file select reaches {expected}");
         }
 
-        void Press(SnesButton button)
+        void Press(ControllerButton button)
         {
             Frame(button);
             Frame(0);
         }
 
-        void Frame(SnesButton input)
+        void Frame(ControllerButton input)
         {
             AssertEqual(native.Phase, installed.Phase,
                 $"installed file-select phase matches frame {comparedFrames}");

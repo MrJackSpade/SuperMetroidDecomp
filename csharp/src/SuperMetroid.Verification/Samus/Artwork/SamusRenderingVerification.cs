@@ -866,13 +866,13 @@ internal static void VerifySamusHurtFlashPalette()
         ProjectileFlareCounter = 0x10,
     };
     SamusHurtFlashPalette.Update(
-        cgram.Samus.Suit, charging, SnesButton.X);
+        cgram.Samus.Suit, charging, ControllerButton.X);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
         "counter forty arms charging-beam recovery without an immediate sound");
     AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, charging.ResumeChargingBeamSound,
         "charging recovery publishes native flag one");
     AssertTrue(SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
-            charging, SnesButton.X),
+            charging, ControllerButton.X),
         "post-draw handler queues held charging sound");
     AssertEqual(ResumeChargingBeamSoundLatch.Clear, charging.ResumeChargingBeamSound,
         "post-draw handler clears charging recovery flag");

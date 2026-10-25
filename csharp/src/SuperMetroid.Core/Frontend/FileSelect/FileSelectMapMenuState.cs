@@ -67,7 +67,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets or the sprite sheets are absent.</exception>
     public FileSelectMapMenuState(AudioQueues audio,
-        SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null,
+        SuperMetroidSaveSlot slot, ControllerButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = Ensure.NotNull(audio);
@@ -131,7 +131,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 
     /// <summary>Advances one menu update, retaining input latching during entry and native ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
     /// <param name="input">Current held native controller-button word; edge interpretation is owned by navigation, not by rendering.</param>
-    public void Step(SnesButton input)
+    public void Step(ControllerButton input)
     {
         if (!entry.IsComplete)
         {

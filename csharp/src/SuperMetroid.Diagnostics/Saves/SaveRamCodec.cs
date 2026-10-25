@@ -385,22 +385,22 @@ public static class SaveRamCodec
     /// </summary>
     [ControllerWordBoundary("SRAM stores each binding as its controller word")]
     private static ControllerBindings ReadControllerBindings(ReadOnlySpan<byte> payload) => new(
-        Shoot: (SnesButton)ReadWord(payload, SaveRamLayout.ShootButtonOffset),
-        Jump: (SnesButton)ReadWord(payload, SaveRamLayout.JumpButtonOffset),
-        Dash: (SnesButton)ReadWord(payload, SaveRamLayout.DashButtonOffset),
-        ItemSelect: (SnesButton)ReadWord(payload, SaveRamLayout.SelectButtonOffset),
-        ItemCancel: (SnesButton)ReadWord(payload, SaveRamLayout.CancelButtonOffset),
-        AimUp: (SnesButton)ReadWord(payload, SaveRamLayout.AimUpButtonOffset),
-        AimDown: (SnesButton)ReadWord(payload, SaveRamLayout.AimDownButtonOffset));
+        Shoot: (ControllerButton)ReadWord(payload, SaveRamLayout.ShootButtonOffset),
+        Jump: (ControllerButton)ReadWord(payload, SaveRamLayout.JumpButtonOffset),
+        Dash: (ControllerButton)ReadWord(payload, SaveRamLayout.DashButtonOffset),
+        ItemSelect: (ControllerButton)ReadWord(payload, SaveRamLayout.SelectButtonOffset),
+        ItemCancel: (ControllerButton)ReadWord(payload, SaveRamLayout.CancelButtonOffset),
+        AimUp: (ControllerButton)ReadWord(payload, SaveRamLayout.AimUpButtonOffset),
+        AimDown: (ControllerButton)ReadWord(payload, SaveRamLayout.AimDownButtonOffset));
 
     /// <summary>The eleven controller words a slot stores: the four D-pad directions, then the bindings in WRAM order.</summary>
     [ControllerWordBoundary("SRAM stores the button configuration as controller words")]
     private static ushort[] ButtonConfigurationWords(ControllerBindings bindings) =>
     [
-        (ushort)SnesButton.Up,
-        (ushort)SnesButton.Down,
-        (ushort)SnesButton.Left,
-        (ushort)SnesButton.Right,
+        (ushort)ControllerButton.Up,
+        (ushort)ControllerButton.Down,
+        (ushort)ControllerButton.Left,
+        (ushort)ControllerButton.Right,
         (ushort)bindings.Shoot,
         (ushort)bindings.Jump,
         (ushort)bindings.Dash,

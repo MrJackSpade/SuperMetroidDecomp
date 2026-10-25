@@ -171,7 +171,7 @@ internal static class MapScreensVerification
         var changed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, edited, MenuSheetFixtures.For(edited));
         for (int tick = 0; tick < 104; tick++)
         {
-            SnesButton input = tick == 48 ? SnesButton.Start : 0;
+            ControllerButton input = tick == 48 ? ControllerButton.Start : 0;
             control.Step(input); changed.Step(input);
             AssertEqual(control.Phase, changed.Phase, "layout replacement never changes menu transition timing");
         }
@@ -182,7 +182,7 @@ internal static class MapScreensVerification
         AssertTrue(control.Render().SequenceEqual(changed.Render()), "whole restored menu rebinds current frame pixels");
         for (int tick = 0; tick < 80; tick++)
         {
-            SnesButton input = tick == 0 ? SnesButton.Start : 0;
+            ControllerButton input = tick == 0 ? ControllerButton.Start : 0;
             control.Step(input); changed.Step(input);
             AssertEqual(control.Phase, changed.Phase, "restored menu retains load phase");
             AssertEqual(control.LoadRequested, changed.LoadRequested, "restored menu retains load handoff timing");

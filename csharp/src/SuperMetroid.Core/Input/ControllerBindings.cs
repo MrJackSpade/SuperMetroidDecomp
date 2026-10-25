@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Input;
 /// canonical action bits without making every movement routine own a second binding table.
 /// </remarks>
 public readonly record struct ControllerBindings(
-    SnesButton Shoot,
-    SnesButton Jump,
-    SnesButton Dash,
-    SnesButton ItemSelect,
-    SnesButton ItemCancel,
-    SnesButton AimUp,
-    SnesButton AimDown)
+    ControllerButton Shoot,
+    ControllerButton Jump,
+    ControllerButton Dash,
+    ControllerButton ItemSelect,
+    ControllerButton ItemCancel,
+    ControllerButton AimUp,
+    ControllerButton AimDown)
 {
     /// <summary>The literal bindings installed by <c>NewSaveFile</c> at <c>$81:B2CB</c>.</summary>
     /// <remarks>
@@ -31,13 +31,13 @@ public readonly record struct ControllerBindings(
     /// action indexer already express that mapping without a stored lookup table.
     /// </remarks>
     public static ControllerBindings Default => new(
-        Shoot: SnesButton.X,
-        Jump: SnesButton.A,
-        Dash: SnesButton.B,
-        ItemSelect: SnesButton.Select,
-        ItemCancel: SnesButton.Y,
-        AimUp: SnesButton.R,
-        AimDown: SnesButton.L);
+        Shoot: ControllerButton.X,
+        Jump: ControllerButton.A,
+        Dash: ControllerButton.B,
+        ItemSelect: ControllerButton.Select,
+        ItemCancel: ControllerButton.Y,
+        AimUp: ControllerButton.R,
+        AimDown: ControllerButton.L);
 
     /// <summary>
     /// Number of physical buttons admitted by <c>GameOptions_ControllerSettings_SetBinding</c>.
@@ -60,15 +60,15 @@ public readonly record struct ControllerBindings(
     /// a named hardware button, so no numerical curve or stored span is needed.
     /// Only indices 0..6 are supported; throw ArgumentOutOfRangeException.
     /// </remarks>
-    public static SnesButton AssignableButton(int index) => index switch
+    public static ControllerButton AssignableButton(int index) => index switch
     {
-        0 => SnesButton.X,
-        1 => SnesButton.A,
-        2 => SnesButton.B,
-        3 => SnesButton.Select,
-        4 => SnesButton.Y,
-        5 => SnesButton.L,
-        6 => SnesButton.R,
+        0 => ControllerButton.X,
+        1 => ControllerButton.A,
+        2 => ControllerButton.B,
+        3 => ControllerButton.Select,
+        4 => ControllerButton.Y,
+        5 => ControllerButton.L,
+        6 => ControllerButton.R,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
@@ -76,26 +76,26 @@ public readonly record struct ControllerBindings(
     /// Inverse of <see cref="AssignableButton"/>; null for every other button set,
     /// including combinations of valid buttons, directions, Start, and zero.
     /// </summary>
-    public static int? AssignableButtonIndex(SnesButton button) => button switch
+    public static int? AssignableButtonIndex(ControllerButton button) => button switch
     {
-        SnesButton.X => 0,
-        SnesButton.A => 1,
-        SnesButton.B => 2,
-        SnesButton.Select => 3,
-        SnesButton.Y => 4,
-        SnesButton.L => 5,
-        SnesButton.R => 6,
-        SnesButton.None or
-            SnesButton.Right or
-            SnesButton.Left or
-            SnesButton.Down or
-            SnesButton.Up or
-            SnesButton.Start => null,
+        ControllerButton.X => 0,
+        ControllerButton.A => 1,
+        ControllerButton.B => 2,
+        ControllerButton.Select => 3,
+        ControllerButton.Y => 4,
+        ControllerButton.L => 5,
+        ControllerButton.R => 6,
+        ControllerButton.None or
+            ControllerButton.Right or
+            ControllerButton.Left or
+            ControllerButton.Down or
+            ControllerButton.Up or
+            ControllerButton.Start => null,
         _ => null,
     };
 
     /// <summary>Returns one action's button using the controller-menu row order.</summary>
-    public SnesButton this[int action]
+    public ControllerButton this[int action]
     {
         get => action switch
         {
@@ -115,7 +115,7 @@ public readonly record struct ControllerBindings(
     /// action moves that action's old button to whichever other action previously owned the
     /// requested button; the seven bindings therefore remain unique.
     /// </summary>
-    public ControllerBindings AssignAndSwap(int action, SnesButton physicalButton)
+    public ControllerBindings AssignAndSwap(int action, ControllerButton physicalButton)
     {
         if ((uint)action >= 7)
             throw new ArgumentOutOfRangeException(nameof(action));
@@ -125,7 +125,7 @@ public readonly record struct ControllerBindings(
                 nameof(physicalButton), physicalButton, "Button is not retail-assignable.");
         }
 
-        SnesButton displaced = this[action];
+        ControllerButton displaced = this[action];
         ControllerBindings result = WithAction(action, physicalButton);
         for (int other = 0; other < 7; other++)
         {
@@ -143,19 +143,19 @@ public readonly record struct ControllerBindings(
     /// Converts one physical SNES sample into the default action layout expected by the
     /// translated gameplay routines while preserving non-configurable directions and Start.
     /// </summary>
-    public SnesButton Normalize(SnesButton physicalInput)
+    public ControllerButton Normalize(ControllerButton physicalInput)
     {
-        const SnesButton fixedControls =
-            SnesButton.Up | SnesButton.Down | SnesButton.Left | SnesButton.Right |
-            SnesButton.Start;
-        SnesButton normalized = physicalInput & fixedControls;
-        normalized = Map(physicalInput, Shoot, SnesButton.X, normalized);
-        normalized = Map(physicalInput, Jump, SnesButton.A, normalized);
-        normalized = Map(physicalInput, Dash, SnesButton.B, normalized);
-        normalized = Map(physicalInput, ItemSelect, SnesButton.Select, normalized);
-        normalized = Map(physicalInput, ItemCancel, SnesButton.Y, normalized);
-        normalized = Map(physicalInput, AimUp, SnesButton.R, normalized);
-        normalized = Map(physicalInput, AimDown, SnesButton.L, normalized);
+        const ControllerButton fixedControls =
+            ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right |
+            ControllerButton.Start;
+        ControllerButton normalized = physicalInput & fixedControls;
+        normalized = Map(physicalInput, Shoot, ControllerButton.X, normalized);
+        normalized = Map(physicalInput, Jump, ControllerButton.A, normalized);
+        normalized = Map(physicalInput, Dash, ControllerButton.B, normalized);
+        normalized = Map(physicalInput, ItemSelect, ControllerButton.Select, normalized);
+        normalized = Map(physicalInput, ItemCancel, ControllerButton.Y, normalized);
+        normalized = Map(physicalInput, AimUp, ControllerButton.R, normalized);
+        normalized = Map(physicalInput, AimDown, ControllerButton.L, normalized);
         return normalized;
     }
 
@@ -164,10 +164,10 @@ public readonly record struct ControllerBindings(
     {
         get
         {
-            Span<SnesButton> seen = stackalloc SnesButton[7];
+            Span<ControllerButton> seen = stackalloc ControllerButton[7];
             for (int action = 0; action < 7; action++)
             {
-                SnesButton button = this[action];
+                ControllerButton button = this[action];
                 if (AssignableButtonIndex(button) is null || seen[..action].Contains(button))
                     return false;
                 seen[action] = button;
@@ -200,7 +200,7 @@ public readonly record struct ControllerBindings(
     }
 
     /// <summary>Replaces one menu-row action word while retaining the other six bindings.</summary>
-    private ControllerBindings WithAction(int action, SnesButton value) => action switch
+    private ControllerBindings WithAction(int action, ControllerButton value) => action switch
     {
         0 => this with { Shoot = value },
         1 => this with { Jump = value },
@@ -213,12 +213,12 @@ public readonly record struct ControllerBindings(
     };
 
     /// <summary>Sets a canonical action bit when its configured physical button is pressed in the sampled input.</summary>
-    private static SnesButton Map(
-        SnesButton physicalInput,
-        SnesButton physicalBinding,
-        SnesButton canonicalAction,
-        SnesButton normalized) =>
-        (physicalInput & physicalBinding) != SnesButton.None
+    private static ControllerButton Map(
+        ControllerButton physicalInput,
+        ControllerButton physicalBinding,
+        ControllerButton canonicalAction,
+        ControllerButton normalized) =>
+        (physicalInput & physicalBinding) != ControllerButton.None
             ? normalized | canonicalAction
             : normalized;
 }

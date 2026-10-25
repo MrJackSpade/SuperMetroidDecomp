@@ -280,7 +280,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
         SamusState? samus,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         if (samus is null)
             throw new InvalidOperationException("Horizontal-shutter AI requires Samus state.");
@@ -387,7 +387,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
         SamusState samus,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         HorizontalDirection direction)
     {
         bool samusLeftOfShutter = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
@@ -397,7 +397,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.MovingSamus)
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(velocity);
-            if ((controllerInput & (direction == HorizontalDirection.Left ? SnesButton.Right : SnesButton.Left)) != 0)
+            if ((controllerInput & (direction == HorizontalDirection.Left ? ControllerButton.Right : ControllerButton.Left)) != 0)
             {
                 var push = new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
                 samus.Kinematics.ExtraDisplacement = direction == HorizontalDirection.Left
@@ -450,18 +450,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void TouchHorizontalShutter(
         RoomEnemySlot slot,
         SamusState samus,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
         if (state.Function != HorizontalShutterFunction.PermanentNoOp)
             return;
 
         bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
-        if (samusIsLeft && (controllerInput & SnesButton.Right) != 0)
+        if (samusIsLeft && (controllerInput & ControllerButton.Right) != 0)
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-HorizontalShutterManualPushPixels).WithFractionY(0);
         }
-        else if (!samusIsLeft && (controllerInput & SnesButton.Left) != 0)
+        else if (!samusIsLeft && (controllerInput & ControllerButton.Left) != 0)
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(HorizontalShutterManualPushPixels).WithFractionY(0);
         }

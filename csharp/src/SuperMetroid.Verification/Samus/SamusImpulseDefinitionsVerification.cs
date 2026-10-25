@@ -56,7 +56,7 @@ internal static class SamusImpulseDefinitionsVerification
         for (int environment = 0; environment < 4; environment++)
         for (int equipment = 0; equipment < 8; equipment++)
         for (ushort side = 0; side <= 1; side++)
-        foreach (SnesButton input in new SnesButton[] { 0, SnesButton.Left, SnesButton.Right })
+        foreach (ControllerButton input in new ControllerButton[] { 0, ControllerButton.Left, ControllerButton.Right })
         {
             var hurt = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             SamusPoseMetadata.RefreshCollisionRadii(hurt);

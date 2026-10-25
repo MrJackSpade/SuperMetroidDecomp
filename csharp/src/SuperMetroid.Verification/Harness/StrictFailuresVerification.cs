@@ -13,13 +13,13 @@ internal static class StrictFailuresVerification
 internal static void VerifyStrictFailureBoundaries()
 {
     var duplicateBindings = new ControllerBindings(
-        Shoot: SnesButton.X,
-        Jump: SnesButton.X,
-        Dash: SnesButton.B,
-        ItemSelect: SnesButton.Select,
-        ItemCancel: SnesButton.Y,
-        AimUp: SnesButton.R,
-        AimDown: SnesButton.L);
+        Shoot: ControllerButton.X,
+        Jump: ControllerButton.X,
+        Dash: ControllerButton.B,
+        ItemSelect: ControllerButton.Select,
+        ItemCancel: ControllerButton.Y,
+        AimUp: ControllerButton.R,
+        AimDown: ControllerButton.L);
     AssertThrows<InvalidDataException>(
         () => duplicateBindings.RequireRetailPermutation(),
         "duplicate persisted controller binding is rejected");

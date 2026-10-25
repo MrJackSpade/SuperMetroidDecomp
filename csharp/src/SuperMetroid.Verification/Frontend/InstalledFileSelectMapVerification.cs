@@ -25,7 +25,7 @@ internal static class InstalledFileSelectMapVerification
         var installed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
 
         // One raster per side: the two captured renders are compared with each other.
-        void StepBoth(SnesButton input)
+        void StepBoth(ControllerButton input)
         {
             control.Step(input);
             installed.Step(input);
@@ -43,12 +43,12 @@ internal static class InstalledFileSelectMapVerification
         }
         for (int i = 0; i < 48; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "installed menu finishes entry");
-        StepBoth(SnesButton.Start);
+        StepBoth(ControllerButton.Start);
         for (int i = 0; i < 54; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Room, installed.Phase, "installed menu reaches room and recreates catalog scroll");
         ushort ScrollX(FileSelectMapMenuState menu) => (menu.Scroll).Scroll.X;
         ushort initialScrollX = ScrollX(installed);
-        for (int i = 0; i < 16; i++) StepBoth(SnesButton.Left);
+        for (int i = 0; i < 16; i++) StepBoth(ControllerButton.Left);
         AssertTrue(initialScrollX != ScrollX(installed), "installed menu test actually scrolls before saving");
 
         // Preserve a live, scrolled menu with its old delegate closure. The catalog
@@ -64,15 +64,15 @@ internal static class InstalledFileSelectMapVerification
         installed = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
         installed.BindFixtureArtwork(original);
         AssertTrue(control.Render().SequenceEqual(installed.Render()), "restored room map retains scrolled frame");
-        StepBoth(SnesButton.B);
+        StepBoth(ControllerButton.B);
         for (int i = 0; i < 60; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "restored menu returns to area");
-        StepBoth(SnesButton.Start);
+        StepBoth(ControllerButton.Start);
         for (int i = 0; i < 54; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Room, installed.Phase, "restored menu reenters room without map ROM access");
         if (verifyCapturedRendering)
         {
-            StepBoth(SnesButton.Start);
+            StepBoth(ControllerButton.Start);
             for (int tick = 0; tick < 128 && !installed.LoadRequested; tick++) StepBoth(0);
             AssertTrue(installed.LoadRequested, "ROM-free map reaches gameplay-load handoff after full fade");
             // Exercise the other exit from a fresh area view as well. The test
@@ -80,7 +80,7 @@ internal static class InstalledFileSelectMapVerification
             control = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
             installed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
             for (int tick = 0; tick < 48; tick++) StepBoth(0);
-            StepBoth(SnesButton.B);
+            StepBoth(ControllerButton.B);
             for (int tick = 0; tick < 32 && !installed.OptionsRequested; tick++) StepBoth(0);
             AssertTrue(installed.OptionsRequested, "ROM-free map reaches options handoff after full fade");
         }

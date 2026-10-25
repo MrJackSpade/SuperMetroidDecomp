@@ -93,7 +93,7 @@ internal sealed class InstalledGameSession : IDisposable
     public long Generation { get; private set; } = 1;
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
-    public void Record(SnesButton input) => recorder.RecordFrame(input);
+    public void Record(ControllerButton input) => recorder.RecordFrame(input);
     /// <summary>Flushes accepted input frames after a worker failure.</summary>
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 

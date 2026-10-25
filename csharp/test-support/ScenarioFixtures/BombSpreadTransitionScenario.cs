@@ -73,34 +73,34 @@ internal sealed class BombSpreadTransitionScenario
     }
 
     /// <summary>Controller word for <paramref name="frame"/>.</summary>
-    internal SnesButton Input(int frame)
+    internal ControllerButton Input(int frame)
     {
         var bindings = Runtime.Options.ControllerBindings;
-        SnesButton input = bindings.Shoot;
+        ControllerButton input = bindings.Shoot;
         if (!WallRoute)
         {
             if (frame is >= 70 and < 125) input |= bindings.Jump;
             if (frame >= 76 && frame < 105 && frame != 78 + Delay)
-                input |= SnesButton.Down;
-            if (frame is >= 78 and < 125) input |= (Left ? SnesButton.Right : SnesButton.Left);
+                input |= ControllerButton.Down;
+            if (frame is >= 78 and < 125) input |= (Left ? ControllerButton.Right : ControllerButton.Left);
             return input;
         }
         int morphDelay = TimingCase >= 12 ? 0 : Delay;
-        input = TimingCase == 12 || frame < 87 || frame >= 94 + morphDelay ? bindings.Shoot : SnesButton.None;
+        input = TimingCase == 12 || frame < 87 || frame >= 94 + morphDelay ? bindings.Shoot : ControllerButton.None;
         if (frame is >= 70 and < 86 or >= 89 and < 200) input |= bindings.Jump;
-        if (frame is >= 68 and < 87) input |= (Left ? SnesButton.Left : SnesButton.Right);
-        if (frame is >= 87 and < 140) input |= (Left ? SnesButton.Right : SnesButton.Left);
+        if (frame is >= 68 and < 87) input |= (Left ? ControllerButton.Left : ControllerButton.Right);
+        if (frame is >= 87 and < 140) input |= (Left ? ControllerButton.Right : ControllerButton.Left);
         if (TimingCase == 13 && frame == 93)
         {
-            input &= ~(SnesButton.Left | SnesButton.Right);
-            input |= (Left ? SnesButton.Left : SnesButton.Right);
+            input &= ~(ControllerButton.Left | ControllerButton.Right);
+            input |= (Left ? ControllerButton.Left : ControllerButton.Right);
         }
-        if (frame >= 94 + morphDelay && frame < 115 + morphDelay) input |= SnesButton.Down;
+        if (frame >= 94 + morphDelay && frame < 115 + morphDelay) input |= ControllerButton.Down;
         return input;
     }
 
     /// <summary>Samus row after <paramref name="frame"/> ran with <paramref name="input"/>.</summary>
-    internal string Row(int frame, SnesButton input) =>
+    internal string Row(int frame, ControllerButton input) =>
         $"{(Left ? 1 : 0)},{Delay},{frame},{input:X},{(int)Samus.Pose:X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.ProjectileFlareCounter:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.Room.LoadedScope.BombProjectiles.BombCounter:X4}";
 
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>

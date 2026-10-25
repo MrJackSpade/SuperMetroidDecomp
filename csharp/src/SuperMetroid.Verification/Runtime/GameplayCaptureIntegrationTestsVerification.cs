@@ -47,7 +47,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             && captured.Layers[3] is ScanlineColorAddRenderLayer, "base/Power Bomb/message/suit order");
         var retained = new DisplayPacket(new(1, 1, 0), captured);
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
-        runtime.MessageBox.Step(SnesButton.A);
+        runtime.MessageBox.Step(ControllerButton.A);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame();
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
@@ -68,7 +68,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
-            SnesButton input = tick % 47 == 0 ? SnesButton.Start : 0;
+            ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);
@@ -99,7 +99,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int tick = 0; tick < 180; tick++)
         {
             if (fadeFrames.ContainsKey(legacy.GameState)) fadeFrames[legacy.GameState]++;
-            SnesButton input = tick is 10 or >= 100 and <= 105 ? SnesButton.Start : 0;
+            ControllerButton input = tick is 10 or >= 100 and <= 105 ? ControllerButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);

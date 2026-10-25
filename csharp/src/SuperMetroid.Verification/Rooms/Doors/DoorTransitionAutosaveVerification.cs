@@ -85,7 +85,7 @@ internal static class DoorTransitionAutosaveVerification
             var actualPcm = new short[AudioSession.PcmSamplesPerFrame];
             for (int frame = 0; frame < 6; frame++)
             {
-                SnesButton input = frame < 3 ? SnesButton.Left : SnesButton.None;
+                ControllerButton input = frame < 3 ? ControllerButton.Left : ControllerButton.None;
                 game.Step(input);
                 game.CopyAudioFrame(expectedPcm);
                 loaded.Game.Step(input);

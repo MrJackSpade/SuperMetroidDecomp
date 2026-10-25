@@ -45,7 +45,7 @@ internal sealed class TorizoMovement
     /// the concrete definition here is equivalent and prevents an unrelated host area enum
     /// from becoming a second authority for actor identity.
     /// </summary>
-    internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, SnesButton controllerInput)
+    internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, ControllerButton controllerInput)
     {
         bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(torizo, isGolden)

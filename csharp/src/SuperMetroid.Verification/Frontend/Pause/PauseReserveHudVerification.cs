@@ -42,7 +42,7 @@ internal static class PauseReserveHudVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });
         EnterPauseEquipment(pause);
-        pause.Step(0, SnesButton.Up);
+        pause.Step(0, ControllerButton.Up);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         // Construct just the paused dispatcher boundary. Input, HUD updates, the NMI
         // latch and presentation below are real production calls, not a fake refill.
@@ -55,17 +55,17 @@ internal static class PauseReserveHudVerification
         ushort[] initialHud = pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.Columns, HudState.MutableTileCount).ToArray();
         ushort[] initialFx = pause.screen.Tilemaps.Bg3.Slice(Layer3Plane.HudRows * Layer3Plane.Columns, PauseClearedEffectWords).ToArray();
         long sequence = 0;
-        void Step(SnesButton input = SnesButton.None) => game.StepCaptured(input, ++sequence, 1);
-        Step(SnesButton.A);
+        void Step(ControllerButton input = ControllerButton.None) => game.StepCaptured(input, ++sequence, 1);
+        Step(ControllerButton.A);
         AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "paused A switches to manual");
         AssertEqual(originalAuto, Shown(8), "AUTO remains until next accepted NMI");
         Step();
         foreach (int index in new[] { 8, 9, 40, 41, 72, 73 })
             AssertEqual(0x2c0f, Shown(index), "manual clears all six visible AUTO cells");
-        Step(SnesButton.Down);
+        Step(ControllerButton.Down);
         var beforeRefill = pause.Render();
         ushort oldDigit = Shown(71);
-        Step(SnesButton.A);
+        Step(ControllerButton.A);
         AssertEqual(21, samus.Health, "manual refill starts in production paused dispatcher");
         AssertEqual(oldDigit, Shown(71), "health digit is not presented early");
         Step();
@@ -76,7 +76,7 @@ internal static class PauseReserveHudVerification
         var afterRefill = pause.Render();
         AssertTrue(Enumerable.Range(24, 8).Any(y => Enumerable.Range(48, 16).Any(x =>
             beforeRefill[y * 256 + x] != afterRefill[y * 256 + x])), "actual rendered health digits change during refill");
-        Step(SnesButton.A); Step();
+        Step(ControllerButton.A); Step();
         AssertTrue(!samus.HealthWarning.IsActive, "paused input does not invoke ordinary low-health beta check");
         foreach ((int index, int offset) in new[] { new VerifyPauseReserveHudCase(8, 0), new VerifyPauseReserveHudCase(9, 2), new VerifyPauseReserveHudCase(40, 4), new VerifyPauseReserveHudCase(41, 6), new VerifyPauseReserveHudCase(72, 8), new VerifyPauseReserveHudCase(73, 10) })
             AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), Shown(index), "empty AUTO uses native table");
@@ -87,7 +87,7 @@ internal static class PauseReserveHudVerification
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
         {
             samus.Health = (ushort)(31 + frame);
-            Step(SnesButton.Start);
+            Step(ControllerButton.Start);
         }
         AssertEqual(SuperMetroidGameState.UnpausingA, game.GameState, "Start begins fade after queueing HUD");
         AssertEqual(bus.ReadCartridgeWord((0x809dbf + (samus.Health - 1) % 10 * 2)), Shown(71), "last paused HUD write waits for the next accepted NMI");

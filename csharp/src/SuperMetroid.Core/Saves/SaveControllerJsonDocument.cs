@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="AimUp">Button assigned to upward diagonal aiming.</param>
 /// <param name="AimDown">Button assigned to downward diagonal aiming.</param>
 public sealed record SaveControllerJsonDocument(
-    SnesButton Shoot,
-    SnesButton Jump,
-    SnesButton Dash,
-    SnesButton ItemSelect,
-    SnesButton ItemCancel,
-    SnesButton AimUp,
-    SnesButton AimDown);
+    ControllerButton Shoot,
+    ControllerButton Jump,
+    ControllerButton Dash,
+    ControllerButton ItemSelect,
+    ControllerButton ItemCancel,
+    ControllerButton AimUp,
+    ControllerButton AimDown);

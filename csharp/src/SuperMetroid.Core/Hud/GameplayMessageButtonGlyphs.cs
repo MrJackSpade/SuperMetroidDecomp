@@ -8,28 +8,28 @@ namespace SuperMetroid.Core.Hud;
 public static class GameplayMessageButtonGlyphs
 {
     /// <summary>The glyph for <paramref name="binding"/>, testing A, B, X, Y, Select, L, R in that order; the first matching button wins even for a malformed multibit binding.</summary>
-    public static ushort ResolveGlyphWord(SnesButton binding) => binding switch
+    public static ushort ResolveGlyphWord(ControllerButton binding) => binding switch
     {
-        var bits when (bits & SnesButton.A) != 0 => Buttons.A,
-        var bits when (bits & SnesButton.B) != 0 => Buttons.B,
-        var bits when (bits & SnesButton.X) != 0 => Buttons.X,
-        var bits when (bits & SnesButton.Y) != 0 => Buttons.Y,
-        var bits when (bits & SnesButton.Select) != 0 => Buttons.Select,
-        var bits when (bits & SnesButton.L) != 0 => Buttons.L,
-        var bits when (bits & SnesButton.R) != 0 => Buttons.R,
-        SnesButton.None or
-            SnesButton.R or
-            SnesButton.L or
-            SnesButton.X or
-            SnesButton.A or
-            SnesButton.Right or
-            SnesButton.Left or
-            SnesButton.Down or
-            SnesButton.Up or
-            SnesButton.Start or
-            SnesButton.Select or
-            SnesButton.Y or
-            SnesButton.B => Buttons.UnknownGlyph.Raw,
+        var bits when (bits & ControllerButton.A) != 0 => Buttons.A,
+        var bits when (bits & ControllerButton.B) != 0 => Buttons.B,
+        var bits when (bits & ControllerButton.X) != 0 => Buttons.X,
+        var bits when (bits & ControllerButton.Y) != 0 => Buttons.Y,
+        var bits when (bits & ControllerButton.Select) != 0 => Buttons.Select,
+        var bits when (bits & ControllerButton.L) != 0 => Buttons.L,
+        var bits when (bits & ControllerButton.R) != 0 => Buttons.R,
+        ControllerButton.None or
+            ControllerButton.R or
+            ControllerButton.L or
+            ControllerButton.X or
+            ControllerButton.A or
+            ControllerButton.Right or
+            ControllerButton.Left or
+            ControllerButton.Down or
+            ControllerButton.Up or
+            ControllerButton.Start or
+            ControllerButton.Select or
+            ControllerButton.Y or
+            ControllerButton.B => Buttons.UnknownGlyph.Raw,
         _ => Buttons.UnknownGlyph.Raw,
     };
 

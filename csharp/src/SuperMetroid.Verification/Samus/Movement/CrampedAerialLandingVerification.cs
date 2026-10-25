@@ -64,7 +64,7 @@ internal static class CrampedAerialLandingVerification
 
             level,
             wasSpinning: true,
-            controllerInput: (SnesButton.Right | SnesButton.A),
+            controllerInput: (ControllerButton.Right | ControllerButton.A),
             nmiFrameCounter: 39440);
 
         AssertTrue(!installedLanding,

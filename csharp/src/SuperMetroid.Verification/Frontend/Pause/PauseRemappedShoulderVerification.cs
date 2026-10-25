@@ -22,14 +22,14 @@ internal static class PauseRemappedShoulderVerification
     /// </summary>
     internal static void VerifyPauseRemappedShoulder()
     {
-        foreach ((SnesButton held, bool opensEquipment) in new[] { new VerifyPauseRemappedShoulderCase(SnesButton.R, true), new VerifyPauseRemappedShoulderCase(SnesButton.L, false) })
+        foreach ((ControllerButton held, bool opensEquipment) in new[] { new VerifyPauseRemappedShoulderCase(ControllerButton.R, true), new VerifyPauseRemappedShoulderCase(ControllerButton.L, false) })
         {
             var random = new CartridgeRandom();
             var runtime = CreateRetailRuntimeFixture(random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.Options.ControllerBindings = ControllerBindings.Default with { AimUp = SnesButton.L, AimDown = SnesButton.R };
+            runtime.Options.ControllerBindings = ControllerBindings.Default with { AimUp = ControllerButton.L, AimDown = ControllerButton.R };
             SamusState samus = runtime.Player.IntroducedSamus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });

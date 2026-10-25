@@ -163,7 +163,7 @@ public sealed class SuperMetroidGame
 
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
-    public FrontendFrame Step(SnesButton controllerInput)
+    public FrontendFrame Step(ControllerButton controllerInput)
     {
         // Derive the door-owned native disable flag before any producer can queue
         // audio. This also restores its meaning for legacy snapshots without adding
@@ -469,7 +469,7 @@ public sealed class SuperMetroidGame
     /// supplies sequence/generation outside the saved game graph, so restoring game
     /// state must not rewind presentation identity. This is a staged migration API.
     /// </summary>
-    public CapturedFrontendFrame StepCaptured(SnesButton controllerInput, long hostSequence, long hostGeneration)
+    public CapturedFrontendFrame StepCaptured(ControllerButton controllerInput, long hostSequence, long hostGeneration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);

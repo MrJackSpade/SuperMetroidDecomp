@@ -31,7 +31,7 @@ internal static class PauseScreenPublicationVerification
         });
         for (int frame = 0; frame < 4; frame++) pause.Step(0, 0);
         AssertPublished(pause, "map page");
-        pause.Step(SnesButton.R, SnesButton.R);
+        pause.Step(ControllerButton.R, ControllerButton.R);
         while (pause.ScreenMode == PauseScreenMode.Map) pause.Step(0, 0);
         for (int frame = 0; frame < 4; frame++) pause.Step(0, 0);
         AssertPublished(pause, "equipment page");

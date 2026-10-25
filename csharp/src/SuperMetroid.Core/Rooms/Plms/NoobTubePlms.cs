@@ -45,7 +45,7 @@ internal sealed class NoobTubePlms
     }
 
     /// <summary>Runs either of the two callbacks that can own the sleeping tube actor.</summary>
-    internal void RunNoobTubePreInstruction(PlmSlot slot, NoobTubePlmPreInstruction preInstruction, SnesButton controllerNewInput)
+    internal void RunNoobTubePreInstruction(PlmSlot slot, NoobTubePlmPreInstruction preInstruction, ControllerButton controllerNewInput)
     {
         switch (preInstruction)
         {

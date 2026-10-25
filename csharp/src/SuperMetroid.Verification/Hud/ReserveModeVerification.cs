@@ -70,7 +70,7 @@ internal static class ReserveModeVerification
         reserve.Missiles = reserve.SuperMissiles = reserve.PowerBombs = 10;
         AssertTrue(reserve.CrystalFlash.TryBegin(
                 reserve,
-                (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X)),
+                (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X)),
             "Crystal Flash admits under Reserve Mode");
         AssertTrue(reserve.Xray.IsReserveMode,
             "Crystal Flash retains Reserve Mode HDMA ownership");

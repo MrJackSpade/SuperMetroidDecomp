@@ -20,11 +20,11 @@ internal static class MapScrollControlsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map-arrow controller masks and direction order")]
     internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
-        var buttons = new SnesButton[MapScrollControls.DirectionCount];
+        var buttons = new ControllerButton[MapScrollControls.DirectionCount];
         for (int index = 0; index < buttons.Length; index++)
         {
             int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * 10;
-            buttons[index] = (SnesButton)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6);
+            buttons[index] = (ControllerButton)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6);
             AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8), "compiled map direction order matches native records");
             AssertEqual(buttons[index], MapScrollControls.Buttons[index], "compiled map controller mask matches native record");
         }
@@ -35,7 +35,7 @@ internal static class MapScrollControlsVerification
         var map = catalog.Get(AreaId.Crateria);
         for (int combination = 0; combination < (1 << buttons.Length); combination++)
         {
-            SnesButton held = 0;
+            ControllerButton held = 0;
             for (int index = 0; index < buttons.Length; index++)
                 if ((combination & (1 << index)) != 0) held |= buttons[index];
             var native = new FileSelectMapScroll(map, system, new(240, 128));
@@ -44,7 +44,7 @@ internal static class MapScrollControlsVerification
             // input precedence, then releasing while an eight-tick step is pending.
             for (int tick = 0; tick < 280; tick++)
             {
-                SnesButton input = tick < 267 ? held : SnesButton.None;
+                ControllerButton input = tick < 267 ? held : ControllerButton.None;
                 AssertEqual(native.Step(input), compiled.Step(input), "compiled map scroll sound timing");
                 AssertEqual(new VerifyCompiledMapScrollControlsCase(native.Scroll, native.Direction),
                     new VerifyCompiledMapScrollControlsCase(compiled.Scroll, compiled.Direction), "compiled map scroll trajectory and direction");
@@ -52,7 +52,7 @@ internal static class MapScrollControlsVerification
         }
         for (int bit = 0; bit < 16; bit++)
         {
-            SnesButton input = (SnesButton)(1 << bit);
+            ControllerButton input = (ControllerButton)(1 << bit);
             if (buttons.Contains(input)) continue;
             var scroll = new FileSelectMapScroll(map, system, new(240, 128));
             AssertTrue(!scroll.Step(input), "unrelated controller bit does not queue map sound");

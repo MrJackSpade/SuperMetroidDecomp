@@ -159,9 +159,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
         /// <summary>Samus state visible to the wrapped main AI.</summary>
         public SamusState? Samus => frame.Samus;
         /// <summary>New input edges inherited from the current update.</summary>
-        public SnesButton NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
+        public ControllerButton NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
         /// <summary>Held controller word inherited from the current update.</summary>
-        public SnesButton ControllerInput => frame.ControllerInput;
+        public ControllerButton ControllerInput => frame.ControllerInput;
         /// <summary>Current room collision data visible to wrapped main AI.</summary>
         public RoomLevelData? Level => frame.Level;
         /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>

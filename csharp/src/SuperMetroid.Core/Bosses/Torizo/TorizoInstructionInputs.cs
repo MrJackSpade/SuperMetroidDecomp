@@ -16,7 +16,7 @@ internal readonly record struct TorizoInstructionInputs
     public required RoomLevelData? Level { get; init; }
 
     /// <summary>Controller input.</summary>
-    public required SnesButton ControllerInput { get; init; }
+    public required ControllerButton ControllerInput { get; init; }
 
     /// <summary>The low byte of the frame counter, from zero to 255. The attack choosers keep only bit 3 of their sum, so only its low four bits affect a choice.</summary>
     public required int FrameCounterLow { get; init; }

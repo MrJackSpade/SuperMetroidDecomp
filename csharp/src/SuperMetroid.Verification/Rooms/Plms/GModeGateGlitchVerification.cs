@@ -117,7 +117,7 @@ internal static class GModeGateGlitchVerification
                     $"frame {frame} X-Ray activation restores native subsystem words");
             }
 
-            SnesButton input = frame == 0 ? SnesButton.X : 0;
+            ControllerButton input = frame == 0 ? ControllerButton.X : 0;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
             shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
 

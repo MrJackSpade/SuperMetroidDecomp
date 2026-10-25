@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class AttractGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.TransitionToDemoA"/>, <see cref="SuperMetroidGameState.TransitionToDemoB"/>, <see cref="SuperMetroidGameState.PlayingDemo"/>, <see cref="SuperMetroidGameState.TransitionFromDemoA"/>, <see cref="SuperMetroidGameState.TransitionFromDemoB"/>.</summary>
-    internal void DispatchAttractDemo(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchAttractDemo(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         StepAttractDemo(controllerInput, gameplayAudio);
     }
 
     /// <summary>Advances demo loading, scripted gameplay, holds, cancellation, and title return.</summary>
-    private void StepAttractDemo(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    private void StepAttractDemo(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (session.GameState)
         {

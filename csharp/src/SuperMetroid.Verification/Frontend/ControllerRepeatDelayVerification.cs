@@ -13,22 +13,22 @@ internal static class ControllerRepeatDelayVerification
 internal static void VerifyRepeatAndHeldInputDelays()
 {
     var controller = new ControllerInputState();
-    controller.Latch(SnesButton.Left);
-    controller.Latch(SnesButton.Left);
+    controller.Latch(ControllerButton.Left);
+    controller.Latch(ControllerButton.Left);
     AssertEqual(ushort.MaxValue, controller.RepeatTimer.RawValue, "a zero repeat delay wraps the repeat countdown below zero");
-    AssertEqual(SnesButton.None, controller.NewlyPressedWithRepeat, "a wrapped repeat countdown does not pulse");
+    AssertEqual(ControllerButton.None, controller.NewlyPressedWithRepeat, "a wrapped repeat countdown does not pulse");
     AssertThrows<ArgumentOutOfRangeException>(() => controller.InitialRepeatDelay = ushort.MaxValue + 1,
         "a repeat delay past the countdown's range is rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => new ControllerInputState(subsequentRepeatDelay: -1),
         "a negative repeat delay is rejected");
 
     var system = new SuperMetroid.Core.Progression.Bank80SystemState();
-    system.UpdateHeldInput(0, SnesButton.Left, SnesButton.None);
-    AssertEqual(SnesButton.None, system.TimedHeldInput, "a held-input change restarts the delay");
-    system.UpdateHeldInput(0, SnesButton.Left, SnesButton.None);
-    AssertEqual(SnesButton.Left, system.TimedHeldInput, "a zero reload activates on the first stable update by wrapping below zero");
+    system.UpdateHeldInput(0, ControllerButton.Left, ControllerButton.None);
+    AssertEqual(ControllerButton.None, system.TimedHeldInput, "a held-input change restarts the delay");
+    system.UpdateHeldInput(0, ControllerButton.Left, ControllerButton.None);
+    AssertEqual(ControllerButton.Left, system.TimedHeldInput, "a zero reload activates on the first stable update by wrapping below zero");
     AssertEqual(0, system.TimedHeldInputTimer.RawValue, "the expired held-input countdown is pinned to zero");
-    AssertThrows<ArgumentOutOfRangeException>(() => system.UpdateHeldInput(ushort.MaxValue + 1, SnesButton.Left, SnesButton.None),
+    AssertThrows<ArgumentOutOfRangeException>(() => system.UpdateHeldInput(ushort.MaxValue + 1, ControllerButton.Left, ControllerButton.None),
         "a held-input reload past the countdown's range is rejected");
 }
 }

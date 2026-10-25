@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class GamePhase(
     SuperMetroidGameState state,
     MainLoopRandomCall randomCall,
-    Action<SnesButton, GameplayAudioFramePublication> step,
+    Action<ControllerButton, GameplayAudioFramePublication> step,
     Func<string> name,
     Func<bool>? resumesFrameWait = null,
     GamePhaseAudio audio = GamePhaseAudio.Ordinary) : IGamePhase
@@ -35,5 +35,5 @@ internal sealed class GamePhase(
     public bool ResumesFrameWait => resumesFrameWait?.Invoke() == true;
 
     /// <inheritdoc/>
-    public void Step(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio) => step(controllerInput, gameplayAudio);
+    public void Step(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio) => step(controllerInput, gameplayAudio);
 }

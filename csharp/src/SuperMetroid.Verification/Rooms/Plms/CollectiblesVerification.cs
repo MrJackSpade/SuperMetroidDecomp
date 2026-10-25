@@ -150,7 +150,7 @@ internal static class CollectiblesVerification
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
-            SnesButton.X, orb.Plms);
+            ControllerButton.X, orb.Plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
         orb.Plms.Step(orb.Level);
@@ -555,13 +555,13 @@ internal static class CollectiblesVerification
         // Held input cannot shorten the fanfare. The frame that decrements 1 -> 0 only
         // enters the input-wait coroutine; its next accepted NMI performs the read.
         for (int waitFrame = 0; waitFrame < 359; waitFrame++)
-            message.Step(SnesButton.X);
+            message.Step(ControllerButton.X);
         AssertEqual(1, message.MinimumDisplayFramesRemaining,
             "item message retains final mandatory wait frame");
-        message.Step(SnesButton.X);
+        message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "item message waits one NMI boundary before reading held input");
-        message.Step(SnesButton.X);
+        message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase,
             "retail held-input fix dismisses item message");
         AssertEqual(24, message.RadiusPixels, "the accepting frame also draws the first close step");
@@ -595,7 +595,7 @@ internal static class CollectiblesVerification
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(GameplayMessageIds.MissileTank, 0, shootBinding: SnesButton.B);
+        message.Begin(GameplayMessageIds.MissileTank, 0, shootBinding: ControllerButton.B);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(6, message.TilemapRowCount, "large item message has four content rows");
@@ -633,10 +633,10 @@ internal static class CollectiblesVerification
         AssertEqual(10, message.MinimumDisplayFramesRemaining,
             "map-station message uses native ten-frame completion wait");
         for (int waitFrame = 0; waitFrame < 10; waitFrame++)
-            message.Step(SnesButton.X);
+            message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "map-station message waits one NMI boundary before held input");
-        message.Step(SnesButton.X);
+        message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase,
             "map-station message accepts held input after ten frames");
         // Twelve more close steps, five restore frames, then the return.

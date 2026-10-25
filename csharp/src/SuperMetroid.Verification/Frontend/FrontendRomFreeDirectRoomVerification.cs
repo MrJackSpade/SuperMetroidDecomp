@@ -25,12 +25,12 @@ internal static class FrontendRomFreeDirectRoomVerification
         // Kraid's room, neutral and firing, then held Right+fire: the moving shot reaches the
         // arm's extended hitbox walker, which once read $A7:9127 from the cartridge.
         VerifyFrontendRomFreeDirectRoom(RoomHeaderDefinitions.Kraid, 900, 0);
-        VerifyFrontendRomFreeDirectRoom(RoomHeaderDefinitions.Kraid, 900, SnesButton.X);
-        VerifyFrontendRomFreeDirectRoom(RoomHeaderDefinitions.Kraid, 1500, (SnesButton.Right | SnesButton.X));
+        VerifyFrontendRomFreeDirectRoom(RoomHeaderDefinitions.Kraid, 900, ControllerButton.X);
+        VerifyFrontendRomFreeDirectRoom(RoomHeaderDefinitions.Kraid, 1500, (ControllerButton.Right | ControllerButton.X));
     }
 
     /// <summary>Runs native and cartridge-free game instances with the same direct room and held input.</summary>
-    private static void VerifyFrontendRomFreeDirectRoom(RoomHeaderDefinition room, int frameCount, SnesButton heldInput)
+    private static void VerifyFrontendRomFreeDirectRoom(RoomHeaderDefinition room, int frameCount, ControllerButton heldInput)
     {
         GameInstallation installation = RepositoryInstallation.Installation;
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath);

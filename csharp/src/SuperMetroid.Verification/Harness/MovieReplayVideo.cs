@@ -44,7 +44,7 @@ internal sealed class MovieReplayVideo : IDisposable
     internal void Attach(SuperMetroidGame game) => game.BindAudio(clips);
 
     /// <summary>Runs one production update and appends its picture and sound.</summary>
-    internal FrontendFrame Step(SuperMetroidGame game, SnesButton input)
+    internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input)
     {
         CapturedFrontendFrame captured = game.StepCaptured(input, ++sequence, 1);
         DisplayPacket snapshot = captured.Snapshot;

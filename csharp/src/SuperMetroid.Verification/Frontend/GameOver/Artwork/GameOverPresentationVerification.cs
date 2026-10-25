@@ -52,12 +52,12 @@ internal static class GameOverPresentationVerification
                 $"installed game-over frame {tick} matches cartridge pixels");
             comparedFrames++;
 
-            SnesButton input = 0;
+            ControllerButton input = 0;
             if (native.Phase == GameOverMenuPhase.Main && tick >= 500)
             {
                 if (!choseNo)
                 {
-                    input = SnesButton.Down;
+                    input = ControllerButton.Down;
                     choseNo = true;
                 }
                 else if (!released)
@@ -66,7 +66,7 @@ internal static class GameOverPresentationVerification
                 }
                 else
                 {
-                    input = SnesButton.A;
+                    input = ControllerButton.A;
                 }
             }
             native.Step(input);

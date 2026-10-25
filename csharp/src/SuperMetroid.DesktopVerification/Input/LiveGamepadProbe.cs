@@ -14,11 +14,11 @@ internal static class LiveGamepadProbe
         var caps = new WindowsGamepadInput.JoystickCapabilities { XMaximum = 65535, YMaximum = 65535 };
         var position = new WindowsGamepadInput.JoystickPosition();
         var snapshot = WindowsGamepadInput.CreateSnapshot(position, caps);
-        if (GenericGamepadInput.Map(snapshot) != SnesButton.None)
+        if (GenericGamepadInput.Map(snapshot) != ControllerButton.None)
             throw new InvalidDataException("Zero-axis controller emitted phantom directional input.");
         caps.AxisCount = 2;
         snapshot = WindowsGamepadInput.CreateSnapshot(position, caps);
-        if (GenericGamepadInput.Map(snapshot) != (SnesButton.Up | SnesButton.Left))
+        if (GenericGamepadInput.Map(snapshot) != (ControllerButton.Up | ControllerButton.Left))
             throw new InvalidDataException("Real zero-valued axes must retain their full up-left deflection.");
         Console.WriteLine("Missing-axis controls pass: absent axes neutral, present axes preserved.");
     }
@@ -33,7 +33,7 @@ internal static class LiveGamepadProbe
         Console.WriteLine("Live gamepad probe: milliseconds, device, normalized axes, POV, raw buttons, mapped SNES.");
         while (clock.Elapsed.TotalSeconds < seconds)
         {
-            SnesButton mapped = pad.Poll();
+            ControllerButton mapped = pad.Poll();
             var current = new GamepadReading(pad.DeviceName, pad.LastSnapshot, mapped);
             if (previous != current)
             {

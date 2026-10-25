@@ -28,9 +28,9 @@ internal static class InvalidBeamSelectionVerification
             var navigation = CreateRetailPauseFixture(new PauseMenuEntry { Samus = navigationSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
             EnterPauseEquipment(navigation);
             SelectPauseBoots(navigation);
-            for (int step = 0; step < boot; step++) navigation.Step(0, SnesButton.Down);
+            for (int step = 0; step < boot; step++) navigation.Step(0, ControllerButton.Down);
             AssertEqual(boot, navigation.SelectedItem, "each of the three Boots entries is reachable");
-            navigation.Step(0, (SnesButton.Left | SnesButton.A));
+            navigation.Step(0, (ControllerButton.Left | ControllerButton.A));
             AssertEqual(0x000c, navigationSamus.EquippedBeams.ToNativeWord(), $"simultaneous selection from boot {boot}");
         }
         for (int scenario = 0; scenario < 3; scenario++)
@@ -44,8 +44,8 @@ internal static class InvalidBeamSelectionVerification
         SelectPauseBoots(pause);
         AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");
         byte[] beforeVram = pause.ShownVram();
-        pause.Step(0, (scenario == 0 ? SnesButton.Left | SnesButton.A : SnesButton.Left));
-        if (scenario == 1) pause.Step(0, SnesButton.A);
+        pause.Step(0, (scenario == 0 ? ControllerButton.Left | ControllerButton.A : ControllerButton.Left));
+        if (scenario == 1) pause.Step(0, ControllerButton.A);
         AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
         AssertEqual(4, pause.SelectedItem, "same-frame Left+A selects Plasma");
         AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToNativeWord(),

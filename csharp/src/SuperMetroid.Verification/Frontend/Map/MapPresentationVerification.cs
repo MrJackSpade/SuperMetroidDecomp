@@ -1318,8 +1318,8 @@ internal static class MapPresentationVerification
         var editedSkip = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
-        stockSkip.Step(SnesButton.Start);
-        editedSkip.Step(SnesButton.Start);
+        stockSkip.Step(ControllerButton.Start);
+        editedSkip.Step(ControllerButton.Start);
         for (int frame = 0; frame < 18; frame++)
         {
             stockSkip.Step(0);
@@ -1378,8 +1378,8 @@ internal static class MapPresentationVerification
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
-        stockTitle.Step(SnesButton.Start);
-        editedTitle.Step(SnesButton.Start);
+        stockTitle.Step(ControllerButton.Start);
+        editedTitle.Step(ControllerButton.Start);
         for (int frame = 0; frame < 16; frame++)
         {
             stockTitle.Step(0);

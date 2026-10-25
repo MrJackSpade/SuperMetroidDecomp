@@ -100,7 +100,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MaridiaLargeSnailEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         if (samus is null)
             throw new InvalidOperationException("Maridia Large Snail AI requires the active Samus actor.");
@@ -388,7 +388,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private static void UpdateMaridiaLargeSnailInputStop(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         if (!state.SamusInPushingRange)
             return;
@@ -399,17 +399,17 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             stop = state.SamusIsLeft
                 ? state.MovingLeft &&
-                    (controllerInput & SnesButton.Right) != 0
+                    (controllerInput & ControllerButton.Right) != 0
                 : !state.MovingLeft &&
-                    (controllerInput & SnesButton.Left) != 0;
+                    (controllerInput & ControllerButton.Left) != 0;
         }
         else if (deltaX < 0)
         {
-            stop = (controllerInput & SnesButton.Right) != 0;
+            stop = (controllerInput & ControllerButton.Right) != 0;
         }
         else
         {
-            stop = (controllerInput & SnesButton.Left) != 0;
+            stop = (controllerInput & ControllerButton.Left) != 0;
         }
 
         if (!stop)

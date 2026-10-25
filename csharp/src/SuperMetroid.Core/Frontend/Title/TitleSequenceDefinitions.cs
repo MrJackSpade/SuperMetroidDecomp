@@ -130,7 +130,7 @@ public static class TitleSequenceDefinitions
         /// <summary>Updates per Baby Metroid animation phase.</summary>
         public const int BabyFrameDuration = 10;
         /// <summary>The buttons whose new presses skip the opening or leave the idle title screen.</summary>
-        public static SnesButton ConfirmButtons =>
-            SnesButton.B | SnesButton.Start | SnesButton.A;
+        public static ControllerButton ConfirmButtons =>
+            ControllerButton.B | ControllerButton.Start | ControllerButton.A;
     }
 }

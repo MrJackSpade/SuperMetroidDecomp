@@ -42,7 +42,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         int toMap = PausePageTransitionNativeLength + 1;
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
-            SnesButton input = frame == 0 ? SnesButton.R : frame == toMap ? SnesButton.L : 0;
+            ControllerButton input = frame == 0 ? ControllerButton.R : frame == toMap ? ControllerButton.L : 0;
             native.Step(input, input, frameCounterByte: (byte)frame);
             installed.Step(input, input, frameCounterByte: (byte)frame);
             AssertTrue(native.ShownVram().SequenceEqual(installed.ShownVram()),
@@ -135,7 +135,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, frameCounterByte: nmiFrame++));
+            byte nmiFrame = 0; ChangePausePage(pause, ControllerButton.R, input => pause.Step(input, input, frameCounterByte: nmiFrame++));
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment-base fixture enters equipment");
         }
         static int FirstDifference(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right)

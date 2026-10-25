@@ -38,7 +38,7 @@ public static class GitHubErrorReporterSmokeTest
                 FrameNumber: 42,
                 GameState: "$08 MainGameplay",
                 Phase: "Gameplay",
-                ControllerInput: SnesButton.A,
+                ControllerInput: ControllerButton.A,
                 Room: "Climb",
                 Door: "Flyway0",
                 InputRecordingPath: "fixture.smrec",
@@ -124,7 +124,7 @@ public static class GitHubErrorReporterSmokeTest
         Require(after.Contains("animationFrame=18;") && after.Contains("animationTimer=1;") &&
             after.Contains("drainedHandler=UnableToStand;") && after.Contains("pose=$09;") && after.Contains("fx=Acid;"),
             "Failed-frame snapshot omitted the reported invalid animation and its installed handler.");
-        string diagnostics = GameplayFrameFailureDiagnostics.Format(before, after, SnesButton.Up | SnesButton.A, "fixture.smrec", 70000);
+        string diagnostics = GameplayFrameFailureDiagnostics.Format(before, after, ControllerButton.Up | ControllerButton.A, "fixture.smrec", 70000);
         Require(diagnostics.Contains("Build:") && diagnostics.Contains("Core build ID:") &&
             diagnostics.Contains("Host build ID:") && diagnostics.Contains("Attempted input: $0880") &&
             diagnostics.Contains("zero-based): 70000") && diagnostics.Contains("fixture.smrec") &&

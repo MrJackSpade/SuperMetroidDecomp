@@ -35,7 +35,7 @@ internal static class FileSelectMapLoadTimingVerification
         var states = new List<SuperMetroidGameState>();
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
-            game.Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
+            game.Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
             states.Add(game.GameState);
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the continued save reaches gameplay");

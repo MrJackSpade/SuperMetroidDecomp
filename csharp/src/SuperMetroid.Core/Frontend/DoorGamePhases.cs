@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class DoorGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.HitDoorBlock"/>, <see cref="SuperMetroidGameState.LoadingNextRoomA"/>.</summary>
-    internal void DispatchDoorCollisionAndLoading(SnesButton controllerInput)
+    internal void DispatchDoorCollisionAndLoading(ControllerButton controllerInput)
     {
         if (session.GameState == SuperMetroidGameState.HitDoorBlock &&
             !StepHitDoorBlockFunction(controllerInput))
@@ -46,7 +46,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
                 maximumQueued: SoundQueueLimit.Max15, soundSuppressed: doorSoundsSuppressed);
         }
         // `$90:F48A` tests $8B against the shot binding; the action latch holds it as X.
-        else if ((session.GameplayRuntime.Controller1.Current & SnesButton.X) == 0 &&
+        else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == 0 &&
             session.GameplayRuntime.BeamCharge.FlareCounter < 16)
         {
             session.audio.QueueSound(Library1Sound.Silence,
@@ -63,7 +63,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingNextRoomB"/>.</summary>
-    internal void DispatchLoadingNextRoomB(SnesButton controllerInput)
+    internal void DispatchLoadingNextRoomB(ControllerButton controllerInput)
     {
         session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress,
             publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(session.GameplayRuntime));
@@ -110,7 +110,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     /// Runs this dispatch's state-$09 door function. Returns true when it sets carry, so
     /// state $0A runs in the same dispatch.
     /// </summary>
-    private bool StepHitDoorBlockFunction(SnesButton controllerInput)
+    private bool StepHitDoorBlockFunction(ControllerButton controllerInput)
     {
         if (!session.DownwardsElevator.Waiting)
         {

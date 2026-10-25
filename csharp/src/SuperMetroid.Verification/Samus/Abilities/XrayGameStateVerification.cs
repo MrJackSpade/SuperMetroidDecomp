@@ -47,7 +47,7 @@ internal static class XrayGameStateVerification
             game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(0);
-            game.Step(SnesButton.Select);
+            game.Step(ControllerButton.Select);
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "selecting X-ray stays in state eight");
             AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray");
             AssertTrue(!samus.Xray.IsActive, "selection alone does not activate X-ray");
@@ -57,7 +57,7 @@ internal static class XrayGameStateVerification
         var (game, runtime, samus) = CreateWithXraySelected();
         // State $0C: Start publishes the darkening state; the next dispatch runs gameplay.
         {
-            game.Step(SnesButton.Start);
+            game.Step(ControllerButton.Start);
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "Start begins pause darkening");
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "the held-Run frame is a darkening gameplay frame");

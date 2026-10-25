@@ -91,7 +91,7 @@ internal static class PauseMapArrowsVerification
         AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
         pause.MapScrollPosition = new Position16<MapPixels>(100, 70);
         pause.Step(0, 0); _ = pause.Render(); int stable = pause.LastRenderedSpriteCount;
-        pause.Step(SnesButton.R, 0); _ = pause.Render();
+        pause.Step(ControllerButton.R, 0); _ = pause.Render();
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");
         pause.Step(0, 0); _ = pause.Render();
         AssertEqual(stable - allArrowParts, pause.LastRenderedSpriteCount, "page-fade dispatcher does not draw map arrows");

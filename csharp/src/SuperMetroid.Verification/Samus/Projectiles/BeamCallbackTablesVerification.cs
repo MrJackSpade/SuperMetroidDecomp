@@ -53,7 +53,7 @@ internal static class BeamCallbackTablesVerification
             var shared = CreateBombFixture();
             if (initializeOnly)
             {
-                projectiles.Firing.TryFireBeam(room, samus, SnesButton.X, shared, null, charged);
+                projectiles.Firing.TryFireBeam(room, samus, ControllerButton.X, shared, null, charged);
                 AssertTrue(projectiles.Slots[0].Type != 0 || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual((SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated ?? throw new InvalidOperationException("Verification requires SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beam....")),
@@ -66,10 +66,10 @@ internal static class BeamCallbackTablesVerification
                 for (int frame = 0; frame < 60; frame++)
                 {
                     shared.StepFrame(new SamusTerrain { Level = room }, samus, 0, 0);
-                    projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), shared);
+                    projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = frame == 0 ? ControllerButton.X : 0 }, new(0, 0), shared);
                 }
             }
-            projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? 0 : SnesButton.X, ControllerNewInput = charged ? 0 : SnesButton.X }, new(0, 0), shared);
+            projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? 0 : ControllerButton.X, ControllerNewInput = charged ? 0 : ControllerButton.X }, new(0, 0), shared);
             AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the

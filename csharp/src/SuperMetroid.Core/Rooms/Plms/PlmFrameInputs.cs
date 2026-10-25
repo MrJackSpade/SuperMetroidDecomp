@@ -16,7 +16,7 @@ public readonly record struct PlmFrameInputs
     public required int EnemyDeathQuota { get; init; }
 
     /// <summary>Controller new input.</summary>
-    public required SnesButton ControllerNewInput { get; init; }
+    public required ControllerButton ControllerNewInput { get; init; }
 
     /// <summary>Collected items.</summary>
     public SuperMetroid.Core.Progression.SamusEquipmentFlags CollectedItems { get; init; }

@@ -39,7 +39,7 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "idle intro retains older metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "idle intro retains previous pose");
         AssertEqual(4, history.PreviousDirectionAndMovement, "idle intro retains previous metadata");
-        IntroSamusDemoMovement.StepGroundedLeft(room, samus, SnesButton.Left, SnesButton.Left, 1, random);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, ControllerButton.Left, ControllerButton.Left, 1, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro fixture starts running left");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, history.LastDifferentPose, "intro run transition shifts prior pose");
         AssertEqual(4, history.LastDifferentDirectionAndMovement, "intro run transition shifts prior metadata");
@@ -75,7 +75,7 @@ internal static class IntroPoseHistoryVerification
             bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
             intro.Render();
-            intro.Step(tick % 47 == 0 ? SnesButton.A : 0);
+            intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             SamusState? after = intro.CurrentFlashbackSamus;
             IntroBabyDiscoveryState? discovery = intro.CurrentBabyDiscovery;
             bool ended = demoEnabled && intro.CurrentFlashbackDemoInput?.Enabled == false;

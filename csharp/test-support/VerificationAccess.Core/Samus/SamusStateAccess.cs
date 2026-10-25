@@ -26,7 +26,7 @@ internal static class SamusStateAccess
             RoomLevelData level,
             SamusPoseId targetPose,
             int nmiFrameCounter,
-            SnesButton controllerNewInput,
+            ControllerButton controllerNewInput,
             RoomPlmSystem? plms = null)
         {
             if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))

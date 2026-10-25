@@ -884,10 +884,10 @@ internal static class LookupStream5Verification
     /// <summary>Checks map screen button prompts and tile choices against retail definitions.</summary>
     internal static void VerifyLookupStream5MapButtons(SuperMetroidAddressSpace rom)
     {
-        var native = new SnesButton[4];
+        var native = new ControllerButton[4];
         for (int i = 0; i < native.Length; i++)
         {
-            native[i] = (SnesButton)ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 6);
+            native[i] = (ControllerButton)ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 6);
             AssertEqual(i + 1, (int)ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 8), "Native direction identity");
             AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)(i + 1)), "Native directional mask");
             AssertEqual(native[i], MapScrollControls.Buttons[i], "Calculated ordered view");
@@ -904,7 +904,7 @@ internal static class LookupStream5Verification
             ushort startX = stock.Scroll.X, startY = stock.Scroll.Y;
             for (int tick = 1; tick <= 8; tick++)
             {
-                AssertEqual(tick == 8, stock.Step(tick == 1 ? native[selected] : SnesButton.None), "Stock sound boundary");
+                AssertEqual(tick == 8, stock.Step(tick == 1 ? native[selected] : ControllerButton.None), "Stock sound boundary");
                 int delta = tick >= 4 ? 8 : 0;
                 AssertEqual(unchecked((ushort)(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0))), stock.Scroll.X, "Horizontal pulse");
                 AssertEqual(unchecked((ushort)(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0))), stock.Scroll.Y, "Vertical pulse");

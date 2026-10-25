@@ -49,7 +49,7 @@ internal static class SpringBallFallingFallbackVerification
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         ushort x0 = samus.Position.X.Whole;
 
-        runtime.StepFrame(SnesButton.A);
+        runtime.StepFrame(ControllerButton.A);
         AssertEqual(SamusPoseId.SpringBallFallingRightPose, samus.Pose, "Jump alone keeps the falling Spring Ball pose");
         AssertEqual((ushort)(x0 + 2), samus.Position.X.Whole, "the frame's movement still uses the carried speed");
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "command six clears base speed");

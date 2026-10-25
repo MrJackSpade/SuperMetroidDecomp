@@ -32,7 +32,7 @@ public static class SamusKnockbackMovement
     internal static bool TryStartPendingHitInterruption(
 
         SamusState samus,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         bool timeIsFrozen,
         RoomLevelData? level = null,
         int nmiFrameCounter = 0,
@@ -69,7 +69,7 @@ public static class SamusKnockbackMovement
     /// True when the movement-type table installs the special knockback handler. False for
     /// native interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    internal static bool Start(SamusState samus, SnesButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int nmiFrameCounter = 0, ISamusRoomPlms? plms = null)
+    internal static bool Start(SamusState samus, ControllerButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int nmiFrameCounter = 0, ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(samus);
@@ -173,8 +173,8 @@ level, targetPose, nmiFrameCounter, plms))
         else
         {
             bool forwardHeld = facingLeft
-                ? (controllerInput & SnesButton.Left) != 0
-                : (controllerInput & SnesButton.Right) != 0;
+                ? (controllerInput & ControllerButton.Left) != 0
+                : (controllerInput & ControllerButton.Right) != 0;
             samus.KnockbackDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Left
                 ? forwardHeld ? SamusKnockbackDirection.DownLeft : SamusKnockbackDirection.UpLeft
                 : forwardHeld ? SamusKnockbackDirection.DownRight : SamusKnockbackDirection.UpRight;
@@ -307,7 +307,7 @@ level, targetPose, nmiFrameCounter, plms))
     public static void ApplyDamageBoostPoseTransition(
         SamusState samus,
         SamusPoseId targetPose,
-        SnesButton controllerNewInput)
+        ControllerButton controllerNewInput)
     {
         Ensure.NotNull(samus);
         bool valid = new SamusPoseChange(samus.Pose, targetPose) is

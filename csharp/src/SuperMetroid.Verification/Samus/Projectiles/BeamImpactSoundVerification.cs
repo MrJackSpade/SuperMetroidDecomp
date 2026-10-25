@@ -49,7 +49,7 @@ internal static class BeamImpactSoundVerification
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 
-        runtime.StepFrame(SnesButton.X);
+        runtime.StepFrame(ControllerButton.X);
         AssertTrue(runtime.Projectiles.Slots[0].Type != 0, "the shot is live");
         for (int frame = 0; frame < 120; frame++)
         {

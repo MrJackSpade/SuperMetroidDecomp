@@ -37,7 +37,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.OpeningCinematic"/>.</summary>
-    internal void DispatchOpeningCinematic(SnesButton controllerInput)
+    internal void DispatchOpeningCinematic(ControllerButton controllerInput)
     {
         session.ActiveTitle.Step(controllerInput);
         session.display.PublishMenu(session.ActiveTitle);
@@ -57,7 +57,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.FileSelectMenus"/>.</summary>
-    internal void DispatchFileSelectMenus(SnesButton controllerInput)
+    internal void DispatchFileSelectMenus(ControllerButton controllerInput)
     {
         session.ActiveFileSelect.Step(controllerInput);
         if (session.ActiveFileSelect.SaveRamChangedThisFrame)
@@ -96,7 +96,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.GameOptionsMenu"/>.</summary>
-    internal void DispatchGameOptionsMenu(SnesButton controllerInput)
+    internal void DispatchGameOptionsMenu(ControllerButton controllerInput)
     {
         session.ActiveOptions.Step(controllerInput);
         session.display.PublishMenu(session.ActiveOptions);
@@ -173,7 +173,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.GameOverMenu"/>.</summary>
-    internal void DispatchGameOverMenu(SnesButton controllerInput)
+    internal void DispatchGameOverMenu(ControllerButton controllerInput)
     {
         GameOverMenuState gameOver = session.ScreenAs<GameOverMenuState>() ?? session.Show(new GameOverMenuState(session.audio,
             session.Artwork.MapPresentation, session.Artwork.SpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
@@ -208,7 +208,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.FileSelectMap"/>.</summary>
-    internal void DispatchFileSelectMap(SnesButton controllerInput)
+    internal void DispatchFileSelectMap(ControllerButton controllerInput)
     {
         session.ContinueSavedGame();
         SuperMetroidSaveSlot mapSlot = session.saves.ReadSlot(session.SelectedSaveSlot)

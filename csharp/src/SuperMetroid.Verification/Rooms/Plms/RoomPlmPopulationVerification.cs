@@ -1359,9 +1359,9 @@ internal static class RoomPlmPopulationVerification
             "save message begins with native selected-YES row");
         // $85:84BA waits two lag frames before its first ReadControllerInput.
         message.Step(0);
-        message.Step(SnesButton.Left);
+        message.Step(ControllerButton.Left);
         AssertTrue(message.ConfirmationSelectionYes, "save selector does not read during its lag waits");
-        message.Step(SnesButton.Left);
+        message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
         AssertEqual(0x5200, message.Tilemap[128],
@@ -1369,14 +1369,14 @@ internal static class RoomPlmPopulationVerification
         // Later reads come every second frame: the read's frame holds the next first wait.
         // A toggle's redraw wait precedes that cycle once (#1269), so the first read after
         // it comes three frames later.
-        message.Step(SnesButton.Left);
-        message.Step(SnesButton.Left);
-        message.Step(SnesButton.Left);
+        message.Step(ControllerButton.Left);
+        message.Step(ControllerButton.Left);
+        message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "holding a direction does not toggle the newly-pressed save cursor repeatedly");
-        message.Step(SnesButton.A);
+        message.Step(ControllerButton.A);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase, "A is read on the next read frame");
-        message.Step(SnesButton.A);
+        message.Step(ControllerButton.A);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase, "A confirms on a read frame");
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
@@ -1392,7 +1392,7 @@ internal static class RoomPlmPopulationVerification
         }
         message.Step(0);
         message.Step(0);
-        message.Step(SnesButton.A);
+        message.Step(ControllerButton.A);
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
         AssertEqual(true, message.ConsumeConfirmationResult(),

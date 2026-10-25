@@ -145,7 +145,7 @@ internal static class FullMovieReplayVerification
             video?.Attach(game);
         }
         // Recording presents each update exactly as the host does; otherwise frames are not rasterized.
-        void Advance(SnesButton input)
+        void Advance(ControllerButton input)
         {
             if (video is null) game.Step(input);
             else video.Step(game, input);
@@ -170,7 +170,7 @@ internal static class FullMovieReplayVerification
             // The last controller read of an eliminated music wait is still input the
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)
-                game.AcceptDoorMusicWaitControllerRead(SnesButtons.FromRaw(latched, $"movie update {update} wait latch"));
+                game.AcceptDoorMusicWaitControllerRead(ControllerButtons.FromRaw(latched, $"movie update {update} wait latch"));
             NativeCheckpointMemory? nativeAfter = checkpoints.ReadAfter(update);
             // A dispatch that jumped into CommonBootSection has no checkpoint of its own, and
             // the clear erases the sound handler's waiting states before the next one. Both
@@ -181,7 +181,7 @@ internal static class FullMovieReplayVerification
             bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
             try
             {
-                Advance(SnesButtons.FromRaw(step.Input, $"movie update {update}"));
+                Advance(ControllerButtons.FromRaw(step.Input, $"movie update {update}"));
             }
             catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or InvalidDataException)
             {
@@ -215,7 +215,7 @@ internal static class FullMovieReplayVerification
                 // so they read the session's SPC model frame by frame.
                 soundAcknowledgements.Expect(null);
                 for (; frame < boxFrameLimit && game.GameplayRuntimeForVerification.MessageBox.IsActive; frame++)
-                    Advance(SnesButtons.FromRaw(frameInputs[frame], $"movie frame {frame}"));
+                    Advance(ControllerButtons.FromRaw(frameInputs[frame], $"movie frame {frame}"));
                 if (step.MessageBoxEndFrame is { } nativeEnd)
                 {
                     if (game.GameplayRuntimeForVerification.MessageBox.IsActive || frame != nativeEnd + 1)

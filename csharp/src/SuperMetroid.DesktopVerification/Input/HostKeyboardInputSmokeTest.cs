@@ -14,18 +14,18 @@ public static class HostKeyboardInputSmokeTest
         // These are synthetic Windows key messages, not a physical-keyboard claim.
         keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Space);
         keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.W);
-        if (keyboard.BuildControllerWord(SnesButton.None) != (SnesButton.A | SnesButton.R))
+        if (keyboard.BuildControllerWord(ControllerButton.None) != (ControllerButton.A | ControllerButton.R))
             throw new InvalidDataException("Space+W must reach gameplay as Jump+AimUp under native defaults.");
         keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyUp, Keys.W);
         keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Q);
-        if (keyboard.BuildControllerWord(SnesButton.None) != (SnesButton.A | SnesButton.L))
+        if (keyboard.BuildControllerWord(ControllerButton.None) != (ControllerButton.A | ControllerButton.L))
             throw new InvalidDataException("Space+Q must reach gameplay as Jump+AimDown under native defaults.");
         keyboard.Clear();
         if (!keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Enter))
             throw new InvalidDataException("Enter keydown escaped the gameplay key preview.");
 
-        SnesButton pressed = keyboard.BuildControllerWord(SnesButton.None);
-        if (pressed != SnesButton.Start)
+        ControllerButton pressed = keyboard.BuildControllerWord(ControllerButton.None);
+        if (pressed != ControllerButton.Start)
         {
             throw new InvalidDataException(
                 $"Enter produced controller ${pressed:X}; expected Start-only $1000.");
@@ -33,7 +33,7 @@ public static class HostKeyboardInputSmokeTest
 
         if (!keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyUp, Keys.Enter))
             throw new InvalidDataException("Enter keyup escaped the gameplay key preview.");
-        SnesButton released = keyboard.BuildControllerWord(SnesButton.None);
+        ControllerButton released = keyboard.BuildControllerWord(ControllerButton.None);
         if (released != 0)
             throw new InvalidDataException($"Released Enter left controller ${released:X} latched.");
 
@@ -43,24 +43,24 @@ public static class HostKeyboardInputSmokeTest
         // while A remains in the polled gamepad word.
         var activation = new HostInputActivationGate();
         keyboard.ApplyWindowMessage((int)HostKeyboardInputState.KeyboardWindowMessage.KeyDown, Keys.Right);
-        SnesButton jumpAndRight = (SnesButton.A | SnesButton.Right);
-        if (activation.Filter(keyboard.BuildControllerWord(SnesButton.A)) != jumpAndRight)
+        ControllerButton jumpAndRight = (ControllerButton.A | ControllerButton.Right);
+        if (activation.Filter(keyboard.BuildControllerWord(ControllerButton.A)) != jumpAndRight)
             throw new InvalidDataException("Active host input was unexpectedly suppressed.");
 
         // PlayableGameControl routes both Form.Deactivate and Windows SessionSwitch through
         // this policy. The first neutral sample re-arms input; no invented hold timeout is
         // imposed on uninterrupted gameplay.
         HostInputDiscontinuity.Release(keyboard, activation);
-        if (keyboard.BuildControllerWord(SnesButton.None) != 0)
+        if (keyboard.BuildControllerWord(ControllerButton.None) != 0)
             throw new InvalidDataException("Host discontinuity did not release keyboard state.");
-        if (activation.Filter(SnesButton.A) != 0 ||
-            activation.Filter(SnesButton.Right) != 0)
+        if (activation.Filter(ControllerButton.A) != 0 ||
+            activation.Filter(ControllerButton.Right) != 0)
         {
             throw new InvalidDataException(
                 "Deactivated host leaked a latched jump or direction before neutral input.");
         }
         if (activation.Filter(0) != 0 ||
-            activation.Filter(SnesButton.Right) != SnesButton.Right)
+            activation.Filter(ControllerButton.Right) != ControllerButton.Right)
         {
             throw new InvalidDataException(
                 "Host input did not re-arm after a completely neutral sample.");

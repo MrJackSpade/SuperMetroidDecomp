@@ -54,7 +54,7 @@ internal static class SaveStationSoundVerification
         {
             audio.Reset();
             // A on alternate frames gives the message box a fresh press on each of its read frames.
-            SnesButton input = runtime.MessageBox.IsActive && frame % 2 == 0 ? SnesButton.A : SnesButton.None;
+            ControllerButton input = runtime.MessageBox.IsActive && frame % 2 == 0 ? ControllerButton.A : ControllerButton.None;
             game.StepCaptured(input, ++hostSequence, 1);
             if (messageFrame < 0 && runtime.MessageBox.IsActive)
                 messageFrame = frame;

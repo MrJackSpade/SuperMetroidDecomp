@@ -38,29 +38,29 @@ internal static class GameOptionsPresentationVerification
         int comparedFrames = 0;
 
         Until(GameOptionsPhase.Main);
-        Press(SnesButton.Down);
-        Press(SnesButton.A); // Switch language and rewrite the primary highlights.
+        Press(ControllerButton.Down);
+        Press(ControllerButton.A); // Switch language and rewrite the primary highlights.
         for (int row = 0; row < 3; row++)
-            Press(SnesButton.Down);
-        Press(SnesButton.A);
+            Press(ControllerButton.Down);
+        Press(ControllerButton.A);
         Until(GameOptionsPhase.ControllerSettings);
-        Press(SnesButton.R); // Reassign Shoot and swap the displaced action label.
+        Press(ControllerButton.R); // Reassign Shoot and swap the displaced action label.
         for (int row = 0; row < 7; row++)
         {
-            Press(SnesButton.Down);
+            Press(ControllerButton.Down);
             Until(GameOptionsPhase.ControllerSettings);
         }
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
         Until(GameOptionsPhase.Main);
         for (int row = 0; row < 4; row++)
-            Press(SnesButton.Down);
-        Press(SnesButton.A);
+            Press(ControllerButton.Down);
+        Press(ControllerButton.A);
         Until(GameOptionsPhase.SpecialSettings);
-        Press(SnesButton.A);
-        Press(SnesButton.Down);
-        Press(SnesButton.Right);
-        Press(SnesButton.Down);
-        Press(SnesButton.A);
+        Press(ControllerButton.A);
+        Press(ControllerButton.Down);
+        Press(ControllerButton.Right);
+        Press(ControllerButton.Down);
+        Press(ControllerButton.A);
         Until(GameOptionsPhase.Main);
 
         AssertTrue(native.JapaneseText && installed.JapaneseText,
@@ -119,7 +119,7 @@ internal static class GameOptionsPresentationVerification
             (int)stockMenu.CaptureRenderSnapshot().Paint.SpriteParts()[0].Part.Position.X,
             "options rebind applies edited cursor anchor without resetting state");
 
-        stockMenu.Step(SnesButton.A);
+        stockMenu.Step(ControllerButton.A);
         AssertEqual(GameOptionsPhase.FadeOutToIntro, stockMenu.Phase,
             "editable options enters intro fade-out");
         AssertTrue(LastSpriteX(stockMenu.CaptureRenderSnapshot()) >= 256,
@@ -165,13 +165,13 @@ internal static class GameOptionsPresentationVerification
             AssertEqual(expected, installed.Phase, $"installed options reaches {expected}");
         }
 
-        void Press(SnesButton button)
+        void Press(ControllerButton button)
         {
             Frame(button);
             Frame(0);
         }
 
-        void Frame(SnesButton input)
+        void Frame(ControllerButton input)
         {
             AssertEqual(native.Phase, installed.Phase,
                 $"installed options phase matches cartridge frame {comparedFrames}");

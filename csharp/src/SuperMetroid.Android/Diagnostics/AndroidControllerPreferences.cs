@@ -14,22 +14,22 @@ internal sealed class AndroidControllerPreferences
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
 
     /// <summary>Physical host-key names mapped to individual SNES buttons.</summary>
-    private readonly Dictionary<string, SnesButton> overrides;
+    private readonly Dictionary<string, ControllerButton> overrides;
 
     /// <summary>Starts with device defaults and no host-key overrides.</summary>
     public AndroidControllerPreferences() : this([]) { }
     /// <summary>Retains an already validated override set.</summary>
-    private AndroidControllerPreferences(Dictionary<string, SnesButton> values) => overrides = values;
+    private AndroidControllerPreferences(Dictionary<string, ControllerButton> values) => overrides = values;
 
     /// <summary>Uses the device default when no override exists for the physical key.</summary>
-    public SnesButton Resolve(string key, SnesButton fallback) => overrides.GetValueOrDefault(key, fallback);
+    public ControllerButton Resolve(string key, ControllerButton fallback) => overrides.GetValueOrDefault(key, fallback);
 
     /// <summary>Creates a new preference set with one valid single-button or unbound override.</summary>
-    public AndroidControllerPreferences WithBinding(string key, SnesButton button)
+    public AndroidControllerPreferences WithBinding(string key, ControllerButton button)
     {
         if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("A physical key name is required.", nameof(key));
         Validate(button);
-        var updated = new Dictionary<string, SnesButton>(overrides) { [key] = button };
+        var updated = new Dictionary<string, ControllerButton>(overrides) { [key] = button };
         return new AndroidControllerPreferences(updated);
     }
 
@@ -46,7 +46,7 @@ internal sealed class AndroidControllerPreferences
         var result = new AndroidControllerPreferences();
         foreach (var pair in values)
         {
-            if (!Enum.TryParse(pair.Value, out SnesButton button) || pair.Value != button.ToString())
+            if (!Enum.TryParse(pair.Value, out ControllerButton button) || pair.Value != button.ToString())
                 throw new InvalidDataException($"Unknown controller binding '{pair.Value}' for {pair.Key}.");
             result = result.WithBinding(pair.Key, button);
         }
@@ -54,7 +54,7 @@ internal sealed class AndroidControllerPreferences
     }
 
     /// <summary>Accepts only an individual defined SNES button or the unbound value.</summary>
-    private static void Validate(SnesButton button)
+    private static void Validate(ControllerButton button)
     {
         int bits = (ushort)button;
         if (!Enum.IsDefined(button) || (bits != 0 && (bits & (bits - 1)) != 0))

@@ -155,8 +155,8 @@ internal static class NativeSnapshotImportVerification
         samus.PoseTransitionShotDirection = W(NativeSnapshotMemory.PoseShotDirection);
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         samus.ResumeChargingBeamSound = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
-        samus.InputSnapshot.PreviousDrawHeldInput = (SnesButton)W(NativeSnapshotMemory.SamusFilteredHeld);
-        samus.InputSnapshot.PreviousDrawNewInput = (SnesButton)W(NativeSnapshotMemory.SamusFilteredNew);
+        samus.InputSnapshot.PreviousDrawHeldInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredHeld);
+        samus.InputSnapshot.PreviousDrawNewInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredNew);
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
         samus.PreviousHealthForHurtCheck = SamusQuantity.Decode(W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
         AssertTrue(W(NativeSnapshotMemory.SamusInputHandler) is
@@ -319,7 +319,7 @@ internal static class NativeSnapshotImportVerification
         samus.SuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.SuperMissiles)); samus.MaxSuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxSuperMissiles));
         samus.PowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxPowerBombs));
         samus.PreviousHealthForHurtCheck = samus.Health;
-        runtime.Controller1.Latch((SnesButton)W(NativeSnapshotMemory.HeldInput));
+        runtime.Controller1.Latch((ControllerButton)W(NativeSnapshotMemory.HeldInput));
         var game = CreateRetailGameFixture(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

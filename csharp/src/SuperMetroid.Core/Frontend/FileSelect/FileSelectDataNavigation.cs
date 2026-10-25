@@ -16,7 +16,7 @@ internal static class FileSelectDataNavigation
     /// by the slot. Exit is always selectable, including an empty occupancy mask.
     /// No ordinal lookup or generated list is required.
     /// </remarks>
-    internal static FileSelectItem MoveSourceOrClear(FileSelectItem selected, int occupiedSlots, SnesButton pressed)
+    internal static FileSelectItem MoveSourceOrClear(FileSelectItem selected, int occupiedSlots, ControllerButton pressed)
     {
         if ((uint)occupiedSlots > AllSlots)
             throw new ArgumentOutOfRangeException(nameof(occupiedSlots));
@@ -27,7 +27,7 @@ internal static class FileSelectDataNavigation
     /// <remarks>Copy destinations exclude the source regardless of occupancy.
     /// The source is a validated save-slot identity0..2. Native $81:983D..9848
     /// and $81:98A5..98AD skip that identity while moving in either direction.</remarks>
-    internal static FileSelectItem MoveCopyDestination(FileSelectItem selected, int sourceSlot, SnesButton pressed)
+    internal static FileSelectItem MoveCopyDestination(FileSelectItem selected, int sourceSlot, ControllerButton pressed)
     {
         if ((uint)sourceSlot >= FileSelectLayout.SaveSlotCount)
             throw new ArgumentOutOfRangeException(nameof(sourceSlot));
@@ -35,15 +35,15 @@ internal static class FileSelectDataNavigation
     }
 
     /// <summary>Validates the selected row, gives Up priority, and scans toward the next enabled slot or Exit without wrapping.</summary>
-    private static FileSelectItem Move(FileSelectItem selected, int enabledSlots, SnesButton pressed)
+    private static FileSelectItem Move(FileSelectItem selected, int enabledSlots, ControllerButton pressed)
     {
         if (!Selectable(selected))
             throw new InvalidDataException($"Submenu item {selected} is not selectable.");
 
         // Preserve the managed input order, including validation on idle frames
         // and Up priority when both directions are pressed. The caller owns sound.
-        int step = (pressed & SnesButton.Up) != 0 ? -1
-            : (pressed & SnesButton.Down) != 0 ? 1 : 0;
+        int step = (pressed & ControllerButton.Up) != 0 ? -1
+            : (pressed & ControllerButton.Down) != 0 ? 1 : 0;
         if (step == 0) return selected;
         for (int row = FileSelectItemRows.DataRow(selected) + step; row is >= 0 and < FileSelectLayout.DataSelectionCount; row += step)
             if (Selectable(FileSelectItemRows.DataItem(row))) return FileSelectItemRows.DataItem(row);

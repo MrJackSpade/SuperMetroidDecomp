@@ -22,7 +22,7 @@ internal static class NativeCaptureSeeds
             var scenario = new BombSpreadTransitionScenario(RepositoryInstallation.CreateRuntime(), left, timingCase, wallRoute);
             for (int frame = 0; frame < scenario.FrameCount; frame++, frames++)
             {
-                SnesButton input = scenario.Input(frame);
+                ControllerButton input = scenario.Input(frame);
                 scenario.Runtime.StepFrame(input, new RuntimeFrameRequest());
                 output.WriteLine(scenario.Row(frame, input));
                 if (!scenario.RecordsBombs(frame))

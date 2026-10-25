@@ -152,7 +152,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);
         unknown.Bind(unknown.DefinitionId, default(RoomEnemyDefinition));
         InvalidDataException unknownException = AssertThrows<InvalidDataException>(
-            () => EnemyInstructionRunner.Process([unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
+            () => EnemyInstructionRunner.Process([unknown, null, null, Position16<RoomPixels>.Zero, ControllerButton.None]),
             "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");
         AssertTrue(
             unknownException.Message.Contains("has no typed animation", StringComparison.Ordinal),

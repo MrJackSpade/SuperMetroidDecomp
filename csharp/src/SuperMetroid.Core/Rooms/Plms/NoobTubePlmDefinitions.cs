@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public static class NoobTubePlmDefinitions
 {
     /// <summary>The newly pressed buttons that wake the tube once it is cracked: B, Y, Left, Right, A and X.</summary>
-    public const SnesButton AcceptedWakeInputMask =
-        SnesButton.B | SnesButton.Y | SnesButton.Left | SnesButton.Right | SnesButton.A | SnesButton.X;
+    public const ControllerButton AcceptedWakeInputMask =
+        ControllerButton.B | ControllerButton.Y | ControllerButton.Left | ControllerButton.Right | ControllerButton.A | ControllerButton.X;
 
     /// <summary>The tube's origin block: a solid block showing visual block $44.</summary>
     public static RoomLevelWord SolidProjectileTriggerLevelWord { get; } =

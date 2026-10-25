@@ -190,7 +190,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     internal void RunGunshipTopMain(
         RoomEnemySlot top,
         SamusState? samus,
-        SnesButton newlyPressedControllerInput)
+        ControllerButton newlyPressedControllerInput)
     {
         if (top.SlotIndex + 2 >= _slotTable.EnemyCount)
             throw new InvalidDataException("Gunship top is missing its two following component slots.");
@@ -424,10 +424,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void HandleIdleGunshipEntrance(
         RoomEnemySlot top,
         SamusState? samus,
-        SnesButton newlyPressedControllerInput)
+        ControllerButton newlyPressedControllerInput)
     {
-        SnesButton newlyPressed = newlyPressedControllerInput;
-        if (samus is null || !newlyPressed.HasAny(SnesButton.Down))
+        ControllerButton newlyPressed = newlyPressedControllerInput;
+        if (samus is null || !newlyPressed.HasAny(ControllerButton.Down))
             return;
 
         bool insideEntrance =

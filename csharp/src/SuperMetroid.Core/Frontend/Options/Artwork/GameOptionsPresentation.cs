@@ -21,7 +21,7 @@ public sealed class GameOptionsPresentation
     /// <summary>The common BG2 background page.</summary>
     private readonly byte[] background;
     /// <summary>Edited controller-button glyphs, keyed by button; a button absent here draws its native glyph.</summary>
-    internal readonly Dictionary<SnesButton, ushort[]> controllerLabels;
+    internal readonly Dictionary<ControllerButton, ushort[]> controllerLabels;
     /// <summary>Edited controller-label anchors by action, or null for the native destinations.</summary>
     internal readonly Position16<TilemapCells>[]? controllerLabelAnchors;
     /// <summary>Edited primary-language highlight regions, or null for the native regions.</summary>
@@ -41,7 +41,7 @@ public sealed class GameOptionsPresentation
     private GameOptionsPresentation(
         Dictionary<GameOptionsTilemap, byte[]> pages,
         byte[] background,
-        Dictionary<SnesButton, ushort[]> controllerLabels,
+        Dictionary<ControllerButton, ushort[]> controllerLabels,
         Dictionary<GameOptionsPage, SpriteComposition> headingSprites,
         SpriteComposition[] cursorSprites,
         GameOptionsPresentationDocument document,
@@ -127,7 +127,7 @@ public sealed class GameOptionsPresentation
     {
         if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
-        SnesButton label = GameOptionsPresentationDefinitions.ControllerLabelButton(button);
+        ControllerButton label = GameOptionsPresentationDefinitions.ControllerLabelButton(button);
         controllerLabels.TryGetValue(label, out ushort[]? cells);
         Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPresentationDefinitions.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
@@ -249,8 +249,8 @@ public sealed class GameOptionsPresentation
             tilemap => CompilePage(document, GameOptionsPresentationDefinitions.TilemapName(tilemap)));
         byte[] background = CompilePage(document, GameOptionsPresentationDefinitions.BackgroundPageName);
 
-        var labels = new Dictionary<SnesButton, ushort[]>();
-        foreach (SnesButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
+        var labels = new Dictionary<ControllerButton, ushort[]>();
+        foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
         {
             string name = GameOptionsPresentationDefinitions.ControllerLabelName(button);
             MapPresentationCell[] cells = document.ControllerLabels[name];

@@ -251,7 +251,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             ushort radiusY, bool shot)
         {
             object?[] arguments =
-                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, SnesButton.None];
+                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, ControllerButton.None];
             bool hit = slot.DefinitionId == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Find(enemies, arguments);

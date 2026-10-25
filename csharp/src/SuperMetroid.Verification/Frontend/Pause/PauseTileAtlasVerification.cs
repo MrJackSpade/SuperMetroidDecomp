@@ -54,7 +54,7 @@ internal static class PauseTileAtlasVerification
             int toMap = 2 + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < toMap + PausePageTransitionNativeLength + 2; tick++)
             {
-                SnesButton pressed = tick == 2 ? SnesButton.R : tick == toMap ? SnesButton.L : 0;
+                ControllerButton pressed = tick == 2 ? ControllerButton.R : tick == toMap ? ControllerButton.L : 0;
                 AssertEqual(native.Step(pressed, pressed), pause.Step(pressed, pressed), "pause PNG migration preserves unpause result");
                 AssertEqual(native.ScreenMode, pause.ScreenMode, "pause PNG migration preserves page timing");
                 AssertTrue(native.Render().SequenceEqual(pause.Render()), "pause map/equipment transitions match native pixels with artwork reads blocked");

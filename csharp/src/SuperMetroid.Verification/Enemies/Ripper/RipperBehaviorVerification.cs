@@ -103,7 +103,7 @@ internal static class RipperBehaviorVerification
             int[] expectedUpdates = [0, 8, 15, 23, 30];
             slot.InstructionTimer = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             List<VerifyInstalledLoopCase> shown = [];
             for (int update = 0; update < 31; update++)
             {

@@ -212,7 +212,7 @@ public sealed class Bank80SystemState
     /// Despite the C decompilation's name <c>joypad_released_keys</c>, the assembly names
     /// and behavior show that this is the previous value of "held but not newly pressed."
     /// </summary>
-    public SnesButton HeldInputPrevious { get; private set; }
+    public ControllerButton HeldInputPrevious { get; private set; }
 
     /// <summary>
     /// Countdown at WRAM <c>$05DB</c>. A signed underflow from zero to <c>$FFFF</c>
@@ -231,18 +231,18 @@ public sealed class Bank80SystemState
     /// Filtered input at WRAM <c>$05DF</c>. Bits appear after their buttons have remained
     /// stable long enough for the timer to underflow.
     /// </summary>
-    public SnesButton TimedHeldInput { get; internal set; }
+    public ControllerButton TimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Rising-edge bits for <see cref="TimedHeldInput"/>, stored at WRAM <c>$05E1</c>.
     /// </summary>
-    public SnesButton NewlyTimedHeldInput { get; internal set; }
+    public ControllerButton NewlyTimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Prior active filtered input at WRAM <c>$05E3</c>. The original routine updates
     /// this only on timer underflow, not on every frame.
     /// </summary>
-    public SnesButton TimedHeldInputPrevious { get; internal set; }
+    public ControllerButton TimedHeldInputPrevious { get; internal set; }
 
     /// <summary>
     /// Advances the shared RNG word at <c>$7E:05E5</c> exactly as <c>$80:8111</c>
@@ -259,13 +259,13 @@ public sealed class Bank80SystemState
     /// <param name="timerReset">Number of stable frames minus one before activation.</param>
     /// <param name="controllerInput">All buttons currently down (WRAM <c>$8B</c>).</param>
     /// <param name="controllerNewInput">Buttons newly pressed this frame (WRAM <c>$8F</c>).</param>
-    public void UpdateHeldInput(int timerReset, SnesButton controllerInput, SnesButton controllerNewInput)
+    public void UpdateHeldInput(int timerReset, ControllerButton controllerInput, ControllerButton controllerNewInput)
     {
         TimedHeldInputTimerReset = timerReset;
 
         // TRB in the original clears every newly-pressed bit from the current input.
         // A fresh press is deliberately not considered "held" until the following frame.
-        SnesButton heldInput = controllerInput & ~controllerNewInput;
+        ControllerButton heldInput = controllerInput & ~controllerNewInput;
 
         // CMP happens before STA, so remember the comparison result before replacing the
         // previous sample. This ordering is significant when a button changes state.

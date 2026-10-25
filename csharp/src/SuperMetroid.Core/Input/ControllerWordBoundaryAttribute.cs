@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Input;
 
 /// <summary>
 /// Marks a declaration that stores or reads controller words (#1306): a journal or SRAM codec, an enemy variable
-/// that keeps a word, or the validated conversion itself. Elsewhere controller state stays <see cref="SnesButton"/>,
+/// that keeps a word, or the validated conversion itself. Elsewhere controller state stays <see cref="ControllerButton"/>,
 /// and SME6284 rejects a conversion.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method | AttributeTargets.Constructor |

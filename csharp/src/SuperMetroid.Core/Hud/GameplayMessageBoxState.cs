@@ -59,9 +59,9 @@ public sealed class GameplayMessageBoxState
     [field: NonSerialized]
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
     /// <summary>Current Shoot binding used when panel artwork includes a button glyph.</summary>
-    private SnesButton _shootBinding = SnesButton.X;
+    private ControllerButton _shootBinding = ControllerButton.X;
     /// <summary>Current Run binding used when panel artwork includes a button glyph.</summary>
-    private SnesButton _runBinding = SnesButton.B;
+    private ControllerButton _runBinding = ControllerButton.B;
 
     /// <summary>Consumes $85:811B's one-shot saving sound, independently of gameplay publication.</summary>
     public bool ConsumeSavingSoundRequest()
@@ -154,9 +154,9 @@ public sealed class GameplayMessageBoxState
     /// <param name="sourceContext">Caller identity included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
     public void Begin(
         GameplayMessageId messageId,
-        SnesButton controllerRead,
-        SnesButton shootBinding = SnesButton.X,
-        SnesButton runBinding = SnesButton.B,
+        ControllerButton controllerRead,
+        ControllerButton shootBinding = ControllerButton.X,
+        ControllerButton runBinding = ControllerButton.B,
         string sourceContext = nameof(GameplayMessageBoxState))
     {
         byte rawMessageId = (byte)messageId;
@@ -220,7 +220,7 @@ public sealed class GameplayMessageBoxState
     /// Runs one frame of the bank-$85 routine, which waits on lag frames: the NMI handler
     /// reads no controller while it runs, so only the routine's own reads see input.
     /// </summary>
-    public void Step(SnesButton controllerInput)
+    public void Step(ControllerButton controllerInput)
     {
         ConfirmationSelectionChangedThisFrame = false;
         // Each routine calls HandleMusicQueue and HandleSounds after its lag wait returns.
@@ -317,19 +317,19 @@ public sealed class GameplayMessageBoxState
                     _lagFramesRemaining = GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames - 1;
                     // $85:84D8: A confirms the highlighted choice, then B cancels; only a
                     // press with neither moves the two-choice cursor.
-                    SnesButton newlyPressed = _controller.NewlyPressed;
-                    if ((newlyPressed & SnesButton.A) != 0)
+                    ControllerButton newlyPressed = _controller.NewlyPressed;
+                    if ((newlyPressed & ControllerButton.A) != 0)
                     {
                         BeginClosing(ConfirmationSelectionYes);
                         return;
                     }
-                    if ((newlyPressed & SnesButton.B) != 0)
+                    if ((newlyPressed & ControllerButton.B) != 0)
                     {
                         BeginClosing(false);
                         return;
                     }
-                    SnesButton horizontal = newlyPressed & (SnesButton.Left | SnesButton.Right | SnesButton.Select);
-                    if (horizontal != SnesButton.None)
+                    ControllerButton horizontal = newlyPressed & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Select);
+                    if (horizontal != ControllerButton.None)
                     {
                         ConfirmationSelectionYes = !ConfirmationSelectionYes;
                         DrawSaveConfirmationSelection();
@@ -429,7 +429,7 @@ public sealed class GameplayMessageBoxState
     }
 
     /// <summary>Replaces a panel's cartridge-defined glyph cell with the player's configured button.</summary>
-    internal void PatchConfiguredButton(GameplayMessageId messageId, SnesButton binding)
+    internal void PatchConfiguredButton(GameplayMessageId messageId, ControllerButton binding)
     {
         int byteOffset = GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(messageId);
         if ((byteOffset & 1) != 0 || byteOffset + 1 >= TilemapWords.Length * 2)
@@ -489,7 +489,7 @@ public sealed class GameplayMessageBoxState
     }
 
     /// <summary>Maps a controller binding to the cartridge's message tilemap glyph word.</summary>
-    internal static ushort ResolveButtonTilemapWord(SnesButton binding) =>
+    internal static ushort ResolveButtonTilemapWord(ControllerButton binding) =>
         GameplayMessageButtonGlyphs.ResolveGlyphWord(binding);
 
 }

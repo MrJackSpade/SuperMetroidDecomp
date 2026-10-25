@@ -573,12 +573,12 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
     /// low bounce byte advances through two rebounds while high byte `$0600` records the
     /// native Spring Ball bounce family.
     /// </summary>
-    public static bool ApplySpringBallLanding(SamusState samus, SnesButton controllerInput)
+    public static bool ApplySpringBallLanding(SamusState samus, ControllerButton controllerInput)
     {
         if (!SamusPoseMetadata.IsAirborneSpringBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose))
             throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${(int)samus.Pose:X2}.");
 
-        if ((controllerInput & SnesButton.A) != 0)
+        if ((controllerInput & ControllerButton.A) != 0)
         {
             samus.MorphBallBounceState = SamusBallBounceState.None;
             SamusAerialMovement.InitializeJump(samus);

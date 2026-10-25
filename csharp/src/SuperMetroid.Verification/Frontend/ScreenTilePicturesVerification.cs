@@ -88,7 +88,7 @@ internal static class ScreenTilePicturesVerification
         {
             Check(intro.CaptureTranslatedRenderSnapshot(), intro.ShownVram(), intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
                 ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}");
-            intro.Step(tick % 47 == 0 ? SnesButton.A : 0);
+            intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
         }
         CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();

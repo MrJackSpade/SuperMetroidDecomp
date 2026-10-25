@@ -249,7 +249,7 @@ internal sealed class DoorTransitionRunner
         _ = plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
-    public void RunDoorSoundWaitFrame(SnesButton controllerInput, RoomScope room)
+    public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room)
     {
         RunDoorSoundWaitPrologue(controllerInput, room.Plms, room.BombProjectiles, room);
         DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room);
@@ -261,7 +261,7 @@ internal sealed class DoorTransitionRunner
     /// runs while Samus is locked. On the entry frame it precedes the state handler, so
     /// its room-FX sound requests are queued before the door's cancels and DisableSounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(SnesButton controllerInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         plms.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion.Activity);
         _frameBoundary.BeginAcceptedFrame(controllerInput);

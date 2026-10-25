@@ -29,54 +29,54 @@ internal static class FileMenuSnapshotTestsVerification
         foreach (bool clear in new[] { false, true })
         {
             var menu = new FileSelectMenuState(saveRam, mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-            void Tick(SnesButton input = SnesButton.None) => Check(menu.Render, menu.CaptureRenderSnapshot, () => menu.Step(input));
-            void Press(SnesButton input) { Tick(); Tick(input); }
+            void Tick(ControllerButton input = ControllerButton.None) => Check(menu.Render, menu.CaptureRenderSnapshot, () => menu.Step(input));
+            void Press(ControllerButton input) { Tick(); Tick(input); }
             void Until(FileSelectPhase phase)
             {
                 for (int i = 0; i < 90 && menu.Phase != phase; i++) Tick();
                 AssertEqual(phase, menu.Phase, "file snapshot fixture phase");
             }
             Until(FileSelectPhase.Main);
-            for (int i = 0; i < (clear ? 4 : 3); i++) Press(SnesButton.Down);
-            Press(SnesButton.A);
+            for (int i = 0; i < (clear ? 4 : 3); i++) Press(ControllerButton.Down);
+            Press(ControllerButton.A);
             Until(clear ? FileSelectPhase.ClearSelectSlot : FileSelectPhase.CopySelectSource);
-            Press(SnesButton.A);
-            if (!clear) Press(SnesButton.A);
+            Press(ControllerButton.A);
+            if (!clear) Press(ControllerButton.A);
             AssertEqual(clear ? FileSelectPhase.ClearConfirm : FileSelectPhase.CopyConfirm,
                 menu.Phase, "file snapshot confirmation");
-            Press(SnesButton.A);
+            Press(ControllerButton.A);
             AssertEqual(clear ? FileSelectPhase.ClearCompleted : FileSelectPhase.CopyCompleted,
                 menu.Phase, "file snapshot completed operation");
             Tick();
         }
 
         var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-        void OptionTick(SnesButton input = 0) => Check(options.Render, options.CaptureRenderSnapshot,
+        void OptionTick(ControllerButton input = 0) => Check(options.Render, options.CaptureRenderSnapshot,
             () => options.Step(input));
-        void OptionPress(SnesButton input) { OptionTick(); OptionTick(input); }
+        void OptionPress(ControllerButton input) { OptionTick(); OptionTick(input); }
         void OptionUntil(GameOptionsPhase phase)
         {
             for (int i = 0; i < 100 && options.Phase != phase; i++) OptionTick();
             AssertEqual(phase, options.Phase, "options snapshot fixture phase");
         }
         OptionUntil(GameOptionsPhase.Main);
-        for (int i = 0; i < 3; i++) OptionPress(SnesButton.Down);
-        OptionPress(SnesButton.A);
+        for (int i = 0; i < 3; i++) OptionPress(ControllerButton.Down);
+        OptionPress(ControllerButton.A);
         OptionUntil(GameOptionsPhase.ControllerSettings);
-        OptionPress(SnesButton.R);
+        OptionPress(ControllerButton.R);
         for (int i = 0; i < 7; i++)
         {
-            OptionPress(SnesButton.Down);
+            OptionPress(ControllerButton.Down);
             OptionUntil(GameOptionsPhase.ControllerSettings);
         }
-        OptionPress(SnesButton.A);
+        OptionPress(ControllerButton.A);
         OptionUntil(GameOptionsPhase.Main);
-        for (int i = 0; i < 4; i++) OptionPress(SnesButton.Down);
-        OptionPress(SnesButton.A);
+        for (int i = 0; i < 4; i++) OptionPress(ControllerButton.Down);
+        OptionPress(ControllerButton.A);
         OptionUntil(GameOptionsPhase.SpecialSettings);
-        OptionPress(SnesButton.A);
-        OptionPress(SnesButton.Down);
-        OptionPress(SnesButton.Right);
+        OptionPress(ControllerButton.A);
+        OptionPress(ControllerButton.Down);
+        OptionPress(ControllerButton.Right);
         OptionTick();
         Console.WriteLine($"  File/options snapshots: {comparisons} retail frames match through COPY/CLEAR, controller scrolling, special settings and fades.");
 

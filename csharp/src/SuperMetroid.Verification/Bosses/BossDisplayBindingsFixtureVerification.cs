@@ -28,7 +28,7 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>The actor's physical slot.</summary>
         private readonly int _slot;
         /// <summary>Bound production instruction interpreter for one actor step.</summary>
-        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
+        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
         /// <summary>Bound extended-hitbox query used by the collision check.</summary>
         private readonly HitboxQuery hitbox;
         /// <summary>Queries an extended hitbox and returns its callback when touched.</summary>
@@ -52,7 +52,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions);
             Enemies.Drawing.Enqueue(0, Actor.EnemyIndex);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
 

@@ -38,7 +38,7 @@ internal static class EscapeAnimalBlocksVerification
             SeedStationaryGrappleCollisionProbe(samus);
             int before = plms.SlotTable.ActiveCount;
             SamusGrappleMovement.StepFiring(level, samus,
-                SnesButton.X, plms);
+                ControllerButton.X, plms);
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");
             AssertEqual(before, plms.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");

@@ -31,7 +31,7 @@ internal static class RetailPauseTests
             PixelComparison.Verify(packet, DisplayRendering.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
         }
         Compare("map");
-        pause.Step(SnesButton.R, SnesButton.R);
+        pause.Step(ControllerButton.R, ControllerButton.R);
         do
             pause.Step(0, 0);
         while (pause.IsPageTransitionActive);

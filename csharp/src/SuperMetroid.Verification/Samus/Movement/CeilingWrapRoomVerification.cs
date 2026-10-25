@@ -40,7 +40,7 @@ internal static class CeilingWrapRoomVerification
         int mismatches = 0;
         for (int frame = 0; frame < native.Length; frame++)
         {
-            runtime.StepFrame((SnesButton.X | SnesButton.Left | SnesButton.R | (dash ? SnesButton.B : 0)));
+            runtime.StepFrame((ControllerButton.X | ControllerButton.Left | ControllerButton.R | (dash ? ControllerButton.B : 0)));
             string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{runtime.Plms.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
@@ -71,8 +71,8 @@ internal static class CeilingWrapRoomVerification
         int firstFull = -1;
         for (int frame = 0; frame < 344; frame++)
         {
-            SnesButton held = SnesButton.X;
-            SnesButton pressed = frame == 0 ? held : SnesButton.None;
+            ControllerButton held = ControllerButton.X;
+            ControllerButton pressed = frame == 0 ? held : ControllerButton.None;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, held, pressed);
             shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
             plms.Step(level);

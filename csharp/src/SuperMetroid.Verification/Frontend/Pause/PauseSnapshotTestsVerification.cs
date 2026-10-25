@@ -57,8 +57,8 @@ internal static class PauseSnapshotTestsVerification
             AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeated.Paint.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
             levels.Add(packet.Brightness);
-            SnesButton input = frame == 8 ? SnesButton.R
-                : frame == 80 ? SnesButton.L : 0;
+            ControllerButton input = frame == 8 ? ControllerButton.R
+                : frame == 80 ? ControllerButton.L : 0;
             pause.Step(input, input);
             Match(expected, DisplayRendering.Render(packet), frame);
         }

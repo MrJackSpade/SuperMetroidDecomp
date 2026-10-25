@@ -31,7 +31,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewYappingMawInstructionSystem(entry);
             object?[] arguments =
-                [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+                [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Programs, entry, YappingMawFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Programs, entry)),
                 $"Yapping Maw attack direction {direction} loop");
@@ -53,7 +53,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
                 NewYappingMawInstructionSystem(entry);
             object?[] arguments =
-                [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+                [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             RunYappingMawInstructionFrames(arguments, slot, count: 1);
             AssertEqual(x, state.HeldSamusOffset.X,
                 $"Yapping Maw {name} callback X offset");

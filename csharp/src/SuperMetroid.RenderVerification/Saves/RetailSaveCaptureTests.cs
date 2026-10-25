@@ -50,7 +50,7 @@ internal static class RetailSaveCaptureTests
             // Rising edges acknowledge only the actual message input phase. All PLM,
             // projectile animation, OAM and NMI publication work remains production code.
             bool press = runtime.MessageBox.Phase == GameplayMessageBoxPhase.AwaitingInput && !pressedLastFrame;
-            runtime.StepFrame(press ? SnesButton.A : 0);
+            runtime.StepFrame(press ? ControllerButton.A : 0);
             pressedLastFrame = press;
             confirmation |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageIds.SaveConfirmation;
             completion |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageIds.SaveCompleted;

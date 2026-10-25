@@ -31,19 +31,19 @@ internal static class HiddenSoakTests
             game.BindAudio(DesktopAccess.LoadAudioClips());
             var audio = new short[AudioSession.PcmSamplesPerFrame];
             long sequence = 0;
-            CapturedFrontendFrame Step(SnesButton input)
+            CapturedFrontendFrame Step(ControllerButton input)
             {
                 return game.StepCaptured(input, ++sequence, 1);
             }
             for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
-                Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
+                Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
             Check(game.GameState == SuperMetroidGameState.MainGameplay, "soak startup failed");
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
             RoomHeaderDefinition room = paused ? RoomHeaderDefinitions.GlassTunnel : RoomHeaderDefinitions.AlphaPowerBomb;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             Step(0);
-            if (paused) Step(SnesButton.Start);
+            if (paused) Step(ControllerButton.Start);
             for (int warmup = 0; warmup < 120; warmup++) Step(0);
             using var window = new Form { ClientSize = new(900, 672), ShowInTaskbar = false };
             var worker = new D3D11RenderWorker(window.Handle, new Extent16<DisplayPixels>(900, 672), 1, D3D11DeviceKind.Hardware);

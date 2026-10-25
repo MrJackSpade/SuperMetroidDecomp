@@ -28,7 +28,7 @@ internal static class FileSelectSoundVerification
         {
             // Accept on the first update the native main menu reads input.
             bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
-            menu.Step(accept ? SnesButton.A : 0);
+            menu.Step(accept ? ControllerButton.A : 0);
             var commands = audio.AdvanceFrame(renderer.Acknowledgements);
             writes += commands.Count(command => command == new AudioRequest.RequestSound(Library1Sound.FileSelected));
             var pcm = renderer.RenderFrame(commands);
@@ -44,12 +44,12 @@ internal static class FileSelectSoundVerification
         AssertTrue(nonzero > 0, "file selection generates audible PCM");
         Console.WriteLine($"File selection: {writes} sound writes, {nonzero} nonzero PCM samples.");
         foreach (bool existingSave in new[] { false, true })
-        foreach (SnesButton accept in new[] { SnesButton.A, SnesButton.Start })
+        foreach (ControllerButton accept in new[] { ControllerButton.A, ControllerButton.Start })
             VerifyFullFrontendFileSelectSound(existingSave, accept);
     }
 
     /// <summary>Compares captured PCM with the swoosh suppressed for one save state and accept button.</summary>
-    private static void VerifyFullFrontendFileSelectSound(bool existingSave, SnesButton accept)
+    private static void VerifyFullFrontendFileSelectSound(bool existingSave, ControllerButton accept)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
@@ -66,8 +66,8 @@ internal static class FileSelectSoundVerification
         bool reachedSavedMap = false;
         for (int tick = 0; tick < 500; tick++)
         {
-            SnesButton button = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : SnesButton.Start;
-            var frame = game.StepCaptured(tick % 47 == 0 ? button : SnesButton.None, tick + 1, 1).Frame;
+            ControllerButton button = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : ControllerButton.Start;
+            var frame = game.StepCaptured(tick % 47 == 0 ? button : ControllerButton.None, tick + 1, 1).Frame;
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent is AudioEvent.StartSoundEffect started &&
                 started.SoundEffect == Library1Sound.FileSelected;

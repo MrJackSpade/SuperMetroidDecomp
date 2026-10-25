@@ -97,7 +97,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     /// </remarks>
     public static void ApplyAerialLanding(SamusState samus, 
         bool wasSpinning,
-        SnesButton controllerInput = SnesButton.None)
+        ControllerButton controllerInput = ControllerButton.None)
     {
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
@@ -128,7 +128,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         RoomLevelData level,
         bool wasSpinning,
-        SnesButton controllerInput,
+        ControllerButton controllerInput,
         int nmiFrameCounter,
         ISamusRoomPlms? plms = null)
     {
@@ -188,7 +188,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     /// <summary>Chooses <c>$91:E95D</c>'s prospective landing pose.</summary>
     private static SamusPoseId SelectAerialLandingPose(SamusState samus, 
         bool wasSpinning,
-        SnesButton controllerInput)
+        ControllerButton controllerInput)
     {
         byte direction = SamusPoseMetadata.ReadPoseXDirection(samus);
         bool facingLeft = direction == 4;
@@ -204,7 +204,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // Horizontal directions two/seven take `$91:E96E-$E98F`'s extra Shot-binding
         // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
         // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
-        bool shotHeld = (controllerInput & SnesButton.X) != 0;
+        bool shotHeld = (controllerInput & ControllerButton.X) != 0;
         return SamusPoseMetadata.ReadShotDirection(samus) switch
         {
             0 => SamusPoseId.LandingAimUpRightPose,

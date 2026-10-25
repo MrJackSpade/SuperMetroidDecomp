@@ -460,7 +460,7 @@ internal static class SamusGroundedPoseTransitions
     /// first publish generic `$25/$26`; the initializer indexes the previous pose's shot
     /// direction through `$91:F9C2` and may replace it with `$8B-$8E/$9C/$9D`.
     /// </summary>
-    public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, SnesButton controllerInput = SnesButton.None)
+    public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, ControllerButton controllerInput = ControllerButton.None)
     {
 
         // `$91:F8D3-$F8DB` gives the two front-view poses a deliberately unusual route.
@@ -511,7 +511,7 @@ internal static class SamusGroundedPoseTransitions
         // F8F9 checks held Jump, not a fresh press. Releasing Shoot from a buffered
         // Moonwalk selects a generic turn in the input table, then reaches this same
         // turn/jump initializer without a new Jump edge.
-        if (wasMoonwalking && (controllerInput & SnesButton.A) != 0)
+        if (wasMoonwalking && (controllerInput & ControllerButton.A) != 0)
         {
             ApplyMoonwalkTurnJump(samus, turnsLeft
                 ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose);

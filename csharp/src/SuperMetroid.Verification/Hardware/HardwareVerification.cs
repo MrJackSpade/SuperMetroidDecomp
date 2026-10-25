@@ -76,24 +76,24 @@ internal static void VerifyKnownRandomSequence()
 /// </summary>
 internal static void VerifyTimedHeldInputTimeline()
 {
-    const SnesButton button = SnesButton.A;
+    const ControllerButton button = ControllerButton.A;
     var state = new Bank80SystemState();
 
     // Frame 0: the button is new, so TRB removes it from the held-only sample.
     state.UpdateHeldInput(timerReset: 3, controllerInput: button, controllerNewInput: button);
-    AssertEqual(SnesButton.None, state.TimedHeldInput, "new press is not held input");
+    AssertEqual(ControllerButton.None, state.TimedHeldInput, "new press is not held input");
 
     // Frame 1: held-only input changes from zero to the button and reloads the timer.
     state.UpdateHeldInput(3, button, 0);
     AssertEqual(3, state.TimedHeldInputTimer.RawValue, "changed input reloads timer");
-    AssertEqual(SnesButton.None, state.TimedHeldInput, "changed input stays suppressed");
+    AssertEqual(ControllerButton.None, state.TimedHeldInput, "changed input stays suppressed");
 
     // Frames 2-4: DEC yields 2, 1, and 0. BPL keeps taking the suppression path.
     for (ushort expectedTimer = 2; ; expectedTimer--)
     {
         state.UpdateHeldInput(3, button, 0);
         AssertEqual(expectedTimer, state.TimedHeldInputTimer.RawValue, "stable-input countdown");
-        AssertEqual(SnesButton.None, state.TimedHeldInput, "countdown suppression");
+        AssertEqual(ControllerButton.None, state.TimedHeldInput, "countdown suppression");
         if (expectedTimer == 0)
             break;
     }
@@ -107,13 +107,13 @@ internal static void VerifyTimedHeldInputTimeline()
     // Frame 6: the active input remains present, while its rising-edge output clears.
     state.UpdateHeldInput(3, button, 0);
     AssertEqual(button, state.TimedHeldInput, "stable expired input remains active");
-    AssertEqual(SnesButton.None, state.NewlyTimedHeldInput, "rising-edge pulse lasts one update");
+    AssertEqual(ControllerButton.None, state.NewlyTimedHeldInput, "rising-edge pulse lasts one update");
 
     // Releasing changes the held sample, reloads the timer, and suppresses the output.
     state.UpdateHeldInput(3, 0, 0);
     AssertEqual(3, state.TimedHeldInputTimer.RawValue, "release reloads timer");
-    AssertEqual(SnesButton.None, state.TimedHeldInput, "release clears filtered input");
-    AssertEqual(SnesButton.None, state.NewlyTimedHeldInput, "release is not a new held press");
+    AssertEqual(ControllerButton.None, state.TimedHeldInput, "release clears filtered input");
+    AssertEqual(ControllerButton.None, state.NewlyTimedHeldInput, "release is not a new held press");
 
     Console.WriteLine("  Input: delayed-held timeline and edge pulse agree.");
 }
@@ -398,7 +398,7 @@ static byte PackBcd(int decimalValue) => (byte)(((decimalValue / 10) << 4) | (de
 /// </summary>
 internal static void VerifyControllerInputLatch()
 {
-    SnesButton button = SnesButton.A;
+    ControllerButton button = ControllerButton.A;
     var input = new ControllerInputState(initialRepeatDelay: 2, subsequentRepeatDelay: 1);
 
     input.Latch(button);
@@ -408,8 +408,8 @@ internal static void VerifyControllerInputLatch()
     AssertEqual(2, input.RepeatTimer.RawValue, "first press loads initial repeat delay");
 
     input.Latch(button);
-    AssertEqual(SnesButton.None, input.NewlyPressed, "stable hold has no new edge");
-    AssertEqual(SnesButton.None, input.NewlyPressedWithRepeat, "first held frame has no repeat");
+    AssertEqual(ControllerButton.None, input.NewlyPressed, "stable hold has no new edge");
+    AssertEqual(ControllerButton.None, input.NewlyPressedWithRepeat, "first held frame has no repeat");
     AssertEqual(1, input.RepeatTimer.RawValue, "held input decrements repeat timer");
 
     input.Latch(button);
@@ -417,31 +417,31 @@ internal static void VerifyControllerInputLatch()
     AssertEqual(1, input.RepeatTimer.RawValue, "repeat pulse loads subsequent delay");
 
     input.Latch(0);
-    AssertEqual(SnesButton.None, input.NewlyPressed, "release is not a rising edge");
+    AssertEqual(ControllerButton.None, input.NewlyPressed, "release is not a rising edge");
     AssertEqual(2, input.RepeatTimer.RawValue, "release reloads initial repeat delay");
 
     // Direction-sensitive enemy AI masks only the horizontal pair, so unrelated face
     // buttons must not prevent an exact-Right decision while Left+Right must.
     var directional = new ControllerInputState();
-    directional.Latch((SnesButton.Right | SnesButton.A));
+    directional.Latch((ControllerButton.Right | ControllerButton.A));
     AssertEqual(
-        SnesButton.Right | SnesButton.A,
+        ControllerButton.Right | ControllerButton.A,
         directional.NewlyPressed,
         "typed newly-pressed view preserves every rising edge in a chord");
     AssertTrue(
-        (directional.CurrentButtons & SnesButtons.HorizontalDirections) == SnesButton.Right,
+        (directional.CurrentButtons & ControllerButtons.HorizontalDirections) == ControllerButton.Right,
         "exact-Right comparison ignores unrelated action buttons");
-    directional.Latch((SnesButton.Right | SnesButton.Left | SnesButton.A));
+    directional.Latch((ControllerButton.Right | ControllerButton.Left | ControllerButton.A));
     AssertTrue(
-        (directional.CurrentButtons & SnesButtons.HorizontalDirections) != SnesButton.Right,
+        (directional.CurrentButtons & ControllerButtons.HorizontalDirections) != ControllerButton.Right,
         "exact-Right comparison rejects opposed horizontal input");
-    AssertEqual(SnesButton.Left, directional.NewlyPressed,
+    AssertEqual(ControllerButton.Left, directional.NewlyPressed,
         "typed newly-pressed view reports only the added direction");
 
     // A real SNES controller cannot close both contacts, but adapter/SMV words can. The
     // cartridge latches that raw chord without normalizing it to neutral. Added directions
     // remain independent rising edges, which is observable in L+R movement techniques.
-    SnesButton opposedDirections = (SnesButton.Left | SnesButton.Right);
+    ControllerButton opposedDirections = (ControllerButton.Left | ControllerButton.Right);
     var simultaneous = new ControllerInputState();
     simultaneous.Latch(opposedDirections);
     AssertEqual(opposedDirections, simultaneous.Current,
@@ -449,22 +449,22 @@ internal static void VerifyControllerInputLatch()
     AssertEqual(opposedDirections, simultaneous.NewlyPressed,
         "simultaneous first press publishes both direction edges");
     simultaneous.Latch(opposedDirections);
-    AssertEqual(SnesButton.None, simultaneous.NewlyPressed,
+    AssertEqual(ControllerButton.None, simultaneous.NewlyPressed,
         "stable simultaneous directions do not repeat as new input");
-    simultaneous.Latch((opposedDirections | SnesButton.Up));
-    AssertEqual(SnesButton.Up, simultaneous.NewlyPressed,
+    simultaneous.Latch((opposedDirections | ControllerButton.Up));
+    AssertEqual(ControllerButton.Up, simultaneous.NewlyPressed,
         "elevator direction remains a new edge while Left+Right stays held");
 
     var leftThenBoth = new ControllerInputState();
-    leftThenBoth.Latch(SnesButton.Left);
+    leftThenBoth.Latch(ControllerButton.Left);
     leftThenBoth.Latch(opposedDirections);
-    AssertEqual(SnesButton.Right, leftThenBoth.NewlyPressed,
+    AssertEqual(ControllerButton.Right, leftThenBoth.NewlyPressed,
         "adding Right to held Left publishes only the Right edge");
 
     var rightThenBoth = new ControllerInputState();
-    rightThenBoth.Latch(SnesButton.Right);
+    rightThenBoth.Latch(ControllerButton.Right);
     rightThenBoth.Latch(opposedDirections);
-    AssertEqual(SnesButton.Left, rightThenBoth.NewlyPressed,
+    AssertEqual(ControllerButton.Left, rightThenBoth.NewlyPressed,
         "adding Left to held Right publishes only the Left edge");
 
     Console.WriteLine("  Input: NMI latch, rising edges, and repeat countdown agree.");
@@ -529,17 +529,17 @@ internal static void VerifyFrameRuntime()
     var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, -0x0010, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.Display.ActiveSamusMode7Transform = firstMode7;
 
-    runtime.StepFrame(SnesButton.Start);
+    runtime.StepFrame(ControllerButton.Start);
     AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
-    AssertEqual(SnesButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
+    AssertEqual(ControllerButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
     AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayPpu.Bg1Scroll),
         runtime.Display.DisplayedPerspectiveFloor, "the accepted frame shows the shaft's transform");
 
     var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, -0x0020, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.Display.ActiveSamusMode7Transform = secondMode7;
-    runtime.StepFrame(SnesButton.Start);
-    AssertEqual(SnesButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
+    runtime.StepFrame(ControllerButton.Start);
+    AssertEqual(ControllerButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
     AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");
     AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
         "complete gameplay passes publish distinct audio generations");

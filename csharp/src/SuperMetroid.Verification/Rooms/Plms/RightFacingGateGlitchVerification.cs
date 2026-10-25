@@ -106,7 +106,7 @@ internal static class RightFacingGateGlitchVerification
             var bombs = CreateBombFixture();
             for (int frame = 0; frame < 30; frame++)
             {
-                SnesButton input = frame == 0 ? SnesButton.X : 0;
+                ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                 var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
@@ -213,15 +213,15 @@ internal static class RightFacingGateGlitchVerification
         // setup holds right+dash for all 31 accepted samples, introduces jump+dash+angle
         // on the first resumed sample, then fires at the candidate resumed frame.
         for (int frame = 0; frame < 31; frame++)
-            runtime.StepFrame((SnesButton.Right | SnesButton.B));
+            runtime.StepFrame((ControllerButton.Right | ControllerButton.B));
 
         int openFrame = -1;
         Position16<RoomPixels> shotPosition = Position16<RoomPixels>.Zero;
         for (int frame = 0; frame < 40; frame++)
         {
-            SnesButton input = SnesButton.A | SnesButton.B | SnesButton.R;
+            ControllerButton input = ControllerButton.A | ControllerButton.B | ControllerButton.R;
             if (frame == shootFrame)
-                input |= SnesButton.X;
+                input |= ControllerButton.X;
             runtime.StepFrame(input);
             gate = runtime.Plms.PopulationSlots.Single(
                 slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);

@@ -58,7 +58,7 @@ public sealed class SamusDraygonGrabbedState
     /// WRAM <c>DraygonEscapePreviousDpadInput</c>. Native stores the entire masked D-pad
     /// nibble, not merely one direction, so a different diagonal chord is also a new input.
     /// </summary>
-    public SnesButton PreviousDpadInput { get; private set; }
+    public ControllerButton PreviousDpadInput { get; private set; }
 
     /// <summary>
     /// Set by release exactly like grapple-connected-flags bit one at `$90:E353`. Draygon's
@@ -152,16 +152,16 @@ public sealed class SamusDraygonGrabbedState
     /// </summary>
     public DraygonEscapeResult StepEscapeHandler(
         SamusState samus,
-        SnesButton newlyPressedInput,
+        ControllerButton newlyPressedInput,
         bool grappleLockedInPlace)
     {
         Ensure.NotNull(samus);
         EnsureActiveGrabbedPose();
 
-        SnesButton newlyPressed = newlyPressedInput;
-        SnesButton dpad = newlyPressed & SnesButtons.DirectionalPad;
+        ControllerButton newlyPressed = newlyPressedInput;
+        ControllerButton dpad = newlyPressed & ControllerButtons.DirectionalPad;
         bool counted = false;
-        if (dpad != SnesButton.None && dpad != PreviousDpadInput)
+        if (dpad != ControllerButton.None && dpad != PreviousDpadInput)
         {
             PreviousDpadInput = dpad;
             EscapeButtonCounter = CountPress(EscapeButtonCounter);

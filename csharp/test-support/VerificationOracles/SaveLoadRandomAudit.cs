@@ -37,7 +37,7 @@ internal static class SaveLoadRandomAudit
             long dispatches = 0;
             // Each main-loop dispatch calls GenerateRandomNumber once; an update that only
             // resumes a menu or loading dispatch after its NMI wait does not.
-            void Step(SnesButton input)
+            void Step(ControllerButton input)
             {
                 if (!game.NextUpdateResumesFrameWait) dispatches++;
                 game.StepCaptured(input, ++sequence, 1);
@@ -59,7 +59,7 @@ internal static class SaveLoadRandomAudit
                         bindPresentation(game);
                     }
                 }
-                Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
+                Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
             }
             var runtime = game.RuntimeForVerification;
             if (!insertedWait || runtime?.Player.Samus is null)
@@ -96,7 +96,7 @@ internal static class SaveLoadRandomAudit
             {
                 // The map's final dispatch resumes after its forced-blank NMI wait without a main-loop call.
                 bool resumesFrameWait = game.NextUpdateResumesFrameWait;
-                game.StepCaptured(tick % 47 == 0 ? SnesButton.Start : 0, ++sequence, 1);
+                game.StepCaptured(tick % 47 == 0 ? ControllerButton.Start : 0, ++sequence, 1);
                 if (!resumesFrameWait)
                     expected.NextRandom();
                 if (game.DispatcherRandomNumber != expected.RandomNumber)

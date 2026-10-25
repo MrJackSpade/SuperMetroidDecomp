@@ -15,7 +15,7 @@ public static class SamusPostDrawAudio
     /// transition; the shared post-draw check handles them without per-input patches.
     /// </summary>
     public static void Step(SamusState samus,
-        SamusMovementType previousMovement, SnesButton controllerInput)
+        SamusMovementType previousMovement, ControllerButton controllerInput)
     {
         // The signed latch takes native's direct branch to rearming positive one. It
         // must not play a charge sound or run the spin-stop test on this frame.
@@ -41,7 +41,7 @@ public static class SamusPostDrawAudio
         // Resume on the NEXT post-draw pass, after the spin-stop command. The runtime
         // supplies normalized controls, so X here is the configured Shoot action.
         if (samus.ProjectileFlareCounter >= BeamChargeDefinitions.ChargeSoundStartCounter &&
-            (controllerInput & SnesButton.X) != 0)
+            (controllerInput & ControllerButton.X) != 0)
             samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
     }
 }

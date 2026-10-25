@@ -58,7 +58,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "new RoomTransitionCarryOver(previous camera, inherited layer-1 position, projectile residue, door gates, enemy residue)",
    "classification": "carry-over",
    "evidence": "everything the destination reads from the outgoing room, captured before construction begins",
@@ -68,7 +68,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "ActiveRoomState.BeginConstruction(door, room, assets, load station)",
    "classification": "room",
    "evidence": "the new scope; a door-entered room has no load station",
@@ -76,7 +76,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "HudSetup.SelectGameplayHudCharacterBase",
    "classification": "session",
    "evidence": "BG34NBA=$04 for every ordinary room load",
@@ -84,7 +84,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "new WreckedShipTreadmill, MaridiaElevatube, CeresElevatorShaft(RoomMainScratch)",
    "classification": "room",
    "evidence": "room mains are built per room; RoomMainScratch ($07E1) is session state passed in, never cleared",
@@ -94,7 +94,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Display.ActiveSamusMode7Transform; PublishDoorMode7",
    "classification": "session",
    "evidence": "ordinary doors clear stale Mode 7 math; the Ceres elevator door publishes its matrix",
@@ -102,7 +102,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "scope.LevelData; new ScrollBoundaryCamera",
    "classification": "room",
    "evidence": "the room level data and a new camera",
@@ -110,7 +110,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Camera.InheritTrackingState / SetDoorTransitionPosition / RetainSubpositions",
    "classification": "carry-over",
    "evidence": "camera tracking state and fraction words survive door loading (#1266, 80cc097fc)",
@@ -121,7 +121,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "BackgroundScroll.Layer2Scroll; PrimePreviousBlocks / PrepareDoorOpeningDestination",
    "classification": "session",
    "evidence": "the session background scroll takes the room's layer-2 mode and door-opening destination",
@@ -129,7 +129,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "new BackgroundTilemapStreamer; new ScrollingSkyState",
    "classification": "room",
    "evidence": "per-room streamers",
@@ -137,7 +137,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "assets.LoadGraphics; LoadGameplaySpritePalettes",
    "classification": "room",
    "evidence": "room graphics and the common sprite rows ($82:E139)",
@@ -145,7 +145,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "RoomLayer3FxState.ForRoom; PrimeViewport",
    "classification": "room",
    "evidence": "LoadFXHeader: the door-selected FX record; reads RoomFxSession and consumes the session RNG value",
@@ -156,7 +156,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "new CeresHazeState; sand, spike and treadmill animated tiles",
    "classification": "room",
    "evidence": "the Ceres haze and the FX-record animated tiles",
@@ -166,7 +166,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Layer3Fx.ApplyToSamusLiquidPhysics",
    "classification": "room",
    "evidence": "publishes the new liquid to Samus",
@@ -176,7 +176,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "RoomPaletteFxSystem.ForRoom",
    "classification": "room",
    "evidence": "the bank-$8D palette-FX objects of the FX record; reads PaletteFxSessionState",
@@ -187,7 +187,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "LibraryBackgroundLoader.ExecuteProgram",
    "classification": "room",
    "evidence": "the library-background program, before the BG1 fill",
@@ -195,7 +195,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Samus speed echoes and shinespark echo storage cleared",
    "classification": "session",
    "evidence": "native ResetProjectileData clears Samus's echo words; Samus is session state",
@@ -205,7 +205,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "new SamusBombProjectileSystem; new SamusProjectileSystem(BeamChargeState, ProjectileResidue)",
    "classification": "room",
    "evidence": "$82:E43A-$E472 destroys room-owned objects; the held charge is the session BeamChargeState and slot residue is carried",
@@ -216,7 +216,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Artwork.BindProjectiles; BindGameplayWindowRegisters; Shinespark.BindProjectileOwners",
    "classification": "session",
    "evidence": "session presenters and Samus are pointed at the new room's projectiles",
@@ -224,7 +224,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "new RoomAreaProgress, RoomPlmRuntimeServices, PlmRoom, RoomPlmServices, RoomPlmSystem, RoomEnemyRuntimeServices",
    "classification": "room",
    "evidence": "the room's PLM system and the area services its PLMs and enemies share, built once per load",
@@ -232,7 +232,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "PopulationLoader.LoadRoomPopulation",
    "classification": "room",
    "evidence": "the PLM population",
@@ -240,7 +240,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "DoorTransition.RunDoorSetupCode and setup-callback PLM spawns",
    "classification": "room",
    "evidence": "door ASM after the PLMs exist, before enemies; acts on the destination's room mains",
@@ -248,7 +248,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "DoorPlms.TrySpawnDoorClosingPlm",
    "classification": "room",
    "evidence": "the door closer after room PLMs, before enemies",
@@ -256,7 +256,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Artwork.UpdateBeamTilesAndPalette",
    "classification": "room",
    "evidence": "the entering beam before enemy init ($82:E4CC)",
@@ -266,7 +266,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "new RoomEnemySystem(EnemySession, EnemyResidue, definitions, services); Enemies.Load",
    "classification": "room",
    "evidence": "the enemy population; the projectile pool and sprite objects start empty, residue is carried",
@@ -277,7 +277,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Hud.DisableMinimapForBoss; MarkExploredMapTile",
    "classification": "room",
    "evidence": "Ridley minimap handling",
@@ -287,7 +287,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "EscapeEffects.SetupEscapeRoomEffects",
    "classification": "room",
    "evidence": "escape-room effects",
@@ -295,7 +295,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests",
    "classification": "room",
    "evidence": "order-sensitive: gate requests from PLM setup apply after the enemy system is loaded",
@@ -303,7 +303,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "SpawnPrePhantoonRoomProjectile; ApplyEnemyRequestedRoomEffects; new TourianStatueSequence; QueueGraphicsUploads",
    "classification": "room",
    "evidence": "post-enemy setup",
@@ -311,7 +311,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "Enemies.ResumeDoorTransitionGates(DoorGates)",
    "classification": "carry-over",
    "evidence": "the door gates, clear during population as the enemy load cleared them, are re-asserted (#1194)",
@@ -321,7 +321,7 @@
   },
   {
    "file": "Rooms/RoomLoader.cs",
-   "body": "LoadCartridgeRoom",
+   "body": "LoadRoom",
    "step": "ActiveRoomState.Adopt(scope.Complete())",
    "classification": "room",
    "evidence": "the finished scope replaces the outgoing room's",

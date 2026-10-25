@@ -126,7 +126,7 @@ internal sealed class AcceptedFrameBoundary
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
-        var ppu = new GameplayPpuRenderSnapshot(
+        var displayScroll = new GameplayPpuRenderSnapshot(
             _backgroundScroll.Layer1Position,
             _backgroundScroll.Bg1Scroll,
             _backgroundScroll.Bg2Scroll,
@@ -140,9 +140,9 @@ internal sealed class AcceptedFrameBoundary
         GameplayLatchedScene scene = CaptureScene();
         ImmutableArray<ushort>? reveal = CaptureXrayRevealTilemap(scene);
         _display.Latched = new GameplayDisplayLatch(
-            ppu,
+            displayScroll,
             _screenLayers.Displayed,
-            CapturePerspectiveFloor(ppu.Bg1Scroll),
+            CapturePerspectiveFloor(displayScroll.Bg1Scroll),
             roomLayer3Fx,
             CaptureMorphBallEyeBeamForDisplay(),
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
@@ -248,8 +248,8 @@ internal sealed class AcceptedFrameBoundary
         // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures, which its characters must still show
         // (#1392); Ceres Ridley's getaway writes its warning's and doors' characters over them once his Mode 7 ends.
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
-        if (latched.ShowsPerspectiveFloor && scope.FloorMap is { } mode7)
-            mode7.Tiles.AssertShownBy(_backgrounds, mode7.NamedTiles);
+        if (latched.ShowsPerspectiveFloor && scope.FloorMap is { } floorMap)
+            floorMap.Tiles.AssertShownBy(_backgrounds, floorMap.NamedTiles);
         if (rooms.Characters != RoomBackgroundCharacters.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose planes draw from the object character page.");
         RevealedBlock?[]? revealed = null;

@@ -25,7 +25,7 @@ public sealed class RoomVisualLayout
         ReadOnlySpan<ushort> foregroundVisualWords,
         ReadOnlySpan<ushort> backgroundVisualWords)
     {
-        ArgumentNullException.ThrowIfNull(level.Name, nameof(level));
+        Ensure.NotNull(level.Name);
         if (size.X <= 0 || size.Y <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Room layout dimensions must be positive.");
         int expected = size.Area;

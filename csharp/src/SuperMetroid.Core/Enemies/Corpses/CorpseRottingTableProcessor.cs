@@ -59,16 +59,16 @@ public static class CorpseRottingTableProcessor
         Ensure.NotNull(copyOrMovePixelRow);
         Ensure.NotNull(entryFinished);
 
-        for (ushort entryIndex = 0; entryIndex < table.EntryCount; entryIndex++)
+        for (int entryIndex = 0; entryIndex < table.EntryCount; entryIndex++)
         {
-            short yOffset = unchecked((short)table.YOffset(entryIndex));
+            int yOffset = unchecked((short)table.YOffset(entryIndex));
 
             // `$FFFF` marks a finished non-final entry. The assembly uses BMI, so every
             // signed-negative value is skipped rather than testing one invented sentinel.
             if (yOffset < 0)
                 continue;
 
-            ushort timer = table.Delay(entryIndex);
+            int timer = table.Delay(entryIndex);
             if (timer != 0)
             {
                 timer = WrappingCounter.Decrement(timer).Value;
@@ -85,14 +85,14 @@ public static class CorpseRottingTableProcessor
             // A row whose delay has expired always uses the destructive callback, then
             // advances by two pixels. This produces the cartridge's interleaved fall.
             copyOrMovePixelRow(unchecked((ushort)yOffset), CorpseRowOperation.Move);
-            ushort nextYOffset = unchecked((ushort)(yOffset + 2));
+            int nextYOffset = unchecked((ushort)(yOffset + 2));
             if (nextYOffset < yLimit)
             {
                 table.SetYOffset(entryIndex, nextYOffset);
                 continue;
             }
 
-            entryFinished(entryIndex);
+            entryFinished(checked((ushort)entryIndex));
             if (entryIndex >= yLimit)
                 return false;
 

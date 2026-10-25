@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="Touch">How the rectangle reacts when Samus touches it.</param>
 /// <param name="Shot">How the rectangle reacts when a Samus projectile hits it.</param>
 internal readonly record struct SpacePirateCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, SpacePirateHitboxTouch Touch, SpacePirateHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, SpacePirateHitboxTouch Touch, SpacePirateHitboxShot Shot);

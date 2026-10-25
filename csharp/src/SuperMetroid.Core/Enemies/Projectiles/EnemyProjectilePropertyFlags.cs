@@ -8,6 +8,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [Flags]
 internal enum EnemyProjectilePropertyFlags
 {
+    /// <summary>None of the behaviours.</summary>
+    None = 0,
     /// <summary>Draws at high priority.</summary>
     HighPriority = 1,
     /// <summary>Does not damage Samus.</summary>

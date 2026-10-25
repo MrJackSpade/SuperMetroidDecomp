@@ -74,14 +74,14 @@ internal sealed class FallingSparksBehavior
 
             uint acceleratedFraction = (uint)projectile.Velocity.X.RawValue + 16384;
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)acceleratedFraction)));
-            ushort acceleratedWhole = unchecked((ushort)(
+            int acceleratedWhole = unchecked((ushort)(
                 projectile.Velocity.Y.RawValue + SnesCarry.OutOfWord(acceleratedFraction)));
 
             // CMP #$0004 / BCS deliberately stops storing the whole word once it reaches
             // four. The fractional word still received its $4000 increment immediately
             // before this test, reproducing the cartridge's slightly asymmetric cap.
             if (acceleratedWhole < 4)
-                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(acceleratedWhole));
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(checked((ushort)acceleratedWhole)));
         }
 
         AddFallingSparkVerticalVelocity(projectile);

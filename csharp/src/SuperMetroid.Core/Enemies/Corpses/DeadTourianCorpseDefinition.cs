@@ -5,5 +5,5 @@ internal readonly record struct DeadTourianCorpseDefinition(
     DeadTourianProgram InitialProgram,
     int RotTableOffset,
     RottingCorpseKind Kind,
-    ushort EntryCount,
-    ushort WrapOffset);
+    int EntryCount,
+    int WrapOffset);

@@ -89,7 +89,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Parameter two is a logical entry index. Each common linear-speed record is eight
         // bytes: positive fraction/whole followed by its separately authored negative pair.
-        ushort speedOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
+        int speedOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
         state.PositiveVelocity = ReadPipeBugLinearVelocity(speedOffset);
         state.NegativeVelocity = ReadPipeBugLinearVelocity(unchecked((ushort)(speedOffset + 4)));
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
@@ -211,7 +211,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus)
     {
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+        int deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (deltaY >= 0 || unchecked((short)(deltaY + BrinstarPipeBugTriggerTop)) < 0)
             return;
 
@@ -260,7 +260,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
-        ushort cameraX)
+        int cameraX)
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
             (state.BrinstarFliesLeft ? -2 : 2))));
@@ -316,7 +316,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState leaderState,
         SamusState samus)
     {
-        ushort triggerWidth = unchecked((byte)leader.Spawn.Population.Parameter2);
+        int triggerWidth = unchecked((byte)leader.Spawn.Population.Parameter2);
         if (!EnemyMath.IsWithinStrictModularDistance(leader.Position.X.Whole, samus.Position.X.Whole, triggerWidth) ||
             unchecked((short)(leader.Position.Y.Whole - samus.Position.Y.Whole)) < 0)
         {
@@ -370,7 +370,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunNorfairPipeBugVerticalStagger(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
-        short signedOffset)
+        int signedOffset)
     {
         state.CountFormationTick();
         // Negative offsets move upward with table entry 66; positive offsets move downward
@@ -379,8 +379,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             axis: Axis.Vertical,
             byteOffset: signedOffset < 0 ? 132 : 128);
-        Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, signedOffset);
-        short distancePastTarget = (slot.Position.Whole - target).Y;
+        Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, checked((short)signedOffset));
+        int distancePastTarget = (slot.Position.Whole - target).Y;
         bool reached = signedOffset < 0
             ? distancePastTarget < 0
             : distancePastTarget >= 0;
@@ -463,7 +463,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
         bool inFront = slot.Spawn.Population.Parameter1 != 0
             ? deltaX < 0 && unchecked((short)(deltaX + YellowPipeBugTriggerDistance)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - YellowPipeBugTriggerDistance)) < 0;
@@ -617,7 +617,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The signed 16.16 entry of the common linear speed table at <paramref name="byteOffset"/>.</summary>
-    private static SnesSignedSixteenSixteen ReadPipeBugLinearVelocity(ushort byteOffset)
+    private static SnesSignedSixteenSixteen ReadPipeBugLinearVelocity(int byteOffset)
     {
         SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
         return speed;

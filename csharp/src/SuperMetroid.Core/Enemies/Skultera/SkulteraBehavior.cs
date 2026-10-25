@@ -69,7 +69,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
 
-        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) * 8));
+        int speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) * 8));
         SnesSignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightVelocity = right;
         SnesSignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));

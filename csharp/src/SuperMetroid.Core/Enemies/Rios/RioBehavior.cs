@@ -112,7 +112,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
+                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
                     state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                     ReverseRioVerticalVelocityAndBounce(state);
@@ -121,7 +121,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
+                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
                 {
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
@@ -149,14 +149,14 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
+                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
                     state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 }
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
+                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
                 {
                     InstallRioInstructionList(
                         slot,
@@ -186,19 +186,19 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                byte angle = EnemyMath.CalculateBearing(
-                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
+                SnesByteAngle angle = EnemyMath.CalculateBearing(
+                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle();
                 state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(ReadRioSignedSineCosineSample(
-                    unchecked(new SnesByteAngle((byte)(angle + EnemyByteAngleDefinitions.QuarterTurn))))));
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(new SnesByteAngle(angle))));
+                    angle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn))));
+                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(angle)));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
                     slot,
-                    EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X.RawValue));
+                    EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X));
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
-                    EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue));
+                    EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y));
                 return;
 
             default:

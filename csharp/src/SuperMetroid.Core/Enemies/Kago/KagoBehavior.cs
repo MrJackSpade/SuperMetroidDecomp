@@ -224,7 +224,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Kago samples the existing random word and never advances it. SpawnEprojInner has
         // already cleared subpositions, velocities, flags, and collision scratch for us.
-        ushort initialIdleTimer = unchecked((ushort)((ReadKagoRandomNumber() & 7) + 1));
+        int initialIdleTimer = unchecked((ushort)((ReadKagoRandomNumber() & 7) + 1));
         projectile.CollidedProjectileType = initialIdleTimer;
         projectile.Variable0 = unchecked((ushort)(initialIdleTimer + 4));
         projectile.PreInstruction =
@@ -341,11 +341,11 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         StepKagoBugSound(projectile);
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-        ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
+        int upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
         RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
-        short sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
+        int sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
         bool jumpLeft;
         if (Math.Abs((int)sourceDelta) >= KagoBugSourceHomingDistance)
         {

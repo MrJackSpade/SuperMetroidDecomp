@@ -25,7 +25,7 @@ internal static class HopperRecordStateVerification
         slot.Clear();
         AssertEqual<HopperEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.YSpeedTableIndex, "a kill empties YSpeedTableIndex");
-        AssertEqual<short>(0, state.XVelocity, "a kill empties XVelocity");
+        AssertEqual(0, state.XVelocity, "a kill empties XVelocity");
         AssertEqual<int>(0, state.YSpeedTableIndexDelta, "a kill empties YSpeedTableIndexDelta");
         Console.WriteLine("Hopper record state: a kill empties every value the record holds.");
     }

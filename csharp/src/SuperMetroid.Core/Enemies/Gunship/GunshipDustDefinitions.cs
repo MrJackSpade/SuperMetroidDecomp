@@ -11,7 +11,7 @@ public static class GunshipDustDefinitions
     /// InitAI_EnemyProjectile_GunshipLiftoffDustClouds. Even parameters 0/2/4 select
     /// right-side clouds; 6/8/A select left-side clouds, each starting its typed program (#641).
     /// </summary>
-    internal static GunshipDustPlacement ForParameter(ushort parameter) => parameter switch
+    internal static GunshipDustPlacement ForParameter(int parameter) => parameter switch
     {
         0 => new GunshipDustPlacement(64, GunshipDustProgram.RightInner),
         2 => new GunshipDustPlacement(72, GunshipDustProgram.RightMiddle),

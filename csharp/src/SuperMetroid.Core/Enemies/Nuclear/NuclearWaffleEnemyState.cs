@@ -67,9 +67,9 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>Native $7E:8010/$8012 bodyPartSpawnX/YPosition: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>
     public Position16<RoomPixels> InitialHead { get; internal set; }
     /// <summary>Native $7E:8016 angleBetweenBodyPartsTimes2: signed same-pool link pitch, -24 backward or +24 forward, subtracted successively from each link angle.</summary>
-    public short SegmentSpacing { get; internal set; }
+    public int SegmentSpacing { get; internal set; }
     /// <summary>Native $7E:8018 angleBetweenBodyParts: signed half-pitch, -12 or +12 angle units, added before the projectile-link loop to stagger it against the sprite-object links.</summary>
-    public short InterleavedSegmentOffset { get; internal set; }
+    public int InterleavedSegmentOffset { get; internal set; }
     /// <summary>Native $7E:801E fallingExplosionAngle: 256 backward or 384 forward; crossing it is the silent second joint turn.</summary>
     public int FirstTurnThreshold { get; internal set; }
     /// <summary>Native $7E:8020 risingExplosionAngle: 384 backward or 256 forward; crossing it is the joint turn that queues the turn sound.</summary>

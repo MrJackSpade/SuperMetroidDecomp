@@ -141,10 +141,10 @@ internal sealed class EnemyPresentation
     /// The set has no sheet for that tile base, or a frame showing a corpse's rot is drawn without that rot.
     /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
-        int tileBase, ushort paletteBits, CorpseRotView? rot = null)
+        int tileBase, int paletteBits, CorpseRotView? rot = null)
     {
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
-        int drawn = SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
+        int drawn = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits)).PaletteIndex;
         foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame),
                      Sheets.SpawnedRotCorpse(LoadedSet, tileBase, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None, drawn == sheet.Palette ? null : drawn));

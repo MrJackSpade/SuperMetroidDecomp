@@ -281,7 +281,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // The rising half reads the negative member of the same quadratic row. The
                 // native AND $7F00 is retained even though valid bounce indexes stay below
                 // $4000; it documents the exact table-index formation seen in a debugger.
-                ushort tableIndex = checked((ushort)
+                int tableIndex = checked((ushort)
                     SnesEightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits));
                 _terrain.MoveEnemyVertically(
                     level,
@@ -302,7 +302,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        ushort byteOffset = state.MovingLeft ? (ushort)132 : (ushort)128;
+        int byteOffset = state.MovingLeft ? (ushort)132 : (ushort)128;
         SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
             state.MovingLeft == state.SamusIsLeft;
@@ -376,7 +376,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!state.SamusInPushingRange)
             return;
 
-        ushort deltaX = unchecked((ushort)(slot.Position.X.Whole - state.PreviousPosition.X));
+        int deltaX = unchecked((ushort)(slot.Position.X.Whole - state.PreviousPosition.X));
         bool movedLeft = unchecked((short)deltaX) < 0;
         if (movedLeft != state.SamusIsLeft)
             return;
@@ -393,7 +393,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!state.SamusInPushingRange)
             return;
 
-        short deltaX = unchecked((short)(slot.Position.X.Whole - state.PreviousPosition.X));
+        int deltaX = unchecked((short)(slot.Position.X.Whole - state.PreviousPosition.X));
         bool stop;
         if (deltaX == 0)
         {
@@ -427,19 +427,19 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomEnemySlot slot,
         SamusState samus)
     {
-        ushort xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
+        int xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             samus.Position.X.Whole - slot.Position.X.Whole)));
         bool centerWithinSamusRadius = xDistance < samus.Kinematics.Radius.X;
-        ushort remainingX = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
+        int remainingX = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
         if (!centerWithinSamusRadius && remainingX >= slot.Radius.X)
             return false;
 
-        ushort biasedSamusY = unchecked((ushort)(samus.Position.Y.Whole + 3));
+        int biasedSamusY = unchecked((ushort)(samus.Position.Y.Whole + 3));
         if (unchecked((short)(biasedSamusY - slot.Position.Y.Whole)) >= 0)
             return false;
 
-        ushort verticalDistance = unchecked((ushort)(slot.Position.Y.Whole - biasedSamusY));
-        ushort remainingY = unchecked((ushort)(verticalDistance - samus.Kinematics.Radius.Y));
+        int verticalDistance = unchecked((ushort)(slot.Position.Y.Whole - biasedSamusY));
+        int remainingY = unchecked((ushort)(verticalDistance - samus.Kinematics.Radius.Y));
         return verticalDistance < samus.Kinematics.Radius.Y ||
             remainingY == slot.Radius.Y ||
             remainingY < slot.Radius.Y;
@@ -500,7 +500,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (MaridiaLargeSnailTouchesSamusFromBelow(slot, samus))
             return;
 
-        ushort shove = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
+        int shove = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
             ? unchecked((ushort)-4)
             : (ushort)4;
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(shove)), 0);
@@ -623,10 +623,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         foreach (MaridiaLargeSnailCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {
-            ushort left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
-            ushort top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
-            ushort right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
-            ushort bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
+            int left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
+            int top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
+            int right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
+            int bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
             callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;

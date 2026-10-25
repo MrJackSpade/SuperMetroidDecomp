@@ -24,7 +24,7 @@ internal abstract record NinjaSpacePirateCue
     /// <param name="Throw">For a claw cue: the way the claw flies.</param>
     /// <param name="Offset">The cue's signed pixel offset.</param>
     /// <param name="OffsetY">The cue's second, vertical signed pixel offset.</param>
-    internal sealed record ThrowClaw(HorizontalDirection Throw, short Offset, short OffsetY) : NinjaSpacePirateCue;
+    internal sealed record ThrowClaw(HorizontalDirection Throw, Offset16<RoomPixels> Offset) : NinjaSpacePirateCue;
 
     /// <summary>A cue that carries no operand.</summary>
     /// <param name="Kind">What the cue does.</param>

@@ -16,10 +16,10 @@ internal sealed class EnemyBg2Image
     private EnemyBg2ImageSnapshot? published;
 
     /// <summary>Creates an image with every word <paramref name="fill"/>, as a boss's initialization clears it.</summary>
-    public EnemyBg2Image(ushort fill)
+    public EnemyBg2Image(int fill)
     {
         words = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
-        words.AsSpan().Fill(fill);
+        words.AsSpan().Fill(checked((ushort)fill));
     }
 
     /// <summary>Writes <paramref name="tiles"/> from word <paramref name="firstWord"/> onward.</summary>

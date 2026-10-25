@@ -26,8 +26,8 @@ public sealed class HopperEnemyState
         internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Signed whole-pixel horizontal velocity; the fractional word is always zero.</summary>
-    public short XVelocity { get; internal set; }
+    /// <summary>Signed whole-pixel horizontal velocity; the fractional word is always zero. Only three or its negation is stored.</summary>
+    public int XVelocity { get; internal set; }
 
     /// <summary>
     /// The record step, 3 for small hops or 4 for big hops, subtracted while moving away from the attachment surface

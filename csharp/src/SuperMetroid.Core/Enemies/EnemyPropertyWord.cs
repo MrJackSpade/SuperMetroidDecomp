@@ -8,12 +8,14 @@ namespace SuperMetroid.Core.Enemies;
 public readonly record struct EnemyPropertyWord
 {
     /// <summary>Creates a property word from named flags and the species-owned low byte.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="flags"/> contains low-byte or undefined bits.</exception>
-    public EnemyPropertyWord(EnemyProperties flags, byte familyData = 0)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="flags"/> contains low-byte or undefined bits, or <paramref name="familyData"/> is not a byte.
+    /// </exception>
+    public EnemyPropertyWord(EnemyProperties flags, int familyData = 0)
     {
         EnemyPropertyFlagExtensions.ValidateKnown(flags);
         Flags = flags;
-        FamilyData = familyData;
+        FamilyData = Ensure.BetweenInclusive(0, byte.MaxValue, familyData);
     }
 
     /// <summary>The named engine flags of the high byte.</summary>
@@ -21,13 +23,13 @@ public readonly record struct EnemyPropertyWord
 
     /// <summary>
     /// The species-owned family bits, 0 through 255. Every producer supplies a byte (the constructor and
-    /// <see cref="WithFamilyData"/> take one, and decoding takes the word's low byte), so the value cannot leave that
-    /// range, and the native word places it unchanged beside the flags.
+    /// <see cref="WithFamilyData"/> reject anything else, and decoding takes the word's low byte), so the value cannot
+    /// leave that range, and the native word places it unchanged beside the flags.
     /// </summary>
     public int FamilyData { get; }
 
     /// <summary>A native word as a property value; an unnamed high-byte flag is corrupt.</summary>
-    public static EnemyPropertyWord FromNativeWord(ushort word) => EnemyPropertyWordCodec.Decode(word);
+    public static EnemyPropertyWord FromNativeWord(int word) => EnemyPropertyWordCodec.Decode(checked((ushort)word));
 
     /// <summary>The native word.</summary>
     public ushort ToNativeWord() => EnemyPropertyWordCodec.Encode(this);
@@ -45,5 +47,5 @@ public readonly record struct EnemyPropertyWord
     public EnemyPropertyWord Replace(EnemyProperties clear, EnemyProperties set) => Without(clear).With(set);
 
     /// <summary>This value with a new species-owned low byte.</summary>
-    public EnemyPropertyWord WithFamilyData(byte familyData) => new(Flags, familyData);
+    public EnemyPropertyWord WithFamilyData(int familyData) => new(Flags, familyData);
 }

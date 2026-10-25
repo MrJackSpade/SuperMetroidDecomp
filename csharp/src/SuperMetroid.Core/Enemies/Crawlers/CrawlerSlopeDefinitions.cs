@@ -18,5 +18,5 @@ public static class CrawlerSlopeDefinitions
     };
 
     /// <summary>Converts signed 8.8 tangent speed into signed 16.16 displacement without truncating the product.</summary>
-    public static int Scale(ushort velocity, int shape) => unchecked((short)velocity) * Multiplier(shape);
+    public static int Scale(int velocity, int shape) => unchecked((short)velocity) * Multiplier(shape);
 }

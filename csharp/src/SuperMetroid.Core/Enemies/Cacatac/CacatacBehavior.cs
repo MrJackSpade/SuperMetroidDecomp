@@ -154,7 +154,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the 3/256 random attack gate at $A2:A01C.</summary>
     private void MaybeStartCacatacAttack(RoomEnemySlot slot, CacatacEnemyState state)
     {
-        ushort decision = unchecked((byte)(_room.Random.Generate() + slot.FrameCounter));
+        int decision = unchecked((byte)(_room.Random.Generate() + slot.FrameCounter));
         if (decision >= 3)
             return;
 
@@ -290,17 +290,17 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances one spike horizontally using its signed 8.8 velocity as a 16.16 delta.</summary>
     private static void MoveCacatacSpikeX(
         RoomEnemyProjectileSlot projectile,
-        ushort velocity)
+        int velocity)
     {
-        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(velocity).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
     }
 
     /// <summary>Advances one spike vertically using its signed 8.8 velocity as a 16.16 delta.</summary>
     private static void MoveCacatacSpikeY(
         RoomEnemyProjectileSlot projectile,
-        ushort velocity)
+        int velocity)
     {
-        projectile.Position = projectile.Position.AdvanceY(new SnesSignedEightEight(velocity).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceY(new SnesSignedEightEight(checked((ushort)velocity)).ToSixteenSixteenDelta());
     }
 
     /// <summary>
@@ -311,8 +311,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        ushort right = unchecked((ushort)(camera.X + 256));
-        ushort bottom = unchecked((ushort)(camera.Y + 256));
+        int right = unchecked((ushort)(camera.X + 256));
+        int bottom = unchecked((ushort)(camera.Y + 256));
         bool outside = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
             unchecked((short)(right - projectile.Position.X.Whole)) < 0 ||
             unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||

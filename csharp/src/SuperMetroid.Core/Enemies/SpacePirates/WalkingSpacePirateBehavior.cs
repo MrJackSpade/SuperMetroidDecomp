@@ -174,11 +174,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // Left and right are not mirrors in the cartridge. Left probes a point 17 pixels
         // away, then walks by -$3801 subpixels; right probes +16 and walks by +$3800.
         // Preserve that one-subpixel/one-pixel asymmetry instead of normalizing the speed.
-        ushort originalX = slot.Position.X.Whole;
+        int originalX = slot.Position.X.Whole;
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
             slot.Position.X.Whole - WalkingPirateLeftLedgeProbePixels)));
         bool floorAhead = _terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown);
-        slot.Position = slot.Position.WithWholeX(originalX);
+        slot.Position = slot.Position.WithWholeX(checked((ushort)originalX));
 
         if (floorAhead)
         {
@@ -218,11 +218,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (!_terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown))
             return;
 
-        ushort originalX = slot.Position.X.Whole;
+        int originalX = slot.Position.X.Whole;
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
             slot.Position.X.Whole + WalkingPirateRightLedgeProbePixels)));
         bool floorAhead = _terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown);
-        slot.Position = slot.Position.WithWholeX(originalX);
+        slot.Position = slot.Position.WithWholeX(checked((ushort)originalX));
 
         if (floorAhead &&
             !_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -338,7 +338,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomEnemySlot source,
         WalkingSpacePirateEnemyState state,
         HorizontalDirection direction,
-        short laserHeight)
+        int laserHeight)
     {
         if (!SpawnSpacePirateLaser(source, direction == HorizontalDirection.Right, laserHeight))
             return;
@@ -354,7 +354,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal bool SpawnSpacePirateLaser(
         RoomEnemySlot source,
         bool movingRight,
-        short laserHeight)
+        int laserHeight)
     {
         RoomEnemyProjectileSlot? projectile = SpawnPirateMotherBrainLaser(
             source,
@@ -541,8 +541,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             _ => throw new InvalidOperationException($"{projectile.Kind} has no laser pre-instruction {projectile.PreInstruction}."),
         });
 
-        ushort right = unchecked((ushort)(camera.X + 256));
-        ushort bottom = unchecked((ushort)(camera.Y + 256));
+        int right = unchecked((ushort)(camera.X + 256));
+        int bottom = unchecked((ushort)(camera.Y + 256));
         bool offScreen = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
             unchecked((short)(projectile.Position.X.Whole - right)) >= 0 ||
             unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||

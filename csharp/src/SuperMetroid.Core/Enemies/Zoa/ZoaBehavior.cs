@@ -97,8 +97,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         SamusState samus)
     {
-        ushort signedDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        ushort absoluteDistance = unchecked((short)signedDistance) < 0
+        int signedDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int absoluteDistance = unchecked((short)signedDistance) < 0
             ? unchecked((ushort)-signedDistance)
             : signedDistance;
         if (absoluteDistance >= ZoaActivationColumnDistance)

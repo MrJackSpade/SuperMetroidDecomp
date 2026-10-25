@@ -250,7 +250,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (EtecoonIsWithinY(slot, samus, EtecoonNearbyDistance) &&
                 EtecoonIsWithinX(slot, samus, EtecoonNearbyDistance))
             {
-                ushort direction = DetermineEtecoonDirectionToSamus(slot, samus);
+                int direction = DetermineEtecoonDirectionToSamus(slot, samus);
                 if (unchecked((short)(direction - 5)) < 0)
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookRightAtSamusAndRunLeft);
@@ -729,8 +729,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+        int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (Math.Abs(deltaY) < EtecoonDirectionBand)
             return deltaX < 0 ? (ushort)7 : (ushort)2;
         if (Math.Abs(deltaX) < EtecoonDirectionBand)

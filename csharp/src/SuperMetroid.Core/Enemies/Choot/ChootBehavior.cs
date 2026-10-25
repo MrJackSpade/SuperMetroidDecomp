@@ -36,14 +36,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
         // ROM table word points back into the pointer table and is documented garbage; no
         // retail population selects it, so expose corrupt/high parameters as invalid data.
-        ushort patternIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        int patternIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
         state.FallingPath = pattern.FallingPath;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
 
         // The SNES multiplier consumes only the loop count's low byte; the authored loop advance is
         // already below 256. Retail loop counts are nonzero.
-        ushort jumpHeight = unchecked((ushort)(
+        int jumpHeight = unchecked((ushort)(
             (SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) * state.FallingPatternYDistance));
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(unchecked((ushort)(
@@ -89,7 +89,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // GetSignedYMinusX treats the wrapped word as signed before taking its magnitude.
         // In particular, $8000 remains $8000 after negation; ordinary Math.Abs(short) would
         // throw and a wider subtraction would disagree near the world-coordinate seam.
-        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (EnemyMath.IsNegative16(distance))
             distance = unchecked((ushort)-distance);
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
@@ -168,7 +168,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Ports <c>CalculateChootInitialJumpSpeed</c> at <c>$A2:DFE9</c>, integrating every second quadratic step until
     /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
     /// </summary>
-    private static int CalculateInitialChootYSpeedTableIndex(ushort jumpHeight)
+    private static int CalculateInitialChootYSpeedTableIndex(int jumpHeight)
     {
         int tableIndex = 0;
         uint accumulatedDistance = 0;
@@ -177,7 +177,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             tableIndex += 2;
             accumulatedDistance = unchecked(accumulatedDistance +
                 (uint)EnemyMath.ReadQuadraticEnemySpeed(tableIndex, negative: false));
-            ushort wholeDistance = SnesFixedPosition.WholeOf(unchecked((int)accumulatedDistance));
+            int wholeDistance = SnesFixedPosition.WholeOf(unchecked((int)accumulatedDistance));
             if (unchecked((short)(wholeDistance - jumpHeight)) >= 0)
                 return tableIndex;
         }

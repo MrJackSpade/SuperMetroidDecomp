@@ -48,7 +48,7 @@ internal static class CrawlerAnimationDefinitions
         CrawlerSurfaceOrientation orientation) => Family(family).ForOrientation(orientation);
     /// <summary>Returns one shared surface animation using the native even species offset.</summary>
     internal static CrawlerProgram SurfaceProgram(
-        ushort speciesByteOffset,
+        int speciesByteOffset,
         CrawlerSurfaceOrientation orientation)
     {
         if ((speciesByteOffset & 1) != 0 || speciesByteOffset > 10)

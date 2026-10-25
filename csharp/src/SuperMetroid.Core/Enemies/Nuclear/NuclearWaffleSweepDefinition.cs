@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal readonly record struct NuclearWaffleSweepDefinition(
     int StartAngle,
     int EndAngle,
-    short SegmentSpacing,
-    short InterleavedSegmentOffset,
+    int SegmentSpacing,
+    int InterleavedSegmentOffset,
     int SecondTurnThreshold,
     int FirstTurnThreshold);

@@ -140,7 +140,7 @@ public sealed class KiHunterEnemyState
     public bool HasLostWings { get; internal set; }
 
     /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the cartridge's word does.</summary>
-    internal void AccumulateDetachedSpeed(ushort step) => DetachedSpeedAccumulator = unchecked((ushort)(DetachedSpeedAccumulator + step));
+    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = unchecked((ushort)(DetachedSpeedAccumulator + step));
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

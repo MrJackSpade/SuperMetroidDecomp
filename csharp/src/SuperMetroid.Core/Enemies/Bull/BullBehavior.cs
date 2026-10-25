@@ -147,7 +147,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // only ORs $FF00 when bit seven is set and never clears a borrowed high byte, so a
         // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
         // takes the absolute value and CMP/BMI tests it against $30.
-        ushort difference = unchecked((ushort)(state.AngleToSamus.TableIndex - state.Angle));
+        int difference = unchecked((ushort)(state.AngleToSamus.TableIndex - state.Angle));
         difference = EnemyMath.SignExtendLowByte(difference);
         if (EnemyMath.IsNegative16(difference))
             difference = unchecked((ushort)-difference);
@@ -178,18 +178,18 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies Bull's 24-bit sine-times-speed displacement and native negative-fraction rule.</summary>
     private static SnesFixedPosition AddBullComponent(
         SnesFixedPosition position,
-        short sine,
+        int sine,
         int speed)
     {
         // Bull discards the sine table's low byte, multiplies the absolute high byte by its
         // unsigned 8.8 speed, and keeps the 24-bit result as a 16.16 displacement. Negative
         // components use $A8:DAF6, whose zero-fraction path is deliberately one subpixel more
         // negative than a conventional two's-complement negation.
-        ushort magnitude = unchecked((ushort)Math.Abs((int)sine));
-        byte sineHighByte = SnesLittleEndian.HighByte(magnitude);
+        int magnitude = unchecked((ushort)Math.Abs((int)sine));
+        int sineHighByte = SnesLittleEndian.HighByte(magnitude);
         uint product = sineHighByte * (uint)speed;
-        ushort fraction = unchecked((ushort)product);
-        ushort whole = SnesFixedPosition.WholeOf(unchecked((int)product));
+        int fraction = unchecked((ushort)product);
+        int whole = SnesFixedPosition.WholeOf(unchecked((int)product));
         if (sine < 0 && (whole != 0 || fraction != 0))
         {
             if (fraction == 0)
@@ -209,7 +209,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ResolveBullImmuneShot(
         RoomEnemySlot bull,
         BullEnemyState state,
-        ushort projectileDirection)
+        int projectileDirection)
     {
         if (state.ShotReactionDisabled)
             return;

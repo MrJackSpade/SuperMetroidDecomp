@@ -342,7 +342,7 @@ internal sealed class DraygonParts
             throw new InvalidOperationException("Draygon's tail-hit instruction requires Samus state.");
 
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
-        ushort rawDamage = state.Body.Definition.Damage;
+        ushort rawDamage = checked((ushort)state.Body.Definition.Damage);
         ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? unchecked((ushort)(rawDamage >> 2))
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)

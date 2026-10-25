@@ -202,9 +202,9 @@ internal sealed class EnemyCollision
                 // rewrites that slot to explosion family `$0700`, so retain the incoming
                 // word instead of accidentally asking the vulnerability table about the
                 // newly-created visual effect.
-                ushort projectileType = projectile.PackedType.Raw;
-                ushort projectileDamage = checked((ushort)projectile.Damage);
-                ushort projectileDirection = projectile.PackedDirection.Raw;
+                SamusProjectileTypeWord projectileType = projectile.PackedType;
+                int projectileDamage = checked((ushort)projectile.Damage);
+                SamusProjectileDirectionWord projectileDirection = projectile.PackedDirection;
                 SamusProjectileFamily family = projectile.PackedType.Family;
                 if (!projectile.HasEnemyCollisionPayload)
                     continue;
@@ -269,7 +269,7 @@ internal sealed class EnemyCollision
                     samus,
                     projectileType,
                     projectileDamage,
-                    new SamusProjectileDirectionWord(projectileDirection),
+                    projectileDirection,
                     family,
                     usesExtendedHitboxes,
                     hitboxShotAi);
@@ -366,12 +366,12 @@ internal sealed class EnemyCollision
                     // `$A0:A79E` gives every plasma-family hit sixteen invincibility frames.
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
-                    if (new SamusProjectileTypeWord(projectileType).BeamCombination.HasPlasma)
+                    if (projectileType.BeamCombination.HasPlasma)
                         enemy.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
 
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&
-                        new SamusProjectileTypeWord(projectileType).BeamCombination.HasIce &&
+                        projectileType.BeamCombination.HasIce &&
                         !shotVulnerability.PreventsLethalFreeze &&
                         enemy.FrozenTimer.IsZero;
                     if (freezeInsteadOfKilling)
@@ -592,7 +592,7 @@ internal sealed class EnemyCollision
         bool runGenericDeath = true)
     {
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
-        byte vulnerability = EnemyVulnerabilityDefinitions.Read(
+        int vulnerability = EnemyVulnerabilityDefinitions.Read(
             table, EnemyVulnerabilityDefinitions.BombOffset);
         int damage = (bomb.Damage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
 
@@ -622,7 +622,7 @@ internal sealed class EnemyCollision
     /// </summary>
     public int ResolveOrdinaryPowerBombHits(
         Position16<RoomPixels> explosionCenter,
-        byte explosionRadius,
+        int explosionRadius,
         SamusState? samus = null)
     {
         _room.EnsureLoaded();
@@ -658,7 +658,7 @@ internal sealed class EnemyCollision
             // The radius actor is family `$0300` (power bomb), not the ordinary bomb
             // family `$0500`. Using `$0500` silently indexed byte 14 and made every enemy
             // whose bomb and power-bomb vulnerabilities differ behave incorrectly.
-            byte vulnerability = EnemyVulnerabilityDefinitions.Read(
+            int vulnerability = EnemyVulnerabilityDefinitions.Read(
                 enemy.Definition.Vulnerability,
                 FamilyVulnerabilityOffset(SamusProjectileFamily.PowerBomb));
             if (EnemyVulnerabilityDefinitions.Multiplier(vulnerability) == 0)
@@ -738,14 +738,14 @@ internal sealed class EnemyCollision
         if (family != SamusProjectileFamily.Beam)
         {
             int byteOffset = FamilyVulnerabilityOffset(family);
-            byte familyEntry = EnemyVulnerabilityDefinitions.Read(table, byteOffset);
+            int familyEntry = EnemyVulnerabilityDefinitions.Read(table, byteOffset);
             return new NormalShotVulnerability(
                 Multiplier: EnemyVulnerabilityDefinitions.Multiplier(familyEntry),
                 FreezeImmediately: false,
                 PreventsLethalFreeze: false);
         }
 
-        byte beamEntry = EnemyVulnerabilityDefinitions.Read(
+        int beamEntry = EnemyVulnerabilityDefinitions.Read(
             table, projectileType.BeamCombination.TableIndex);
         if (EnemyVulnerabilityDefinitions.IsSentinel(beamEntry))
         {
@@ -761,7 +761,7 @@ internal sealed class EnemyCollision
             // Charged-beam vulnerability is a dedicated byte, not another beam-combination
             // row. `$FF` and low-nibble zero both take the dud-shot branch; high bits other
             // than that sentinel do not contribute to the damage multiplier.
-            byte chargedEntry = EnemyVulnerabilityDefinitions.Read(
+            int chargedEntry = EnemyVulnerabilityDefinitions.Read(
                 table, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
             multiplier = EnemyVulnerabilityDefinitions.IsSentinel(chargedEntry) ? 0 : EnemyVulnerabilityDefinitions.LowNibbleMultiplier(chargedEntry);
         }
@@ -917,7 +917,7 @@ internal sealed class EnemyCollision
         TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play)
     {
         SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
-        ushort baseDamage;
+        int baseDamage;
         int vulnerabilityOffset;
         switch (contactDamageIndex)
         {
@@ -953,7 +953,7 @@ internal sealed class EnemyCollision
                 throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {contactDamageIndex}.");
         }
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
-        byte vulnerability = EnemyVulnerabilityDefinitions.Read(
+        int vulnerability = EnemyVulnerabilityDefinitions.Read(
             table, vulnerabilityOffset);
         int damage = (baseDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
         if (damage == 0)
@@ -994,12 +994,12 @@ internal sealed class EnemyCollision
     /// <summary>Applies suit reduction and health loss, then publishes the native hurt direction and invincibility window.</summary>
     internal static void ApplyNormalEnemyTouchDamage(
         SamusState samus,
-        ushort damageBeforeSuit,
-        ushort damageSourceX)
+        int damageBeforeSuit,
+        int damageSourceX)
     {
         // Suit_Damage_Division quarters the source header's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
-        ushort damage = SamusSuitDamage.Reduce(damageBeforeSuit, samus.EquippedItems);
+        int damage = SamusSuitDamage.Reduce(checked((ushort)damageBeforeSuit), samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
@@ -1021,18 +1021,18 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool IsEnemyTouchingSamusFromBelow(RoomEnemySlot enemy, SamusState samus)
     {
-        ushort xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - enemy.Position.X.Whole)));
-        ushort horizontalGap = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
+        int xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - enemy.Position.X.Whole)));
+        int horizontalGap = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
         bool horizontalOverlap = xDistance < samus.Kinematics.Radius.X ||
             horizontalGap < enemy.Radius.X;
         if (!horizontalOverlap)
             return false;
 
-        ushort biasedYDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - enemy.Position.Y.Whole));
+        int biasedYDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - enemy.Position.Y.Whole));
         if (unchecked((short)biasedYDifference) >= 0)
             return false;
-        ushort yDistance = unchecked((ushort)-biasedYDifference);
-        ushort verticalGap = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
+        int yDistance = unchecked((ushort)-biasedYDifference);
+        int verticalGap = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
         return yDistance < samus.Kinematics.Radius.Y || verticalGap <= enemy.Radius.Y;
     }
 }

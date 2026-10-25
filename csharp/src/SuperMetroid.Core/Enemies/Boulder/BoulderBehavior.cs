@@ -75,7 +75,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
 
-        byte initialYOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        int initialYOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         if (initialYOffset == 0)
         {
             // A zero high byte is not “no offset.” Native substitutes one pixel and sets
@@ -141,11 +141,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the bounce chain or direct roll only when Samus enters the direction-specific X window below the boulder.</summary>
     private static void RunBoulderWaiting(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus)
     {
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+        int deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (deltaY < 0 || unchecked((short)(deltaY - state.VerticalTriggerLimit)) >= 0)
             return;
 
-        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
         bool enteredHorizontalWindow = state.DirectionSelector != 0
             ? deltaX < 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) < 0;

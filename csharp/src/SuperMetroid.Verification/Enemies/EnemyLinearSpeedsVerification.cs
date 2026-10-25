@@ -16,7 +16,7 @@ internal static class EnemyLinearSpeedsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
     internal static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        Func<ushort, SnesSignedSixteenSixteen> shared = EnemyMath.ReadLinearEnemySpeed;
+        Func<int, SnesSignedSixteenSixteen> shared = EnemyMath.ReadLinearEnemySpeed;
         // Every possible four-byte window, including odd offsets and windows
         // crossing record boundaries, matches independent cartridge bytes.
         for (int offset = 0; offset <= 516; offset++)

@@ -33,7 +33,7 @@ internal sealed class RoomSpriteObjectPool
     internal RoomSpriteObjectSlot? SpawnRoomSpriteObject(
         Position16<RoomPixels> position,
         RoomSpriteObjectKind kind,
-        ushort graphicsIndex)
+        int graphicsIndex)
     {
         // Native allocation searches indexes $3E,$3C,...,$00. A saturated pool drops the
         // request and returns $FFFF; callers must not grow an unbounded host collection.
@@ -46,7 +46,7 @@ internal sealed class RoomSpriteObjectPool
             slot.Clear();
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(position);
-            slot.Attributes = new SnesObjAttributeWord(graphicsIndex);
+            slot.Attributes = new SnesObjAttributeWord(checked((ushort)graphicsIndex));
             slot.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectDefinitions.Program(kind));
             AdvanceProgram(slot);
             return slot;
@@ -141,8 +141,8 @@ internal sealed class RoomSpriteObjectPool
                 continue;
             }
 
-            ushort paletteBits = slot.Attributes.PaletteBits;
-            ushort baseTileIndex = checked((ushort)slot.Attributes.TileNumber);
+            int paletteBits = slot.Attributes.PaletteBits;
+            int baseTileIndex = checked((ushort)slot.Attributes.TileNumber);
             EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(slot.Frame);
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, index),
                 EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, baseTileIndex, paletteBits);

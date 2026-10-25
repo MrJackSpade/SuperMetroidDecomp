@@ -90,7 +90,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // table, whose positive half is the downward velocity and negative half the upward
             // one. The high byte is the steady-state number of frames between direction changes.
             int speedRecord = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
-            ushort speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
+            int speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
             SnesSignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedOffset);
             state.DownVelocity = down;
             SnesSignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(
@@ -118,7 +118,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             if (source.SpeedRecord != speedRecord)
                 continue;
             RoomEnemySlot enemy = _slotTable.Slots[source.SlotIndex];
-            ushort value = source.Field switch
+            int value = source.Field switch
             {
                 EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Spawn.Population.Parameter2),
                 EvirHalfCycleSourceField.Palette => checked((ushort)enemy.PaletteIndex),

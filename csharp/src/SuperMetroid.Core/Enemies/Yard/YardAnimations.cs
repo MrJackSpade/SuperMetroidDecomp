@@ -21,7 +21,7 @@ internal static class YardAnimations
             Show(21, 7),
             Show(22, 4),
             Show(23, 7),
-            Cue(new YardCue.MoveBy(Offset: -4, OffsetY: -8)),
+            Cue(new YardCue.MoveBy(new(-4, -8))),
             FallInto(P.CrawlingUpsideUpMovingLeft),
         ],
         [P.CrawlingUpsideUpMovingLeft] =
@@ -41,7 +41,7 @@ internal static class YardAnimations
             Show(3, 7),
             Show(4, 4),
             Show(5, 7),
-            Cue(new YardCue.MoveBy(Offset: -8, OffsetY: 4)),
+            Cue(new YardCue.MoveBy(new(-8, 4))),
             FallInto(P.CrawlingUpsideLeftMovingDown),
         ],
         [P.CrawlingUpsideLeftMovingDown] =
@@ -61,7 +61,7 @@ internal static class YardAnimations
             Show(9, 7),
             Show(10, 4),
             Show(11, 7),
-            Cue(new YardCue.MoveBy(Offset: 4, OffsetY: 8)),
+            Cue(new YardCue.MoveBy(new(4, 8))),
             FallInto(P.CrawlingUpsideDownMovingRight),
         ],
         [P.CrawlingUpsideDownMovingRight] =
@@ -81,7 +81,7 @@ internal static class YardAnimations
             Show(15, 7),
             Show(16, 4),
             Show(17, 7),
-            Cue(new YardCue.MoveBy(Offset: 8, OffsetY: -4)),
+            Cue(new YardCue.MoveBy(new(8, -4))),
             FallInto(P.CrawlingUpsideRightMovingUp),
         ],
         [P.CrawlingUpsideRightMovingUp] =
@@ -101,7 +101,7 @@ internal static class YardAnimations
             Show(53, 7),
             Show(54, 4),
             Show(55, 7),
-            Cue(new YardCue.MoveBy(Offset: 4, OffsetY: -8)),
+            Cue(new YardCue.MoveBy(new(4, -8))),
             FallInto(P.CrawlingUpsideUpMovingRight),
         ],
         [P.CrawlingUpsideUpMovingRight] =
@@ -121,7 +121,7 @@ internal static class YardAnimations
             Show(35, 7),
             Show(36, 4),
             Show(37, 7),
-            Cue(new YardCue.MoveBy(Offset: 8, OffsetY: 4)),
+            Cue(new YardCue.MoveBy(new(8, 4))),
             FallInto(P.CrawlingUpsideRightMovingDown),
         ],
         [P.CrawlingUpsideRightMovingDown] =
@@ -141,7 +141,7 @@ internal static class YardAnimations
             Show(41, 7),
             Show(42, 4),
             Show(43, 7),
-            Cue(new YardCue.MoveBy(Offset: -4, OffsetY: 8)),
+            Cue(new YardCue.MoveBy(new(-4, 8))),
             FallInto(P.CrawlingUpsideDownMovingLeft),
         ],
         [P.CrawlingUpsideDownMovingLeft] =
@@ -161,7 +161,7 @@ internal static class YardAnimations
             Show(47, 7),
             Show(48, 4),
             Show(49, 7),
-            Cue(new YardCue.MoveBy(Offset: -8, OffsetY: -4)),
+            Cue(new YardCue.MoveBy(new(-8, -4))),
             FallInto(P.CrawlingUpsideLeftMovingUp),
         ],
         [P.CrawlingUpsideLeftMovingUp] =

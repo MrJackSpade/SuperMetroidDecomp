@@ -361,7 +361,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (WorkRobotPaletteAnimationRecord == WorkRobotPaletteTimingDefinitions.RecordCount)
             WorkRobotPaletteAnimationRecord = 0;
         int record = WorkRobotPaletteAnimationRecord;
-        ushort recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
+        int recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
 
         ColourRun animated = _presentation.ColourSet(WorkRobotPaletteAnimationPaletteRow)
             .Slice(WorkRobotPaletteDefinitions.FirstAnimatedColor, WorkRobotPaletteDefinitions.ColorCount);

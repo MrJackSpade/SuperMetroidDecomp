@@ -54,8 +54,8 @@ public sealed class BoulderEnemyState
         internal set => field = checked((ushort)value);
     }
 
-    /// <summary>Signed pixel threshold for Samus's X displacement, from parameter two's low byte: positive for rightward activation and negative for leftward activation. Native <c>XProximity</c> at $7E:7800,x.</summary>
-    public short HorizontalTriggerLimit { get; internal set; }
+    /// <summary>Signed pixel threshold for Samus's X displacement, from parameter two's low byte: positive for rightward activation and negative for leftward activation. Native <c>XProximity</c> at $7E:7800,x. A negated byte, or its negation, so it stays between -255 and 255.</summary>
+    public int HorizontalTriggerLimit { get; internal set; }
     /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two or five pixels from parameter one's low byte, then zero once the full Y position stops changing. Native <c>minimumDistanceFromGround</c> at $7E:7802,x.</summary>
     public Offset16<RoomPixels> VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update. Native <c>previousEnemyYSubPosition</c> and <c>previousEnemyYPosition</c> at $7E:7804,x and $7E:7806,x.</summary>

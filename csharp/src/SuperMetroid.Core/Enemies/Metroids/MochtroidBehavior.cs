@@ -159,8 +159,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
         // table. The low two even bits select right/up/left/down, then the timer counts down.
-        var (x, y) = MochtroidShakeDefinitions.Offset(state.ShakeTimer.RawValue);
-        slot.Position += new Offset16<RoomPixels>(unchecked(x), unchecked(y));
+        slot.Position += MochtroidShakeDefinitions.Offset(state.ShakeTimer.RawValue);
         StoreMochtroidXVelocity(state, 0);
         StoreMochtroidYVelocity(state, 0);
         state.ShakeTimer = state.ShakeTimer.Decrement().Remaining;
@@ -229,7 +228,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // Samus's movement phase can consume them. Apply only the suit-divided health
             // change; starting the host knockback state and trying to undo its pose would
             // introduce side effects the cartridge never reaches.
-            ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? unchecked((ushort)(slot.Definition.Damage >> 2))
                 : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? unchecked((ushort)(slot.Definition.Damage >> 1))

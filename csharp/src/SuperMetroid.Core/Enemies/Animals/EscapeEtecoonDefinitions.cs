@@ -16,7 +16,7 @@ internal static class EscapeEtecoonDefinitions
     /// and event-waiting role select position, action, program and horizontal speed.
     /// The cartridge clears parameter bit zero before dispatching.
     /// </summary>
-    internal static EscapeEtecoonInitialization Initialization(ushort parameter1) =>
+    internal static EscapeEtecoonInitialization Initialization(int parameter1) =>
         (Roles.TryDecode(parameter1 & 0xfffe, out EscapeEtecoonRole role)
             ? role
             : throw new ArgumentOutOfRangeException(nameof(parameter1), parameter1,

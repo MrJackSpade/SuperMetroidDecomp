@@ -178,13 +178,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot nextSlot = GetNextShaktoolSegment(slot);
         ShaktoolSegmentState next = RequireShaktoolState(nextSlot);
 
-        ushort oppositeAngle = unchecked((ushort)(state.OrbitAngle.RawValue ^ SnesAngle.HalfTurn.RawValue));
-        ushort midpoint = unchecked((ushort)(oppositeAngle +
+        int oppositeAngle = unchecked((ushort)(state.OrbitAngle.RawValue ^ SnesAngle.HalfTurn.RawValue));
+        int midpoint = unchecked((ushort)(oppositeAngle +
             (unchecked((ushort)(next.OrbitAngle.RawValue - oppositeAngle)) >> 1)));
         if (state.OrientationReversed)
             midpoint ^= SnesAngle.HalfTurn.RawValue;
 
-        ushort directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
+        int directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
         state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
             ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket));
@@ -340,7 +340,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the per-segment convergence speed calculation at <c>$AA:DC07</c>: four raw angle units per whole table step left to the target in the orbit direction.</summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
-        ushort difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
+        int difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? unchecked((ushort)(state.OrbitAngle.RawValue - state.TargetAngle.RawValue))
             : unchecked((ushort)(state.TargetAngle.RawValue - state.OrbitAngle.RawValue));
         state.AngularVelocity = 4 * SnesLittleEndian.HighByte(difference);
@@ -438,25 +438,26 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShaktoolCueKind.RaiseTowardCenter:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
-                byte centerDirection = checked((byte)RequireShaktoolState(group[3])
-                    .OrientationBucket);
+                // Flipping the direction's top bit turns it half a turn.
+                SnesByteAngle centerDirection = new(checked((byte)RequireShaktoolState(group[3])
+                    .OrientationBucket));
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    new SnesByteAngle(cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
-                        ? unchecked((byte)(centerDirection ^ EnemyByteAngleDefinitions.HalfTurn))
-                        : centerDirection));
+                    cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
+                        ? centerDirection.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn)
+                        : centerDirection);
                 break;
             }
 
             case ShaktoolCueKind.Lower:
             case ShaktoolCueKind.Raise:
             {
-                byte targetDirection = state.TargetAngle.TableIndex;
+                SnesByteAngle targetDirection = state.TargetAngle.ToByteAngle();
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    new SnesByteAngle(cue.Kind == ShaktoolCueKind.Lower
-                        ? unchecked((byte)(targetDirection ^ EnemyByteAngleDefinitions.HalfTurn))
-                        : targetDirection));
+                    cue.Kind == ShaktoolCueKind.Lower
+                        ? targetDirection.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn)
+                        : targetDirection);
                 break;
             }
 
@@ -489,9 +490,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // 256-word table at $A0:B443. Convert those full-view indices explicitly: X reads
         // full[angle+64], while Y reads full[angle]. A naïve +64 on the ROM table rotates
         // both components by a quarter turn.
-        ushort xVelocity = ReadShaktoolCommonSineSample(angle.RawValue + 64);
-        ushort yVelocity = ReadShaktoolCommonSineSample(angle.RawValue);
-        slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(xVelocity).ToSixteenSixteenDelta(), new SnesSignedEightEight(yVelocity).ToSixteenSixteenDelta()));
+        int xVelocity = ReadShaktoolCommonSineSample(angle.RawValue + 64);
+        int yVelocity = ReadShaktoolCommonSineSample(angle.RawValue);
+        slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(checked((ushort)xVelocity)).ToSixteenSixteenDelta(), new SnesSignedEightEight(checked((ushort)yVelocity)).ToSixteenSixteenDelta()));
     }
 
     /// <summary>Maps the Shaktool orbit index into the shared signed enemy sine table.</summary>
@@ -594,7 +595,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        ushort ownerProjectileOffset = checked((ushort)projectile.Variable0);
+        int ownerProjectileOffset = checked((ushort)projectile.Variable0);
         if ((ownerProjectileOffset & 1) != 0 ||
             ownerProjectileOffset >= _projectiles.EnemyProjectiles.Count * 2 ||
             !_projectiles.EnemyProjectiles[ownerProjectileOffset >> 1].IsActive)

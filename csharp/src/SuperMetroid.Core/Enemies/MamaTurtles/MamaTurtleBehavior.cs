@@ -244,22 +244,22 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         mama.Radius = mama.Radius.WithY(0);
-        short signedDifference = unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole));
+        int signedDifference = unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         if (distance >= 24)
             return;
 
         // The first 24 contour words describe Samus to the left; the second 24 describe
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
-        short contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
+        int contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(unchecked((ushort)-contourOffset));
         mama.Properties = mama.Properties.With(EnemyProperties.SolidToSamus);
 
         if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
             return;
 
-        ushort shellTop = unchecked((ushort)(mama.Position.Y.Whole - mama.Radius.Y));
-        ushort overlap = unchecked((ushort)(samus.Kinematics.BottomBoundary - shellTop));
+        int shellTop = unchecked((ushort)(mama.Position.Y.Whole - mama.Radius.Y));
+        int overlap = unchecked((ushort)(samus.Kinematics.BottomBoundary - shellTop));
         if (unchecked((short)overlap) < 0)
             return;
 
@@ -388,11 +388,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesSignedSixteenSixteen velocity = state.Velocity.X;
         // One 16.16 add: the fraction's carry reaches the whole pixels.
         SnesSignedSixteenSixteen sum = velocity + state.XAcceleration;
-        ushort oldWhole = velocity.WholeWord;
-        ushort newWhole = sum.WholeWord;
+        int oldWhole = velocity.WholeWord;
+        int newWhole = sum.WholeWord;
 
         int magnitude = Math.Abs((int)unchecked((short)newWhole));
-        ushort cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
+        int cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
             ? newWhole
             // Native chooses the cap's sign from the old velocity word, before storing the
             // just-computed result. Preserve that one-frame zero-crossing behavior.
@@ -410,17 +410,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SnesSignedSixteenSixteen velocity = state.Velocity.X;
-        ushort negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
+        int negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
 
         bool carry = true; // BCS supplied carry-in one.
-        ushort xVelocityWhole = SnesCarry.AddWithCarry(velocity.WholeWord, 0, ref carry);
-        ushort negatedWhole = unchecked((ushort)(~xVelocityWhole + 1));
+        int xVelocityWhole = SnesCarry.AddWithCarry(velocity.WholeWord, 0, ref carry);
+        int negatedWhole = unchecked((ushort)(~xVelocityWhole + 1));
         state.Velocity = state.Velocity.WithX(
             SnesSignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
 
-        ushort negatedAccelerationFraction = unchecked((ushort)(~state.XAcceleration.Fraction + 1));
-        ushort accelerationWhole = SnesCarry.AddWithCarry(state.XAcceleration.WholeWord, 0, ref carry);
-        ushort invertedAccelerationWhole = unchecked((ushort)~accelerationWhole); // No INC in ROM.
+        int negatedAccelerationFraction = unchecked((ushort)(~state.XAcceleration.Fraction + 1));
+        int accelerationWhole = SnesCarry.AddWithCarry(state.XAcceleration.WholeWord, 0, ref carry);
+        int invertedAccelerationWhole = unchecked((ushort)~accelerationWhole); // No INC in ROM.
         state.XAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)invertedAccelerationWhole), negatedAccelerationFraction);
     }
 
@@ -620,7 +620,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(state.Velocity.X, 0);
         }
 
-        ushort previousY = baby.Position.Y.Whole;
+        int previousY = baby.Position.Y.Whole;
         baby.Position = baby.Position.WithWholeY(state.SpawnTopCenter.Y);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
@@ -630,9 +630,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (parent.Function != MamaTurtleAiFunction.Asleep)
             return;
 
-        short signedDifference = unchecked((short)(parentSlot.Position.X.Whole - baby.Position.X.Whole));
+        int signedDifference = unchecked((short)(parentSlot.Position.X.Whole - baby.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
-        short contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
+        int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? (short)1
             : MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
         _terrain.MoveEnemyVertically(level, baby, SnesSixteenSixteen.FromWhole(contourOffset));
@@ -648,7 +648,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot baby,
         BabyTurtleEnemyState state)
     {
-        short signedDifference = unchecked((short)(state.SpawnTopCenter.X - baby.Position.X.Whole));
+        int signedDifference = unchecked((short)(state.SpawnTopCenter.X - baby.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         if (distance >= BabyTurtleTravelDistance)
         {
@@ -775,28 +775,28 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // Four bounds deliberately come from physical slot zero because all four native
         // loads omit `,x`. The damage callback still runs for the current Mama slot.
         RoomEnemySlot boundsSource = _slotTable.Slots[0];
-        ushort left = unchecked((ushort)(
+        int left = unchecked((ushort)(
             boundsSource.Position.X.Whole - boundsSource.Radius.X - 8));
-        ushort right = unchecked((ushort)(
+        int right = unchecked((ushort)(
             boundsSource.Position.X.Whole + boundsSource.Radius.X + 8));
-        ushort top = unchecked((ushort)(
+        int top = unchecked((ushort)(
             boundsSource.Position.Y.Whole - boundsSource.Radius.Y + 4));
-        ushort bottom = unchecked((ushort)(
+        int bottom = unchecked((ushort)(
             boundsSource.Position.Y.Whole + boundsSource.Radius.Y - 4));
 
-        ushort samusLeftMinusOne = unchecked((ushort)(
+        int samusLeftMinusOne = unchecked((ushort)(
             samus.Position.X.Whole - samus.Kinematics.Radius.X - 1));
         if (unchecked((short)(samusLeftMinusOne - right)) >= 0)
             return;
-        ushort samusRight = unchecked((ushort)(
+        int samusRight = unchecked((ushort)(
             samus.Position.X.Whole + samus.Kinematics.Radius.X));
         if (unchecked((short)(samusRight - left)) < 0)
             return;
-        ushort samusTopPlusOne = unchecked((ushort)(
+        int samusTopPlusOne = unchecked((ushort)(
             samus.Position.Y.Whole - samus.Kinematics.Radius.Y + 1));
         if (unchecked((short)(samusTopPlusOne - bottom)) >= 0)
             return;
-        ushort samusBottom = unchecked((ushort)(
+        int samusBottom = unchecked((ushort)(
             samus.Position.Y.Whole + samus.Kinematics.Radius.Y));
         if (unchecked((short)(samusBottom - top)) < 0 || !samus.InvincibilityTimer.IsZero)
             return;

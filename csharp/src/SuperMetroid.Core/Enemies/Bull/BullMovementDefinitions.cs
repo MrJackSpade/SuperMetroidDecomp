@@ -20,7 +20,7 @@ public static class BullMovementDefinitions
     /// VerifyCompiledBullMovement covers all eight values through 104 real
     /// initializer combinations and rejects selector 8 without a ROM bus.
     /// </remarks>
-    public static ushort MaximumSpeed(ushort selector)
+    public static ushort MaximumSpeed(int selector)
     {
         if (selector >= MaximumSpeedCount)
             throw new InvalidDataException($"Bull maximum-speed selector {selector} has no compiled authored entry.");
@@ -41,7 +41,7 @@ public static class BullMovementDefinitions
     /// VerifyCompiledBullMovement covers all 13 values through 104 real
     /// initializer combinations without a ROM bus.
     /// </remarks>
-    public static BullSpeedIntervals Intervals(ushort selector)
+    public static BullSpeedIntervals Intervals(int selector)
     {
         if (selector >= IntervalCount)
             throw new InvalidDataException($"Bull interval selector {selector} has no compiled authored entry.");

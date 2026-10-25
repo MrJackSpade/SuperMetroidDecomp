@@ -20,7 +20,7 @@ internal static class EnemySpriteFrames
     /// <param name="parts">The composition, frontmost part first.</param>
     /// <param name="baseTileIndex">Packed tile base added to every part's attribute word.</param>
     /// <param name="paletteBits">Palette bits ORed into every part's attribute word.</param>
-    public static SpriteFrame Frame(EnemySpritemapParts parts, ushort baseTileIndex, ushort paletteBits)
+    public static SpriteFrame Frame(EnemySpritemapParts parts, int baseTileIndex, int paletteBits)
     {
         Ensure.NotNull(parts);
         return Frames.GetValue(parts, _ => new()).GetOrAdd(new EnemySpriteFrameRange(0, parts.Count, baseTileIndex, paletteBits),
@@ -32,7 +32,7 @@ internal static class EnemySpriteFrames
     /// <param name="baseTileIndex">Packed tile base added to every part's attribute word.</param>
     /// <param name="paletteBits">Palette bits ORed into every part's attribute word.</param>
     /// <exception cref="ArgumentException">The composition is not array-backed.</exception>
-    public static SpriteFrame Frame(ReadOnlyMemory<SpritemapPart> parts, ushort baseTileIndex, ushort paletteBits)
+    public static SpriteFrame Frame(ReadOnlyMemory<SpritemapPart> parts, int baseTileIndex, int paletteBits)
     {
         if (!MemoryMarshal.TryGetArray(parts, out ArraySegment<SpritemapPart> segment) || segment.Array is null)
             throw new ArgumentException("Enemy spritemap compositions are array-backed installed data.", nameof(parts));
@@ -41,14 +41,14 @@ internal static class EnemySpriteFrames
     }
 
     /// <summary>Forms each part's final attribute word and places it as a whole-frame part.</summary>
-    private static SpriteFrame Compile(ReadOnlySpan<SpritemapPart> parts, ushort baseTileIndex, ushort paletteBits)
+    private static SpriteFrame Compile(ReadOnlySpan<SpritemapPart> parts, int baseTileIndex, int paletteBits)
     {
-        SnesObjAttributeWord palette = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        SnesObjAttributeWord palette = SnesObjAttributeWord.FromPaletteBits(checked((ushort)paletteBits));
         var framed = new SpriteFramePart[parts.Length];
         for (int index = 0; index < parts.Length; index++)
         {
             SpritemapPart part = parts[index];
-            SnesObjAttributeWord attributes = part.Attributes.AddPackedTileBase(baseTileIndex).Or(palette);
+            SnesObjAttributeWord attributes = part.Attributes.AddPackedTileBase(checked((ushort)baseTileIndex)).Or(palette);
             framed[index] = ObjPartFrames.Part(part.X, part.Y, attributes, firstCharacter: 0);
         }
         return new SpriteFrame($"Enemy+{baseTileIndex:X3}/{palette.PaletteIndex}", ImmutableCollectionsMarshal.AsImmutableArray(framed));

@@ -18,7 +18,7 @@ internal static class ChootPatternDefinitions
     /// The advances are not the paths' final offsets (31/29/32 against 30/28/32), so they
     /// stay authored inputs of each drawn trajectory (see residualScalarInputsReview).
     /// </summary>
-    internal static ChootPatternDefinition ForIndex(ushort patternIndex) => patternIndex switch
+    internal static ChootPatternDefinition ForIndex(int patternIndex) => patternIndex switch
     {
         0 => new(ChootFallingPath.Normal, NormalLoopYDistance),
         1 => new(ChootFallingPath.Wide, WideLoopYDistance),

@@ -33,13 +33,13 @@ public sealed class CorpseRotTable
     public ushort YOffset(int entry) => yOffsets[Checked(entry)];
 
     /// <summary>Stores entry <paramref name="entry"/>'s signed pixel-row word.</summary>
-    public void SetYOffset(int entry, ushort value) => yOffsets[Checked(entry)] = value;
+    public void SetYOffset(int entry, int value) => yOffsets[Checked(entry)] = checked((ushort)value);
 
     /// <summary>Entry <paramref name="entry"/>'s delay word.</summary>
     public ushort Delay(int entry) => delays[Checked(entry)];
 
     /// <summary>Stores entry <paramref name="entry"/>'s delay word.</summary>
-    public void SetDelay(int entry, ushort value) => delays[Checked(entry)] = value;
+    public void SetDelay(int entry, int value) => delays[Checked(entry)] = checked((ushort)value);
 
     /// <summary>Bounds-checks an entry index.</summary>
     private int Checked(int entry) => (uint)entry < (uint)EntryCount ? entry

@@ -12,7 +12,7 @@ internal static class EnemyMath
     /// </summary>
     internal static int ClampWholeVelocity(int velocity, int maximum)
     {
-        short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
+        int whole = unchecked((short)SnesSixteenSixteen.WholeOf(velocity));
         if (whole >= maximum)
             return SnesSixteenSixteen.FromWhole(maximum);
         if (whole < -maximum)
@@ -26,19 +26,14 @@ internal static class EnemyMath
     /// </summary>
     internal static SnesBearing CalculateBearing(Offset16<RoomPixels> delta)
     {
+        // A signed word's magnitude is at most 32,768, so the absolute values need no wrap.
         int quadrant = 0;
-        ushort absoluteX = unchecked((ushort)delta.X);
-        ushort absoluteY = unchecked((ushort)delta.Y);
+        int absoluteX = Math.Abs((int)delta.X);
+        int absoluteY = Math.Abs((int)delta.Y);
         if (delta.X < 0)
-        {
             quadrant += 2;
-            absoluteX = unchecked((ushort)-absoluteX);
-        }
         if (delta.Y < 0)
-        {
             quadrant++;
-            absoluteY = unchecked((ushort)-absoluteY);
-        }
 
         if (absoluteY < absoluteX)
         {
@@ -68,34 +63,34 @@ internal static class EnemyMath
     }
 
     /// <summary>Adds one signed 8.8 velocity to a wrapped 16.16 position.</summary>
-    internal static SnesFixedPosition AddEightBitVelocity(SnesFixedPosition position, ushort velocity) =>
-        new SnesSignedEightEight(velocity).ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
+    internal static SnesFixedPosition AddEightBitVelocity(SnesFixedPosition position, SnesSignedEightEight velocity) =>
+        velocity.ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
 
     /// <summary>
     /// Sign-extends one native 8.8 velocity and shifts it into the signed 16.16 displacement
     /// consumed by the shared enemy collision routines. Rio-family AI uses this exact
     /// <c>INT16_SHL8</c> conversion on both axes.
     /// </summary>
-    internal static int ToEightBitVelocityDisplacement(ushort velocity) =>
-        new SnesSignedEightEight(velocity).ToSixteenSixteenDelta().RawValue;
+    internal static int ToEightBitVelocityDisplacement(SnesSignedEightEight velocity) =>
+        velocity.ToSixteenSixteenDelta().RawValue;
 
     /// <summary>
     /// Returns the cartridge's modular absolute value of one signed 16-bit difference.
     /// Value $8000 intentionally remains $8000: the 65816 negation wraps, just like this
     /// unchecked host operation. Alcoon, Beetom, Work Robot, Polyp, and Namihe all consume
-    /// this exact bank-$A0 distance convention.
+    /// this exact bank-$A0 distance convention. <paramref name="value"/> is a word, 0 through 65535.
     /// </summary>
-    internal static ushort WrappedMagnitude(ushort value) =>
-        unchecked((short)value) < 0 ? unchecked((ushort)-value) : value;
+    internal static ushort WrappedMagnitude(int value) =>
+        unchecked((short)value) < 0 ? unchecked((ushort)-value) : unchecked((ushort)value);
 
     /// <summary>
     /// Implements the shared bank-$A0 proximity helpers' strict <c>magnitude &lt; limit</c>
     /// test. Equality is outside, and subtraction happens in wrapped 16-bit world space.
     /// </summary>
     internal static bool IsWithinStrictModularDistance(
-        ushort firstCoordinate,
-        ushort secondCoordinate,
-        ushort limit) =>
+        int firstCoordinate,
+        int secondCoordinate,
+        int limit) =>
         WrappedMagnitude(unchecked((ushort)(firstCoordinate - secondCoordinate))) < limit;
 
     /// <summary>
@@ -103,7 +98,7 @@ internal static class EnemyMath
     /// <paramref name="byteOffset"/> is the native byte index, including the four-byte
     /// positive/negative half selector used by several enemy parameter formats.
     /// </summary>
-    internal static SnesSignedSixteenSixteen ReadLinearEnemySpeed(ushort byteOffset) =>
+    internal static SnesSignedSixteenSixteen ReadLinearEnemySpeed(int byteOffset) =>
         EnemyLinearSpeedDefinitions.Read(byteOffset);
 
     /// <summary>
@@ -123,7 +118,7 @@ internal static class EnemyMath
     /// <c>-floor(product / 256)</c> therefore preserves its documented negative-fraction bug;
     /// <c>Math.Sin</c> or a normal fixed-point negation would disagree by one pixel.
     /// </summary>
-    internal static int ReadEightBitSineProduct(SnesByteAngle angle, ushort radius)
+    internal static int ReadEightBitSineProduct(SnesByteAngle angle, int radius)
     {
         int byteAngle = angle.RawValue;
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
@@ -132,18 +127,18 @@ internal static class EnemyMath
     }
 
     /// <summary>Ports <c>EightBitCosineMultiplication</c> at $A0:B0B2.</summary>
-    internal static int ReadEightBitCosineProduct(SnesByteAngle angle, ushort radius) =>
+    internal static int ReadEightBitCosineProduct(SnesByteAngle angle, int radius) =>
         ReadEightBitSineProduct(angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue), radius);
 
     /// <summary>Ports <c>EightBitNegativeSineMultiplication</c> at $A0:B0C6.</summary>
-    internal static int ReadEightBitNegativeSineProduct(SnesByteAngle angle, ushort radius) =>
+    internal static int ReadEightBitNegativeSineProduct(SnesByteAngle angle, int radius) =>
         ReadEightBitSineProduct(angle.AddTableUnits(SnesByteAngle.HalfTurn.RawValue), radius);
 
     /// <summary>
     /// The point on a circle at an eight-bit angle: the cosine product as X and the negative-sine
     /// product as Y, each truncated to its native sixteen-bit word.
     /// </summary>
-    internal static Offset16<RoomPixels> CircleOffset(SnesByteAngle angle, ushort radius) => new(
+    internal static Offset16<RoomPixels> CircleOffset(SnesByteAngle angle, int radius) => new(
         unchecked((short)ReadEightBitCosineProduct(angle, radius)),
         unchecked((short)ReadEightBitNegativeSineProduct(angle, radius)));
 
@@ -154,19 +149,20 @@ internal static class EnemyMath
     /// </summary>
     internal static SnesSignedSixteenSixteen ReadEightBitSineFixedProduct(
         SnesByteAngle angle,
-        ushort radius)
+        int radius)
     {
+        // A half-wave byte times a radius byte is below 65,536, so the product needs no wrap.
         int byteAngle = angle.RawValue;
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
-        ushort product = unchecked((ushort)(sample * (SnesLittleEndian.LowByte(radius))));
-        ushort whole = unchecked(SnesUnsignedEightEight.Whole(product));
-        ushort fraction = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
+        int product = sample * SnesLittleEndian.LowByte(radius);
+        int whole = SnesEightEight.WholeOf(product);
+        int fraction = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
         if (byteAngle >= EnemyByteAngleDefinitions.HalfTurn)
         {
             // $A0:B11B and $B125 negate each word independently instead of carrying the
             // fractional increment into the whole word. Preserve that documented ROM bug.
-            whole = unchecked((ushort)(~whole + 1));
-            fraction = unchecked((ushort)(~fraction + 1));
+            whole = -whole;
+            fraction = unchecked((ushort)-fraction);
         }
         return SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
     }
@@ -174,13 +170,13 @@ internal static class EnemyMath
     /// <summary>Rotates the native fixed sine multiplication by a quarter turn for cosine, retaining its negative-fraction behavior.</summary>
     internal static SnesSignedSixteenSixteen ReadEightBitCosineFixedProduct(
         SnesByteAngle angle,
-        ushort radius) =>
+        int radius) =>
         ReadEightBitSineFixedProduct(angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue), radius);
 
     /// <summary>Rotates the native fixed sine multiplication by a half turn to obtain negative sine.</summary>
     internal static SnesSignedSixteenSixteen ReadEightBitNegativeSineFixedProduct(
         SnesByteAngle angle,
-        ushort radius) =>
+        int radius) =>
         ReadEightBitSineFixedProduct(angle.AddTableUnits(SnesByteAngle.HalfTurn.RawValue), radius);
 
     /// <summary>
@@ -193,21 +189,21 @@ internal static class EnemyMath
     /// </summary>
     internal static int ReadUnsignedSineMagnitudeProduct(
         SnesByteAngle angle,
-        ushort magnitude,
-        ushort angleOffset)
+        int magnitude,
+        int angleOffset)
     {
         int tableIndex = angle.AddTableUnits(angleOffset).RawValue & EnemyByteAngleDefinitions.HalfWaveIndexMask;
-        ushort sample = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex);
-        uint product = (uint)sample * magnitude;
+        int sample = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex);
+        uint product = (uint)sample * (uint)magnitude;
         return unchecked((int)product);
     }
 
     /// <summary>The absolute cosine half of the angle-to-vector routine: the sample a quarter turn ahead.</summary>
-    internal static int ReadAbsoluteCosineProduct(SnesByteAngle angle, ushort magnitude) =>
+    internal static int ReadAbsoluteCosineProduct(SnesByteAngle angle, int magnitude) =>
         ReadUnsignedSineMagnitudeProduct(angle, magnitude, SnesAngle.QuarterTurn.TableIndex);
 
     /// <summary>The absolute sine half of the angle-to-vector routine: the sample a half turn ahead.</summary>
-    internal static int ReadAbsoluteSineProduct(SnesByteAngle angle, ushort magnitude) =>
+    internal static int ReadAbsoluteSineProduct(SnesByteAngle angle, int magnitude) =>
         ReadUnsignedSineMagnitudeProduct(angle, magnitude, SnesAngle.HalfTurn.TableIndex);
 
     /// <summary>Whether a table angle's cosine component is negative: the native tests bit 7 of the angle plus a quarter turn.</summary>
@@ -217,15 +213,15 @@ internal static class EnemyMath
     internal static bool SineIsNegative(SnesByteAngle angle) => angle.AddTableUnits(SnesByteAngle.HalfTurn.RawValue).RawValue >= SnesByteAngle.HalfTurn.RawValue;
 
     /// <summary>Multiplies a signed sine-table sample by speed with the cartridge's fixed-point rounding.</summary>
-    internal static ushort MultiplySineSample(ushort speed, SnesByteAngle angle) =>
-        EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
+    internal static ushort MultiplySineSample(int speed, SnesByteAngle angle) =>
+        EnemyTrigonometryTables.MultiplySignedSine(checked((ushort)speed), angle);
 
     /// <summary>
     /// The cartridge's sign extension of a word's low byte (<c>Sign_Extend_A</c>): a negative low byte fills the high byte
     /// with ones; a positive one leaves whatever high byte the word already had, so a borrowed one survives (#1412).
     /// </summary>
-    internal static ushort SignExtendLowByte(ushort word) =>
-        unchecked((sbyte)(byte)word) < 0 ? FillHighByte(word) : word;
+    internal static ushort SignExtendLowByte(int word) =>
+        unchecked((sbyte)(byte)word) < 0 ? FillHighByte(word) : checked((ushort)word);
 
     /// <summary>The word whose low byte is <paramref name="value"/>'s and whose high byte is all ones: a negative 8-bit result (#1412).</summary>
     internal static ushort FillHighByte(int value) => unchecked((ushort)(value | ~byte.MaxValue));

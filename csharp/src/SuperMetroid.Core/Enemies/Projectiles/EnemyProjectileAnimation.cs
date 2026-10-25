@@ -14,7 +14,7 @@ internal abstract class EnemyProjectileAnimation
     internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
         RoomEnemyProjectileSlot projectile = context.Projectile;
-        ushort oldTimer = projectile.InstructionTimer.RawValue;
+        int oldTimer = projectile.InstructionTimer.RawValue;
         projectile.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;

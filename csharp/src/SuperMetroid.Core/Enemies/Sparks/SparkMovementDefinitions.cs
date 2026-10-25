@@ -17,7 +17,7 @@ internal static class SparkMovementDefinitions
     /// observes the first function word $E694, which is code rather than an animation
     /// list; its function lookup observes the following LDX opcode/operand word $54AE.
     /// </summary>
-    internal static SparkMovementDefinition InitialState(ushort populationParameter) =>
+    internal static SparkMovementDefinition InitialState(int populationParameter) =>
         (populationParameter & 3) switch
         {
             0 => new(SparkProgram.Active, SparkEnemyFunction.AlwaysActive),

@@ -53,7 +53,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeCrawler(
         RoomEnemySlot slot,
         CrawlerAnimationFamily animationFamily,
-        ushort? speciesInstructionOffset = null)
+        int? speciesInstructionOffset = null)
     {
         var state = new CrawlerEnemyState
         {
@@ -92,8 +92,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Crawler speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
             }
-            ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
-            velocity = new(new SnesSignedEightEight(speed), new SnesSignedEightEight(speed));
+            int speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
+            velocity = new(new SnesSignedEightEight(checked((ushort)speed)), new SnesSignedEightEight(checked((ushort)speed)));
         }
 
         // The low two population-property bits encode which side of the starting block the
@@ -128,8 +128,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
-        state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
+        int velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
+        state.Velocity = new(new SnesSignedEightEight(checked((ushort)velocity)), new SnesSignedEightEight(checked((ushort)velocity)));
         state.Velocity = (slot.Properties.FamilyData & 3) switch
         {
             0 => state.Velocity.ReversedX(),
@@ -488,7 +488,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         EightEightVector<RoomPixels> velocity,
         RoomLevelData level)
     {
-        ushort surfaceY = velocity.Y.SignedRawValue < 0
+        int surfaceY = velocity.Y.SignedRawValue < 0
             ? unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))
             : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int blockX = slot.Position.X.Whole >> 4;
@@ -511,7 +511,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
     /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
-    internal static int Shift8AddMagnitude(ushort velocity, int wholePixels)
+    internal static int Shift8AddMagnitude(int velocity, int wholePixels)
     {
         int signedVelocity = unchecked((short)velocity);
         int bias = SnesSixteenSixteen.FromWhole(wholePixels);
@@ -519,7 +519,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reverses a native 16-bit velocity word with wraparound semantics.</summary>
-    internal static ushort Negate16(ushort value) => unchecked((ushort)-value);
+    internal static ushort Negate16(int value) => unchecked((ushort)-value);
 
     /// <summary>Ports Sciser's initializer wrapper.</summary>
     internal static void InitializeSciserAi(RoomEnemySlot slot) =>

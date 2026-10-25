@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadSidehopperEnemyState
 {
     /// <summary>Captures one corpse's silhouette and rot schedule.</summary>
-    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, CorpseRottingProgram rotting, CorpseRotTable rotTable)
+    internal DeadSidehopperEnemyState(RoomEnemySlot slot, int graphicsVariant, CorpseRottingProgram rotting, CorpseRotTable rotTable)
     {
         Slot = slot;
         RotTable = Ensure.NotNull(rotTable);

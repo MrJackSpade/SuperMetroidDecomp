@@ -18,7 +18,7 @@ internal readonly record struct EnemyHitboxProbe(
     /// The shared literal `$A0:9A5A/$9B7F` rectangle test. The shot and touch walkers have different strict/inclusive
     /// boundaries in the cartridge.
     /// </summary>
-    internal bool Overlaps(ushort left, ushort top, ushort right, ushort bottom) =>
+    internal bool Overlaps(int left, int top, int right, int bottom) =>
         SelectShotCallback
             ? !EnemyMath.IsNegative16(BottomRight.X - left) &&
               EnemyMath.IsNegative16(TopLeft.X - right) &&

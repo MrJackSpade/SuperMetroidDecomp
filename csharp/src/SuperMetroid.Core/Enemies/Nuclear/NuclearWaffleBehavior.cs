@@ -44,7 +44,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int angularSpeedIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
         state.OrbitRadius = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
-        byte direction = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
+        int direction = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
         state.WaitingTimerReset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
         state.Function = NuclearWaffleEnemyFunction.Waiting;

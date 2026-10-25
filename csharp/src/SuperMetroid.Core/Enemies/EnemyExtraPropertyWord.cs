@@ -9,10 +9,12 @@ public readonly record struct EnemyExtraPropertyWord
 {
     /// <summary>Creates an extra-property value from translated flags and untranslated bits.</summary>
     /// <exception cref="ArgumentException">The two parts overlap or <paramref name="flags"/> is not translated.</exception>
-    public EnemyExtraPropertyWord(EnemyExtraProperties flags, ushort untranslatedBits = 0)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="untranslatedBits"/> is not a word.</exception>
+    public EnemyExtraPropertyWord(EnemyExtraProperties flags, int untranslatedBits = 0)
     {
         EnemyPropertyFlagExtensions.ValidateKnown(flags);
-        if (EnemyPropertyWordCodec.CarriesTranslatedExtraFlag(untranslatedBits))
+        _ = Ensure.BetweenInclusive(0, ushort.MaxValue, untranslatedBits);
+        if (EnemyPropertyWordCodec.CarriesTranslatedExtraFlag(checked((ushort)untranslatedBits)))
             throw new ArgumentException($"Untranslated bits ${untranslatedBits:X4} include translated flags.", nameof(untranslatedBits));
         Flags = flags;
         UntranslatedBits = untranslatedBits;
@@ -22,14 +24,14 @@ public readonly record struct EnemyExtraPropertyWord
     public EnemyExtraProperties Flags { get; }
 
     /// <summary>
-    /// Every other bit, verbatim, 0 through 65535. Every producer supplies a word (the constructor and
-    /// <see cref="WithUntranslatedBits"/> take one, and decoding masks the native word), only bitwise operations combine
-    /// them, and the native word places them unchanged beside the flags.
+    /// Every other bit, verbatim, 0 through 65535. Every producer supplies a word (the constructor rejects anything
+    /// else, and decoding masks the native word), only bitwise operations combine them, and the native word places them
+    /// unchanged beside the flags.
     /// </summary>
     public int UntranslatedBits { get; }
 
     /// <summary>A native word split into translated flags and untranslated bits.</summary>
-    public static EnemyExtraPropertyWord FromNativeWord(ushort word) => EnemyPropertyWordCodec.DecodeExtra(word);
+    public static EnemyExtraPropertyWord FromNativeWord(int word) => EnemyPropertyWordCodec.DecodeExtra(checked((ushort)word));
 
     /// <summary>The native word.</summary>
     public ushort ToNativeWord() => EnemyPropertyWordCodec.Encode(this);
@@ -47,8 +49,8 @@ public readonly record struct EnemyExtraPropertyWord
     /// This value with explicitly named, still-untranslated bits set. A translated flag cannot be smuggled through
     /// this escape hatch.
     /// </summary>
-    public EnemyExtraPropertyWord WithUntranslatedBits(ushort bits, string sourceContext) =>
-        EnemyPropertyWordCodec.CarriesTranslatedExtraFlag(bits)
+    public EnemyExtraPropertyWord WithUntranslatedBits(int bits, string sourceContext) =>
+        EnemyPropertyWordCodec.CarriesTranslatedExtraFlag(checked((ushort)bits))
             ? throw new ArgumentException(
                 $"{sourceContext} attempted to write translated extra-property bits through the raw escape hatch: ${bits:X4}.",
                 nameof(bits))

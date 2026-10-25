@@ -40,7 +40,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
     internal static void InitializeSbug(RoomEnemySlot slot)
     {
-        byte behavior = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
+        int behavior = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         if (!SbugMovementDefinitions.ActivationBehaviors.TryAt(behavior, out _))
         {
             throw new InvalidDataException(
@@ -60,7 +60,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A3:A183 uses the cartridge-derived unsigned quarter-circle magnitudes and lets
         // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
         // intentionally imperfect eight-bit multiply routine at $A0:B0B2/$B0C6.
-        byte speed = checked((byte)state.Speed);
+        int speed = checked((byte)state.Speed);
         SnesAngle leftAngle = state.InitialAngle.AddTableUnits(-EnemyByteAngleDefinitions.EighthTurn);
         SnesAngle rightAngle = state.InitialAngle.AddTableUnits(EnemyByteAngleDefinitions.EighthTurn);
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
@@ -384,7 +384,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Multiplies a quarter-wave table value by population speed into unsigned 16.16 words.</summary>
     internal static SnesUnsignedSixteenSixteen CalculateUnsignedSbugMagnitude(
         SnesByteAngle angle,
-        byte speed,
+        int speed,
         int phase)
     {
         // ConvertAngleToXy at $A0:B643 indexes a 128-word unsigned quarter-circle table,
@@ -398,7 +398,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samples the signed eight-bit multiply path for X and Y phase offsets.</summary>
     private static void CalculateSignedSbugVelocities(
         SnesByteAngle angle,
-        byte speed,
+        int speed,
         out SnesSignedSixteenSixteen xVelocity,
         out SnesSignedSixteenSixteen yVelocity)
     {
@@ -407,16 +407,16 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reproduces the native eight-bit sine multiply and independent negative-word conversion.</summary>
-    internal static SnesSignedSixteenSixteen CalculateSignedSbugComponent(SnesByteAngle angle, byte speed, int phase)
+    internal static SnesSignedSixteenSixteen CalculateSignedSbugComponent(SnesByteAngle angle, int speed, int phase)
     {
         // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
-        byte tableAngle = angle.AddTableUnits(phase).RawValue;
+        int tableAngle = angle.AddTableUnits(phase).RawValue;
         int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
-        ushort product = unchecked((ushort)(sineMagnitude * speed));
-        ushort pixel = unchecked(SnesUnsignedEightEight.Whole(product));
-        ushort subpixel = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
+        int product = unchecked((ushort)(sineMagnitude * speed));
+        int pixel = SnesEightEight.WholeOf(product);
+        int subpixel = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
         if ((tableAngle & EnemyByteAngleDefinitions.HalfTurn) != 0)
         {
             pixel = unchecked((ushort)-pixel);

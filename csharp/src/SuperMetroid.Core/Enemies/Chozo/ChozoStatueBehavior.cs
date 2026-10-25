@@ -310,7 +310,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var motion = ChozoCarryMotionDefinitions.Read(carryRecord);
         state.CarryRecord = carryRecord;
-        short signedVelocity = motion.Velocity;
+        int signedVelocity = motion.Velocity;
 
         // Enemy_MoveRight_IgnoreSlopes receives a signed 8.8 word promoted to 16.16 by
         // INT16_SHL8. Enemy_MoveDown receives its absolute magnitude in the same format.
@@ -335,9 +335,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         Offset16<RoomPixels> footstepOffset)
     {
-        ushort probeX = unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X));
-        ushort probeY = unchecked((ushort)(statue.Position.Y.Whole + 28));
-        RoomCollisionBlock current = level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(probeX, probeY));
+        Position16<RoomPixels> probe = new(
+            unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + 28)));
+        RoomCollisionBlock current = level.GetCollisionBlockAtPixel(probe);
         int belowIndex = current.Index + level.Size.X;
         if ((uint)belowIndex >= (uint)level.ForegroundEntries.Length ||
             level.GetCollisionBlockByIndex(belowIndex).CollisionType != RoomCollisionType.SpikeBlock)
@@ -347,7 +347,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ChozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
             PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-            new Position16<RoomPixels>(probeX, probeY).ToRoomBlock(),
+            probe.ToRoomBlock(),
             IsHardcoded: false));
         SpawnWreckedShipChozoFootstep(statue, footstepOffset);
     }

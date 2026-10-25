@@ -162,7 +162,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The cartridge takes the magnitude of whichever signed edge faces Samus, so each edge
             // acts as a reach on its own side of the corpse origin.
-            ushort verticalDistance;
+            int verticalDistance;
             int verticalReach;
             if (unchecked((short)(kinematics.Position.Y.Whole - slot.Position.Y.Whole)) >= 0)
             {
@@ -175,12 +175,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 verticalReach = Math.Abs((int)hitbox.Top);
             }
 
-            ushort verticalOverlap = unchecked((ushort)(
+            int verticalOverlap = unchecked((ushort)(
                 kinematics.Radius.Y + verticalReach - verticalDistance));
             if (unchecked((short)verticalOverlap) < 0)
                 continue;
 
-            ushort horizontalDistance;
+            int horizontalDistance;
             int horizontalReach;
             if (unchecked((short)(kinematics.Position.X.Whole - slot.Position.X.Whole)) >= 0)
             {
@@ -193,14 +193,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 horizontalReach = Math.Abs((int)hitbox.Left);
             }
 
-            short overlap = unchecked((short)(
+            int overlap = unchecked((short)(
                 kinematics.Radius.X + horizontalReach - horizontalDistance));
             if (overlap < 0)
                 continue;
             if (overlap < 4)
                 overlap = 4;
 
-            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked(overlap), 4));
+            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(checked((short)overlap), 4));
             return true;
         }
 
@@ -272,11 +272,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (DeadTorizo is not { } state)
             return;
 
-        ushort screenY = unchecked((ushort)(187 - camera.Y));
+        int screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
-            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), screenY), paletteBits: 0, rot: ShownRot(state));
+            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), checked((ushort)screenY)), paletteBits: 0, rot: ShownRot(state));
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>

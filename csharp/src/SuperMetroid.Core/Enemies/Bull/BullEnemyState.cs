@@ -126,8 +126,8 @@ public sealed class BullEnemyState
     /// <summary>Native extension offset $06 flag suppressing repeated no-damage projectile kicks during the shot-reaction cooldown; it does not disable ordinary health processing.</summary>
     public bool ShotReactionDisabled
     {
-        get => _words.ShotReactionDisableFlag != 0;
-        internal set => _words.ShotReactionDisableFlag = value ? (ushort)1 : (ushort)0;
+        get => _words.ShotReactionDisabled;
+        internal set => _words.ShotReactionDisabled = value;
     }
 
     /// <summary>Native extension offset $0A: acceleration interval in eligible AI calls, 3 through 15, selected by population parameter one and also copied into the initial live interval timer.</summary>
@@ -147,8 +147,8 @@ public sealed class BullEnemyState
     /// <summary>Native extension offset $0E: wrapping guard timer set to $0030 by an immune-shot kick and decremented each main-AI call; reaching zero clears the flag and pins the timer to one, while an initial zero first wraps to $FFFF.</summary>
     public WrappingCountdown ShotReactionDisableTimer
     {
-        get => WrappingCountdown.FromRaw(_words.ShotReactionDisableTimer);
-        internal set => _words.ShotReactionDisableTimer = value.RawValue;
+        get => _words.ShotReactionDisableTimer;
+        internal set => _words.ShotReactionDisableTimer = value;
     }
 
     /// <summary>Native parallel $7E:8800 health snapshot taken before projectile damage, retained so unchanged health can select the actor's immune-shot kick instead of treating it as ordinary damage.</summary>

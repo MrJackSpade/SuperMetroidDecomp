@@ -68,7 +68,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             }
             else
             {
-                new Action<RoomEnemySlot, CrawlerAnimationFamily, ushort?>(CrawlersBehavior.InitializeCrawler)(
+                new Action<RoomEnemySlot, CrawlerAnimationFamily, int?>(CrawlersBehavior.InitializeCrawler)(
                         slot, family, speciesOffset);
             }
 

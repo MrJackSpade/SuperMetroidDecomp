@@ -115,7 +115,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 for (int y = -144; y <= -64; y += 8)
                 {
                     shot.Position = shot.Position.WithWhole(new((ushort)(baseline.Body.Position.X.Whole + x), (ushort)(baseline.Body.Position.Y.Whole + y)));
-                    (short left, short top, _, short bottom) = KraidMouthHitboxDefinitionsConstants.Resolve(hitbox);
+                    (int left, int top, _, int bottom) = KraidMouthHitboxDefinitionsConstants.Resolve(hitbox);
                     bool expected = y - shot.Radius.Y - 1 < bottom && y + shot.Radius.Y >= top && x + shot.Radius.X >= left;
                     AssertEqual(expected, baseline.Hit(hitbox, shot), "stock native mouth geometry");
                     AssertEqual(expected, changed.Hit(hitbox, shot), "authored head does not move physical mouth geometry");

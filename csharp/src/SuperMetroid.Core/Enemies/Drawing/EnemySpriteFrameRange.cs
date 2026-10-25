@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 /// <param name="Base">The packed tile base added to every part's attribute word.</param>
 /// <param name="Palette">The palette bits ORed into every part's attribute word.</param>
 [SnesEncodingOwner]
-internal readonly record struct EnemySpriteFrameRange(int Start, int Count, ushort Base, ushort Palette);
+internal readonly record struct EnemySpriteFrameRange(int Start, int Count, int Base, int Palette);

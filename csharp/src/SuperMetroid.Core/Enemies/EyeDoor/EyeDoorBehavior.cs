@@ -246,11 +246,11 @@ internal sealed class EyeDoorBehavior
     internal void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
         MiscDustAnimation animation,
-        ushort placementIndex,
+        int placementIndex,
         Position16<RoomBlocks> block)
     {
         MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program(animation);
-        MiscDustPlacementDefinition placement = MiscDustProjectileDefinitions.SmokePlacement(placementIndex);
+        MiscDustPlacementDefinition placement = MiscDustProjectileDefinitions.SmokePlacement(checked((ushort)placementIndex));
 
         int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.
@@ -310,7 +310,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
     internal static short ReadEyeDoorAcceleration(int tableIndex)
     {
-        short sample = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)tableIndex)));
+        int sample = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)tableIndex)));
         return unchecked((short)(sample >> 4));
     }
 
@@ -387,17 +387,17 @@ internal sealed class EyeDoorBehavior
     /// toward the move. Moving forward it never pulls the projectile back, and moving back it
     /// never pushes it forward, so a projectile that starts inside a block keeps its position.
     /// </summary>
-    private static ushort SnapEnemyProjectileAxis(ushort current, int edge, ushort radius, bool movingBack)
+    private static ushort SnapEnemyProjectileAxis(int current, int edge, int radius, bool movingBack)
     {
         if (movingBack)
         {
             // The far face of the blocking block: the last pixel of its sixteen, plus one.
-            ushort face = unchecked((ushort)((edge | 15) + 1 + radius));
-            return face <= current ? face : current;
+            int face = unchecked((ushort)((edge | 15) + 1 + radius));
+            return checked((ushort)(face <= current ? face : current));
         }
         // The near face of the blocking block: its first pixel.
-        ushort near = unchecked((ushort)((edge & ~15) - radius));
-        return near >= current ? near : current;
+        int near = unchecked((ushort)((edge & ~15) - radius));
+        return checked((ushort)(near >= current ? near : current));
     }
 
     /// <summary>Advances vertical subpixels or snaps to the first solid leading edge.</summary>

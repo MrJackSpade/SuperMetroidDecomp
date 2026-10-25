@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Bank-$8B reward gesture constructors and their jump handoffs.</summary>
+/// <summary>The reward gesture and jump actors' initializations, pre-instructions and programs.</summary>
 internal static class EndingRewardActorDefinitions
 {
     /// <summary>
@@ -20,16 +20,16 @@ internal static class EndingRewardActorDefinitions
         EndingRewardActor.JumpSuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.SuitedJump),
         EndingRewardActor.JumpHelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.HelmetJump),
         EndingRewardActor.JumpHelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.HeadJump),
-        _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardActor)} {(int)definition:X4}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardActor)} {definition}."),
     };
 
-    /// <summary>Literal position/palette writes made by the four native reward initialization routines.</summary>
-    public static EndingRewardActorInitializationDefinition GetInitialization(EndingRewardInitialization address) => address switch
+    /// <summary>The starting position and palette bits each reward initialization gives its actor.</summary>
+    public static EndingRewardActorInitializationDefinition GetInitialization(EndingRewardInitialization initialization) => initialization switch
     {
         EndingRewardInitialization.Suitless => new(new(120, 136), 0x0a00),
         EndingRewardInitialization.SuitedBody => new(new(120, 152), 0x0c00),
         EndingRewardInitialization.HelmetedHead => new(new(124, 108), 0x0c00),
         EndingRewardInitialization.HelmetlessHead => new(new(121, 107), 0x0a00),
-        _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardInitialization)} {(int)address:X4}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardInitialization)} {initialization}."),
     };
 }

@@ -65,8 +65,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         var flags = SpacePirateParameters.Wall(slot.Spawn.Population.Parameter1);
-        bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != 0;
-        bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != 0;
+        bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != WallSpacePirateParameterFlags.None;
+        bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != WallSpacePirateParameterFlags.None;
 
         state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(startsOnRight
             ? WallSpacePirateProgram.MovingDownRightWall
@@ -252,7 +252,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         (true, WallSpacePirateClimbDirection.Up) =>
             WallSpacePirateProgram.MovingUpRightWall,
         _ => throw new InvalidOperationException(
-            $"Wall Pirate climb direction ${(ushort)direction} is not binary."),
+            $"Wall Pirate climb direction {direction} is not binary."),
     };
 
     /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from parameter two.</summary>

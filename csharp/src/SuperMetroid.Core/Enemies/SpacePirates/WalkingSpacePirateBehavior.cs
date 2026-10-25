@@ -102,7 +102,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // independent projectile-flinch option and must not accidentally select right art.
         var parameterFlags = SpacePirateParameters.Walking(slot.Spawn.Population.Parameter1);
         state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(
-            (parameterFlags & WalkingSpacePirateParameterFlags.StartsFacingRight) != 0
+            (parameterFlags & WalkingSpacePirateParameterFlags.StartsFacingRight) != WalkingSpacePirateParameterFlags.None
             ? WalkingSpacePirateProgram.WalkingRight
             : WalkingSpacePirateProgram.WalkingLeft);
         state.Function = WalkingSpacePirateFunction.NoOperation;
@@ -143,7 +143,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // Parameter-one bit fifteen enables the retail flinch detector after normal AI.
         // The detector is intentionally allowed to replace a list selected just above.
         if (((SpacePirateParameters.Walking(slot.Spawn.Population.Parameter1) &
-                WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != 0) &&
+                WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None) &&
             samus is not null)
             TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
 
@@ -419,7 +419,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         Position16<RoomPixels> camera)
     {
         int pixels = ((SpacePirateParameters.Walking(projectile.Variable0) &
-                WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) == 0)
+                WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) == WalkingSpacePirateParameterFlags.None)
             ? WalkingPirateFastLaserPixelsPerFrame
             : WalkingPirateSlowLaserPixelsPerFrame;
         projectile.Position = projectile.Position.WithWholeX(projectile.PreInstruction switch
@@ -630,12 +630,18 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
             c.Enemy.InvincibilityTimer = WrappingCountdown.Start(10);
-            c.Projectile.Direction = (c.Projectile.Direction & SamusProjectileDirectionMasks.Direction) switch
-            {
-                (ushort)SamusProjectileDirection.Left => (ushort)SamusProjectileDirection.UpRight,
-                (ushort)SamusProjectileDirection.Right => (ushort)SamusProjectileDirection.UpLeft,
-                _ => (ushort)SamusProjectileDirection.DownFacingLeft,
-            };
+            // A shot aimed straight left or right reflects up and away; every other aim, including the unnamed aim
+            // indexes past the ten directions, reflects down.
+            int aim = c.Projectile.Direction & SamusProjectileDirectionMasks.Direction;
+            SamusProjectileDirection reflected = aim < SamusProjectileDirectionCodec.Count
+                ? SamusProjectileDirectionCodec.FromAimIndex(aim) switch
+                {
+                    SamusProjectileDirection.Left => SamusProjectileDirection.UpRight,
+                    SamusProjectileDirection.Right => SamusProjectileDirection.UpLeft,
+                    _ => SamusProjectileDirection.DownFacingLeft,
+                }
+                : SamusProjectileDirection.DownFacingLeft;
+            c.Projectile.Direction = reflected.ToAimIndex();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
                 c.Projectile.SlotIndex);
             LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WalkingPirateReflectSound;

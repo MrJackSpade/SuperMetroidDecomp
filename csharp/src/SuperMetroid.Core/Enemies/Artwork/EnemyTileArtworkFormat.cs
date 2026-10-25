@@ -13,6 +13,4 @@ public static class EnemyTileArtworkFormat
         $"gunship-liftoff-{index + 1}-tiles.png";
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
     public const int RetailDefinitionCount = 122;
-    /// <summary>Bank-$A0 enemy-header word zero: bit 15 selects staging; bits 0..14 are tile byte length.</summary>
-    public const int TileByteCountMask = 0x7fff; // cartridge-encoding: allow(Mask) - enemy header tile-data size occupies the low fifteen bits
 }

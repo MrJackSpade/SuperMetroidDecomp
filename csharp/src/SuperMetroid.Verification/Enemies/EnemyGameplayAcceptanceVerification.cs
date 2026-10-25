@@ -104,19 +104,14 @@ internal static class EnemyGameplayAcceptanceVerification
             }
         }
 
-        // All three body variants intentionally share one native DMA source. Edit
-        // that source's aliases consistently, as a real artist must; conflicting
-        // alias files are a loud validation error, not independent gameplay tuning.
+        // Each definition shows its own installed sheet (#1412): editing one body variant's sheet changes that
+        // variant's uploads alone, though the cartridge's three variants share one tile source.
         EnemyDefinitionId editedPointer = EnemyDefinitionId.KihunterGreen;
         RoomEnemyDefinition editedDefinition = RoomEnemyDefinitionCatalog.Get(editedPointer);
         Directory.CreateDirectory(overridePath);
-        foreach (EnemyDefinitionId alias in RoomEnemyGraphicsSetDefinitions.Pointers
-                     .SelectMany(pointer => RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray())
-                     .Select(record => record.DefinitionId).Distinct()
-                     .Where(pointer => RoomEnemyDefinitionCatalog.Get(pointer).TileDataAddress == editedDefinition.TileDataAddress &&
-                         RoomEnemyDefinitionCatalog.Get(pointer).TileDataSize == editedDefinition.TileDataSize))
+        foreach (EnemyDefinitionId alias in new[] { editedPointer })
         {
-            int tiles = (editedDefinition.TileDataSize & 0x7fff) / RoomCharacterAtlasFormat.BytesPerTile;
+            int tiles = editedDefinition.TileByteCount / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
             using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(alias)));
             IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
@@ -133,8 +128,7 @@ internal static class EnemyGameplayAcceptanceVerification
         AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
         byte[] expectedCharacters = beforeCharacters.ToArray();
         for (int index = 0; index < entries.Length; index++)
-            if (entries[index].Definition.TileDataAddress == editedDefinition.TileDataAddress &&
-                entries[index].Definition.TileDataSize == editedDefinition.TileDataSize)
+            if (entries[index].DefinitionId == editedPointer)
                 expectedCharacters[uploads[index].FirstByte] ^= 0x80;
         static string ChangedOffsets(ReadOnlySpan<byte> before, ReadOnlySpan<byte> after)
         {

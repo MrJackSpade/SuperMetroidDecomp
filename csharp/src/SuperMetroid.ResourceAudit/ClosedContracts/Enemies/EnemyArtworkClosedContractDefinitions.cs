@@ -1,12 +1,12 @@
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
-/// <summary>Complete ordinary sheet/palette admission and owned enemy DMA sources.</summary>
+/// <summary>Complete ordinary sheet/palette admission.</summary>
 internal static class EnemyArtworkClosedContractDefinitions
 {
-    /// <summary>Constrains ordinary enemy sheets, palettes, and DMA routing to the installed catalog and its reviewed source owners.</summary>
+    /// <summary>Constrains ordinary enemy sheets and palettes to the installed catalog and its reviewed source owners.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog", "installed-enemy-sheets-palettes-and-dma", ["LoadTo", "LoadPaletteTo", "TryResolve"],
+        new("SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog", "installed-enemy-sheets-and-palettes", ["LoadTo", "LoadPaletteTo"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinitions.cs"),

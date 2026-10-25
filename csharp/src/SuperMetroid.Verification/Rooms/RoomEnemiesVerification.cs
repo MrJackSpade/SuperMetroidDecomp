@@ -204,7 +204,11 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertEqual(EnemyCallbackBody.Routine, definition.PowerBombReactionBody,
         "definition power-bomb reaction offset $28");
-    AssertEqual(0xa29100, definition.TileDataAddress, "definition 24-bit tile-data pointer");
+    // The tile word decodes to the tile set's size and placement; where the tiles sit is the import's to read.
+    AssertEqual(0x0040, definition.TileByteCount, "definition tile set size, the tile word's low fifteen bits");
+    AssertEqual(EnemyTilePlacement.FollowingPrevious, definition.TilePlacement, "definition tile word's clear bit 15 follows the previous member");
+    AssertEqual(EnemyTilePlacement.AtFixedBlock, enemies.GraphicsSet.Entries[1].Definition.TilePlacement,
+        "special definition tile word's bit 15 places its tiles at the record's fixed block");
     AssertEqual((EnemyDropTable?)new EnemyDropTable(3), definition.DropChances,
         "definition item-drop table offset $3A");
     AssertEqual(new EnemyVulnerabilityTable(2), definition.Vulnerability,
@@ -844,8 +848,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     }
     // The set's sheets compose over the characters its upload leaves, so the fixture's tile leads a sheet as long as
     // Ridley's upload.
-    int uploadByteCount = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileDataSize
-        & EnemyTileDataMasks.ByteCountBits;
+    int uploadByteCount = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileByteCount;
     byte[] uploadPlanar = new byte[Math.Max(uploadByteCount, fixturePlanar.Length)];
     fixturePlanar.CopyTo(uploadPlanar, 0);
     int uploadTiles = uploadPlanar.Length / RoomCharacterAtlasFormat.BytesPerTile;
@@ -885,11 +888,7 @@ internal static void VerifyCeresRidleyRoomEntry()
                 [definitionPointer] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
-            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
-            DmaSources = new Dictionary<EnemyDefinitionId, int>
-            {
-                [definitionPointer] = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileDataAddress,
-            } }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
+            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
             CeresRidleyColors = CeresRidleyColorFile.Read(new MemoryStream(

@@ -70,7 +70,7 @@ public static class EnemyTileArtworkFiles
                          RoomStateSourceDefinitions.Bank | (pointer + RoomStateSourceDefinitions.EnemySetOffset)))
                      .Distinct().Order())
         {
-            int cursor = RoomEnemyRomLayout.TilesetBank | graphicsSetPointer;
+            int cursor = EnemySourceDefinitions.GraphicsSetBank | graphicsSetPointer;
             for (int slot = 0; slot <= 4; slot++, cursor += 4)
             {
                 ushort headerWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
@@ -81,9 +81,10 @@ public static class EnemyTileArtworkFiles
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(headerWord);
 
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
-                int byteCount = definition.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask;
+                int byteCount = definition.TileByteCount;
                 int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
-                byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
+                byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(bus, definitionPointer), byteCount);
                 int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
                 byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, columns,
                     out Extent16<ImagePixels> size);
@@ -495,15 +496,13 @@ public static class EnemyTileArtworkFiles
 
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
-        var dmaSources = new Dictionary<EnemyDefinitionId, int>();
         foreach ((ushort manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
         {
             EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
             RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
-            if (entry.NativeByteCount != (definition.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask))
+            if (entry.NativeByteCount != definition.TileByteCount)
                 throw new InvalidDataException(
-                    $"Enemy ${manifestKey:X4} manifest DMA size differs from retail.");
-            dmaSources.Add(definitionPointer, definition.TileDataAddress);
+                    $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
             string fileName = FileName(definitionPointer);
             string stockPath = Path.Combine(stockDirectory, fileName);
@@ -1121,7 +1120,7 @@ public static class EnemyTileArtworkFiles
             EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts
             {
                 Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps, ExtendedFrames = extendedFrames,
-                GunshipLiftoff = gunshipLiftoff, DmaSources = dmaSources, ProjectileSpritemaps = projectileSpritemaps,
+                GunshipLiftoff = gunshipLiftoff, ProjectileSpritemaps = projectileSpritemaps,
                 MagdollitePaletteCycle = magdollitePaletteCycle, WorkRobotPaletteCycle = workRobotPaletteCycle,
                 ChozoAndTubeColors = chozoAndTubeColors, DachoraColors = dachoraColors, AuxiliaryColors = auxiliaryColors,
             }),

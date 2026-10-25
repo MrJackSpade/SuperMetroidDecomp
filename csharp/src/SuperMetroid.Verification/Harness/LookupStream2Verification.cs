@@ -999,7 +999,7 @@ internal static class LookupStream2Verification
             AssertEqual(minimumY[column], DeadTorizoGeometryDefinitions.ColumnMinimumY(column),
                 "Dead Torizo native clipping boundary");
         }
-        byte[] planar = ReadDeadTorizoRomBytes(rom, CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount);
+        byte[] planar = ReadDeadTorizoRomBytes(rom, SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheetDefinitions.DeadTorizoSheet), CorpseSheetDefinitions.DeadTorizoSheetByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns,
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
@@ -1028,9 +1028,9 @@ internal static class LookupStream2Verification
                         Version = 1,
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
-            }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = CorpseSheetDefinitions.DeadTorizoSheetAddress } });
-        AssertTrue(artwork.TryResolve(CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount,
-            out ReadOnlyMemory<byte> atlas), "Dead Torizo installed art resolves its corpse sheet");
+            }, Spritemaps = display });
+        ReadOnlyMemory<byte> atlas = artwork.TilesOf(CorpseSheetDefinitions.DeadTorizoSheet);
+        AssertEqual(CorpseSheetDefinitions.DeadTorizoSheetByteCount, atlas.Length, "Dead Torizo installed art resolves its corpse sheet");
         // The extraction stages the corpse as the cartridge does and rots it to picture each step (#1392).
         CorpseStaging corpseTiles = CorpseStaging.Torizo(atlas.Span);
         Compare(expected, "Actual Dead Torizo installed-art crop");

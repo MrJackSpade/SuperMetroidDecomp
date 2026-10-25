@@ -61,6 +61,18 @@ internal static class EnemySourceDefinitions
     /// <summary>$A8:CCC1: the Work Robot's six four-colour, timed palette-cycle records (#1412).</summary>
     internal const int WorkRobotPaletteCycleRecords = 0xa8ccc1;
 
+    /// <summary>Bank $A0, which holds the 64-byte enemy headers (#1412).</summary>
+    internal const int EnemyHeaderBank = 0xa00000;
+
+    /// <summary>Bank $B4, which holds the enemy graphics-set records (#1412).</summary>
+    internal const int GraphicsSetBank = 0xb40000;
+
+    /// <summary>The low fifteen bits of an enemy header's tile word: the bytes of its tile set (#1412).</summary>
+    internal const int EnemyHeaderTileByteCountBits = 0x7fff;
+
+    /// <summary>Bit 15 of an enemy header's tile word: its graphics set shows the tiles at the record's fixed block (#1412).</summary>
+    internal const int EnemyHeaderFixedBlockBit = 0x8000;
+
     /// <summary>$7E:2000: the work-memory enemy BG2 staging image, whose corpse rows a rot upload may read (#1412).</summary>
     internal const int EnemyBg2Staging = 0x7e2000;
 

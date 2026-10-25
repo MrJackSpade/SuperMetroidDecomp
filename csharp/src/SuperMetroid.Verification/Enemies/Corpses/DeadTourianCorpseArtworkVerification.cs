@@ -187,9 +187,8 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>The installed corpse sheet, which the extraction stages every Tourian corpse from.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TryResolve(CorpseSheetDefinitions.DeadMonsterSheetAddress, CorpseSheetDefinitions.DeadMonsterSheetByteCount,
-            out ReadOnlyMemory<byte> tiles) ? tiles.Span
-            : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png is missing or has the wrong size.");
+        artwork.Enemies.TilesOf(CorpseSheetDefinitions.DeadMonsterSheet) is { Length: CorpseSheetDefinitions.DeadMonsterSheetByteCount } tiles
+            ? tiles.Span : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png has the wrong size.");
 
     /// <summary>Compares each natively copied run of staged corpse characters with the extraction's.</summary>
     private static void AssertStagedParity(NativeEnemyStaging native, CorpseStaging installed, DeadTorizoArtworkCopy[] copies, string context)

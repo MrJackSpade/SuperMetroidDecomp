@@ -55,7 +55,6 @@ internal static class EnemyTileArtworkPresentationContractChecks
                 .Select(_ => new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }).ToArray() }));
         EnemyPaletteSheet palette = EnemyPaletteSheetFile.Read(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
-        var sources = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, definition => definition.SourceAddress);
         var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
         using var overlayJson = new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(new CeresEscapeOverlayTilemapDocument {
             Version = CeresEscapeOverlayTilemapDefinitions.Version,
@@ -63,7 +62,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
         var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All
             .Select(page => Sheet(page.ByteCount)).ToArray());
-        EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, DmaSources = sources });
+        EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes });
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileArtworkCatalog catalog = Install();
         _ = AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
@@ -77,14 +76,11 @@ internal static class EnemyTileArtworkPresentationContractChecks
         sheets[first.DefinitionId] = Sheet(first.ByteCount == 32 ? 64 : 32);
         Reject(() => Install(), "incorrect native sheet length");
         sheets[first.DefinitionId] = original;
-        sources[first.DefinitionId]++;
-        Reject(() => Install(), "incorrect native DMA alias");
 
         // Mutation of the caller-owned dictionaries cannot invalidate an admitted catalog.
-        sheets.Clear(); palettes.Clear(); sources.Clear();
-        Require(catalog.TryResolve(first.SourceAddress, first.ByteCount, out ReadOnlyMemory<byte> bytes) &&
-            bytes.Length == first.ByteCount, "copied native DMA alias");
-        Require(!catalog.TryResolve(0, int.MinValue, out _), "unowned source remains a false query");
+        sheets.Clear(); palettes.Clear();
+        Require(catalog.TilesOf(first.DefinitionId).Length == first.ByteCount, "copied installed sheet");
+        ReadOnlyMemory<byte> bytes;
         TileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
         Require(ceres.TryResolve(warning.SourceAddress + 1, 1, out bytes) && bytes.Length == 1,
             "bounded Ceres tile slice");

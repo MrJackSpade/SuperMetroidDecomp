@@ -1377,8 +1377,8 @@ internal static class LookupStream5Verification
         foreach (ushort variant in new ushort[] { 0, 2, ushort.MaxValue })
         {
             bool alternate = variant != 0;
-            AssertTrue(LookupStream5CorpseFixtureArtwork(rom).TryResolve(CorpseSheetDefinitions.DeadMonsterSheetAddress,
-                CorpseSheetDefinitions.DeadMonsterSheetByteCount, out ReadOnlyMemory<byte> atlas), "Sidehopper corpse fixture art resolves its sheet");
+            ReadOnlyMemory<byte> atlas = LookupStream5CorpseFixtureArtwork(rom).TilesOf(CorpseSheetDefinitions.DeadMonsterSheet);
+            AssertEqual(CorpseSheetDefinitions.DeadMonsterSheetByteCount, atlas.Length, "Sidehopper corpse fixture art resolves its sheet");
             byte[] expected = new byte[0x800];
             for (int row = 0; row < 5; row++)
             {
@@ -1465,7 +1465,7 @@ internal static class LookupStream5Verification
     internal static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,CorpseSheetDefinitions.DeadMonsterSheetByteCount)
-            .Select(index => rom.ReadCartridgeByte(CorpseSheetDefinitions.DeadMonsterSheetAddress+index)).ToArray();
+            .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheetDefinitions.DeadMonsterSheet)+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
@@ -1479,7 +1479,7 @@ internal static class LookupStream5Verification
                         Version=1,
                         Colors=Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0,Green=0,Blue=0 }).ToArray(),
                     }))),
-            }, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseSidehopper] = CorpseSheetDefinitions.DeadMonsterSheetAddress } });
+            } });
     }
 
     /// <summary>Checks Phantoon rain sprites and their room-state timing against retail sources.</summary>

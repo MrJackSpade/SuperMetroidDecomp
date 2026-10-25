@@ -126,7 +126,7 @@ internal sealed class CorpseRotSimulation
     private static CorpseRotSimulation Sidehopper(EnemyTileArtworkCatalog enemies, ushort graphicsVariant, DeadSidehopperCorpseDefinition definition)
     {
         CorpseStaging staged = CorpseStaging.Sidehopper(
-            Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheetAddress, CorpseSheetDefinitions.DeadMonsterSheetByteCount), graphicsVariant);
+            Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), graphicsVariant);
         CorpseRowGeometry geometry = CorpseRowGeometry.Sidehopper(graphicsVariant, definition.WrapOffset);
         int populated = Populated(EnemyDefinitionId.CorpseSidehopper, graphicsVariant);
         return Batch(definition.Kind, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
@@ -138,7 +138,7 @@ internal sealed class CorpseRotSimulation
         DeadTourianCorpseVariant layout = DeadTourianCorpseStagingDefinitions.Variants(species)[variant];
         DeadTourianCorpseDefinition definition = DeadTourianCorpseDefinitions.For(species, variant);
         CorpseStaging staged = CorpseStaging.Tourian(
-            Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheetAddress, CorpseSheetDefinitions.DeadMonsterSheetByteCount), layout);
+            Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), layout);
         CorpseRowGeometry geometry = CorpseRowGeometry.Tourian(species, layout, definition.WrapOffset);
         int populated = Populated(enemy, checked((ushort)(variant * 2)));
         return Batch(definition.Kind, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
@@ -214,7 +214,7 @@ internal sealed class CorpseRotSimulation
     /// </summary>
     private static CorpseRotSimulation Torizo(EnemyTileArtworkCatalog enemies)
     {
-        ReadOnlySpan<byte> atlas = Atlas(enemies, CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount);
+        ReadOnlySpan<byte> atlas = Atlas(enemies, CorpseSheetDefinitions.DeadTorizoSheet, CorpseSheetDefinitions.DeadTorizoSheetByteCount);
         CorpseStaging staged = CorpseStaging.Torizo(atlas);
         CorpseRowGeometry geometry = CorpseRowGeometry.Torizo;
         var halves = new Dictionary<bool, CorpseRotRow[]>();
@@ -301,9 +301,12 @@ internal sealed class CorpseRotSimulation
             .Count(record => record.DefinitionId == enemy && record.Parameter1 == parameter)));
 
     /// <summary>The installed tiles a corpse copies its staged characters from.</summary>
-    private static ReadOnlySpan<byte> Atlas(EnemyTileArtworkCatalog enemies, int sourceAddress, int byteCount) =>
-        enemies.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> tiles) ? tiles.Span
-            : throw new InvalidDataException($"Installed enemy tiles hold no corpse art at ${sourceAddress:X6}+{byteCount}.");
+    private static ReadOnlySpan<byte> Atlas(EnemyTileArtworkCatalog enemies, EnemyDefinitionId sheet, int byteCount)
+    {
+        ReadOnlyMemory<byte> tiles = enemies.TilesOf(sheet);
+        return tiles.Length == byteCount ? tiles.Span
+            : throw new InvalidDataException($"Installed {sheet} tiles are {tiles.Length} bytes, not the corpse sheet's {byteCount}.");
+    }
 
     /// <summary>The row <paramref name="upload"/> uploads, as the <paramref name="index"/>th of its corpse's rows.</summary>
     private static CorpseRotRow Row(int index, CorpseRowUpload upload) =>

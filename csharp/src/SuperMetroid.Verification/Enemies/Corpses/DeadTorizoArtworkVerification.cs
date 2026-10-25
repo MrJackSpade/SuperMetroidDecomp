@@ -226,8 +226,8 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>The installed dead-Torizo sheet.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TryResolve(CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount, out ReadOnlyMemory<byte> tiles)
-            ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png is missing or has the wrong size.");
+        artwork.Enemies.TilesOf(CorpseSheetDefinitions.DeadTorizoSheet) is { Length: CorpseSheetDefinitions.DeadTorizoSheetByteCount } tiles
+            ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png has the wrong size.");
 
     /// <summary>The <paramref name="length"/> staged corpse bytes from <paramref name="offset"/>.</summary>
     private static byte[] Staged(CorpseStaging staging, int offset, int length) =>

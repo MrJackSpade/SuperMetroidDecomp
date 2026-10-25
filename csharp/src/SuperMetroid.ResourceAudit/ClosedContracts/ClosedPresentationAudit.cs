@@ -157,7 +157,6 @@ internal sealed class ClosedPresentationAudit
         }
         string? invalid = InvalidConstantIndex(operation, provider.Name) ?? PlmVisualDomainAudit.InvalidConstants(operation)
             ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
-            ?? EnemyArtworkDomainAudit.InvalidConstants(operation)
             ?? EnemyDisplayArtworkDomainAudit.InvalidConstants(operation)
             ?? SamusBodyTransferDomainAudit.InvalidConstants(operation)
             ?? ProjectileSpriteDomainAudit.InvalidConstants(operation)

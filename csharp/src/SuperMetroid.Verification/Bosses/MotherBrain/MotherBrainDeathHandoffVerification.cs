@@ -19,9 +19,9 @@ internal static class MotherBrainDeathHandoffVerification
         // The installed program keeps the same glyphs and destination; delay two is engine-owned.
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Zebes,
             [new EscapeTypewriterLine(0, "A !")]);
-        var text = new EscapeTypewriterState(program, EscapeTypewriterRomData.ZebesTileBase);
+        var text = new EscapeTypewriterState(program, EscapeTypewriterDefinitions.ZebesTileBase);
         AssertTrue(!text.StepInto(vram), "typewriter first glyph is not completion");
-        AssertEqual(EscapeTypewriterRomData.ZebesTileBase, vram.ReadWord(0), "text glyph reaches its cell");
+        AssertEqual(EscapeTypewriterDefinitions.ZebesTileBase, vram.ReadWord(0), "text glyph reaches its cell");
         AssertTrue(!text.ClickRequested, "first glyph does not click");
         text.StepInto(vram);
         AssertEqual(2, text.Cell, "space advances cursor without a tile");
@@ -29,7 +29,7 @@ internal static class MotherBrainDeathHandoffVerification
         text.StepInto(vram);
         AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");
         text.StepInto(vram);
-        AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 26), vram.ReadWord(2), "exclamation uses native remap");
+        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase + 26), vram.ReadWord(2), "exclamation uses native remap");
         AssertTrue(text.ClickRequested, "second visible glyph clicks despite intervening space");
         text.StepInto(vram); text.StepInto(vram);
         AssertTrue(text.StepInto(vram), "typewriter completes only at terminator after delay");

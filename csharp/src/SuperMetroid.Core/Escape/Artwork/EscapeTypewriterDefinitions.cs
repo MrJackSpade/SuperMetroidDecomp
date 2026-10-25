@@ -6,6 +6,21 @@ public static class EscapeTypewriterDefinitions
     /// <summary>The base character word Ceres's warning typewriter draws with.</summary>
     internal const ushort CeresTileBase = 0x3582;
 
+    /// <summary>The base character word the Zebes warning typewriter draws with.</summary>
+    public const ushort ZebesTileBase = 0x2610;
+
+    /// <summary>The letter the base character word draws; later letters draw the characters after it, in alphabet order.</summary>
+    public const byte FirstLetter = (byte)'A';
+
+    /// <summary>The exclamation mark draws the glyph after Z.</summary>
+    public const byte ExclamationGlyph = (byte)'Z' + 1;
+
+    /// <summary>The key click the Zebes typewriter plays.</summary>
+    public static readonly SoundEffectId ZebesClick = Library3Sound.IntroTypewriter;
+
+    /// <summary>The key click the Ceres typewriter plays for every other glyph.</summary>
+    public static readonly SoundEffectId CeresClick = Library2Sound.CeresTypewriter;
+
     /// <summary>The supported editable escape-typewriter JSON schema version.</summary>
     public const int Version = 2;
 

@@ -63,11 +63,11 @@ public sealed class EscapeTimer
     /// Runs one timer update and returns the carry-style result: true once all three BCD
     /// fields have reached zero.
     /// </summary>
-    /// <param name="nmiFrameCounter">
-    /// Global NMI frame counter. Only its low seven bits select the periodic correction schedule.
+    /// <param name="frameCounter">
+    /// The game's frame counter. Only its low seven bits select the periodic correction schedule.
     /// </param>
     /// <param name="preventEscapeTimeout">Host-only override: countdown continues normally until one second remains.</param>
-    public bool Process(int nmiFrameCounter, bool preventEscapeTimeout = false)
+    public bool Process(int frameCounter, bool preventEscapeTimeout = false)
     {
         if (CountdownExpired)
             return false;
@@ -80,9 +80,9 @@ public sealed class EscapeTimer
             EscapeTimerState.CeresStart => Start(PackedBcd.FromDecimal(1)),
             EscapeTimerState.MotherBrainStart => Start(PackedBcd.FromDecimal(3)),
             EscapeTimerState.InitialDelay => ProcessInitialDelay(),
-            EscapeTimerState.RunningMovementDelayed => ProcessMovementDelay(nmiFrameCounter),
-            EscapeTimerState.RunningMovingIntoPlace => ProcessMovement(nmiFrameCounter),
-            EscapeTimerState.RunningInPlace => Decrement(nmiFrameCounter),
+            EscapeTimerState.RunningMovementDelayed => ProcessMovementDelay(frameCounter),
+            EscapeTimerState.RunningMovingIntoPlace => ProcessMovement(frameCounter),
+            EscapeTimerState.RunningInPlace => Decrement(frameCounter),
             _ => throw new InvalidOperationException($"Timer status low byte ${(byte)State:X2} has no $80:9DE7 dispatch entry."),
         };
 
@@ -156,7 +156,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary>Counts down while the aliased X counter advances to its movement threshold.</summary>
-    private bool ProcessMovementDelay(int nmiFrameCounter)
+    private bool ProcessMovementDelay(int frameCounter)
     {
         IncrementXLowByte();
         if ((byte)Position.X >= 96)
@@ -167,11 +167,11 @@ public sealed class EscapeTimer
             AdvanceState();
         }
 
-        return Decrement(nmiFrameCounter);
+        return Decrement(frameCounter);
     }
 
     /// <summary>Moves the 8.8 timer origin toward pixel (220, 48) while continuing the countdown.</summary>
-    private bool ProcessMovement(int nmiFrameCounter)
+    private bool ProcessMovement(int frameCounter)
     {
         int axesInPosition = 0;
 
@@ -201,13 +201,13 @@ public sealed class EscapeTimer
             AdvanceState();
         }
 
-        return Decrement(nmiFrameCounter);
+        return Decrement(frameCounter);
     }
 
     /// <summary>Subtracts this NMI's BCD correction and reports expiration at exactly zero.</summary>
-    private bool Decrement(int nmiFrameCounter)
+    private bool Decrement(int frameCounter)
     {
-        PackedBcd correction = PackedBcd.FromDecimal(EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter));
+        PackedBcd correction = PackedBcd.FromDecimal(EscapeTimerCadenceDefinitions.Centiseconds(frameCounter));
         PackedBcd one = PackedBcd.FromDecimal(1);
         Centiseconds = Centiseconds.Subtract(correction, out bool borrowedCentiseconds);
 

@@ -5,8 +5,8 @@ internal static class EscapeTimerStatusDefinitions
 {
 
     /// <summary>
-    /// The 8.8 origin the timer's cleared position holds, pixel $80 on each axis with a zero fraction; during startup
+    /// The 8.8 origin the timer's cleared position holds, pixel 128 on each axis with a zero fraction; during startup
     /// the X fraction byte is repurposed as a delay counter.
     /// </summary>
-    internal const ushort ClearedOrigin = 0x8000;
+    internal static readonly ushort ClearedOrigin = (ushort)SnesEightEight.FromWhole(128);
 }

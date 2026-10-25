@@ -31,7 +31,7 @@ internal static class EscapeTypewriterPresentationVerification
         {
             EscapeTypewriterProgram program = presentation.Get(id);
             ushort tileBase = id == EscapeTypewriterProgramId.Ceres ? (ushort)0x3582 :
-                EscapeTypewriterRomData.ZebesTileBase;
+                EscapeTypewriterDefinitions.ZebesTileBase;
             // The installed program runs to completion without any cartridge text read;
             // extraction copied its stream from the ROM at program.SourceAddress.
             var installed = new EscapeTypewriterState(program, tileBase);
@@ -52,24 +52,24 @@ internal static class EscapeTypewriterPresentationVerification
         EscapeTypewriterPresentation edited = EscapeTypewriterPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         var editedState = new EscapeTypewriterState(
-            edited.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
+            edited.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
         var editedVram = new SnesVram();
         editedState.StepInto(editedVram);
         editedState.StepInto(editedVram);
-        AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase + 'E' - 'A'),
             editedVram.ReadWord(0x106), "edited UTF-8 escape text reaches live VRAM");
 
         var rebound = new EscapeTypewriterState(
-            presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
+            presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
         var reboundVram = new SnesVram();
         rebound.StepInto(reboundVram);
         rebound.BindProgram(edited.Get(EscapeTypewriterProgramId.Zebes));
         rebound.StepInto(reboundVram);
-        AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase + 'E' - 'A'),
             reboundVram.ReadWord(0x106), "active escape typewriter accepts current replacement content");
 
         var saved = new EscapeTypewriterState(
-            presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
+            presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
         var savedVram = new SnesVram();
         saved.StepInto(savedVram);
         using var snapshot = new MemoryStream();
@@ -84,7 +84,7 @@ internal static class EscapeTypewriterPresentationVerification
             "restored escape text fails loudly until host content is rebound");
         restored.BindProgram(presentation.Get(EscapeTypewriterProgramId.Zebes));
         restored.StepInto(savedVram);
-        AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'I' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase + 'I' - 'A'),
             savedVram.ReadWord(0x106), "restored escape text resumes at its saved character");
 
         byte[] malformed = Encoding.UTF8.GetBytes(
@@ -119,11 +119,11 @@ internal static class EscapeTypewriterPresentationVerification
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         var state = new EscapeTypewriterState(
             edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),
-            EscapeTypewriterRomData.ZebesTileBase);
+            EscapeTypewriterDefinitions.ZebesTileBase);
         var vram = new SnesVram();
         state.StepInto(vram);
         state.StepInto(vram);
-        AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase + 'E' - 'A'),
             vram.ReadWord(0x106), "catalog override changes installed escape text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "escape text override changes catalog content identity");

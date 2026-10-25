@@ -202,7 +202,7 @@ internal static class TileWordSheetComposer
         switch (writer)
         {
             case TileWordWriter.ZebesEscapeText:
-                yield return new NamedPart("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase));
+                yield return new NamedPart("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase));
                 break;
             case TileWordWriter.CeresEscapeText:
                 foreach (NamedPart part in CeresWarningParts(inputs))

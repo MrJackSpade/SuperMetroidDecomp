@@ -421,7 +421,7 @@ internal sealed class CeresRidleyGetaway
             _room.Services.DrawBg1Overlay(typed.Cell, [typed.Tile.Raw]);
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
-            _audio.QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: SoundQueueLimit.Max3);
+            _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, maximumQueued: SoundQueueLimit.Max3);
         return completed;
     }
 

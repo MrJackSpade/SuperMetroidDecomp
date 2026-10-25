@@ -89,7 +89,7 @@ internal static class Layer3PlaneVerification
     {
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres,
             [new EscapeTypewriterLine(0x105, "AB C!")]);
-        var text = new EscapeTypewriterState(program, EscapeTypewriterRomData.ZebesTileBase);
+        var text = new EscapeTypewriterState(program, EscapeTypewriterDefinitions.ZebesTileBase);
         var typed = new List<EscapeTypewriterGlyph>();
         bool completed = false;
         int steps = 0;
@@ -103,8 +103,8 @@ internal static class Layer3PlaneVerification
         }
         AssertEqual(4, typed.Count, "the space types no glyph");
         int[] cells = [0x105, 0x106, 0x108, 0x109];
-        ushort[] tiles = [EscapeTypewriterRomData.ZebesTileBase, (EscapeTypewriterRomData.ZebesTileBase + 1),
-            (EscapeTypewriterRomData.ZebesTileBase + 2), (EscapeTypewriterRomData.ZebesTileBase + 26)];
+        ushort[] tiles = [EscapeTypewriterDefinitions.ZebesTileBase, (EscapeTypewriterDefinitions.ZebesTileBase + 1),
+            (EscapeTypewriterDefinitions.ZebesTileBase + 2), (EscapeTypewriterDefinitions.ZebesTileBase + 26)];
         for (int index = 0; index < typed.Count; index++)
         {
             AssertEqual(cells[index], typed[index].Cell, $"glyph {index} lands at its program's cell");

@@ -76,7 +76,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 "Mother Brain Baby spawn record " +
-                $"names enemy ${(int)population.DefinitionId:X4}, not $ECBF.");
+                $"names enemy {population.DefinitionId}, not BabyMetroidCutscene.");
         }
 
         RoomEnemySlot babySlot = _slotTable.Slots[slotIndex];
@@ -91,7 +91,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             ? EnemyFrameId.Empty
             : null;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.NativeSlotSize));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
     }
 
     /// <summary>Creates the physical Baby only after the rainbow sequence exists and installs its first list and fifteen nontransparent palette colors.</summary>
@@ -205,7 +205,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
         slot.PaletteIndex = baby.HitFlashPaletteShown ? (ushort)0 : EnemyPaletteBits.Palette7;
-        slot.VramTilesIndex = baby.GraphicsOffset.Raw;
+        slot.TileIndexBase = baby.GraphicsOffset.Raw;
         slot.Health = baby.Health;
     }
 
@@ -217,7 +217,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.FatalBlowStarted)
         {
             _audio.QueueEnemySound(Library3Sound.BabyMetroidDeath, maximumQueued: SoundQueueLimit.Max6);
-            SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation.Cgram);
+            SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation.Colours);
             state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         }
         if (step.SamusThemeStarted)
@@ -257,7 +257,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     internal void LoadMotherBrainRecoveryLights(int frame) =>
         (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain recovery requires installed room colors."))
-            .ApplyRecoveryLights(_presentation.Cgram, frame);
+            .ApplyRecoveryLights(_presentation.Colours, frame);
 
     /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>

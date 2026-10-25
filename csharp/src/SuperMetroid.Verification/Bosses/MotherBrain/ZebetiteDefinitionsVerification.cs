@@ -70,7 +70,7 @@ internal static class ZebetiteDefinitionsVerification
                 ZebetiteDefinitions.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
             ushort[] actual =
             [
-                (ushort)population.DefinitionId,
+                SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(population.DefinitionId),
                 population.Position.X,
                 population.Position.Y,
                 checked((ushort)population.InitializationParameter),

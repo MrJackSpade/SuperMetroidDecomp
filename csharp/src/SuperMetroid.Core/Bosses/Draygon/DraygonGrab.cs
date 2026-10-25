@@ -297,7 +297,7 @@ internal sealed class DraygonGrab
         Position16<RoomPixels> target,
         ushort speed)
     {
-        SnesByteAngle movementAngle = EnemyMath.CalculateCartridgeAngle(target - body.Position.Whole).ToTableAngle();
+        SnesByteAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTableAngle();
 
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,

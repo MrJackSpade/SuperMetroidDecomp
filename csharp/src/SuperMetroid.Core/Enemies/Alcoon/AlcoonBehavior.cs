@@ -445,7 +445,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,
-            unchecked((ushort)(alcoon.VramTilesIndex | alcoon.PaletteIndex)));
+            unchecked((ushort)(alcoon.TileIndexBase | alcoon.PaletteIndex)));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(alcoon.Position.X.Whole + (movingLeft ? -16 : 16))), unchecked((ushort)(alcoon.Position.Y.Whole - 12))));
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(movingLeft
             ? unchecked((ushort)-AlcoonFireballGraphicsHorizontalSpeed)

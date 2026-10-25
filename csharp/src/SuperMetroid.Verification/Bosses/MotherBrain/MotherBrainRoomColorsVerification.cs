@@ -309,7 +309,7 @@ internal static class MotherBrainRoomColorsVerification
         MotherBrainRoomColorPresentation? colors)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors } };
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         return enemies;
     }

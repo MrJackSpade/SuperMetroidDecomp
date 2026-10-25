@@ -21,9 +21,6 @@ public sealed record EnemyTileArtworkParts
     /// <summary>Gunship liftoff.</summary>
     public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; init; } = null;
 
-    /// <summary>Dma sources.</summary>
-    public IReadOnlyDictionary<EnemyDefinitionId, int>? DmaSources { get; init; } = null;
-
     /// <summary>Projectile spritemaps.</summary>
     public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; init; } = null;
 

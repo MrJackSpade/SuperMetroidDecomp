@@ -28,7 +28,7 @@ internal static class DragonFireballBehaviorVerification
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(384, 160));
-        body.VramTilesIndex = 512;
+        body.TileIndexBase = 512;
         body.PaletteIndex = 2560;
         DragonBehavior.InitializeDragon(body);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires the Dragon's state.");

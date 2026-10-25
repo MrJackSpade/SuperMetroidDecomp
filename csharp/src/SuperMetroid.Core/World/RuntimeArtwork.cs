@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.World;
 /// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation)
 /// and the VRAM asset and installed-artwork transfer source the runtime's VRAM queue resolves through.
 /// </summary>
-internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledObjCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
+internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
 {
     /// <summary>Resolves an OBJ binding's installed VRAM asset.</summary>
     ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveVramAsset(asset);
@@ -34,11 +34,11 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
     AreaArtworkCatalog IInstalledAreaObjCharacterArtwork.AreaTiles => _areaArtwork.Installed;
 
     /// <inheritdoc/>
-    EnemyTileArtworkCatalog IInstalledObjCharacterArtwork.EnemyTiles =>
+    EnemyTileArtworkCatalog IInstalledSpriteCharacterArtwork.EnemyTiles =>
         _enemySession.TileArtwork ?? throw new InvalidOperationException("No enemy artwork is installed.");
 
     /// <inheritdoc/>
-    RoomFxAnimatedTileAtlas IInstalledObjCharacterArtwork.AnimatedTiles =>
+    RoomFxAnimatedTileAtlas IInstalledSpriteCharacterArtwork.AnimatedTiles =>
         MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("No map presentation is installed.");
 
 

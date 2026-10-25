@@ -27,7 +27,7 @@ internal static class AlcoonFireballBehaviorVerification
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
-        source.VramTilesIndex = 512;
+        source.TileIndexBase = 512;
         source.PaletteIndex = 3072;
         var state = new AlcoonEnemyState();
         source.SetSpeciesState(state);

@@ -60,7 +60,7 @@ internal static class SpawnedObjectFixtures
         if (slot is null)
             return;
         EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(enemy);
-        slot.VramTilesIndex = indexes.TileIndex;
+        slot.TileIndexBase = indexes.TileIndex;
         slot.PaletteIndex = indexes.PaletteIndex;
     }
 

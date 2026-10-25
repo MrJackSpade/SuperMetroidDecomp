@@ -48,7 +48,7 @@ internal sealed class DraygonDeath
         // select slightly different table vectors near the destination.
         short deltaX = unchecked((short)(64 - (body.Position.X.Whole >> 2)));
         short deltaY = unchecked((short)(120 - (body.Position.Y.Whole >> 2)));
-        SnesByteAngle movementAngle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).ToTableAngle();
+        SnesByteAngle movementAngle = EnemyMath.CalculateBearing(new(deltaX, deltaY)).ToTableAngle();
         MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
 
         if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, 4) ||

@@ -212,7 +212,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Words(NativeSnapshotMemory.PowerBombArmedFlag),
         WorkRamRange.Between(NativeSnapshotMemory.CameraSpeedX, CameraSpeedToChargeEnd),
         WorkRamRange.Words(NativeSnapshotMemory.SamusFilteredHeld, 2),
-        new(NativeSnapshotMemory.EnemyBase, EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize),
+        new(NativeSnapshotMemory.EnemyBase, EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride),
         WorkRamRange.Words(NativeSnapshotMemory.SamusSolidEnemyIndices, 4),
         WorkRamRange.Between(SamusTimersStart, SamusTimersEnd),
         WorkRamRange.Words(NativeSnapshotMemory.AcidSurface),

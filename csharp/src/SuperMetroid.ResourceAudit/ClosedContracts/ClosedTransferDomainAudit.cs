@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis.Operations;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
@@ -26,7 +27,8 @@ internal static class ClosedTransferDomainAudit
             return !page || (long)offset + skyCount > RoomSkyTilemapFormat.TotalByteCount
                 ? "Owned scrolling-sky source/length is not a complete aligned page." : null;
         }
-        if (!GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.SourceAddress == source)) return null;
+        if (!Enumerable.Range(0, GunshipLiftoffTransferDefinitions.Frames.Length)
+                .Any(page => EnemySourceDefinitions.GunshipLiftoffPageSource(page) == source)) return null;
         return Constant("byteCount") is int count && count != GunshipLiftoffTransferDefinitions.ByteCount
             ? $"Owned gunship takeoff source requires {GunshipLiftoffTransferDefinitions.ByteCount} bytes, not {count}." : null;
     }

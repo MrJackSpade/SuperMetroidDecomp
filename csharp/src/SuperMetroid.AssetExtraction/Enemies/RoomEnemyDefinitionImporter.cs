@@ -16,17 +16,27 @@ public static class RoomEnemyDefinitionImporter
 {
     /// <summary>Decodes one fixed 64-byte bank-$A0 enemy definition from cartridge data.</summary>
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
-    /// <param name="pointer">Bank-$A0 pointer to the native enemy definition.</param>
+    /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
     /// <returns>The decoded enemy definition.</returns>
-    public static RoomEnemyDefinition Load(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    public static RoomEnemyDefinition Load(ISnesAddressSpace bus, EnemyDefinitionId pointer) =>
+        LoadAt(bus, EnemyDefinitionIds.HeaderPointer(pointer));
+
+    /// <summary>Decodes the fixed 64-byte bank-$A0 enemy header at <paramref name="headerPointer"/>.</summary>
+    /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
+    /// <param name="headerPointer">The header's bank-$A0 pointer; a verification fixture may seed one for an identity no member has.</param>
+    /// <returns>The decoded enemy definition.</returns>
+    internal static RoomEnemyDefinition LoadAt(ISnesAddressSpace bus, ushort headerPointer)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        ushort Word(int offset) => ReadWord(cartridge, pointer, offset);
-        byte Byte(int offset) => ReadByte(cartridge, pointer, offset);
+        ushort Word(int offset) => ReadWord(cartridge, headerPointer, offset);
+        byte Byte(int offset) => ReadByte(cartridge, headerPointer, offset);
         byte bank = Byte(BankOffset);
+        ushort tileSize = Word(0);
         return new RoomEnemyDefinition(
-            TileDataSize: Word(0),
+            TileByteCount: tileSize & EnemySourceDefinitions.EnemyHeaderTileByteCountBits,
+            TilePlacement: (tileSize & EnemySourceDefinitions.EnemyHeaderFixedBlockBit) != 0
+                ? EnemyTilePlacement.AtFixedBlock : EnemyTilePlacement.FollowingPrevious,
             Health: Word(4),
             Damage: Word(6),
             Radius: new Extent16<RoomPixels>(Word(8), Word(10)),
@@ -35,38 +45,52 @@ public static class RoomEnemyDefinitionImporter
             BossId: Word(16),
             InitializationAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(18)),
             PartCount: Word(20),
-            Unused16: Word(22),
             MainAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
             GrappleAi: SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"),
             HurtAi: EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             DeathAnimation: Word(34),
-            Unused24: Word(36),
-            Unused26: Word(38),
             PowerBombReaction: EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
             PowerBombReactionBody: EnemyInteractionCallbacks.Body(Word(40),
                 EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, Word(40))),
-            VariantIndex: Word(42),
-            Unused2C: Word(44),
-            Unused2E: Word(46),
+            VariantIndex: HopperVariant(Word(42)),
             Touch: EnemyInteractionCallbacks.TryDecode(bank, Word(48)),
             TouchBody: EnemyInteractionCallbacks.Body(Word(48), EnemyInteractionCallbacks.IsLiteralNoOpTouch(bank, Word(48))),
             Shot: EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
             ShotBody: EnemyInteractionCallbacks.Body(Word(50), EnemyInteractionCallbacks.IsLiteralNoOpShot(bank, Word(50))),
             NoOpCallbackBody: EnemyInteractionCallbacks.NoOpCallbackBody(bank),
-            TileDataAddress: RomDataReader.ReadLongFixedBank(cartridge, HeaderAddress(pointer, 54)),
             Layer: Byte(57),
             DropChances: EnemyHeaderTables.DropChances(Word(58)),
             Vulnerability: EnemyHeaderTables.Vulnerability(Word(60)));
     }
 
+    /// <summary>
+    /// The hopper variant a header's +$2A word holds. Headers whose behaviour reads no variant keep leftover prototype
+    /// instruction-list pointers there, which all lie in their bank's ROM half; they are not variants and import as zero.
+    /// </summary>
+    private static ushort HopperVariant(ushort word) => word >= SnesBusLayout.RomWindowStart ? (ushort)0 : word;
+
+    /// <summary>The long address of the planar tile data a header names: where the import reads the enemy's tile set.</summary>
+    /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
+    /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
+    internal static int TileDataSource(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    {
+        Ensure.NotNull(bus);
+        return RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus),
+            HeaderAddress(EnemyDefinitionIds.HeaderPointer(pointer), TileDataOffset));
+    }
+
+    /// <summary>Header offset of the 24-bit tile data source.</summary>
+    private const int TileDataOffset = 54;
+
     /// <summary>The long address of the sixteen-color palette a header names in its enemy's bank.</summary>
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
-    /// <param name="pointer">Bank-$A0 pointer to the native enemy definition.</param>
+    /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
     internal static int PaletteAddress(ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        return (int)new SnesAddress(ReadByte(cartridge, pointer, BankOffset), ReadWord(cartridge, pointer, PaletteOffset));
+        ushort header = EnemyDefinitionIds.HeaderPointer(pointer);
+        return (int)new SnesAddress(ReadByte(cartridge, header, BankOffset), ReadWord(cartridge, header, PaletteOffset));
     }
 
     /// <summary>Header offset of the bank byte that qualifies the header's code and palette words.</summary>
@@ -75,15 +99,15 @@ public static class RoomEnemyDefinitionImporter
     /// <summary>Header offset of the palette word.</summary>
     private const int PaletteOffset = 2;
 
-    /// <summary>The long address of the byte <paramref name="offset"/> bytes into the bank-$A0 header at <paramref name="pointer"/>.</summary>
-    private static int HeaderAddress(EnemyDefinitionId pointer, int offset) =>
-        RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset));
+    /// <summary>The long address of the byte <paramref name="offset"/> bytes into the bank-$A0 header at <paramref name="header"/>.</summary>
+    private static int HeaderAddress(ushort header, int offset) =>
+        EnemySourceDefinitions.EnemyHeaderBank | unchecked((ushort)(header + offset));
 
-    /// <summary>Reads the little-endian header word <paramref name="offset"/> bytes into the header at <paramref name="pointer"/>.</summary>
-    private static ushort ReadWord(IImportCartridgeSource cartridge, EnemyDefinitionId pointer, int offset) =>
-        RomDataReader.ReadWordFixedBank(cartridge, HeaderAddress(pointer, offset));
+    /// <summary>Reads the little-endian header word <paramref name="offset"/> bytes into the header at <paramref name="header"/>.</summary>
+    private static ushort ReadWord(IImportCartridgeSource cartridge, ushort header, int offset) =>
+        RomDataReader.ReadWordFixedBank(cartridge, HeaderAddress(header, offset));
 
-    /// <summary>Reads the header byte <paramref name="offset"/> bytes into the header at <paramref name="pointer"/>.</summary>
-    private static byte ReadByte(IImportCartridgeSource cartridge, EnemyDefinitionId pointer, int offset) =>
-        cartridge.ReadCartridgeByte(HeaderAddress(pointer, offset));
+    /// <summary>Reads the header byte <paramref name="offset"/> bytes into the header at <paramref name="header"/>.</summary>
+    private static byte ReadByte(IImportCartridgeSource cartridge, ushort header, int offset) =>
+        cartridge.ReadCartridgeByte(HeaderAddress(header, offset));
 }

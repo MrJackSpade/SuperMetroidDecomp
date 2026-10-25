@@ -63,7 +63,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slot.Definition.VariantIndex > 3)
         {
             throw new InvalidDataException(
-                $"Hopper definition ${(int)slot.DefinitionId:X4} variant " +
+                $"Hopper definition {slot.DefinitionId} variant " +
                 $"{slot.Definition.VariantIndex} exceeds its four-entry animation tables.");
         }
         // The initializer overwrites the global RNG seed and consumes one generated value

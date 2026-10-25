@@ -47,7 +47,7 @@ internal sealed class MotherBrainAscent
         // belongs to the room backdrop and must remain untouched.
         (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain phase two requires installed room colors."))
-            .ApplyPhaseTwoInitial(_presentation.Cgram);
+            .ApplyPhaseTwoInitial(_presentation.Colours);
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
         // The native transition now requests the prepared enemy image, replacing the
@@ -195,7 +195,7 @@ internal sealed class MotherBrainAscent
     {
         // `$A9:8E4D` gates on NMI_FrameCounter ($05B6), not the separate 8-bit $05B5; the
         // two advance together but are not aligned, so their low two bits differ.
-        if ((_frameContext.NmiFrameCounter & 3) != 0)
+        if ((_frameContext.FrameCounter & 3) != 0)
             return;
 
         SpawnMotherBrainAscentDust(state);

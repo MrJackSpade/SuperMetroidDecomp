@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
@@ -61,7 +62,7 @@ internal static class DeadTorizoArtworkVerification
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
-        string fileName = EnemyTileArtworkFormat.FileName(EnemyDefinitionId.CorpseTorizo);
+        string fileName = EnemyTileArtworkFiles.FileName(EnemyDefinitionId.CorpseTorizo);
         using var source = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x1800);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
@@ -225,16 +226,16 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>The installed dead-Torizo sheet.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TryResolve(CorpseSheetDefinitions.DeadTorizoSheetAddress, CorpseSheetDefinitions.DeadTorizoSheetByteCount, out ReadOnlyMemory<byte> tiles)
-            ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png is missing or has the wrong size.");
+        artwork.Enemies.TilesOf(CorpseSheetDefinitions.DeadTorizoSheet) is { Length: CorpseSheetDefinitions.DeadTorizoSheetByteCount } tiles
+            ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png has the wrong size.");
 
     /// <summary>The <paramref name="length"/> staged corpse bytes from <paramref name="offset"/>.</summary>
     private static byte[] Staged(CorpseStaging staging, int offset, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress + offset, length, 0));
+        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging + offset, length, 0));
 
     /// <summary>The first <paramref name="length"/> bytes of the staged sand strips.</summary>
     private static byte[] Sand(CorpseStaging staging, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.RottingHeapNativeAddress + EnemyStagingDefinitions.DeadTorizoSandOffset, length, 0));
+        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.CorpseRottingHeap + EnemyStagingDefinitions.DeadTorizoSandOffset, length, 0));
 
     /// <summary>Renders the corpse hook's published frame as the OAM image it stands for.</summary>
     internal static OamBuffer DrawDeadTorizoCorpseFrame(InstalledEnemyArtwork artwork, Position16<RoomPixels> camera)

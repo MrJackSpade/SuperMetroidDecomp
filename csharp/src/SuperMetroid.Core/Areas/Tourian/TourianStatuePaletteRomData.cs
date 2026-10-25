@@ -1,17 +1,11 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Authored palette sources and native CGRAM destinations for the Tourian entrance statue.</summary>
 public static class TourianStatuePaletteRomData
 {
-    /// <summary>Sixteen base-decoration OBJ colors at $AA:D785.</summary>
-    public const int BaseColors = EnemyRomTablePointers.TourianStatue.BaseDecorationPaletteWords;
     /// <summary>Sixteen RGB5 words in native <c>Palettes_TourianStatue_BaseDecoration</c>, covering the full OBJ palette, including color zero.</summary>
     public const int BaseColorCount = 16;
 
-    /// <summary>Sixteen statue OBJ colors at $AA:D765.</summary>
-    public const int StatueColors = EnemyRomTablePointers.TourianStatue.StatuePaletteWords;
     /// <summary>Sixteen RGB5 words in native <c>Palettes_TourianStatue_Phantoon</c>, installed as the statue's full OBJ palette, including color zero.</summary>
     public const int StatueColorCount = 16;
 

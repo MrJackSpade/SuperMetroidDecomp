@@ -13,6 +13,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
@@ -36,10 +37,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             throw new InvalidDataException("Installed enemy artwork lacks Tourian statue colors.");
         var forbidden = new HashSet<int>();
         for (int color = 0; color < TourianStatuePaletteRomData.BaseColorCount; color++)
-            CheckSource(TourianStatuePaletteRomData.BaseColors + color * sizeof(ushort),
+            CheckSource(EnemySourceDefinitions.TourianStatueBaseColors + color * sizeof(ushort),
                 colors.ResolveBase(color).ToWord());
         for (int color = 0; color < TourianStatuePaletteRomData.StatueColorCount; color++)
-            CheckSource(TourianStatuePaletteRomData.StatueColors + color * sizeof(ushort),
+            CheckSource(EnemySourceDefinitions.TourianStatueColors + color * sizeof(ushort),
                 colors.ResolveStatue(color).ToWord());
         for (int row = 0; row < TourianStatuePaletteRomData.EyeRowCount; row++)
         for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
@@ -219,7 +220,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             SamusColourRig cgram = SeedColors();
-            enemy.Presentation.BindCgram(cgram.Gameplay);
+            enemy.Presentation.BindColours(cgram.Gameplay);
             return new CreateEnemyResult(enemy, cgram);
         }
 

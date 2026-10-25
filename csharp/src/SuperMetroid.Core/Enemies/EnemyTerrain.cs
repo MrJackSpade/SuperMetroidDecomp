@@ -257,13 +257,13 @@ internal sealed class EnemyTerrain
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int nativeIndex,
+        int startBlock,
         ushort targetEdge,
         int remaining,
         int spanMinusOne,
         bool treatNonSquareSlopesAsWalls)
     {
-        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, nativeIndex);
+        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock);
         int blockIndex = block.Index;
         return block.CollisionType switch
         {
@@ -296,9 +296,9 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
-    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, int nativeIndex, EnemyVerticalProbe probe)
+    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, int startBlock, EnemyVerticalProbe probe)
     {
-        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, nativeIndex);
+        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock);
         int blockIndex = block.Index;
         return block.CollisionType switch
         {
@@ -346,9 +346,9 @@ internal sealed class EnemyTerrain
     /// decompressed BTS/BG2 stream, then the $8000 prefill). Extension links are followed
     /// as the native reaction dispatcher repeats them.
     /// </summary>
-    private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int nativeIndex)
+    private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int startBlock)
     {
-        int blockIndex = nativeIndex;
+        int blockIndex = startBlock;
         int maximumLinks = level.Size.X * level.Size.Y;
         for (int link = 0; link <= maximumLinks; link++)
         {
@@ -377,7 +377,7 @@ internal sealed class EnemyTerrain
         }
 
         throw new InvalidDataException(
-            $"Enemy collision BTS chain from native block {nativeIndex} is cyclic.");
+            $"Enemy collision BTS chain from block {startBlock} is cyclic.");
     }
 
     /// <summary>Reads the native level allocation past the authored room, rejecting types that require unbounded BTS.</summary>

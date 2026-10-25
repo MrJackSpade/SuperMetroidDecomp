@@ -23,9 +23,9 @@ public sealed class EnemyExtendedFrameCatalog
                     content.AppendEnemyParts(component.Parts);
                 }
             }
-            foreach ((EnemyFrameId native, EnemyFrameId selected) in displayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
+            foreach ((EnemyFrameId stock, EnemyFrameId selected) in displayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
-                content.AppendName("native-binding", EnemyFrameSheetKeys.Of(native));
+                content.AppendName("native-binding", EnemyFrameSheetKeys.Of(stock));
                 content.AppendName("selected-binding", EnemyFrameSheetKeys.Of(selected));
             }
         });

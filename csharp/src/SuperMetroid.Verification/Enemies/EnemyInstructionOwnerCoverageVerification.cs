@@ -61,7 +61,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             {
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
                 enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-                enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+                enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
                 enemies.VerificationServices().NextRandom = () => 0;
                 enemies.VerificationServices().ReadRandom = () => 0;
 
@@ -123,7 +123,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not null)
                     definitionHasOwner = true;
                 else
-                    unresolved.Add($"${(int)definitionPointer:X4} has no typed animation");
+                    unresolved.Add($"{definitionPointer} has no typed animation");
             }
 
             if (definitionTranslated)
@@ -172,7 +172,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         EnemyDefinitionId definitionPointer) =>
         exception is InvalidDataException invalid &&
         invalid.Message.StartsWith(
-            $"Enemy ${(int)definitionPointer:X4} initialization AI $",
+            $"Enemy {definitionPointer} initialization AI $",
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
 

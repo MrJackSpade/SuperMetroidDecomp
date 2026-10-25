@@ -222,7 +222,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CacatacSpike,
-            unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
+            unchecked((ushort)(source.PaletteIndex | source.TileIndexBase)));
         projectile.DirectionParameter = (ushort)direction;
         projectile.Variable0 = (ushort)direction;
         projectile.InstallAnimation(new CacatacProjectileAnimation(program));

@@ -27,7 +27,7 @@ internal static class FrozenMetroidShellVerification
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
-        slot.VramTilesIndex = indexes.TileIndex;
+        slot.TileIndexBase = indexes.TileIndex;
         slot.PaletteIndex = indexes.PaletteIndex;
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];

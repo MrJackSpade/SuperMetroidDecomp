@@ -110,7 +110,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the cartridge's zero-up angle.</summary>
     private static SnesAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
-        SnesAngle.NormalizeTableIndex(EnemyMath.CalculateCartridgeAngle(
+        SnesAngle.NormalizeTableIndex(EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue - EnemyByteAngleDefinitions.QuarterTurn);
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
@@ -148,8 +148,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
         // takes the absolute value and CMP/BMI tests it against $30.
         ushort difference = unchecked((ushort)(state.AngleToSamus.TableIndex - state.Angle));
-        if ((difference & EnemyWordMasks.LowByteSignBit) != 0)
-            difference |= EnemyWordMasks.SignExtendedHighByte;
+        difference = EnemyMath.SignExtendLowByte(difference);
         if (EnemyMath.IsNegative16(difference))
             difference = unchecked((ushort)-difference);
         if (unchecked((short)(difference - 48)) < 0)

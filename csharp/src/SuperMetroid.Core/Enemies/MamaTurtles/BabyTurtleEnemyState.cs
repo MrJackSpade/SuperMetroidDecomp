@@ -20,7 +20,7 @@ public sealed class BabyTurtleEnemyState
     public int ParentSlotIndex
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue / EnemySlotTable.NativeSlotSize, value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue / EnemySlotTable.EnemyIndexStride, value);
     }
 
     /// <summary>

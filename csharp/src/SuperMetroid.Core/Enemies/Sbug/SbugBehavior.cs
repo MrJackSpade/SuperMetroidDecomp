@@ -186,7 +186,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // CalculateAngleOfSamusFromEnemy uses zero-up/clockwise units. Subtracting it from
         // $40 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding $80 selects the exact opposite direction for behavior six.
-        SnesByteAngle heading = EnemyMath.CalculateCartridgeAngle(
+        SnesByteAngle heading = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ToTableAngle();
         state.FaceCustomHeading(heading.AddTableUnits(relativeHeading == SbugHeading.Away ? SnesByteAngle.HalfTurn.RawValue : 0).ToAngle());
         RecalculateSbugCustomDirection(slot, state);

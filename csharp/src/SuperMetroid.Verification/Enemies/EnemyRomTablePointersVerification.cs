@@ -30,8 +30,8 @@ internal static class EnemyRomTablePointersVerification
     [CpuBusBoundary("exact bus test: proves representative enemy ROM table ranges map to readable retail cartridge ROM")]
     internal static void VerifyEnemyRomTablePointerCatalog()
     {
-        // Families production reads stay nested in the catalog; oracle-only families live in
-        // test-support as flattened EnemyRomTablePointers* classes.
+        // The retail ROM oracle's tables live in test-support (#1412): production reads none of them, and the
+        // import reads the ones it needs through its own source catalogs.
         Type[] families =
         [
             .. MetadataShape.NestedTypes(typeof(EnemyRomTablePointers), BindingFlags.Public | BindingFlags.NonPublic),
@@ -122,7 +122,7 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
-            system.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+            system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
@@ -159,10 +159,10 @@ internal static class EnemyRomTablePointersVerification
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
                     < EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 4 or
-                    >= EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords and
-                    < EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords + 8 or
-                    >= EnemyRomTablePointersTourianStatueConstants.InstructionListWords and
-                    < EnemyRomTablePointersTourianStatueConstants.InstructionListWords + 6,
+                    >= EnemyRomTablePointers.WorkRobot.InitialInstructionListWords and
+                    < EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 8 or
+                    >= EnemyRomTablePointers.TourianStatue.InstructionListWords and
+                    < EnemyRomTablePointers.TourianStatue.InstructionListWords + 6,
                 address => $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");
 
     /// <summary>Runs the enemy ROM pointer catalog check from the command dispatcher.</summary>

@@ -13,12 +13,12 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
     /// <summary>Creates a load of <paramref name="population"/> into the room's <paramref name="backgrounds"/> and their VRAM.</summary>
     public RoomEnemyLoadRequest(RoomEnemyPopulationDefinition population,
-        RoomEnemyGraphicsSetDefinition graphicsSet, BgArtworkBindings backgrounds, GameplayColours cgram)
+        RoomEnemyGraphicsSetDefinition graphicsSet, BgArtworkBindings backgrounds, GameplayColours colours)
     {
         Population = Ensure.NotNull(population);
         GraphicsSet = Ensure.NotNull(graphicsSet);
         Backgrounds = Ensure.NotNull(backgrounds);
-        Cgram = Ensure.NotNull(cgram);
+        Colours = Ensure.NotNull(colours);
     }
 
     /// <inheritdoc />
@@ -33,7 +33,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public BgArtworkBindings Backgrounds { get; }
 
     /// <inheritdoc />
-    public GameplayColours Cgram { get; }
+    public GameplayColours Colours { get; }
 
     /// <inheritdoc />
     public RoomLevelData? Level { get; init; }

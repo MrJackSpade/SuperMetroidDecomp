@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -151,7 +152,7 @@ internal static class MotherBrainCorpseArtworkVerification
     /// <summary>The six staged rows of the corpse frame, as the extraction stages them, in heap order.</summary>
     private static byte[] StagedCorpseRows(CorpseStaging staged) =>
         [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount).SelectMany(row => staged.Upload(new CorpseRotRow(row,
-            EnemyStagingDefinitions.RottingHeapNativeAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
+            EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
             MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0)))];
 
     /// <summary>Compares the extraction's staged corpse rows with an independent native copy.</summary>
@@ -160,7 +161,7 @@ internal static class MotherBrainCorpseArtworkVerification
         StagingByteView expectedTiles = expected.MotherBrainCorpseTiles;
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
-            byte[] staged = actual.Upload(new CorpseRotRow(row, EnemyStagingDefinitions.RottingHeapNativeAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
+            byte[] staged = actual.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseArtworkDefinitions.RowBytes,
                 MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row), 0));
             for (int offset = 0; offset < staged.Length; offset++)
                 AssertEqual(expectedTiles[row * MotherBrainCorpseArtworkDefinitions.RowBytes + offset], staged[offset],

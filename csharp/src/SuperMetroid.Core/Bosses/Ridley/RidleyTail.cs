@@ -167,7 +167,7 @@ internal sealed class RidleyTail
                 break;
             }
         }
-        byte targetByte = EnemyMath.CalculateCartridgeAngle(
+        byte targetByte = EnemyMath.CalculateBearing(
             new(unchecked((short)(targetX - root.Position.X)), unchecked((short)(targetY - root.Position.Y)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
         ushort additional = additionalAngle.ToAngle().RawValue;
 

@@ -31,7 +31,7 @@ internal sealed class PhantoonPresentation
         PhantoonEnemyState state,
         ushort denominator)
     {
-        if ((_frameContext.NmiFrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if ((_frameContext.FrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;

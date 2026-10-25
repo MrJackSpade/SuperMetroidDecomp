@@ -132,7 +132,7 @@ internal static class ShutterNativeArc
         {
             int offset = i * 64;
             var slot = runtime.Room.LoadedScope.Enemies.SlotTable.Slots[i];
-            Word(0xF78 + offset, (ushort)slot.DefinitionId);
+            Word(0xF78 + offset, EnemyDefinitionIds.HeaderPointer(slot.DefinitionId));
             Word(0xF8E + offset, EnemyFrameCartridgeLookupTooling.Word(slot.Frame));
             ram[0xFA6 + offset] = RoomEnemyDefinitionImporterTooling.Bank(rom, slot.DefinitionId);
             Word(0xF7A + offset, slot.Position.X.Whole); Word(0xF7E + offset, slot.Position.Y.Whole);

@@ -155,7 +155,6 @@ internal static class EnemyContentIdentityFixtureVerification
             EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
             MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
         {
-            Register("dma-source");
             Register("sheet-id");
             EnemyDefinitionId firstId = (EnemyDefinitionId)(edit == "sheet-id" ? 3 : 1);
             var sheets = Ordered(new[]
@@ -170,7 +169,6 @@ internal static class EnemyContentIdentityFixtureVerification
                 KeyValuePair.Create((EnemyDefinitionId)2, EnemyPaletteSheetFile.Read(Json(new EnemyPaletteSheetDocument
                     { Version = 1, Colors = Colors("palette-second", EnemyPaletteSheet.ColorCount) }))),
             });
-            var dma = Ordered(new[] { KeyValuePair.Create(firstId, edit == "dma-source" ? 3 : 1), KeyValuePair.Create((EnemyDefinitionId)2, 2) });
             var heads = Ordered(new[]
             {
                 KeyValuePair.Create(0, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
@@ -218,7 +216,7 @@ internal static class EnemyContentIdentityFixtureVerification
             }));
 
             return new InstalledEnemyArtwork(
-                EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), DmaSources = dma, ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", MagdollitePaletteDefinitions.FrameCount, MagdollitePaletteDefinitions.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", WorkRobotPaletteTimingDefinitions.RecordCount, WorkRobotPaletteDefinitions.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorFile.Read,
+                EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", MagdollitePaletteDefinitions.FrameCount, MagdollitePaletteDefinitions.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", WorkRobotPaletteTimingDefinitions.RecordCount, WorkRobotPaletteDefinitions.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorFile.Read,
                     new EnemyContentIdentityFixtureField("tubeCracks", 0, ChozoAndTubeColorDefinitions.ColorCount), new EnemyContentIdentityFixtureField("wreckedShip", 0, ChozoAndTubeColorDefinitions.ColorCount),
                     new EnemyContentIdentityFixtureField("lowerNorfair", 0, ChozoAndTubeColorDefinitions.ColorCount)), DachoraColors = ColorCatalog(DachoraColorFile.Read, new EnemyContentIdentityFixtureField("normal", 0, DachoraColorDefinitions.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("speed", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorDefinitions.ColorsPerFrame),

@@ -999,7 +999,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-                VramTilesIndex = 0x0200,
+                TileIndexBase = 0x0200,
                 PaletteIndex = 0x0c00,
             };
             spawn(enemy);

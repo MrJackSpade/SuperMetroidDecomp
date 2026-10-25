@@ -338,7 +338,7 @@
   {
    "file": "Enemies/RoomEnemySystem.cs",
    "body": "Load",
-   "step": "Presentation.BindVram/BindCgram",
+   "step": "Presentation.BindVram/BindColours",
    "classification": "session",
    "evidence": "the same runtime video memory every load",
    "reads": []

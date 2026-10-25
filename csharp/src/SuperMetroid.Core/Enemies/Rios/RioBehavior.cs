@@ -186,7 +186,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                byte angle = EnemyMath.CalculateCartridgeAngle(
+                byte angle = EnemyMath.CalculateBearing(
                     new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
                 state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(ReadRioSignedSineCosineSample(
                     unchecked(new SnesByteAngle((byte)(angle + EnemyByteAngleDefinitions.QuarterTurn))))));

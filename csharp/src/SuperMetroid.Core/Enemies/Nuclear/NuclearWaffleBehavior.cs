@@ -69,7 +69,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Origin = slot.Position.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);
         state.InitialHead = slot.Position.Whole;
-        state.GraphicsAttributes = new SnesObjAttributeWord(unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
+        state.GraphicsAttributes = new SnesObjAttributeWord(unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex)));
 
         SpawnNuclearWaffleProjectileSegments(slot, state);
         SpawnNuclearWaffleSpriteSegments(slot, state);

@@ -14,9 +14,9 @@ public sealed class EnemySpritemapCatalog
                 content.AppendName("frame", EnemyFrameSheetKeys.Of(frame));
                 content.AppendEnemyParts(parts);
             }
-            foreach ((EnemyFrameId native, EnemyFrameId selected) in displayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
+            foreach ((EnemyFrameId stock, EnemyFrameId selected) in displayFrames.OrderBy(pair => EnemyFrameSheetKeys.Of(pair.Key), StringComparer.Ordinal))
             {
-                content.AppendName("native-binding", EnemyFrameSheetKeys.Of(native));
+                content.AppendName("native-binding", EnemyFrameSheetKeys.Of(stock));
                 content.AppendName("selected-binding", EnemyFrameSheetKeys.Of(selected));
             }
         });

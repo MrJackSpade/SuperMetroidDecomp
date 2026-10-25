@@ -243,11 +243,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                     .Without(EnemyProperties.IgnoreSamusCollision)
                     .With(EnemyProperties.ProcessOffScreen);
 
-                SnesByteAngle velocityAngle = EnemyMath.CalculateCartridgeAngle(
+                SnesByteAngle velocityAngle = EnemyMath.CalculateBearing(
                     new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue);
                 state.Velocity = new(
-                    new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(RinkaSpeed, velocityAngle)),
-                    new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
+                    new SnesSignedEightEight(EnemyMath.MultiplySineSample(RinkaSpeed, velocityAngle)),
+                    new SnesSignedEightEight(EnemyMath.MultiplySineSample(
                         RinkaSpeed,
                         velocityAngle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
                 return;
@@ -563,9 +563,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 graphicsIndex: 0);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
-            projectile.KilledEnemyNativeIndex = respawns
-                ? unchecked((ushort)(slot.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
-                : slot.NativeIndex;
+            projectile.KilledEnemy = KilledEnemy.Of(slot, respawns);
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 

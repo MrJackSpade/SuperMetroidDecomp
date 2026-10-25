@@ -107,7 +107,7 @@ internal sealed class DraygonCombat
         bool whiteFrame = (body.FlashTimer.RawValue & 2) != 0;
         (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon damage requires installed color artwork."))
-            .ApplyHurt(_presentation.Cgram, whiteFrame, RequireHealthPaletteBand(state));
+            .ApplyHurt(_presentation.Colours, whiteFrame, RequireHealthPaletteBand(state));
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
@@ -198,7 +198,7 @@ internal sealed class DraygonCombat
     {
         (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidDataException(
             "Draygon health colors require installed artwork."))
-            .ApplyHealthBand(_presentation.Cgram, RequireHealthPaletteBand(state));
+            .ApplyHealthBand(_presentation.Colours, RequireHealthPaletteBand(state));
     }
 
     /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>

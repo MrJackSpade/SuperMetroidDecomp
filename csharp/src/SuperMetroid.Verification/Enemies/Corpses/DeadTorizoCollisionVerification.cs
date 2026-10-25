@@ -45,7 +45,7 @@ internal static class DeadTorizoCollisionVerification
                 case "power bomb": enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot); break;
                 default:
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(500); // Exercise solid-contact delay independently of custom overlap.
-                    samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot.NativeIndex);
+                    samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot.EnemyIndex);
                     // The wait handler reads Samus's collision indexes.
                     enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, samus);
                     for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, null);
@@ -69,10 +69,10 @@ internal static class DeadTorizoCollisionVerification
             bool IsInteractive()
             {
                 enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
-                return enemies.ProcessingWindow.InteractiveEnemyIndexes.Contains(slot.NativeIndex);
+                return enemies.ProcessingWindow.InteractiveEnemyIndexes.Contains(slot.EnemyIndex);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
-                IsInteractive() ? [new SolidEnemyCollisionBody(slot.SlotIndex, slot.NativeIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus))] : [],
+                IsInteractive() ? [new SolidEnemyCollisionBody(slot.SlotIndex, slot.EnemyIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus))] : [],
                 SamusCollisionDirection.Right, 16, 0);
         }
         Console.WriteLine("Dead Torizo: contact, shot, power bomb and delayed solid contact release collision correctly.");

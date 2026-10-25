@@ -349,7 +349,7 @@ internal static class EnemyDropsVerification
         RoomEnemySlot enemy = fixture.System.SlotTable.Slots[0];
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
-        enemy.VramTilesIndex = 0x0200;
+        enemy.TileIndexBase = 0x0200;
         enemy.PaletteIndex = 0x0c00;
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
 
@@ -372,8 +372,8 @@ internal static class EnemyDropsVerification
             "death actor retains killed enemy X position");
         AssertEqual((ushort)123, explosion.Position.Y.Whole,
             "death actor retains killed enemy Y position");
-        AssertEqual(0x8000, explosion.KilledEnemyNativeIndex,
-            "respawning slot zero is retained as high-bit native enemy index");
+        AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.KilledEnemy,
+            "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
             EnemyDeathExplosionDefinitions.Program(0),
             ProgramOf(explosion),
@@ -426,8 +426,8 @@ internal static class EnemyDropsVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] placeholder = new byte[64];
         for (int i = 0; i < placeholder.Length; i++)
-            placeholder[i] = retail.ReadCartridgeByte(0xa00000 + (ushort)EnemyDefinitionId.Respawn + i);
-        bus.WriteBytes(0xa00000 + (ushort)EnemyDefinitionId.Respawn, placeholder);
+            placeholder[i] = retail.ReadCartridgeByte(0xa00000 + SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Respawn) + i);
+        bus.WriteBytes(0xa00000 + SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Respawn), placeholder);
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
         SeedEmptyRoomEnemyPopulation(bus, 0x9000);
 

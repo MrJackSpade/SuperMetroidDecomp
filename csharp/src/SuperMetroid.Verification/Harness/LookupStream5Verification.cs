@@ -216,7 +216,7 @@ internal static class LookupStream5Verification
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
-            system.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+            system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             system.TileArtwork = InstalledFixtures.EnemyTiles;
             system.BossArtwork = InstalledFixtures.BossArtwork;
             system.AreaArtwork = InstalledFixtures.AreaArtwork;
@@ -376,7 +376,7 @@ internal static class LookupStream5Verification
             byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
             vram.LoadBytes((destination - 1) * 2, initial);
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-            system.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+            system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             var slots = (RoomEnemySlot[])system.SlotTable.Slots;
             foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
             {
@@ -1377,8 +1377,8 @@ internal static class LookupStream5Verification
         foreach (ushort variant in new ushort[] { 0, 2, ushort.MaxValue })
         {
             bool alternate = variant != 0;
-            AssertTrue(LookupStream5CorpseFixtureArtwork(rom).TryResolve(CorpseSheetDefinitions.DeadMonsterSheetAddress,
-                CorpseSheetDefinitions.DeadMonsterSheetByteCount, out ReadOnlyMemory<byte> atlas), "Sidehopper corpse fixture art resolves its sheet");
+            ReadOnlyMemory<byte> atlas = LookupStream5CorpseFixtureArtwork(rom).TilesOf(CorpseSheetDefinitions.DeadMonsterSheet);
+            AssertEqual(CorpseSheetDefinitions.DeadMonsterSheetByteCount, atlas.Length, "Sidehopper corpse fixture art resolves its sheet");
             byte[] expected = new byte[0x800];
             for (int row = 0; row < 5; row++)
             {
@@ -1452,7 +1452,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Sidehopper geometry: ten native MVN rows, ten column offsets/clips, installed artwork and actual copy/move boundary rows pass; nonzero variant semantics preserved.");
 
         static byte[] Staged(CorpseStaging staging, int offset, int length) =>
-            staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress + offset, length, 0));
+            staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging + offset, length, 0));
     }
 
     /// <summary>Reads the retail Sidehopper corpse character rows for an independent artwork fixture.</summary>
@@ -1465,7 +1465,7 @@ internal static class LookupStream5Verification
     internal static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,CorpseSheetDefinitions.DeadMonsterSheetByteCount)
-            .Select(index => rom.ReadCartridgeByte(CorpseSheetDefinitions.DeadMonsterSheetAddress+index)).ToArray();
+            .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheetDefinitions.DeadMonsterSheet)+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
@@ -1479,7 +1479,7 @@ internal static class LookupStream5Verification
                         Version=1,
                         Colors=Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0,Green=0,Blue=0 }).ToArray(),
                     }))),
-            }, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseSidehopper] = CorpseSheetDefinitions.DeadMonsterSheetAddress } });
+            } });
     }
 
     /// <summary>Checks Phantoon rain sprites and their room-state timing against retail sources.</summary>
@@ -2017,7 +2017,7 @@ internal static class LookupStream5Verification
             {
                 var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
-                system.Presentation.BindCgram(cgram.Gameplay);
+                system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = variant == 3 ? CeresDoorVisualRomDataConstants.NormalTargetColor : CeresDoorVisualRomDataConstants.ActiveTargetColor;
@@ -2083,7 +2083,7 @@ internal static class LookupStream5Verification
             {
                 var system = new RoomEnemySystem(new EnemySession()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
-                system.Presentation.BindCgram(cgram.Gameplay);
+                system.Presentation.BindColours(cgram.Gameplay);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = CeresDoorVisualRomDataConstants.ActiveTargetColor;
@@ -2150,7 +2150,7 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
             var system = new RoomEnemySystem(new EnemySession(), services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = visual } };
             var cgram = new SamusColourRig();
-            system.Presentation.BindCgram(cgram.Gameplay);
+            system.Presentation.BindColours(cgram.Gameplay);
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Action tick = system.CeresDoorBehavior.RunCeresDoorPaletteAnimation;
             foreach (int counter in editedRow < 0 ? Enumerable.Range(0, 64) : new[] { editedRow * 8 })

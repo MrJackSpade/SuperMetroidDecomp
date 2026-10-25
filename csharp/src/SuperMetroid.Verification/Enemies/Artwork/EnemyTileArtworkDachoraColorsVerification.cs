@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0x0200;
         slot.Position = slot.Position.WithWhole(new(96, 96));

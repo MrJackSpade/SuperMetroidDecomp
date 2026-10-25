@@ -4,6 +4,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -43,7 +44,7 @@ internal static class EnemyBg2FrameFiles
                 int record = root + 2 + component * 8;
                 ushort stream = CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 4));
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWord((((int)new SnesAddress(bank, stream)))) !=
-                    EnemyBg2FrameLayout.StreamMarker)
+                    EnemySourceDefinitions.Bg2StreamMarker)
                 {
                     if (allowMixedOam)
                         continue;
@@ -69,7 +70,7 @@ internal static class EnemyBg2FrameFiles
                         break;
                     }
                     int count = CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2));
-                    int relative = destination - EnemyBg2FrameLayout.WorkingRamBase;
+                    int relative = destination - EnemySourceDefinitions.Bg2WorkingTilemap;
                     if (relative < 0 || (relative & 1) != 0 ||
                         count is < 1 or > EnemyBg2FrameLayout.TilemapWidth)
                         throw new InvalidDataException(

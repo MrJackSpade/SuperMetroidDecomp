@@ -32,6 +32,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Escape.Artwork;
 
@@ -69,7 +70,7 @@ public static class EnemyTileArtworkFiles
                          RoomStateSourceDefinitions.Bank | (pointer + RoomStateSourceDefinitions.EnemySetOffset)))
                      .Distinct().Order())
         {
-            int cursor = RoomEnemyRomLayout.TilesetBank | graphicsSetPointer;
+            int cursor = EnemySourceDefinitions.GraphicsSetBank | graphicsSetPointer;
             for (int slot = 0; slot <= 4; slot++, cursor += 4)
             {
                 ushort headerWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
@@ -80,9 +81,10 @@ public static class EnemyTileArtworkFiles
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(headerWord);
 
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
-                int byteCount = definition.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask;
+                int byteCount = definition.TileByteCount;
                 int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
-                byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
+                byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(bus, definitionPointer), byteCount);
                 int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
                 byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, columns,
                     out Extent16<ImagePixels> size);
@@ -94,7 +96,7 @@ public static class EnemyTileArtworkFiles
                 if (!roundtrip.Characters.Span.SequenceEqual(planar))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} tile PNG changed native pixels.");
 
-                File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.FileName(definitionPointer)), encoded);
+                File.WriteAllBytes(Path.Combine(directory, FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definitionPointer),
                     EnemyPaletteSheet.ColorCount * sizeof(ushort));
@@ -124,7 +126,7 @@ public static class EnemyTileArtworkFiles
                 if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
                 File.WriteAllBytes(Path.Combine(directory,
-                    EnemyTileArtworkFormat.PaletteFileName(definitionPointer)), paletteJson);
+                    PaletteFileName(definitionPointer)), paletteJson);
                 entries.Add(headerWord, new EnemyTileFileEntry(
                     byteCount, Convert.ToHexString(SHA256.HashData(encoded)),
                     Convert.ToHexString(SHA256.HashData(paletteJson))));
@@ -218,11 +220,10 @@ public static class EnemyTileArtworkFiles
         var gunshipLiftoffHashes = new Dictionary<int, string>();
         for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
         {
-            GunshipLiftoffTransferDefinition transfer =
-                GunshipLiftoffTransferDefinitions.Frames[index];
+            int pageSource = EnemySourceDefinitions.GunshipLiftoffPageSource(index);
             var planar = new byte[GunshipLiftoffTransferDefinitions.ByteCount];
             for (int offset = 0; offset < planar.Length; offset++)
-                planar[offset] = bus.ReadCartridgeByte(transfer.SourceAddress + offset);
+                planar[offset] = bus.ReadCartridgeByte(pageSource + offset);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
                 RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
             using var image = new MemoryStream();
@@ -478,6 +479,8 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.TourianStatueColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
+        // The compiled graphics sets must name the same pinned identities the installation was built from.
+        ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => EnemyDefinitionIds.HeaderPointer(source.DefinitionId)));
         if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadFrame.ByMouthStage.Select(head => head.MouthStage)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
@@ -493,17 +496,15 @@ public static class EnemyTileArtworkFiles
 
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
-        var dmaSources = new Dictionary<EnemyDefinitionId, int>();
         foreach ((ushort manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
         {
             EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
             RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
-            if (entry.NativeByteCount != (definition.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask))
+            if (entry.NativeByteCount != definition.TileByteCount)
                 throw new InvalidDataException(
-                    $"Enemy ${manifestKey:X4} manifest DMA size differs from retail.");
-            dmaSources.Add(definitionPointer, definition.TileDataAddress);
+                    $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
-            string fileName = EnemyTileArtworkFormat.FileName(definitionPointer);
+            string fileName = FileName(definitionPointer);
             string stockPath = Path.Combine(stockDirectory, fileName);
             byte[] stock = File.ReadAllBytes(stockPath);
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), entry.Sha256,
@@ -521,7 +522,7 @@ public static class EnemyTileArtworkFiles
             {
                 throw new InvalidDataException($"Invalid enemy tile PNG {selectedPath}: {error.Message}", error);
             }
-            string paletteName = EnemyTileArtworkFormat.PaletteFileName(definitionPointer);
+            string paletteName = PaletteFileName(definitionPointer);
             string stockPalettePath = Path.Combine(stockDirectory, paletteName);
             byte[] stockPalette = File.ReadAllBytes(stockPalettePath);
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockPalette)), entry.PaletteSha256,
@@ -1119,7 +1120,7 @@ public static class EnemyTileArtworkFiles
             EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts
             {
                 Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps, ExtendedFrames = extendedFrames,
-                GunshipLiftoff = gunshipLiftoff, DmaSources = dmaSources, ProjectileSpritemaps = projectileSpritemaps,
+                GunshipLiftoff = gunshipLiftoff, ProjectileSpritemaps = projectileSpritemaps,
                 MagdollitePaletteCycle = magdollitePaletteCycle, WorkRobotPaletteCycle = workRobotPaletteCycle,
                 ChozoAndTubeColors = chozoAndTubeColors, DachoraColors = dachoraColors, AuxiliaryColors = auxiliaryColors,
             }),
@@ -1192,13 +1193,28 @@ public static class EnemyTileArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, or an artwork document is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>
+    /// SHA-256 of the 122 sorted four-digit bank-$A0 header pointers joined with commas, independently
+    /// enumerated from every bank-$B4 enemy graphics set referenced by retail room states.
+    /// This makes a missing or substituted sheet fail during installation validation.
+    /// </summary>
+    private const string RetailDefinitionIdsSha256 =
+        "8B665DEC36A4AA649CDF2327E4B7F60197D42B84534CD354347F4581D1442DD1";
+
+    /// <summary>The indexed-PNG file name of <paramref name="definitionId"/>'s tiles, named by its header pointer.</summary>
+    internal static string FileName(EnemyDefinitionId definitionId) =>
+        $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-tiles.png";
+
+    /// <summary>The RGB5 palette JSON file name of <paramref name="definitionId"/>'s colours, named by its header pointer.</summary>
+    internal static string PaletteFileName(EnemyDefinitionId definitionId) =>
+        $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-colors.json";
+
     /// <summary>Rejects missing or substituted retail enemy graphics identities using the pinned ordered ID digest.</summary>
     private static void ValidateDefinitionIds(IEnumerable<ushort> pointers)
     {
         string joined = string.Join(",", pointers.Order().Select(pointer => $"{pointer:X4}"));
         string hash = Convert.ToHexString(SHA256.HashData(Encoding.ASCII.GetBytes(joined)));
-        if (!string.Equals(hash, EnemyTileArtworkFormat.RetailDefinitionIdsSha256,
-                StringComparison.Ordinal))
+        if (!string.Equals(hash, RetailDefinitionIdsSha256, StringComparison.Ordinal))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
     }
 
@@ -1306,7 +1322,7 @@ public static class EnemyTileArtworkFiles
     {
         int count = KraidPaletteRomData.ColorCount(source);
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            KraidPaletteRomData.SourceAddress(source), count * sizeof(ushort));
+            KraidPaletteSources.SourceAddress(source), count * sizeof(ushort));
         var colors = new PaletteRgb5[count];
         for (int index = 0; index < count; index++)
         {

@@ -8,7 +8,7 @@ internal static class PhantoonBg2FrameDefinitionsConstants
     /// <summary>VRAM destination base for Phantoon's BG2 frame tiles.</summary>
     public const ushort VramBase = EnemyBg2FrameLayoutConstants.VramBase;
     /// <summary>WRAM staging base from which Phantoon's BG2 frame upload is copied.</summary>
-    public const ushort WorkingRamBase = EnemyBg2FrameLayout.WorkingRamBase;
+    public const ushort WorkingRamBase = EnemyBg2FrameLayoutConstants.WorkingRamBase;
 
     /// <summary>Provides Phantoon BG2 frame bases in VRAM and working RAM for animation checks.</summary>
     extension(PhantoonBg2FrameDefinitions)

@@ -511,7 +511,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             if (echo.DefinitionId != EnemyDefinitionId.Dachora)
             {
                 throw new InvalidDataException(
-                    $"Dachora echo {echoIndex} is enemy ${(int)echo.DefinitionId:X4}, expected $E5FF.");
+                    $"Dachora echo {echoIndex} is enemy {echo.DefinitionId}, expected Dachora.");
             }
             echoes[echoIndex] = echo;
         }

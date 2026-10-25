@@ -968,7 +968,7 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             particle,
             kind,
-            unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
+            unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
         particle.Position = particle.Position.WithWhole(new(unchecked((ushort)(source.Position.X.Whole + xOffset)), source.Position.Y.Whole));
         particle.Velocity = velocity;
     }

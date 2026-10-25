@@ -72,7 +72,7 @@ internal sealed class MotherBrainHead
         // head-slot cursor starts there): its $A320 frame is the head's collision hitbox.
         // The visible brain runs a separate program (`$A9:8734`).
         head.InstructionTimer = WrappingCountdown.Start(1);
-        head.VramTilesIndex = 0;
+        head.TileIndexBase = 0;
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
         head.PaletteIndex = EnemyPaletteBits.Palette1;
@@ -151,7 +151,7 @@ internal sealed class MotherBrainHead
                 // The custom draw hook bypasses ordinary enemy palette selection. Retail
                 // still selects the shared white hurt palette on odd flash-timer frames.
                 (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPalette.PaletteBits,
-                checked((ushort)head.VramTilesIndex)),
+                checked((ushort)head.TileIndexBase)),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -169,7 +169,7 @@ internal sealed class MotherBrainHead
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
-                    state.NeckPalette.PaletteBits, checked((ushort)head.VramTilesIndex)),
+                    state.NeckPalette.PaletteBits, checked((ushort)head.TileIndexBase)),
                 camera);
         }
     }
@@ -190,7 +190,7 @@ internal sealed class MotherBrainHead
 
         // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen,
-            frame.PaletteIndex, frame.VramTilesIndex));
+            frame.PaletteIndex, frame.TileIndexBase));
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
@@ -400,7 +400,7 @@ internal sealed class MotherBrainHead
         RoomEnemySlot head = state.Head;
         short deltaX = unchecked((short)(target.X - head.Position.X.Whole - 10));
         short deltaY = unchecked((short)(target.Y - head.Position.Y.Whole - 16));
-        byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
+        byte angle = EnemyMath.CalculateBearing(new(deltaX, deltaY)).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
 
         // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The
         // wraparound half maps $C0..FF and $00..0F to $10; the opposite half maps
@@ -460,8 +460,8 @@ internal sealed class MotherBrainHead
         ring.Variable0 = 8;
         ring.Variable1 = 0;
         ring.DirectionParameter = angle.RawValue;
-        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(1104, angle)));
-        ring.Velocity = ring.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
+        ring.Velocity = ring.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplySineSample(1104, angle)));
+        ring.Velocity = ring.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplySineSample(
             1104,
             angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
 

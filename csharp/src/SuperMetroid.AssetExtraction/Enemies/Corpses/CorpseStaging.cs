@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -15,10 +16,10 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 internal sealed class CorpseStaging
 {
     /// <summary>The enemy BG2 buffer the Tourian corpses and the dead Torizo stage in.</summary>
-    private readonly StagedBytes bg2 = new(EnemyStagingDefinitions.Bg2NativeAddress, EnemyStagingDefinitions.Bg2ByteCount);
+    private readonly StagedBytes bg2 = new(EnemySourceDefinitions.EnemyBg2Staging, EnemyStagingDefinitions.Bg2ByteCount);
 
     /// <summary>The rotting heap Mother Brain's corpse stages in and the dead Torizo's sand falls into.</summary>
-    private readonly StagedBytes heap = new(EnemyStagingDefinitions.RottingHeapNativeAddress, EnemyStagingDefinitions.RottingHeapByteCount);
+    private readonly StagedBytes heap = new(EnemySourceDefinitions.CorpseRottingHeap, EnemyStagingDefinitions.RottingHeapByteCount);
 
     /// <summary>Bytes in one character.</summary>
     private const int TileBytes = 32;

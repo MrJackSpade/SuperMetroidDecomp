@@ -123,7 +123,7 @@ internal static class CrocomireBodyVisualsVerification
                 int record = 0xa40000 | unchecked((ushort)(
                     frame.Pointer + 2 + component * 8));
                 ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((record + 4));
-                if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | stream)) != EnemyBg2FrameLayout.StreamMarker)
+                if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | stream)) != EnemyBg2FrameLayoutConstants.StreamMarker)
                     continue;
                 ushort cursor = unchecked((ushort)(stream + 2));
                 bool terminated = false;
@@ -144,7 +144,7 @@ internal static class CrocomireBodyVisualsVerification
                         tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
                             unchecked((ushort)(cursor + 4 + tile * 2))));
                     native.Add(new CrocomireBodyVisualsNative(unchecked((ushort)((destination -
-                        EnemyBg2FrameLayout.WorkingRamBase) >> 1)), tiles));
+                        EnemyBg2FrameLayoutConstants.WorkingRamBase) >> 1)), tiles));
                     cursor = unchecked((ushort)(cursor + 4 + count * 2));
                 }
                 AssertTrue(terminated,
@@ -215,7 +215,7 @@ internal static class CrocomireBodyVisualsVerification
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire), new SpriteColourSets());
             EnemyGraphicsIndexes indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Crocomire);
-            slot.VramTilesIndex = indexes.TileIndex;
+            slot.TileIndexBase = indexes.TileIndex;
             slot.PaletteIndex = indexes.PaletteIndex;
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.UsesExtendedSpritemap);

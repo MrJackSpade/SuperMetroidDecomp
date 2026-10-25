@@ -34,7 +34,7 @@ internal sealed class EnemyFrameContext
     /// random counter when the pass has none). It is independent of the eight-bit counter; standalone audits seed both
     /// from the same enemy clock. Readers take its low bits.
     /// </summary>
-    internal int NmiFrameCounter { get; private set; }
+    internal int FrameCounter { get; private set; }
     /// <summary>Live projectile system supplied by EnemyMain to both ordinary and custom enemy-touch callbacks.</summary>
     internal SamusProjectileSystem? SamusProjectiles { get; private set; }
     /// <summary>Samus's colours for the pass, which Pseudo Screw's enemy contact changes (#1405).</summary>
@@ -64,12 +64,12 @@ internal sealed class EnemyFrameContext
     /// Enemy frame start: the freeze flag, the live projectiles, and the sixteen-bit frame counter, which standalone
     /// passes without a runtime clock take from the random counter.
     /// </summary>
-    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int? nmiFrameCounter)
+    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int? frameCounter)
     {
         TimeIsFrozen = timeIsFrozen;
         SamusProjectiles = samusProjectiles;
         SamusColours = samusColours;
-        NmiFrameCounter = nmiFrameCounter ?? RandomEnemyCounter;
+        FrameCounter = frameCounter ?? RandomEnemyCounter;
     }
 
     /// <summary>The end-of-pass advance of the random counter, wrapping from 65535 to zero.</summary>

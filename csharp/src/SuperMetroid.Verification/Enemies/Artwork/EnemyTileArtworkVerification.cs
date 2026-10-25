@@ -61,8 +61,8 @@ internal static class EnemyTileArtworkVerification
 {
     /// <summary>Reads the exact tile upload bytes named by an enemy definition for the retail oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native tile bytes")]
-    private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, RoomEnemyDefinition definition, int byteCount) =>
-        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
+    private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, EnemyDefinitionId definition, int byteCount) =>
+        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(bus, definition), byteCount);
 
     /// <summary>Loads a definition's native palette into OBJ CGRAM slots starting at index 128.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native palette DMA")]
@@ -227,27 +227,26 @@ internal static class EnemyTileArtworkVerification
                 EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(
                     Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16));
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, pointer);
-                int byteCount = definition.TileDataSize & 0x7fff;
-                byte[] native = ReadNativeEnemyTiles(bus, definition, byteCount);
-                AssertTrue(stock.Enemies.TryResolve(definition.TileDataAddress, byteCount,
-                        out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
-                    $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
+                int byteCount = definition.TileByteCount;
+                byte[] native = ReadNativeEnemyTiles(bus, pointer, byteCount);
+                AssertTrue(stock.Enemies.TilesOf(pointer).Span.SequenceEqual(native),
+                    $"enemy {pointer}'s installed tiles hold the cartridge tiles its header names");
                 var vram = new SnesVram();
                 stock.Enemies.LoadTo(pointer, byteCount, new VramRegion(vram, PpuMemoryLayout.Vram), 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
-                    $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
+                    $"enemy {pointer} PNG preserves every native tile byte");
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, pointer);
                 var installedCgram = new GameplayColours(new SpriteColourSets());
                 stock.Enemies.LoadPaletteTo(pointer, installedCgram.SpriteSets.Set(0));
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram.AsPaletteColors())),
-                    $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
+                    $"enemy {pointer} RGB5 JSON preserves all native palette slots");
             }
 
             string editedFile = files[0];
             EnemyDefinitionId editedPointer = EnemyDefinitionIds.FromHeaderPointer(
                 Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16));
             RoomEnemyDefinition editedDefinition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, editedPointer);
-            int editedByteCount = editedDefinition.TileDataSize & 0x7fff;
+            int editedByteCount = editedDefinition.TileByteCount;
             int tileCount = editedByteCount / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tileCount, RoomCharacterAtlasFormat.TileColumns);
             int rows = (tileCount + columns - 1) / columns;
@@ -343,14 +342,14 @@ internal static class EnemyTileArtworkVerification
                 "enemy override survives content reload without modifying stock PNG");
 
             string stockPalettePath = Path.Combine(directory,
-                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+                EnemyTileArtworkFiles.PaletteFileName(editedPointer));
             EnemyPaletteSheetDocument paletteDocument = RequiredJson.Deserialize<EnemyPaletteSheetDocument>(
                 File.ReadAllBytes(stockPalettePath),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             PaletteRgb5[] editedColors = (PaletteRgb5[])paletteDocument.Colors.Clone();
             editedColors[0] = editedColors[0] with { Red = editedColors[0].Red ^ 1 };
             string paletteOverridePath = Path.Combine(overrideDirectory,
-                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+                EnemyTileArtworkFiles.PaletteFileName(editedPointer));
             File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheetFile.Write(
                 new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
             InstalledEnemyArtwork editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);

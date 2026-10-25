@@ -38,7 +38,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+            enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.SetSpawnParameter1(variant);
 

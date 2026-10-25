@@ -114,7 +114,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        slot.VramTilesIndex = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
+        slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
         if (slot.SlotIndex == 0)
             SharedPaletteCycle = 0;
         state.Function = state.IsSecondaryHalf
@@ -169,8 +169,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
         {
             RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
-            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex = slot.NativeIndex;
-            state.LinkedNativeIndex = secondary.NativeIndex;
+            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex = slot.EnemyIndex;
+            state.LinkedNativeIndex = secondary.EnemyIndex;
         }
 
         state.Function = ZebetiteAiFunction.WaitForDoorTransition;
@@ -224,7 +224,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         SharedPaletteCycle = paletteCycle;
         (_bossArtwork.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
-            .Apply(ZebetiteDefinitions.PulseColours.In(_presentation.Cgram), paletteCycle);
+            .Apply(ZebetiteDefinitions.PulseColours.In(_presentation.Colours), paletteCycle);
     }
 
     /// <summary>Restarts the instruction list chosen from the half's pairing and current health.</summary>
@@ -255,7 +255,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Zebetite {half} spawn record names enemy " +
-                $"${(int)population.DefinitionId:X4}.");
+                $"{population.DefinitionId}.");
         }
 
         RoomEnemySlot spawned = _slotTable.Slots[slotIndex];
@@ -263,7 +263,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * EnemySlotTable.NativeSlotSize));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
         return spawned;
     }
 
@@ -272,15 +272,15 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
         ushort linkedIndex = checked((ushort)struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex);
-        if (linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize ||
-            linkedIndex % EnemySlotTable.NativeSlotSize != 0)
+        if (linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride ||
+            linkedIndex % EnemySlotTable.EnemyIndexStride != 0)
         {
             throw new InvalidDataException(
                 $"Zebetite slot {struck.SlotIndex} contains invalid linked index " +
                 $"${linkedIndex:X4}.");
         }
 
-        RoomEnemySlot linked = _slotTable.SlotFromNativeIndex(linkedIndex);
+        RoomEnemySlot linked = _slotTable.SlotAtEnemyIndex(linkedIndex);
         linked.Health = struck.Health;
         linked.FlashTimer = struck.FlashTimer;
     }
@@ -298,7 +298,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 graphicsIndex: 0);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
-            projectile.KilledEnemyNativeIndex = slot.NativeIndex;
+            projectile.KilledEnemy = KilledEnemy.Of(slot, respawns: false);
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 

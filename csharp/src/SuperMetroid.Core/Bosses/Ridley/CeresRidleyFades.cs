@@ -44,7 +44,7 @@ internal sealed class CeresRidleyFades
 
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley eye fade requires installed colors."))
-            .ApplyEyeFade(_presentation.Cgram, fadeStep.PaletteRow);
+            .ApplyEyeFade(_presentation.Colours, fadeStep.PaletteRow);
         state.FadePaletteOffset++;
     }
 
@@ -60,7 +60,7 @@ internal sealed class CeresRidleyFades
         int row = state.FadePaletteOffset;
         if (_bossArtwork.CeresRidleyColors is { } bodyColors &&
             row < CeresRidleyPaletteRomData.BodyFadeRowCount)
-            bodyColors.ApplyBodyFade(_presentation.Cgram, row);
+            bodyColors.ApplyBodyFade(_presentation.Colours, row);
         else throw new InvalidOperationException(
             $"Ceres Ridley body-fade row {row} is outside the installed color rows.");
         state.FadePaletteOffset++;

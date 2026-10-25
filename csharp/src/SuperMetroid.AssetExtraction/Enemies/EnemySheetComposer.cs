@@ -200,7 +200,8 @@ internal static class EnemySheetComposer
         inputs.StandardObjects.Span.CopyTo(table);
         foreach (RoomEnemyGraphicsSetEntry entry in graphics.Entries)
         {
-            if (!inputs.Enemies.TryResolve(entry.Definition.TileDataAddress, entry.TileByteCount, out ReadOnlyMemory<byte> tiles))
+            ReadOnlyMemory<byte> tiles = inputs.Enemies.TilesOf(entry.DefinitionId);
+            if (tiles.Length != entry.TileByteCount)
                 throw new InvalidDataException($"Enemy {entry.DefinitionId} has no installed tiles for its graphics-set upload.");
             int first = EnemyRegionTableByte + entry.StagingOffset;
             int shown = Math.Min(tiles.Length, table.Length - first);

@@ -32,7 +32,7 @@ internal static class GoldenTorizoCodeVerification
         void Check(EnemyDefinitionId header, SnesButton held, bool defeated, bool grants)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+            enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
             var initialize = new Action<RoomEnemySlot, EnemySpawnSurroundings>(EnemySlotDispatch.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
@@ -52,7 +52,7 @@ internal static class GoldenTorizoCodeVerification
                    native[3], native[3], native[4], native[4], native[5], native[5], native[6], native[6]]
                 : before;
             AssertTrue(expected.SequenceEqual(Snapshot(samus)),
-                $"GT code inventory: header ${(int)header:X4}, held ${held:X}, defeated {defeated}");
+                $"GT code inventory: header {header}, held ${held:X}, defeated {defeated}");
             AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "GT code does not set reserve mode");
             AssertEqual(7, samus.ReserveMissiles, "GT code does not alter reserve missiles");
         }

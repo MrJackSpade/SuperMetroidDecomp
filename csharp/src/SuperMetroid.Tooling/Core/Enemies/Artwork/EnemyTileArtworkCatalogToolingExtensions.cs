@@ -14,10 +14,10 @@ internal static class EnemyTileArtworkCatalogToolingExtensions
         public void LoadTo(EnemyDefinitionId definitionPointer, int byteCount, VramRegion destination, int byteOffset)
         {
             if (!self.sheets.TryGetValue(definitionPointer, out RoomCharacterAtlas? atlas))
-                throw new InvalidDataException($"Enemy ${(int)definitionPointer:X4} has no installed tile sheet.");
+                throw new InvalidDataException($"Enemy {definitionPointer} has no installed tile sheet.");
             if (atlas.Characters.Length != byteCount)
                 throw new InvalidDataException(
-                    $"Enemy ${(int)definitionPointer:X4} requires {byteCount} tile bytes, installed sheet has {atlas.Characters.Length}.");
+                    $"Enemy {definitionPointer} requires {byteCount} tile bytes, installed sheet has {atlas.Characters.Length}.");
             destination.Load(atlas.Characters.Span, byteOffset);
         }
     }

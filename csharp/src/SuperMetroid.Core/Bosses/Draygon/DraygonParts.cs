@@ -60,7 +60,7 @@ internal sealed class DraygonParts
         // surface instead of a second fade-target array, so publish those exact 25 colors
         // immediately; the room's normal fade-in controls when they become visible.
         (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
-            "Draygon requires installed color artwork.")).ApplyIntro(_presentation.Cgram);
+            "Draygon requires installed color artwork.")).ApplyIntro(_presentation.Colours);
 
         // $7E:2000 is the enemy BG2 staging surface: all $800 words are filled, not merely the currently visible page.
         // Draygon owns that image (#1354); his body frames draw into it and it publishes as his body on BG2.
@@ -123,7 +123,7 @@ internal sealed class DraygonParts
             case DraygonPart.Body:
             default:
                 throw new InvalidDataException(
-                    $"Enemy ${(int)part.DefinitionId:X4} is not a Draygon part.");
+                    $"Enemy {part.DefinitionId} is not a Draygon part.");
         }
     }
 
@@ -290,7 +290,7 @@ internal sealed class DraygonParts
         short deltaX = unchecked((short)(samus.Position.X.Whole - unchecked((ushort)(
             eye.Position.X.Whole + (facing == HorizontalDirection.Right ? 24 : -24)))));
         short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 32))));
-        byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).RawValue;
+        byte angle = EnemyMath.CalculateBearing(new(deltaX, deltaY)).RawValue;
         DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
         if (angle == (byte)eyeState.LookAngle)
             return;

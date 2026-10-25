@@ -26,10 +26,10 @@ internal static class EnemyRoomCountersVerification
         AssertEqual(32, enemies.SlotTable.EnemyCount, "a full population fills every slot");
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = EnemySlotTable.MaximumEnemyCount + 1,
             "the population count cannot exceed the slot table");
-        enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize;
+        enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride;
         AssertEqual(2048, enemies.SlotTable.FirstFreeEnemyIndex, "a full population puts the frontier past the last slot");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize + 1,
+            () => enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride + 1,
             "the allocation frontier cannot pass the slot table");
 
         enemies.RoomStatus.EnemiesKilled = ushort.MaxValue;

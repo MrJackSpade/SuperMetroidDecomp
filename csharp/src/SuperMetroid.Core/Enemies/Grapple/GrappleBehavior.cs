@@ -38,9 +38,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
         _room.EnsureLoaded();
-        foreach (int interactiveIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (int enemyIndex in _dispatch.InteractiveEnemyIndexes)
         {
-            RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(interactiveIndex);
+            RoomEnemySlot enemy = _slotTable.SlotAtEnemyIndex(enemyIndex);
             if (!enemy.InvincibilityTimer.IsZero)
                 continue;
 
@@ -167,7 +167,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>
         public SamusProjectileSystem? SamusProjectiles => null;
         /// <summary>Unavailable Mode 7 transform in the common grapple wrapper.</summary>
-        public SamusMode7Transform? Mode7Transform => null;
+        public SamusMode7Transform? TurningFloor => null;
         /// <summary>Unavailable shared bomb service in the common grapple wrapper.</summary>
         public SamusBombProjectileSystem? SharedProjectiles => null;
 

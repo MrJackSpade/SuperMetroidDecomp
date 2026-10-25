@@ -103,7 +103,7 @@ internal sealed class CrocomireSkeleton
             death.MeltShakeCounter = WrappingCountdown.FromRaw(CrocomireBehavior.MeltShakeCounterAfterRumble);
             state.DeathPhaseDelay = WrappingCountdown.Start(128);
             (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-                "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Cgram);
+                "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Colours);
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
         }
@@ -154,7 +154,7 @@ internal sealed class CrocomireSkeleton
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         body.PaletteIndex = 0;
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-            "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Cgram);
+            "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Colours);
 
         foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
             projectile.Clear();
@@ -306,7 +306,7 @@ internal sealed class CrocomireSkeleton
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
         ushort graphicsIndex = unchecked((ushort)(
-            state.Body.VramTilesIndex | state.Body.PaletteIndex));
+            state.Body.TileIndexBase | state.Body.PaletteIndex));
 
         // The initializer indexes Y by native projectile index minus $14. Clearing the pool
         // immediately before this call guarantees slots 17..10 and Y=$38,$48,...,$A8.

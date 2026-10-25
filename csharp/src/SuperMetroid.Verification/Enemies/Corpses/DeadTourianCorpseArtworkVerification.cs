@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
@@ -52,7 +53,7 @@ internal static class DeadTourianCorpseArtworkVerification
                 var native = new NativeEnemyStaging();
                 DeadTorizoArtworkCopy[] copies = ReferenceDeadTourianCorpseGraphics(nativeBus, native, definition, variant);
                 AssertStagedParity(native, InitializeDeadTourianCorpseArtwork(stock, definition, variant), copies,
-                    $"dead ${(int)definition:X4} variant {variant} installed corpse staging parity");
+                    $"dead {definition} variant {variant} installed corpse staging parity");
             }
         }
 
@@ -60,7 +61,7 @@ internal static class DeadTourianCorpseArtworkVerification
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
-        string fileName = EnemyTileArtworkFormat.FileName(EnemyDefinitionId.CorpseSidehopper);
+        string fileName = EnemyTileArtworkFiles.FileName(EnemyDefinitionId.CorpseSidehopper);
         using var source = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x0e00);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
@@ -162,7 +163,7 @@ internal static class DeadTourianCorpseArtworkVerification
                 [new DeadTorizoArtworkCopy(224, 0x740, 0x40), new DeadTorizoArtworkCopy(736, 0x780, 0x40), new DeadTorizoArtworkCopy(1248, 0x7c0, 0x40), new DeadTorizoArtworkCopy(1760, 0x800, 0x40)],
             (EnemyDefinitionId.CorpseSkree, 2) =>
                 [new DeadTorizoArtworkCopy(448, 0x840, 0x40), new DeadTorizoArtworkCopy(960, 0x880, 0x40), new DeadTorizoArtworkCopy(1472, 0x8c0, 0x40), new DeadTorizoArtworkCopy(1984, 0x900, 0x40)],
-            _ => throw new InvalidDataException($"Unknown native corpse fixture {(ushort)definition:X4}/{variant}."),
+            _ => throw new InvalidDataException($"Unknown native corpse fixture {definition}/{variant}."),
         };
         StagingByteView tiles = staging.CorpseTiles;
         foreach (var copy in copies)
@@ -186,9 +187,8 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>The installed corpse sheet, which the extraction stages every Tourian corpse from.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TryResolve(CorpseSheetDefinitions.DeadMonsterSheetAddress, CorpseSheetDefinitions.DeadMonsterSheetByteCount,
-            out ReadOnlyMemory<byte> tiles) ? tiles.Span
-            : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png is missing or has the wrong size.");
+        artwork.Enemies.TilesOf(CorpseSheetDefinitions.DeadMonsterSheet) is { Length: CorpseSheetDefinitions.DeadMonsterSheetByteCount } tiles
+            ? tiles.Span : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png has the wrong size.");
 
     /// <summary>Compares each natively copied run of staged corpse characters with the extraction's.</summary>
     private static void AssertStagedParity(NativeEnemyStaging native, CorpseStaging installed, DeadTorizoArtworkCopy[] copies, string context)
@@ -203,5 +203,5 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>The <paramref name="length"/> staged bytes from <paramref name="offset"/>.</summary>
     private static byte[] Staged(CorpseStaging staging, int offset, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemyStagingDefinitions.Bg2NativeAddress + offset, length, 0));
+        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging + offset, length, 0));
 }

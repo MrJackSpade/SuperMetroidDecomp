@@ -94,7 +94,7 @@ internal sealed class CeresRidleyHits
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} entered Ceres Ridley's shot branch as " +
-                $"definition ${(int)slot.DefinitionId:X4}.");
+                $"definition {slot.DefinitionId}.");
         }
 
         // `$DF99-$DFA9` starts with Y=13, shifts the old nonzero timer once, and selects
@@ -153,7 +153,7 @@ internal sealed class CeresRidleyHits
             : CeresRidleyPaletteRomData.HealthLateRow;
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation.Cgram, paletteIndex);
+            .ApplyHealth(_presentation.Colours, paletteIndex);
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common bank-$A0 overlap.</summary>

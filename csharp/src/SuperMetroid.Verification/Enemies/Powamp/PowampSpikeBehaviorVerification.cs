@@ -23,7 +23,7 @@ internal static class PowampSpikeBehaviorVerification
         var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            VramTilesIndex = 512,
+            TileIndexBase = 512,
             PaletteIndex = 3072,
         };
         enemies.PowampBehavior.SpawnPowampSpikeBurst(body);

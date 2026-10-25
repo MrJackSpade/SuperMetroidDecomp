@@ -38,7 +38,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         {
             int count = KraidPaletteRomData.ColorCount(source);
             byte[] native = RomDataReader.ReadFixedBank(rom,
-                KraidPaletteRomData.SourceAddress(source), count * sizeof(ushort));
+                KraidPaletteSources.SourceAddress(source), count * sizeof(ushort));
             for (int index = 0; index < count; index++)
                 AssertEqual(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1]),
                     catalog.Resolve(source, index),
@@ -182,7 +182,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         var guard = new CartridgeReadGuard(rom);
         foreach (KraidPaletteSource palette in Enum.GetValues<KraidPaletteSource>())
         {
-            int start = KraidPaletteRomData.SourceAddress(palette);
+            int start = KraidPaletteSources.SourceAddress(palette);
             int end = start + KraidPaletteRomData.ColorCount(palette) * sizeof(ushort);
             guard.Forbid(address => address >= start && address < end,
                 address => $"Kraid {palette} reread palette ROM byte ${address:X6}.");
@@ -198,7 +198,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var cgram = new SamusColourRig();
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;
         var state = new KraidEnemyState();

@@ -44,7 +44,7 @@ internal sealed class RidleyInteractions
         int row = state.HealthStage - 1;
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation.Cgram, row);
+            .ApplyHealth(_presentation.Colours, row);
     }
 
     /// <summary>

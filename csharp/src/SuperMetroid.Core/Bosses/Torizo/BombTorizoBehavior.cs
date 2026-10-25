@@ -89,7 +89,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             new ColourImage(TorizoBodyColours), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
 
     /// <summary>The body and belly colours the statue's fades change.</summary>
-    private ColourRun TorizoBodyColours => _presentation.Cgram.SpriteSets.Sets(1, 2);
+    private ColourRun TorizoBodyColours => _presentation.Colours.SpriteSets.Sets(1, 2);
 
     /// <summary>Sets target colors beginning at the first body entry for the authored palette fade.</summary>
     private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<Bgr555> colors)
@@ -229,7 +229,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances BombTorizo's typed animation.</summary>
     internal void AdvanceBombTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
-        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext.NmiFrameCounter) });
+        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext.FrameCounter) });
     }
     /// <summary>Runs Bomb or Golden Torizo's body program where the enemy instruction interpreter would.</summary>
     internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoInstructionInputs inputs)

@@ -73,7 +73,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         MotherBrainRainbowPalettePresentation colors, SamusColourRig cgram)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         return enemies;
     }
 

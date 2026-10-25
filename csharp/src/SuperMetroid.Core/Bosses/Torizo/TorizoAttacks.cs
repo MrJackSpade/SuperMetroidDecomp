@@ -199,7 +199,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.DroolNoDelay));
 
         int random;
@@ -333,7 +333,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoChozoOrb,
-            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
 
         InitializeTorizoRandomizedProjectile(
             projectile,
@@ -368,7 +368,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
 
         projectile.DirectionParameter = checked((ushort)parameter);
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
@@ -397,7 +397,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
-            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
@@ -415,7 +415,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoEgg,
-            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
 
         projectile.Variable1 = TorizoMotionDefinitions.EggHatchTimer;
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
@@ -437,7 +437,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
-            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
         bool facingRight = _access.FacesRight(torizo);
         projectile.Variable0 = unchecked((ushort)(torizo.SlotIndex * 2));
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (facingRight ? 30 : -30))), unchecked((ushort)(torizo.Position.Y.Whole - 52))));
@@ -454,7 +454,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-            unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
+            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
         projectile.DirectionParameter = checked((ushort)parameter);
         bool facingRight = _access.FacesRight(torizo);
         InitializeTorizoRandomizedProjectile(
@@ -729,7 +729,7 @@ internal sealed class TorizoAttacks
         SamusState samus,
         bool awayFromSamus)
     {
-        byte angle = EnemyMath.CalculateCartridgeAngle(
+        byte angle = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
         angle = awayFromSamus
             ? unchecked((byte)(angle | TorizoMotionDefinitions.AwayHalfTurn))

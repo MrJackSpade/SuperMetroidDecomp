@@ -1,21 +1,17 @@
 using System.Collections.Immutable;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Import provenance and bounded dimensions; runtime AI owns cadence and frame selection.</summary>
+/// <summary>The auxiliary colour families' bounded dimensions; runtime AI owns cadence and frame selection.</summary>
 internal static class EnemyAuxiliaryColorDefinitions
 {
-    /// <summary>Blue Brinstar face-block four-color cycle at $A8:E7CC, eight frames.</summary>
-    internal static readonly EnemyAuxiliaryPaletteDefinition FaceBlock = new(
-        EnemyAuxiliaryPalette.FaceBlock, 0xa8e7cc, 8, 4, 4);
-    /// <summary>Dead sidehopper's seven stages at $A9:EBCC; each native sixteen-color row supplies fifteen colors.</summary>
-    internal static readonly EnemyAuxiliaryPaletteDefinition DeadSidehopper = new(
-        EnemyAuxiliaryPalette.DeadSidehopper, 0xa9ebcc, 7, 15, 16);
-    /// <summary>Golden Torizo body health bands at $84:8032, eight sixteen-color rows.</summary>
-    internal static readonly EnemyAuxiliaryPaletteDefinition GoldenTorizoBody = new(
-        EnemyAuxiliaryPalette.GoldenTorizoBody, 0x848032, 8, 16, 16);
-    /// <summary>Golden Torizo belly health bands at $84:8132, eight sixteen-color rows.</summary>
-    internal static readonly EnemyAuxiliaryPaletteDefinition GoldenTorizoBelly = new(
-        EnemyAuxiliaryPalette.GoldenTorizoBelly, 0x848132, 8, 16, 16);
+    /// <summary>Blue Brinstar face-block four-color cycle, eight frames.</summary>
+    internal static readonly EnemyAuxiliaryPaletteDefinition FaceBlock = new(EnemyAuxiliaryPalette.FaceBlock, 8, 4);
+    /// <summary>Dead sidehopper's seven stages of fifteen colors.</summary>
+    internal static readonly EnemyAuxiliaryPaletteDefinition DeadSidehopper = new(EnemyAuxiliaryPalette.DeadSidehopper, 7, 15);
+    /// <summary>Golden Torizo body health bands, eight sixteen-color rows.</summary>
+    internal static readonly EnemyAuxiliaryPaletteDefinition GoldenTorizoBody = new(EnemyAuxiliaryPalette.GoldenTorizoBody, 8, 16);
+    /// <summary>Golden Torizo belly health bands, eight sixteen-color rows.</summary>
+    internal static readonly EnemyAuxiliaryPaletteDefinition GoldenTorizoBelly = new(EnemyAuxiliaryPalette.GoldenTorizoBelly, 8, 16);
 
     /// <summary>Four imported palette families in stable face-block, corpse, body, and belly order.</summary>
     internal static ImmutableArray<EnemyAuxiliaryPaletteDefinition> All { get; } =

@@ -41,12 +41,12 @@ internal sealed class DraygonIntro
             if (state.FunctionTimer.IsZero)
             {
                 RoomEnemyDefinition evir = RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir);
-                if ((evir.TileDataSize & short.MaxValue) !=
-                    DraygonIntroPresentationDefinitions.EvirTilesByteCount)
+                if (evir.TileByteCount != DraygonIntroPresentationDefinitions.EvirTilesByteCount)
                     throw new InvalidDataException(
                         "Draygon opening Evir sheet no longer has the compiled transfer length.");
-                if (_room.Artwork?.TryResolve(evir.TileDataAddress,
-                        DraygonIntroPresentationDefinitions.EvirTilesByteCount, out _) != true)
+                if ((_room.Artwork ?? throw new InvalidDataException(
+                        "Installed Evir graphics are missing for Draygon's opening transfer.")).TilesOf(EnemyDefinitionId.Evir).Length !=
+                    DraygonIntroPresentationDefinitions.EvirTilesByteCount)
                     throw new InvalidDataException(
                         "Installed Evir graphics are missing for Draygon's opening transfer.");
                 _presentation.ShowCharacters(DraygonIntroPresentationDefinitions.EvirTiles);

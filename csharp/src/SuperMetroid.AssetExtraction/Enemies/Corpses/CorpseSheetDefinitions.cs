@@ -1,16 +1,18 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
-/// <summary>The cartridge identities of the installed sheets the rotting corpses stage their characters from (#1406).</summary>
+/// <summary>The installed sheets the rotting corpses stage their characters from (#1406, #1412).</summary>
 internal static class CorpseSheetDefinitions
 {
-    /// <summary>$B7:A800, the dead Torizo's 192-tile source sheet, used both for the initial corpse and falling sand.</summary>
-    internal const int DeadTorizoSheetAddress = 0xb7a800;
+    /// <summary>The dead Torizo's 192-tile sheet, used both for the initial corpse and falling sand.</summary>
+    internal const EnemyDefinitionId DeadTorizoSheet = EnemyDefinitionId.CorpseTorizo;
 
     /// <summary>$1800 bytes, the full tile sheet named enemy-ed3f-tiles.png in the installation.</summary>
     internal const int DeadTorizoSheetByteCount = 0x1800;
 
-    /// <summary>$B7:C000, the sheet shared by the dead Sidehopper, Zoomer, Ripper and Skree.</summary>
-    internal const int DeadMonsterSheetAddress = 0xb7c000;
+    /// <summary>The sheet the dead Sidehopper, Zoomer, Ripper and Skree share: the dead Sidehopper's.</summary>
+    internal const EnemyDefinitionId DeadMonsterSheet = EnemyDefinitionId.CorpseSidehopper;
 
     /// <summary>$0E00 bytes, the complete enemy-ed7f-tiles.png source sheet.</summary>
     internal const int DeadMonsterSheetByteCount = 0x0e00;

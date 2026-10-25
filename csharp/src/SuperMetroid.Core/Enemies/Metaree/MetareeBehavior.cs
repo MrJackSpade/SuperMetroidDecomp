@@ -184,7 +184,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.BurrowTimer.IsZero)
         {
             slot.PaletteIndex = EnemyPaletteBits.Palette5;
-            slot.VramTilesIndex = 0;
+            slot.TileIndexBase = 0;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;
         }
@@ -245,7 +245,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             BeforeGenericDeath = c =>
             {
                 _projectiles.SpawnMetareeParticleBurst(c.Enemy);
-                c.Enemy.VramTilesIndex = 0;
+                c.Enemy.TileIndexBase = 0;
                 c.Enemy.PaletteIndex = 0;
             },
         });
@@ -262,7 +262,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.Enemy.Health != 0)
                     return;
                 _projectiles.SpawnMetareeParticleBurst(c.Enemy);
-                c.Enemy.VramTilesIndex = 0;
+                c.Enemy.TileIndexBase = 0;
                 c.Enemy.PaletteIndex = 0;
             },
         });

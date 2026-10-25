@@ -48,7 +48,7 @@ internal static class BossDisplayBindingsOracleVerification
                     AssertEqual(source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + field * 2)), boxes[index][field],
                         frame.Name + " native rectangle/touch/shot record");
             }
-            if (source.ReadCartridgeWord(Address(visual)) == EnemyBg2FrameLayout.StreamMarker)
+            if (source.ReadCartridgeWord(Address(visual)) == EnemyBg2FrameLayoutConstants.StreamMarker)
             {
                 int cursor = Address(unchecked((ushort)(visual + 2)));
                 bool ended = false;
@@ -60,7 +60,7 @@ internal static class BossDisplayBindingsOracleVerification
                     AssertTrue(length is > 0 and <= EnemyBg2FrameLayout.TilemapWidth, "native oracle BG2 run is bounded");
                     var words = new ushort[length];
                     for (int index = 0; index < length; index++) words[index] = source.ReadCartridgeWord((cursor + 4 + index * 2));
-                    bg2.Add(new EnemyBg2TilemapWrite(checked((ushort)((destination - EnemyBg2FrameLayout.WorkingRamBase) / 2)), words));
+                    bg2.Add(new EnemyBg2TilemapWrite(checked((ushort)((destination - EnemyBg2FrameLayoutConstants.WorkingRamBase) / 2)), words));
                     cursor += 4 + length * 2;
                 }
                 AssertTrue(ended, "native oracle BG2 stream terminates within its declared bound");

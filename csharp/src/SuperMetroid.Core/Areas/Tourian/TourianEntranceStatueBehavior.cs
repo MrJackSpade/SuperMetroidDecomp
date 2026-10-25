@@ -89,7 +89,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         // This runtime exposes the currently visible CGRAM buffer, so install those rows
         // directly while retaining every cartridge color word.
         (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidDataException(
-            "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation.Cgram);
+            "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation.Colours);
     }
 
     /// <summary>Allocates a decorative projectile when a slot is free and retains its authored position in variable words.</summary>

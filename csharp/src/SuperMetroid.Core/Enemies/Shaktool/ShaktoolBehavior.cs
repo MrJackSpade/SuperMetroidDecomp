@@ -281,7 +281,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ResetOrientation();
         RoomEnemySlot owner = OwnerSlot(state);
-        SnesAngle target = EnemyMath.CalculateCartridgeAngle(
+        SnesAngle target = EnemyMath.CalculateBearing(
             new(unchecked((short)(slot.Position.X.Whole - owner.Position.X.Whole)), unchecked((short)(slot.Position.Y.Whole - owner.Position.Y.Whole)))).ReinterpretAsTableAngle().ToAngle();
         target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != 0
             ? target.AddRaw(-SnesAngle.QuarterTurn.RawValue)

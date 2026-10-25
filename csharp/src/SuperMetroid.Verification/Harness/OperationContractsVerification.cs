@@ -36,8 +36,8 @@ internal static class OperationContractsVerification
         // Main AI's narrow frame is the enemy frame plus the counters the pass resolved once.
         AssertTrue(typeof(IEnemyAiFrame).IsAssignableFrom(typeof(ClockedEnemyAiFrame)), "the pass's clocked frame satisfies main AI's frame");
         AssertTrue(MetadataShape.Properties(typeof(IEnemyAiFrame), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public).Select(property => property.Name).Order(StringComparer.Ordinal).SequenceEqual(
-            ["Camera", "Clock", "ControllerInput", "Level", "Mode7Transform", "NewlyPressedControllerInput", "Samus", "SamusProjectiles",
-             "SharedProjectiles"]),
+            ["Camera", "Clock", "ControllerInput", "Level", "NewlyPressedControllerInput", "Samus", "SamusProjectiles",
+             "SharedProjectiles", "TurningFloor"]),
             "main AI's frame exposes only the nine values main AI reads");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(EnemySlotDispatch), nameof(EnemySlotDispatch.RunMainAi), shared)[1],
             "main AI accepts its narrow frame, not the enemy pass's whole frame");
@@ -63,7 +63,7 @@ internal static class OperationContractsVerification
             masked.NewlyPressedControllerInput == frame.NewlyPressedControllerInput && masked.ControllerInput == frame.ControllerInput &&
             ReferenceEquals(masked.Level, frame.Level) && masked.Clock == clock,
             "the grapple wrapper passes the enemy's camera, Samus, input, room and clock");
-        AssertTrue(masked.SamusProjectiles is null && masked.Mode7Transform is null && masked.SharedProjectiles is null,
+        AssertTrue(masked.SamusProjectiles is null && masked.TurningFloor is null && masked.SharedProjectiles is null,
             "the grapple wrapper withholds projectiles, Mode 7 and bombs");
 
         // Children that read a subset take that subset, not the parent's record.

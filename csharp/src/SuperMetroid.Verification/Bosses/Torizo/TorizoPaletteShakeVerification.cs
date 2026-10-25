@@ -21,7 +21,7 @@ internal static class TorizoPaletteShakeVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var cgram = new SamusColourRig();
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         var actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
         actor.Bind(actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(actor.DefinitionId));

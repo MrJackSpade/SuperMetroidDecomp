@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
 internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArtworkCatalog Bosses, AreaArtworkCatalog Areas,
     ReadOnlyMemory<byte> StandardObjects, GameplayBasePaletteCatalog Palettes, EscapeTimerTileAtlas EscapeTimer)
-    : IObjCharacterSourceResolver, IInstalledObjCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
+    : IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static EnemySheetInputs Load(string content)
@@ -46,11 +46,11 @@ internal sealed record EnemySheetInputs(EnemyTileArtworkCatalog Enemies, BossArt
     }
 
     /// <inheritdoc/>
-    EnemyTileArtworkCatalog IInstalledObjCharacterArtwork.EnemyTiles => Enemies;
+    EnemyTileArtworkCatalog IInstalledSpriteCharacterArtwork.EnemyTiles => Enemies;
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">No encounter uploads the room-FX tiles over the characters.</exception>
-    RoomFxAnimatedTileAtlas IInstalledObjCharacterArtwork.AnimatedTiles => throw new InvalidOperationException(
+    RoomFxAnimatedTileAtlas IInstalledSpriteCharacterArtwork.AnimatedTiles => throw new InvalidOperationException(
         "No encounter uploads room-FX animated tiles over the OBJ characters an enemy sheet composes over.");
 
     /// <inheritdoc/>

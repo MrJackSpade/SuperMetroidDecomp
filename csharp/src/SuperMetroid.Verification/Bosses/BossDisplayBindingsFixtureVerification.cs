@@ -45,14 +45,14 @@ internal static class BossDisplayBindingsFixtureVerification
                 TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas,
             };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
-            Enemies.Presentation.BindCgram(new GameplayColours(new SpriteColourSets()));
+            Enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             Actor.Bind(definition, Actor.Definition);
             Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions);
-            Enemies.Drawing.Enqueue(0, Actor.NativeIndex);
+            Enemies.Drawing.Enqueue(0, Actor.EnemyIndex);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }

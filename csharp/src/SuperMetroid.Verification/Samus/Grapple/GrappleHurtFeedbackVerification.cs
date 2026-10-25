@@ -54,7 +54,7 @@ internal static class GrappleHurtFeedbackVerification
         target.SpritemapPointer = 1;
         var interactive = (List<int>)runtime.Enemies.ProcessingWindow.InteractiveEnemyIndexes;
         interactive.Clear();
-        interactive.Add(target.NativeIndex);
+        interactive.Add(target.EnemyIndex);
         int health = samus.Health;
         AssertTrue(runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, SnesButton.X), "ordinary enemy contact hits hanging Samus");
         AssertEqual((ushort)(health - target.Definition.Damage), samus.Health, "native contact reduces health");

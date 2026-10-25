@@ -35,7 +35,7 @@ internal static class CeresMode7MapVerification
             "the map is bound to the room's tileset");
 
         byte[] frame = [0x11, 0x22, 0x33, 0x44];
-        runtime.Enemies.Room.Services.DrawMode7Map(CeresDoorVisualRomData.Mode7MapCell, frame);
+        runtime.Enemies.Room.Services.DrawFloorMap(CeresDoorVisualRomData.Mode7MapCell, frame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AffineFloor second = Published(runtime);
         AssertTrue(second.Cells.Slice(CeresDoorVisualRomData.Mode7MapCell, frame.Length).Select(cell => (byte)cell.Tile).SequenceEqual(frame),

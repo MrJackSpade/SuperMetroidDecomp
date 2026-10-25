@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -28,7 +28,7 @@ public static class WorkRobotPaletteCycleExtractor
             frames[frame] = new PaletteRgb5[WorkRobotPaletteDefinitions.ColorCount];
             for (int color = 0; color < frames[frame].Length; color++)
             {
-                int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
+                int source = EnemySourceDefinitions.WorkRobotPaletteCycleRecords +
                     frame * WorkRobotPaletteTimingDefinitions.RecordByteCount +
                     color * sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);

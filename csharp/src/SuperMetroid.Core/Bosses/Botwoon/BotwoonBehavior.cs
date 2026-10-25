@@ -337,7 +337,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonHoleDefinition hole =
             BotwoonNavigationDefinitions.HoleAt(state.TargetHoleIndex);
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
-        SnesBearing bearing = EnemyMath.CalculateCartridgeAngle(new(
+        SnesBearing bearing = EnemyMath.CalculateBearing(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
         state.MovementAngle = bearing.ToTableAngle().ToAngle();
 
@@ -489,7 +489,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     extraAngle = unchecked((ushort)(extraAngle + 512));
             }
 
-            ushort angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateCartridgeAngle(new(dx, dy)).RawValue));
+            ushort angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateBearing(new(dx, dy)).RawValue));
             segment.DirectionParameter = unchecked((ushort)(2 * (angle >> 5)));
         }
     }
@@ -580,7 +580,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 head.Layer = 2;
                 // `$B3:9E10` (AND #$FBFF) restores collision once the head is outside.
                 head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-                program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateCartridgeAngle(new(dx, dy)));
+                program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateBearing(new(dx, dy)));
             }
             InstallBotwoonHeadProgram(head, state, program);
         }
@@ -599,7 +599,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         head.Layer = 2;
-        SnesBearing bearing = EnemyMath.CalculateCartridgeAngle(
+        SnesBearing bearing = EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - head.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - head.Position.Y.Whole))));
         InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(bearing));
         state.SpitAngle = bearing.ToTableAngle().ToAngle();
@@ -944,7 +944,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             segment,
             RoomEnemyProjectileKind.BotwoonBody,
-            unchecked((ushort)(head.VramTilesIndex | head.PaletteIndex)));
+            unchecked((ushort)(head.TileIndexBase | head.PaletteIndex)));
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         segment.Velocity = segment.Velocity.WithY(new SnesSignedEightEight(0));
 
@@ -1080,7 +1080,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spit,
             RoomEnemyProjectileKind.BotwoonSpit,
-            unchecked((ushort)(head.VramTilesIndex | head.PaletteIndex)));
+            unchecked((ushort)(head.TileIndexBase | head.PaletteIndex)));
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(BotwoonProjectileAnimation.Spit());
         spit.DirectionParameter = angle.RawValue;

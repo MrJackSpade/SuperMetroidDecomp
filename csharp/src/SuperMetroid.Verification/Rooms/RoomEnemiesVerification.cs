@@ -156,7 +156,7 @@ internal static void VerifyRoomEnemyLoading()
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
 
     AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
-    AssertEqual(EnemySlotTable.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
+    AssertEqual(EnemySlotTable.EnemyIndexStride, enemies.SlotTable.FirstFreeEnemyIndex,
         "first free enemy keeps native byte offset");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
@@ -167,7 +167,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyGraphicsSetEntry specialGraphics = enemies.GraphicsSet.Entries[1];
     AssertEqual(0x0800, ordinaryGraphics.StagingOffset, "ordinary enemy staging offset");
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
-    AssertEqual(2, specialGraphics.VramTilesIndex,
+    AssertEqual(2, specialGraphics.TileIndexBase,
         "second enemy tile index includes first definition size");
     // Room load stages the tiles; they show over the OBJ characters as named transfers (#1406).
     enemies.GraphicsSet.ShowGraphics();
@@ -186,7 +186,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
-    AssertEqual(0, slot.VramTilesIndex, "first graphics-set tile index");
+    AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
     AssertEqual(EnemyCallbackBody.ImmediateReturn, slot.Definition.NoOpCallbackBody,
         "definition bank $A2 runs the shared no-op callback as an immediate return");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
@@ -204,7 +204,11 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertEqual(EnemyCallbackBody.Routine, definition.PowerBombReactionBody,
         "definition power-bomb reaction offset $28");
-    AssertEqual(0xa29100, definition.TileDataAddress, "definition 24-bit tile-data pointer");
+    // The tile word decodes to the tile set's size and placement; where the tiles sit is the import's to read.
+    AssertEqual(0x0040, definition.TileByteCount, "definition tile set size, the tile word's low fifteen bits");
+    AssertEqual(EnemyTilePlacement.FollowingPrevious, definition.TilePlacement, "definition tile word's clear bit 15 follows the previous member");
+    AssertEqual(EnemyTilePlacement.AtFixedBlock, enemies.GraphicsSet.Entries[1].Definition.TilePlacement,
+        "special definition tile word's bit 15 places its tiles at the record's fixed block");
     AssertEqual((EnemyDropTable?)new EnemyDropTable(3), definition.DropChances,
         "definition item-drop table offset $3A");
     AssertEqual(new EnemyVulnerabilityTable(2), definition.Vulnerability,
@@ -256,7 +260,7 @@ internal static void VerifyRoomEnemyLoading()
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
-    AssertEqual(EnemySlotTable.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
+    AssertEqual(EnemySlotTable.EnemyIndexStride, enemies.SlotTable.FirstFreeEnemyIndex,
         "empty population preserves native first-free quirk");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual(0, enemies.RoomStatus.BossId, "room load clears boss ID before empty population");
@@ -844,8 +848,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     }
     // The set's sheets compose over the characters its upload leaves, so the fixture's tile leads a sheet as long as
     // Ridley's upload.
-    int uploadByteCount = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileDataSize
-        & EnemyTileDataMasks.ByteCountBits;
+    int uploadByteCount = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileByteCount;
     byte[] uploadPlanar = new byte[Math.Max(uploadByteCount, fixturePlanar.Length)];
     fixturePlanar.CopyTo(uploadPlanar, 0);
     int uploadTiles = uploadPlanar.Length / RoomCharacterAtlasFormat.BytesPerTile;
@@ -885,11 +888,7 @@ internal static void VerifyCeresRidleyRoomEntry()
                 [definitionPointer] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
-            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
-            DmaSources = new Dictionary<EnemyDefinitionId, int>
-            {
-                [definitionPointer] = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileDataAddress,
-            } }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
+            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
             CeresRidleyColors = CeresRidleyColorFile.Read(new MemoryStream(
@@ -1489,7 +1488,7 @@ static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAdd
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one complete bank-$A0 enemy definition header")]
 internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
-    int address = 0xa00000 | (ushort)definitionPointer;
+    int address = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(definitionPointer);
     for (int offset = 0; offset < 64; offset += 2)
         WriteTestWord(bus, address + offset, unchecked((ushort)(fields.FieldSeed + offset)));
     WriteTestWord(bus, address + 14, fields.HurtSound);
@@ -1564,7 +1563,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
     // need not depict retail art here; the regression concerns loader and AI addresses, and
     // the real-ROM audit covers the actual encoded graphics immediately afterward.
-    WriteTestWord(bus, 0xb40000 | tilesetPointer, (ushort)definitionPointer);
+    WriteTestWord(bus, 0xb40000 | tilesetPointer, TestAddressSpace.FixtureHeaderPointer(definitionPointer));
     WriteTestWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0001);
     WriteTestWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
     for (int color = 0; color < 16; color++)
@@ -1573,7 +1572,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // The Ceres population record is deliberately the retail one: ($BA,$AB), init zero,
     // properties $2800, no extra bits, and two zero speed/parameter words.
     int population = 0xa10000 | populationPointer;
-    WriteTestWord(bus, population, (ushort)definitionPointer);
+    WriteTestWord(bus, population, TestAddressSpace.FixtureHeaderPointer(definitionPointer));
     WriteTestWord(bus, population + 2, 0x00ba);
     WriteTestWord(bus, population + 4, 0x00ab);
     WriteTestWord(bus, population + 6, 0);
@@ -1794,7 +1793,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
 /// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
 /// <param name="tiles">The fixture's seeded enemy artwork.</param>
 internal sealed class SeededEnemyTileTransfers(EnemyTileArtworkCatalog tiles)
-    : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledObjCharacterArtwork
+    : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork
 {
     /// <inheritdoc/>
     public EnemyTileArtworkCatalog EnemyTiles => tiles;

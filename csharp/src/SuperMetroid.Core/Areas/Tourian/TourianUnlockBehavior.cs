@@ -61,7 +61,7 @@ internal sealed class TourianUnlockBehavior
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, parameter) is null) return;
         (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
             "Tourian statue eye requires installed colors."))
-            .ApplyEye(_presentation.Cgram, parameter);
+            .ApplyEye(_presentation.Colours, parameter);
     }
 
     /// <summary>$87:832F spawns a statue's released soul from the bank-$86 definition, rising from the eye.</summary>

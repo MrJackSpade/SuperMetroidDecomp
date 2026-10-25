@@ -119,7 +119,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.Spawn.Population.Parameter1)
             return;
 
-        bool samusToTheLeft = (horizontalDelta & EnemyWordMasks.SignBit) != 0;
+        bool samusToTheLeft = EnemyMath.IsNegative16(horizontalDelta);
         if (samusToTheLeft == state.FacesRight)
             return;
 

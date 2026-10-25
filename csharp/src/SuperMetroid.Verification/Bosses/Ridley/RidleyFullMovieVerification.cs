@@ -945,7 +945,7 @@ internal static class RidleyFullMovieVerification
                 if (color != XrayScopeDefinitionsPaletteConstants.VisorCgramIndex)
                     words.Add(runtime.Cgram.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
-                words.AddRange([(ushort)actor.DefinitionId, actor.Position.X.Whole, actor.Position.X.Fraction,
+                words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
                     checked((ushort)actor.CurrentInstruction), actor.InstructionTimer.RawValue]);
             return words.ToArray();
@@ -1277,9 +1277,9 @@ internal static class RidleyFullMovieVerification
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
             {
                 if (deferLoadingOwners) continue;
-                int address = NativeSnapshotMemory.EnemyBase + actor.NativeIndex;
+                int address = NativeSnapshotMemory.EnemyBase + actor.EnemyIndex;
                 string owner = $"Enemy {actor.SlotIndex}";
-                Check(owner + " identity", (ushort)actor.DefinitionId, address);
+                Check(owner + " identity", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
                 if (actor.DefinitionId == 0 || W(address) == 0) continue;
                 Check(owner + " X", actor.Position.X.Whole, address + 2);
                 Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);
@@ -1296,7 +1296,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " AiStates", actor.AiStates.NativeWord, address + 18);
                 Check(owner + " Timer", actor.Timer.RawValue, address + 24);
                 Check(owner + " PaletteIndex", actor.PaletteIndex, address + 30);
-                Check(owner + " VramTilesIndex", actor.VramTilesIndex, address + 32);
+                Check(owner + " TileIndexBase", actor.TileIndexBase, address + 32);
                 Check(owner + " Layer", actor.Layer, address + 34);
                 Check(owner + " FlashTimer", actor.FlashTimer.RawValue, address + 36);
                 Check(owner + " FrozenTimer", actor.FrozenTimer.RawValue, address + 38);
@@ -1305,7 +1305,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
             if (!deferLoadingOwners && runtime.Enemies.RidleyEncounter.Ridley is { } ridleyState &&
-                W(NativeSnapshotMemory.EnemyBase) == (ushort)EnemyDefinitionId.Ridley)
+                W(NativeSnapshotMemory.EnemyBase) == SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Ridley))
             {
                 bool expectedGate = (W(NativeSnapshotMemory.EnemyBase + 14) & 0x0400) != 0;
                 if (runtime.Enemies.SlotTable.Slots[0].Properties.HasAny(EnemyProperties.IgnoreSamusCollision) != expectedGate)
@@ -1706,8 +1706,12 @@ internal static class RidleyFullMovieVerification
                     // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
                     // again. Their retained per-slot word is not a live source identity.
                     if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
-                        Check(owner + " source enemy header", (ushort)projectile.DropDefinitionId, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
-                    Check(owner + " killed enemy index", projectile.KilledEnemyNativeIndex, NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
+                        Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(projectile.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                    // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none.
+                    KilledEnemy killed = projectile.KilledEnemy;
+                    Check(owner + " killed enemy index", killed.SlotIndex < 0 ? 0xffff
+                        : killed.SlotIndex * EnemySlotTable.EnemyIndexStride | (killed.Respawns ? 0x8000 : 0),
+                        NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);
                 if (projectile.Damage != nativeDamage) mismatches.Add(owner + $" damage: native={nativeDamage} port={projectile.Damage}");

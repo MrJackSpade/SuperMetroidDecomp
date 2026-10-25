@@ -28,7 +28,7 @@ internal static class MotherBrainRaiseCounterVerification
         state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
         var camera = runtime.Room.LoadedCamera;
 
-        void Step(byte counter8, ushort counter) => runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera.PixelPosition, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, NmiFrameCounter8 = counter8, NmiFrameCounter = counter });
+        void Step(byte counter8, ushort counter) => runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera.PixelPosition, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, FrameCounterLowByte = counter8, FrameCounter = counter });
 
         Step(0x68, 0x01ff);
         AssertEqual((ushort)0x0117, state.Body.Position.Y.Whole, "no raise while $05B6 & 3 is nonzero, whatever $05B5 holds");

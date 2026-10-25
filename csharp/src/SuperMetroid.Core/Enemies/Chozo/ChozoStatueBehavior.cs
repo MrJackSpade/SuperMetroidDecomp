@@ -145,7 +145,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The two sprite colour sets the Chozo statues and the glass tube colour (#1405).</summary>
     private ColourRun ChozoAndTubeColours() =>
-        _presentation.Cgram.SpriteSets.Sets(SpriteColourSetDefinitions.ChozoAndTube, SpriteColourSetDefinitions.ChozoAndTubeSets);
+        _presentation.Colours.SpriteSets.Sets(SpriteColourSetDefinitions.ChozoAndTube, SpriteColourSetDefinitions.ChozoAndTubeSets);
 
     /// <summary>
     /// Represents the exact enemy-slot side effect produced by the bank-$84 Chozo hand

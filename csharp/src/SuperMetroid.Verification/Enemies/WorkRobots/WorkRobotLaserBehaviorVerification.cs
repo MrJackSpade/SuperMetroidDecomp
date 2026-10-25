@@ -21,7 +21,7 @@ internal static class WorkRobotLaserBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Radius = new(12, 16),
-            VramTilesIndex = 512,
+            TileIndexBase = 512,
             PaletteIndex = 3072,
         };
         var state = new WorkRobotEnemyState();

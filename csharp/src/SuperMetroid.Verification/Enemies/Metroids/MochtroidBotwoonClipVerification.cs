@@ -99,11 +99,11 @@ internal static class MochtroidBotwoonClipVerification
         samus.CommitPoseHistory();
 
         RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(
-            slot => slot.NativeIndex == expected.EnemyNativeIndex);
+            slot => slot.EnemyIndex == expected.EnemyNativeIndex);
         AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.DefinitionId,
             $"{expected.Case} fixture selects retail Mochtroid slot");
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots.Where(
-                     slot => slot.NativeIndex != expected.EnemyNativeIndex))
+                     slot => slot.EnemyIndex != expected.EnemyNativeIndex))
         {
             slot.Clear();
         }

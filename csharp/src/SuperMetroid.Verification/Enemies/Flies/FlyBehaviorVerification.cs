@@ -29,9 +29,9 @@ internal static class FlyBehaviorVerification
             FliesBehavior.InitializeFly(slot);
             AssertEqual(AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight),
                 (enemies.SlotTable.Slots[0].EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.")).Program,
-                $"fly ${(int)definition:X4} initializer animation");
+                $"fly {definition} initializer animation");
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(slot, 9),
-                $"fly ${(int)definition:X4} runs the flight loop");
+                $"fly {definition} runs the flight loop");
         }
         Console.WriteLine("  Fly behavior: all three initializers start and run the shared flight loop.");
     }

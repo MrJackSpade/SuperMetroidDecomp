@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -22,7 +23,7 @@ public static class CeresRidleyColorExtractor
             Version = (int)CeresRidleyColorVersion.Current,
             Start = ReadColors(CeresRidleyPaletteRomData.StartColors,
                 CeresRidleyPaletteRomData.StartColorCount),
-            EyeFade = ReadRows(CeresRidleyPaletteRomData.EyeFadeColors,
+            EyeFade = ReadRows(EnemySourceDefinitions.CeresRidleyEyeFadeRows,
                 CeresRidleyPaletteRomData.EyeFadeRowCount,
                 CeresRidleyPaletteRomData.EyeFadeColorCount),
             BodyFade = ReadRows(CeresRidleyPaletteRomData.BodyFadeColors,

@@ -26,7 +26,7 @@ internal static class MagdolliteLavaBehaviorVerification
         enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
-        source.VramTilesIndex = 512;
+        source.TileIndexBase = 512;
         source.PaletteIndex = 3072;
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);

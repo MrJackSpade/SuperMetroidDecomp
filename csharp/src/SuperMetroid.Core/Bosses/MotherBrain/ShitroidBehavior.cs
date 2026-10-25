@@ -678,8 +678,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
             SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.Velocity += new EightEightVector<RoomPixels>(
-                new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(64, angle.ToByteAngle())),
-                new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
+                new SnesSignedEightEight(EnemyMath.MultiplySineSample(64, angle.ToByteAngle())),
+                new SnesSignedEightEight(EnemyMath.MultiplySineSample(
                     64,
                     angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle())));
             return;
@@ -724,8 +724,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (magnitude >= 240)
             magnitude = 240;
         state.Velocity += new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(magnitude, angle.ToByteAngle())),
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(magnitude, angle.ToByteAngle())),
+            new SnesSignedEightEight(EnemyMath.MultiplySineSample(
                 magnitude,
                 angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle())));
     }

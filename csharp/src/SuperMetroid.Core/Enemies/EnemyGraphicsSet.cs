@@ -52,12 +52,18 @@ internal sealed class EnemyGraphicsSet
     }
 
     /// <summary>The sprite character the enemy tile area begins at: the first after the standard sprites' area.</summary>
-    internal const int EnemyTileAreaFirstCharacter = 0xc0;
+    internal const int EnemyTileAreaFirstCharacter = 192;
 
-    /// <summary>The bytes of the enemy tile area: $2800, through the end of the OBJ character table.</summary>
-    private const int EnemyTileAreaByteCount = 0x2800;
+    /// <summary>The bytes of the enemy tile area: 320 characters, through the end of the OBJ character table.</summary>
+    private const int EnemyTileAreaByteCount = 320 * SpriteCharacters.CharacterByteCount;
 
-    /// <summary>Stages selected enemy tiles and OBJ palettes in bank-$B4 record order while retaining native size arithmetic.</summary>
+    /// <summary>
+    /// Where the set's first member that follows the previous one shows its tiles: 64 characters into the enemy tile
+    /// area, after the share the fixed sprite set keeps.
+    /// </summary>
+    private const int OrdinaryTilesStart = 64 * SpriteCharacters.CharacterByteCount;
+
+    /// <summary>Stages selected enemy tiles and OBJ palettes in graphics-set record order.</summary>
     internal void LoadGraphicsSet(
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyGraphicsSetDefinition graphicsSet,
@@ -78,10 +84,18 @@ internal sealed class EnemyGraphicsSet
     }
 
     /// <summary>
-    /// The entries <paramref name="graphicsSet"/> loads, in bank-$B4 record order: each enemy's tiles, where in the enemy
-    /// tile area they upload to and the OBJ character index they start at, with the native size arithmetic retained.
+    /// The entries <paramref name="graphicsSet"/> loads, in record order: each enemy's tiles, where in the enemy tile area
+    /// they upload to and the OBJ character index they start at.
     /// </summary>
-    /// <exception cref="InvalidDataException">The set has more than four entries, or an entry's tiles leave the enemy tile area.</exception>
+    /// <remarks>
+    /// A member shown at a fixed block ends every retail set. The cartridge adds the header's fixed-block flag into the
+    /// counters the following members would start from; no retail set has a following member, so that sum is never
+    /// observed, and a set that would observe it is rejected rather than reproduced (#1412).
+    /// </remarks>
+    /// <exception cref="InvalidDataException">
+    /// The set has more than four entries, places a member after one shown at a fixed block, or an entry's tiles leave the
+    /// enemy tile area.
+    /// </exception>
     internal static IReadOnlyList<RoomEnemyGraphicsSetEntry> LayOut(IRoomEnemyDefinitionSource definitions,
         RoomEnemyGraphicsSetDefinition graphicsSet)
     {
@@ -89,48 +103,50 @@ internal sealed class EnemyGraphicsSet
         Ensure.NotNull(graphicsSet);
         var entries = new List<RoomEnemyGraphicsSetEntry>();
         int nextEnemyTileIndex = 0;
-        int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;
+        int nextStagingOffset = OrdinaryTilesStart;
+        bool followsFixedBlock = false;
 
         foreach (RoomEnemyGraphicsSetHeader source in graphicsSet.Records.Span)
         {
-            EnemyDefinitionId definitionPointer = source.DefinitionId;
+            EnemyDefinitionId enemy = source.DefinitionId;
             if (entries.Count == EnemyGraphicsSet.MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
                     $"Enemy graphics set {graphicsSet.Name} exceeds the native four-entry arrays.");
             }
+            if (followsFixedBlock)
+            {
+                throw new InvalidDataException(
+                    $"Enemy graphics set {graphicsSet.Name} places {enemy} after a member shown at a fixed block.");
+            }
 
             // Retail enemy headers are immutable gameplay definitions. Graphics uploads
             // use the selected extracted artwork, but
             // the header itself must not be re-read from the cartridge on room entry.
-            RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(definitionPointer);
+            RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
 
-            int byteCount = definition.TileDataSize & EnemyTileDataMasks.ByteCountBits;
-            int stagingOffset = (definition.TileDataSize & EnemyTileDataMasks.FixedStagingBit) != 0
+            int byteCount = definition.TileByteCount;
+            bool atFixedBlock = definition.TilePlacement == EnemyTilePlacement.AtFixedBlock;
+            int stagingOffset = atFixedBlock
                 ? source.StagingBlock * EnemyTileDataMasks.StagingBlockByteCount
                 : nextStagingOffset;
-            int vramByteOffset = RoomEnemyRomLayout.VramByteBase + stagingOffset;
-            if (vramByteOffset < 0 || stagingOffset + byteCount > EnemyTileAreaByteCount)
+            if (stagingOffset + byteCount > EnemyTileAreaByteCount)
             {
                 throw new InvalidDataException(
-                    $"Enemy ${(int)definitionPointer:X4} tile DMA would leave VRAM: " +
-                    $"offset ${vramByteOffset:X4}, size ${byteCount:X4}.");
+                    $"Enemy {enemy}'s tiles would leave the enemy tile area: offset {stagingOffset}, size {byteCount}.");
             }
 
-
             entries.Add(new RoomEnemyGraphicsSetEntry(
-                definitionPointer,
+                enemy,
                 source.PaletteRow,
                 nextEnemyTileIndex,
                 definition,
                 stagingOffset,
                 byteCount));
 
-            // The original adds the unmasked size word for both counters. Retail ordinary
-            // entries, including Landing Site, have bit 15 clear; retaining that arithmetic
-            // makes malformed/high-bit records visible instead of silently normalized.
-            nextEnemyTileIndex = unchecked((ushort)(nextEnemyTileIndex + (definition.TileDataSize >> 5)));
-            nextStagingOffset = unchecked((ushort)(nextStagingOffset + definition.TileDataSize));
+            followsFixedBlock = atFixedBlock;
+            nextEnemyTileIndex += byteCount / SpriteCharacters.CharacterByteCount;
+            nextStagingOffset += byteCount;
         }
         return entries;
     }
@@ -157,7 +173,7 @@ internal sealed class EnemyGraphicsSet
         {
             if (entry.DefinitionId == definitionId)
             {
-                return new EnemyGraphicsIndexes(                    checked((ushort)entry.VramTilesIndex),
+                return new EnemyGraphicsIndexes(                    checked((ushort)entry.TileIndexBase),
                     unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9)));
             }
         }

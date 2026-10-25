@@ -32,8 +32,8 @@ internal static class MamaTurtleEnemyDefinitionsVerification
         {
             RoomEnemyDefinition expected = EnemyDefinitionsVerification.ReadNativeEnemyDefinition(rom, pointer);
             AssertTrue(MamaTurtleEnemyDefinitionCatalogAccess.TryGet(pointer, out RoomEnemyDefinition actual),
-                $"Mama Turtle header $A0:{(int)pointer:X4} is compiled");
-            AssertEqual(expected, actual, $"compiled enemy header $A0:{(int)pointer:X4}");
+                $"Mama Turtle header {pointer} is compiled");
+            AssertEqual(expected, actual, $"compiled enemy header {pointer}");
         }
 
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, 0xd055);

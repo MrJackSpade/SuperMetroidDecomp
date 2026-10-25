@@ -55,7 +55,7 @@ internal static class EnemyFormatDrawEntriesVerification
         RoomEnemySlot ordinary = enemies.SlotTable.Slots[0];
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
-        ordinary.VramTilesIndex = checked((ushort)beetom.VramTilesIndex);
+        ordinary.TileIndexBase = checked((ushort)beetom.TileIndexBase);
         ordinary.PaletteIndex = PaletteBits(beetom.PaletteRow);
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
         enemies.Drawing.Enqueue(0, 0);
@@ -67,11 +67,11 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         extended.Frame = extendedFrame;
-        extended.VramTilesIndex = checked((ushort)pirate.VramTilesIndex);
+        extended.TileIndexBase = checked((ushort)pirate.TileIndexBase);
         extended.PaletteIndex = PaletteBits(pirate.PaletteRow);
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(1, EnemySlotTable.NativeSlotSize);
+        enemies.Drawing.Enqueue(1, EnemySlotTable.EnemyIndexStride);
 
         // Enemy projectile in the high-priority pass, drawn from the set's spawned-object sheet.
         EnemyProjectileFrameId projectileFrame = SpawnedObjectFrameDefinitions.Anywhere.Projectiles
@@ -101,7 +101,7 @@ internal static class EnemyFormatDrawEntriesVerification
         for (int component = 0; component < components.Length; component++)
         {
             Position16<OamPixels> origin = new Position16<OamPixels>(120, 110) + components.Span[component].Offset;
-            if (((origin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 || ((origin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
+            if (!EnemyDrawRange.Contains(origin))
                 continue;
             AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.Enemy, 1),
                 pirateSheet.Frame(EnemySheetDefinitions.ComponentFrameName(extendedFrame, component)), new(origin.X, origin.Y), null,

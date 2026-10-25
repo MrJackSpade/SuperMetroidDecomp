@@ -161,7 +161,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Frame = EnemyFrameId.CeresDoorInitial;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.VramTilesIndex = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.CeresDoor];
+        slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.CeresDoor];
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -178,15 +178,15 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The native destination $142 is a byte offset into target_palettes: colors
             // 161..175. This runtime exposes the final fade target directly in CGRAM.
-            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(_presentation.Cgram));
+            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(_presentation.Colours));
             return;
         }
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
-            SelectedCeresDoorVisual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(_presentation.Cgram));
+            SelectedCeresDoorVisual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(_presentation.Colours));
         else
-            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Active.In(_presentation.Cgram));
+            SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Active.In(_presentation.Colours));
     }
 
     /// <summary>Dispatches the door's main-AI function.</summary>
@@ -325,7 +325,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
         // queue made the moving OBJ pad flash correctly, then left the landed tile platform
         // frozen on whichever frame happened to be present at deletion.
-        _room.Services.DrawMode7Map(CeresDoorVisualRomData.Mode7MapCell, SelectedCeresDoorVisual.Mode7DoorFrame((frame & 2) >> 1));
+        _room.Services.DrawFloorMap(CeresDoorVisualRomData.Mode7MapCell, SelectedCeresDoorVisual.Mode7DoorFrame((frame & 2) >> 1));
 
         // Bits 3..5 of the frame counter: a new row of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;

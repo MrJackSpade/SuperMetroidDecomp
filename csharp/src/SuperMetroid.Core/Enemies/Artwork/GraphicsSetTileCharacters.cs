@@ -10,7 +10,7 @@ internal sealed record GraphicsSetTileCharacters(EnemyDefinitionId Enemy) : ObjC
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The installed enemy artwork holds no tile set for the enemy.</exception>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        InstalledObjCharacterArtwork.Of(resolver).EnemyTiles.TilesOf(Enemy);
+        InstalledSpriteCharacterArtwork.Of(resolver).EnemyTiles.TilesOf(Enemy);
 
     /// <summary>Names the source for diagnostics and for the pictures of backgrounds that read it.</summary>
     public override string ToString() => $"{Enemy} set tiles";

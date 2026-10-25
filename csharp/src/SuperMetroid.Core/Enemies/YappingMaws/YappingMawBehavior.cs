@@ -116,7 +116,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 body,
                 RoomEnemyProjectileKind.YappingMawBody,
-                unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
+                unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex)));
             body.Position = body.Position.WithWhole(slot.Position.Whole);
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.Spawn.Population.Parameter2 == 0
                 ? YappingMawBodyProjectileProgram.FacingDown
@@ -131,7 +131,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Spawn.Population.Parameter2 == 0
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
-            unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
+            unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex)));
 
         if (state.RootSpriteObject is null)
         {
@@ -548,7 +548,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(absoluteY - 255)) >= 0)
             return new YappingMawTarget(absoluteY, default);
 
-        SnesByteAngle positiveQuadrantAngle = EnemyMath.CalculateCartridgeAngle(
+        SnesByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(
             new(unchecked((short)absoluteX), unchecked((short)absoluteY))).ReinterpretAsTableAngle();
         ushort distance = unchecked((ushort)(
             EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitNegativeSineProduct(
@@ -557,7 +557,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitCosineProduct(
                 positiveQuadrantAngle,
                 absoluteY)))));
-        return new YappingMawTarget(distance, EnemyMath.CalculateCartridgeAngle(new(unchecked((short)deltaX), unchecked((short)deltaY))));
+        return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(unchecked((short)deltaX), unchecked((short)deltaY))));
     }
 
     /// <summary>$A8:A73E: X is the Y helper with a minus-64 angle adjustment.</summary>
@@ -582,7 +582,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             return unchecked((ushort)(2 * (SnesLittleEndian.HighByte(product))));
 
         ushort negatedProduct = unchecked((ushort)-product);
-        return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | EnemyWordMasks.SignExtendedHighByte));
+        return EnemyMath.FillHighByte(2 * SnesLittleEndian.HighByte(negatedProduct));
     }
 
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>

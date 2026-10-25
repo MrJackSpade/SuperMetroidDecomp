@@ -14,7 +14,6 @@ using static SuperMetroid.Verification.Enemies.EnemyVulnerabilityDefinitionsVeri
 using static SuperMetroid.Verification.Enemies.EnemyVulnerabilityDispatchVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -86,13 +85,13 @@ internal static class EnemyGameplayAcceptanceVerification
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
         (RoomEnemySystem baseline, byte[] beforeCharacters, SamusColourRig beforeColors) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
-        AssertEqual(population.Records.Length * EnemySlotTable.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
+        AssertEqual(population.Records.Length * EnemySlotTable.EnemyIndexStride, baseline.SlotTable.FirstFreeEnemyIndex,
             "compiled population publishes its physical first-free offset");
         AssertEqual(population.DeathQuota, baseline.PopulationLoader.DeathQuota, "compiled population publishes its authored death quota");
         for (int index = 0; index < population.Records.Length; index++)
         {
             RoomEnemySlot slot = baseline.SlotTable.Slots[index];
-            AssertEqual(index * EnemySlotTable.NativeSlotSize, slot.NativeIndex, "linked population physical slot order");
+            AssertEqual(index * EnemySlotTable.EnemyIndexStride, slot.EnemyIndex, "linked population physical slot order");
             AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
             AssertEqual(RoomEnemyDefinitionCatalog.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");
@@ -101,31 +100,26 @@ internal static class EnemyGameplayAcceptanceVerification
                 RoomEnemySlot body = baseline.SlotTable.Slots[index - 1];
                 AssertEqual(body.Position.X.Whole, slot.Position.X.Whole, "wing initializer retains its preceding body's X");
                 AssertEqual(body.Position.Y.Whole, slot.Position.Y.Whole, "wing initializer retains its preceding body's Y");
-                AssertEqual(body.VramTilesIndex, slot.VramTilesIndex, "wing initializer retains its preceding body's tile binding");
+                AssertEqual(body.TileIndexBase, slot.TileIndexBase, "wing initializer retains its preceding body's tile binding");
             }
         }
 
-        // All three body variants intentionally share one native DMA source. Edit
-        // that source's aliases consistently, as a real artist must; conflicting
-        // alias files are a loud validation error, not independent gameplay tuning.
+        // Each definition shows its own installed sheet (#1412): editing one body variant's sheet changes that
+        // variant's uploads alone, though the cartridge's three variants share one tile source.
         EnemyDefinitionId editedPointer = EnemyDefinitionId.KihunterGreen;
         RoomEnemyDefinition editedDefinition = RoomEnemyDefinitionCatalog.Get(editedPointer);
         Directory.CreateDirectory(overridePath);
-        foreach (EnemyDefinitionId alias in RoomEnemyGraphicsSetDefinitions.Pointers
-                     .SelectMany(pointer => RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray())
-                     .Select(record => record.DefinitionId).Distinct()
-                     .Where(pointer => RoomEnemyDefinitionCatalog.Get(pointer).TileDataAddress == editedDefinition.TileDataAddress &&
-                         RoomEnemyDefinitionCatalog.Get(pointer).TileDataSize == editedDefinition.TileDataSize))
+        foreach (EnemyDefinitionId alias in new[] { editedPointer })
         {
-            int tiles = (editedDefinition.TileDataSize & 0x7fff) / RoomCharacterAtlasFormat.BytesPerTile;
+            int tiles = editedDefinition.TileByteCount / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
-            using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(alias)));
+            using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(alias)));
             IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
             image.Pixels[0] ^= 1;
-            using var output = File.Create(Path.Combine(overridePath, EnemyTileArtworkFormat.FileName(alias)));
+            using var output = File.Create(Path.Combine(overridePath, EnemyTileArtworkFiles.FileName(alias)));
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         }
-        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer)));
+        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, byte[] afterCharacters, SamusColourRig afterColors) = Load(edited);
@@ -134,8 +128,7 @@ internal static class EnemyGameplayAcceptanceVerification
         AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
         byte[] expectedCharacters = beforeCharacters.ToArray();
         for (int index = 0; index < entries.Length; index++)
-            if (entries[index].Definition.TileDataAddress == editedDefinition.TileDataAddress &&
-                entries[index].Definition.TileDataSize == editedDefinition.TileDataSize)
+            if (entries[index].DefinitionId == editedPointer)
                 expectedCharacters[uploads[index].FirstByte] ^= 0x80;
         static string ChangedOffsets(ReadOnlySpan<byte> before, ReadOnlySpan<byte> after)
         {
@@ -152,7 +145,7 @@ internal static class EnemyGameplayAcceptanceVerification
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stockPath, overridePath).ContentIdentity,
             "enemy replacement persists through a fresh catalog load");
         AssertEqual(stockHash, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
-            Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer))))), "enemy replacement leaves stock untouched");
+            Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(editedPointer))))), "enemy replacement leaves stock untouched");
         foreach (PropertyInfo property in MetadataShape.Properties(typeof(RoomEnemySlot), BindingFlags.Instance | BindingFlags.Public))
         for (int index = 0; index < baseline.SlotTable.Slots.Count; index++)
             AssertEqual(property.GetValue(baseline.SlotTable.Slots[index]), property.GetValue(changed.SlotTable.Slots[index]),

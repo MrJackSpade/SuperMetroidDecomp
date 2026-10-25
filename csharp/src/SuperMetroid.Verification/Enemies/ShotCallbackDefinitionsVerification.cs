@@ -174,7 +174,7 @@ internal static class ShotCallbackDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
-            interactive.Add(enemy.NativeIndex);
+            interactive.Add(enemy.EnemyIndex);
             enemy.Bind((EnemyDefinitionId)0x1234, enemy.Definition);
             enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));

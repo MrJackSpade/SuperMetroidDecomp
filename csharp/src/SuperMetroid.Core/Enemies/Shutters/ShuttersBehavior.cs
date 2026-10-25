@@ -540,7 +540,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         IReadOnlyList<ushort> collisions = samus.Kinematics.SolidEnemyCollisionIndexes;
         ushort combined = unchecked((ushort)(collisions[0] & collisions[1] & collisions[2] & collisions[3]));
         return combined != ShutterContactDefinitions.NoSolidEnemy &&
-            combined == slot.NativeIndex &&
+            combined == slot.EnemyIndex &&
             samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
     }
 
@@ -736,7 +736,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!IsVerticalShutterDefinition(slot.DefinitionId))
         {
             throw new InvalidDataException(
-                $"Definition ${(int)slot.DefinitionId:X4} does not use vertical-shutter initialization.");
+                $"Definition {slot.DefinitionId} does not use vertical-shutter initialization.");
         }
 
         var state = new VerticalShutterEnemyState();

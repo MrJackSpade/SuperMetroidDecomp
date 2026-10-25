@@ -90,7 +90,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindCgram(cgram.Gameplay);
+        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];

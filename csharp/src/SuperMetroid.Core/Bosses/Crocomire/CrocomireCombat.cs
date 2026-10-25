@@ -48,7 +48,7 @@ internal sealed class CrocomireCombat
         if (!white)
         {
             (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidDataException(
-                "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation.Cgram);
+                "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation.Colours);
             return;
         }
         _presentation.BossColours().CrocomireFightBody.Fill(Bgr555.White);
@@ -434,7 +434,7 @@ internal sealed class CrocomireCombat
         // instruction bytes; do not clamp the final shot to the last authored gradient.
         short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(checked((ushort)projectile.DirectionParameter));
         // The native angle starts at up, not right: Y uses negative cosine.
-        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateCartridgeAngle(new(-64, gradient)));
+        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
     }

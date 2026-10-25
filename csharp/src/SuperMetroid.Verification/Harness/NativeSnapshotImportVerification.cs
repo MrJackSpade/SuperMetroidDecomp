@@ -267,8 +267,8 @@ internal static class NativeSnapshotImportVerification
             var slot = runtime.Enemies.SlotTable.Slots[index];
             int address = NativeSnapshotMemory.EnemyBase + index * 64;
             if (W(address) != 0)
-                AssertTrue((ushort)slot.DefinitionId == W(address), "initial enemy species agrees with room population");
-            slot.Bind((EnemyDefinitionId)W(address), slot.Definition);
+                AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(slot.DefinitionId) == W(address), "initial enemy species agrees with room population");
+            slot.Bind(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.FromSlotWord(W(address)), slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             slot.Radius = new(W(address + 10), W(address + 12));
             slot.Properties = EnemyPropertyWord.FromNativeWord(W(address + 14));
@@ -281,7 +281,7 @@ internal static class NativeSnapshotImportVerification
             slot.CurrentInstruction = W(address + 26);
             slot.InstructionTimer = WrappingCountdown.FromRaw(W(address + 28));
             slot.PaletteIndex = W(address + 30);
-            slot.VramTilesIndex = W(address + 32);
+            slot.TileIndexBase = W(address + 32);
             slot.Layer = W(address + 34);
             slot.FlashTimer = WrappingCountdown.FromRaw(W(address + 36));
             slot.FrozenTimer = WrappingCountdown.FromRaw(W(address + 38));

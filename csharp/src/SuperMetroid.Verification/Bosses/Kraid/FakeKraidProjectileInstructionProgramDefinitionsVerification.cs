@@ -44,7 +44,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            VramTilesIndex = 0x0200,
+            TileIndexBase = 0x0200,
             PaletteIndex = 0x0c00,
         };
         var state = new FakeKraidEnemyState();

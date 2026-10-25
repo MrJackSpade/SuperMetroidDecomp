@@ -23,6 +23,28 @@ internal static class EndingSourceDefinitions
         internal const int PostShotLogoMap = 0x99ecc4;
     }
 
+    /// <summary>The scrolling credits' row program and tilemap (#1416: moved from Core's credits presentation definitions).</summary>
+    internal static class Credits
+    {
+        /// <summary>$97:EEFF, the compressed 128-row credits source tilemap.</summary>
+        internal const int Tilemap = 0x97eeff;
+
+        /// <summary>The expanded credits source tilemap's bytes, staged at $7F:0000..1FFF.</summary>
+        internal const int TilemapBytes = 0x2000;
+
+        /// <summary>$8C:D91B, the beginning of the retail credits row instruction stream.</summary>
+        internal const ushort InitialInstruction = 0xd91b;
+
+        /// <summary>The bank holding the credits row instruction stream.</summary>
+        internal const byte InstructionBank = 0x8c;
+
+        /// <summary>The high bit distinguishing a bank-$8B callback command from a duration/source-row record.</summary>
+        internal const ushort CommandBit = 0x8000;
+
+        /// <summary>The extraction bound of 4096 interpreted stream operations, including repeated loop commands; separate from the expected 520 output rows.</summary>
+        internal const int MaximumOperations = 4096;
+    }
+
     /// <summary>The ending's palette sources (#1416: moved from Core's ending catalogs).</summary>
     internal static class Palettes
     {

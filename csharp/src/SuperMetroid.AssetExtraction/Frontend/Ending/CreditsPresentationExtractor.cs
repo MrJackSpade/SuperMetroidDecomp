@@ -3,6 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -46,20 +47,20 @@ public static class CreditsPresentationExtractor
     internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CreditsPresentationDefinitions.Native.Tilemap);
-        if (source.Length < CreditsPresentationDefinitions.Native.TilemapBytes)
+        byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingSourceDefinitions.Credits.Tilemap);
+        if (source.Length < EndingSourceDefinitions.Credits.TilemapBytes)
         {
             throw new InvalidDataException(
                 $"Credits tilemap expanded to ${source.Length:X}, expected at least $2000.");
         }
 
         var rows = new List<ushort[]>(CreditsPresentationDefinitions.ExpectedCompiledRows);
-        ushort pointer = CreditsPresentationDefinitions.Native.InitialInstruction;
+        ushort pointer = EndingSourceDefinitions.Credits.InitialInstruction;
         WrappingCountdown timer = WrappingCountdown.Start(0);
-        for (int operation = 0; operation < CreditsPresentationDefinitions.Native.MaximumOperations; operation++)
+        for (int operation = 0; operation < EndingSourceDefinitions.Credits.MaximumOperations; operation++)
         {
             ushort instruction = ReadWord(bus, pointer);
-            if ((instruction & CreditsPresentationDefinitions.Native.CommandBit) == 0)
+            if ((instruction & EndingSourceDefinitions.Credits.CommandBit) == 0)
             {
                 ushort offset = ReadWord(bus, Add(pointer, 2));
                 if (offset % (CreditsPresentationDefinitions.TilemapWidth * sizeof(ushort)) != 0 ||
@@ -197,7 +198,7 @@ public static class CreditsPresentationExtractor
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
-            new SnesAddress(CreditsPresentationDefinitions.Native.InstructionBank, pointer));
+            new SnesAddress(EndingSourceDefinitions.Credits.InstructionBank, pointer));
 
     /// <summary>Advances a bank-local credits instruction pointer with native 16-bit wrapping.</summary>
     private static ushort Add(ushort pointer, int bytes) =>

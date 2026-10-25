@@ -82,10 +82,12 @@ types delegate to it and never re-derive it.
 Sixteen-bit storage is a property of the owner types above, not of the values that flow through gameplay code.
 Non-spatial gameplay quantities follow `docs/cartridge-encoding.md`'s "Narrow storage" rule.
 
-Integer arithmetic that builds a coordinate converts explicitly: `checked((ushort)…)` where a
-negative or oversized value is a defect (sizes, image pixels, authored anchors), and
-`unchecked((ushort)…)` where native code works in 16-bit words and a later bounds check rejects
-the wrapped value (collision and PLM grid probes).
+Integer arithmetic that builds a coordinate wraps explicitly where the game wraps it: `unchecked((ushort)…)` where
+native code works in 16-bit words and a later bounds check rejects the wrapped value (collision and PLM grid probes),
+or a stepped coordinate decremented or incremented through the compatibility counter (`WrappingCounter`). The result
+is held as an `int` until it reaches its owner, whose `int` operations (`Position16.Of`, `Offset16.Of`,
+`Extent16.Of`, `SnesFixedPosition.Of`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
+left unwrapped fails where it is stored instead of being truncated there.
 
 ## Operations
 
@@ -99,7 +101,8 @@ the wrapped value (collision and PLM grid probes).
 - Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SnesSignedSixteenSixteen)`.
 - Exact native construction: `FixedPosition.FromWords/FromWhole`, `FixedVector.FromWords`,
   `FixedVector.FromWholePixels(Offset16)`, `SnesFixedPosition.FromRaw/RawValue` for one unsigned
-  16.16 axis; `SnesSignedEightEight.SignedRawValue` reads one 8.8 word as signed.
+  16.16 axis; `SnesSignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
+  `Position16.Of`, `Offset16.Of`, `Extent16.Of` and `SnesFixedPosition.Of`, each checked against its word.
 - Axis replacement: `WithX` / `WithY`. Half-word replacement where a cartridge routine stores only
   one word: `SnesFixedPosition.WithWhole/WithFraction`, `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
   `FixedPosition.WithWhole/WithFractionsOf/WithWholeX/WithWholeY/WithFractionX/WithFractionY` and

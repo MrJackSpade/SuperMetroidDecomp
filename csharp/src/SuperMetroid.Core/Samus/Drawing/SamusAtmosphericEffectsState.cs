@@ -113,7 +113,7 @@ public sealed class SamusAtmosphericEffectsState
                 // visible for two calls before frame one begins.
                 slot.AnimationTimer =
                     WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
-                slot.FrameAndType = unchecked((ushort)(slot.FrameAndType + 1));
+                slot.FrameAndType = WrappingCounter.IncrementWord(slot.FrameAndType);
                 if (slot.AnimationFrame >=
                     SamusAtmosphericAnimationDefinitions.FrameCount(type))
                 {

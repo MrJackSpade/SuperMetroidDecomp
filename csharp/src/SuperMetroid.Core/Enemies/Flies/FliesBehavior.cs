@@ -123,7 +123,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
-        state.RetreatTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.RetreatTimer.RawValue + 1)));
+        state.RetreatTimer = state.RetreatTimer.AddFrames(1);
 
         bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole < state.TargetHeight.Y

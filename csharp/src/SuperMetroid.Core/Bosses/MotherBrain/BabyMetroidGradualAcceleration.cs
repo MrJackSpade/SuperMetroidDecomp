@@ -39,7 +39,7 @@ internal static class BabyMetroidGradualAcceleration
     {
         Ensure.NotNull(isVaguelyOffScreen);
         bool carry = true;
-        int distance = Subtract(position, target, ref carry);
+        int distance = Subtract(position, target);
         if (distance == 0)
             return velocity;
         int speed = velocity.RawValue;
@@ -51,12 +51,12 @@ internal static class BabyMetroidGradualAcceleration
                 // A carry-set off-screen result makes this ADC add one extra unit.
                 carry = isVaguelyOffScreen();
                 if (carry)
-                    speed = Add(speed, wrongWayOffScreenSpeed, ref carry);
+                    speed = Add(speed, wrongWayOffScreenSpeed);
                 carry = false;
-                speed = Add(speed, ReversalStep, ref carry);
-                speed = Add(speed, step, ref carry);
+                speed = Add(speed, ReversalStep);
+                speed = Add(speed, step);
             }
-            speed = Add(speed, step, ref carry);
+            speed = Add(speed, step);
             return Velocity(IsNegative(Wrap(speed - MaxXSpeed)) ? speed : MaxXSpeed);
         }
         else
@@ -66,15 +66,21 @@ internal static class BabyMetroidGradualAcceleration
             {
                 carry = isVaguelyOffScreen();
                 if (carry)
-                    speed = Subtract(speed, wrongWayOffScreenSpeed, ref carry);
+                    speed = Subtract(speed, wrongWayOffScreenSpeed);
                 carry = true;
-                speed = Subtract(speed, ReversalStep, ref carry);
-                speed = Subtract(speed, step, ref carry);
+                speed = Subtract(speed, ReversalStep);
+                speed = Subtract(speed, step);
             }
-            speed = Subtract(speed, step, ref carry);
+            speed = Subtract(speed, step);
             int limit = Negate(MaxXSpeed);
             return Velocity(IsNegative(Wrap(speed - limit)) ? limit : speed);
         }
+
+        // One link of the chain: a word sum or difference that takes and leaves the running carry.
+        int Add(int value, int addend) =>
+            SnesCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
+        int Subtract(int value, int subtrahend) =>
+            SnesCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
     }
 
     /// <summary>Returns the new Y velocity (the vertical half of $A9:F46B).</summary>
@@ -85,7 +91,7 @@ internal static class BabyMetroidGradualAcceleration
     public static SnesSignedEightEight AccelerateVertically(int position, int target, SnesSignedEightEight velocity, int divisor)
     {
         bool carry = true;
-        int distance = Subtract(position, target, ref carry);
+        int distance = Subtract(position, target);
         if (distance == 0)
             return velocity;
         int speed = velocity.RawValue;
@@ -95,10 +101,10 @@ internal static class BabyMetroidGradualAcceleration
             if (IsNegative(speed))
             {
                 carry = false;
-                speed = Add(speed, ReversalStep, ref carry);
-                speed = Add(speed, step, ref carry);
+                speed = Add(speed, ReversalStep);
+                speed = Add(speed, step);
             }
-            speed = Add(speed, step, ref carry);
+            speed = Add(speed, step);
             return Velocity(IsNegative(Wrap(speed - MaxYSpeed)) ? speed : MaxYSpeed);
         }
         else
@@ -107,13 +113,19 @@ internal static class BabyMetroidGradualAcceleration
             if (!IsNegative(speed))
             {
                 carry = true;
-                speed = Subtract(speed, ReversalStep, ref carry);
-                speed = Subtract(speed, step, ref carry);
+                speed = Subtract(speed, ReversalStep);
+                speed = Subtract(speed, step);
             }
-            speed = Subtract(speed, step, ref carry);
+            speed = Subtract(speed, step);
             int limit = Negate(MaxYSpeed);
             return Velocity(IsNegative(Wrap(speed - limit)) ? limit : speed);
         }
+
+        // One link of the chain: a word sum or difference that takes and leaves the running carry.
+        int Add(int value, int addend) =>
+            SnesCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
+        int Subtract(int value, int subtrahend) =>
+            SnesCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
     }
 
     /// <summary>Models $4204/$4206 distance division, replacing a zero quotient with one.</summary>
@@ -124,14 +136,6 @@ internal static class BabyMetroidGradualAcceleration
         int quotient = distance / divisor;
         return quotient == 0 ? 1 : quotient;
     }
-
-    /// <summary>One link of the chain's addition: the sum of two words and the carry, leaving the carry out.</summary>
-    private static int Add(int value, int addend, ref bool carry) =>
-        SnesCarry.AddWithCarry(checked((ushort)value), checked((ushort)addend), ref carry);
-
-    /// <summary>One link of the chain's subtraction: the difference of two words less the borrow, leaving the carry out.</summary>
-    private static int Subtract(int value, int subtrahend, ref bool carry) =>
-        SnesCarry.SubtractWithBorrow(checked((ushort)value), checked((ushort)subtrahend), ref carry);
 
     /// <summary>The two's-complement negation of a word, as a word.</summary>
     private static int Negate(int word) => Wrap(-word);

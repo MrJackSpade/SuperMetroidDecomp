@@ -216,7 +216,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
         // Both native item setup paths increment the saved load counter, even for collected items.
-        system.LoadedItemCount = unchecked((ushort)(system.LoadedItemCount + 1));
+        system.LoadedItemCount = WrappingCounter.IncrementWord(system.LoadedItemCount);
         slot.Family = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
 

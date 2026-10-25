@@ -130,8 +130,9 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
-        state.FallingPatternLoopCounter = WrappingCountdown.FromRaw(unchecked((ushort)(
-            (SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) - 1)));
+        // A population loop count of zero wraps to $FFFF loops, as the cartridge's DEC of the loaded count does.
+        state.FallingPatternLoopCounter = WrappingCountdown.FromRaw(SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1))
+            .Decrement().Remaining;
         SetChootProgram(slot, state, ChootProgram.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }

@@ -12,6 +12,13 @@ namespace SuperMetroid.TestSupport.RoomHeaderImport;
 [CpuBusBoundary("codec: ROM bank-$8F room header and state-selection records → SelectedRoom")]
 public static class CartridgeRoomHeaderImporter
 {
+    /// <summary>
+    /// The bit of header byte eight that the door transition tests in either adjacent room to hide BG1 below the HUD
+    /// and show the objects alone. The byte's other bits select common-element tile reloads, which gameplay does not
+    /// read.
+    /// </summary>
+    private const int IsolatedDoorTransitionBit = 1;
+
     /// <summary>Evaluates the native room selector commands for import and reference checks, independently of compiled gameplay branches.</summary>
     private static ushort SelectImportedState(ISnesAddressSpace bus, ushort cursor,
         RoomStateSelectionContext selection)
@@ -82,7 +89,7 @@ public static class CartridgeRoomHeaderImporter
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         ushort statePointer = SelectStatePointer(bus, roomPointer, selection);
         var definition = new RoomHeaderDefinition(RoomHeaderDefinitions.Get(roomPointer).Name, Byte(0), (AreaId)Byte(1),
-            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8));
+            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), (Byte(8) & IsolatedDoorTransitionBit) != 0);
         return new SelectedRoom(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
     }
 }

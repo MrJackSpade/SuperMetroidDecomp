@@ -65,7 +65,7 @@ internal sealed class DraygonIntro
                     }
                 }
             }
-            state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+            state.FunctionTimer = state.FunctionTimer.AddFrames(1);
             return;
         }
 
@@ -116,6 +116,6 @@ internal sealed class DraygonIntro
 
         state.FightIntroDanceIndex += DraygonIntroDanceDefinitions.StreamIndexAdvance;
         state.IntroDanceFrames++;
-        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+        state.FunctionTimer = state.FunctionTimer.AddFrames(1);
     }
 }

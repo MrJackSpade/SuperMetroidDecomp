@@ -289,7 +289,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 64 + 128)));
+        state.FunctionTimer = WrappingCountdown.Start(_room.Random.Read() % 64 + 128);
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>

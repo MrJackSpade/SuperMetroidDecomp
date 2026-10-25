@@ -1134,8 +1134,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (ReserveTransferSoundDelay.IsZero)
         {
             if ((pressed & ControllerButton.A) == ControllerButton.None) return;
-            ReserveTransferSoundDelay = WrappingCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
-                PauseReserveEnergyDefinitions.RefillSoundInterval - 1) & -PauseReserveEnergyDefinitions.RefillSoundInterval)));
+            ReserveTransferSoundDelay = WrappingCountdown.Start((samus.ReserveEnergy +
+                PauseReserveEnergyDefinitions.RefillSoundInterval - 1) & -PauseReserveEnergyDefinitions.RefillSoundInterval);
         }
         ReserveTransferSoundDelay = ReserveTransferSoundDelay.Decrement().Remaining;
         if (ReserveTransferSoundDelay.RawValue % PauseReserveEnergyDefinitions.RefillSoundInterval ==

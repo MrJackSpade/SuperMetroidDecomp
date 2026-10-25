@@ -312,7 +312,7 @@ internal sealed class CeresRidleyGetaway
                     DrawCeresJapaneseOverlay();
                 }
                 if (StepCeresEscapeTypewriter(state))
-                    state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 2)));
+                    state.FunctionTimer = state.FunctionTimer.AddFrames(2);
                 return;
 
             case 10:

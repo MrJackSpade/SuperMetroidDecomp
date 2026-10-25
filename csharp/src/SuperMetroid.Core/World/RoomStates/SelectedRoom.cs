@@ -1,5 +1,4 @@
 
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -40,7 +39,7 @@ public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSett
     public int DownScroller => Definition.DownScroller;
 
     /// <summary>Whether door transitions into or out of this room hide BG1 and drop the common room elements' colours.</summary>
-    public bool UsesIsolatedDoorTransition => (Definition.CreBitset & RoomCreBitsets.SuppressDoorTransitionBg1) != 0;
+    public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;
 
     /// <summary>The entries the room's type-$9 blocks select by index.</summary>
     public IReadOnlyList<DoorListEntry> Doors => RoomDoorListDefinitions.ByRoom[Definition];

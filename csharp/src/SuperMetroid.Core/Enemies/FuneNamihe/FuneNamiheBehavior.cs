@@ -108,7 +108,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 // INC occurs before CMP. BMI tests the signed subtraction result rather
                 // than performing an unsigned branch; ordinary room parameters are small,
                 // but the distinction remains visible at the $8000 wrap boundary.
-                state.CooldownTimer = unchecked((ushort)(state.CooldownTimer + 1));
+                state.CooldownTimer = WrappingCounter.IncrementWord(state.CooldownTimer);
                 if (unchecked((short)(state.CooldownTimer - state.CooldownTime)) < 0)
                     return;
 

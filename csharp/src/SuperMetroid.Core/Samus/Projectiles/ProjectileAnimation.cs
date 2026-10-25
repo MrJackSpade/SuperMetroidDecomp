@@ -55,8 +55,8 @@ internal sealed class ProjectileAnimation
     {
         slot.ClearFields();
         _slotTable.ProjectileCounter = _slotTable.ProjectileCounter == 0
-            ? (ushort)0
-            : unchecked((ushort)(_slotTable.ProjectileCounter - 1));
+            ? 0
+            : _slotTable.ProjectileCounter - 1;
     }
 
     /// <summary>Publishes an installed projectile composition when its screen origin passes native horizontal and Y-byte clipping.</summary>

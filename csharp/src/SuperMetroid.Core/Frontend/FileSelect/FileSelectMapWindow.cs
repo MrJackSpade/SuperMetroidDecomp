@@ -64,7 +64,7 @@ public sealed class FileSelectMapWindow
     {
         var window = new FileSelectMapWindow(area, labels);
         window.IsReturning = true;
-        window.timer = WrappingCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapDefinitions.ReturnWindowTimerReduction)));
+        window.timer = window.timer.AddFrames(-FileSelectMapDefinitions.ReturnWindowTimerReduction);
         int inset = FileSelectMapDefinitions.ReturnWindowInset;
         window.edges[0] = window.edges[2] = SnesSixteenSixteen.FromWhole((uint)inset);
         window.edges[1] = SnesSixteenSixteen.FromWhole((uint)(FrontendFrame.Width - inset));

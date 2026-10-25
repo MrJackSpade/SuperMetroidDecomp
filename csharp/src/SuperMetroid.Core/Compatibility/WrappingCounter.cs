@@ -26,6 +26,16 @@ public static class WrappingCounter
     public static int IncrementWord(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + 1) & ushort.MaxValue;
 
     /// <summary>
+    /// Executes one 16-bit <c>ADC</c> of <paramref name="step"/> to a word counter held as an int, 0 through 65535: a
+    /// counter stepped past <c>$FFFF</c> (for example a palette cycle a wrapping decrement left at the top) restarts
+    /// from the bottom instead of growing past the word.
+    /// </summary>
+    /// <param name="value">The counter, 0 through 65535.</param>
+    /// <param name="step">The step, 0 through 65535.</param>
+    public static int AddWord(int value, int step) =>
+        (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue;
+
+    /// <summary>
     /// Executes one 8-bit <c>DEC</c> of <paramref name="word"/>'s low byte, as the cartridge does for a
     /// byte countdown packed beside independent state. The low byte wraps from <c>$00</c> to <c>$FF</c>
     /// without borrowing into the high byte, which is kept unchanged; the step's flags are byte-width.

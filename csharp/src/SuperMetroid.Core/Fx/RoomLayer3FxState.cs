@@ -660,8 +660,8 @@ public sealed class RoomLayer3FxState
             Library2Sound.Lavaquake,
             MaximumQueued: SoundQueueLimit.Max6,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
-        EarthquakeSoundTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
-            baseTimers[EarthquakeSoundSequenceIndex] + (randomNumber & 3) + (mainGameLoopCarry ? 1 : 0))));
+        EarthquakeSoundTimer = WrappingCountdown.FromRaw(baseTimers[EarthquakeSoundSequenceIndex])
+            .AddFrames((randomNumber & 3) + (mainGameLoopCarry ? 1 : 0));
         EarthquakeSoundSequenceIndex++;
     }
 

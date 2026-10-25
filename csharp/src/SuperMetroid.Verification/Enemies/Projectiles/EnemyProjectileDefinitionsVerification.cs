@@ -113,7 +113,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is MotherBrainTurretAnimation,
                     $"{kind} production touch starts the typed impact program");
             }
-            else if (definition.HasTouchReaction)
+            else if (definition.SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction)
             {
                 // Every other touch list is the shared delete list; the owner coverage check proves each one deletes.
                 AssertTrue(projectile.Animation is EnemyProjectileDeleteAnimation, $"{kind} production touch starts the shared delete reaction");
@@ -531,7 +531,8 @@ internal static class EnemyProjectileDefinitionsVerification
             ushort propertyWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 8);
             AssertEqual(propertyWord % 4096, definition.Damage, $"{kind} contact damage");
             AssertEqual(NativeProjectileProperties(propertyWord), definition.Properties, $"{kind} behaviour properties");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 10) != 0, definition.HasTouchReaction,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 10) != 0,
+                definition.SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction,
                 $"{kind} touch reaction");
         }
         return forbidden;

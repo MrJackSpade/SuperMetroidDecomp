@@ -582,8 +582,7 @@ internal sealed class CeresRidleyFlight
             state.WingAnimationTimerDelta = delta;
         }
 
-        state.WingAnimationTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
-            state.WingAnimationTimer.RawValue - state.WingAnimationTimerDelta)));
+        state.WingAnimationTimer = state.WingAnimationTimer.AddFrames(-state.WingAnimationTimerDelta);
         if (!state.WingAnimationTimer.IsNegative)
             return;
 

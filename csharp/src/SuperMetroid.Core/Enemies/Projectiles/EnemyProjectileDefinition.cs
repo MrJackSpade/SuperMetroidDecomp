@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Radius">The collision half-extents in room pixels.</param>
 /// <param name="Damage">Samus contact damage, 0 through 4095.</param>
 /// <param name="Properties">The draw priority, Samus-damage, contact-persistence and shot-blocking behaviours.</param>
-/// <param name="HasTouchReaction">Whether touching Samus starts the projectile's touch reaction.</param>
+/// <param name="SamusTouch">What touching Samus does to the projectile's program.</param>
 internal readonly record struct EnemyProjectileDefinition(
     EnemyProjectilePreInstruction PreInstruction,
     Extent16<RoomPixels> Radius,
     int Damage,
     EnemyProjectilePropertyFlags Properties,
-    bool HasTouchReaction)
+    EnemyProjectileSamusTouch SamusTouch)
 {
     /// <summary>The draw pass: high priority when the definition says so.</summary>
     internal EnemyProjectileDrawPriority DrawPriority =>

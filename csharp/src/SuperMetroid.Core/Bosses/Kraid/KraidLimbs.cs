@@ -186,7 +186,7 @@ internal sealed class KraidLimbs
         // While mouth reopens are pending, incrementing the timer here cancels the common
         // interpreter's later decrement and freezes the selected arm map.
         if (state.PendingMouthReopens != 0)
-            arm.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(arm.InstructionTimer.RawValue + 1)));
+            arm.InstructionTimer = arm.InstructionTimer.AddFrames(1);
     }
 
     /// <summary>Dispatches the foot's lunge, retreat, and grown-form walking functions.</summary>

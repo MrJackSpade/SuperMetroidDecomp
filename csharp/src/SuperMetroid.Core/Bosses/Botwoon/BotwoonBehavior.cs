@@ -987,7 +987,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 goto case BotwoonBodyFunction.DyingDelay;
 
             case BotwoonBodyFunction.DyingDelay:
-                segment.DirectionParameter = unchecked((ushort)(segment.DirectionParameter + 1));
+                // The delay starts below 256 and ends on reaching it, so the count never nears the word's wrap.
+                segment.DirectionParameter++;
                 if (unchecked((short)(segment.DirectionParameter - 256)) >= 0)
                     state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Falling;
                 segment.InstructionTimer = WrappingCountdown.Start(0);

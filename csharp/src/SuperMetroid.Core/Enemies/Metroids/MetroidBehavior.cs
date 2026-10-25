@@ -222,7 +222,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         StoreMetroidYVelocity(state, 0);
 
         int oldTimer = state.EscapeTimer.RawValue;
-        state.EscapeTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        state.EscapeTimer = state.EscapeTimer.Decrement().Remaining;
         if (oldTimer != 1)
             return;
 

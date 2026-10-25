@@ -718,7 +718,7 @@ internal sealed class EnemyProjectileEngine
         // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact
         // but immediately changes to its smoke list. Keeping this in the common path also
         // prevents later persistent projectile families from needing bespoke hit effects.
-        bool hasTouchList = EnemyProjectileDefinitionCatalog.Get(projectile.Kind).HasTouchReaction;
+        bool hasTouchList = EnemyProjectileDefinitionCatalog.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
         // Every touch list without a typed reaction of its own is the shared delete list.
         if (Handlers.TryGetTouchAnimation(projectile.Kind, out Func<EnemyProjectileAnimation>? touchAnimation))
             projectile.StartAnimation(touchAnimation());

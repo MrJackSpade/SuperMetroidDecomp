@@ -57,6 +57,15 @@ public readonly record struct WrappingCountdown
     /// </summary>
     public WrappingCountdown DecrementToZero() => RawValue == 0 ? this : new((ushort)(RawValue - 1));
 
+    /// <summary>
+    /// Adds <paramref name="frames"/> to the countdown (a negative count takes frames away) the way the cartridge adds
+    /// to the timer word: a sum past <c>$FFFF</c> restarts from the bottom and a difference below zero becomes a large
+    /// count, so a timer extended or shortened across the boundary runs for the wrapped count, not the intended one.
+    /// </summary>
+    /// <param name="frames">The frames to add, -65535 through 65535.</param>
+    public WrappingCountdown AddFrames(int frames) =>
+        new(unchecked((ushort)(RawValue + Ensure.BetweenInclusive(-ushort.MaxValue, ushort.MaxValue, frames))));
+
     /// <inheritdoc />
     public override string ToString() => $"${RawValue:X4}";
 }

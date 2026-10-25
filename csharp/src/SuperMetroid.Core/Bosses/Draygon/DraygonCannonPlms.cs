@@ -369,7 +369,9 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     /// </summary>
     internal static bool CountHit(PlmSlot slot)
     {
-        int next = unchecked((byte)(slot.RoomArgument + 1));
+        // Setup clears the counter and a Super Missile seeds it at 119; the destroying hit stops the counting, so the
+        // count never reaches the byte's wrap.
+        int next = slot.RoomArgument + 1;
         if (next < DraygonCannonDefinitions.HitsToDestroy)
         {
             slot.RoomArgument = next;

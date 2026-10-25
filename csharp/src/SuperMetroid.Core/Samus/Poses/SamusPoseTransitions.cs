@@ -454,7 +454,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
         samus.MorphBallBounceState = SamusBallBounceState.None;
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameTimer.RawValue + commandAnimationBuffer)));
+        samus.AnimationFrameTimer = samus.AnimationFrameTimer.AddFrames(commandAnimationBuffer);
         return true;
     }
 }

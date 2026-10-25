@@ -245,7 +245,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         mama.Radius = mama.Radius.WithY(0);
         int signedDifference = unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole));
-        int distance = Math.Abs((int)signedDifference);
+        int distance = Math.Abs(signedDifference);
         if (distance >= 24)
             return;
 
@@ -631,7 +631,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         int signedDifference = unchecked((short)(parentSlot.Position.X.Whole - baby.Position.X.Whole));
-        int distance = Math.Abs((int)signedDifference);
+        int distance = Math.Abs(signedDifference);
         int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? (short)1
             : MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
@@ -649,7 +649,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         BabyTurtleEnemyState state)
     {
         int signedDifference = unchecked((short)(state.SpawnTopCenter.X - baby.Position.X.Whole));
-        int distance = Math.Abs((int)signedDifference);
+        int distance = Math.Abs(signedDifference);
         if (distance >= BabyTurtleTravelDistance)
         {
             state.Velocity = state.Velocity.WithX(signedDifference < 0 ? (short)-1 : (short)1);

@@ -29,9 +29,10 @@ public sealed class FakeKraidEnemyState
 
     /// <summary>
     /// Three independent spike clocks stored at scratch words three through five. Main AI
-    /// visits exactly one clock per frame in the native order 0, 1, 2, 0...
+    /// visits exactly one clock per frame in the native order 0, 1, 2, 0..., counting a running clock down to zero
+    /// without wrapping and reloading it when it is found at zero.
     /// </summary>
-    public ushort[] SpikeTimers { get; } = new ushort[3];
+    public WrappingCountdown[] SpikeTimers { get; } = new WrappingCountdown[3];
 
     /// <summary>Index 0-2 of the spike clock visited this frame (native byte offset twice this).</summary>
     public int SpikeTimerIndex { get; internal set; }

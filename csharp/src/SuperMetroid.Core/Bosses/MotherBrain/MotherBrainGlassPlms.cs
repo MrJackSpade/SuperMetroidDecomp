@@ -90,7 +90,7 @@ internal sealed class MotherBrainGlassPlms
         }
 
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
-            slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
+            slot.RoomArgument = WrappingCounter.IncrementWord(slot.RoomArgument);
         else
             MotherBrainGlassLastRoomArgument++;
     }
@@ -103,7 +103,7 @@ internal sealed class MotherBrainGlassPlms
     {
         SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-            slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
+            slot.RoomArgument = WrappingCounter.IncrementWord(slot.RoomArgument);
         slot.LoopTimer = 0;
     }
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>

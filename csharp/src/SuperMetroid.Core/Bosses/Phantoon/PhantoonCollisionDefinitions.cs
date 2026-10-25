@@ -12,32 +12,41 @@ internal static class PhantoonCollisionDefinitions
 {
 
     /// <summary>Half width of the full body's central collision rectangle.</summary>
-    private const short BodyHalfWidth = 33;
+    private const int BodyHalfWidth = 33;
     /// <summary>Half width of the vulnerable eye's central collision rectangle.</summary>
-    private const short EyeHalfWidth = 9;
+    private const int EyeHalfWidth = 9;
     /// <summary>Half width of the centered tentacle collision rectangle.</summary>
-    private const short CenterTentacleHalfWidth = 12;
+    private const int CenterTentacleHalfWidth = 12;
     /// <summary>Near horizontal edge of each mirrored side tentacle rectangle.</summary>
-    private const short SideTentacleInnerExtent = 16;
+    private const int SideTentacleInnerExtent = 16;
     /// <summary>Far horizontal edge of each mirrored side tentacle rectangle.</summary>
-    private const short SideTentacleOuterExtent = 23;
-    /// <summary>Position of the vulnerable eye among the full body's rectangles.</summary>
-    private const int EyeRectangle = 1;
-    /// <summary>
-    /// Native vertical extents of the body, eye, and three tentacle hitboxes. Declared before the lists below, which
-    /// read it during static initialization.
-    /// </summary>
-    private static readonly PhantoonVerticalExtent[] RequiredVerticalBounds =
-        [new PhantoonVerticalExtent(-40, 56), new PhantoonVerticalExtent(22, 39), new PhantoonVerticalExtent(52, 71), new PhantoonVerticalExtent(53, 70), new PhantoonVerticalExtent(53, 69)];
+    private const int SideTentacleOuterExtent = 23;
+
+    // Centered intervals have left = -right - 1; the side tentacles reflect exactly around that same pixel-centered
+    // axis, while each rectangle's vertical bounds are independent. Declared before the lists below, which read them
+    // during static initialization.
+
+    /// <summary>The full body's central rectangle.</summary>
+    private static readonly PhantoonCollisionHitbox Body = Centered(BodyHalfWidth, top: -40, bottom: 56);
+    /// <summary>The vulnerable eye's rectangle.</summary>
+    private static readonly PhantoonCollisionHitbox Eye = Centered(EyeHalfWidth, top: 22, bottom: 39);
+    /// <summary>The left tentacle's rectangle.</summary>
+    private static readonly PhantoonCollisionHitbox LeftTentacle =
+        Contact(-SideTentacleOuterExtent, top: 52, -SideTentacleInnerExtent, bottom: 71);
+    /// <summary>The right tentacle's rectangle, the left one reflected about the centered axis.</summary>
+    private static readonly PhantoonCollisionHitbox RightTentacle =
+        Contact(SideTentacleInnerExtent - 1, top: 53, SideTentacleOuterExtent - 1, bottom: 70);
+    /// <summary>The center tentacle's rectangle.</summary>
+    private static readonly PhantoonCollisionHitbox CenterTentacle = Centered(CenterTentacleHalfWidth, top: 53, bottom: 69);
 
     /// <summary>The single no-reaction point carried by hidden parts and by both tentacle components.</summary>
     private static readonly PhantoonCollisionHitbox[] PointList =
         [new(0, 0, 0, 0, PhantoonHitboxTouch.Inert, PhantoonHitboxShot.Inert)];
     /// <summary>The visible body: body, eye, left, right and center tentacle rectangles, tested in that order.</summary>
     private static readonly PhantoonCollisionHitbox[] FullBodyList =
-        [BodyHitbox(0), BodyHitbox(EyeRectangle), BodyHitbox(2), BodyHitbox(3), BodyHitbox(4)];
+        [Body, Eye, LeftTentacle, RightTentacle, CenterTentacle];
     /// <summary>The vulnerable eye alone, repeating the full body's eye rectangle.</summary>
-    private static readonly PhantoonCollisionHitbox[] EyeOnlyList = [BodyHitbox(EyeRectangle)];
+    private static readonly PhantoonCollisionHitbox[] EyeOnlyList = [Eye];
 
     /// <summary>The one inert point component most frames carry.</summary>
     private static readonly ImmutableArray<PhantoonCollisionComponent> PointComponents = [new(Offset16<RoomPixels>.Zero, PointList)];
@@ -49,26 +58,13 @@ internal static class PhantoonCollisionDefinitions
     private static readonly ImmutableArray<PhantoonCollisionComponent> TentacleComponents =
         [new(Offset16<RoomPixels>.Zero, PointList), new(Offset16<RoomPixels>.Zero, PointList)];
 
-    /// <summary>
-    /// One of the body's rectangles. Centered intervals have left=-right-1; side tentacle intervals reflect exactly
-    /// around that same pixel-centered axis, while their chosen vertical bounds remain independent.
-    /// </summary>
-    private static PhantoonCollisionHitbox BodyHitbox(int index)
-    {
-        var vertical = RequiredVerticalBounds[index];
-        PhantoonHorizontalExtent horizontal = index switch
-        {
-            0 => Centered(BodyHalfWidth),
-            EyeRectangle => Centered(EyeHalfWidth),
-            2 => new PhantoonHorizontalExtent(-SideTentacleOuterExtent, -SideTentacleInnerExtent),
-            3 => new PhantoonHorizontalExtent(SideTentacleInnerExtent - 1, SideTentacleOuterExtent - 1),
-            4 => Centered(CenterTentacleHalfWidth),
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-        return new(horizontal.Left, vertical.Top, horizontal.Right, vertical.Bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
+    /// <summary>A body rectangle that Samus touches and shoots.</summary>
+    private static PhantoonCollisionHitbox Contact(int left, int top, int right, int bottom) =>
+        new(left, top, right, bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
 
-        static PhantoonHorizontalExtent Centered(int halfWidth) => new PhantoonHorizontalExtent(-halfWidth, halfWidth - 1);
-    }
+    /// <summary>A body rectangle centered on the component's pixel-centered axis.</summary>
+    private static PhantoonCollisionHitbox Centered(int halfWidth, int top, int bottom) =>
+        Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>
     /// Each Phantoon BG2 frame's components: the full body and the eye alone each have one component, the three
     /// tentacle frames two inert points, and every other frame one inert point.

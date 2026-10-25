@@ -119,7 +119,7 @@ public sealed class DachoraEnemyState
     /// </summary>
     internal void AdvanceSpeedPaletteCycle()
     {
-        _paletteCycle = unchecked((ushort)(_paletteCycle + DachoraPaletteDefinitions.SpeedStep));
+        _paletteCycle = WrappingCounter.AddWord(_paletteCycle, DachoraPaletteDefinitions.SpeedStep);
         if (unchecked((short)(_paletteCycle - DachoraPaletteDefinitions.SpeedEnd)) >= 0)
             _paletteCycle = DachoraPaletteDefinitions.SpeedRestart;
     }
@@ -130,7 +130,7 @@ public sealed class DachoraEnemyState
     /// </summary>
     internal void AdvanceShinePaletteCycle()
     {
-        _paletteCycle = unchecked((ushort)(_paletteCycle + DachoraPaletteDefinitions.ShineStep));
+        _paletteCycle = WrappingCounter.AddWord(_paletteCycle, DachoraPaletteDefinitions.ShineStep);
         if (unchecked((short)(_paletteCycle - DachoraPaletteDefinitions.ShineEnd)) >= 0)
             _paletteCycle = 0;
     }

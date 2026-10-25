@@ -132,7 +132,7 @@ internal sealed class CeresRidleyHits
                 : checked((ushort)slot.PaletteIndex));
 
         state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
-            (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
+            ((enemyMainExecutionCounter + 1) & 2) != 0
                 ? CeresRidleyBehavior.HurtFlashSpritemapPalette
                 : SnesObjPalettes.Palette(7);
     }

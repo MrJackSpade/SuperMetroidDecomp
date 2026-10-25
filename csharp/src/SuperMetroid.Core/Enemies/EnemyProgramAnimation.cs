@@ -19,7 +19,7 @@ internal static class EnemyProgramAnimation
     {
         Ensure.NotNull(slot);
         int oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
         if (oldTimer == 1)
             return true;
         slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);

@@ -155,7 +155,7 @@ public sealed class SamusOverreadCatalog
     }
 
     /// <summary>Decodes one entry: its kind, then for a placement the left and right sparkles' signed X and Y offsets.</summary>
-    private static ProjectileTrailPlacement? DecodeTrailOverrun(ReadOnlySpan<byte> entry, ProjectileTrailPlacementList list) => (TrailOverrunEntryKind)entry[0] switch
+    private static ProjectileTrailPlacement? DecodeTrailOverrun(ReadOnlySpan<byte> entry, ProjectileTrailPlacementList list) => TrailOverrunEntryFormat.FromByte(entry[0]) switch
     {
         TrailOverrunEntryKind.Scratch => null,
         TrailOverrunEntryKind.Placement => new(

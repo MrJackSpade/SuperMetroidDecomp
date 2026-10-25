@@ -80,6 +80,6 @@ internal sealed class SamusHudSelection
         HudItem.Grapple => samus.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
         HudItem.XRay => samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
         _ => throw new InvalidDataException(
-            $"HUD item {(ushort)item} escaped the cartridge's six-entry switch table."),
+            $"HUD item {item} escaped the cartridge's six-entry switch table."),
     };
 }

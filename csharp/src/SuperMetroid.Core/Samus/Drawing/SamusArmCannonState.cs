@@ -93,7 +93,7 @@ public sealed class SamusArmCannonState
         if (CloseFlag != 0 || TryStartTransition(samus.SelectedHudItem))
             AdvanceFrame();
 
-        int descriptor = PoseDescriptor((int)samus.Pose);
+        int descriptor = PoseDescriptor(SamusPoseNumbering.Number(samus.Pose));
         DrawingMode = ReadDrawingByte(descriptor + 1);
         return new SamusArmCannonUpdateResult();
     }
@@ -116,7 +116,7 @@ public sealed class SamusArmCannonState
         if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (nmiFrameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
-        int descriptor = PoseDescriptor((int)samus.Pose);
+        int descriptor = PoseDescriptor(SamusPoseNumbering.Number(samus.Pose));
         byte firstSelector = ReadDrawingByte(descriptor);
         bool frameDependentSelector = unchecked((sbyte)firstSelector) < 0;
         byte selector = frameDependentSelector && samus.AnimationFrame != 0

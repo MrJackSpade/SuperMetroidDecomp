@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>What one trail overrun entry in the installed overread file records.</summary>
-internal enum TrailOverrunEntryKind : byte
+internal enum TrailOverrunEntryKind
 {
     /// <summary>The read reaches direct-page scratch and draws no trail.</summary>
     Scratch,

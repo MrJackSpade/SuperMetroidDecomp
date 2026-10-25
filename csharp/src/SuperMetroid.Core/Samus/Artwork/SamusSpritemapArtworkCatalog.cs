@@ -42,10 +42,10 @@ public sealed class SamusSpritemapArtworkCatalog
             entries.Length != PointerCount)
             throw new InvalidDataException("Samus spritemap selector tables have an invalid length.");
         this.topBases = Enumerable.Range(0, topBases.Length)
-            .Where(pose => topBases[pose] != SamusSpritemapPoseDefinitions.TopBase((SamusPoseId)pose))
+            .Where(pose => topBases[pose] != SamusSpritemapPoseDefinitions.TopBase(SamusPoseNumbering.FromNumber(pose)))
             .ToDictionary(pose => pose, pose => topBases[pose]);
         this.bottomBases = Enumerable.Range(0, bottomBases.Length)
-            .Where(pose => bottomBases[pose] != SamusSpritemapPoseDefinitions.BottomBase((SamusPoseId)pose))
+            .Where(pose => bottomBases[pose] != SamusSpritemapPoseDefinitions.BottomBase(SamusPoseNumbering.FromNumber(pose)))
             .ToDictionary(pose => pose, pose => bottomBases[pose]);
         this.definitions = [.. definitions.Select(definition =>
             definition is not { Parts: { Length: <= 128 } parts }
@@ -84,9 +84,9 @@ public sealed class SamusSpritemapArtworkCatalog
     });
 
     /// <summary>Materializes all 253 upper-half element-index bases in pose order; callers add the animation frame to obtain a pointer-table index.</summary>
-    public ReadOnlySpan<ushort> TopBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => TopBase((SamusPoseId)pose)).ToArray();
+    public ReadOnlySpan<ushort> TopBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => TopBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
     /// <summary>Materializes all 253 lower-half element-index bases in pose order, including poses sharing the upper/lower composition.</summary>
-    public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase((SamusPoseId)pose)).ToArray();
+    public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase(SamusPoseNumbering.FromNumber(pose))).ToArray();
     /// <summary>Materializes the complete table in native order, preserving repeated compositions and entries with none.</summary>
     public ReadOnlySpan<SamusSpritemapId?> Entries => Enumerable.Range(0, PointerCount).Select(Entry).ToArray();
     /// <summary>Resolves a table entry through an override, shared source entry, or calculated stock composition.</summary>
@@ -101,8 +101,8 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <exception cref="ArgumentOutOfRangeException">The pose is outside the 253 supported identities.</exception>
     public ushort TopBase(SamusPoseId pose)
     {
-        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
-        return topBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.TopBase(pose);
+        if (!SamusPoseNumbering.HasRecord(pose)) throw new ArgumentOutOfRangeException(nameof(pose));
+        return topBases.TryGetValue(SamusPoseNumbering.Number(pose), out ushort value) ? value : SamusSpritemapPoseDefinitions.TopBase(pose);
     }
     /// <summary>Resolves the installed lower-half base corresponding to native $92:945D, independently of whether the current draw policy displays that half.</summary>
     /// <param name="pose">Native Samus pose identity, $00..$FC.</param>
@@ -110,8 +110,8 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <exception cref="ArgumentOutOfRangeException">The pose is outside the 253 supported identities.</exception>
     public ushort BottomBase(SamusPoseId pose)
     {
-        if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
-        return bottomBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase(pose);
+        if (!SamusPoseNumbering.HasRecord(pose)) throw new ArgumentOutOfRangeException(nameof(pose));
+        return bottomBases.TryGetValue(SamusPoseNumbering.Number(pose), out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase(pose);
     }
 
     /// <summary>Whole frames already built, by composition.</summary>

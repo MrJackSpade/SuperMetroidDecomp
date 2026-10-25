@@ -26,7 +26,7 @@ public static class SamusArmCannonArtworkFormat
     internal static int StockPoseDescriptor(int pose)
     {
         if ((uint)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
-        return (SamusPoseId)pose switch
+        return SamusPoseNumbering.FromNumber(pose) switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
             SamusPoseId.ForwardFacingSuitedPose => ArmCannonDescriptorDefinitions.FacingForward,

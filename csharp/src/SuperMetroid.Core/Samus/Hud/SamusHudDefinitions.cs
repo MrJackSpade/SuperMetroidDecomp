@@ -18,7 +18,6 @@ internal static class SamusHudDefinitions
     /// <summary>$90:DD05: movement-state HUD admission dispatch, preserving all 28 native handler identities.</summary>
     internal static SamusHudHandler MovementHandler(SamusMovementType movement)
     {
-        if ((byte)movement > (byte)SamusMovementType.Special) throw new ArgumentOutOfRangeException(nameof(movement));
         return movement switch
         {
             SamusMovementType.SpinJumping or SamusMovementType.Knockback or SamusMovementType.Unused0D or
@@ -33,7 +32,7 @@ internal static class SamusHudDefinitions
             SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
                 SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Moonwalking or
                 SamusMovementType.RanIntoWall => SamusHudHandler.Standard,
-            _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
+            _ => throw new ArgumentOutOfRangeException(nameof(movement), movement, "Undefined movement type."),
         };
     }
 
@@ -47,9 +46,9 @@ internal static class SamusHudDefinitions
         if (pose >= NonFiringTransitionStart)
             throw new ArgumentOutOfRangeException(nameof(pose));
         if (pose < FirstTransitionPose)
-            return RequireOverreads(overreads).HudPrecedingPostureByte((int)pose);
+            return RequireOverreads(overreads).HudPrecedingPostureByte(SamusPoseNumbering.Number(pose));
         if (pose > SamusPoseId.UnusedPose40)
-            return RequireOverreads(overreads).HudFollowingPostureByte((int)pose - ((int)SamusPoseId.UnusedPose40 + 1));
+            return RequireOverreads(overreads).HudFollowingPostureByte(SamusPoseNumbering.Number(pose) - (SamusPoseNumbering.Number(SamusPoseId.UnusedPose40) + 1));
         return pose switch
         {
             SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or

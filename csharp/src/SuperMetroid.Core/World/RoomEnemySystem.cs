@@ -1156,19 +1156,19 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     private EnemySharedReactions BuildSharedReactions()
     {
         var table = new EnemySharedReactions();
-        RegisterTouchHandlers(table);
-        RegisterShotReactions(table);
-        RegisterBombReactions(table);
-        RegisterPowerBombReactions(table);
-        RegisterHurtAi(table);
-        RegisterFrozenAi(table);
+        AddTouchHandlers(table);
+        AddShotReactions(table);
+        AddBombReactions(table);
+        AddPowerBombReactions(table);
+        AddHurtAi(table);
+        AddFrozenAi(table);
         return table;
     }
 
     /// <summary>Maps enemy-definition bomb reaction pointers to translated handlers.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations.</remarks>
-    private void RegisterBombReactions(EnemySharedReactions table)
+    private void AddBombReactions(EnemySharedReactions table)
     {
         CrocomireBehavior.Combat.AddCrocomireBombReactions(table);
         KraidBehavior.Combat.AddKraidBombReactions(table);
@@ -1224,7 +1224,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive: each names its
     /// definition and header reaction callback.</remarks>
-    private void RegisterPowerBombReactions(EnemySharedReactions table)
+    private void AddPowerBombReactions(EnemySharedReactions table)
     {
         // These headers install private callbacks instead of falling through common power-bomb damage. A literal RTL
         // intentionally does nothing; the shutter callbacks only run their trigger state machines. All still
@@ -1264,14 +1264,14 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         int? frameCounterByte = null,
         SamusBombProjectileSystem? samusBombs = null,
         BackgroundScrollState? backgroundScroll = null,
-        int? nmiFrameCounter = null)
+        int? frameCounter = null)
     {
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(samus);
         PrePhantoonRoomBehavior.BindBackgroundScroll(backgroundScroll);
         DeathsAndDrops.LastEnemyPickupSoundEffect = null;
         DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 = null;
-        Projectiles.RunPass(level, samus, camera, frameCounterByte, samusBombs, nmiFrameCounter);
+        Projectiles.RunPass(level, samus, camera, frameCounterByte, samusBombs, frameCounter);
     }
 
     /// <summary>
@@ -1345,7 +1345,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// established precedence between species and shared registrations. Matches are mutually exclusive. Kraid's parts
     /// precede the generic literal no-op header and the ordinary normal-shot reaction is last, because Crocomire's
     /// tongue also uses NormalEnemyShot.</remarks>
-    private void RegisterShotReactions(EnemySharedReactions table)
+    private void AddShotReactions(EnemySharedReactions table)
     {
         DeadTorizoBehavior.AddDeadTorizoShotReactions(table);
         DeadSidehopperBehavior.AddDeadSidehopperShotReactions(table);
@@ -1409,7 +1409,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// established precedence between species and shared registrations. Matches are mutually exclusive (each names its
     /// definition and header callback); the ordinary normal-touch handler is last because Crocomire's tongue also uses
     /// NormalEnemyTouch.</remarks>
-    private void RegisterTouchHandlers(EnemySharedReactions table)
+    private void AddTouchHandlers(EnemySharedReactions table)
     {
         KraidBehavior.Projectiles.AddKraidNailTouch(table);
         KraidBehavior.Combat.AddKraidTouch(table);
@@ -1474,7 +1474,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
     /// <remarks>Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt
     /// pointer is last.</remarks>
-    private void RegisterHurtAi(EnemySharedReactions table)
+    private void AddHurtAi(EnemySharedReactions table)
     {
         MetroidBehavior.AddMetroidHurtAi(table);
         BombTorizoBehavior.Combat.AddBombTorizoHurtAi(table);
@@ -1487,7 +1487,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>
     /// <remarks>Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after
     /// it.</remarks>
-    private void RegisterFrozenAi(EnemySharedReactions table)
+    private void AddFrozenAi(EnemySharedReactions table)
     {
         RinkaBehavior.AddRinkaFrozenPreemption(table);
         MetroidBehavior.AddMetroidFrozenAi(table);

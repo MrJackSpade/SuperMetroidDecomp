@@ -71,7 +71,7 @@ internal static class EnemyExtendedFrameFiles
             ? MotherBrainBodyVisualDefinitions.MaximumComponents
             : bg2Only ? PhantoonBg2FrameDefinitions.IsFrame(definition.Frame)
                 ? PhantoonBg2FrameDefinitions.MaximumComponents : DraygonBg2FrameDefinitions.MaximumComponents
-                : EnemyExtendedFrameDefinitions.MaximumOamComponents(definition);
+                : EnemyExtendedFrameDefinitions.MaximumSpriteComponents(definition);
         if (count < 1 || count > maximumNativeComponents ||
             padding != expectedPadding)
             throw new InvalidDataException(

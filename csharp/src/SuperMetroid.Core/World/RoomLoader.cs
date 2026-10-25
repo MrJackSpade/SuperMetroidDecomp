@@ -44,7 +44,7 @@ internal sealed class RoomLoader
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Receives room and player palette data during a load.</summary>
-    private readonly GameplayColours _cgram;
+    private readonly GameplayColours _colours;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Publishes the display setup for a newly active room.</summary>
@@ -102,7 +102,7 @@ internal sealed class RoomLoader
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _cgram = dependencies.Cgram;
+        _colours = dependencies.Colours;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
@@ -129,10 +129,10 @@ internal sealed class RoomLoader
 
     }
     /// <summary>
-    /// Whether the active door IRQ requests the native NMI-counter reset while state
-    /// $0B waits in <c>LoadMoreThings</c>.
+    /// Whether the door scroll is far enough along that each frame clears the 8-bit frame counter while the door
+    /// loader waits for the destination to finish loading.
     /// </summary>
-    private bool _doorScrollingIrqRequestsNmi;
+    private bool _doorScrollClearsCounter8;
     /// <summary>The four-pixel IRQ trajectory retained across atomic room construction.</summary>
     private DoorOpeningScrollState? _doorOpeningScroll;
     /// <summary>
@@ -170,7 +170,7 @@ internal sealed class RoomLoader
                 $"Fresh Ceres station targets area ${(byte)room.AreaIndex:X2}, expected area $06.");
         }
 
-        return LoadCartridgeRoom(
+        return LoadRoom(
             door,
             room,
             station.CameraPosition,
@@ -230,7 +230,7 @@ internal sealed class RoomLoader
                 $"Load station {requestedArea}:{stationIndex} targets room area " +
                 $"{room.AreaIndex}.");
         }
-        InitialViewportResult viewport = LoadCartridgeRoom(
+        InitialViewportResult viewport = LoadRoom(
             door,
             room,
             station.CameraPosition,
@@ -251,11 +251,11 @@ internal sealed class RoomLoader
         _player.IntroducedSamus.Presentation.PrimeGraphics(_player.IntroducedSamus);
         PaletteFxObject loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? RoomLoadingRomData.GravitySuitLoadPaletteFx
+                ? SavedGameAppearanceDefinitions.GravitySuitGlow
                 : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? RoomLoadingRomData.VariaSuitLoadPaletteFx
-                    : RoomLoadingRomData.PowerSuitLoadPaletteFx;
-        _player.BeginLoadAppearance(loadAppearance, WrappingCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount));
+                    ? SavedGameAppearanceDefinitions.VariaSuitGlow
+                    : SavedGameAppearanceDefinitions.PowerSuitGlow;
+        _player.BeginLoadAppearance(loadAppearance, WrappingCountdown.Start(SavedGameAppearanceDefinitions.FrameCount));
         _room.LoadedScope.PaletteFx.SpawnDefinition(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
@@ -348,7 +348,7 @@ internal sealed class RoomLoader
         // of the abandoned station room, so Landing Site's scope ends them; retaining them
         // would let their delayed Y=$0048 completion overwrite the Samus position currently
         // carried by the gunship.
-        InitialViewportResult viewport = LoadCartridgeRoom(
+        InitialViewportResult viewport = LoadRoom(
             door,
             room,
             station.CameraPosition,
@@ -440,15 +440,18 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("Door-transition IRQ display is not active.");
         // The final door scanout still uses the installed end-drawing command;
         // the new gameplay IRQ takes ownership on the following frame.
-        PublishDoorScrollingIrqNmiRequest();
+        ClearCounter8DuringDoorScroll();
         _room.DoorTransitionMainScreenLayers = null;
-        _doorScrollingIrqRequestsNmi = false;
+        _doorScrollClearsCounter8 = false;
     }
 
-    /// <summary>Publishes the door scanout's end-of-drawing IRQ, which clears the 8-bit frame counter ($80:97BA/$9823).</summary>
-    internal void PublishDoorScrollingIrqNmiRequest()
+    /// <summary>
+    /// Clears the 8-bit frame counter on a frame of the door scroll, as the door transition's mid-frame scroll step
+    /// does once Samus is placed for tile loading; enemies and projectiles that read the counter see the reset.
+    /// </summary>
+    internal void ClearCounter8DuringDoorScroll()
     {
-        if (_doorScrollingIrqRequestsNmi) _clock.ClearCounter8ForDoorIrq();
+        if (_doorScrollClearsCounter8) _clock.ClearCounter8ForDoorIrq();
     }
 
     /// <summary>
@@ -488,8 +491,8 @@ internal sealed class RoomLoader
         Offset16<RoomPixels> firstStep = vertical ? new(0, delta) : new(delta, 0);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + firstStep);
         _room.Camera.PublishDoorSamusTravelAxis(vertical, _player.Samus.Position.Whole);
-        _doorScrollingIrqRequestsNmi = true;
-        PublishDoorScrollingIrqNmiRequest();
+        _doorScrollClearsCounter8 = true;
+        ClearCounter8DuringDoorScroll();
     }
 
     /// <summary>
@@ -750,7 +753,7 @@ internal sealed class RoomLoader
         // at its apex and lets horizontal momentum carry Samus too far after exit.
         _player.Samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
 
-        InitialViewportResult viewport = LoadCartridgeRoom(
+        InitialViewportResult viewport = LoadRoom(
             door,
             room,
             placement.CameraPosition,
@@ -772,8 +775,8 @@ internal sealed class RoomLoader
         return viewport;
     }
 
-    /// <summary>Shared cartridge room/state/graphics load used by stations and doors.</summary>
-    internal InitialViewportResult LoadCartridgeRoom(
+    /// <summary>Loads the selected room, its state and its graphics; shared by stations, doors and the attract demo.</summary>
+    internal InitialViewportResult LoadRoom(
         DoorDefinition door,
         SelectedRoom room,
         Position16<RoomPixels> camera,
@@ -819,18 +822,18 @@ internal sealed class RoomLoader
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
         // producer. Ordinary doors clear it so stale Mode-7 math cannot leak across rooms.
-        SamusMode7Transform? initialMode7Transform = door.EntersCeresElevatorShaft
+        SamusMode7Transform? initialFloorTransform = door.EntersCeresElevatorShaft
             ? new SamusMode7Transform(
                 MatrixA: 256, // 1.0 in Mode 7's 8.8 fixed point.
                 MatrixB: 0,
                 MatrixC: 0,
                 Center: CeresElevatorShaftRoomMainState.CeresShaftRotationCenter)
             : null;
-        _display.ActiveSamusMode7Transform = initialMode7Transform;
+        _display.ActiveSamusMode7Transform = initialFloorTransform;
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is
         // exposed. Initialize the displayed copy as well; subsequent room-main changes
         // reach it only through RunNmi, matching the normal shadow-register path.
-        _display.PublishDoorElevatorFloor(initialMode7Transform);
+        _display.PublishDoorElevatorFloor(initialFloorTransform);
         scope.LevelData = assets.LevelData;
         ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
@@ -863,18 +866,18 @@ internal sealed class RoomLoader
         }
 
         // The main callback runs even in Crateria's rock room, whose BG2 stays its own background.
-        // Horizontal motion and BG2SC=$4A belong to the separately spawned sky HDMA object
-        // ($88:A7D8 / $88:ADC2), not to the tilemap callback ($88:AFA3).
+        // The sky's banded horizontal motion belongs to the separately spawned sky effect, which the room's FX or
+        // setup callback starts, not to the room's main callback.
         RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
-        bool skyHdmaConfigured =
+        bool skyHasBands =
             selectedFx?.Type == RoomFxType.ScrollingSky ||
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
                 RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
-            ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHdmaConfigured)
+            ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHasBands)
             : null;
 
-        assets.LoadGraphics(_backgrounds, _cgram.BackgroundSets);
+        assets.LoadGraphics(_backgrounds, _colours.BackgroundSets);
         // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
         scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloorMap() : null;
 
@@ -891,7 +894,7 @@ internal sealed class RoomLoader
         // animtile state before palette-FX objects and enemies begin running.
         var roomLayer3Fx = RoomLayer3FxState.ForRoom(
             _roomFx,
-            _cgram.BackgroundSets,
+            _colours.BackgroundSets,
             room.State.Fx,
             door,
             _system.RandomNumber,
@@ -1021,7 +1024,7 @@ internal sealed class RoomLoader
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,
             _backgrounds,
-            _cgram)
+            _colours)
         {
             Level = assets.LevelData,
             Samus = _player.Samus,
@@ -1089,8 +1092,8 @@ internal sealed class RoomLoader
     {
         GameplayBasePaletteCatalog artwork = _artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Room loading requires the installed gameplay palette catalog.");
-        artwork.LoadCommonSprites(_cgram.SpriteSets.Set(SpriteColourSetDefinitions.Common));
-        artwork.LoadEnemyProjectileSprites(_cgram.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
+        artwork.LoadCommonSprites(_colours.SpriteSets.Set(SpriteColourSetDefinitions.Common));
+        artwork.LoadEnemyProjectileSprites(_colours.SpriteSets.Set(SpriteColourSetDefinitions.EnemyProjectiles));
     }
 
     /// <summary>

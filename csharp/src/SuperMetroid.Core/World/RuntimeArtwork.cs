@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>Resolves an OBJ binding's installed VRAM asset.</summary>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveVramAsset(asset);
+    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveCharacters(asset);
 
     /// <inheritdoc/>
     BossArtworkCatalog IInstalledBossSpriteCharacterArtwork.BossTiles => _bossArtwork.Installed;
@@ -43,7 +43,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
 
 
     /// <summary>Resolves a typed VRAM asset from its currently bound artwork catalog.</summary>
-    ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) => ResolveVramAsset(asset);
+    ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) => ResolveCharacters(asset);
 
     /// <summary>Locates the current HUD character base in VRAM.</summary>
     private readonly GameplayDisplayState _display;
@@ -288,11 +288,11 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IObjCharacterSourceRe
     }
 
     /// <summary>
-    /// Dispatches a typed VRAM asset to its bound standard OBJ, gunship or HUD catalog. Beam, trail and grapple
+    /// Resolves the characters a typed asset names from its bound standard sprite, gunship or HUD catalog. Beam, trail and grapple
     /// characters are composed into the installed projectile and grapple sheets, so the runtime holds none.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The runtime binds no characters for the asset.</exception>
-    internal ReadOnlyMemory<byte> ResolveVramAsset(VramAssetId asset) =>
+    internal ReadOnlyMemory<byte> ResolveCharacters(VramAssetId asset) =>
         asset == VramAssetId.StandardObjectTiles
             ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Characters
             : asset is VramAssetId.GunshipLiftoffFirstTiles or

@@ -15,7 +15,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room scope while <c>RoomLoader.LoadCartridgeRoom</c> builds it. Each load step sets its part in the cartridge's
+/// The room scope while <c>RoomLoader.LoadRoom</c> builds it. Each load step sets its part in the cartridge's
 /// order, and later steps read the parts already built here, never the previous room's; <see cref="Complete"/> checks
 /// every required part. The load runs within one host call, so no frame observes a partial construction.
 /// </summary>

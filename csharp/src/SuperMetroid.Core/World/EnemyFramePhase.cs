@@ -137,8 +137,8 @@ internal sealed class EnemyFramePhase
                 _room.Camera.SetLayerOneXFromEnemyAi(shitroidCameraX);
                 _backgroundScroll.Layer1Position = _backgroundScroll.Layer1Position.WithX(shitroidCameraX);
             }
-            // `$A9:8C0C` deletes HDMA objects 0-3; the next frame's HDMA pass runs none of them.
-            if (result.DeleteLiquidHdmaObjects)
+            // The landing tube stops the liquid surface's motion; the next frame shows it still.
+            if (result.StopLiquidMotion)
                 room.Layer3Fx.StopLiquidMotion();
             if (result.ElevatorClearedProjectileData)
             {

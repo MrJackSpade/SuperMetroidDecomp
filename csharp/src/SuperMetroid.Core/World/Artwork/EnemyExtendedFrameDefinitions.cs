@@ -85,8 +85,8 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int CeresSteamFrameCount = 28;
     /// <summary>Oum snail OAM frames supplied by Maridia's instruction catalog.</summary>
     internal const int OumFrameCount = 30;
-    /// <summary>Crocomire tongue and claw OAM frames before the body sequence.</summary>
-    internal const int CrocomireOamFrameCount = 9;
+    /// <summary>Crocomire tongue and claw sprite frames before the body sequence.</summary>
+    internal const int CrocomireSpriteFrameCount = 9;
     /// <summary>Body frame count supplied by Crocomire's visual definitions.</summary>
     internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
     /// <summary>Single dormant Bomb Torizo statue composition.</summary>
@@ -122,7 +122,7 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int ExpectedFrameCount =
         PirateFrameCount + BossSpriteFrameDefinitions.RidleyFrameCount +
         BossSpriteFrameDefinitions.DraygonSpriteFrameCount + BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount +
-        CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount +
+        CeresSteamFrameCount + OumFrameCount + CrocomireSpriteFrameCount +
         CrocomireBodyFrameCount + BombTorizoDormantFrameCount +
         GoldenTorizoInitialFrameCount + KraidArmFrameCount +
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
@@ -141,8 +141,8 @@ internal static class EnemyExtendedFrameDefinitions
     internal static bool IsBg2Only(EnemySpritemapDefinition frame) =>
         PhantoonBg2FrameDefinitions.IsFrame(frame.Frame) || DraygonBg2FrameDefinitions.IsFrame(frame.Frame);
 
-    /// <summary>Skeleton fragmentation needs thirteen components; all other OAM families retain their existing bound.</summary>
-    internal static int MaximumOamComponents(EnemySpritemapDefinition frame) =>
+    /// <summary>Skeleton fragmentation needs thirteen components; all other sprite families retain their existing bound.</summary>
+    internal static int MaximumSpriteComponents(EnemySpritemapDefinition frame) =>
         CrocomireSkeletonVisualDefinitions.IsFrame(frame.Frame)
             ? CrocomireSkeletonVisualDefinitions.MaximumComponents : MaximumComponents;
 }

@@ -89,13 +89,13 @@ internal sealed class RoomMainRoutines
 
     /// <summary>
     /// Implements the complete visibility test in <c>SamusDisplayHandler_UsingElevator</c>
-    /// at <c>$90:EC14</c>. The retail handler returns on odd NMIs and calls the fatal/no-
-    /// animation body renderer on even NMIs, producing the deliberate 30 Hz elevator
+    /// at <c>$90:EC14</c>. The retail handler returns on odd frames and calls the fatal/no-
+    /// animation body renderer on even frames, producing the deliberate 30 Hz elevator
     /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
     /// from being mistaken for the cartridge-authored effect.
     /// </summary>
-    internal static bool ShouldDrawSamusOnElevator(int nmiFrameCounter) =>
-        (nmiFrameCounter & 1) == 0;
+    internal static bool ShouldDrawSamusOnElevator(int frameCounter) =>
+        (frameCounter & 1) == 0;
 
     /// <summary>
     /// Executes Falling Tile room main <c>$8F:E525-$E550</c>. It samples the existing RNG

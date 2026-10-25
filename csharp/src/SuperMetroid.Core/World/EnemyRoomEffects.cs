@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class EnemyRoomEffects
 {
     /// <summary>Destination for Mother Brain's room palette and FX transitions.</summary>
-    private readonly GameplayColours _cgram;
+    private readonly GameplayColours _colours;
     /// <summary>Receives layer-blending defaults selected by a Mother Brain FX entry.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
@@ -33,7 +33,7 @@ internal sealed class EnemyRoomEffects
     /// <summary>Binds the room systems needed to consume enemy publications immediately after their AI pass.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
     {
-        _cgram = dependencies.Cgram;
+        _colours = dependencies.Colours;
         _display = dependencies.Display;
         _escapeTimer = dependencies.EscapeTimer;
         _player = dependencies.Player;
@@ -195,7 +195,7 @@ internal sealed class EnemyRoomEffects
             // each frame would reset its delay and prevent the acid from moving.
             RoomFxDefinition fx = _room.LoadedRoom.State.Fx
                 ?? throw new InvalidOperationException("Mother Brain requested an FX entry in a room without FX.");
-            _display.LayerBlendingDefaultConfig = roomLayer3Fx.ApplyEntry(_cgram.BackgroundSets,
+            _display.LayerBlendingDefaultConfig = roomLayer3Fx.ApplyEntry(_colours.BackgroundSets,
                 fx.Records[requests.MotherBrainFxEntry]);
         }
         if (requests.MotherBrainPlms.Count == 0)

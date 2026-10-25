@@ -32,7 +32,7 @@ scope's construction, and the Ceres elevator arrival begins in, and ends with, t
 ## Load order
 
 The door path enters through `RoomLoader.LoadPendingDoorDestination`; station, post-Ceres and debug loads enter at
-`RoomLoader.LoadCartridgeRoom`. The construction replaced each reset or load line with "construct this owner's fresh
+`RoomLoader.LoadRoom`. The construction replaced each reset or load line with "construct this owner's fresh
 room state here", so this order is kept line for line.
 
 | Phase | Where | Operation |
@@ -42,23 +42,23 @@ room state here", so this order is kept line for line.
 | Pre-load | `LoadPendingDoorDestination` | Destination assets built before the source door is consumed, so a rejected room stays retryable |
 | Pre-load | `LoadPendingDoorDestination` | A departing elevator becomes arriving (status 2) before enemy init |
 | Pre-load | `LoadPendingDoorDestination` | Samus placed; only door-travel displacement cleared (velocity survives) |
-| Carry-over | `LoadCartridgeRoom` | `RoomTransitionCarryOver` captured from the outgoing scope |
-| Header | `LoadCartridgeRoom` | Scope construction begins with the door, room, assets and load station (none for a door) |
-| Room mains | `LoadCartridgeRoom` | HUD character base; treadmill, elevatube and Ceres shaft built (the shaft reads `RoomMainScratch`) |
-| Display | `LoadCartridgeRoom` | Mode 7 transform: the Ceres elevator door publishes its matrix, other doors clear it |
-| Level and camera | `LoadCartridgeRoom` | Level data; a new camera inheriting tracking state and fraction words |
-| Scroll | `LoadCartridgeRoom` | Layer-2 scroll; previous blocks primed, or the door-opening destination prepared |
-| Streamers | `LoadCartridgeRoom` | Background streamer, scrolling sky |
-| Graphics | `LoadCartridgeRoom` | Room graphics, common gameplay sprite rows (`$82:E139`) |
-| FX | `LoadCartridgeRoom` | Layer-3 FX (consumes the session RNG value), Ceres haze, sand/spike/treadmill tiles, palette FX |
-| Library BG | `LoadCartridgeRoom` | The room state's library-background program |
-| Teardown | `LoadCartridgeRoom` | Samus echo storage cleared; new bombs and Samus projectiles with the carried residue (`$82:E43A-$E472`) |
-| PLMs | `LoadCartridgeRoom` | Area progress, PLM services, the room's PLM system and the shared runtime services; PLM population |
-| Door ASM | `LoadCartridgeRoom` | Door setup code, then setup-callback PLM spawns |
-| Door closer | `LoadCartridgeRoom` | Door-closing PLM after room PLMs, before enemies |
-| Beam | `LoadCartridgeRoom` | Beam tiles and palette before enemy init (`$82:E4CC`) |
-| Enemies | `LoadCartridgeRoom` | The room's `RoomEnemySystem` built with its definitions, services and carried residue and the door gates clear, then `Load` |
-| Post-enemy | `LoadCartridgeRoom` | Ridley minimap, escape effects, gate projectile requests applied after the pool clear, pre-Phantoon projectile, enemy room effects, Tourian statues, graphics uploads, then the carried door gates re-asserted over the loaded enemies |
+| Carry-over | `LoadRoom` | `RoomTransitionCarryOver` captured from the outgoing scope |
+| Header | `LoadRoom` | Scope construction begins with the door, room, assets and load station (none for a door) |
+| Room mains | `LoadRoom` | HUD character base; treadmill, elevatube and Ceres shaft built (the shaft reads `RoomMainScratch`) |
+| Display | `LoadRoom` | Mode 7 transform: the Ceres elevator door publishes its matrix, other doors clear it |
+| Level and camera | `LoadRoom` | Level data; a new camera inheriting tracking state and fraction words |
+| Scroll | `LoadRoom` | Layer-2 scroll; previous blocks primed, or the door-opening destination prepared |
+| Streamers | `LoadRoom` | Background streamer, scrolling sky |
+| Graphics | `LoadRoom` | Room graphics, common gameplay sprite rows (`$82:E139`) |
+| FX | `LoadRoom` | Layer-3 FX (consumes the session RNG value), Ceres haze, sand/spike/treadmill tiles, palette FX |
+| Library BG | `LoadRoom` | The room state's library-background program |
+| Teardown | `LoadRoom` | Samus echo storage cleared; new bombs and Samus projectiles with the carried residue (`$82:E43A-$E472`) |
+| PLMs | `LoadRoom` | Area progress, PLM services, the room's PLM system and the shared runtime services; PLM population |
+| Door ASM | `LoadRoom` | Door setup code, then setup-callback PLM spawns |
+| Door closer | `LoadRoom` | Door-closing PLM after room PLMs, before enemies |
+| Beam | `LoadRoom` | Beam tiles and palette before enemy init (`$82:E4CC`) |
+| Enemies | `LoadRoom` | The room's `RoomEnemySystem` built with its definitions, services and carried residue and the door gates clear, then `Load` |
+| Post-enemy | `LoadRoom` | Ridley minimap, escape effects, gate projectile requests applied after the pool clear, pre-Phantoon projectile, enemy room effects, Tourian statues, graphics uploads, then the carried door gates re-asserted over the loaded enemies |
 
 Each room builds its `RoomEnemySystem`, with every species owner, at the enemy step, from its definitions and services.
 `Load` binds the room's load inputs (video memory, the Rinka and shutter load cameras) and loads the population once; a

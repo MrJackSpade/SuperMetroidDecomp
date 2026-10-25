@@ -40,7 +40,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         tubeState.FallSpeed = default;
         tube.Position = tube.Position.WithWholeY(0x00fc); // the head follows at Y-$38 = $C4, the landing height
         runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(tube);
-        AssertTrue(runtime.Enemies.LastEnemyFrame.DeleteLiquidHdmaObjects, "the main tube's landing deletes HDMA objects 0-3");
+        AssertTrue(runtime.Enemies.LastEnemyFrame.StopLiquidMotion, "the main tube's landing stops the liquid surface's motion");
 
         fx.StopLiquidMotion();
         runtime.System.SetRandomNumber(0xb9ad);

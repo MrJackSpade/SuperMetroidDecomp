@@ -155,7 +155,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("oum_oam_", StringComparison.Ordinal)),
             "all selected Oum visual frames are installed");
-        AssertEqual(EnemyExtendedFrameDefinitions.CrocomireOamFrameCount,
+        AssertEqual(EnemyExtendedFrameDefinitions.CrocomireSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("crocomire_oam_", StringComparison.Ordinal)),
             "all selected Crocomire tongue visual frames are installed");

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="DraygonDiscardedSamusPoseRequests">Draygon grabbed or released Samus ($90:E23B/$90:E2DE), discarding alpha's pose requests.</param>
 /// <param name="CeresEscapeStarted">Ceres Ridley started the escape ($A6:C117) on this EnemyMain call.</param>
 /// <param name="LayerOneXOverride">The Shitroid's direct layer-one X write ($A9:EFE6) in room pixels, if any.</param>
-/// <param name="DeleteLiquidHdmaObjects">Mother Brain's tube landed ($A9:8C0C), deleting HDMA objects 0-3.</param>
+/// <param name="StopLiquidMotion">Mother Brain's tube landed, stopping the liquid surface's motion from the next frame.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
 /// <param name="RoomEffects">The hardcoded PLMs and room writes enemy AI requested.</param>
 [IndependentFlag("independent events one enemy frame reports to the runtime")]
@@ -23,6 +23,6 @@ public readonly record struct EnemyFrameResult(
     bool DraygonDiscardedSamusPoseRequests,
     bool CeresEscapeStarted,
     int? LayerOneXOverride,
-    bool DeleteLiquidHdmaObjects,
+    bool StopLiquidMotion,
     GunshipFrameEvent Gunship,
     EnemyRoomEffectRequests RoomEffects);

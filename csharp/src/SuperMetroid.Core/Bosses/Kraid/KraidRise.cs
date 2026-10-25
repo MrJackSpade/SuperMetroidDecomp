@@ -164,7 +164,7 @@ internal sealed class KraidRise
     /// <summary>Copies one Kraid palette source band to its CGRAM destination.</summary>
     internal void LoadKraidColorBand(KraidPaletteSource source, ColourRun destination)
     {
-        for (int color = 0; color < KraidPaletteRomData.BandColors; color++)
+        for (int color = 0; color < KraidPalettes.BandColors; color++)
             destination.Write(color, _background.ReadKraidColor(source, color));
     }
 

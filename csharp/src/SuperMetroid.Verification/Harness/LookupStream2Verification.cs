@@ -1975,7 +1975,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks Kraid palette ramp derivation and edited-color bounds against stock samples.</summary>
     internal static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
     {
-        PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))
+        PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPalettes.ColorCount(source))
             .Select(index =>
             {
                 ushort word = ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index);
@@ -2006,7 +2006,7 @@ internal static class LookupStream2Verification
             AssertEqual(0, deviations, $"Stock Kraid {name} stores no colors beyond the calculated paint");
         }
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
-        for (int index = 0; index < KraidPaletteRomData.ColorCount(source); index++)
+        for (int index = 0; index < KraidPalettes.ColorCount(source); index++)
             AssertEqual(ReadVerificationWord(rom, KraidPaletteSources.SourceAddress(source) + 2 * index),
                 KraidPaintDefinitions.Color(source, index), $"Kraid {source} stock paint {index}");
         Check(stock, document);
@@ -2020,7 +2020,7 @@ internal static class LookupStream2Verification
         });
         AssertEqual(expectedIdentity, stock.ContentIdentity, "Calculated Kraid colors preserve canonical content identity");
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
-        for (int index = 0; index < KraidPaletteRomData.ColorCount(source); index++)
+        for (int index = 0; index < KraidPalettes.ColorCount(source); index++)
         {
             var editedColors = (PaletteRgb5[])Source(document, source).Clone();
             editedColors[index] = editedColors[index] with { Red = (editedColors[index].Red + 1) % 32 };

@@ -40,8 +40,8 @@ internal static class EnemyColorPresentationContractChecks
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 4);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.DeadSidehopper, 7, 0);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 7, 15);
-                    kraid.Resolve(KraidPaletteSource.Health, KraidPaletteRomData.HealthBandCount * KraidPaletteRomData.BandColors - 1);
-                    kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPaletteRomData.BandColors);
+                    kraid.Resolve(KraidPaletteSource.Health, KraidPalettes.HealthBandCount * KraidPalettes.BandColors - 1);
+                    kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPalettes.BandColors);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount - 1, BotwoonHealthPaletteDefinitions.ColorsPerPalette - 1);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount, 0);
                     baby.InitialColor(BabyMetroidCutsceneColorRomData.InitialColorCount - 1);

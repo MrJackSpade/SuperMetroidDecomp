@@ -42,7 +42,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/SidehopperCorpsePalette.cs")]),
         new("SuperMetroid.Core.Bosses.Kraid.Artwork.KraidColorCatalog", "kraid-complete-color-sources", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidColorCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidPaletteRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidPalettes.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidPaintDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.ZebetiteColorCatalog", "zebetite-complete-pulse-colors", ["Apply"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ZebetiteColorCatalog.cs"),

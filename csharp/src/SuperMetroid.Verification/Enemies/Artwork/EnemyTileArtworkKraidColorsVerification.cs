@@ -36,7 +36,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         Func<KraidPaletteSource, int, Bgr555> productionReader = colorReaderOwner.KraidBehavior.Background.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
-            int count = KraidPaletteRomData.ColorCount(source);
+            int count = KraidPalettes.ColorCount(source);
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 KraidPaletteSources.SourceAddress(source), count * sizeof(ushort));
             for (int index = 0; index < count; index++)
@@ -183,7 +183,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         foreach (KraidPaletteSource palette in Enum.GetValues<KraidPaletteSource>())
         {
             int start = KraidPaletteSources.SourceAddress(palette);
-            int end = start + KraidPaletteRomData.ColorCount(palette) * sizeof(ushort);
+            int end = start + KraidPalettes.ColorCount(palette) * sizeof(ushort);
             guard.Forbid(address => address >= start && address < end,
                 address => $"Kraid {palette} reread palette ROM byte ${address:X6}.");
         }

@@ -1320,7 +1320,7 @@ public static class EnemyTileArtworkFiles
     private static PaletteRgb5[] ReadKraidColors(ISnesAddressSpace bus,
         KraidPaletteSource source)
     {
-        int count = KraidPaletteRomData.ColorCount(source);
+        int count = KraidPalettes.ColorCount(source);
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             KraidPaletteSources.SourceAddress(source), count * sizeof(ushort));
         var colors = new PaletteRgb5[count];

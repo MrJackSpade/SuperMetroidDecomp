@@ -45,7 +45,7 @@ internal sealed class KraidBackground
     /// <summary>Separates immutable RGB5 artwork from Kraid's native palette timing.</summary>
     internal Bgr555 ReadKraidColor(KraidPaletteSource source, int index)
     {
-        if ((uint)index >= KraidPaletteRomData.ColorCount(source))
+        if ((uint)index >= KraidPalettes.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));
         KraidColorCatalog colors = _bossArtwork.Artwork?.KraidColors ?? throw new InvalidDataException(
             "Installed enemy artwork has no Kraid RGB5 palette catalog.");

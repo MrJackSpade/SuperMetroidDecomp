@@ -35,7 +35,7 @@ internal static class SpecializedColorDomainAudit
         if (type == typeof(KraidColorCatalog).FullName && Constant("source") is int source)
         {
             var selected = (KraidPaletteSource)source;
-            return Enum.IsDefined(selected) ? Outside("index", KraidPaletteRomData.ColorCount(selected), selected.ToString()) : null;
+            return Enum.IsDefined(selected) ? Outside("index", KraidPalettes.ColorCount(selected), selected.ToString()) : null;
         }
         if (type == typeof(DachoraColorCatalog).FullName && Constant("phase") is int phase)
         {

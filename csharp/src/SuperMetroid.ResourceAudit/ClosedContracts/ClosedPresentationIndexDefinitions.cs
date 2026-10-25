@@ -116,7 +116,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("NorfairRidleyColorCatalog", "ResolveReveal", "color") => new(0, NorfairRidleyPaletteRomData.RevealColorCount),
         ("EnemyAuxiliaryColorCatalog", "Resolve", "frame") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.FrameCount)),
         ("EnemyAuxiliaryColorCatalog", "Resolve", "color") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.ColorCount)),
-        ("KraidColorCatalog", "Resolve", "index") => new(0, KraidPaletteRomData.ColorCount(KraidPaletteSource.Health)),
+        ("KraidColorCatalog", "Resolve", "index") => new(0, KraidPalettes.ColorCount(KraidPaletteSource.Health)),
         ("ZebetiteColorCatalog", "Apply", "frame") => new(0, ZebetiteColorFormat.FrameCount),
         ("ShitroidColorCatalog", "NormalColor", "frame") => new(0, ShitroidColorRomData.NormalFrameCount),
         ("ShitroidColorCatalog", "NormalColor", "color") => new(0, ShitroidColorRomData.NormalColorsPerFrame),

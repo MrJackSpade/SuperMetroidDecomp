@@ -287,10 +287,9 @@ internal sealed class DraygonParts
         if (samus is null)
             return;
 
-        short deltaX = unchecked((short)(samus.Position.X.Whole - unchecked((ushort)(
-            eye.Position.X.Whole + (facing == HorizontalDirection.Right ? 24 : -24)))));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 32))));
-        byte angle = EnemyMath.CalculateBearing(new(deltaX, deltaY)).RawValue;
+        Position16<RoomPixels> gaze = eye.Position.Whole +
+            new Offset16<RoomPixels>((short)(facing == HorizontalDirection.Right ? 24 : -24), -32);
+        int angle = EnemyMath.CalculateBearing(samus.Position.Whole - gaze).RawValue;
         DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
         if (angle == (byte)eyeState.LookAngle)
             return;
@@ -324,10 +323,9 @@ internal sealed class DraygonParts
         RoomSpriteObjectKind kind)
     {
         int random = _room.Random.Generate();
-        short xOffset = unchecked((short)((random & 127) - 64));
-        short yOffset = unchecked((short)((SnesLittleEndian.HighByte(random) & 127) - 64));
+        Offset16<RoomPixels> scatter = new((short)((random & 127) - 64), (short)((SnesLittleEndian.HighByte(random) & 127) - 64));
         if (_spriteObjects.SpawnRoomSpriteObject(
-                new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(state.Body.Position.Y.Whole + yOffset))),
+                state.Body.Position.Whole + scatter,
                 kind,
                 graphicsIndex: 0) is not null)
         {
@@ -342,11 +340,11 @@ internal sealed class DraygonParts
             throw new InvalidOperationException("Draygon's tail-hit instruction requires Samus state.");
 
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
-        ushort rawDamage = state.Body.Definition.Damage;
-        ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? unchecked((ushort)(rawDamage >> 2))
+        int rawDamage = state.Body.Definition.Damage;
+        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? rawDamage >> 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? unchecked((ushort)(rawDamage >> 1))
+                ? rawDamage >> 1
                 : rawDamage;
         samus.Health = samus.Health <= damage
             ? 0
@@ -380,8 +378,8 @@ internal sealed class DraygonParts
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 
         int random = _room.Random.Generate();
-        byte angle = unchecked((byte)((random & 63) + (movingRight ? 192 : 128)));
-        SetDraygonProjectileVelocity(goop, new SnesByteAngle(angle), DraygonProjectileSpeeds.Goop);
+        SnesByteAngle angle = new(unchecked((byte)((random & 63) + (movingRight ? 192 : 128))));
+        SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }
 
@@ -389,11 +387,11 @@ internal sealed class DraygonParts
     internal static void SetDraygonProjectileVelocity(
         RoomEnemyProjectileSlot projectile,
         SnesByteAngle angle,
-        ushort speed)
+        int speed)
     {
         projectile.DirectionParameter = angle.RawValue;
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, speed);
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, speed);
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)speed));
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)speed));
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
         projectile.Variable0 = unchecked((ushort)xMagnitude);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));

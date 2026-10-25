@@ -33,7 +33,7 @@ internal sealed class DraygonIntro
     internal void RunDraygonIntroInitialDelay(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (state.FunctionTimer.RawValue < 256)
@@ -81,7 +81,7 @@ internal sealed class DraygonIntro
     internal void RunDraygonIntroDance(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (state.FunctionTimer.RawValue >= DraygonIntroDanceDefinitions.DurationFrames)
@@ -103,7 +103,7 @@ internal sealed class DraygonIntro
                 continue;
 
             DraygonIntroMovement movement =
-                DraygonIntroDanceDefinitions.ResolveMovement(checked((ushort)streamIndex));
+                DraygonIntroDanceDefinitions.ResolveMovement(streamIndex);
 
             if (movement.DeletesSprite)
             {

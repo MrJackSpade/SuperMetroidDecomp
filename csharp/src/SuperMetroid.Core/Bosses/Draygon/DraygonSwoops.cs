@@ -30,7 +30,7 @@ internal sealed class DraygonSwoops
     internal void SetupDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
@@ -45,7 +45,7 @@ internal sealed class DraygonSwoops
     /// <summary>Captures Samus's height and computes the vertical waypoints for the next swoop.</summary>
     internal static void BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
     {
-        ushort yPosition = 384;
+        int yPosition = 384;
         EightEightVector<RoomPixels> speed = default;
         int byteOffset = 0;
         Array.Clear(state.SwoopYPositions);
@@ -53,14 +53,14 @@ internal sealed class DraygonSwoops
         while (true)
         {
             speed += state.SwoopAcceleration;
-            ushort candidate = unchecked((ushort)(yPosition - (SnesEightEight.WholeOf(speed.Y.RawValue))));
+            int candidate = unchecked((ushort)(yPosition - (SnesEightEight.WholeOf(speed.Y.RawValue))));
             if (unchecked((short)(candidate - state.LeftSideReset.Y)) < 0)
                 break;
 
             yPosition = candidate;
             if (byteOffset >= 2048)
                 throw new InvalidDataException("Draygon swoop Y table exceeded its $800-byte surface.");
-            state.SwoopYPositions[byteOffset / 4] = candidate;
+            state.SwoopYPositions[byteOffset / 4] = (ushort)candidate;
             byteOffset += 4;
         }
 
@@ -73,7 +73,7 @@ internal sealed class DraygonSwoops
         // UnsignedDivision_32bit divides the absolute whole-pixel distance promoted to
         // 16.16 by the number of path entries. Split the quotient into the same var_D/E
         // whole/subpixel words consumed by AddToHiLo during descent.
-        ushort distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
+        int distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.LeftSideReset.X - samus.Position.X.Whole)));
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.SwoopOffset = byteOffset;
@@ -84,7 +84,7 @@ internal sealed class DraygonSwoops
     internal void DescendDraygonSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow,
+        int frameCounterLow,
         DraygonBehavior.DraygonSwoopSide side)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
@@ -110,14 +110,14 @@ internal sealed class DraygonSwoops
     internal void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
         int frameCount = state.SwoopEndOffset / 4;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the apex.");
-        ushort distance = unchecked((ushort)(672 - body.Position.X.Whole));
+        int distance = unchecked((ushort)(672 - body.Position.X.Whole));
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = DraygonBehavior.RightSwoop.Ascending;
     }
@@ -130,7 +130,7 @@ internal sealed class DraygonSwoops
     internal void AscendDraygonSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow,
+        int frameCounterLow,
         DraygonBehavior.DraygonSwoopSide side)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
@@ -179,7 +179,7 @@ internal sealed class DraygonSwoops
     internal void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
@@ -188,7 +188,7 @@ internal sealed class DraygonSwoops
         if (frameCount == 0 || frameCount != state.SwoopPathEntryCount)
             throw new InvalidDataException("Draygon lost the generated swoop duration.");
 
-        ushort distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
+        int distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.RightSideReset.X - samus.Position.X.Whole)));
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = DraygonAiFunction.SwoopLeftDescending;
@@ -201,7 +201,7 @@ internal sealed class DraygonSwoops
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
@@ -212,8 +212,8 @@ internal sealed class DraygonSwoops
         // The reset coordinate is negative in the retail room. $A5:8A66 explicitly
         // negates it and adds the body's positive arena X, yielding the wrapped distance
         // from the current point back to X=$FFB0.
-        ushort resetX = state.LeftSideReset.X;
-        ushort distance = unchecked((short)resetX) < 0
+        int resetX = state.LeftSideReset.X;
+        int distance = unchecked((short)resetX) < 0
             ? unchecked((ushort)(
                 unchecked((ushort)-resetX) + body.Position.X.Whole))
             : unchecked((ushort)(body.Position.X.Whole - resetX));
@@ -225,14 +225,17 @@ internal sealed class DraygonSwoops
     /// Sets the swoop's 16.16 horizontal velocity: the whole-pixel distance promoted to 16.16 and divided by the path's
     /// frame count, the quotient native code splits into the var_D/E whole and subpixel words.
     /// </summary>
-    private static void SetDraygonSwoopVelocity(DraygonEnemyState state, ushort distance, int frameCount) =>
+    /// <param name="state">Draygon's state, which receives the velocity.</param>
+    /// <param name="distance">The whole-pixel distance, 0 through 65535.</param>
+    /// <param name="frameCount">The path's entries.</param>
+    private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
         state.SwoopVelocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
 
     /// <summary>Ports the regional four-pixel upward retreat at <c>$A5:9154</c>.</summary>
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;

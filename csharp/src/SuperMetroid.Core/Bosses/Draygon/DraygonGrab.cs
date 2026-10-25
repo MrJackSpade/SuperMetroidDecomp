@@ -44,7 +44,7 @@ internal sealed class DraygonGrab
     internal void ChaseAndTryToGrabSamus(
         DraygonEnemyState state,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
@@ -65,10 +65,9 @@ internal sealed class DraygonGrab
         RoomEnemySlot body = state.Body;
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
-        short clawOffset = state.FacingRight ? (short)8 : (short)-8;
-        ushort clawX = unchecked((ushort)(body.Position.X.Whole + clawOffset));
+        int clawOffset = state.FacingRight ? 8 : -8;
         bool insideGrabWindow =
-            EnemyMath.IsWithinStrictModularDistance(clawX, samus.Position.X.Whole, 8) &&
+            EnemyMath.IsWithinStrictModularDistance(unchecked((ushort)(body.Position.X.Whole + clawOffset)), samus.Position.X.Whole, 8) &&
             EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, 8);
         if (!insideGrabWindow)
         {
@@ -177,10 +176,8 @@ internal sealed class DraygonGrab
 
         if ((body.FrameCounter & 7) == 0)
         {
-            ushort foamX = unchecked((ushort)(
-                body.Position.X.Whole + (state.FacingRight ? 32 : -32)));
             _spriteObjects.SpawnRoomSpriteObject(
-                new(foamX, unchecked((ushort)(body.Position.Y.Whole - 16))),
+                body.Position.Whole + new Offset16<RoomPixels>((short)(state.FacingRight ? 32 : -32), -16),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
                 graphicsIndex: 0);
         }
@@ -295,17 +292,17 @@ internal sealed class DraygonGrab
     private static void MoveDraygonToward(
         RoomEnemySlot body,
         Position16<RoomPixels> target,
-        ushort speed)
+        int speed)
     {
         SnesByteAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTableAngle();
 
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            speed,
+            checked((ushort)speed),
             angleOffset: SnesAngle.QuarterTurn.TableIndex));
         uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            speed,
+            checked((ushort)speed),
             angleOffset: SnesAngle.HalfTurn.TableIndex));
 
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(

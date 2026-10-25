@@ -35,10 +35,8 @@ internal sealed class DraygonDeath
         RoomEnemySlot body = state.Body;
         if ((body.FrameCounter & 15) == 0)
         {
-            ushort foamX = unchecked((ushort)(
-                body.Position.X.Whole + (state.FacingRight ? 32 : -32)));
             _spriteObjects.SpawnRoomSpriteObject(
-                new(foamX, unchecked((ushort)(body.Position.Y.Whole - 16))),
+                body.Position.Whole + new Offset16<RoomPixels>((short)(state.FacingRight ? 32 : -32), -16),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
                 graphicsIndex: 0);
         }
@@ -46,9 +44,9 @@ internal sealed class DraygonDeath
         // Retail quarters both coordinates before calculating this angle. That is not an
         // algebraic simplification: logical shifts discard low coordinate bits and thereby
         // select slightly different table vectors near the destination.
-        short deltaX = unchecked((short)(64 - (body.Position.X.Whole >> 2)));
-        short deltaY = unchecked((short)(120 - (body.Position.Y.Whole >> 2)));
-        SnesByteAngle movementAngle = EnemyMath.CalculateBearing(new(deltaX, deltaY)).ToTableAngle();
+        SnesByteAngle movementAngle = EnemyMath.CalculateBearing(new(
+            unchecked((short)(64 - (body.Position.X.Whole >> 2))),
+            unchecked((short)(120 - (body.Position.Y.Whole >> 2))))).ToTableAngle();
         MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
 
         if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, 4) ||
@@ -78,7 +76,7 @@ internal sealed class DraygonDeath
     /// <summary>Advances burial sprite motion while the pre-sink countdown expires.</summary>
     internal void WaitForDraygonBurialEvirs(
         DraygonEnemyState state,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         SpawnDyingDraygonSmoke(state, frameCounterLow);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
@@ -94,7 +92,7 @@ internal sealed class DraygonDeath
     /// <summary>Sinks the body past the room floor, then persists boss defeat and requests its drop.</summary>
     internal void SinkDraygonBelowTheRoom(
         DraygonEnemyState state,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         SpawnDyingDraygonSmoke(state, frameCounterLow);
         MoveDraygonDeathEvirs();
@@ -128,15 +126,14 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
-    private void SpawnDyingDraygonSmoke(DraygonEnemyState state, byte frameCounterLow)
+    private void SpawnDyingDraygonSmoke(DraygonEnemyState state, int frameCounterLow)
     {
         if ((frameCounterLow & 7) != 0)
             return;
 
         int random = _room.Random.Generate();
-        ushort x = unchecked((ushort)((random & 127) + 192));
-        ushort y = unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 400));
-        if (_spriteObjects.SpawnRoomSpriteObject(new(x, y), RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
+        Position16<RoomPixels> smoke = new((ushort)((random & 127) + 192), (ushort)((SnesLittleEndian.HighByte(random) & 63) + 400));
+        if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
             state.DeathSmokeObjectsSpawned++;
     }
 
@@ -195,15 +192,15 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>Moves the body along a native sine-table angle at the supplied speed.</summary>
-    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, SnesByteAngle movementAngle, ushort speed)
+    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, SnesByteAngle movementAngle, int speed)
     {
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            speed,
+            checked((ushort)speed),
             angleOffset: SnesAngle.QuarterTurn.TableIndex));
         uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            speed,
+            checked((ushort)speed),
             angleOffset: SnesAngle.HalfTurn.TableIndex));
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
             body.Position.X,

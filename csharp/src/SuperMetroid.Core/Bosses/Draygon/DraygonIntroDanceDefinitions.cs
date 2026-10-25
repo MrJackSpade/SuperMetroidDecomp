@@ -78,9 +78,9 @@ internal static class DraygonIntroDanceDefinitions
     /// A restored index outside that domain is corrupt state, not permission to interpret
     /// adjacent executable or presentation bytes as signed movement.
     /// </summary>
-    public static DraygonIntroMovement ResolveMovement(ushort streamOffset)
+    public static DraygonIntroMovement ResolveMovement(int streamOffset)
     {
-        if ((streamOffset & 3) != 0 || streamOffset > LastMovementStreamOffset)
+        if ((streamOffset & 3) != 0 || streamOffset is < 0 or > LastMovementStreamOffset)
         {
             throw new InvalidDataException(
                 $"Draygon intro movement offset ${streamOffset:X4} is outside the compiled " +
@@ -92,7 +92,7 @@ internal static class DraygonIntroDanceDefinitions
 
         int index = streamOffset / StreamIndexAdvance;
         if (streamOffset > FirstDeleteOffset) index -= 2;
-        byte packed = PackedMovement[index];
+        int packed = PackedMovement[index];
 
         return new DraygonIntroMovement(
             new((short)((packed >> 4) - 8), (short)((packed & 0x0f) - 8)),

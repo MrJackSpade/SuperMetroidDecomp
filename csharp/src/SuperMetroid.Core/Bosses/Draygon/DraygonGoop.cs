@@ -40,7 +40,7 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         // Only the rightward setup calls HandleFiringWallTurret; the leftward entry at
         // $8C8E omits it. That asymmetry changes the random seed and is therefore material.
@@ -70,7 +70,7 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
@@ -93,7 +93,7 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState? samus,
-        byte frameCounterLow)
+        int frameCounterLow)
     {
         // The right-facing function calls the turret handler; the left-facing copy does not.
         if (direction == HorizontalDirection.Right)
@@ -121,7 +121,7 @@ internal sealed class DraygonGoop
         }
 
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
-        ushort x = state.Body.Position.X.Whole;
+        int x = state.Body.Position.X.Whole;
         bool crossedExit = direction == HorizontalDirection.Right
             ? unchecked((short)x) >= 0 && x >= 672
             : unchecked((short)x) < 0 && unchecked((short)(x - DraygonBehavior.DraygonOffscreenLeftX)) < 0;
@@ -157,7 +157,7 @@ internal sealed class DraygonGoop
         }
 
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
-        ushort x = state.Body.Position.X.Whole;
+        int x = state.Body.Position.X.Whole;
         bool offScreen = direction == HorizontalDirection.Right
             ? unchecked((short)x) >= 0 && x >= 672
             : unchecked((short)x) < 0 && unchecked((short)(x - DraygonBehavior.DraygonOffscreenLeftX)) < 0;
@@ -274,8 +274,8 @@ internal sealed class DraygonGoop
             return;
         }
 
-        ushort xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - goop.Position.X.Whole)));
-        ushort yDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.Y.Whole - goop.Position.Y.Whole)));
+        int xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - goop.Position.X.Whole)));
+        int yDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.Y.Whole - goop.Position.Y.Whole)));
         if (xDistance < 16 && yDistance < 20)
         {
             goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
@@ -293,7 +293,7 @@ internal sealed class DraygonGoop
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
-        ushort nextDivisor = unchecked((ushort)(samus.XSpeedDivisor + 1));
+        int nextDivisor = unchecked((ushort)(samus.XSpeedDivisor + 1));
         if (unchecked((short)(nextDivisor - 6)) >= 0)
             return;
 

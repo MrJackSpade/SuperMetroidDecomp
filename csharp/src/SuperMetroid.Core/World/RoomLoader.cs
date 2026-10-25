@@ -167,7 +167,7 @@ internal sealed class RoomLoader
         if (room.AreaIndex != AreaId.Ceres)
         {
             throw new InvalidDataException(
-                $"Fresh Ceres station targets area ${(byte)room.AreaIndex:X2}, expected area $06.");
+                $"Fresh Ceres station targets {room.AreaIndex}, expected {AreaId.Ceres}.");
         }
 
         return LoadRoom(

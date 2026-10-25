@@ -30,22 +30,9 @@ public sealed class IntroCinematicPalette
             var colors = new Bgr555[IntroCinematicPaletteFormat.ColorsPerRow];
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(transfer.AsSpan(2 * (row * colors.Length + color))));
-            bool neutralCycle = false;
-            PaletteRow? crossFadeSource = null;
-            if (Enum.IsDefined((IntroCinematicAnimatedRow)row))
-            {
-                switch ((IntroCinematicAnimatedRow)row)
-                {
-                    case IntroCinematicAnimatedRow.NeutralCycle:
-                        neutralCycle = true;
-                        break;
-                    case IntroCinematicAnimatedRow.CrossFade:
-                        crossFadeSource = rows[IntroCinematicPaletteFormat.SharedCrossFadeSourceRow];
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Undefined {nameof(IntroCinematicAnimatedRow)} {row}.");
-                }
-            }
+            bool neutralCycle = row == IntroCinematicPaletteFormat.NeutralCycleRow;
+            PaletteRow? crossFadeSource = row == IntroCinematicPaletteFormat.CrossFadeRow
+                ? rows[IntroCinematicPaletteFormat.SharedCrossFadeSourceRow] : null;
             rows[row] = new PaletteRow(colors, neutralCycle, crossFadeSource);
         }
     }

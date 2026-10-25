@@ -24,7 +24,17 @@ internal sealed class IntroTilemaps
 
     /// <summary>The tilemap of one scene page.</summary>
     internal ReadOnlySpan<ushort> ScenePage(IntroScenePage page) =>
-        scenePages.AsSpan((int)page * SnesPpuLayout.TilemapPageWordCount, SnesPpuLayout.TilemapPageWordCount);
+        scenePages.AsSpan(PageSlot(page) * SnesPpuLayout.TilemapPageWordCount, SnesPpuLayout.TilemapPageWordCount);
+
+    /// <summary>The installed scene pages in the order they are loaded.</summary>
+    private static readonly IntroScenePage[] InstalledPageOrder = Enum.GetValues<IntroScenePage>();
+
+    /// <summary>The position of <paramref name="page"/> among the installed scene pages.</summary>
+    private static int PageSlot(IntroScenePage page)
+    {
+        int slot = Array.IndexOf(InstalledPageOrder, page);
+        return slot >= 0 ? slot : throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined intro scene page.");
+    }
 
     /// <summary>Loads the installed scene pages.</summary>
     internal void LoadScenePages(ReadOnlySpan<byte> littleEndianWords) =>

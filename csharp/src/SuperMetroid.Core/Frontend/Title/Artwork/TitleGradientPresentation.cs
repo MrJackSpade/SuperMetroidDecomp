@@ -99,17 +99,17 @@ public sealed class TitleGradientPresentation
     {
         const ColorBlend titleBlends = ColorBlend.Bg1 | ColorBlend.Sprites |
             ColorBlend.Backdrop | ColorBlend.Subtract;
-        if ((line.Control & ~titleBlends) != 0)
+        if ((line.Control & ~titleBlends) != ColorBlend.None)
             throw new InvalidDataException($"Title gradient line blends {line.Control}, outside the floor, objects, backdrop and subtraction.");
         return new TitleGradientScanline
         {
             Red = line.Red,
             Green = line.Green,
             Blue = line.Blue,
-            BlendsFloor = (line.Control & ColorBlend.Bg1) != 0,
-            BlendsObjects = (line.Control & ColorBlend.Sprites) != 0,
-            BlendsBackdrop = (line.Control & ColorBlend.Backdrop) != 0,
-            Subtracts = (line.Control & ColorBlend.Subtract) != 0,
+            BlendsFloor = (line.Control & ColorBlend.Bg1) != ColorBlend.None,
+            BlendsObjects = (line.Control & ColorBlend.Sprites) != ColorBlend.None,
+            BlendsBackdrop = (line.Control & ColorBlend.Backdrop) != ColorBlend.None,
+            Subtracts = (line.Control & ColorBlend.Subtract) != ColorBlend.None,
         };
     }
 

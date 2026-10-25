@@ -77,7 +77,7 @@ internal static class IntroSamusDemoMovement
             // This controller is installed only for the SR388 left-facing run/stand list;
             // a different pose means cinematic ownership escaped its declared state machine.
             throw new InvalidOperationException(
-                $"SR388 intro demo reached invalid grounded-left pose ${(int)poseAtFrameStart:X2}.");
+                $"SR388 intro demo reached invalid grounded-left pose {poseAtFrameStart}.");
         }
 
         SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = heldInput, NmiFrameCounter = frameCounter, Random = random });
@@ -164,6 +164,6 @@ internal static class IntroSamusDemoMovement
         }
 
         throw new InvalidDataException(
-            $"SR388 intro demo pose transition ${(int)sourcePose:X2} -> ${(int)targetPose:X2} is not present in its retail transition family.");
+            $"SR388 intro demo pose transition {sourcePose} -> {targetPose} is not present in its retail transition family.");
     }
 }

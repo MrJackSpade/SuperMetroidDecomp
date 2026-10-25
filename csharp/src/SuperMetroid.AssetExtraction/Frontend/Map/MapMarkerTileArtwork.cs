@@ -19,18 +19,18 @@ internal sealed class MapMarkerTileArtwork
     /// <summary>Imported pixel differences from the calculated native marker shapes.</summary>
     internal readonly Dictionary<int, byte>? edits;
     /// <summary>Recognizes only the four menu-atlas tile identities owned by this artwork.</summary>
-    internal static bool Contains(int tile) => MapMarkerCellDefinitions.CalculatedCells.Any(cell => (int)cell == tile);
+    internal static bool Contains(int tile) => MapMarkerCellDefinitions.CalculatedCells.Any(cell => MapMarkerCellDefinitions.Tiles[cell] == tile);
 
     /// <summary>Compares the supplied atlas against the arrow and corner geometry, retaining only mismatched pixels.</summary>
     internal MapMarkerTileArtwork(IndexedPngImage image)
     {
-        foreach (int tile in MapMarkerCellDefinitions.CalculatedCells.Select(cell => (int)cell))
+        foreach (int tile in MapMarkerCellDefinitions.CalculatedCells.Select(cell => MapMarkerCellDefinitions.Tiles[cell]))
         {
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
                 byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-                if (pixel != Basis((MapMarkerCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                if (pixel != Basis(MapMarkerCellDefinitions.CellsByTile[tile], new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
     }
@@ -39,7 +39,7 @@ internal sealed class MapMarkerTileArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis((MapMarkerCell)tile, point);
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(MapMarkerCellDefinitions.CellsByTile[tile], point);
     }
 
     /// <summary>Draws the transposed arrows or the nested corner lines from tile-local coordinates.</summary>

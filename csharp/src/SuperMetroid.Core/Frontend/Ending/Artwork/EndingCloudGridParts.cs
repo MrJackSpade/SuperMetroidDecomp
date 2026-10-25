@@ -15,7 +15,7 @@ internal sealed class EndingCloudGridParts : IReadOnlyList<CompiledSpritePart>
     /// <summary>Admits one of the six authored cloud roles before calculating its repeated tile grid.</summary>
     internal EndingCloudGridParts(Role role)
     {
-        if ((uint)role > (uint)Role.Left) throw new ArgumentOutOfRangeException(nameof(role));
+        if (!Enum.IsDefined(role)) throw new ArgumentOutOfRangeException(nameof(role));
         this.role = role;
     }
     /// <summary>Side panels repeat a four-row grid; horizontal strips repeat a two-row grid.</summary>

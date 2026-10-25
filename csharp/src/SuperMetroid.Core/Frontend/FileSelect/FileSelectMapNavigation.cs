@@ -49,8 +49,8 @@ public sealed class FileSelectMapNavigation
         // Same edge rule as ControllerInputState.NewlyPressedButtons, over the native joypad word.
         ControllerButton pressed = heldInput & ~previousInput;
         previousInput = heldInput;
-        bool cancel = (pressed & ControllerButton.B) != 0;
-        bool confirm = (pressed & (ControllerButton.Start | ControllerButton.A)) != 0;
+        bool cancel = (pressed & ControllerButton.B) != ControllerButton.None;
+        bool confirm = (pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None;
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.Area:
@@ -58,7 +58,7 @@ public sealed class FileSelectMapNavigation
                 // Its non-debug branch replaces the working input word with zero when
                 // a direction/Select edge exists, also suppressing a simultaneous confirm.
                 if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
-                        ControllerButton.Right | ControllerButton.Select)) != 0) break;
+                        ControllerButton.Right | ControllerButton.Select)) != ControllerButton.None) break;
                 // Otherwise B wins over A/Start, and selecting keeps the SRAM area.
                 if (cancel) Phase = FileSelectMapNavigationPhase.OptionsRequested;
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;

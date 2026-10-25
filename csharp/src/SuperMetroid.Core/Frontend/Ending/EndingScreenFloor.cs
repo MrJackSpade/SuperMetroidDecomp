@@ -23,7 +23,7 @@ internal static class EndingScreenFloor
             {
                 case EndingUploadKind.FloorSceneTiles:
                     // A scene's map is laid out twice, one copy after the other.
-                    ReadOnlySpan<byte> map = Floor(floor)[(EndingFloorSceneId)upload.Key].Map.Span;
+                    ReadOnlySpan<byte> map = Floor(floor)[upload.SubjectAs<EndingFloorSceneId>()].Map.Span;
                     map.CopyTo(cells);
                     map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
                     break;

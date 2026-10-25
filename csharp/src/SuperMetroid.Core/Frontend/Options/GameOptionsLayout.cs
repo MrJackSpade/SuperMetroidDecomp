@@ -64,10 +64,30 @@ public static class GameOptionsLayout
     }
 
     /// <summary>The Icon Cancel toggle's choice boxes.</summary>
-    public static GameOptionsToggleLayout IconCancel => ToggleLayout((int)GameOptionsSpecialRow.IconCancel);
+    public static GameOptionsToggleLayout IconCancel => ToggleLayout(SpecialRowIndex(GameOptionsSpecialRow.IconCancel));
 
     /// <summary>The Moonwalk toggle's choice boxes, six tilemap rows below Icon Cancel's.</summary>
-    public static GameOptionsToggleLayout Moonwalk => ToggleLayout((int)GameOptionsSpecialRow.Moonwalk);
+    public static GameOptionsToggleLayout Moonwalk => ToggleLayout(SpecialRowIndex(GameOptionsSpecialRow.Moonwalk));
+
+    /// <summary>The primary page's rows from the top.</summary>
+    private static readonly GameOptionsPrimaryRow[] PrimaryRows =
+    [
+        GameOptionsPrimaryRow.StartGame, GameOptionsPrimaryRow.EnglishText, GameOptionsPrimaryRow.JapaneseText,
+        GameOptionsPrimaryRow.ControllerSettings, GameOptionsPrimaryRow.SpecialSettings,
+    ];
+
+    /// <summary>The special page's rows from the top.</summary>
+    private static readonly GameOptionsSpecialRow[] SpecialRows =
+        [GameOptionsSpecialRow.IconCancel, GameOptionsSpecialRow.Moonwalk, GameOptionsSpecialRow.Exit];
+
+    /// <summary>The primary page's row at cursor position <paramref name="row"/>, or null past the page's last row.</summary>
+    internal static GameOptionsPrimaryRow? PrimaryRowAt(int row) => (uint)row < (uint)PrimaryRows.Length ? PrimaryRows[row] : null;
+
+    /// <summary>The special page's row at cursor position <paramref name="row"/>, or null past the page's last row.</summary>
+    internal static GameOptionsSpecialRow? SpecialRowAt(int row) => (uint)row < (uint)SpecialRows.Length ? SpecialRows[row] : null;
+
+    /// <summary>The cursor position of the special page's row <paramref name="row"/>.</summary>
+    private static int SpecialRowIndex(GameOptionsSpecialRow row) => Array.IndexOf(SpecialRows, row);
 
     /// <summary>
     /// The two-row choice boxes of Icon Cancel (0) or Moonwalk (1): the toggles are six tilemap rows apart and their
@@ -76,7 +96,7 @@ public static class GameOptionsLayout
     /// <exception cref="ArgumentOutOfRangeException">The setting is not a toggle.</exception>
     public static GameOptionsToggleLayout ToggleLayout(int setting)
     {
-        if ((uint)setting >= (int)GameOptionsSpecialRow.Exit) throw new ArgumentOutOfRangeException(nameof(setting));
+        if ((uint)setting >= (uint)SpecialRowIndex(GameOptionsSpecialRow.Exit)) throw new ArgumentOutOfRangeException(nameof(setting));
         int rowStride = GameOptionsDefinitions.MenuTilemapWidth * sizeof(ushort);
         int origin = GameOptionsDefinitions.SpecialToggles.FirstByteOffset +
             GameOptionsDefinitions.SpecialToggles.SettingRowSpacing * rowStride * setting;

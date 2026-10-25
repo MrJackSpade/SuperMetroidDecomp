@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -78,11 +79,17 @@ internal static class PauseEquipmentRulesVerification
         ushort nativeMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82b213);
         ushort[] original = new ushort[4];
         for (int index = 0; index < original.Length; index++) original[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82b257 + index * 2));
+        // The native table lists the wireframes for neither, Hi-Jump, Varia, then both.
+        PauseWireframeKind[] nativeOrder =
+        [
+            PauseWireframeKind.PowerSuit, PauseWireframeKind.PowerSuitHiJump,
+            PauseWireframeKind.VariaSuit, PauseWireframeKind.VariaSuitHiJump,
+        ];
         for (int word = 0; word <= ushort.MaxValue; word++)
         {
             int expected = Array.IndexOf(original, (ushort)(word & nativeMask));
             AssertTrue(expected >= 0, "native masked input has a table match");
-            AssertEqual(expected, PauseEquipmentRules.WireframeIndex(SamusEquipmentWordCodec.FromEquipmentWord((ushort)word)), "complete native wireframe selection domain");
+            AssertEqual(nativeOrder[expected], PauseEquipmentRules.WireframeKind(SamusEquipmentWordCodec.FromEquipmentWord((ushort)word)), "complete native wireframe selection domain");
         }
     }
 

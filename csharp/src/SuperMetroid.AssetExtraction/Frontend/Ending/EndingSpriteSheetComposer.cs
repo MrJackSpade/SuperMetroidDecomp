@@ -67,7 +67,7 @@ internal static class EndingSpriteSheetComposer
             SpriteSheetId.EndingExplosionSprites => new(EndingObjectSheet.Explosion, EndingReward.Armored,
                 [
                     new(EndingUploadKind.ExplosionObjects, 0, null),
-                    .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingUpload(EndingUploadKind.ObjectFragment, (int)fragment, null)),
+                    .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingUpload(EndingUploadKind.ObjectFragment, 0, null, fragment)),
                     new(EndingUploadKind.EndingFont, 0, null),
                 ],
                 objects => [objects.ExplosionSprites, objects.CompletionTextSprites, EndingAnimalEscapeDefinitions.Sprites], Stars: false,

@@ -28,7 +28,7 @@ internal static class EndingScreenTiles
         {
             if (upload.Kind == EndingUploadKind.FloorSceneTiles)
             {
-                Mode7CharacterSheet scene = ScreenTileSheets.Floor(sheets, ScreenTileSheetDefinitions.EndingFloorScenes[(EndingFloorSceneId)upload.Key]);
+                Mode7CharacterSheet scene = ScreenTileSheets.Floor(sheets, ScreenTileSheetDefinitions.EndingFloorScenes[upload.SubjectAs<EndingFloorSceneId>()]);
                 tiles.Show(scene, 0, 0, scene.Tiles);
             }
             // The flyaway's first lane uploads the gunship's characters; its second, the map.

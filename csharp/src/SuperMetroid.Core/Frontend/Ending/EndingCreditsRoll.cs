@@ -76,7 +76,7 @@ internal sealed class EndingCreditsRoll
 
     /// <summary>Copies the current result-panel staging words to the phase-selected VRAM tilemap destination.</summary>
     internal void UploadPostCreditsTilemap() =>
-        screen.Record(EndingUploadKind.TextTilemap, (int)PostCreditsTextTilemap, postCreditsTilemap);
+        screen.Record(PostCreditsTextTilemap, postCreditsTilemap);
 
     /// <summary>Replaces the producer result rows with the copyright panel and starts its authored hold.</summary>
     internal void ShowRewardCopyright()

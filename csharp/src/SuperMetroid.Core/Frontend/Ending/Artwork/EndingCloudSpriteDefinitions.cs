@@ -33,6 +33,9 @@ public static class EndingCloudSpriteDefinitions
         [Role.Left] = new("scene-a-left", new(164), 32),
     };
 
+    /// <summary>The composition <paramref name="role"/> draws.</summary>
+    internal static CinematicSpriteFrameDefinition Frame(Role role) => ByRole[role];
+
     /// <summary>The cloud compositions in <see cref="Role"/> order: four sixteen-part horizontal clouds, then two 32-part side clouds.</summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
         [.. Enum.GetValues<Role>().Select(role => ByRole[role])];

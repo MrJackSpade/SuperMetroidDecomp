@@ -273,10 +273,10 @@ internal static class IntroBackgroundTilemapDefinitions
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++)
             {
-                int sx = (flips & SnesTileFlipFlags.Horizontal) != 0 ? size.X - 1 - column : column;
-                int sy = (flips & SnesTileFlipFlags.Vertical) != 0 ? size.Y - 1 - row : row;
+                int sx = (flips & SnesTileFlipFlags.Horizontal) != SnesTileFlipFlags.None ? size.X - 1 - column : column;
+                int sy = (flips & SnesTileFlipFlags.Vertical) != SnesTileFlipFlags.None ? size.Y - 1 - row : row;
                 Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)),
-                    (word + sy * 16 + sx) ^ (int)flips);
+                    new SnesBgTilemapWord(unchecked((ushort)(word + sy * 16 + sx))).ToggleFlips(flips).Raw);
             }
         }
     }

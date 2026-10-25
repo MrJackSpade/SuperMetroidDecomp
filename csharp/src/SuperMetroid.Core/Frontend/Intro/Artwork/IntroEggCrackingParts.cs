@@ -48,7 +48,7 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             IntroEggCell cell = OrderedCells().ElementAt(index);
-            int row = (int)cell / 3, column = (int)cell % 3;
+            (int row, int column) = GridCell(cell);
             bool cracked = cell switch
             {
                 IntroEggCell.TopLeft => true,
@@ -68,6 +68,21 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 SnesSpritemapYByte.Create(-12 + 8 * row), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>The row and column <paramref name="cell"/> occupies in the shell's three-by-three grid.</summary>
+    private static (int Row, int Column) GridCell(IntroEggCell cell) => cell switch
+    {
+        IntroEggCell.TopLeft => (0, 0),
+        IntroEggCell.TopMiddle => (0, 1),
+        IntroEggCell.TopRight => (0, 2),
+        IntroEggCell.MiddleLeft => (1, 0),
+        IntroEggCell.Center => (1, 1),
+        IntroEggCell.MiddleRight => (1, 2),
+        IntroEggCell.BottomLeft => (2, 0),
+        IntroEggCell.BottomMiddle => (2, 1),
+        IntroEggCell.BottomRight => (2, 2),
+        _ => throw new InvalidOperationException($"Undefined egg cell {cell}."),
+    };
+
     /// <summary>Enumerates all nine egg cells in the stage's native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {

@@ -121,7 +121,7 @@ internal sealed class IntroJapaneseSubtitles
         /// </summary>
         public bool Process(IntroJapaneseSubtitles owner, ControllerButton newlyPressed, Action<IntroNarrationPageId> startInputWait)
         {
-            if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != 0)
+            if (stage == SubtitleStage.AwaitSecondSubtitleInput && newlyPressed != ControllerButton.None)
             {
                 // $8B:B585 and siblings: show the second subtitle, hold the input wait it
                 // will start, and switch to the done-input list on this same frame.

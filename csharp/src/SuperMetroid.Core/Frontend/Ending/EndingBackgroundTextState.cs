@@ -171,6 +171,6 @@ internal sealed class EndingBackgroundTextState
 
     /// <summary>Transfers the current staging tilemap to the selected background map.</summary>
     private void Upload(EndingScreen screen) =>
-        screen.Record(EndingUploadKind.TextTilemap, (int)destinationTilemap, tilemap);
+        screen.Record(destinationTilemap, tilemap);
 
 }

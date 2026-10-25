@@ -16,10 +16,10 @@ public static class SaveLoadingGameStateCodec
     /// </remarks>
     public static int Word(SaveLoadingGameState route) => route switch
     {
-        SaveLoadingGameState.OpeningCinematic => (ushort)SuperMetroidGameState.Reset,
-        SaveLoadingGameState.MainGame => (ushort)SuperMetroidGameState.FileSelectMap,
-        SaveLoadingGameState.CeresElevatorArrival => (ushort)SuperMetroidGameState.SetUpNewGame,
-        SaveLoadingGameState.CeresDestruction => (ushort)SuperMetroidGameState.CeresGoesBoom,
+        SaveLoadingGameState.OpeningCinematic => 0x0000,
+        SaveLoadingGameState.MainGame => 0x0005,
+        SaveLoadingGameState.CeresElevatorArrival => 0x001F,
+        SaveLoadingGameState.CeresDestruction => 0x0022,
         _ => throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route."),
     };
 

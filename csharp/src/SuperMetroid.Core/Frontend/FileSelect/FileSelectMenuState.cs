@@ -184,7 +184,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 StepSelectedHelmet();
                 // $81:9D91: Start/A ends the turn early; otherwise it ends once the
                 // final frame has also used up its own timer, which then reads zero.
-                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != 0 ||
+                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None ||
                     (HelmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
                     Phase = FileSelectPhase.FadeOutToOptions;
                 break;
@@ -319,25 +319,25 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Handles slot selection, hidden data-management rows, and options or title handoffs.</summary>
     private void StepMainMenu(ControllerButton pressed)
     {
-        if ((pressed & ControllerButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != ControllerButton.None)
         {
             MoveMainSelection(direction: VerticalDirection.Up);
             QueueCursorSound();
         }
-        else if ((pressed & ControllerButton.Down) != 0)
+        else if ((pressed & ControllerButton.Down) != ControllerButton.None)
         {
             MoveMainSelection(direction: VerticalDirection.Down);
             QueueCursorSound();
         }
 
-        if ((pressed & ControllerButton.B) != 0)
+        if ((pressed & ControllerButton.B) != ControllerButton.None)
         {
             QueueCursorSound();
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToTitle;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
@@ -476,14 +476,14 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         MoveSubmenuSelection(FileSelectDataNavigation.MoveSourceOrClear(
             submenuSelection, occupiedSlots, pressed));
 
-        if ((pressed & ControllerButton.B) != 0 ||
-            ((pressed & (ControllerButton.Start | ControllerButton.A)) != 0 && submenuSelection == FileSelectItem.Exit))
+        if ((pressed & ControllerButton.B) != ControllerButton.None ||
+            ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
         {
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
         QueueCursorSound();
@@ -508,7 +508,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         MoveSubmenuSelection(FileSelectDataNavigation.MoveCopyDestination(
             submenuSelection, operationSourceSlot, pressed));
-        if ((pressed & ControllerButton.B) != 0)
+        if ((pressed & ControllerButton.B) != ControllerButton.None)
         {
             QueueCursorSound();
             submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
@@ -516,7 +516,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.CopySelectSource;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
         QueueCursorSound();
         if (submenuSelection == FileSelectItem.Exit)
@@ -549,19 +549,19 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Accepts Yes or No and mutates checksummed SRAM only after explicit Yes confirmation.</summary>
     private void StepConfirmation(ControllerButton pressed, FileSelectDataMode mode)
     {
-        if ((pressed & (ControllerButton.Up | ControllerButton.Down)) != 0)
+        if ((pressed & (ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
         {
             confirmationSelection = confirmationSelection == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
             QueueCursorSound();
             return;
         }
-        if ((pressed & ControllerButton.B) != 0)
+        if ((pressed & ControllerButton.B) != ControllerButton.None)
         {
             QueueCursorSound();
             ReturnFromConfirmation(mode);
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
         audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);

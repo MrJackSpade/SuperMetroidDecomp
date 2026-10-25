@@ -17,5 +17,5 @@ public readonly record struct PauseEquipmentBit(SamusBeamFlags Beam, SamusEquipm
     public static PauseEquipmentBit Of(SamusEquipmentFlags item) => new(0, item);
 
     /// <summary>Whether the upgrade is set in <paramref name="beams"/> or <paramref name="items"/>.</summary>
-    public bool IsSetIn(SamusBeamFlags beams, SamusEquipmentFlags items) => (beams & Beam) != 0 || (items & Item) != 0;
+    public bool IsSetIn(SamusBeamFlags beams, SamusEquipmentFlags items) => (beams & Beam) != SamusBeamFlags.None || (items & Item) != SamusEquipmentFlags.None;
 }

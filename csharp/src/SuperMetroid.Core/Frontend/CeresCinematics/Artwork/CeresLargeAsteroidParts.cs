@@ -43,7 +43,7 @@ internal sealed class CeresLargeAsteroidParts(
             {
                 CeresLargeAsteroidComposition.UnderAttack => 3,
                 CeresLargeAsteroidComposition.Approach => 0,
-                _ => throw new InvalidOperationException($"Undefined {nameof(CeresLargeAsteroidComposition)} {(int)composition}."),
+                _ => throw new InvalidOperationException($"Undefined {nameof(CeresLargeAsteroidComposition)} {composition}."),
             }));
     }
     /// <summary>Six left, seven right, and six lower asteroid OAM parts.</summary>

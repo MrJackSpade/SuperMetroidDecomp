@@ -8,18 +8,17 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public sealed class PauseWireframePresentation
 {
     /// <summary>Four named equipment wireframe variants in compiled selection order.</summary>
-    internal readonly Wireframe[] frames;
+    internal readonly Dictionary<PauseWireframeKind, Wireframe> frames;
     /// <summary>Stores the validated variants without changing equipment selection rules.</summary>
-    private PauseWireframePresentation(Wireframe[] frames) => this.frames = frames;
+    private PauseWireframePresentation(Dictionary<PauseWireframeKind, Wireframe> frames) => this.frames = frames;
 
     /// <summary>Patches the selected eight-column, seventeen-row wireframe into the equipment page at tile (12, 7), matching native <c>EquipmentScreen_WriteSamusWireframeTilemap</c> at <c>$82:B20C</c>; leaves all other cells untouched and does not choose the inventory variant or queue VRAM.</summary>
     /// <param name="equipmentPage">Complete 2048-byte, 32-by-32 equipment tilemap in little-endian word order.</param>
     /// <param name="kind">One of the four compiled Power/Varia and regular/Hi-Jump visual variants.</param>
     public void ApplyTo(Span<byte> equipmentPage, PauseWireframeKind kind)
     {
-        if ((uint)kind >= PauseWireframeDefinitions.Count) throw new ArgumentOutOfRangeException(nameof(kind));
+        if (!frames.TryGetValue(kind, out Wireframe? source)) throw new ArgumentOutOfRangeException(nameof(kind));
         Ensure.LengthEqual(equipmentPage, PauseWireframeDefinitions.PageBytes);
-        Wireframe source = frames[(int)kind];
         for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
         for (int column = 0; column < PauseWireframeDefinitions.Columns; column++)
             BinaryPrimitives.WriteUInt16LittleEndian(equipmentPage.Slice(
@@ -38,12 +37,12 @@ public sealed class PauseWireframePresentation
         catch (JsonException error) { throw new InvalidDataException("Invalid pause wireframe JSON.", error); }
         if (document.Version != PauseWireframeDefinitions.Version || document.Frames is null || document.Frames.Count != PauseWireframeDefinitions.Count)
             throw new InvalidDataException("Pause wireframes require version 1 and all four named frames.");
-        var frames = new Wireframe[PauseWireframeDefinitions.Count];
+        var frames = new Dictionary<PauseWireframeKind, Wireframe>();
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
             if (!document.Frames.TryGetValue(kind.ToString(), out var cells) || cells is null || cells.Length != PauseWireframeDefinitions.Cells)
                 throw new InvalidDataException($"Pause wireframe {kind} requires 136 cells in eight-column row order.");
-            frames[(int)kind] = new Wireframe(kind, PauseTileGrid.Compile(cells, kind.ToString()));
+            frames.Add(kind, new Wireframe(kind, PauseTileGrid.Compile(cells, kind.ToString())));
         }
         return new(frames);
     }

@@ -48,13 +48,13 @@ public sealed class MapSaveMarkerLayout
             document.Markers.Count != MapSaveMarkerDefinitions.AllIds().Count())
             throw new InvalidDataException("Save marker layout requires version 1 and every known marker.");
         var overrides = new Dictionary<string, AnchorOverride>(StringComparer.Ordinal);
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
-        foreach (int index in MapSaveMarkerDefinitions.Indices((AreaId)area))
+        foreach (AreaId area in AreaIds.Zebes)
+        foreach (int index in MapSaveMarkerDefinitions.Indices(area))
         {
-            string id = MapSaveMarkerDefinitions.Id((AreaId)area, index);
+            string id = MapSaveMarkerDefinitions.Id(area, index);
             if (!document.Markers.TryGetValue(id, out var point) || point.X is < 0 or > 511 || point.Y is < 0 or > 255)
                 throw new InvalidDataException($"Save marker {id} requires X=0..511 and Y=0..255.");
-            Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get((AreaId)area, index);
+            Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get(area, index);
             int? x = point.X == basis.X ? null : point.X;
             int? y = point.Y == basis.Y ? null : point.Y;
             if (x.HasValue || y.HasValue) overrides.Add(id, new AnchorOverride(x, y));

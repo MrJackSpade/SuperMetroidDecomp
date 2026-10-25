@@ -27,8 +27,8 @@ public static class GameOverTexts
     {
         get
         {
-            for (int index = 0; index < Count; index++)
-                yield return Get((GameOverTextElement)index);
+            foreach (GameOverTextElement element in Enum.GetValues<GameOverTextElement>())
+                yield return Get(element);
         }
     }
 }

@@ -19,8 +19,8 @@ internal static class ExploredMapPackingDefinitions
         Ensure.NotNull(maps);
         int offset = 0;
         for (int previous = 0; previous < area; previous++)
-            offset += new OccupiedByteIndexes(maps.Get((AreaId)previous)).Count;
-        return new(checked((ushort)offset), new(maps.Get((AreaId)area)));
+            offset += new OccupiedByteIndexes(maps.Get(AreaIds.At(previous))).Count;
+        return new(checked((ushort)offset), new(maps.Get(AreaIds.At(area))));
     }
 
     /// <summary>

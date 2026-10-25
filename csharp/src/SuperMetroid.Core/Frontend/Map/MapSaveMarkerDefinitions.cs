@@ -49,7 +49,7 @@ public static class MapSaveMarkerDefinitions
     /// <summary>Rejects Ceres and undefined areas because only the six Zebes areas own marker tables.</summary>
     private static void ValidateArea(AreaId area)
     {
-        if ((uint)area >= FileSelectMapDefinitions.AreaCount)
+        if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), "Only Zebes areas have save-map markers.");
     }
     /// <summary>Formats the stable editable marker key for a usable native save/elevator station, without selecting its drawing coordinates or load target.</summary>
@@ -77,7 +77,7 @@ public static class MapSaveMarkerDefinitions
     /// <returns>Lazy marker keys in native area-ID order and ascending usable station-slot order.</returns>
     public static IEnumerable<string> AllIds()
     {
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
-            foreach (int index in Indices((AreaId)area)) yield return Id((AreaId)area, index);
+        foreach (AreaId area in AreaIds.Zebes)
+            foreach (int index in Indices(area)) yield return Id(area, index);
     }
 }

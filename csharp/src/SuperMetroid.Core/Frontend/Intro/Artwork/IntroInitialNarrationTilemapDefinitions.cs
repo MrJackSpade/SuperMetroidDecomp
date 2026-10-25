@@ -40,16 +40,16 @@ internal static class IntroInitialNarrationTilemapDefinitions
             {
                 for (int half = 0; half < GlyphRows; half++)
                 {
-                    ushort value;
-                    if (letter == '.') value = half == 0 ? Blank : (ushort)(LetterStyle | PeriodTile);
+                    int value;
+                    if (letter == '.') value = half == 0 ? Blank : LetterStyle | PeriodTile;
                     else
                     {
                         int ordinal = letter - 'A';
                         int tile = FirstLetterTile + ordinal + (ordinal / IntroFontAtlasFormat.TilesPerRow + half) * IntroFontAtlasFormat.TilesPerRow;
-                        value = (ushort)(LetterStyle | tile);
+                        value = LetterStyle | tile;
                     }
                     int row = FirstRow + line * (GlyphRows + Leading) + half;
-                    BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan((row * columns + start + column) * 2), value);
+                    BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan((row * columns + start + column) * 2), (ushort)value);
                 }
                 column++;
             }

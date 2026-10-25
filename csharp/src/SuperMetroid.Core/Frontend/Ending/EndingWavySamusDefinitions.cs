@@ -30,8 +30,8 @@ internal static class EndingWavySamusDefinitions
             if (age >= 2)
             {
                 int sample = line % HalfCycle;
-                short sine = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)((phase + sample * SampleByteStep) >> 1))));
-                int magnitude = SnesSixteenSixteen.Multiply(Math.Abs((int)sine), Amplitude);
+                int sine = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)((phase + sample * SampleByteStep) >> 1))));
+                int magnitude = SnesSixteenSixteen.Multiply(Math.Abs(sine), Amplitude);
                 displacement = sine < 0 ? -magnitude : magnitude;
                 if ((line / HalfCycle & 1) != 0) displacement = -displacement;
             }

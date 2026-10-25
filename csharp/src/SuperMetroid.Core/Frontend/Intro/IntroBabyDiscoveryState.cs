@@ -94,7 +94,7 @@ internal sealed class IntroBabyDiscoveryState
     /// the cinematic function, so $8B:AF6C's setup dispatch already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
-    public void Step(int frameCounter, ushort introCrossfadeTimer)
+    public void Step(int frameCounter, int introCrossfadeTimer)
     {
         // $8B:8E0D runs Samus's handlers, ahead of the sprite pass, only while $1A57 is set.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
@@ -174,7 +174,7 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Changes the demo from running to waiting or ending at its scripted position and crossfade edges.</summary>
-    private void RunDemoPreInstruction(DemoInputPreInstruction preInstruction, ushort introCrossfadeTimer)
+    private void RunDemoPreInstruction(DemoInputPreInstruction preInstruction, int introCrossfadeTimer)
     {
         // The Baby-discovery object holds only its own two routines or the return-only one.
         switch (preInstruction)
@@ -227,7 +227,7 @@ internal sealed class IntroBabyDiscoveryState
             case CinematicSpriteCueKind.SpawnParticles:
                 // The six JSR Spawn calls at $A918..A94C use definitions CECD through CEEB
                 // and init parameters zero through five, in this exact order.
-                for (byte index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
+                for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
                     eggParticles.Add(new IntroEggParticle(index));
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.EggHatch,
@@ -279,7 +279,7 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
-    private void StepConfusedBaby(ushort introCrossfadeTimer)
+    private void StepConfusedBaby(int introCrossfadeTimer)
     {
         switch (confusedBaby.PreInstruction)
         {
@@ -366,7 +366,7 @@ internal sealed class IntroBabyDiscoveryState
         // reaches this scanline once. Four init parameters select four distinct arcs.
         if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
         {
-            for (byte index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)
+            for (int index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)
             {
                 slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, index));
             }
@@ -378,7 +378,7 @@ internal sealed class IntroBabyDiscoveryState
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
-        ushort targetY = unchecked((ushort)(Samus.Position.Y.Whole - 32));
+        int targetY = unchecked((ushort)(Samus.Position.Y.Whole - 32));
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,
@@ -398,7 +398,7 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Moves the baby around Samus, switches their draw order, and ends on crossfade completion.</summary>
-    private void StepDancingBaby(ushort introCrossfadeTimer)
+    private void StepDancingBaby(int introCrossfadeTimer)
     {
         if (introCrossfadeTimer == 0)
         {
@@ -430,7 +430,7 @@ internal sealed class IntroBabyDiscoveryState
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
 
-        ushort targetY = unchecked((ushort)(Samus.Position.Y.Whole - 8));
+        int targetY = unchecked((ushort)(Samus.Position.Y.Whole - 8));
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,
@@ -442,11 +442,11 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>Adjusts an 8.8 velocity toward a target by one $20 step without exceeding its limits.</summary>
     private static SnesSignedEightEight AccelerateToward(
-        ushort position,
-        ushort target,
+        int position,
+        int target,
         SnesSignedEightEight current,
-        short positiveLimit,
-        short negativeLimit)
+        int positiveLimit,
+        int negativeLimit)
     {
         int velocity = unchecked((short)current.RawValue);
         if (unchecked((short)(target - position)) >= 0)

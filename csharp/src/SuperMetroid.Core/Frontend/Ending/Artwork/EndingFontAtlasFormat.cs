@@ -138,7 +138,7 @@ public static class EndingFontAtlasFormat
             : (char)('A' + topTile - EndingTextDefinitions.LargeFirstGroupTopBase);
 
     /// <summary>Calculates transparent, fill, or adjacent outline ink only for the proven glyph domain.</summary>
-    internal static bool TryCalculatedPixel(int pixel, IReadOnlySet<int> requiredFootprint, out byte ink)
+    internal static bool TryCalculatedPixel(int pixel, IReadOnlySet<int> requiredFootprint, out int ink)
     {
         ink = 0;
         if (IsSpacePixel(pixel)) return true;

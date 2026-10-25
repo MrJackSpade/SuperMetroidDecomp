@@ -155,16 +155,16 @@ public sealed class CreditsPresentation
     private static ushort[] RenderLine(CreditsLineDefinition definition, CreditsLineDocument line, bool bottom)
     {
         ushort[] row = BlankRow();
-        ushort attributes = (ushort)(line.Palette << CreditsPresentationDefinitions.PaletteShift);
+        int attributes = line.Palette << CreditsPresentationDefinitions.PaletteShift;
         for (int index = 0; index < line.Text.Length; index++)
             row[line.Column + index] = ApplyAttributes(
                 CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), attributes);
         return row;
     }
     /// <summary>Applies palette attributes to a visible glyph while leaving blank tilemap words untouched.</summary>
-    private static ushort ApplyAttributes(ushort glyph, ushort attributes) =>
+    private static ushort ApplyAttributes(int glyph, int attributes) =>
         glyph == CreditsPresentationDefinitions.BlankWord
-            ? glyph
+            ? (ushort)glyph
             : unchecked((ushort)(glyph | attributes));
 
     /// <summary>Allocates a 32-word row filled with the credits' compiled blank tile.</summary>

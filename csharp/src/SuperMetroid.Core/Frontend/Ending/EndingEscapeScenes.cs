@@ -220,11 +220,11 @@ internal sealed class EndingEscapeScenes
     }
 
     /// <summary>Chooses a clamped digit's authored sprite list for one clear-time column.</summary>
-    private void SpawnDigit(int digit, ushort x)
+    private void SpawnDigit(int digit, int x)
     {
         int normalized = Math.Clamp(digit, 0, 9);
         _stage.SpawnSprite(
-            new(x, EndingActorDefinitions.ClearTimeDigitY),
+            new(checked((ushort)x), EndingActorDefinitions.ClearTimeDigitY),
             0,
             ClearTimeDigitProgram(normalized),
             EndingSpriteRole.ClearTimeDigit);

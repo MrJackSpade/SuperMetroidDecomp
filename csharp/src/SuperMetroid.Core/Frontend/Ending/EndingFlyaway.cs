@@ -152,8 +152,7 @@ internal sealed class EndingFlyaway
     /// <summary>Adds the same five-bit <paramref name="white"/> component to all three channels of the composed screen.</summary>
     internal static FixedColorAddRenderLayer WhiteAddition(int white)
     {
-        byte component = checked((byte)white);
-        return new(component, component, component);
+        return new(checked((byte)white), checked((byte)white), checked((byte)white));
     }
 
     /// <summary>Decreases the flyaway white component at its cartridge interval.</summary>

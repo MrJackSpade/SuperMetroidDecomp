@@ -8,4 +8,4 @@ internal readonly record struct IntroBabyActorDefinition(
     CinematicSpritePreInstruction PreInstruction,
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
-    ushort PaletteBits);
+    int PaletteBits);

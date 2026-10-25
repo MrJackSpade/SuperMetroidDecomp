@@ -59,8 +59,8 @@ public static class IntroNarrationDefinitions
     /// <param name="word">Complete tilemap word; palette, priority, or flip variations outside the canonical glyph words are not accepted.</param>
     /// <returns>The supported space, uppercase letter, digit, or punctuation character represented by the word.</returns>
     /// <exception cref="InvalidDataException"><paramref name="word"/> has no supported, exact narration glyph mapping.</exception>
-    public static char DecodeGlyph(ushort word) =>
-        GlyphsByWord.TryGetValue(word, out char character)
+    public static char DecodeGlyph(int word) =>
+        word is >= 0 and <= ushort.MaxValue && GlyphsByWord.TryGetValue((ushort)word, out char character)
             ? character
             : throw new InvalidDataException($"${word:X4} is not an opening-narration glyph word.");
 

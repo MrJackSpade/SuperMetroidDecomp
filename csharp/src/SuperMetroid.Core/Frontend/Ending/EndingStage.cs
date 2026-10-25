@@ -82,7 +82,7 @@ internal sealed class EndingStage
     /// <summary>Allocates or replaces a native cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
     internal void SpawnSprite(
         Position16<ScreenPixels> position,
-        ushort palette,
+        int palette,
         CinematicSpriteProgram program,
         EndingSpriteRole role)
     {

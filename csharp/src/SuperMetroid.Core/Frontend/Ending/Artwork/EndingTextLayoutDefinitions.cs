@@ -75,11 +75,11 @@ internal static class EndingTextLayoutDefinitions
     }
 
     /// <summary>Centers a selected credit phrase before resolving its top or bottom glyph tile.</summary>
-    private static ushort Centered(string text, int column, EndingTextStyle style, bool bottom, ushort attributes) =>
+    private static ushort Centered(string text, int column, EndingTextStyle style, bool bottom, int attributes) =>
         Glyph(text, column - (EndingTextDefinitions.TilemapWidth - text.Length) / 2, style, bottom, attributes);
 
     /// <summary>Leaves spaces blank and combines a compiled ending-font glyph with its selected palette bits.</summary>
-    private static ushort Glyph(string text, int character, EndingTextStyle style, bool bottom, ushort attributes)
+    private static ushort Glyph(string text, int character, EndingTextStyle style, bool bottom, int attributes)
     {
         if ((uint)character >= text.Length || text[character] == ' ')
             return EndingTextDefinitions.ResultBlankWord;

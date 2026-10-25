@@ -83,7 +83,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             _ => throw new ArgumentOutOfRangeException(nameof(pose)),
         };
         if ((uint)index >= (pose == Pose.Glow ? GlowPieces.Length : SupernovaPieces.Length)) throw new ArgumentOutOfRangeException(nameof(index));
-        var (column, row) = pose == Pose.Glow ? GlowPieces[index] switch
+        Position16<TilemapCells> cell = pose == Pose.Glow ? GlowPieces[index] switch
         {
             GlowPiece.TopCap => new Position16<TilemapCells>(1, 0),
             GlowPiece.OuterBody => new Position16<TilemapCells>(0, 1),
@@ -98,6 +98,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             SupernovaPiece.Interior => new Position16<TilemapCells>(1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        int column = cell.X, row = cell.Y;
         bool large = pose == Pose.Glow || SupernovaPieces[index] == SupernovaPiece.Interior;
         bool right = pose != Pose.SupernovaSecond;
         int x = column * 8 - 24, y = row * 8 - 24;

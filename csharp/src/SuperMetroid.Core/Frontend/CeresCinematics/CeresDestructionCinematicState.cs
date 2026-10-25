@@ -708,15 +708,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
-        ushort x = unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole));
-        ushort y = unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole));
+        Position16<ScreenPixels> center = new(
+            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
+            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)));
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
-        stationExplosion.Spawn(new(x, y));
+        stationExplosion.Spawn(center);
         audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
             maximumQueued: SoundQueueLimit.Max15);
         var cinematicExplosion = new IntroDiscoverySprite(
-            new(x, y),
+            center,
             CeresDestructionSceneDefinitions.Sprites.ExplosionPalette.Raw,
             CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.InstallPreInstruction(
@@ -807,8 +808,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // sheet five is the native completion owner at C8F2. Identify the actors
                 // by ownership, not their mutable list index: native actors delete as they
                 // cross -$80, so indexes necessarily shift during this loop.
-                ushort acceleration = definition.SlideAcceleration;
-                actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + acceleration));
+                actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + definition.SlideAcceleration));
                 SubtractEightEightY(actor, checked((ushort)actor.GeneralTimer));
                 if (unchecked((short)actor.WholePosition.Y) < -128)
                 {
@@ -890,14 +890,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate around the world's width.</summary>
-    private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
+    private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
         SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
     /// <summary>Subtracts an unsigned 8.8 slide velocity from the actor's 16.16 Y position with borrow.</summary>
-    private static void SubtractEightEightY(IntroDiscoverySprite actor, ushort velocity)
+    private static void SubtractEightEightY(IntroDiscoverySprite actor, int velocity)
     {
         // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.

@@ -50,8 +50,8 @@ internal sealed class IntroScientistCutsceneState
 
     /// <summary>Advances the Baby script and pans on every fourth function tick until the alternate crossfade timer redirects it to deletion.</summary>
     public void Step(
-        ushort cinematicFunctionTimer,
-        ushort introCrossfadeTimer)
+        int cinematicFunctionTimer,
+        int introCrossfadeTimer)
     {
         if (!baby.IsActive)
             return;

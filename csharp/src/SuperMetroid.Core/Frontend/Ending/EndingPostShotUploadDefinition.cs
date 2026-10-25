@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="Offset">The bytes into its artwork the part starts at (#1416: replaces the cartridge work-RAM source).</param>
 /// <param name="Source">Which artwork the part shows.</param>
 internal readonly record struct EndingPostShotUploadDefinition(
-    ushort Length, int Offset, EndingPostShotUploadSource Source);
+    int Length, int Offset, EndingPostShotUploadSource Source);

@@ -18,7 +18,7 @@ public sealed record PhantoonWave(int Mode, int Phase, int Amplitude, int BaseSc
         int half = (Mode & PhantoonWaveDefinitions.LongWaveModeBit) != 0
             ? PhantoonWaveDefinitions.LongHalfCycle : PhantoonWaveDefinitions.ShortHalfCycle;
         var cycle = new ushort[half * 2];
-        PhantoonWaveTable.Build(checked((ushort)Mode), checked((ushort)Phase), checked((ushort)Amplitude), checked((ushort)BaseScroll), cycle);
+        PhantoonWaveTable.Build(Mode, Phase, Amplitude, BaseScroll, cycle);
         return cycle;
     }
 

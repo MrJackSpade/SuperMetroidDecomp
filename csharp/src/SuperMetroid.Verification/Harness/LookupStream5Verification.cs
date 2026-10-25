@@ -1104,7 +1104,8 @@ internal static class LookupStream5Verification
         {
             Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3],
         };
-        Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction;
+        Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = (enemy, phantoon, type, damage) =>
+            enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(enemy, phantoon, new SamusProjectileTypeWord(type), damage);
         ushort random = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = () => { calls++; return random; };

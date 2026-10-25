@@ -93,12 +93,11 @@ internal sealed class PhantoonDeath
         RoomEnemySlot tentacles = state.Tentacles;
         PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosionDefinitions.Read(state.Parts[tentacles.SlotIndex].ExplosionIndex);
         state.Parts[body.SlotIndex].FunctionTimer = explosion.Delay;
-        ushort x = unchecked((ushort)(body.Position.X.Whole + explosion.Offset.X));
-        ushort y = unchecked((ushort)(body.Position.Y.Whole + explosion.Offset.Y));
+        Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         int before = _projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
         state.DeathExplosionRequests++;
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), explosion.Type);
+        _projectiles.SpawnRoomGraphicsDustExplosion(position, explosion.Type);
         if (_projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive) > before)
             state.DeathExplosionsSpawned++;
         state.LastCombatSoundEffect = explosion.Type == MiscDustAnimation.BigExplosion
@@ -243,8 +242,8 @@ internal sealed class PhantoonDeath
     /// <summary>Ports $A7:DC5A over CGRAM colors 0..111.</summary>
     internal bool AdvanceWreckedShipPowerPalette(PhantoonPartState eye)
     {
-        ushort denominator = checked((ushort)eye.FadeDenominator);
-        ushort numerator = checked((ushort)eye.FadeNumerator);
+        int denominator = eye.FadeDenominator;
+        int numerator = eye.FadeNumerator;
         if (unchecked((ushort)(denominator + 1)) < numerator)
         {
             eye.FadeNumerator = 0;

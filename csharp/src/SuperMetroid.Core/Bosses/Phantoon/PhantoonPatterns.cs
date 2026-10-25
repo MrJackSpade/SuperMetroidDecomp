@@ -100,15 +100,15 @@ internal sealed class PhantoonPatterns
             : bodyWords.SpeedWhole;
         for (int step = 0; step < steps; step++)
         {
-            var (dx, dy) = PhantoonPathDefinitions.Step(bodyWords.PathCursor);
+            Offset16<RoomPixels> pathStep = PhantoonPathDefinitions.Step(bodyWords.PathCursor);
             if (eyeWords.FigureEightReversed)
             {
-                body.Position -= new Offset16<RoomPixels>(unchecked(dx), unchecked(dy));
+                body.Position -= pathStep;
                 bodyWords.PathCursor = bodyWords.PathCursor == 0 ? (ushort)(PhantoonPathDefinitions.Length - 1) : unchecked((ushort)(bodyWords.PathCursor - 1));
             }
             else
             {
-                body.Position += new Offset16<RoomPixels>(unchecked(dx), unchecked(dy));
+                body.Position += pathStep;
                 bodyWords.PathCursor = bodyWords.PathCursor >= PhantoonPathDefinitions.Length - 1 ? (ushort)0 : unchecked((ushort)(bodyWords.PathCursor + 1));
             }
         }
@@ -151,7 +151,7 @@ internal sealed class PhantoonPatterns
             body,
             PhantoonMotionDefinitions.FastFraction,
             PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
-        ushort minimum = PhantoonMotionDefinitions.ForwardMinimum;
+        int minimum = PhantoonMotionDefinitions.ForwardMinimum;
         if (body.SpeedWhole == minimum || unchecked((short)(body.SpeedWhole - minimum)) < 0)
         {
             body.SpeedWhole = unchecked((ushort)(minimum + 1));
@@ -170,7 +170,7 @@ internal sealed class PhantoonPatterns
                 PhantoonMotionDefinitions.SlowFraction,
                 PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Decelerate);
             // The whole speed is the cartridge's word; the cap is compared as that word.
-            ushort cap = unchecked((ushort)PhantoonMotionDefinitions.ReverseSlowCap);
+            int cap = unchecked((ushort)PhantoonMotionDefinitions.ReverseSlowCap);
             if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
             {
                 body.SpeedWhole = unchecked((ushort)(cap + 2));
@@ -187,7 +187,7 @@ internal sealed class PhantoonPatterns
                 PhantoonMotionDefinitions.FastFraction,
                 PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
             // The whole speed is the cartridge's word; the cap is compared as that word.
-            ushort cap = unchecked((ushort)PhantoonMotionDefinitions.ReverseFastCap);
+            int cap = unchecked((ushort)PhantoonMotionDefinitions.ReverseFastCap);
             if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
             {
                 body.SpeedWhole = unchecked((ushort)(cap + 1));
@@ -201,7 +201,7 @@ internal sealed class PhantoonPatterns
             body,
             PhantoonMotionDefinitions.FastFraction,
             PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Accelerate);
-        ushort maximum = PhantoonMotionDefinitions.ReverseMaximum;
+        int maximum = PhantoonMotionDefinitions.ReverseMaximum;
         if (unchecked((short)(body.SpeedWhole - maximum)) >= 0)
         {
             body.SpeedWhole = maximum;
@@ -211,7 +211,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Adds a native two-word speed value to the body motion accumulator, or subtracts it when slowing.</summary>
-    private static void ChangePhantoonSpeed(PhantoonPartState body, ushort low, ushort high, PhantoonSpeedChange direction)
+    private static void ChangePhantoonSpeed(PhantoonPartState body, int low, int high, PhantoonSpeedChange direction)
     {
         uint value = SnesSixteenSixteen.Compose(checked((ushort)body.SpeedWhole), checked((ushort)body.SpeedFraction));
         uint change = SnesSixteenSixteen.Compose(high, low);
@@ -456,7 +456,7 @@ internal sealed class PhantoonPatterns
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
             return;
 
-        ushort pattern = unchecked((ushort)(_room.Random.Generate() & 7));
+        int pattern = _room.Random.Generate() & 7;
         var placement = PhantoonPatternDefinitions.RainPlacement(pattern);
         state.Parts[body.SlotIndex].PathCursor = placement.Cursor;
         body.Position = body.Position.WithWhole(placement.Position);
@@ -605,7 +605,7 @@ internal sealed class PhantoonPatterns
             if (tentacleWords.SwoopTargetX >= PhantoonMotionDefinitions.SwoopTargetTurnX)
                 tentacleWords.SwoopReturning = true;
         }
-        ushort targetX = checked((ushort)tentacleWords.SwoopTargetX);
+        int targetX = tentacleWords.SwoopTargetX;
 
         int swoopX = tentacleWords.SwoopVelocity.X.RawValue;
         if (unchecked((short)(targetX - body.Position.X.Whole)) < 0)
@@ -624,7 +624,7 @@ internal sealed class PhantoonPatterns
         else if (unchecked((short)(body.Position.X.Whole - PhantoonMotionDefinitions.SwoopMaximumX)) >= 0)
             body.Position = body.Position.WithWholeX(PhantoonMotionDefinitions.SwoopMaximumX);
 
-        ushort targetY = target == PhantoonSwoopTarget.DeathHeight ? (ushort)112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
+        int targetY = target == PhantoonSwoopTarget.DeathHeight ? 112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
         int swoopY = tentacleWords.SwoopVelocity.Y.RawValue;
         if (unchecked((short)(targetY - body.Position.Y.Whole)) < 0)
         {
@@ -649,17 +649,16 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole));
-        short deltaY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
-        ushort direction;
-        if (Math.Abs((int)deltaY) < 32)
-            direction = deltaX < 0 ? (ushort)7 : (ushort)2;
-        else if (Math.Abs((int)deltaX) < 32)
-            direction = deltaY < 0 ? (ushort)0 : (ushort)4;
-        else if (deltaX < 0)
-            direction = deltaY < 0 ? (ushort)8 : (ushort)6;
+        Offset16<RoomPixels> toSamus = samus.Position.Whole - body.Position.Whole;
+        int direction;
+        if (Math.Abs(toSamus.Y) < 32)
+            direction = toSamus.X < 0 ? 7 : 2;
+        else if (Math.Abs(toSamus.X) < 32)
+            direction = toSamus.Y < 0 ? 0 : 4;
+        else if (toSamus.X < 0)
+            direction = toSamus.Y < 0 ? 8 : 6;
         else
-            direction = deltaY < 0 ? (ushort)1 : (ushort)3;
+            direction = toSamus.Y < 0 ? 1 : 3;
 
         PhantoonPresentation.InstallPhantoonProgram(
             state,
@@ -670,14 +669,14 @@ internal sealed class PhantoonPatterns
     /// <summary>Blends the body palette toward hidden colors over the selected interval.</summary>
     internal void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
-        ushort denominator)
+        int denominator)
     {
         if ((_frameContext.FrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;
         state.Parts[eye.SlotIndex].FadeDenominator = denominator;
-        ushort numerator = checked((ushort)state.Parts[eye.SlotIndex].FadeNumerator);
+        int numerator = state.Parts[eye.SlotIndex].FadeNumerator;
         if (unchecked((ushort)(denominator + 1)) < numerator)
         {
             state.Parts[eye.SlotIndex].FadeNumerator = 0;
@@ -698,17 +697,18 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Places eight delayed rain flames in rotating room columns.</summary>
-    private void SpawnPhantoonFlameRain(RoomEnemySlot body, ushort pattern)
+    /// <remarks>Eight flames start sixteen updates apart, so the delay reaches at most 128 and packs beside the column.</remarks>
+    private void SpawnPhantoonFlameRain(RoomEnemySlot body, int pattern)
     {
-        byte column = PhantoonPatternDefinitions.FirstRainColumns[pattern];
-        ushort delay = 16;
+        int column = PhantoonPatternDefinitions.FirstRainColumns[pattern];
+        int delay = 16;
         for (int flame = 0; flame < 8; flame++)
         {
-            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Rain, (byte)(delay | column));
+            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Rain, delay | column);
             column++;
             if (column >= 9)
                 column = 0;
-            delay = unchecked((ushort)(delay + 16));
+            delay += 16;
         }
     }
 
@@ -750,7 +750,10 @@ internal sealed class PhantoonPatterns
     /// Initializes destroyable flame $86:9C29. The high parameter byte chooses one of the
     /// four native producers: casual fall, rage split, vertical rain, or spiral.
     /// </summary>
-    internal bool SpawnPhantoonDestroyableFlame(RoomEnemySlot body, PhantoonFlameSpawnType type, byte index)
+    /// <param name="body">Phantoon's body.</param>
+    /// <param name="type">Which producer spawns the flame.</param>
+    /// <param name="index">The producer's flame index, 0 through 255.</param>
+    internal bool SpawnPhantoonDestroyableFlame(RoomEnemySlot body, PhantoonFlameSpawnType type, int index)
     {
         RoomEnemyProjectileSlot? flame = _projectiles.AllocateEnemyProjectile();
         if (flame is null)
@@ -791,7 +794,7 @@ internal sealed class PhantoonPatterns
             case PhantoonFlameSpawnType.Rain:
                 // The index byte is packed as dx: the low nibble is a column and the high
                 // nibble is the delayed-fall timer divided by eight.
-                byte column = (byte)(index % 16);
+                int column = index % 16;
                 if (column > 8)
                     throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
                 flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight((ushort)(index / 16 * 8)));

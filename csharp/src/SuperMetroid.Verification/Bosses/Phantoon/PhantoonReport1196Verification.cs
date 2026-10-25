@@ -1,5 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonFlameSoundVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonAnimationsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -64,7 +65,7 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
         boss.Body.Health = 0;
-        enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, 0x0100, 100);
+        enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, new SamusProjectileTypeWord(0x0100), 100);
         PhantoonDeath.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
         wave.Step(boss);
         wave.LatchDisplay();

@@ -76,7 +76,7 @@ public static class PhantoonPatternDefinitions
     /// <param name="direction">Native relative-direction selector, 0..8, with four and the unused five both selecting down.</param>
     /// <returns>The eye's gaze program; the caller owns starting it and resetting its instruction timer.</returns>
     /// <exception cref="InvalidDataException">The direction exceeds the nine authored selectors.</exception>
-    internal static PhantoonPartProgram EyeProgram(ushort direction) => direction switch
+    internal static PhantoonPartProgram EyeProgram(int direction) => direction switch
     {
         0 => PhantoonPartProgram.EyeLookingUp,
         1 => PhantoonPartProgram.EyeLookingUpRight,

@@ -349,7 +349,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom),
-            0x97E7DE, EndingCreditsRomData.Rendering.FloorBytes);
+            0x97E7DE, EndingArtworkExtentDefinitions.FloorBytes);
         byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
         byte[] png = EndingFontAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
@@ -777,13 +777,13 @@ internal static class LookupStream4Verification
             return unchecked((int)(SnesSixteenSixteen.FromWhole((uint)whole) | fraction));
         }
         for (int index = 0; index < 16; index++)
-            AssertEqual(Native(0x8BDD02 + index * 4), EndingCreditsRomData.Motion.PlanetFastDelta(index), "native fast shake signed fixed-point value");
+            AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index), "native fast shake signed fixed-point value");
         for (int index = 0; index < 8; index++)
-            AssertEqual(Native(0x8BDDAD + index * 4), EndingCreditsRomData.Motion.PlanetSlowDelta(index), "native slow shake signed fixed-point value");
-        AssertEqual(32768, EndingCreditsRomData.Motion.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
-        AssertEqual(-32768, EndingCreditsRomData.Motion.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
-        AssertEqual(2 << 16, Enumerable.Range(0, 16).Sum(EndingCreditsRomData.Motion.PlanetFastDelta), "fast cycle shares exact two-pixel translation");
-        AssertEqual(2 << 16, Enumerable.Range(0, 8).Sum(EndingCreditsRomData.Motion.PlanetSlowDelta), "slow cycle shares exact two-pixel translation");
+            AssertEqual(Native(0x8BDDAD + index * 4), EndingShipShake.PlanetSlowDelta(index), "native slow shake signed fixed-point value");
+        AssertEqual(32768, EndingShipShake.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
+        AssertEqual(-32768, EndingShipShake.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
+        AssertEqual(2 << 16, Enumerable.Range(0, 16).Sum(EndingShipShake.PlanetFastDelta), "fast cycle shares exact two-pixel translation");
+        AssertEqual(2 << 16, Enumerable.Range(0, 8).Sum(EndingShipShake.PlanetSlowDelta), "slow cycle shares exact two-pixel translation");
         foreach (bool fast in new[] { true, false })
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
@@ -806,7 +806,7 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
-            state.Stage.FloorZoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
+            state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndScale : EndingMotionDefinitions.PlanetSlowEndScale;
             state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
             step();
@@ -822,9 +822,9 @@ internal static class LookupStream4Verification
             }
         }
         foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetFastDelta(index), "fast shake bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetFastDelta(index), "fast shake bounds");
         foreach (int index in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetSlowDelta(index), "slow shake bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetSlowDelta(index), "slow shake bounds");
         Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
 
@@ -1237,23 +1237,23 @@ internal static class LookupStream4Verification
             presentation.JapaneseSubtitle.CopyTo(copied);
             AssertTrue(expected.SequenceEqual(copied.AsSpan(0, expected.Length)), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
-            ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
+            ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingScreenDefinitions.TilemapWords).ToArray();
             var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
             state.InstalledInitialMarkerPending = false;
             state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var screen = new EndingScreen();
             state.Step(screen);
             SnesVram vram = EndingScreenFixtures.Vram(screen);
-            int destination = EndingCreditsRomData.Text.JapaneseSubtitleFirstCell;
+            int destination = EndingResultTextLayout.JapaneseSubtitleFirstCell;
             AssertTrue(expected.SequenceEqual(tilemap.AsSpan(destination, expected.Length)), "Actual ending state draws the calculated/edited subtitle");
             for (int cell = 0; cell < expected.Length; cell++)
             {
-                int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
+                int address = (EndingVramLayout.ResultPanelTilemapWord + destination + cell) * 2;
                 AssertEqual(expected[cell], SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1]), "Actual subtitle reaches VRAM unchanged");
             }
             state.InstructionTimer = WrappingCountdown.Start(1);
             state.Step(screen);
-            AssertTrue(tilemap.AsSpan(destination, expected.Length).All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
+            AssertTrue(tilemap.AsSpan(destination, expected.Length).All(word => word == EndingScreenDefinitions.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
         }
     }

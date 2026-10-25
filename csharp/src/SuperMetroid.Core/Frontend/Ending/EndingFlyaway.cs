@@ -51,7 +51,7 @@ internal sealed class EndingFlyaway
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
-        _stage.FloorZoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
+        _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialScale;
         _stage.FloorAngle = SnesAngle.NormalizeTableIndex(-112);
         _stage.PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
@@ -67,10 +67,10 @@ internal sealed class EndingFlyaway
             _stage.PhaseTimer--;
         else StepFlyawayFade();
         _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-4);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingCreditsRomData.Motion.PlanetFastDelta(PlanetMotionIndex)));
-        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetFastPatternLength;
+        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingShipShake.PlanetFastDelta(PlanetMotionIndex)));
+        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetFastPatternLength;
         _stage.FloorZoom -= 8;
-        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetFastEndScale)
         {
             PlanetMotionIndex = 0;
             _stage.Phase = EndingCreditsPhase.PlanetEscapeSlow;
@@ -81,14 +81,14 @@ internal sealed class EndingFlyaway
     internal void StepPlanetEscapeSlow()
     {
         StepFlyawayFade();
-        if (_stage.FloorAngle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
+        if (_stage.FloorAngle != EndingMotionDefinitions.PlanetSlowTargetAngle)
             _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-1);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingCreditsRomData.Motion.PlanetSlowDelta(PlanetMotionIndex)));
-        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetSlowPatternLength;
+        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingShipShake.PlanetSlowDelta(PlanetMotionIndex)));
+        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetSlowPatternLength;
         _stage.FloorZoom -= 2;
-        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndScale)
         {
-            PlanetVelocity = SnesSignedSixteenSixteen.FromParts(0, EndingCreditsRomData.Motion.InitialAccelerationFraction);
+            PlanetVelocity = EndingMotionDefinitions.PlanetInitialVelocity;
             _stage.Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
             if (crittersEscaped)
             {
@@ -109,20 +109,20 @@ internal sealed class EndingFlyaway
     internal void StepPlanetEscapeAccelerating()
     {
         StepFlyawayFade();
-        PlanetVelocity -= SnesSignedSixteenSixteen.FromRaw(EndingCreditsRomData.Motion.AccelerationDelta16Point16);
+        PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
         _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, PlanetVelocity.RawValue));
-        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartScale &&
             (CinematicFrame & 3) == 0 &&
-            _stage.FloorAngle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
+            _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)
         {
             _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(2);
         }
-        if (_stage.FloorZoom < EndingCreditsRomData.Motion.PlanetExitScale)
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetExitScale)
         {
             _stage.LoadStaticPalette(EndingPaletteId.FinalGunship,
                 screen.Palette.BackgroundRow(EndingColourRowDefinitions.FinalGunshipBackgroundRow), 0);
             _stage.SpawnSprite(
-                EndingCreditsRomData.Sprites.OperationWasText,
+                EndingActorDefinitions.OperationWasText,
                 EndingSpriteRole.OperationWasText);
             _stage.Phase = EndingCreditsPhase.OperationSuccessfulText;
         }
@@ -189,9 +189,9 @@ internal sealed class EndingFlyaway
     {
         CeresFlightArtworkCatalog artwork = FlightArtwork ?? throw new InvalidOperationException(
             "Ending flyaway requires installed flight artwork.");
-        EndingStage.RequireMinimum(artwork.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, EndingCreditsRomData.Rendering.FloorBytes,
+        EndingStage.RequireMinimum(artwork.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, EndingArtworkExtentDefinitions.FloorBytes,
             "flyaway characters");
-        EndingStage.RequireMinimum(artwork.FloorMaps, EndingCreditsRomData.Rendering.FlyawayMapDataBytes, "flyaway map");
+        EndingStage.RequireMinimum(artwork.FloorMaps, EndingArtworkExtentDefinitions.FlyawayMapDataBytes, "flyaway map");
     }
 
     /// <summary>Transfers one scheduled flyaway chunk to its Mode-7 character or map lane.</summary>

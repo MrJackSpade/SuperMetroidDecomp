@@ -46,7 +46,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
             session.audio.QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
             session.audio.QueueMusicDelayed8(MusicRequest.Stop);
             session.audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.Death));
-            session.audio.QueueMusicDelayed(MusicRequest.SelectTrack(SamusDeathRomData.Music.TrackIndex), MusicQueueDelay.AtLeastShortest(14));
+            session.audio.QueueMusicDelayed(MusicRequest.SelectTrack(SamusDeathDefinitions.FanfareTrack), MusicQueueDelay.AtLeastShortest(14));
             session.GameState = SuperMetroidGameState.DeathWaitForMusic;
         }
     }

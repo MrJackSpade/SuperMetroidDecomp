@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
@@ -15,26 +16,26 @@ internal static class GameOverTextLookupsVerification
 
     /// <summary>Checks destination offsets in the five $A2 load instructions.</summary>
     internal static void VerifyGameOverTextDestinations(ISnesAddressSpace rom) =>
-        Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => (stream.Origin.Y * GameOverRomData.TilemapWidth + stream.Origin.X) * sizeof(ushort), "destination"));
+        Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => (stream.Origin.Y * GameOverPresentationDefinitions.TilemapWidth + stream.Origin.X) * sizeof(ushort), "destination"));
 
     /// <summary>Compares selector and enumeration order with retail immediates and rejects invalid selectors.</summary>
     private static void VerifyGameOverTextField(ISnesAddressSpace rom, int fieldOffset,
         byte opcode, Func<GameOverTextStream, int> field, string name)
     {
-        GameOverTextStream[] enumerated = GameOverRomData.Text.All.ToArray();
+        GameOverTextStream[] enumerated = GameOverTexts.All.ToArray();
         AssertEqual(5, enumerated.Length, "native game-over text load count");
-        AssertEqual(5, GameOverRomData.Text.Count, "bounded game-over text count");
+        AssertEqual(5, GameOverTexts.Count, "bounded game-over text count");
         for (int index = 0; index < 5; index++)
         {
             int instruction = 0x819206 + index * 9 + fieldOffset;
             AssertEqual(opcode, GameOverTextFieldRomByte(rom, instruction), $"native text {name} immediate opcode");
             int expected = ReadVerificationWord(rom, instruction + 1);
-            AssertEqual(expected, field(GameOverRomData.Text.Get((GameOverTextElement)index)),
+            AssertEqual(expected, field(GameOverTexts.Get((GameOverTextElement)index)),
                 $"game-over text {name} selector {index}");
             AssertEqual(expected, field(enumerated[index]), $"game-over text {name} enumeration {index}");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOverRomData.Text.Get((GameOverTextElement)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOverTexts.Get((GameOverTextElement)invalid),
                 $"invalid game-over text {name} selector {invalid}");
     }
 

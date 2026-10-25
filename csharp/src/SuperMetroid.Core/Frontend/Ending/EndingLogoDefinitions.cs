@@ -45,11 +45,6 @@ internal static class EndingLogoDefinitions
     public static Position16<ScreenPixels> BottomLanding => new(382, 383);
     /// <summary>E58A completes after sixteen palette pointer pairs.</summary>
     public const int PaletteSteps = 16;
-    /// <summary>E504 initializes OBJ palette seven from $8C:EFE9. The sixteen base
-    /// colors are the logo drawing's authored palette, retained under #1165's nonsense
-    /// exception after original tile/OAM inspection; the temporal fade is calculated
-    /// by EndingLogoPaletteFade. This is not an exemption for animation colors.</summary>
-    public const int InitialPalette = 0x8cefe9;
     /// <summary>F1E7 spawns the logo's palette-FX object $8D:E200 at landing.</summary>
     public const PaletteFxObject LandingPaletteFx = PaletteFxObject.PostCreditsSuperMetroidIcon;
 }

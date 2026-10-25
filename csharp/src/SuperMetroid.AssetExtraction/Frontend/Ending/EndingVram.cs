@@ -55,7 +55,7 @@ internal readonly struct EndingVram(SnesVram vram)
     /// <summary>The VRAM word base of the background map that <paramref name="tilemap"/> names, for its staging upload and its render layer.</summary>
     internal static ushort TextTilemapWord(EndingTextTilemap tilemap) => tilemap switch
     {
-        EndingTextTilemap.ResultPanel => EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
+        EndingTextTilemap.ResultPanel => EndingVramLayout.ResultPanelTilemapWord,
         EndingTextTilemap.FinalText => EndingVramLayout.FinalTextTilemapWord,
         _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined ending text tilemap."),
     };

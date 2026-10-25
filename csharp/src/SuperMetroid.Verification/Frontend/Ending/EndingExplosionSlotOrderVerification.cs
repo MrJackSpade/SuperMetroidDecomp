@@ -27,7 +27,7 @@ internal static class EndingExplosionSlotOrderVerification
         }
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Stage.Phase, "native flyaway handoff reached");
         for (int frame = 0; frame < 100; frame++) ending.Step();
-        var definition = EndingCreditsRomData.Sprites.ExplosionAfterglow;
+        var definition = EndingActorDefinitions.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),
             definition.Attributes.Raw, definition.Program);
         afterglow.Step();

@@ -26,9 +26,9 @@ internal static class EndingPostShotUploadDefinitions
     public static EndingPostShotUploadDefinition Get(int index)
     {
         if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == 0) return new(SubtitleLength, EndingPostShotDefinitions.SubtitleSource, EndingPostShotUploadSource.Subtitle);
-        if (index == Count - 1) return new(LogoMapLength, EndingPostShotDefinitions.LogoMapSource, EndingPostShotUploadSource.LogoMap);
+        if (index == 0) return new(SubtitleLength, 0, EndingPostShotUploadSource.Subtitle);
+        if (index == Count - 1) return new(LogoMapLength, 0, EndingPostShotUploadSource.LogoMap);
         int offset = (index - 1) * LogoTileChunkLength;
-        return new(LogoTileChunkLength, EndingPostShotDefinitions.LogoTileSource + offset, EndingPostShotUploadSource.LogoTiles);
+        return new(LogoTileChunkLength, offset, EndingPostShotUploadSource.LogoTiles);
     }
 }

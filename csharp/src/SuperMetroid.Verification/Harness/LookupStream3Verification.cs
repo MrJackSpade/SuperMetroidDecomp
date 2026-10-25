@@ -733,9 +733,9 @@ internal static class LookupStream3Verification
         var stock = Load();
         AssertTrue(stock.tilemap is null, "game-over stock text retains no tilemap row");
         Confirm(stock);
-        foreach (GameOverTextStream stream in GameOverRomData.Text.All)
+        foreach (GameOverTextStream stream in GameOverTexts.All)
         {
-            int cell = stream.Origin.Y * GameOverRomData.TilemapWidth + stream.Origin.X;
+            int cell = stream.Origin.Y * GameOverPresentationDefinitions.TilemapWidth + stream.Origin.X;
             document.Tilemap[cell] = document.Tilemap[cell] with { Palette = 1, FlipY = true };
         }
         document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };

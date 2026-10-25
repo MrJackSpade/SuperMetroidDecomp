@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>Native source addresses, exact sizes, and file identities for ending colors.</summary>
+/// <summary>Exact sizes and file identities for ending colors.</summary>
 public static class EndingPaletteDefinitions
 {
     /// <summary>Revision 1 of the RGB5 palette document, retained for compatibility with existing authored overrides.</summary>
@@ -10,20 +10,6 @@ public static class EndingPaletteDefinitions
     public const int Version = 1;
     /// <summary>Installation manifest filename identifying the independently selected ending palette files.</summary>
     public const string ManifestFileName = "ending-palettes-manifest.json";
-
-    /// <summary>Six named contiguous resources selected by native ending load operations.
-    /// Crossfade has two interleaved sources per step and deliberately has no single address.</summary>
-    public static int SourceAddress(EndingPaletteId id) => id switch
-    {
-        EndingPaletteId.Escape => EndingCreditsRomData.Assets.EscapePalette,
-        EndingPaletteId.PostCredits => EndingCreditsRomData.Assets.PostCreditsPalette,
-        EndingPaletteId.Credits => EndingCreditsRomData.Assets.CreditsPalette,
-        EndingPaletteId.Explosion => EndingCreditsRomData.Assets.ExplosionPalette,
-        EndingPaletteId.FinalGunship => EndingCreditsRomData.Assets.FinalGunshipPalette,
-        EndingPaletteId.LogoInitial => EndingLogoDefinitions.InitialPalette,
-        EndingPaletteId.LogoCrossfade => throw new ArgumentOutOfRangeException(nameof(id)),
-        _ => throw new ArgumentOutOfRangeException(nameof(id)),
-    };
 
     /// <summary>Full editable resource sizes, not individual CGRAM transfer lengths:
     /// four 256-color bank-$8C allocations, two 16-color palettes, and sixteen pairs

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Hardware;
 
@@ -55,18 +56,22 @@ internal static class GameOverBabyAnimationDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(palette)),
     };
 
-    /// <summary>Native bank-$82 sound callback identity used only for extraction parity.</summary>
-    /// <remarks>Issues #625 and #970: this is the inverse view of
-    /// GameOverRomData.BabyAnimation.ResolveCry for the three native cry
-    /// instructions at $82:BC0C, BC15, and BC1E. Their effect IDs and stream
-    /// references were checked against pinned NTSC J/U v1.0 ROM.</remarks>
-    public static ushort NativeSoundOpcode(GameOverBabySound sound) => sound switch
+    /// <summary>
+    /// The bank-$82 cry callback each cry marker names (#1416: the Core enum that held these words is deleted):
+    /// <c>Instruction_Queue_BabyMetroid_Cry1_SoundEffect</c> to <c>Cry3</c> at $82:BC0C, BC15 and BC1E, which queue
+    /// library-three sounds $23, $26 and $27.
+    /// </summary>
+    /// <remarks>Issues #625 and #970: their effect IDs and stream references were checked against pinned NTSC J/U v1.0
+    /// ROM. <see cref="GameOverBabySound.None"/> has no callback.</remarks>
+    internal static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
     {
-        GameOverBabySound.Cry23 => (ushort)GameOverBabyCryInstruction.Cry23,
-        GameOverBabySound.Cry26 => (ushort)GameOverBabyCryInstruction.Cry26,
-        GameOverBabySound.Cry27 => (ushort)GameOverBabyCryInstruction.Cry27,
-        GameOverBabySound.None => throw new ArgumentOutOfRangeException(nameof(sound)),
-        _ => throw new ArgumentOutOfRangeException(nameof(sound)),
-    };
+        [GameOverBabySound.FirstCry] = 0xbc0c,
+        [GameOverBabySound.SecondCry] = 0xbc15,
+        [GameOverBabySound.ThirdCry] = 0xbc1e,
+    });
+
+    /// <summary>Native bank-$82 sound callback identity used only for extraction parity.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="sound"/> queues no cry.</exception>
+    public static ushort NativeSoundOpcode(GameOverBabySound sound) => CryCallbacks.Word(sound);
 
 }

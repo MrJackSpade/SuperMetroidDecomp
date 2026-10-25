@@ -41,7 +41,7 @@ internal static class EndingContentIdentityVerification
             new VerifyEndingMode7RoleSelectionCase(EndingFloorSceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
         })
         {
-            var sources = SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.FloorSources(native.First);
+            var sources = EndingArtworkSources.Floor(native.First);
             AssertEqual(Source(native.Second), sources.Characters, "original high-lane character source");
             AssertEqual(Source(native.Third), sources.PackedMap, "original packed-map source");
             AssertEqual($"ending-{native.Fourth}-mode7-characters.png", EndingFloorArtworkFormat.CharacterFileName(native.First), "published character filename");
@@ -87,7 +87,7 @@ internal static class EndingContentIdentityVerification
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingFloorSceneId)invalid], "ending Mode7 role bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.FloorSources((EndingFloorSceneId)invalid), "Mode7 source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.Floor((EndingFloorSceneId)invalid), "Mode7 source bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.CharacterFileName((EndingFloorSceneId)invalid), "Mode7 character filename bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.MapFileName((EndingFloorSceneId)invalid), "Mode7 map filename bounds");
         }

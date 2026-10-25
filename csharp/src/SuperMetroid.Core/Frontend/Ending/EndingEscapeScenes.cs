@@ -42,20 +42,20 @@ internal sealed class EndingEscapeScenes
         _stage.LoadFloor(EndingFloorSceneId.EscapeA);
         _artwork.LoadEscapeCloudCharacters();
         sprites.Clear();
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
-        _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        _stage.FloorAngle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
+        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
+        _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _stage.PostCreditsScroll = Position16<BgPlanePixels>.Zero;
         audio.QueueMusicDelayed8(MusicRequest.Stop);
         audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
         audio.QueueMusicDelayed(
-            MusicRequest.SelectTrack(EndingCreditsRomData.Music.Track),
-            MusicQueueDelay.AtLeastShortest(EndingCreditsRomData.Music.DelayArgument));
+            MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.Track),
+            MusicQueueDelay.AtLeastShortest(EndingSequenceDefinitions.Music.DelayArgument));
         _stage.Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 
@@ -67,13 +67,13 @@ internal sealed class EndingEscapeScenes
         _stage.LoadFloor(EndingFloorSceneId.EscapeB);
         _artwork.LoadEscapeCloudCharacters();
         sprites.Clear();
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
-        _stage.SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
+        _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
-        _stage.FloorZoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        _stage.FloorAngle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
+        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
+        _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();
         _stage.Phase = EndingCreditsPhase.FadeInEscapeSceneB;
@@ -117,9 +117,9 @@ internal sealed class EndingEscapeScenes
 
             case CinematicSpriteCueKind.SpawnExplosionSilhouette:
                 _stage.SpawnSprite(
-                    EndingCreditsRomData.Sprites.ExplosionSilhouette,
+                    EndingActorDefinitions.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
-                screen.Palette.Backdrop = EndingCreditsRomData.Rendering.WhiteColor;
+                screen.Palette.Backdrop = EndingScreenDefinitions.WhiteColor;
                 return;
 
             case CinematicSpriteCueKind.StartZebesExplosion:
@@ -128,10 +128,10 @@ internal sealed class EndingEscapeScenes
                 _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.Explosion, 0);
                 _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.WideExplosion, 0);
                 _stage.SpawnSprite(
-                    EndingCreditsRomData.Sprites.ExplosionStarsRight,
+                    EndingActorDefinitions.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
                 _stage.SpawnSprite(
-                    EndingCreditsRomData.Sprites.ExplosionStarsLeft,
+                    EndingActorDefinitions.ExplosionStarsLeft,
                     EndingSpriteRole.ExplosionStarsLeft);
                 return;
 
@@ -139,52 +139,52 @@ internal sealed class EndingEscapeScenes
                 ExplosionFinaleDisplay = true;
                 _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.SupernovaFinale, 0);
                 _stage.SpawnSprite(
-                    EndingCreditsRomData.Sprites.ExplosionAfterglow,
+                    EndingActorDefinitions.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);
                 return;
 
             case CinematicSpriteCueKind.EndZebesExplosion:
                 // F32B disables TM/TS without deleting the actors: the stars must still
                 // advance and become visible again when Func120 starts the flyaway.
-                screen.Palette.Backdrop = EndingCreditsRomData.Rendering.WhiteColor;
-                screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, EndingCreditsRomData.Rendering.WhiteColor);
-                screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Fill(EndingCreditsRomData.Rendering.WhiteColor);
+                screen.Palette.Backdrop = EndingScreenDefinitions.WhiteColor;
+                screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, EndingScreenDefinitions.WhiteColor);
+                screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Fill(EndingScreenDefinitions.WhiteColor);
                 _stage.PhaseTimer = 120;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
 
             case CinematicSpriteCueKind.SpawnCompletedText:
                 _stage.SpawnSprite(
-                    EndingCreditsRomData.Sprites.CompletedSuccessfullyText,
+                    EndingActorDefinitions.CompletedSuccessfullyText,
                     EndingSpriteRole.CompletedSuccessfullyText);
                 return;
 
             case CinematicSpriteCueKind.SpawnClearTime:
                 _stage.SpawnSprite(
-                    EndingCreditsRomData.Sprites.ClearTimeText,
+                    EndingActorDefinitions.ClearTimeText,
                     EndingSpriteRole.ClearTimeText);
                 return;
 
             case CinematicSpriteCueKind.SpawnHoursTens:
-                SpawnDigit(gameTimeHours / 10, EndingCreditsRomData.Text.HoursTensX);
+                SpawnDigit(gameTimeHours / 10, EndingResultTextLayout.HoursTensX);
                 return;
 
             case CinematicSpriteCueKind.SpawnHoursUnits:
-                SpawnDigit(gameTimeHours % 10, EndingCreditsRomData.Text.HoursUnitsX);
+                SpawnDigit(gameTimeHours % 10, EndingResultTextLayout.HoursUnitsX);
                 return;
 
             case CinematicSpriteCueKind.SpawnColon:
                 _stage.SpawnSprite(
-                    EndingCreditsRomData.Sprites.ClearTimeColon,
+                    EndingActorDefinitions.ClearTimeColon,
                     EndingSpriteRole.ClearTimeDigit);
                 return;
 
             case CinematicSpriteCueKind.SpawnMinutesTens:
-                SpawnDigit(gameTimeMinutes / 10, EndingCreditsRomData.Text.MinutesTensX);
+                SpawnDigit(gameTimeMinutes / 10, EndingResultTextLayout.MinutesTensX);
                 return;
 
             case CinematicSpriteCueKind.SpawnMinutesUnits:
-                SpawnDigit(gameTimeMinutes % 10, EndingCreditsRomData.Text.MinutesUnitsX);
+                SpawnDigit(gameTimeMinutes % 10, EndingResultTextLayout.MinutesUnitsX);
                 return;
 
             case CinematicSpriteCueKind.TransitionToCredits:
@@ -224,7 +224,7 @@ internal sealed class EndingEscapeScenes
     {
         int normalized = Math.Clamp(digit, 0, 9);
         _stage.SpawnSprite(
-            new(x, EndingCreditsRomData.Sprites.ClearTimeDigitY),
+            new(x, EndingActorDefinitions.ClearTimeDigitY),
             0,
             ClearTimeDigitProgram(normalized),
             EndingSpriteRole.ClearTimeDigit);
@@ -242,16 +242,16 @@ internal sealed class EndingEscapeScenes
         switch (_stage.EndingReward)
         {
             case EndingReward.Suitless:
-                _stage.SpawnSprite(EndingCreditsRomData.Sprites.SuitlessRewardBody, EndingSpriteRole.RewardSamus);
-                _stage.SpawnSprite(EndingCreditsRomData.Sprites.SuitlessRewardHead, EndingSpriteRole.RewardSamus);
+                _stage.SpawnSprite(EndingActorDefinitions.SuitlessRewardBody, EndingSpriteRole.RewardSamus);
+                _stage.SpawnSprite(EndingActorDefinitions.SuitlessRewardLegs, EndingSpriteRole.RewardSamus);
                 break;
             case EndingReward.Helmetless:
-                _stage.SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
-                _stage.SpawnSprite(EndingCreditsRomData.Sprites.HelmetlessRewardHead, EndingSpriteRole.RewardSamus);
+                _stage.SpawnSprite(EndingActorDefinitions.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
+                _stage.SpawnSprite(EndingActorDefinitions.HelmetlessRewardHead, EndingSpriteRole.RewardSamus);
                 break;
             case EndingReward.Armored:
-                _stage.SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
-                _stage.SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardHead, EndingSpriteRole.RewardSamus);
+                _stage.SpawnSprite(EndingActorDefinitions.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
+                _stage.SpawnSprite(EndingActorDefinitions.ArmoredRewardHead, EndingSpriteRole.RewardSamus);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined ending reward {_stage.EndingReward}.");

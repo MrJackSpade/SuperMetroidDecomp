@@ -31,8 +31,8 @@ internal static class EndingTextPresentationVerification
         byte[] fontPng = SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(nativeBus);
         EndingFontCharacters font = EndingFontCharacters.Read(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
-            EndingCreditsRomData.Assets.EndingFontCharacters,
-            EndingCreditsRomData.Rendering.FloorBytes);
+            EndingSourceDefinitions.Artwork.FontCharacters,
+            EndingArtworkExtentDefinitions.FloorBytes);
         AssertTrue(font.Characters.Span.SequenceEqual(
             nativeFont.AsSpan(0, EndingFontAtlasFormat.ByteCount)),
             "installed ending-font PNG compiles to exact native planar bytes");
@@ -51,8 +51,8 @@ internal static class EndingTextPresentationVerification
         foreach (EndingTextSequence sequence in Enum.GetValues<EndingTextSequence>())
         {
             ushort[] installedTilemap = Enumerable.Repeat(
-                EndingCreditsRomData.Rendering.BlankTile,
-                EndingCreditsRomData.Rendering.TilemapWords).ToArray();
+                EndingScreenDefinitions.BlankTile,
+                EndingScreenDefinitions.TilemapWords).ToArray();
             // The installed sequence runs to completion with its text streams guarded.
             var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = installedTilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
             var installedScreen = new EndingScreen();
@@ -63,7 +63,7 @@ internal static class EndingTextPresentationVerification
                 installed.Step(installedScreen);
                 comparedFrames++;
             }
-            AssertTrue(installedTilemap.Any(word => word != EndingCreditsRomData.Rendering.BlankTile),
+            AssertTrue(installedTilemap.Any(word => word != EndingScreenDefinitions.BlankTile),
                 $"installed ending {sequence} draws its text");
         }
 
@@ -85,8 +85,8 @@ internal static class EndingTextPresentationVerification
             edited.Compile(EndingTextSequence.ItemPercentage)[0].TopWord,
             "edited percentage text reaches its live program");
 
-        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingCreditsRomData.Rendering.BlankTile,
-                EndingCreditsRomData.Rendering.TilemapWords).ToArray(), Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
+        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingScreenDefinitions.BlankTile,
+                EndingScreenDefinitions.TilemapWords).ToArray(), Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new EndingScreen());
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);

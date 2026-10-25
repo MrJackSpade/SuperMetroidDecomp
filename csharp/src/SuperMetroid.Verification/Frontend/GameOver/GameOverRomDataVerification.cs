@@ -6,6 +6,8 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.GameOver;
 using SuperMetroid.Verification.Harness;
@@ -23,9 +25,10 @@ internal static class GameOverRomDataVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the game-over Baby animation stream")]
     internal static void VerifyGameOverRomData()
     {
-        AssertEqual(GameOverRomData.TilemapWidth * sizeof(ushort),
-            GameOverRomData.TilemapRowByteCount,
-            "game-over tilemap row stride");
+        // #1416: the stride is the import's; the check asserts it is one page row of the installed page width.
+        AssertEqual(GameOverPresentationDefinitions.TilemapWidth * sizeof(ushort),
+            GameOverSourceDefinitions.TextRowBytes,
+            "game-over text row stride is one page row");
 
         var bus = new TestAddressSpace();
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -51,7 +54,7 @@ internal static class GameOverRomDataVerification
         }
         var queues = babyAudio.SoundQueues;
         var writes = babyAudio.SoundWritePositions;
-        ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
+        ushort pointer = GameOverBabyAnimationDefinitions.FirstPointer;
         // Record order in the native stream is the program's step identity.
         int step = 0;
         int timer = rom.ReadCartridgeWordFixedBank(0x820000 | pointer), cries = 0, records = 0, ticks = 0;
@@ -65,7 +68,7 @@ internal static class GameOverRomDataVerification
                 ushort command = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)next);
                 if (command == ushort.MaxValue)
                 {
-                    next = GameOverRomData.BabyAnimation.FirstInstruction;
+                    next = GameOverBabyAnimationDefinitions.FirstPointer;
                     step = -1;
                     looped = true;
                 }
@@ -109,7 +112,7 @@ internal static class GameOverRomDataVerification
             },
             maximumFrames: 160,
             "game-over menu fade-in");
-        AssertTrue(framesToMenu > GameOverRomData.MaximumBrightness,
+        AssertTrue(framesToMenu > GameOverMenuDefinitions.MaximumBrightness,
             "game-over menu waits for queued music before fading");
 
         menu.Step(SnesButton.Down);
@@ -118,7 +121,7 @@ internal static class GameOverRomDataVerification
             "game-over fixed menu layout renders one frontend frame");
 
         AssertThrows<InvalidDataException>(
-            () => GameOverRomData.BabyAnimation.ResolveCry(0xbeef),
+            () => GameOverBabyCries.ResolveCry(0xbeef),
             "unknown game-over Baby opcode fails loudly");
 
         Console.WriteLine(

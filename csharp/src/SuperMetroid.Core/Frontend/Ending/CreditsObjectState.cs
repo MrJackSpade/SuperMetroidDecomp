@@ -16,7 +16,7 @@ internal sealed class CreditsObjectState
     [NonSerialized] private CreditsPresentation? presentation;
     /// <summary>Thirty-two-row circular BG1 staging map updated one source row at a time.</summary>
     internal readonly ushort[] tilemap =
-        new ushort[EndingCreditsRomData.Rendering.TilemapWords];
+        new ushort[EndingScreenDefinitions.TilemapWords];
     /// <summary>Native 16.16 credits scroll; only the vertical axis moves, half a pixel per accepted update, wrapping at sixteen bits.</summary>
     private FixedPosition<BgPlanePixels> scroll;
     /// <summary>Last whole scroll position that caused a source row to be copied.</summary>
@@ -32,7 +32,7 @@ internal sealed class CreditsObjectState
     public CreditsObjectState(CreditsPresentation presentation)
     {
         this.presentation = Ensure.NotNull(presentation);
-        Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile);
+        Array.Fill(tilemap, EndingScreenDefinitions.BlankTile);
     }
 
     /// <summary>Whether the credits object still advances and may copy source rows.</summary>
@@ -52,7 +52,7 @@ internal sealed class CreditsObjectState
             return new CreditsObjectStepResult(false, Finished);
 
         // Half a pixel per accepted frame, carrying into the whole word and wrapping at 32 bits.
-        scroll = scroll.AdvanceY(EndingCreditsRomData.Motion.CreditsScrollVelocity);
+        scroll = scroll.AdvanceY(EndingMotionDefinitions.CreditsScrollVelocity);
 
         // A new source row is interpreted whenever the scroll advances eight whole pixels,
         // i.e. every sixteen NTSC frames. The wrapped signed distance is the cartridge's test.
@@ -72,10 +72,10 @@ internal sealed class CreditsObjectState
         else
         {
             content.GetRow(sourceRow++).CopyTo(
-                tilemap.AsSpan(NextRow * EndingCreditsRomData.Rendering.TilemapWidth,
-                    EndingCreditsRomData.Rendering.TilemapWidth));
+                tilemap.AsSpan(NextRow * EndingScreenDefinitions.TilemapWidth,
+                    EndingScreenDefinitions.TilemapWidth));
             NextRow = (NextRow + 1) &
-                (EndingCreditsRomData.Rendering.TilemapHeight - 1);
+                (EndingScreenDefinitions.TilemapHeight - 1);
             copied = true;
         }
         return new CreditsObjectStepResult(copied, Finished);

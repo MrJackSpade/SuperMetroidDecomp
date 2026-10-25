@@ -1,26 +1,25 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>WRAM source progression for the sixteen post-credits icon chunks.</summary>
+/// <summary>How the post-credits icon artwork is shown in sixteen equal chunks.</summary>
 internal static class EndingRewardGraphicsUploadDefinitions
 {
-    /// <summary>$7F:4000: decompressed post-credits icon staging buffer.</summary>
-    public const int SourceBase = 0x4000;
-    /// <summary>Func216 transfers $800 bytes on each of sixteen calls.</summary>
+    /// <summary>The bytes of icon artwork each of the sixteen chunk uploads shows.</summary>
     public const int ChunkBytes = 0x800;
-    /// <summary>Full $7F:4000–BFFF staging range consumed by Func216.</summary>
-    public const int SourceBytes = 0x8000;
+
+    /// <summary>The bytes of icon artwork the sixteen chunks show together; the installed icon must cover them.</summary>
+    public const int ArtworkBytes = ChunkBytes * EndingRewardJumpDefinitions.IconChunkCount;
 
     /// <summary>
-    /// $8B:F6B8..F6D7 stores $4000,$4800,...,$B800. The transfer source is a
-    /// WRAM word address; the uploaded artwork array begins at $7F:4000.
+    /// The bytes into the icon artwork chunk <paramref name="index"/> starts at: the chunks are consecutive
+    /// (#1416: the cartridge's work-RAM source words, $4000 to $B800, are verification's to check).
     /// </summary>
-    public static int SourceWord(int index)
+    public static int ChunkOffset(int index)
     {
         ValidateIndex(index);
-        return SourceBase + index * ChunkBytes;
+        return index * ChunkBytes;
     }
 
-    /// <summary>Rejects upload indexes outside the sixteen authored Func216 transfers.</summary>
+    /// <summary>Rejects upload indexes outside the sixteen chunk transfers.</summary>
     private static void ValidateIndex(int index)
     {
         if ((uint)index >= EndingRewardJumpDefinitions.IconChunkCount)

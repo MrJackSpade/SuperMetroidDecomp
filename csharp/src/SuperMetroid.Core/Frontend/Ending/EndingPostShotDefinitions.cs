@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Bank-$8B post-shot transition identities and native staging layout.</summary>
+/// <summary>The post-shot transition's timing, motion, sound and text layout.</summary>
 internal static class EndingPostShotDefinitions
 {
     /// <summary>The final text background plane E48A shows is 32 cells wide and this many cells tall: two screens stacked.</summary>
@@ -23,18 +23,8 @@ internal static class EndingPostShotDefinitions
     public const short OffsetX = -4;
     /// <summary>F604's post-shot BG vertical offset.</summary>
     public const short OffsetY = -8;
-    /// <summary>$99:E089: compressed Super Metroid logo tiles, decompressed to $7E:6000.</summary>
-    public const int LogoTiles = 0x99e089;
-    /// <summary>$99:ECC4: compressed logo map, decompressed to $7E:8000.</summary>
-    public const int LogoMap = 0x99ecc4;
-    /// <summary>$7F:D000: subtitle characters within the font decompressed at $7F:C000.</summary>
-    public const int SubtitleSource = 0x7fd000;
-    /// <summary>Subtitle characters start $1000 bytes into the font staging buffer.</summary>
+    /// <summary>The bytes into the ending font's characters the subtitle's characters start at.</summary>
     public const int SubtitleFontOffset = 0x1000;
-    /// <summary>$7E:6000: logo tile staging start, replacing the former shooting-sheet buffer.</summary>
-    public const int LogoTileSource = 0x7e6000;
-    /// <summary>$7E:8000: logo map staging start.</summary>
-    public const int LogoMapSource = 0x7e8000;
     /// <summary>Func126 initializes the reward Mode-7 scale to nine times unity.</summary>
     public const int InitialScale = 2304;
     /// <summary>Func139 reduces scale by $40 per frame.</summary>

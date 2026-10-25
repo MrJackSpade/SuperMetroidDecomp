@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The three WRAM staging buffers the post-shot transfers read from.</summary>
+/// <summary>The three pieces of artwork the post-shot parts show.</summary>
 internal enum EndingPostShotUploadSource
 {
-    /// <summary>The subtitle font page staged at <c>$7F:D000</c>.</summary>
+    /// <summary>The subtitle's characters in the ending font.</summary>
     Subtitle,
-    /// <summary>The decompressed logo tiles staged from <c>$7E:6000</c>.</summary>
+    /// <summary>The logo's tiles.</summary>
     LogoTiles,
-    /// <summary>The decompressed logo tilemap staged at <c>$7E:8000</c>.</summary>
+    /// <summary>The logo's tilemap.</summary>
     LogoMap,
 }

@@ -162,21 +162,4 @@ public static class CreditsPresentationDefinitions
         throw new InvalidDataException(
             $"Credits {style} tile word ${word:X4} has no safe UTF-8 mapping.");
     }
-
-    /// <summary>Native cartridge identities used only by extraction and parity verification.</summary>
-    public static class Native
-    {
-        /// <summary>$97:EEFF, compressed 128-row credits source tilemap.</summary>
-        public const int Tilemap = 0x97eeff;
-        /// <summary>Expanded credits source size at $7F:0000..1FFF.</summary>
-        public const int TilemapBytes = 0x2000;
-        /// <summary>$8C:D91B, beginning of the retail credits row instruction stream.</summary>
-        public const ushort InitialInstruction = 0xd91b;
-        /// <summary>Bank containing the retail credits row instruction stream.</summary>
-        public const byte InstructionBank = 0x8c;
-        /// <summary>High-word-bit mask distinguishing bank-$8B callback commands from duration/source-row records in the credits stream.</summary>
-        public const ushort CommandBit = 0x8000;
-        /// <summary>Host extraction bound of 4096 interpreted stream operations, including repeated loop commands; separate from the expected 520 output rows.</summary>
-        public const int MaximumOperations = 4096;
-    }
 }

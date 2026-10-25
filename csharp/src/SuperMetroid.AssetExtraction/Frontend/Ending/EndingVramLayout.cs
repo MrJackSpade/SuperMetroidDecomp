@@ -58,6 +58,9 @@ internal static class EndingVramLayout
     /// <summary>VRAM word $4C00: the upper screen of the 32x64 final-text map <c>$8B:E48A</c> shows, which <c>$8B:E504</c> continues at $5000.</summary>
     public const ushort FinalTextTilemapWord = 0x4c00;
 
+    /// <summary>VRAM word $4800: the result text's map, which <c>$8B:E190</c> selects for the first background (#1416: moved from Core).</summary>
+    public const ushort ResultPanelTilemapWord = 0x4800;
+
     /// <summary>Declares a native VRAM word interval against the full store for ending-scene overlap checks.</summary>
     private static PpuLayoutCell Vram(string name, int word, int count, string encoding) =>
         new(name, PpuLayoutRegion.Vram, word, count, encoding, PpuMemoryLayout.Vram);

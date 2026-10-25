@@ -4,9 +4,9 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -32,11 +32,11 @@ public static class EndingMode7ArtworkFiles
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
-            (int characterSource, int packedMapSource) = EndingCreditsRomData.Assets.FloorSources(id);
+            (int characterSource, int packedMapSource) = EndingArtworkSources.Floor(id);
             byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
-                EndingCreditsRomData.Rendering.DecompressionLimit);
+                EndingSourceDefinitions.Artwork.DecompressionLimit);
             byte[] packedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
-                EndingCreditsRomData.Rendering.DecompressionLimit);
+                EndingSourceDefinitions.Artwork.DecompressionLimit);
             if (characters.Length < EndingFloorArtworkFormat.CharacterByteCount ||
                 packedMap.Length < EndingFloorArtworkFormat.CharacterByteCount)
                 throw new InvalidDataException($"Ending {id} Mode-7 source is shorter than its native DMA.");
@@ -77,8 +77,8 @@ public static class EndingMode7ArtworkFiles
             Write(EndingFloorArtworkFormat.CharacterFileName(id), pngFile);
         }
         byte[] reward = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
-            EndingCreditsRomData.Rendering.DecompressionLimit);
+            EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
+            EndingSourceDefinitions.Artwork.DecompressionLimit);
         if (reward.Length < EndingRewardIconArtworkFormat.ByteCount)
             throw new InvalidDataException("Reward icon source is shorter than its sixteen native DMAs.");
         var rewardMap = new int[EndingRewardIconArtworkFormat.MapBytes];

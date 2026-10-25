@@ -28,7 +28,7 @@ internal static class EndingScreenPlanes
                     if (IsText(upload, EndingTextTilemap.FinalText))
                         Words(upload).CopyTo(words);
                     else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Load(Objects(objects).WaitingTilemap.Bytes.Span[..EndingCreditsRomData.Rendering.WaitingTilemapBytes], words);
+                        Load(Objects(objects).WaitingTilemap.Bytes.Span[..EndingArtworkExtentDefinitions.WaitingTilemapBytes], words);
                     break;
                 case EndingPlane.TextLower:
                     if (upload.Kind == EndingUploadKind.PostShotLowerTilemap)
@@ -41,7 +41,7 @@ internal static class EndingScreenPlanes
                     break;
                 case EndingPlane.WavySamus:
                     if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                        Load(Objects(objects).PostCreditsFragmentB.Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes], words);
+                        Load(Objects(objects).PostCreditsFragmentB.Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes], words);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(plane), plane, "Undefined ending plane.");
@@ -62,7 +62,7 @@ internal static class EndingScreenPlanes
         foreach (EndingUpload upload in uploads)
         {
             if (upload.Kind == EndingUploadKind.ObjectFragment && (EndingObjectFragmentId)upload.Key == fragment)
-                Load(Objects(objects).Fragment(fragment).Characters.Span[..EndingCreditsRomData.Rendering.ObjectFragmentBytes], words);
+                Load(Objects(objects).Fragment(fragment).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes], words);
         }
         return words;
     }

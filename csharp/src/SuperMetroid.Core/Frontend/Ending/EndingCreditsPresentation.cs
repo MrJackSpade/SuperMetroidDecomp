@@ -57,7 +57,7 @@ internal static class EndingCreditsPresentation
                             EndingTileLayer.WavySamus, BgBitDepth.TwoBpp),
                         PostCreditsLayer(ending))
                         .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
-                            EndingCreditsRomData.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
+                            EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
             }
             else if (ending.EscapeBackgroundEnabled)
             {
@@ -113,10 +113,10 @@ internal static class EndingCreditsPresentation
     /// <summary>The OBJ selection the render snapshot needs to draw actors from <paramref name="sheet"/>.</summary>
     internal static byte ObjectSelection(EndingObjectSheet sheet) => sheet switch
     {
-        EndingObjectSheet.Clouds => EndingCreditsRomData.Rendering.CloudObjectSelection,
-        EndingObjectSheet.Explosion => EndingCreditsRomData.Rendering.EscapeObjectSelection,
-        EndingObjectSheet.Reward => EndingCreditsRomData.Rendering.RewardObjectSelection,
-        EndingObjectSheet.RewardFalling => EndingCreditsRomData.Rendering.FallingRewardObjectSelection,
+        EndingObjectSheet.Clouds => EndingScreenDefinitions.CloudObjectSelection,
+        EndingObjectSheet.Explosion => EndingScreenDefinitions.EscapeObjectSelection,
+        EndingObjectSheet.Reward => EndingScreenDefinitions.RewardObjectSelection,
+        EndingObjectSheet.RewardFalling => EndingScreenDefinitions.FallingRewardObjectSelection,
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined ending object sheet."),
     };
 
@@ -134,8 +134,8 @@ internal static class EndingCreditsPresentation
 
     /// <summary>Mode 7 rotation center, shared by atmospheric scenes and changed for flyaway.</summary>
     private static Offset16<Mode7Pixels> CurrentFloorCenter(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.PlanetEscapeFast
-        ? EndingCreditsRomData.Rendering.AtmosphericFloorCenter
-        : EndingCreditsRomData.Rendering.FloorCenter;
+        ? EndingMotionDefinitions.AtmosphericFloorCenter
+        : EndingMotionDefinitions.FloorCenter;
 
     /// <summary>Whether the phase displays post-credit BG; the armored reward uses OBJ alone.</summary>
     private static bool PostCreditsBackgroundEnabled(EndingCreditsState ending) => ending.Stage.Phase != EndingCreditsPhase.PostCreditsBlank

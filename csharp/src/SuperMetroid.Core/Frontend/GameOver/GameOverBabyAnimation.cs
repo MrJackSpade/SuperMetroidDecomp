@@ -61,19 +61,19 @@ public static class GameOverBabyAnimation
         {
             groupStep = step;
             idleSteps = FirstGroupIdleSteps;
-            cry = GameOverBabySound.Cry23;
+            cry = GameOverBabySound.FirstCry;
         }
         else if (step < FirstGroupSteps + SecondGroupSteps)
         {
             groupStep = step - FirstGroupSteps;
             idleSteps = SecondGroupIdleSteps;
-            cry = GameOverBabySound.Cry26;
+            cry = GameOverBabySound.SecondCry;
         }
         else
         {
             groupStep = step - FirstGroupSteps - SecondGroupSteps;
             idleSteps = ThirdGroupIdleSteps;
-            cry = GameOverBabySound.Cry27;
+            cry = GameOverBabySound.ThirdCry;
         }
         int cryStep = groupStep - idleSteps;
         GameOverBabyFrame frame = WavePose(groupStep % CycleSteps);

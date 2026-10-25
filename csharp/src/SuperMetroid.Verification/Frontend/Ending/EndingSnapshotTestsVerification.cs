@@ -10,6 +10,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>
@@ -163,8 +164,8 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(hours < 3 ? 279 : 200,
                         tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsJump],
                         "live reward jump consumes native flight and landing durations before shooting");
-                    byte[] icon = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.PostCreditsFloorCharacters,
-                        EndingCreditsRomData.Rendering.DecompressionLimit);
+                    byte[] icon = RomDataReader.Decompress(bus, EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
+                        EndingSourceDefinitions.Artwork.DecompressionLimit);
                     AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(legacy.ShownVram()[..0x8000]),
                         "live landing uploads all sixteen chunks of the native interleaved icon graphics");
                 }

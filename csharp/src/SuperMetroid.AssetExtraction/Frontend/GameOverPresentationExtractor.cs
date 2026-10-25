@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
@@ -28,8 +29,8 @@ public static class GameOverPresentationExtractor
         VerifyCompiledAnimation(bus);
 
         ushort[] tilemap = new ushort[GameOverPresentationDefinitions.TilemapCellCount];
-        Array.Fill(tilemap, GameOverRomData.BlankTile.Raw);
-        foreach (GameOverTextStream stream in GameOverRomData.Text.All)
+        Array.Fill(tilemap, GameOverPresentationDefinitions.BlankTile);
+        foreach (GameOverTextStream stream in GameOverTexts.All)
             LoadText(stream);
 
         var cells = new MapPresentationCell[tilemap.Length];
@@ -59,7 +60,7 @@ public static class GameOverPresentationExtractor
                 MenuSpriteExtractor.Read(bus,
                     GameOverBabyAnimationDefinitions.NativeSpritemap(GameOverBabyFrame.Open)),
             [GameOverPresentationDefinitions.EggFrame] =
-                MenuSpriteExtractor.Read(bus, GameOverRomData.Sprites.EggSpritemap),
+                MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap),
         };
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
         {
@@ -70,7 +71,7 @@ public static class GameOverPresentationExtractor
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         {
-            var colors = new ushort[GameOverRomData.BabyAnimation.PaletteColorCount];
+            var colors = new ushort[GameOverMenuDefinitions.BabyPaletteColorCount];
             ushort pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = ReadBank82Word(unchecked((ushort)(pointer + color * 2)));
@@ -84,12 +85,12 @@ public static class GameOverPresentationExtractor
             Tilemap = cells,
             Sprites = sprites,
             BabyPalettes = palettes,
-            BabyAnchor = new(GameOverRomData.Sprites.BabyX, GameOverRomData.Sprites.BabyY),
-            CursorX = GameOverRomData.Sprites.MissileX,
-            YesCursorY = GameOverRomData.Sprites.YesMissileY,
-            NoCursorY = GameOverRomData.Sprites.NoMissileY,
-            BabyPalette = GameOverRomData.Sprites.BabyPalette.PaletteIndex,
-            EggPalette = GameOverRomData.Sprites.EggPalette.PaletteIndex,
+            BabyAnchor = new(GameOverSourceDefinitions.BabyX, GameOverSourceDefinitions.BabyY),
+            CursorX = GameOverSourceDefinitions.MissileX,
+            YesCursorY = GameOverSourceDefinitions.YesMissileY,
+            NoCursorY = GameOverSourceDefinitions.NoMissileY,
+            BabyPalette = GameOverSourceDefinitions.BabyPalette,
+            EggPalette = GameOverSourceDefinitions.EggPalette,
             CursorPalette = MenuRenderDefinitions.ObjectPaletteBits >> 9,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
@@ -98,13 +99,13 @@ public static class GameOverPresentationExtractor
         void LoadText(GameOverTextStream stream)
         {
             // The cartridge's load immediates name each element's first cell as a byte offset into the page's rows.
-            int destinationByteOffset = (stream.Origin.Y * GameOverRomData.TilemapWidth + stream.Origin.X) * sizeof(ushort);
+            int destinationByteOffset = (stream.Origin.Y * GameOverPresentationDefinitions.TilemapWidth + stream.Origin.X) * sizeof(ushort);
             int initialColumn = destinationByteOffset;
-            int sourceAddress = GameOverRomData.TextBank | GameOverTextSources.Pointer(stream.Element);
+            int sourceAddress = GameOverSourceDefinitions.TextBank | GameOverTextSources.Pointer(stream.Element);
             while (true)
             {
                 ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
-                sourceAddress = GameOverRomData.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
+                sourceAddress = GameOverSourceDefinitions.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
                 if (Enum.IsDefined((GameOverTextControl)word))
                 {
                     switch ((GameOverTextControl)word)
@@ -112,7 +113,7 @@ public static class GameOverPresentationExtractor
                         case GameOverTextControl.End:
                             return;
                         case GameOverTextControl.NextLine:
-                            initialColumn += GameOverRomData.TilemapRowByteCount;
+                            initialColumn += GameOverSourceDefinitions.TextRowBytes;
                             destinationByteOffset = initialColumn;
                             continue;
                         default:
@@ -130,7 +131,7 @@ public static class GameOverPresentationExtractor
         }
 
         ushort ReadBank82Word(ushort pointer) =>
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverRomData.SpriteBank | pointer);
+            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverSourceDefinitions.SpriteBank | pointer);
     }
 
     /// <summary>Compares each Baby pose's duration, sprite, palette, sound handoff, and restart marker with the compiled dispatcher.</summary>
@@ -145,7 +146,7 @@ public static class GameOverPresentationExtractor
         int pointer = GameOverBabyAnimationDefinitions.FirstPointer;
         foreach (GameOverBabyInstruction instruction in GameOverBabyAnimation.All)
         {
-            int address = GameOverRomData.SpriteBank | pointer;
+            int address = GameOverSourceDefinitions.SpriteBank | pointer;
             ushort duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             ushort sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
             ushort palette = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 4);
@@ -158,7 +159,7 @@ public static class GameOverPresentationExtractor
             ushort nextWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6);
             if (instruction.RestartAfter)
             {
-                if (nextWord != GameOverRomData.BabyAnimation.End)
+                if (nextWord != GameOverSourceDefinitions.BabyAnimationEnd)
                     throw new InvalidDataException(
                         $"Game-over Baby instruction $82:{pointer:X4} lacks its native end marker.");
             }

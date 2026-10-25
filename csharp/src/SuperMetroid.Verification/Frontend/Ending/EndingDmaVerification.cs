@@ -29,7 +29,7 @@ internal static class EndingDmaVerification
         var audio = new AudioQueues();
         var ending = CreateRetailEndingFixture(audio, 0, 0);
         // The setup's NMI waits each end a dispatcher call; the call after the last runs the scene setup.
-        for (int call = 0; call <= EndingCreditsRomData.SetupFrameWaits; call++)
+        for (int call = 0; call <= EndingSequenceDefinitions.SetupFrameWaits; call++)
             ending.Step();
         AssertEqual(EndingCreditsPhase.WaitForEscapeMusic, ending.Stage.Phase, "ending setup completes after its NMI waits");
         var projection = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Transform;

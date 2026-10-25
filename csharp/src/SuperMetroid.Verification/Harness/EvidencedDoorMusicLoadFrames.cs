@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -27,11 +26,11 @@ internal sealed class EvidencedDoorMusicLoadFrames : IDoorMusicLoadFrames
     }
 
     /// <summary>Consumes the evidenced accepted-NMI count once, rejecting an unexpected or duplicate upload.</summary>
-    public int FramesCountedDuringMusicLoad(MusicDataSet musicSet)
+    public int FramesCountedDuringMusicLoad()
     {
         if (expected == 0)
             throw new InvalidDataException(
-                $"Update {update} loaded music data set {musicSet}, but native recorded no upload wait.");
+                $"Update {update} loaded a music data set, but native recorded no upload wait.");
         if (consumed)
             throw new InvalidDataException($"Update {update} uploaded music data twice.");
         consumed = true;

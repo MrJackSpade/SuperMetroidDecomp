@@ -132,7 +132,7 @@ internal sealed class BeamCombos
         if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
         {
             _animation.ClearProjectile(slot);
-            return outward ? (ushort)0 : (ushort)36;
+            return outward ? null : Library1Sound.IceSpecialAttackEnd;
         }
         ushort oldTimer = slot.TrailTimer.RawValue;
         slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));

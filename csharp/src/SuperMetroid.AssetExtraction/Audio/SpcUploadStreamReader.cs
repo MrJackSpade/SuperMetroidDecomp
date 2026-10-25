@@ -8,13 +8,18 @@ namespace SuperMetroid.AssetExtraction.Audio;
 [CpuBusBoundary("codec: ROM APU_UploadBank upload stream → SPC upload bytes")]
 public static class SpcUploadStreamReader
 {
+    /// <summary>
+    /// The host import's safety bound of 69,632 collected bytes, checked before each upload block; not a native
+    /// block-length field or an exact stream size.
+    /// </summary>
+    private const int MaximumStreamBytes = 69_632;
+
     /// <summary>Copies one terminated upload stream from contiguous LoROM file order.</summary>
     public static byte[] Read(IImportCartridgeSource cartridge, int sourceAddress,
         bool includeExecutionAddress = false)
     {
         Ensure.NotNull(cartridge);
-        if ((uint)sourceAddress > AudioRomData.SpcUpload.MaximumSnesAddress ||
-            (sourceAddress & AudioRomData.SpcUpload.LoRomUpperWindowBit) == 0)
+        if ((uint)sourceAddress > SnesBusLayout.MaximumAddress || !SnesAddress.FromBusAddress(sourceAddress).IsUpperLoRomWindow)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(sourceAddress),
@@ -23,8 +28,8 @@ public static class SpcUploadStreamReader
         }
 
         List<byte> bytes = [];
-        int cursor = sourceAddress;
-        while (bytes.Count < AudioRomData.SpcUpload.MaximumStreamBytes)
+        SnesAddress cursor = SnesAddress.FromBusAddress(sourceAddress);
+        while (bytes.Count < MaximumStreamBytes)
         {
             ushort byteCount = ReadWord(cartridge, ref cursor, bytes);
             if (byteCount == 0)
@@ -45,11 +50,11 @@ public static class SpcUploadStreamReader
 
         throw new InvalidDataException(
             $"SPC upload at ${SnesAddressMath.BankNumber(sourceAddress):X2}:{SnesAddressMath.OffsetInBank(sourceAddress):X4} " +
-            $"did not terminate within ${AudioRomData.SpcUpload.MaximumStreamBytes:X} bytes.");
+            $"did not terminate within ${MaximumStreamBytes:X} bytes.");
     }
 
     /// <summary>Copies the next two stream bytes and interprets their little-endian wire value.</summary>
-    private static ushort ReadWord(IImportCartridgeSource cartridge, ref int cursor,
+    private static ushort ReadWord(IImportCartridgeSource cartridge, ref SnesAddress cursor,
         List<byte> bytes)
     {
         byte low = ReadByte(cartridge, ref cursor, bytes);
@@ -58,26 +63,14 @@ public static class SpcUploadStreamReader
     }
 
     /// <summary>Copies one source byte and advances over LoROM bank boundaries in file order.</summary>
-    private static byte ReadByte(IImportCartridgeSource cartridge, ref int cursor,
+    private static byte ReadByte(IImportCartridgeSource cartridge, ref SnesAddress cursor,
         List<byte> bytes)
     {
-        byte value = cartridge.ReadCartridgeByte(cursor);
+        byte value = cartridge.ReadCartridgeByte((int)cursor);
         bytes.Add(value);
-        cursor = AdvanceLoRom(cursor);
+        // C pointer arithmetic over RomPtr crosses from one bank's $FFFF directly to the next bank's $8000.
+        cursor = cursor.NextLoRomByte();
         return value;
     }
 
-    /// <summary>
-    /// C pointer arithmetic over <c>RomPtr</c> crosses from one bank's $FFFF directly to
-    /// the next bank's $8000. CPU-address increment alone would enter an unmapped lower
-    /// half, so express that physical cartridge continuation explicitly.
-    /// </summary>
-    private static int AdvanceLoRom(int address)
-    {
-        int bank = (SnesAddressMath.BankNumber(address)) & AudioRomData.SpcUpload.AddressBankMask;
-        int offset = SnesAddressMath.OffsetInBank(address);
-        return offset == AudioRomData.SpcUpload.LastBankOffset
-            ? ((int)new SnesAddress(checked((byte)((bank + 1) & AudioRomData.SpcUpload.AddressBankMask)), checked(AudioRomData.SpcUpload.FirstMappedBankOffset)))
-            : address + 1;
-    }
 }

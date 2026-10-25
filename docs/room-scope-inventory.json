@@ -402,17 +402,17 @@
    "evidence": "frontend, audio, save, HUD or asset state outside the room-load path"
   },
   {
-   "file": "Audio/CartridgeAudioState.cs",
-   "line": 100,
-   "owner": "CartridgeAudioState",
+   "file": "Audio/AudioQueues.cs",
+   "line": 105,
+   "owner": "AudioQueues",
    "method": "Reset",
    "classification": "unrelated",
    "evidence": "frontend, audio, save, HUD or asset state outside the room-load path"
   },
   {
-   "file": "Audio/CartridgeAudioState.cs",
-   "line": 377,
-   "owner": "CartridgeAudioState",
+   "file": "Audio/AudioQueues.cs",
+   "line": 365,
+   "owner": "AudioQueues",
    "method": "ClearAndAdvanceMusicEntry",
    "classification": "unrelated",
    "evidence": "frontend, audio, save, HUD or asset state outside the room-load path"

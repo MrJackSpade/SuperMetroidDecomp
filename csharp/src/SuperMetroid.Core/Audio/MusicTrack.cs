@@ -18,11 +18,6 @@ public readonly record struct MusicTrack
     /// <summary>The track's number within its data set, 1 through <see cref="LastNumber"/>.</summary>
     public int Number { get; }
 
-    /// <summary>The track numbered <paramref name="number"/>, or null for zero, which plays no track.</summary>
-    /// <param name="number">A track number, or zero for none.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside 0 through <see cref="LastNumber"/>.</exception>
-    public static MusicTrack? NumberedOrNone(int number) => number == 0 ? null : new MusicTrack(number);
-
     /// <inheritdoc />
     public override string ToString() => $"track {Number}";
 }

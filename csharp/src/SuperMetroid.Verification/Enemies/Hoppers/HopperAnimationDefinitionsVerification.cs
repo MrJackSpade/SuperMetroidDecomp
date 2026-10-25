@@ -97,8 +97,6 @@ internal static class HopperAnimationDefinitionsVerification
             : "Installed Sidehopper/Dessgeega: sixteen floor/ceiling programs and the Tourian alias run with the installed artwork.");
     }
 
-    /// <summary>The Sidehopper and Dessgeega animation bank.</summary>
-    private const byte HopperFrameDefinitionsBank = SuperMetroid.Core.Enemies.Hoppers.Artwork.HopperFrameToolingDefinitions.Bank;
 
     /// <summary>Checks the Tourian Sidehopper uses the large-Sidehopper landed program and sound.</summary>
     private static void VerifyTourianSidehopperInstructionAlias(

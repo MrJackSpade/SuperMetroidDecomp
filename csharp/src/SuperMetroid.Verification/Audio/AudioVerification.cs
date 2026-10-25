@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
@@ -107,7 +108,7 @@ internal static class AudioVerification
         {
             foreach (AudioRequest command in audio.AdvanceFrame(default))
             {
-                if (command == AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5)))
+                if (command == AudioRequest.ForTrack(new MusicTrack(5)))
                     trackCall = call;
             }
         }
@@ -173,7 +174,7 @@ internal static class AudioVerification
             if (roomTrack == 0)
                 AssertEqual(0, portWrites.Count, "room byte zero inherits rather than queues stop");
             else
-                AssertSequenceEqual(new[] { AudioRequest.ForTrack(MusicTrack.NumberedOrNone(roomTrack & 0x7f)) }, portWrites,
+                AssertSequenceEqual(new[] { AudioRequest.ForTrack((roomTrack & 0x7f) == 0 ? null : new MusicTrack(roomTrack & 0x7f)) }, portWrites,
                     $"native room track ${roomTrack:X2} dispatches its low seven bits");
         }
 
@@ -195,7 +196,7 @@ internal static class AudioVerification
             "Landing Site changes the post-Ceres SPC data bank");
         AssertTrue(
             postCeresMusicCommands.Any(command =>
-                command == AudioRequest.ForTrack(MusicTrack.NumberedOrNone(5))),
+                command == AudioRequest.ForTrack(new MusicTrack(5))),
             "Landing Site restarts same-numbered track after SPC data-bank change");
 
         var sfx = new AudioQueues();
@@ -280,7 +281,7 @@ internal static class AudioVerification
             "SPC upload rejects the unmapped LoROM lower window");
         AssertThrows<ArgumentOutOfRangeException>(
             () => SpcUploadStreamReader.Read(
-                bus, AudioRomData.SpcUpload.MaximumSnesAddress + 1),
+                bus, SnesBusLayout.MaximumAddress + 1),
             "SPC upload rejects addresses wider than 24 bits");
 
         Console.WriteLine("  Audio: music requests and delays, 25 compiled upload routes, room music import rejection, inherited Ceres track, post-Ceres bank/track restart, item fanfare, paired SFX identities/catalogs, handshake, and LoROM stream agree.");

@@ -9,6 +9,8 @@ using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.GameOver;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Compares the game-over Baby instruction stream and cries with
 /// cartridge data, then checks the live menu layout and selection.</summary>
@@ -74,7 +76,7 @@ internal static class GameOverRomDataVerification
                         "game-over reference cry starts with LDA immediate");
                     StepBaby();
                     // Library-three slot zero holds index zero's CancelAll request.
-                    AssertEqual((byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1)), queues[2, cries + 1],
+                    AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library3, (byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1))), queues[2, cries + 1],
                         "game-over cry queues the exact native library-three effect");
                     cries++;
                     next += 2;

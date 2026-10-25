@@ -22,6 +22,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Constructed cartridge checks for ball movement, bombs, blast reactions, and tight passages.</summary>
 internal static class SamusMorphBallVerification
@@ -1193,7 +1194,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "respawning shot block begins with retail air frame");
     AssertEqual(1, shotPlms.Sounds.SoundRequests.Count,
         "shot-block head queues one sound request");
-    AssertEqual(0x0a, shotPlms.Sounds.SoundRequests[0].SoundEffect.Value,
+    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, 0x0a), shotPlms.Sounds.SoundRequests[0].SoundEffect,
         "shot-block head queues crumble sound $0A");
     AssertEqual(1, shotPlms.Sounds.SoundRequests[0].MaximumQueued.Requests,
         "$84:8C79 uses sound-library-two maximum one");

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -16,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// which would play its low seven bits, and an index that names no data set appear in no retail room state, so they fail
 /// here rather than reach the game.
 /// </remarks>
-public static class RoomMusicCodec
+internal static class RoomMusicCodec
 {
     /// <summary>The track byte the retail room states use to silence the music.</summary>
     private const byte SilencedTrack = 0x80;

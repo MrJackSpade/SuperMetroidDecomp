@@ -364,7 +364,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (RewardJump.ShotRequested)
                 {
                     CreditsRoll.CurrentPostShot = new EndingPostShot(screen.Palette);
-                    audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.SoundQueueLimit);
+                    audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundLimit);
                     Stage.Phase = EndingCreditsPhase.PostCreditsShot;
                 }
                 break;

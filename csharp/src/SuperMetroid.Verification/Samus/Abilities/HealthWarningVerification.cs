@@ -3,6 +3,8 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks the low-health warning latch and sound-queue threshold edges.</summary>
 internal static class HealthWarningVerification
@@ -13,13 +15,13 @@ internal static class HealthWarningVerification
         var warning = new SamusHealthWarningState();
         var audio = new AudioQueues();
         byte[] positions = audio.SoundWritePositions;
-        byte[,] queues = audio.SoundQueues;
+        SoundEffectId?[,] queues = audio.SoundQueues;
         foreach (var sample in new[] { new VerifyHealthWarningCase(99, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(0, 0), new VerifyHealthWarningCase(30, 0), new VerifyHealthWarningCase(31, 1), new VerifyHealthWarningCase(32, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(31, 1) })
         {
             audio.Reset();
             warning.Update((ushort)sample.First, audio);
             AssertEqual(sample.Second == 0 ? 0 : 1, positions[2], "warning queues only threshold transitions");
-            if (sample.Second != 0) AssertEqual(sample.Second, queues[2, 0], "warning native start/stop ID");
+            if (sample.Second != 0) AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, sample.Second), queues[2, 0], "warning native start/stop ID");
         }
         foreach (bool suppressed in new[] { false, true })
         {

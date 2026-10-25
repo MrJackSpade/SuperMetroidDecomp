@@ -653,8 +653,8 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(SoundEffectLibrary.Library2,
                 paletteFx.SoundRequests[0].SoundEffect.Library,
                 "beacon selects sound library two");
-            AssertEqual(BeaconPaletteFxColorDefinitionsConstants.SoundId,
-                paletteFx.SoundRequests[0].SoundEffect.Value,
+            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, BeaconPaletteFxColorDefinitionsConstants.SoundId),
+                paletteFx.SoundRequests[0].SoundEffect,
                 "beacon retains its compiled sound ID");
             soundCount++;
         }

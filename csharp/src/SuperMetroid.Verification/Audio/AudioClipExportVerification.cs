@@ -80,7 +80,7 @@ internal static class AudioClipExportVerification
         short[] independent = RenderIndependently(
             catalog,
             MusicDataSet.GreenBrinstar,
-            AudioRequest.ForTrack(MusicTrack.NumberedOrNone(unchecked((byte)track))),
+            AudioRequest.ForTrack(new MusicTrack(unchecked((byte)track))),
             player => player.Music.musicPortToSnes == track,
             byte.MaxValue,
             frames + (frames - loopStart));

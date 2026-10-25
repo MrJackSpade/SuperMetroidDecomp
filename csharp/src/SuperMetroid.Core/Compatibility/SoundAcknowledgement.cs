@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Compatibility;
 public readonly record struct SoundAcknowledgement<TSound>
     where TSound : struct, IEquatable<TSound>
 {
-    /// <summary>The library reports nothing: no request is pending.</summary>
-    public static SoundAcknowledgement<TSound> None => default;
 
     /// <summary>Library one reports new music loading instead of an acknowledgement; it matches no request.</summary>
     public static SoundAcknowledgement<TSound> MusicLoading { get; } = new() { IsMusicLoading = true };

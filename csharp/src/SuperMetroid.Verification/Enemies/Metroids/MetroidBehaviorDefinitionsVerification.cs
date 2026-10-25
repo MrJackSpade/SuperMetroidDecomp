@@ -11,6 +11,8 @@ namespace SuperMetroid.Verification.Enemies.Metroids;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Checks compiled Metroid escape movement and random cry words against retail sources.</summary>
 internal static class MetroidBehaviorDefinitionsVerification
@@ -30,8 +32,9 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         for (ushort index = 0; index < 8; index++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2)),
-                MetroidBehaviorDefinitions.RandomCrySoundEffect(index).Value,
+            SoundEffectId cry = MetroidBehaviorDefinitions.RandomCrySoundEffect(index);
+            AssertEqual(SoundEffectCommands.Decode(cry.Library, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2))),
+                cry,
                 $"Metroid random cry {index}");
         }
 

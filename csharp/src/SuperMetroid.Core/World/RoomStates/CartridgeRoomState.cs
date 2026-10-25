@@ -26,5 +26,5 @@ public sealed record CartridgeRoomState(
     public int GraphicsSet { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, GraphicsSet);
 
     /// <summary>The music data set and track the room state selects.</summary>
-    public RoomMusic Music { get; init; } = Ensure.NotNull(Music);
+    public RoomMusic Music { get; init; } = Music;
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -42,7 +41,7 @@ internal static class AudioClipBackendVerification
     {
         ClipAudioCatalog clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
-        VerifyEquivalence(clips, extracted, AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack)), MusicUpdates, "Green Brinstar room track");
+        VerifyEquivalence(clips, extracted, AudioRequest.ForTrack(new MusicTrack(RoomTrack)), MusicUpdates, "Green Brinstar room track");
         VerifyEquivalence(clips, extracted, new AudioRequest.RequestSound(Library1Sound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
         VerifyMusicCommands(clips);
         VerifySoundCommands(clips);
@@ -82,12 +81,12 @@ internal static class AudioClipBackendVerification
     {
         var script = new Script(clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
-        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack))]);
+        script.Advance([AudioRequest.ForTrack(new MusicTrack(RoomTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
         long start = script.State.MusicStart;
         AssertEqual(clips.GetMusic(MusicDataSet.GreenBrinstar, RoomTrack), script.State.Music, "the room track's clip starts");
 
-        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(RoomTrack))]);
+        script.Advance([AudioRequest.ForTrack(new MusicTrack(RoomTrack))]);
         script.Advance(60);
         AssertEqual(start, script.State.MusicStart, "writing the playing track does not restart it");
 
@@ -97,13 +96,13 @@ internal static class AudioClipBackendVerification
 
         MusicClipEntry ending = clips.GetMusic(MusicDataSet.GreenBrinstar, EndingTrack);
         AssertTrue(ending.LoopStart is null, "track 2 ends");
-        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(EndingTrack))]);
+        script.Advance([AudioRequest.ForTrack(new MusicTrack(EndingTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
         long firstStart = script.State.MusicStart;
         script.AdvanceUntil(() => script.State.Music is null, (int)(ending.Clip.Frames / ManagedSnesDsp.NativeStereoFramesPerVideoFrame) + 2);
         AssertEqual(0, script.State.MusicPort, "an ended track returns the port to zero");
         AssertTrue(script.State.Sample - firstStart >= ending.Clip.Frames, "the track ended after its whole clip");
-        script.Advance([AudioRequest.ForTrack(MusicTrack.NumberedOrNone(EndingTrack))]);
+        script.Advance([AudioRequest.ForTrack(new MusicTrack(EndingTrack))]);
         script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
         AssertTrue(script.State.MusicStart > firstStart, "the same track restarts after it ended");
     }

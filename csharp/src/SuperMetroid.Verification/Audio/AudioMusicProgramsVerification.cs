@@ -58,7 +58,7 @@ internal static class AudioMusicProgramsVerification
                 ExtractedAudioAssetCatalog.ManifestFileName);
             AudioAssetManifest manifest = ReadAudioManifest(manifestPath);
             AudioBankMetadata title = manifest.Banks.Single(
-                bank => bank.SnesAddress == AudioUploadAddresses.TitleSequence);
+                bank => bank.SnesAddress == (int)AudioUploadSourceDefinitions.TitleSequence);
             int titleTrackIndex = AudioRomDataMusicTracks.Title;
             AudioMusicTrackMetadata titleTrack = title.MusicTracks[titleTrackIndex];
             HashSet<int> titlePhraseAddresses = titleTrack.Instructions
@@ -124,7 +124,7 @@ internal static class AudioMusicProgramsVerification
             var editedRenderer = AudioSessionAccess.CreateSynthesizing(edited);
             AudioRequest common = new AudioRequest.ChangeMusicDataSet(null);
             AudioRequest titleUpload = new AudioRequest.ChangeMusicDataSet(MusicDataSet.TitleSequence);
-            AudioRequest titleCommand = AudioRequest.ForTrack(MusicTrack.NumberedOrNone(unchecked((byte)titleTrackIndex)));
+            AudioRequest titleCommand = AudioRequest.ForTrack(new MusicTrack(unchecked((byte)titleTrackIndex)));
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);
             stockRenderer.RenderFrame([titleUpload]);

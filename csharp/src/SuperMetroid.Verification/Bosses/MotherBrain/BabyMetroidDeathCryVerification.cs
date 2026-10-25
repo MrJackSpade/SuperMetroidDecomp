@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;

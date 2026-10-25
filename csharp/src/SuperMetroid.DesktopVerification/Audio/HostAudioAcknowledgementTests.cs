@@ -72,7 +72,7 @@ internal static class HostAudioAcknowledgementTests
     {
         Check(host.FrameNumber == reference.FrameNumber && host.GameState == reference.GameState,
             $"host and Core cadence diverged at {context}");
-        Check(host.AudioAcknowledgementsForVerification == reference.AudioAcknowledgementsForVerification,
+        Check(host.AudioAcknowledgementsForVerification.Equals(reference.AudioAcknowledgementsForVerification),
             $"host acknowledgements diverged at {context}");
         Check(host.AudioForVerification.HasQueuedSounds == reference.AudioForVerification.HasQueuedSounds,
             $"host queued-sound state diverged at {context}");

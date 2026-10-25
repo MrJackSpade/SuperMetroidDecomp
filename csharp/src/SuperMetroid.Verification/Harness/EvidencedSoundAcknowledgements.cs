@@ -88,7 +88,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
     /// </summary>
     private static SoundAcknowledgement<SoundEffectId> Unmatched(int library, SoundEffectId? compared) =>
         compared is not null
-            ? SoundAcknowledgement<SoundEffectId>.None
+            ? SoundAcknowledgement<SoundEffectId>.Of(null)
             : SoundAcknowledgement<SoundEffectId>.Of(library switch
             {
                 0 => Library1Sound.Silence,
@@ -96,7 +96,6 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTimi
                 2 => Library3Sound.Silence,
                 _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Sound libraries are indexed 0 through 2."),
             });
-    }
 
     /// <summary>Records the native sound-handler state after an update.</summary>
     public void Capture(NativeCheckpointMemory nativeMemory)

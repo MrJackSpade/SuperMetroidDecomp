@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectileRomDataV
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
@@ -25,7 +26,7 @@ internal static class ProjectileSoundRoutingVerification
             {
                 ushort expected = ReadProjectileWord(retail, table + selector * 2);
                 AssertEqual(
-                    expected,
+                    SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library1, expected),
                     SamusProjectileSoundRoutingDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(selector)),
                     $"{(charged ? "charged" : "uncharged")} beam sound selector {selector:X}");
                 observations++;

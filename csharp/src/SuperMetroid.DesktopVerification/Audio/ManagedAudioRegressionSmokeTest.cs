@@ -124,7 +124,7 @@ public static class ManagedAudioRegressionSmokeTest
                 [
                     new AudioRequest.ChangeMusicDataSet(null),
                     new AudioRequest.ChangeMusicDataSet(bank.DataSet),
-                    AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)),
+                    AudioRequest.ForTrack(new MusicTrack(1)),
                 ]
                 : Array.Empty<AudioRequest>();
             HashFrame(name, engine, commands, tally);
@@ -173,7 +173,7 @@ public static class ManagedAudioRegressionSmokeTest
             {
                 commands.Add(new AudioRequest.ChangeMusicDataSet(null));
                 commands.Add(new AudioRequest.ChangeMusicDataSet(first.DataSet));
-                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
+                commands.Add(AudioRequest.ForTrack(new MusicTrack(1)));
             }
             else if (frame == 120)
             {
@@ -182,7 +182,7 @@ public static class ManagedAudioRegressionSmokeTest
             else if (frame == 150)
             {
                 commands.Add(new AudioRequest.ChangeMusicDataSet(second.DataSet));
-                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
+                commands.Add(AudioRequest.ForTrack(new MusicTrack(1)));
             }
             else if (frame == 270)
             {
@@ -195,11 +195,11 @@ public static class ManagedAudioRegressionSmokeTest
             }
             else if (frame == 390)
             {
-                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(2)));
+                commands.Add(AudioRequest.ForTrack(new MusicTrack(2)));
             }
             else if (frame == 510)
             {
-                commands.Add(AudioRequest.ForTrack(MusicTrack.NumberedOrNone(1)));
+                commands.Add(AudioRequest.ForTrack(new MusicTrack(1)));
             }
             HashFrame(
                 "music-lifecycle", engine, commands, tally);
@@ -225,7 +225,7 @@ public static class ManagedAudioRegressionSmokeTest
         Span<byte> reported = stackalloc byte[1 + SoundClockTiming.LibraryCount];
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
         for (int library = 0; library < SoundClockTiming.LibraryCount; library++)
-            reported[1 + library] = SoundEffectCommands.PortByte(acknowledgements[library]);
+            reported[1 + library] = SoundEffectPortBytes.PortByte(acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;

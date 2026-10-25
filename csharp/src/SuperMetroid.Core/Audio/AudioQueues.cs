@@ -140,7 +140,6 @@ public sealed class AudioQueues
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
     public void QueueRoomMusic(RoomMusic music)
     {
-        Ensure.NotNull(music);
         // LoadRoomMusic first silences the current track and loads a changed room data set.
         // LoadNewMusicTrackIfChanged then queues the room's selected track.
         bool changesMusicData = QueueRoomMusicData(music.DataSet);
@@ -164,7 +163,6 @@ public sealed class AudioQueues
     /// </summary>
     internal void QueueRoomMusicTrack(RoomMusic music)
     {
-        Ensure.NotNull(music);
         if (RoomTrackQueues(music.Track, music.DataSet != DataSet))
             QueueMusicDelayed(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }

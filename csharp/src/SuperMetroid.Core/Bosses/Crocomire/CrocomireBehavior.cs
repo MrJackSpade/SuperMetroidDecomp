@@ -303,7 +303,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)
     {
-        audio.QueueLegacyMusic(Access.LastCrocomireMusicRequest?.Command, Access.LastCrocomireMusicRequest?.Delay);
+        audio.QueueLegacyMusic(Access.LastCrocomireMusicRequest?.Request, Access.LastCrocomireMusicRequest?.Delay);
     }
 
     /// <summary>Ports Crocomire's main AI.</summary>

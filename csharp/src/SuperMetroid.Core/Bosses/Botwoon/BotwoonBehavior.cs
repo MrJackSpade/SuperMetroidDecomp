@@ -1134,6 +1134,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)
     {
-        audio.QueueLegacyMusic(LastBotwoonMusicRequest?.Command, LastBotwoonMusicRequest?.Delay);
+        audio.QueueLegacyMusic(LastBotwoonMusicRequest?.Request, LastBotwoonMusicRequest?.Delay);
     }
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

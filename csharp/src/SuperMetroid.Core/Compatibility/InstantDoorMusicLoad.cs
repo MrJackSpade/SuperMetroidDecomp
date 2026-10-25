@@ -10,8 +10,7 @@ public sealed class InstantDoorMusicLoad : IDoorMusicLoadFrames
     /// <summary>Restricts the policy to its shared instance.</summary>
     private InstantDoorMusicLoad() { }
 
-    /// <summary>Counts no frames for any music set.</summary>
-    /// <param name="musicSet">The music set; every set loads instantly.</param>
+    /// <summary>Counts no frames: every music data set loads instantly.</summary>
     /// <returns>Zero.</returns>
-    public int FramesCountedDuringMusicLoad(MusicDataSet musicSet) => 0;
+    public int FramesCountedDuringMusicLoad() => 0;
 }

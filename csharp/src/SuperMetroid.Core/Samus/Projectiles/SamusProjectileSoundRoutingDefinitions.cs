@@ -36,7 +36,7 @@ public static class SamusProjectileSoundRoutingDefinitions
     };
 
     /// <summary>Each authored beam combination's charged firing sound.</summary>
-    private static readonly IReadOnlyDictionary<SamusBeamCombination, SoundEffectId> Charged = new Dictionary<SamusBeamCombination, SoundEffectId>
+    private static readonly Dictionary<SamusBeamCombination, SoundEffectId> Charged = new Dictionary<SamusBeamCombination, SoundEffectId>
     {
         [SamusBeamCombination.Power] = Library1Sound.ChargedPowerBeam,
         [SamusBeamCombination.Ice] = Library1Sound.ChargedIceBeam,

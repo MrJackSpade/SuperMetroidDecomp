@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;

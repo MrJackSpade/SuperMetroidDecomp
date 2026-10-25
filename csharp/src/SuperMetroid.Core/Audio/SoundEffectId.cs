@@ -67,6 +67,6 @@ public readonly record struct SoundEffectId
         SoundEffectLibrary.Library1 => $"{nameof(Library1Sound)}.{library1}",
         SoundEffectLibrary.Library2 => $"{nameof(Library2Sound)}.{library2}",
         SoundEffectLibrary.Library3 => $"{nameof(Library3Sound)}.{library3}",
-        _ => "no sound",
+        _ => throw new InvalidOperationException("The default sound identity names no sound."),
     };
 }

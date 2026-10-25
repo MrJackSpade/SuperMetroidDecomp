@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -54,7 +55,7 @@ internal static class IntroCinematicRomDataVerification
         AssertEqual(SoundEffectLibrary.Library3,
             IntroCinematicRomData.Objects.BabyCry1.Library,
             "Baby cry sound library");
-        AssertEqual(0x23, IntroCinematicRomData.Objects.BabyCry1.Value,
+        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library3, 0x23), IntroCinematicRomData.Objects.BabyCry1,
             "Baby cry one sequence");
 
         Suite(nameof(VerifyCinematicCodePointerCatalog), () => VerifyCinematicCodePointerCatalog());

@@ -121,7 +121,7 @@ public static class DebuggerSaveStateSmokeTest
                     !loaded.Game.PublishedPixels().SequenceEqual(expectedPixels[frame]) ||
                     !loaded.Game.AudioEventsForVerification.SequenceEqual(expectedAudioEvents[frame]) ||
                     !actualPcm.SequenceEqual(expectedPcm[frame]) ||
-                    actualAcknowledgements != expectedAcknowledgements[frame])
+                    !actualAcknowledgements.Equals(expectedAcknowledgements[frame]))
                 {
                     throw new InvalidDataException(
                         $"Debugger-state continuation diverged on relative frame {frame} " +

@@ -88,7 +88,7 @@ internal sealed class BeamFiring
             (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != 0
                 ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)
                 : new BeamShot(null, null);
-            return new(slot, sound, sound is null ? 0 : 15);
+            return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
         }
 
         // Retail inventory normally owns twelve low-nibble combinations, but the native
@@ -112,7 +112,7 @@ internal sealed class BeamFiring
                     roomPlms,
                     charged: false)
                 : new BeamShot(null, null);
-            return new(slot, sound, sound is null ? 0 : 15);
+            return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
         }
 
         if (samus.PoseTransitionShotDirection != 0)
@@ -152,7 +152,7 @@ internal sealed class BeamFiring
                         sharedProjectiles,
                         roomPlms,
                         charged: false);
-                    return new(slot, sound, sound is null ? 0 : 15);
+                    return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
                 }
 
                 // `$90:BAFC` owns both flare graphics and their audio. Its draw-time call

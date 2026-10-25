@@ -93,7 +93,7 @@ internal static class RunningCadenceVerification
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(residue,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
                 dash ? SnesButton.B : 0, (ushort)raw, ref frame, out ushort timer,
-                () => { calls++; return 0x0500; });
+                () => { calls++; return SoundQueueAdmission.Admitted(5); });
             AssertEqual(intercept, actual, "Native boost interception gates and low-byte countdown");
             AssertEqual(next, speed.SpeedBoostCounter.RawValue, "Native counter decrement, stage bit and reset-word OR");
             AssertEqual(intercept ? 0 : 7, frame, "Only intercepted command resets frame");
@@ -103,9 +103,9 @@ internal static class RunningCadenceVerification
             AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "Animation cannot publish movement-owned boost contact damage");
         }
 
-        // The queue's returned accumulator, not the already-published stage word, owns both
-        // reads. Exhaust the six high-byte values that Max6 can really return and every
-        // incidental low byte; selection five must retain the live WRAM delay alias.
+        // The queue's admission, not the already-published stage word, selects both reads.
+        // Exhaust the six occupancies Max6 can admit with every frame buffer low byte;
+        // selection five must retain the live WRAM delay alias.
         for (int stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
         for (int low = 0; low <= byte.MaxValue; low++)
         {
@@ -115,7 +115,7 @@ internal static class RunningCadenceVerification
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
             ushort frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, SnesButton.B,
-                (ushort)accumulator, ref frame, out ushort timer, () => (ushort)accumulator);
+                (ushort)accumulator, ref frame, out ushort timer, () => SoundQueueAdmission.Admitted(stage));
             AssertEqual(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2)), speed.SpeedBoostCounter.RawValue, "All returned queue words retain native reset selection");
             byte expectedDelay = stage == 5
                 ? bus.MutableDelay
@@ -135,8 +135,8 @@ internal static class RunningCadenceVerification
                 0,
                 ref invalidFrame,
                 out _,
-                () => 0x0600),
-            "Impossible Max6 accumulator fails before adjacent code becomes cadence metadata");
+                () => SoundQueueAdmission.Admitted(6)),
+            "An occupancy Max6 cannot admit fails before adjacent code becomes cadence metadata");
 
         speed = new SamusHorizontalSpeedState();
         speed.HandleExtraRunSpeed(SamusMovementType.Running, SnesButton.B, true);

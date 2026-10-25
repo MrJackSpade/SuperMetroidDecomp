@@ -942,6 +942,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)
     {
-        audio.QueueLegacyMusic(LastShitroidMusicRequest?.Command, LastShitroidMusicRequest?.Delay);
+        audio.QueueLegacyMusic(LastShitroidMusicRequest?.Request, LastShitroidMusicRequest?.Delay);
     }
 }

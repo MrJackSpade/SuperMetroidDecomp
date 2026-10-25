@@ -13,8 +13,8 @@ internal static class EndingPostShotDefinitions
     public const byte WhiteComponent = 31;
     /// <summary>F604 queues library-one $22 through the max-fifteen sound queue.</summary>
     public static readonly SoundEffectId ShotSound = Library1Sound.ChargedPlasmaWave;
-    /// <summary>F604's sound queue capacity argument.</summary>
-    public const byte SoundQueueLimit = 15;
+    /// <summary>F604 queues the shot through the max-fifteen entry point.</summary>
+    public static SoundQueueLimit ShotSoundLimit { get; } = SoundQueueLimit.Max15;
     /// <summary>Func126's post-credits Mode-7 horizontal origin.</summary>
     public const short CenterX = 104;
     /// <summary>Func126's post-credits Mode-7 vertical origin.</summary>

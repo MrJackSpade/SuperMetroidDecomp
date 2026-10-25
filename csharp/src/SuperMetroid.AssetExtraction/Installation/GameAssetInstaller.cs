@@ -1,5 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;

@@ -6,6 +6,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 
@@ -22,7 +23,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
                 ZebesEscapeExplosionDefinitions.ForIndex(index);
             AssertEqual(rom.ReadCartridgeByte(0x8fc1d6 + index), (byte)definition.SpriteKind,
                 $"Zebes escape explosion sprite {index}");
-            AssertEqual(rom.ReadCartridgeByte(0x8fc1de + index), definition.SoundEffect,
+            AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, rom.ReadCartridgeByte(0x8fc1de + index)), definition.SoundEffect,
                 $"Zebes escape explosion sound {index}");
         }
 

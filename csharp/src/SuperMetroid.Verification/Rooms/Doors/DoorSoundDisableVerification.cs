@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 /// <summary>Checks sound admission during a door transition without suppressing queued audio or music.</summary>

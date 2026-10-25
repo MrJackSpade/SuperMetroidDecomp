@@ -626,6 +626,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)
     {
-        audio.QueueLegacyMusic(LastBombTorizoMusicRequest?.Command, LastBombTorizoMusicRequest?.Delay);
+        audio.QueueLegacyMusic(LastBombTorizoMusicRequest?.Request, LastBombTorizoMusicRequest?.Delay);
     }
 }

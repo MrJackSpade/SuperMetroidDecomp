@@ -53,7 +53,7 @@ internal static class SimulationProfile
         {
             long allocationStart = GC.GetAllocatedBytesForCurrentThread();
             long start = Stopwatch.GetTimestamp();
-            var frame = game.StepCaptured(input, ++sequence, 1);
+            game.StepCaptured(input, ++sequence, 1);
             long captured = Stopwatch.GetTimestamp();
             game.CopyAudioFrame(pcm);
             long end = Stopwatch.GetTimestamp();

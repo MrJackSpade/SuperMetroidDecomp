@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationArtworkVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
-using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;

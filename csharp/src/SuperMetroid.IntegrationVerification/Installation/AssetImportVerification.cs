@@ -115,7 +115,7 @@ try
         AudioRequest[] commands = frame == 0
             ? [new AudioRequest.ChangeMusicDataSet(null),
                new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Music[0].DataSet),
-               AudioRequest.ForTrack(MusicTrack.NumberedOrNone(AudioRomDataMusicTracks.Title))] : [];
+               AudioRequest.ForTrack(new MusicTrack(AudioRomDataMusicTracks.Title))] : [];
         foreach (short sample in renderer.RenderFrame(commands)) if (sample != 0) audible++;
     }
     Check(audible > 0, "newly extracted resources produce audible title music through the production renderer");

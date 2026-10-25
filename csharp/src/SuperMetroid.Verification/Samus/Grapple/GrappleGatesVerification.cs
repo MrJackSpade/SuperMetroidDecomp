@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Gameplay;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonTilemapProductionVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleEnemyDeathVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

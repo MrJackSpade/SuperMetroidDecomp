@@ -31,8 +31,8 @@ public sealed class ClipAudioBackend
     /// <summary>Clip samples already read, by clip (a replacement may share a stock clip's relative path).</summary>
     private readonly Dictionary<AudioClipFile, short[]> samples = [];
 
-    /// <summary>The update's native mix.</summary>
-    private readonly short[] native = new short[FramesPerUpdate * PcmSampleFormat.StereoChannelCount];
+    /// <summary>The update's mix, at the clips' own rate.</summary>
+    private readonly short[] mix = new short[FramesPerUpdate * PcmSampleFormat.StereoChannelCount];
 
     /// <summary>Creates a backend over <paramref name="catalog"/>, continuing <paramref name="state"/> (a restored session's) or starting from power-on.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="catalog"/> is null.</exception>
@@ -91,7 +91,7 @@ public sealed class ClipAudioBackend
         }
         Mix(frameStart, cursor, FramesPerUpdate);
         State.RenderedTo(frameStart + FramesPerUpdate);
-        PcmFrameResampler.ResampleStereoLinear(native, stereo48k[..AudioSession.PcmSamplesPerFrame]);
+        PcmFrameResampler.ResampleStereoLinear(mix, stereo48k[..AudioSession.PcmSamplesPerFrame]);
     }
 
     /// <summary>A data set change stops the music, clears the music latch and silences each playing sound until its next key-on in the new data set.</summary>
@@ -149,8 +149,8 @@ public sealed class ClipAudioBackend
             State.SelectTrack(command, null, now);
             return;
         }
-        MusicDataSet bank = State.Context ?? throw new InvalidDataException($"Track {command} was requested with no music bank loaded.");
-        State.SelectTrack(command, catalog.GetMusic(bank, command), now);
+        MusicDataSet loadedSet = State.Context ?? throw new InvalidDataException($"Track {command} was requested with no music data set loaded.");
+        State.SelectTrack(command, catalog.GetMusic(loadedSet, command), now);
     }
 
     /// <summary>Applies a sound start at its poll: the library's policy decides acceptance; an accepted sound replaces the library's sound.</summary>
@@ -217,8 +217,8 @@ public sealed class ClipAudioBackend
                 else
                     State.Releasing[release] = clip with { Remaining = clip.Remaining - 1 };
             }
-            native[index * 2] = Clamp16(left);
-            native[index * 2 + 1] = Clamp16(right);
+            mix[index * 2] = Clamp16(left);
+            mix[index * 2 + 1] = Clamp16(right);
         }
     }
 

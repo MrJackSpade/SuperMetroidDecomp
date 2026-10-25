@@ -10,7 +10,6 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>

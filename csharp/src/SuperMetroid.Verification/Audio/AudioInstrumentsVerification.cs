@@ -68,7 +68,7 @@ internal static class AudioInstrumentsVerification
                 editedDirectory, ExtractedAudioAssetCatalog.ManifestFileName);
             AudioAssetManifest original = ReadAudioManifest(manifestPath);
             AudioBankMetadata title = original.Banks.Single(
-                bank => bank.SnesAddress == AudioUploadAddresses.TitleSequence);
+                bank => bank.SnesAddress == (int)AudioUploadSourceDefinitions.TitleSequence);
             AudioInstrumentMetadata[] shifted = title.Instruments
                 .Select(instrument => instrument with
                 {
@@ -94,7 +94,7 @@ internal static class AudioInstrumentsVerification
                 new AudioRequest.ChangeMusicDataSet(null);
             AudioRequest titleUpload =
                 new AudioRequest.ChangeMusicDataSet(MusicDataSet.TitleSequence);
-            AudioRequest titleTrack = AudioRequest.ForTrack(MusicTrack.NumberedOrNone(AudioRomDataMusicTracks.Title));
+            AudioRequest titleTrack = AudioRequest.ForTrack(new MusicTrack(AudioRomDataMusicTracks.Title));
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);
             stockRenderer.RenderFrame([titleUpload]);

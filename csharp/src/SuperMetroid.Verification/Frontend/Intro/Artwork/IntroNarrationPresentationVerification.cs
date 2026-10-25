@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -37,8 +38,8 @@ internal static class IntroNarrationPresentationVerification
         IntroFontCharacters font = IntroFontCharacters.Read(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
-            IntroCinematicRomData.Assets.FontOne,
-            maximumOutputBytes: IntroCinematicRomData.Transfers.FontOneBytes);
+            IntroCinematicSourceDefinitions.FontOne,
+            maximumOutputBytes: IntroCinematicDefinitions.Artwork.FontOneBytes);
         AssertTrue(font.Characters.Span.SequenceEqual(
             nativeFont.AsSpan(0, IntroFontAtlasFormat.ByteCount)),
             "installed opening-font PNG compiles to exact native planar bytes");
@@ -67,7 +68,7 @@ internal static class IntroNarrationPresentationVerification
                 installed.Step(0);
                 comparedFrames++;
             }
-            AssertTrue(installedTilemap.Any(word => word != IntroCinematicRomData.Text.Blank.Raw),
+            AssertTrue(installedTilemap.Any(word => word != IntroCinematicDefinitions.Text.Blank.Raw),
                 $"installed opening narration {page} draws its text");
         }
 
@@ -86,7 +87,7 @@ internal static class IntroNarrationPresentationVerification
         editedState.Step(0);
         editedState.Step(0);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
-            editedTilemap[4 * IntroCinematicRomData.Layers.TilemapWidth + 1],
+            editedTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
             "edited UTF-8 opening narration reaches the live tilemap");
 
         ushort[] reboundTilemap = CreateBlankIntroTilemap();
@@ -98,7 +99,7 @@ internal static class IntroNarrationPresentationVerification
         rebound.BindNarration(edited);
         rebound.Step(0);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
-            reboundTilemap[4 * IntroCinematicRomData.Layers.TilemapWidth + 1],
+            reboundTilemap[4 * IntroCinematicDefinitions.Tilemaps.TilemapWidth + 1],
             "active opening narration accepts current replacement content");
 
         var saved = new IntroCinematicObjectSystem(
@@ -150,8 +151,8 @@ internal static class IntroNarrationPresentationVerification
     /// <summary>Starts a text layer filled with the native blank tilemap word.</summary>
     private static ushort[] CreateBlankIntroTilemap()
     {
-        var result = new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
-        Array.Fill(result, IntroCinematicRomData.Text.Blank.Raw);
+        var result = new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
+        Array.Fill(result, IntroCinematicDefinitions.Text.Blank.Raw);
         return result;
     }
 

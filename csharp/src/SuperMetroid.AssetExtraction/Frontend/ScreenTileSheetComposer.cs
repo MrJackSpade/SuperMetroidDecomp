@@ -40,7 +40,7 @@ internal static class ScreenTileSheetComposer
         AreaMapPresentationCatalog maps = sources.Maps;
         return sheet switch
         {
-            SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicRomData.Transfers.BackgroundCharacterBytes],
+            SpriteSheetId.IntroSceneTiles => Compose(sources.Intro.BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],
                 BgBitDepth.FourBpp, IntroColours(sources.Intro)),
             SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, BgBitDepth.TwoBpp, IntroColours(sources.Intro)),
             SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),

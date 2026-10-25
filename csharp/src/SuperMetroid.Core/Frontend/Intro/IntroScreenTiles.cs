@@ -18,7 +18,7 @@ internal static class IntroScreenTiles
         Ensure.NotNull(sheets);
         return new ScreenTileSet(BgBitDepth.FourBpp)
             .Place(ScreenTileSheets.Of(sheets, SpriteSheetId.IntroSceneTiles), IntroTileSetDefinitions.SceneFirstTile, 0,
-                IntroCinematicRomData.Transfers.BackgroundCharacterBytes / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort)))
+                IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes / (ScreenTileSheet.CharacterWordsOf(BgBitDepth.FourBpp) * sizeof(ushort)))
             .Pictures();
     }
 
@@ -31,8 +31,8 @@ internal static class IntroScreenTiles
             .Place(font, IntroTileSetDefinitions.FontFirstTile, 0, IntroFontAtlasFormat.ByteCount / FontCharacterBytes);
         // BlankOut_JapanText_Tiles repeats the font's own blank glyph over the Japanese glyphs.
         if (japaneseGlyphsBlanked)
-            tiles.PlaceRepeated(font, IntroTileSetDefinitions.JapaneseBlankFirstTile, IntroCinematicRomData.Text.JapaneseBlankSourceOffset / FontCharacterBytes,
-                IntroCinematicRomData.Transfers.JapaneseBlankCharactersByteCount / FontCharacterBytes);
+            tiles.PlaceRepeated(font, IntroTileSetDefinitions.JapaneseBlankFirstTile, IntroCinematicDefinitions.Text.JapaneseBlankSourceOffset / FontCharacterBytes,
+                IntroCinematicDefinitions.Artwork.JapaneseBlankCharactersByteCount / FontCharacterBytes);
         return tiles.Pictures();
     }
 

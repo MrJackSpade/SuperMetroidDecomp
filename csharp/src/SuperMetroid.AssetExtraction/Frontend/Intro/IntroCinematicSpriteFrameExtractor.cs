@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -14,7 +15,7 @@ internal static class IntroCinematicSpriteFrameExtractor
     internal static SpriteVisualPart[] Extract(ISnesAddressSpace bus,
         ushort pointer, int expectedParts, string name)
     {
-        int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
+        int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
         int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
         if (count != expectedParts)
             throw new InvalidDataException(

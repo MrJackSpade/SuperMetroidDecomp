@@ -68,7 +68,7 @@ internal sealed class IntroCinematicObjectSystem
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
         this.eyeArtwork = eyeArtwork;
-        Ensure.LengthEqual(textTilemap, IntroCinematicRomData.Layers.TextTilemapWordCount);
+        Ensure.LengthEqual(textTilemap, IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount);
     }
 
     /// <summary>Set when opcode $8B:AE5B reaches the English page-one input marker.</summary>
@@ -94,7 +94,7 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>Current native screen position of the persistent text caret object; Y=$F8 deliberately hides it below the viewport.</summary>
     public Position16<ScreenPixels> Caret { get; private set; } =
-        new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretFirstTextY);
+        new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
 
     /// <summary>Reapply the active eye rectangle after restoring a state or changing art.</summary>
     public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
@@ -114,7 +114,7 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void PlaceCaretOffScreen()
     {
-        Caret = new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretInitialY);
+        Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretInitialY);
     }
 
     /// <summary>
@@ -172,9 +172,9 @@ internal sealed class IntroCinematicObjectSystem
     {
         Array.Fill(
             textTilemap,
-            IntroCinematicRomData.Text.Blank.Raw,
-            startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
-            count: IntroCinematicRomData.Text.GameplayBlankWordCount);
+            IntroCinematicDefinitions.Text.Blank.Raw,
+            startIndex: IntroCinematicDefinitions.Text.GameplayBlankStartIndex,
+            count: IntroCinematicDefinitions.Text.GameplayBlankWordCount);
         StartNarration(
             IntroNarrationPageId.Page6);
         IntroFinishRequested = false;
@@ -204,7 +204,7 @@ internal sealed class IntroCinematicObjectSystem
 
         // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
         // Applying it immediately is the desktop equivalent of observing the following NMI.
-        textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextCellCount).CopyTo(tilemaps.Narration);
+        textTilemap.AsSpan(0, IntroCinematicDefinitions.Tilemaps.VisibleTextCellCount).CopyTo(tilemaps.Narration);
     }
 
     /// <summary>Rebinds host-owned narration content after override reload or state restore.</summary>
@@ -264,27 +264,27 @@ internal sealed class IntroCinematicObjectSystem
             {
                 Caret = new(
                     unchecked((ushort)(following.Column *
-                        IntroCinematicRomData.ObjectSystem.CharacterPixelSize)),
+                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize)),
                     unchecked((ushort)(following.Row *
-                        IntroCinematicRomData.ObjectSystem.CharacterPixelSize -
-                        IntroCinematicRomData.ObjectSystem.CharacterBaselineOffset)));
+                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize -
+                        IntroCinematicDefinitions.ObjectSystem.CharacterBaselineOffset)));
             }
             else
             {
                 Caret = new(
-                    IntroCinematicRomData.ObjectSystem.CaretLeftX,
+                    IntroCinematicDefinitions.ObjectSystem.CaretLeftX,
                     unchecked((ushort)((character.Row + 1) *
-                        IntroCinematicRomData.ObjectSystem.CharacterPixelSize)));
+                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize)));
             }
 
             typewriterSoundToggle = !typewriterSoundToggle;
             if (!character.IsSpace && typewriterSoundToggle)
             {
                 audio?.QueueSound(
-                    IntroCinematicRomData.Objects.Typewriter,
-                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
+                    IntroCinematicDefinitions.Objects.Typewriter,
+                    maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
             }
-            textTilemap[character.Row * IntroCinematicRomData.Layers.TilemapWidth +
+            textTilemap[character.Row * IntroCinematicDefinitions.Tilemaps.TilemapWidth +
                 character.Column] = character.TilemapWord.Raw;
             narrationCharacterIndex++;
             textInstructionTimer = WrappingCountdown.Start(IntroNarrationDefinitions.CharacterDelayFrames);
@@ -389,7 +389,7 @@ internal sealed class IntroCinematicObjectSystem
         for (int row = 0; row < size.Y; row++)
         {
             source.Slice(row * size.X, size.X).CopyTo(
-                portrait[((destination.Y + row) * IntroCinematicRomData.Layers.TilemapWidth + destination.X)..]);
+                portrait[((destination.Y + row) * IntroCinematicDefinitions.Tilemaps.TilemapWidth + destination.X)..]);
         }
     }
 
@@ -398,7 +398,7 @@ internal sealed class IntroCinematicObjectSystem
     {
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
-        Caret = new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretFirstTextY);
+        Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);
     }
 
@@ -413,8 +413,8 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Rejects any eye rectangle extending beyond the 32-by-32 portrait tilemap.</summary>
     private static void ValidateRectangle(Position16<TilemapCells> origin, Extent16<TilemapCells> size)
     {
-        if (origin.X + size.X > IntroCinematicRomData.Layers.TilemapWidth ||
-            origin.Y + size.Y > IntroCinematicRomData.Layers.TilemapWidth)
+        if (origin.X + size.X > IntroCinematicDefinitions.Tilemaps.TilemapWidth ||
+            origin.Y + size.Y > IntroCinematicDefinitions.Tilemaps.TilemapWidth)
             throw new InvalidDataException(
                 $"Cinematic rectangle ({origin.X},{origin.Y}) {size.X}x{size.Y} leaves its 32x32 tilemap.");
     }

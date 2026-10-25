@@ -96,8 +96,8 @@ internal static class GenericSpriteArtworkVerification
         expected = new OamBuffer();
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
-            new(caret.Caret.X, caret.Caret.Y), IntroCinematicRomData.Objects.ScientistPalette.Raw);
+            (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
+            new(caret.Caret.X, caret.Caret.Y), IntroCinematicDefinitions.Objects.ScientistPalette.Raw);
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
@@ -112,7 +112,7 @@ internal static class GenericSpriteArtworkVerification
         var motherBrainOam = new OamBuffer();
         motherBrainOam.BeginFrame();
         DrawImportedSpritemap(reference, motherBrainOam,
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(motherBrain.Pose)),
+            (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(motherBrain.Pose)),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
             IntroMotherBrainSpriteState.PaletteBits);
         motherBrainOam.FinalizeFrame();
@@ -133,9 +133,9 @@ internal static class GenericSpriteArtworkVerification
             ushort pointer = SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(actor.Pose);
             if (!actor.IsActive || pointer == 0) continue;
             DrawImportedSpritemap(reference, expected,
-                (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer),
+                (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer),
                 new(actor.Position.X, actor.Position.Y),
-                IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+                IntroCinematicDefinitions.Objects.ExplosionPalette.Raw);
         }
         expected.FinalizeFrame();
         EqualSprites(expected, actual, "intro explosion owner preserves native placements and ordering");

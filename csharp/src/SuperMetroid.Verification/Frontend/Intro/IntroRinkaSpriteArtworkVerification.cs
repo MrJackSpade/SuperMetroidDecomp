@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -26,7 +27,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         ushort y = actor.WholePosition.Y;
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
-            ((int)new SnesAddress(            IntroCinematicRomData.Banks.Spritemaps, spritemap)),
+            ((int)new SnesAddress(            IntroCinematicSourceDefinitions.SpritemapBank, spritemap)),
             new(actor.WholePosition.X, y), actor.Attributes.Raw,
             originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
     }
@@ -36,14 +37,14 @@ internal static class IntroRinkaSpriteArtworkVerification
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;
-        ushort palette = IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
+        ushort palette = IntroCinematicDefinitions.Objects.DiscoveryPalette.Raw;
         foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
-                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -31,7 +32,7 @@ internal static class IntroScientistSpriteArtworkVerification
             {
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
-                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();

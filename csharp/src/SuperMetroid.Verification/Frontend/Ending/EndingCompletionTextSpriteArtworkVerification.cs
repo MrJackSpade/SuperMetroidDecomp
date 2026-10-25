@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -30,7 +31,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapSources.Of(frame.Pose));
+                    IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)

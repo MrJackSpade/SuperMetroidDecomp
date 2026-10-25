@@ -43,25 +43,25 @@ public static class IntroCinematicArtworkFiles
 
         var hashes = new Dictionary<string, string>();
         WriteSheet(IntroCinematicArtworkFormat.BackgroundFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.BackgroundCharacters,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.BackgroundCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount),
             IntroCinematicArtworkFormat.BackgroundByteCount);
         WriteSheet(IntroCinematicArtworkFormat.IntroObjectFileName,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.IntroObjectCharacters,
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
                 IntroCinematicArtworkFormat.IntroObjectByteCount),
             IntroCinematicArtworkFormat.IntroObjectByteCount);
         WriteSheet(IntroCinematicArtworkFormat.CinematicObjectFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.ObjectCharacters,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.ObjectCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount),
             IntroCinematicArtworkFormat.CinematicObjectByteCount);
         WritePage(IntroCinematicArtworkFormat.PortraitTilemapFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.SamusHeadTilemap,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.SamusHeadTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WritePage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.FirstNarrationTilemap,
+            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.FirstNarrationTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
         byte[] backgroundPages = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.BackgroundPageTilemaps,
+            IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageCount *
                 IntroCinematicArtworkFormat.BackgroundPageByteCount);
         if (backgroundPages.Length != IntroCinematicArtworkFormat.BackgroundPageCount *
@@ -133,7 +133,7 @@ public static class IntroCinematicArtworkFiles
         {
             var native = new byte[CgramPalettes.ByteCount];
             for (int index = 0; index < native.Length; index++)
-                native[index] = bus.ReadCartridgeByte(IntroCinematicRomData.Assets.Palette + index);
+                native[index] = bus.ReadCartridgeByte(IntroCinematicSourceDefinitions.Palette + index);
             var colors = new PaletteRgb5[CgramPalettes.ColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
@@ -170,7 +170,7 @@ public static class IntroCinematicArtworkFiles
             var cells = new RoomBackgroundTilemapCell[native.Length];
             for (int index = 0; index < native.Length; index++)
             {
-                int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
+                int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
                 var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
                 native[index] = word.Raw;
                 cells[index] = new RoomBackgroundTilemapCell
@@ -207,7 +207,7 @@ public static class IntroCinematicArtworkFiles
             {
                 ushort pointer = (ushort)(FrontendSourceDefinitions.IntroEyeFrameRecords +
                     frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride);
-                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
+                int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if ((CinematicIndirectInstructionFunction)function != CinematicIndirectInstructionFunction.DrawToPortraitTilemap ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||

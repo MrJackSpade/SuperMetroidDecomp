@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -24,7 +25,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;
-        ushort palette = IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
+        ushort palette = IntroCinematicDefinitions.Objects.DiscoveryPalette.Raw;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroDiscoveryActorSpriteDefinitions.Frames)
         {
@@ -32,7 +33,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             {
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
-                int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
+                int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();

@@ -116,7 +116,7 @@ internal sealed class KraidHead
 
             // Bits 2 and 8-15 are populated by body/mouth projectile handling. Preserve
             // the cartridge arithmetic now so adding collision cannot change sequencing.
-            if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != 0)
+            if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
             {
                 state.RemoveOneMouthReopen();
                 if (state.PendingMouthReopens != 0)
@@ -221,7 +221,7 @@ internal sealed class KraidHead
             return;
         state.Parts[body.SlotIndex].Function = KraidAiFunction.MainloopThinking;
         state.Parts[body.SlotIndex].HeadTimer = 90;
-        if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != 0)
+        if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)

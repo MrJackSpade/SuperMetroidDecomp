@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal enum FakeKraidSpikeRow
 {
     /// <summary>Top timer at native byte offset0; launch offset word at86:9E7D.</summary>
-    Top = 0,
+    Top,
     /// <summary>Middle timer at native byte offset2; launch offset word at86:9E7F.</summary>
-    Middle = 1,
+    Middle,
     /// <summary>Bottom timer at native byte offset4; launch offset word at86:9E81.</summary>
-    Bottom = 2,
+    Bottom,
 }

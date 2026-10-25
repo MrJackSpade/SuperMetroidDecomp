@@ -31,8 +31,8 @@ public sealed class KraidPartState
     /// <summary>Whether this fingernail has launched at least once (its parameter one); the cartridge sets it and nothing reads it back.</summary>
     public bool NailLaunched { get; internal set; }
 
-    /// <summary>The function word.</summary>
-    private int _functionWord;
+    /// <summary>The part function.</summary>
+    private KraidAiFunction _function;
 
     /// <summary>The word holding a lint's travel or a fingernail's horizontal fraction.</summary>
     private int _travelOrHorizontalFractionWord;
@@ -52,8 +52,8 @@ public sealed class KraidPartState
     /// <summary>The bank-$A7 function the part dispatches, held as the cartridge's word.</summary>
     public KraidAiFunction Function
     {
-        get => (KraidAiFunction)_functionWord;
-        internal set => _functionWord = (ushort)value;
+        get => _function;
+        internal set => _function = value;
     }
 
     /// <summary>The updates before the part's function timer installs <see cref="NextFunction"/>.</summary>
@@ -120,7 +120,7 @@ public sealed class KraidPartState
     [IntendedDuplicate("each state clears its own native words; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
-        _functionWord = 0;
+        _function = KraidAiFunction.None;
         _travelOrHorizontalFractionWord = 0;
         _headTimerOffsetOrHorizontalWholeWord = 0;
         _verticalFractionWord = 0;

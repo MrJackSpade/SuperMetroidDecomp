@@ -3,21 +3,21 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Native Kraid second-phase position-dependent target/timer distributions.</summary>
 public static class KraidMovementChoices
 {
-    /// <summary>The named second-phase destinations, valued by X position.</summary>
-    private enum Destination : ushort
+    /// <summary>The named second-phase destinations: Kraid's X positions in room pixels.</summary>
+    private static class Destination
     {
-        /// <summary>$A7:BA89 position $D0, the leftmost second-phase destination.</summary>
-        Leftmost = 208,
-        /// <summary>$A7:BA7D position $F0, the left destination with a distinct long pause.</summary>
-        Left = 240,
-        /// <summary>$A7:BA8D position $140, the middle destination.</summary>
-        Middle = 320,
-        /// <summary>$A7:BA81 position $160, initial position and default movement-policy row.</summary>
-        Starting = 352,
-        /// <summary>$A7:BA91 position $170, the usual half-probability destination.</summary>
-        Right = 368,
-        /// <summary>$A7:BA85 position $180, the rightmost destination.</summary>
-        Rightmost = 384,
+        /// <summary>The leftmost second-phase destination.</summary>
+        internal const ushort Leftmost = 208;
+        /// <summary>The left destination with a distinct long pause.</summary>
+        internal const ushort Left = 240;
+        /// <summary>The middle destination.</summary>
+        internal const ushort Middle = 320;
+        /// <summary>The initial position and default movement-policy row.</summary>
+        internal const ushort Starting = 352;
+        /// <summary>The usual half-probability destination.</summary>
+        internal const ushort Right = 368;
+        /// <summary>The rightmost destination.</summary>
+        internal const ushort Rightmost = 384;
     }
 
     /// <summary>
@@ -34,9 +34,12 @@ public static class KraidMovementChoices
     public static KraidMovementChoice Select(ushort position, int random)
     {
         // The $A7:BA7D record search ends on the $0160 row for every unlisted position.
-        Destination row = Enum.IsDefined((Destination)position) ? (Destination)position : Destination.Starting;
+        ushort row = position is Destination.Leftmost or Destination.Left or Destination.Middle or Destination.Starting or
+            Destination.Right or Destination.Rightmost
+            ? position
+            : Destination.Starting;
         int choice = Math.Min((random & 28) >> 2, 4);
-        Destination target = choice switch
+        ushort target = choice switch
         {
             0 => row == Destination.Left ? Destination.Rightmost : Destination.Left,
             1 => row is Destination.Rightmost or Destination.Leftmost or Destination.Middle
@@ -54,6 +57,6 @@ public static class KraidMovementChoices
             2 when row is Destination.Leftmost or Destination.Middle or Destination.Right => 344,
             _ => 44,
         };
-        return new KraidMovementChoice((ushort)target, timer);
+        return new KraidMovementChoice(target, timer);
     }
 }

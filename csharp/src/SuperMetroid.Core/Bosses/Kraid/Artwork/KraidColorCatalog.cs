@@ -8,15 +8,12 @@ public sealed class KraidColorCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
-            Append(KraidPaletteSource.RoomBackdrop, roomBackdrop);
-            Append(KraidPaletteSource.InitialTarget, initialTarget);
-            Append(KraidPaletteSource.Health, health);
-            Append(KraidPaletteSource.Secondary, secondary);
-            Append(KraidPaletteSource.DeathArm, deathArm);
-            void Append(KraidPaletteSource source, IReadOnlyList<Bgr555> row)
+            // Each row is tagged by its position in this order: room backdrop, initial target, health, secondary, death arm.
+            IReadOnlyList<Bgr555>[] rows = [roomBackdrop, initialTarget, health, secondary, deathArm];
+            for (int tag = 0; tag < rows.Length; tag++)
             {
-                content.Append("source", (int)source);
-                content.AppendColors("colors", row.ToArray());
+                content.Append("source", tag);
+                content.AppendColors("colors", rows[tag].ToArray());
             }
         });
 

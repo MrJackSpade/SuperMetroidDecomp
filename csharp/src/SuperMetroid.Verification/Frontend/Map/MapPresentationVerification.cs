@@ -555,19 +555,18 @@ internal static class MapPresentationVerification
         original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
         AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal.AsPaletteColors())),
             "Mother Brain normal restoration matches both fixed native sources");
-        AssertEqual(MotherBrainBeamRomData.InitialColor,
+        AssertEqual(MotherBrainBeamDefinitions.InitialColor,
             original.MotherBrainRainbowPalette.BeamInitialColor,
             "installed beam initial fixed color matches the cartridge");
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
         {
-            int cursor = frame * MotherBrainBeamRomData.ColorStride;
-            int address = MotherBrainBeamRomData.ColorTable + cursor;
+            int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
             ushort nativeBeamColor = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
-            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(cursor, out Bgr555 beamColor) &&
+            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(frame, out Bgr555 beamColor) &&
                 beamColor == Bgr555.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }
         AssertTrue(!original.MotherBrainRainbowPalette.TryReadBeamColor(
-                MotherBrainRainbowPaletteFormat.BeamCycleColorCount * MotherBrainBeamRomData.ColorStride, out _),
+                MotherBrainRainbowPaletteFormat.BeamCycleColorCount, out _),
             "installed beam color loop retains its native signed terminator");
         var nativeBeamSequence = new MotherBrainRainbowBeamEffect
         {
@@ -585,7 +584,7 @@ internal static class MapPresentationVerification
             installedBeamSequence.Step(true, new(100, 95),
                 SnesAngle.QuarterTurn, 0x4000);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
-                nativeBeamSequence.ColorCursor == installedBeamSequence.ColorCursor &&
+                nativeBeamSequence.ColorIndex == installedBeamSequence.ColorIndex &&
                 nativeBeamSequence.Geometry == installedBeamSequence.Geometry,
                 $"installed beam frame {frame} matches native color, cursor, and geometry through loop reset");
         }
@@ -695,7 +694,7 @@ internal static class MapPresentationVerification
         stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
-            stockBeam.ColorCursor == editedBeam.ColorCursor &&
+            stockBeam.ColorIndex == editedBeam.ColorIndex &&
             stockBeam.Geometry == editedBeam.Geometry,
             "beam cycle edit reaches the live HDMA frame without a ROM read or timing change");
 

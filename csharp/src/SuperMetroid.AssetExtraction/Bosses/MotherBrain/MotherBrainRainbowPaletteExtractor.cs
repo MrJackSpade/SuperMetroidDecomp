@@ -38,7 +38,7 @@ internal static class MotherBrainRainbowPaletteExtractor
                 MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount, false,
                 MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
-            BeamInitial = PaletteRgb5.From(MotherBrainBeamRomData.InitialColor),
+            BeamInitial = PaletteRgb5.From(MotherBrainBeamDefinitions.InitialColor),
             BeamCycle = ReadBeamCycle(),
         });
         return json.ToArray();
@@ -107,14 +107,14 @@ internal static class MotherBrainRainbowPaletteExtractor
             var colors = new PaletteRgb5[MotherBrainRainbowPaletteFormat.BeamCycleColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainBeamRomData.ColorTable +
-                    index * MotherBrainBeamRomData.ColorStride));
+                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
+                    index * MotherBrainSourceDefinitions.Beam.ColorEntryBytes));
                 if (!Bgr555.IsColorWord(word))
                     throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
                 colors[index] = ToColor(word);
             }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainBeamRomData.ColorTable +
-                colors.Length * MotherBrainBeamRomData.ColorStride)) != ushort.MaxValue)
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
+                colors.Length * MotherBrainSourceDefinitions.Beam.ColorEntryBytes)) != ushort.MaxValue)
                 throw new InvalidDataException("Mother Brain beam cycle lacks its native signed terminator.");
             return colors;
         }

@@ -109,7 +109,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Reconstructs the five hue legs using the cartridge's asymmetric blue-to-magenta shift.</summary>
         private static Bgr555 Calculate(int index)
         {
-            int step = index * MotherBrainBeamRomData.ColorStride / Bgr555.ByteCount;
+            int step = index * MotherBrainBeamDefinitions.HueStepsPerColor;
             int red, green, blue;
             if (step <= 15)
             {
@@ -145,15 +145,13 @@ public sealed class MotherBrainRainbowPalettePresentation
     public Bgr555 BeamInitialColor { get; }
 
     /// <summary>
-    /// Resolves the native byte cursor. The cycle's signed terminator is engine control,
-    /// not an editable color: it returns false, and the HDMA owner performs the reset.
+    /// Reads beam cycle colour <paramref name="index"/>. The cycle's end is engine control, not an editable colour: the
+    /// index one past the last colour returns false, and the beam performs the reset.
     /// </summary>
-    public bool TryReadBeamColor(int byteCursor, out Bgr555 color)
+    public bool TryReadBeamColor(int index, out Bgr555 color)
     {
-        if (byteCursor < 0 || byteCursor % MotherBrainBeamRomData.ColorStride != 0 ||
-            byteCursor > beamCycle.Length * MotherBrainBeamRomData.ColorStride)
-            throw new InvalidDataException($"Mother Brain beam color cursor ${byteCursor:X} is outside its authored cycle.");
-        int index = byteCursor / MotherBrainBeamRomData.ColorStride;
+        if (index < 0 || index > beamCycle.Length)
+            throw new InvalidDataException($"Mother Brain beam color {index} is outside its authored cycle.");
         if (index == beamCycle.Length)
         {
             color = Bgr555.Black;

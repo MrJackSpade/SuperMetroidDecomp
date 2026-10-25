@@ -123,6 +123,16 @@ internal static class MotherBrainSourceDefinitions
             FirstCorpseFadeColors + frame * MotherBrainDeathDefinitions.CorpseColorCount * ColorWordBytes;
     }
 
+    /// <summary>The rainbow beam's colour cycle.</summary>
+    internal static class Beam
+    {
+        /// <summary>$88:E833, the beam's colour cycle, ending in a signed terminator.</summary>
+        internal const int ColorTable = 0x88e833;
+
+        /// <summary>The bytes between consecutive cycle colours: the cartridge's cursor steps four bytes, skipping every other colour word.</summary>
+        internal const int ColorEntryBytes = 2 * ColorWordBytes;
+    }
+
     /// <summary>The Shitroid's bank-$A9 colour images.</summary>
     internal static class Shitroid
     {

@@ -18,7 +18,7 @@ internal static class SequenceColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRainbowPaletteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainDrainedPaletteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathPaletteDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBeamRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBeamDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainDeathColorCatalog", "mother-brain-death-v1-complete-color-rows",
             ["BodyColor", "LegColor", "CorpseColor", "ExplodedDoorColor"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainDeathColorCatalog.cs"),

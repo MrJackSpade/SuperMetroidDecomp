@@ -16,8 +16,8 @@ public sealed class MotherBrainRainbowBeamEffect
     public bool Active { get; private set; }
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
     public Bgr555 Color { get; private set; }
-    /// <summary>Next native $88:E833 color-table byte offset, advancing by four rather than by one color ordinal; a signed terminator resets to zero and repeats entry zero without advancing that update.</summary>
-    public int ColorCursor { get; private set; }
+    /// <summary>The next colour of the beam's cycle, advancing by one each update the beam shows; the cycle's end resets it to zero and repeats colour zero without advancing that update.</summary>
+    public int ColorIndex { get; private set; }
     /// <summary>
     /// Last geometry resolved by a right, up or down dispatcher. Null until the first such
     /// update; a leftward-straddling beam ($AD:DE5E RTS) and deactivation both keep it.
@@ -42,19 +42,19 @@ public sealed class MotherBrainRainbowBeamEffect
         if (!Active)
         {
             Active = true;
-            ColorCursor = 0;
-            Color = PresentationColors?.BeamInitialColor ?? MotherBrainBeamRomData.InitialColor;
+            ColorIndex = 0;
+            Color = PresentationColors?.BeamInitialColor ?? MotherBrainBeamDefinitions.InitialColor;
         }
         else
         {
-            if (!TryReadColor(ColorCursor, out Bgr555 color))
+            if (!TryReadColor(ColorIndex, out Bgr555 color))
             {
-                // The native signed terminator: the reset frame repeats entry zero without incrementing.
-                ColorCursor = 0;
+                // The cycle's end: the reset frame repeats colour zero without incrementing.
+                ColorIndex = 0;
                 if (!TryReadColor(0, out color))
                     throw new InvalidDataException("Mother Brain beam color cycle has no first entry.");
             }
-            else ColorCursor += MotherBrainBeamRomData.ColorStride;
+            else ColorIndex++;
             Color = color;
         }
         ResolveGeometry(head, angle, angularWidth);
@@ -68,24 +68,24 @@ public sealed class MotherBrainRainbowBeamEffect
         byte a = unchecked((byte)(angle.TableIndex - halfWidth));
         byte b = unchecked((byte)(angle.TableIndex + halfWidth));
         int quadrant = (a / SnesAngle.QuarterTurn.TableIndex) * 4 + b / SnesAngle.QuarterTurn.TableIndex;
-        var direction = MotherBrainBeamRomData.DirectionForQuadrants(quadrant);
+        var direction = MotherBrainBeamQuadrants.DirectionForPair(quadrant);
         // Native DE5E is an RTS: retain the previous geometry for a beam straddling left.
-        if (direction == MotherBrainBeamRomData.Direction.Retain) return;
-        if (direction is not (MotherBrainBeamRomData.Direction.Right
-            or MotherBrainBeamRomData.Direction.Up or MotherBrainBeamRomData.Direction.Down))
+        if (direction == MotherBrainBeamDirection.Retain) return;
+        if (direction is not (MotherBrainBeamDirection.Right
+            or MotherBrainBeamDirection.Up or MotherBrainBeamDirection.Down))
             throw new InvalidDataException($"Mother Brain beam quadrant pair {quadrant} selects a null native dispatcher.");
 
-        int originY = head.Y + MotherBrainBeamRomData.MouthYOffset;
-        if (originY is <= MotherBrainBeamRomData.FirstLine or >= MotherBrainBeamRomData.EndLine)
+        int originY = head.Y + MotherBrainBeamDefinitions.MouthYOffset;
+        if (originY is <= MotherBrainBeamDefinitions.FirstLine or >= MotherBrainBeamDefinitions.EndLine)
             throw new InvalidDataException($"Mother Brain beam mouth Y={originY} is outside its native scanline work area.");
         // DE20 reads XPosition-1, then masks after adding: this is the low X byte,
         // not a camera-relative coordinate or the enemy header pointer in the C decompile.
-        Geometry = new(unchecked((byte)(head.X + MotherBrainBeamRomData.MouthXOffset)), originY, a, b, direction);
+        Geometry = new(unchecked((byte)(head.X + MotherBrainBeamDefinitions.MouthXOffset)), originY, a, b, direction);
     }
 
     /// <summary>Reads the installed color cycle and fails if rainbow presentation colors were never bound.</summary>
-    private bool TryReadColor(int cursor, out Bgr555 color) =>
+    private bool TryReadColor(int index, out Bgr555 color) =>
         (PresentationColors ?? throw new InvalidOperationException(
             "Mother Brain rainbow beam requires installed colors."))
-            .TryReadBeamColor(cursor, out color);
+            .TryReadBeamColor(index, out color);
 }

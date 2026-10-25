@@ -1001,18 +1001,18 @@ internal static class LookupStream3Verification
             int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             var expected = pointer switch
             {
-                0xe1a6 => MotherBrainBeamRomData.Direction.Down,
-                0xde7f => MotherBrainBeamRomData.Direction.Right,
-                0xdf6e => MotherBrainBeamRomData.Direction.Up,
-                0xde5e => MotherBrainBeamRomData.Direction.Retain,
-                0 => MotherBrainBeamRomData.Direction.Unsupported,
+                0xe1a6 => MotherBrainBeamDirection.Down,
+                0xde7f => MotherBrainBeamDirection.Right,
+                0xdf6e => MotherBrainBeamDirection.Up,
+                0xde5e => MotherBrainBeamDirection.Retain,
+                0 => MotherBrainBeamDirection.Unsupported,
                 _ => throw new InvalidDataException("Unexpected native beam quadrant target."),
             };
-            AssertEqual(expected, MotherBrainBeamRomData.DirectionForQuadrants(pair),
+            AssertEqual(expected, MotherBrainBeamQuadrants.DirectionForPair(pair),
                 "stream 3 native beam quadrant dispatcher including null and retaining entries");
         }
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamQuadrants.DirectionForPair(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
         IReadOnlyList<IntroPaletteSpan>[] introRegions =
         [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
@@ -1723,9 +1723,9 @@ internal static class LookupStream3Verification
         void CheckBeam(MotherBrainRainbowPalettePresentation palette)
         {
             for (int index = 0; index < 38; index++)
-                AssertTrue(palette.TryReadBeamColor(index * 4, out Bgr555 beam) && beam == Bgr555.FromWord(Word(document.BeamCycle[index])),
+                AssertTrue(palette.TryReadBeamColor(index, out Bgr555 beam) && beam == Bgr555.FromWord(Word(document.BeamCycle[index])),
                     "stream 3 beam wheel matches every native sampled color");
-            AssertTrue(!palette.TryReadBeamColor(152, out _), "stream 3 beam signed loop terminator");
+            AssertTrue(!palette.TryReadBeamColor(38, out _), "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         CheckBeam(stock);
@@ -1740,8 +1740,8 @@ internal static class LookupStream3Verification
             CheckBeam(Load(document));
             document.BeamCycle[index] = original;
         }
-        foreach (int invalid in new[] { -1, 1, 2, 3, 153, 156, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.TryReadBeamColor(invalid, out _), "stream 3 beam cursor bounds and alignment");
+        foreach (int invalid in new[] { -1, 39, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => stock.TryReadBeamColor(invalid, out _), "stream 3 beam colour index bounds");
         Check(stock);
         void CheckRainbow(MotherBrainRainbowPalettePresentation palette)
         {

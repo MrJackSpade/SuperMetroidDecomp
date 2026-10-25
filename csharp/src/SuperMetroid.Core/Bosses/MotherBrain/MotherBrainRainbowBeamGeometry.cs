@@ -14,4 +14,4 @@ public readonly record struct MotherBrainRainbowBeamGeometry(
     int MouthY,
     int EdgeA,
     int EdgeB,
-    MotherBrainBeamRomData.Direction Direction);
+    MotherBrainBeamDirection Direction);

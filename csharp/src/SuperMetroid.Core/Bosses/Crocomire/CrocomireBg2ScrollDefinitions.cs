@@ -37,6 +37,6 @@ internal static class CrocomireBg2ScrollDefinitions
         frame is { } shown && Corrections.TryGetValue(shown, out int correction) ? correction : 0;
 
     /// <summary>Applies the signed correction with native sixteen-bit wrapping.</summary>
-    internal static ushort VerticalScroll(ushort bodyY, EnemyFrameId? frame) =>
+    internal static ushort VerticalScroll(int bodyY, EnemyFrameId? frame) =>
         unchecked((ushort)(VerticalOrigin - bodyY + Correction(frame)));
 }

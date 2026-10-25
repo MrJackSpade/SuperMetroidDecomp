@@ -38,14 +38,14 @@ internal static class CrocomireRumbleDefinitionsVerification
             expectedWords[targetIndex] = unchecked((ushort)definition.TargetYOffset);
             assigned[targetIndex] = true;
             bool hasTiming = !definition.IsTerminator && definition.NextTargetOffset == tableOffset + 6;
-            tableOffset = definition.IsTerminator
-                ? (ushort)(tableOffset + 2)
-                : definition.NextTargetOffset;
+            tableOffset = (ushort)(definition.IsTerminator
+                ? tableOffset + 2
+                : definition.NextTargetOffset);
             if (!hasTiming)
                 continue;
 
-            expectedWords[targetIndex + 1] = definition.Cooldown;
-            expectedWords[targetIndex + 2] = definition.Delta;
+            expectedWords[targetIndex + 1] = (ushort)definition.Cooldown;
+            expectedWords[targetIndex + 2] = (ushort)definition.Delta;
             assigned[targetIndex + 1] = true;
             assigned[targetIndex + 2] = true;
         }

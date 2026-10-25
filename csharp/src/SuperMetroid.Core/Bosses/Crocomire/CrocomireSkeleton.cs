@@ -305,7 +305,7 @@ internal sealed class CrocomireSkeleton
     {
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
-        ushort graphicsIndex = unchecked((ushort)(
+        int graphicsIndex = unchecked((ushort)(
             state.Body.TileIndexBase | state.Body.PaletteIndex));
 
         // The initializer indexes Y by native projectile index minus $14. Clearing the pool
@@ -319,7 +319,7 @@ internal sealed class CrocomireSkeleton
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces,
-                graphicsIndex);
+                (ushort)graphicsIndex);
             projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.SpikeWallPiece));
             int yTableIndex = projectile.SlotIndex - 10;
             if ((uint)yTableIndex >= 8)

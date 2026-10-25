@@ -432,9 +432,9 @@ internal sealed class CrocomireCombat
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
-        short gradient = CrocomireVolley.GradientForSpawnParameter(projectile.DirectionParameter);
         // The native angle starts at up, not right: Y uses negative cosine.
-        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
+        projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(
+            new(-64, CrocomireVolley.GradientForSpawnParameter(projectile.DirectionParameter))));
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
     }
@@ -467,8 +467,8 @@ internal sealed class CrocomireCombat
     internal void RunCrocomireSpikeWallPiece(RoomEnemyProjectileSlot projectile)
     {
         int slot = projectile.SlotIndex;
-        ushort maximumAcceleration = CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot);
-        ushort acceleration = checked((ushort)projectile.Variable0);
+        int maximumAcceleration = CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot);
+        int acceleration = projectile.Variable0;
         if (acceleration != maximumAcceleration)
         {
             acceleration = unchecked((ushort)(
@@ -482,18 +482,20 @@ internal sealed class CrocomireCombat
         // fractional velocity byte; carry advances the signed integral velocity byte, which
         // is then capped by this physical slot's maximum.
         int velocityFractionSum = (SnesEightEight.FractionOf(projectile.Velocity.X.RawValue)) + (SnesLittleEndian.HighByte(acceleration));
-        byte velocityFraction = unchecked((byte)velocityFractionSum);
-        byte velocityWhole = unchecked((byte)(
+        // Each byte keeps its eight-bit wrap: the fraction drops its carry into the whole byte,
+        // and the whole byte is capped by a signed eight-bit comparison.
+        int velocityFraction = unchecked((byte)velocityFractionSum);
+        int velocityWhole = unchecked((byte)(
             (SnesEightEight.WholeOf(projectile.Velocity.X.RawValue)) + (SnesCarry.OutOfByte(velocityFractionSum))));
-        byte maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
+        int maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked(SnesLittleEndian.Word(velocityFraction, velocityWhole))));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesLittleEndian.Word((byte)velocityFraction, (byte)velocityWhole)));
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
         SnesFixedPosition x = new SnesFixedPosition(projectile.Position.X.Whole, projectile.Position.X.Fraction)
-            .AddEightEightToHighFraction(SnesLittleEndian.Word(velocityFraction, velocityWhole));
+            .AddEightEightToHighFraction(SnesLittleEndian.Word((byte)velocityFraction, (byte)velocityWhole));
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
@@ -508,13 +510,12 @@ internal sealed class CrocomireCombat
         if (projectile.Position.Y.Whole < 168)
             return;
 
-        ushort impactX = projectile.Position.X.Whole;
-        ushort impactY = projectile.Position.Y.Whole;
+        Position16<RoomPixels> impact = projectile.Position.Whole;
         bool evenSlot = projectile.SlotIndex % 2 == 0;
         projectile.Clear();
         if (evenSlot)
             _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.BigDustCloud);
+        _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.BigDustCloud);
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;
     }
 

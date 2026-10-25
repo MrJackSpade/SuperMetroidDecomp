@@ -37,7 +37,7 @@ internal sealed class CrocomireMeltingTilemap
     {
         var words = new ushort[CrocomireMeltingArtworkFormat.TilemapCellCount];
         for (int index = 0; index < words.Length; index++)
-            words[index] = edits.TryGetValue(index, out ushort edit) ? edit : Calculate(index);
+            words[index] = edits.ContainsKey(index) ? edits[index] : Calculate(index);
         return words;
     }
 

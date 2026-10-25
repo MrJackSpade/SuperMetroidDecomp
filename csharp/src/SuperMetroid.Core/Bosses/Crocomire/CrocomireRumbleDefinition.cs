@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 [IndependentFlag("marks the rumble table's terminating record, a fact of the authored data")]
 internal readonly record struct CrocomireRumbleDefinition(
-    short TargetYOffset,
-    ushort NextTargetOffset,
-    ushort Cooldown,
-    ushort Delta,
+    int TargetYOffset,
+    int NextTargetOffset,
+    int Cooldown,
+    int Delta,
     bool IsTerminator);

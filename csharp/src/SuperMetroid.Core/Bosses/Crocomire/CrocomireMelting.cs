@@ -234,14 +234,14 @@ internal sealed class CrocomireMelting
         int line = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         int adjustedY = death.DistortionSourceRow;
         int currentY = adjustedY;
-        ushort fraction = 0;
+        int fraction = 0;
         while (line < output.Length &&
                adjustedY < death.LowestDistortionSourceRow)
         {
             output[line++] = unchecked((ushort)(
                 _bg2.CrocomireBg2Scroll.Y + adjustedY - currentY));
             bool carry = false;
-            fraction = SnesCarry.AddWithCarry(fraction, checked((ushort)death.DistortionStep), ref carry);
+            fraction = SnesCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
             if (!carry)
                 adjustedY++;
             currentY++;

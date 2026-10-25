@@ -63,7 +63,7 @@ internal static class LookupTourianDescriptorsVerification
 
     /// <summary>Word <paramref name="index"/> of the native animated-tile object header at <paramref name="header"/>.</summary>
     private static ushort HeaderWord(ISnesAddressSpace rom, ushort header, int index) =>
-        ReadVerificationWord(rom, RoomFxRomData.Banks.AnimatedTiles | (header + index * sizeof(ushort)));
+        ReadVerificationWord(rom, RoomFxNativeSources.AnimatedTilesBank | (header + index * sizeof(ushort)));
 
     /// <summary>The production definition for a native statue header, which must resolve.</summary>
     internal static TourianStatueAnimatedTileProgramDefinition Resolve(ushort header)

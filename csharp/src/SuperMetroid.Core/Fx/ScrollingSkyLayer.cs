@@ -24,10 +24,10 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<ushort
             return result;
         for (int line = 0; line < lineCount; line++)
         {
-            ushort worldY = unchecked((ushort)(VerticalScroll + RoomFxRomData.ScrollingSky.GameplayFirstScanline + line));
+            ushort worldY = unchecked((ushort)(VerticalScroll + ScrollingSkyBandDefinitions.GameplayFirstScanline + line));
             int band = BandAt(worldY);
             // The assembly's fallback entries point at direct-page BG2HOFS ($00B5), which is zero for the sky rooms.
-            result[line] = band >= 0 ? BandOffsets[RoomFxRomData.ScrollingSky.GetSection(band).DataSlot] : (ushort)0;
+            result[line] = band >= 0 ? BandOffsets[ScrollingSkyBands.GetSection(band).DataSlot] : (ushort)0;
         }
         return result;
     }
@@ -35,12 +35,12 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<ushort
     /// <summary>The band covering a world position, or -1 below the sky's bands.</summary>
     private static int BandAt(ushort worldY)
     {
-        for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
+        for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
         {
-            int nextTop = index + 1 < RoomFxRomData.ScrollingSky.SectionCount
-                ? RoomFxRomData.ScrollingSky.GetSection(index + 1).TopPosition
-                : RoomFxRomData.ScrollingSky.WorldEndPosition;
-            if (worldY >= RoomFxRomData.ScrollingSky.GetSection(index).TopPosition && worldY < nextTop)
+            int nextTop = index + 1 < ScrollingSkyBandDefinitions.SectionCount
+                ? ScrollingSkyBands.GetSection(index + 1).TopPosition
+                : ScrollingSkyBandDefinitions.WorldEndPosition;
+            if (worldY >= ScrollingSkyBands.GetSection(index).TopPosition && worldY < nextTop)
                 return index;
         }
         return -1;

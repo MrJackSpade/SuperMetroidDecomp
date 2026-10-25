@@ -155,7 +155,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
     private static bool IsTourianStatueProgramByte(HashSet<int> programOffsets, int address)
     {
         SnesAddress snesAddress = SnesAddress.FromBusAddress(address);
-        return snesAddress.Bank == SnesLittleEndianConstants.BankByte(RoomFxRomData.Banks.AnimatedTiles) &&
+        return snesAddress.Bank == SnesLittleEndianConstants.BankByte(RoomFxNativeSources.AnimatedTilesBank) &&
             programOffsets.Contains(snesAddress.Offset);
     }
 

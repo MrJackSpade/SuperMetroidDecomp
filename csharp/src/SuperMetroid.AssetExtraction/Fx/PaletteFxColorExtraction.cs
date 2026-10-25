@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,7 +21,7 @@ internal static class PaletteFxColorExtraction
             {
                 ushort bgr555 = RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(bus),
-                    RoomFxRomData.Banks.PaletteFx | PaletteFxRecordSources.ColorAddress(rows.Color(frame, color)));
+                    RoomFxCartridgeBanks.PaletteFx | PaletteFxRecordSources.ColorAddress(rows.Color(frame, color)));
                 frames[frame][color] = new PaletteRgb5
                 {
                     Red = bgr555 & 31,

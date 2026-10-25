@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Native bank-$8A 32x33 BG3 effect-page geometry and presentation identities.</summary>
+/// <summary>The room effects' 32x33 layer-three page geometry and the installed file holding the pages.</summary>
 public static class RoomFxLayer3TilemapFormat
 {
     /// <summary>Shared editable JSON filename containing all six room-FX BG3 page definitions.</summary>
@@ -17,27 +17,7 @@ public static class RoomFxLayer3TilemapFormat
     /// <summary>Compiled transfer length, $0840 bytes, with one little-endian sixteen-bit SNES BG tilemap word per cell.</summary>
     public const int PageByteCount = CellsPerPage * sizeof(ushort);
 
-    /// <summary>$8A:8000, first room-FX BG3 page; the six pages end at $8A:B17F.</summary>
-    public const int FirstSourceAddress = SuperMetroid.Core.Fx.RoomFxRomData.Layer3TilemapPages;
-
-    /// <summary>
-    /// The six even type identities $02..0C at $83:ABF2..ABFC, in page order.
-    /// Index0..5 names Lava, Acid, Water, Spores, Rain and Fog in page order.
-    /// </summary>
+    /// <summary>The six effects that show a page, in page order: Lava, Acid, Water, Spores, Rain and Fog.</summary>
     public static IReadOnlyList<RoomFxType> Types { get; } =
         [RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Spores, RoomFxType.Rain, RoomFxType.Fog];
-
-    /// <summary>
-    /// Returns $8A:8000 + (type/2-1)*$840 for the six even types $02..0C.
-    /// The original pointers at $83:ABF2..ABFC select consecutive 32x33 word pages.
-    /// The statue effect aliases water; every other ushort type remains unsupported.
-    /// </summary>
-    public static int SourceAddress(RoomFxType type)
-    {
-        if (RoomFxTypes.UsesWater(type)) type = RoomFxType.Water;
-        int value = (ushort)type;
-        if (value is < 2 or > 12 || (value & 1) != 0)
-            throw new InvalidDataException($"Room-FX type {type} has no BG3 tilemap page.");
-        return FirstSourceAddress + (value / 2 - 1) * PageByteCount;
-    }
 }

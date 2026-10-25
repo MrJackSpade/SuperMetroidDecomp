@@ -34,7 +34,7 @@ internal static class RoomFxRomDataVerification
             "room FX layer-three blend field");
         AssertEqual(15, RoomFxRomDataRecordTooling.PaletteBlendOffset,
             "room FX palette-blend field");
-        AssertEqual(23, RoomFxRomData.ScrollingSky.SectionCount,
+        AssertEqual(23, ScrollingSkyBandDefinitions.SectionCount,
             "scrolling-sky section count");
 
         RepresentativeType[] representativeTypes =
@@ -222,7 +222,7 @@ internal static class RoomFxRomDataVerification
 
         RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, cgram, record);
         Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, cgram, session, state, record, type));
-        AssertEqual(RoomFxRomData.Layer3.ClearTilemapWord,
+        AssertEqual(Layer3Plane.ClearedCell.Raw,
             Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageWords())
                 .Words[Layer3Plane.HudRows * Layer3Plane.Columns],
             $"{type} room shows the cleared word in the first gameplay BG3 FX word");
@@ -232,7 +232,7 @@ internal static class RoomFxRomDataVerification
             SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.LiquidOptionsOffset,
                 type == RoomFxType.Water
                     ? (byte)3
-                    : (byte)RoomFxRomDataLavaAcidConstants.VerticalBg2WaveOption);
+                    : (byte)RoomFxNativeSources.VerticalBg2WaveOption);
             SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.BaseYPositionOffset, surfaceY);
             state = LoadSyntheticRoomFx(session, bus, cgram, record);
             state.PrimeViewport(new Position16<RoomPixels>(0x0100, 0));
@@ -293,7 +293,7 @@ internal static class RoomFxRomDataVerification
                 AssertEqual(3, bg2Scroll.Distinct().Count(),
                     $"{type} uses the native three-value heat waveform");
                 for (int frameNumber = 0;
-                     frameNumber < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1;
+                     frameNumber < LavaAcidWaveDefinitions.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
                     state.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });

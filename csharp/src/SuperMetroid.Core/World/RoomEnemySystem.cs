@@ -1058,7 +1058,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (Earthquake.Advance(timeIsFrozen))
         {
             foreach (ushort enemyIndex in ProcessingWindow.ActiveEnemyIndexes)
-                SlotTable.SlotAtEnemyIndex(enemyIndex).ShakeTimer = WrappingCountdown.Start(RoomFxRomData.Earthquake.EnemyShakeDuration);
+                SlotTable.SlotAtEnemyIndex(enemyIndex).ShakeTimer = WrappingCountdown.Start(RoomEarthquakeDefinitions.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;
     }

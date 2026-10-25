@@ -46,7 +46,7 @@ internal static class RoomFxLayer3TilemapsVerification
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
-            int source = RoomFxLayer3TilemapFormat.SourceAddress(type);
+            int source = RoomFxLayer3TilemapSources.Page(type).Value;
             byte[] native = RomDataReader.ReadFixedBank(rom, source,
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;

@@ -3,6 +3,8 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 
+using SuperMetroid.AssetExtraction.Fx;
+
 namespace SuperMetroid.Verification.Fx;
 
 /// <summary>Checks the six ordinary layer-3 FX pages and Tourian statue source against retail pointer tables.</summary>
@@ -34,9 +36,9 @@ internal static class LookupFxTilemapSourcesVerification
         {
             var type = (RoomFxType)value;
             if (original.TryGetValue(type, out int expected))
-                AssertEqual(expected, RoomFxLayer3TilemapFormat.SourceAddress(type), "Original page pointer");
+                AssertEqual(expected, RoomFxLayer3TilemapSources.Page(type).Value, "Original page pointer");
             else
-                AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapFormat.SourceAddress(type),
+                AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapSources.Page(type).Value,
                     "All unsupported ushort identities reject, including odd types");
         }
     }

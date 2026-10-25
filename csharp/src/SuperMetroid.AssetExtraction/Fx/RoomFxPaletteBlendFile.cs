@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
@@ -30,7 +29,7 @@ public static class RoomFxPaletteBlendFile
         RoomFxBlendColors Compile(RoomFxPaletteBlend id)
         {
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDefinitions.Key(id), out PaletteRgb5[]? colors) ||
-                colors is null || colors.Length != RoomFxRomData.Layer3.PaletteBlendColorCount)
+                colors is null || colors.Length != RoomFxPaletteBlendDefinitions.ColorCount)
                 throw new InvalidDataException($"Room-FX blend {(int)id:X2} requires three colors.");
             var words = new Bgr555[colors.Length];
             for (int index = 0; index < colors.Length; index++)

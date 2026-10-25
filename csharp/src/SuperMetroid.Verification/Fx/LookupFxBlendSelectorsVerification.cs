@@ -39,8 +39,8 @@ internal static class LookupFxBlendSelectorsVerification
         {
             byte id = (byte)value;
             if (OriginalFxBlendIds().Contains(id))
-                AssertEqual(nativeBase + id, RoomFxPaletteBlendDefinitions.SourceAddress((RoomFxPaletteBlend)id), "Original indexed color address");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.SourceAddress((RoomFxPaletteBlend)id), "Noncatalogued source rejects");
+                AssertEqual(nativeBase + id, RoomFxLayer3TilemapSources.PaletteBlend((RoomFxPaletteBlend)id).Value, "Original indexed color address");
+            else AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapSources.PaletteBlend((RoomFxPaletteBlend)id).Value, "Noncatalogued source rejects");
         }
     }
 

@@ -15,7 +15,7 @@ internal static class ScrollingSkyLayerVerification
     internal static void VerifyPublishedSkyBands()
     {
         var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Ocean);
-        var expected = new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
+        var expected = new uint[ScrollingSkyBandDefinitions.DataSlotCount];
         int frozenFrames = 0;
         for (int frame = 0; frame < 300; frame++)
         {
@@ -24,9 +24,9 @@ internal static class ScrollingSkyLayerVerification
             sky.ProcessFrame(cameraY, frozen);
             if (!frozen)
             {
-                for (int band = 0; band < RoomFxRomData.ScrollingSky.SectionCount; band++)
+                for (int band = 0; band < ScrollingSkyBandDefinitions.SectionCount; band++)
                 {
-                    SkyScrollSection section = RoomFxRomData.ScrollingSky.GetSection(band);
+                    SkyScrollSection section = ScrollingSkyBands.GetSection(band);
                     expected[section.DataSlot] = unchecked(expected[section.DataSlot] + (uint)section.Velocity.RawValue);
                 }
                 expected[^1] = 0;

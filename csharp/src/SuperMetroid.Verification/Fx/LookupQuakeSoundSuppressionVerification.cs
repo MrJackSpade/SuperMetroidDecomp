@@ -26,7 +26,7 @@ internal static class LookupQuakeSoundSuppressionVerification
         AssertEqual(6, nativeRooms.Count, "Six distinct native suppressed rooms");
         foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
             AssertEqual(nativeRooms.Contains(RoomHeaderDefinitions.PointerOf(room)),
-                RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room),
+                RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room),
                 "Quake suppression complete room domain");
 
         var stateSession = new RoomFxSession();

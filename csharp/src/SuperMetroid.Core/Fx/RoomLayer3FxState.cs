@@ -211,7 +211,7 @@ public sealed class RoomLayer3FxState
     {
         Ensure.NotNull(colours);
 
-        if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
+        if (source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room))
             EarthquakeSoundTimer = WrappingCountdown.Start(ushort.MaxValue);
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
@@ -253,8 +253,8 @@ public sealed class RoomLayer3FxState
             // from zero to $1E and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
             lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
-                ? RoomFxRomData.LavaAcid.VerticalWavePhaseDuration
-                : RoomFxRomData.LavaAcid.HorizontalWavePhaseDuration);
+                ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
+                : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration);
             lavaAcidBg2WavePhase = 0;
         }
         else if (Type == RoomFxType.Rain)
@@ -263,7 +263,7 @@ public sealed class RoomLayer3FxState
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
             rainWindVelocity = new Offset16<Bg3Subpixels>(
-                unchecked((short)RoomFxRomData.Rain.HorizontalVelocity((source.RandomNumber >> 2) & 3)), 0);
+                unchecked((short)AtmosphereDrift.RainHorizontalVelocity((source.RandomNumber >> 2) & 3)), 0);
         }
     }
 
@@ -295,7 +295,7 @@ public sealed class RoomLayer3FxState
             LavaAcidBg3PreInstructionInstalled = true;
             // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
             if (lavaOrAcid)
-                lavaSoundTimer = WrappingCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
+                lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
             return;
         }
         if (timeIsFrozen)
@@ -324,10 +324,10 @@ public sealed class RoomLayer3FxState
         lavaSoundTimer = lavaSoundTimer.Decrement().Remaining;
         if (!lavaSoundTimer.IsZero)
             return;
-        lavaSoundTimer = WrappingCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
+        lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
         soundRequests.Add(new SoundRequest(
-            RoomFxRomData.LavaAcid.AmbientSound(random),
-            RoomFxRomData.LavaAcid.AmbientSoundMaximumQueued,
+            LiquidEffects.LavaAmbientSound(random),
+            LavaAcidWaveDefinitions.AmbientSoundMaximumQueued,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
     }
 
@@ -384,14 +384,14 @@ public sealed class RoomLayer3FxState
             // $88:DA47 samples each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
             Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
-            drift = drift.WithY(unchecked((short)(drift.Y - RoomFxRomData.Spores.VerticalVelocity)));
+            drift = drift.WithY(unchecked((short)(drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity)));
             return;
         }
 
         // `$88:DB36` anchors fog to layer one and moves its texture by -$40/+50 in 8.8.
         Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
-        drift = new(unchecked((short)(drift.X + RoomFxRomData.Fog.HorizontalVelocity)),
-            unchecked((short)(drift.Y - RoomFxRomData.Fog.VerticalVelocity)));
+        drift = new(unchecked((short)(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity)),
+            unchecked((short)(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity)));
     }
 
     /// <summary>
@@ -508,9 +508,9 @@ public sealed class RoomLayer3FxState
         waterBg3WaveTimer = waterBg3WaveTimer.Decrement().Remaining;
         if (waterBg3WaveTimer.IsZero)
         {
-            waterBg3WaveTimer = WrappingCountdown.Start(RoomFxRomData.Water.Bg3WavePhaseDuration);
+            waterBg3WaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.Bg3WavePhaseDuration);
             waterBg3WavePhase =
-                (waterBg3WavePhase + 1) % RoomFxRomData.Water.WaveDisplacementCount;
+                (waterBg3WavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
 
         if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != 0)
@@ -523,9 +523,9 @@ public sealed class RoomLayer3FxState
         waterBg2WaveTimer = waterBg2WaveTimer.Decrement().Remaining;
         if (waterBg2WaveTimer.IsZero)
         {
-            waterBg2WaveTimer = WrappingCountdown.Start(RoomFxRomData.Water.Bg2WavePhaseDuration);
+            waterBg2WaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.Bg2WavePhaseDuration);
             waterBg2WavePhase =
-                (waterBg2WavePhase + 1) % RoomFxRomData.Water.WaveDisplacementCount;
+                (waterBg2WavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
     }
 
@@ -564,11 +564,11 @@ public sealed class RoomLayer3FxState
             return;
 
         lavaAcidBg2WavePhase =
-            (lavaAcidBg2WavePhase - 1 + RoomFxRomData.LavaAcid.WaveDisplacementCount) %
-            RoomFxRomData.LavaAcid.WaveDisplacementCount;
+            (lavaAcidBg2WavePhase - 1 + LavaAcidWaveDefinitions.WaveDisplacementCount) %
+            LavaAcidWaveDefinitions.WaveDisplacementCount;
         lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
-            ? RoomFxRomData.LavaAcid.VerticalWavePhaseDuration
-            : RoomFxRomData.LavaAcid.HorizontalWavePhaseDuration);
+            ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
+            : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration);
     }
 
     /// <summary>
@@ -628,8 +628,8 @@ public sealed class RoomLayer3FxState
             return;
         HandleEarthquakeSoundEffect(randomNumber, mainGameLoopCarry);
         EarthquakeRequest = new RoomFxEarthquakeRequest(
-            RoomFxRomData.Earthquake.RisingLiquidType,
-            RoomFxRomData.Earthquake.RisingLiquidTimerBits);
+            RoomEarthquakeDefinitions.RisingLiquidType,
+            RoomEarthquakeDefinitions.RisingLiquidTimerBits);
     }
 
     /// <summary>
@@ -656,7 +656,7 @@ public sealed class RoomLayer3FxState
             return;
 
         ReadOnlySpan<ushort> baseTimers =
-            RoomFxRomData.Earthquake.RisingLiquidSoundBaseTimers;
+            RoomEarthquakeDefinitions.RisingLiquidSoundBaseTimers;
         if ((uint)EarthquakeSoundSequenceIndex >= (uint)baseTimers.Length)
             EarthquakeSoundSequenceIndex = 0;
 
@@ -718,15 +718,15 @@ public sealed class RoomLayer3FxState
         ushort negativeDelta;
         if ((LiquidOptions & RoomLiquidOptions.SmallTide) != 0)
         {
-            scale = RoomFxRomData.LiquidTide.SmallTideScale;
-            positiveDelta = RoomFxRomData.LiquidTide.SmallTidePositivePhaseDelta;
-            negativeDelta = RoomFxRomData.LiquidTide.SmallTideNegativePhaseDelta;
+            scale = LiquidTideDefinitions.SmallTideScale;
+            positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
+            negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
         }
         else if ((LiquidOptions & RoomLiquidOptions.LargeTide) != 0)
         {
-            scale = RoomFxRomData.LiquidTide.LargeTideScale;
-            positiveDelta = RoomFxRomData.LiquidTide.LargeTidePositivePhaseDelta;
-            negativeDelta = RoomFxRomData.LiquidTide.LargeTideNegativePhaseDelta;
+            scale = LiquidTideDefinitions.LargeTideScale;
+            positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
+            negativeDelta = LiquidTideDefinitions.LargeTideNegativePhaseDelta;
         }
         else
         {
@@ -816,11 +816,11 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Rain's texture fall each frame, in 8.8 pixels.</summary>
     private static readonly Offset16<Bg3Subpixels> RainFallVelocity =
-        new(0, unchecked(-RoomFxRomData.Rain.VerticalVelocity));
+        new(0, unchecked(-AtmosphereDriftDefinitions.RainVerticalVelocity));
 
     /// <summary>Water's surface drift each frame its <see cref="RoomLiquidOptions.SurfaceDrift"/> option is set.</summary>
     private static readonly Offset16<Bg3Subpixels> WaterDriftVelocity =
-        new(unchecked((short)RoomFxRomData.Water.HorizontalSubscrollVelocity), 0);
+        new(unchecked((short)WaterWaveDefinitions.HorizontalSubscrollVelocity), 0);
 
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase

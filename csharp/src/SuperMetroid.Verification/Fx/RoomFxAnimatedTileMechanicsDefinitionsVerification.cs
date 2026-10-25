@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Fx.LookupFxLegacySheetsVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
@@ -97,7 +96,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         ISnesAddressSpace inner, RoomFxAnimatedTileObjectDefinition definition, Action presentationRead)
     {
         bool InAnimatedTileBank(int address) =>
-            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndianConstants.BankByte(RoomFxRomData.Banks.AnimatedTiles);
+            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndianConstants.BankByte(RoomFxNativeSources.AnimatedTilesBank);
         return new CartridgeReadGuard(inner)
             .Forbid(address =>
                 {

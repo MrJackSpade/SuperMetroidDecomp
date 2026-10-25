@@ -179,8 +179,8 @@ internal static class RoomFxRetailInventoryVerification
                             bus,
                             selectedRecord,
                             RoomFxRomDataRecordTooling.LiquidOptionsOffset) &
-                            (RoomFxRomDataLiquidTideConstants.SmallTideOption |
-                             RoomFxRomDataLiquidTideConstants.LargeTideOption)) != 0)
+                            (RoomFxNativeSources.SmallTideOption |
+                             RoomFxNativeSources.LargeTideOption)) != 0)
                     {
                         VerifyRetailLiquidTide(bus, room, doorPointer);
                         tidalEntryPaths++;
@@ -372,26 +372,26 @@ internal static class RoomFxRetailInventoryVerification
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava),
-            RoomFxRomData.Layer3AnimatedTiles.LavaFirstInstruction,
-            RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
+            RoomFxNativeSources.LavaFirstInstruction,
+            RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Lava).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
-            RoomFxRomData.Layer3AnimatedTiles.LavaFirstFrame,
+            RoomFxNativeSources.LavaFirstFrame,
             "lava"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Acid),
-            RoomFxRomData.Layer3AnimatedTiles.AcidFirstInstruction,
-            RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
+            RoomFxNativeSources.AcidFirstInstruction,
+            RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Lava).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
-            RoomFxRomData.Layer3AnimatedTiles.AcidFirstFrame,
+            RoomFxNativeSources.AcidFirstFrame,
             "acid"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
             FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Rain),
-            RoomFxRomData.Layer3AnimatedTiles.RainFirstInstruction,
-            RoomFxRomData.Layer3AnimatedTiles.RainFrameByteCount,
+            RoomFxNativeSources.RainFirstInstruction,
+            RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Rain).FrameByteCount,
             AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Rain),
-            RoomFxRomData.Layer3AnimatedTiles.RainFirstFrame,
+            RoomFxNativeSources.RainFirstFrame,
             "rain"));
     }
 
@@ -511,7 +511,7 @@ internal static class RoomFxRetailInventoryVerification
         ushort expectedFirstSource,
         string name)
     {
-        int header = RoomFxRomData.Banks.AnimatedTiles | objectPointer;
+        int header = RoomFxNativeSources.AnimatedTilesBank | objectPointer;
         AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header),
             $"retail {name} animated-tile instruction list");
         AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 2),
@@ -521,7 +521,7 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(expectedFirstSource,
             RomDataReader.ReadWordFixedBank(
                 CartridgeImportSource.Require(bus),
-                RoomFxRomData.Banks.AnimatedTiles | expectedInstruction + 2),
+                RoomFxNativeSources.AnimatedTilesBank | expectedInstruction + 2),
             $"retail {name} animated-tile first source frame");
     }
 
@@ -743,15 +743,15 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$28 earthquake sound identity");
         AssertEqual(6, sound.MaximumQueued.Requests,
             "room $02/$28 earthquake sound queue cap");
-        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, runtime.Enemies.Earthquake.EarthquakeType,
+        AssertEqual(RoomEarthquakeDefinitions.RisingLiquidType, runtime.Enemies.Earthquake.EarthquakeType,
             "room $02/$28 earthquake type");
         AssertTrue(Shook(firstActiveShake) &&
-            runtime.Enemies.Earthquake.EarthquakeType >= RoomFxRomData.Earthquake.FirstEnemyShakingType,
+            runtime.Enemies.Earthquake.EarthquakeType >= RoomEarthquakeDefinitions.FirstEnemyShakingType,
             "room $02/$28 first wait frame shakes backgrounds and enemies");
 
-        int table = RoomFxRomData.Earthquake.BgDisplacementTableAddress +
-            RoomFxRomData.Earthquake.RisingLiquidType *
-            RoomFxRomData.Earthquake.BytesPerType;
+        int table = RoomFxNativeSources.EarthquakeDisplacementTable +
+            RoomEarthquakeDefinitions.RisingLiquidType *
+            RoomFxNativeSources.EarthquakeDisplacementRecordBytes;
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
             firstActiveShake.Bg1.X, "room $02/$28 first shake BG1 X");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
@@ -836,8 +836,8 @@ internal static class RoomFxRetailInventoryVerification
 
         int expectedMaximum =
             (fx.LiquidOptions & RoomLiquidOptions.SmallTide) != 0
-                ? RoomFxRomData.LiquidTide.SmallTideScale
-                : RoomFxRomData.LiquidTide.LargeTideScale;
+                ? LiquidTideDefinitions.SmallTideScale
+                : LiquidTideDefinitions.LargeTideScale;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} tide moves within ±{expectedMaximum} pixels");

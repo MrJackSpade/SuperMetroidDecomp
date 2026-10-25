@@ -25,7 +25,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horiz
 
     /// <summary>23 native 16.16 HDMA data slots; the last slot is stationary.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
-        new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
+        new uint[ScrollingSkyBandDefinitions.DataSlotCount];
 
     /// <summary>
     /// Returns whether a room-state callback dispatches to the translated land-sky
@@ -97,15 +97,15 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horiz
     /// <summary>Adds each strip's native 16.16 speed and resets the stationary bottom strip.</summary>
     private void AdvanceHorizontalScrolls()
     {
-        for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
+        for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
         {
-            SkyScrollSection section = RoomFxRomData.ScrollingSky.GetSection(index);
+            SkyScrollSection section = ScrollingSkyBands.GetSection(index);
             _fixedHorizontalScrolls[section.DataSlot] = unchecked(
                 _fixedHorizontalScrolls[section.DataSlot] + (uint)section.Velocity.RawValue);
         }
 
         // $88:ADF2-$88:ADFA clears the final fractional and integer words after all 23
         // additions, keeping the bottommost section stationary.
-        _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
+        _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = 0;
     }
 }

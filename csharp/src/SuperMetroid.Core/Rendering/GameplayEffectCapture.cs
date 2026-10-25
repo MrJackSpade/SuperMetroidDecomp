@@ -41,9 +41,9 @@ public static class GameplayEffectCapture
         {
             int index = (fx.WaterBg2WavePhase + verticalPhase +
                 screenY - fx.WaterSurfaceScreenY - 1) &
-                (RoomFxRomData.Water.WaveDisplacementCount - 1);
+                (WaterWaveDefinitions.WaveDisplacementCount - 1);
             result[screenY - HudHeight] = unchecked((ushort)(
-                bg2Scroll.X + RoomFxRomData.Water.WaveDisplacement(index)));
+                bg2Scroll.X + LiquidEffects.WaterWaveDisplacement(index)));
         }
         return result;
     }
@@ -106,10 +106,10 @@ public static class GameplayEffectCapture
             // the sixteen resident words backward through A. HUD height is 32, exactly two
             // waveform periods, so gameplay-local and physical scanline indices coincide.
             int waveIndex = (verticalPhase + line + wavePhase) &
-                (RoomFxRomData.LavaAcid.WaveDisplacementCount - 1);
+                (LavaAcidWaveDefinitions.WaveDisplacementCount - 1);
             short displacement = axis == Axis.Vertical
-                ? RoomFxRomData.LavaAcid.VerticalWaveDisplacement(waveIndex)
-                : RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(waveIndex);
+                ? LiquidEffects.HeatVerticalWaveDisplacement(waveIndex)
+                : LiquidEffects.HeatHorizontalWaveDisplacement(waveIndex);
             result[line] = unchecked((ushort)(baseScroll + displacement));
         }
         return result;
@@ -311,8 +311,8 @@ public static class GameplayEffectCapture
         {
             ushort vertical = liquid && y < firstSurfaceLine ? (ushort)0 : fx.Scroll.Y;
             int wave = RoomFxTypes.UsesWater(fx.Type) && y > fx.WaterSurfaceScreenY
-                ? RoomFxRomData.Water.WaveDisplacement((y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
-                    RoomFxRomData.Water.WaveDisplacementCount) % RoomFxRomData.Water.WaveDisplacementCount) : 0;
+                ? LiquidEffects.WaterWaveDisplacement((y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
+                    WaterWaveDefinitions.WaveDisplacementCount) % WaterWaveDefinitions.WaveDisplacementCount) : 0;
             scrolls[y] = new(unchecked((ushort)(fx.Scroll.X + wave)), vertical);
         }
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
@@ -335,7 +335,7 @@ public static class GameplayEffectCapture
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
         var emptyWindows = new XrayWindowLine[Height];
         Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = RoomFxRomData.Spores.BlendedLayers, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
+        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
     }
 
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>

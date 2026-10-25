@@ -14,6 +14,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
@@ -47,13 +48,13 @@ internal static class RoomPaletteFxPresentationVerification
                     ushort pointer = definition.ColorPointer(frame, color);
                     ushort expected = RomDataReader.ReadWordFixedBank(
                         CartridgeImportSource.Require(bus),
-                        RoomFxRomData.Banks.PaletteFx | pointer);
+                        RoomFxCartridgeBanks.PaletteFx | pointer);
                     AssertTrue(presentation.TryReadColor(pointer, out Bgr555 actual),
                         $"installed Norfair color resolves $8D:{pointer:X4}");
                     AssertEqual(expected, actual,
                         $"installed Norfair color matches cartridge $8D:{pointer:X4}");
-                    colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
-                    colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+                    colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx | pointer);
+                    colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx |
                         unchecked((ushort)(pointer + 1)));
                 }
             }
@@ -680,13 +681,13 @@ internal static class RoomPaletteFxPresentationVerification
                 ushort pointer = unchecked((ushort)(frame.FirstColorPointer +
                     index * sizeof(ushort)));
                 ushort nativeColor = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    RoomFxRomData.Banks.PaletteFx | pointer);
+                    RoomFxCartridgeBanks.PaletteFx | pointer);
                 AssertTrue(presentation.TryReadColor(pointer, out Bgr555 installedColor),
                     $"installed {definition.Suit} heat color resolves $8D:{pointer:X4}");
                 AssertEqual(nativeColor, installedColor,
                     $"installed {definition.Suit} heat color matches cartridge $8D:{pointer:X4}");
-                forbidden.Add(RoomFxRomData.Banks.PaletteFx | pointer);
-                forbidden.Add(RoomFxRomData.Banks.PaletteFx | unchecked((ushort)(pointer + 1)));
+                forbidden.Add(RoomFxCartridgeBanks.PaletteFx | pointer);
+                forbidden.Add(RoomFxCartridgeBanks.PaletteFx | unchecked((ushort)(pointer + 1)));
             }
             AssertEqual(definition.Frames.Count *
                 PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort),
@@ -733,13 +734,13 @@ internal static class RoomPaletteFxPresentationVerification
             ushort pointer = shape.ColorPointer(frame, color);
             ushort expected = RomDataReader.ReadWordFixedBank(
                 CartridgeImportSource.Require(bus),
-                RoomFxRomData.Banks.PaletteFx | pointer);
+                RoomFxCartridgeBanks.PaletteFx | pointer);
             AssertTrue(presentation.TryReadColor(pointer, out Bgr555 actual),
                 $"installed {description} color resolves $8D:{pointer:X4}");
             AssertEqual(expected, actual,
                 $"installed {description} color matches cartridge $8D:{pointer:X4}");
-            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
-            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+            colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx | pointer);
+            colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx |
                 unchecked((ushort)(pointer + 1)));
         }
         AssertEqual(shape.FrameCount * shape.ColorsPerFrame * sizeof(ushort), colorAddresses.Count,
@@ -791,13 +792,13 @@ internal static class RoomPaletteFxPresentationVerification
                     frame, color);
             ushort expected = RomDataReader.ReadWordFixedBank(
                 CartridgeImportSource.Require(bus),
-                RoomFxRomData.Banks.PaletteFx | pointer);
+                RoomFxCartridgeBanks.PaletteFx | pointer);
             AssertTrue(presentation.TryReadColor(pointer, out Bgr555 actual),
                 $"installed Wrecked Ship color resolves $8D:{pointer:X4}");
             AssertEqual(expected, actual,
                 $"installed Wrecked Ship color matches cartridge $8D:{pointer:X4}");
-            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
-            colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+            colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx | pointer);
+            colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx |
                 unchecked((ushort)(pointer + 1)));
         }
         AssertEqual(32, colorAddresses.Count,
@@ -848,13 +849,13 @@ internal static class RoomPaletteFxPresentationVerification
                 ushort pointer = definition.ColorPointer(frame, color);
                 ushort expected = RomDataReader.ReadWordFixedBank(
                     CartridgeImportSource.Require(bus),
-                    RoomFxRomData.Banks.PaletteFx | pointer);
+                    RoomFxCartridgeBanks.PaletteFx | pointer);
                 AssertTrue(presentation.TryReadColor(pointer, out Bgr555 actual),
                     $"installed Maridia color resolves $8D:{pointer:X4}");
                 AssertEqual(expected, actual,
                     $"installed Maridia color matches cartridge $8D:{pointer:X4}");
-                colorAddresses.Add(RoomFxRomData.Banks.PaletteFx | pointer);
-                colorAddresses.Add(RoomFxRomData.Banks.PaletteFx |
+                colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx | pointer);
+                colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx |
                     unchecked((ushort)(pointer + 1)));
             }
         }

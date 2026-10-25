@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>Native bank-$89 room-FX blend selectors, distinct from editable colors.</summary>
 public static class RoomFxPaletteBlendDefinitions
 {
+    /// <summary>The colours one palette blend writes.</summary>
+    public const int ColorCount = 3;
+
     /// <summary>Editable JSON filename for room-FX blend inks and optional Ceres haze tints.</summary>
     public const string FileName = "room-fx-blend-palettes.json";
     /// <summary>Supported revision of the complete eight-selection blend schema; haze tint fields are optional within this revision.</summary>
@@ -130,11 +133,5 @@ public static class RoomFxPaletteBlendDefinitions
             RoomFxPaletteBlend.None => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
             _ => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
         };
-    }
-    /// <summary>Native byte address for the first of three adjacent BGR555 colors.</summary>
-    public static int SourceAddress(RoomFxPaletteBlend id)
-    {
-        ValidateSelector(id);
-        return RoomFxRomData.Tables.PaletteBlendColors + (int)id;
     }
 }

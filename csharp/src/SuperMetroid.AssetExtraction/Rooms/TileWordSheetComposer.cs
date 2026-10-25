@@ -74,7 +74,7 @@ internal static class TileWordSheetComposer
         // area's map tiles can show in any room.
         List<NamedPart> parts = [.. HudParts(inputs.Maps.GameplayHud), new NamedPart("Minimap", Minimap(Enum.GetValues<AreaId>().Select(inputs.Maps.Get))),
             .. uploads.FxTypes.Order().Select(type => new NamedPart($"Fx{type}", Page(inputs.Maps.RoomFxLayer3Tilemaps.Resolve(type).Span))),
-            Fill(RoomFxRomData.Layer3.ClearTilemapWord)];
+            Fill(Layer3Plane.ClearedCell)];
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             new TileWordBindings([RoomBlockUploads.HudCharacters(inputs), .. bg3Uploads, .. uploads.Uploads],

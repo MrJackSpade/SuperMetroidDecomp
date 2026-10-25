@@ -69,7 +69,7 @@ internal static class Layer3PlaneVerification
             int pageWord = (row - Layer3Plane.EffectPageFirstRow) * Layer3Plane.Columns + column;
             ushort expected = pageWord >= 0 && pageWord * 2 < page.Length
                 ? SnesLittleEndian.Word(page[pageWord * 2], page[pageWord * 2 + 1])
-                : RoomFxRomData.Layer3.ClearTilemapWord;
+                : Layer3Plane.ClearedCell.Raw;
             AssertEqual(expected, plane.Words[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
         AssertTrue(plane.Words[..hudRows.Length].SequenceEqual(hudRows), "the HUD rows stay above the effect");

@@ -29,7 +29,7 @@ internal static class RoomHeaderDefinitionsVerification
         Suite(nameof(VerifyRoomHeaderHeightInScreens), () => VerifyRoomHeaderHeightInScreens(rom, rooms));
         Suite(nameof(VerifyRoomHeaderUpScroller), () => VerifyRoomHeaderUpScroller(rom, rooms));
         Suite(nameof(VerifyRoomHeaderDownScroller), () => VerifyRoomHeaderDownScroller(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderCreBitset), () => VerifyRoomHeaderCreBitset(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderIsolatedDoorTransition), () => VerifyRoomHeaderIsolatedDoorTransition(rom, rooms));
         Suite(nameof(VerifyRoomHeaderDoorListPointer), () => VerifyRoomHeaderDoorListPointer(rom, rooms));
         Console.WriteLine("Room headers: all262 identities, ten original native fields, sorted enumeration and complete ushort rejection domain pass.");
     }
@@ -74,8 +74,24 @@ internal static class RoomHeaderDefinitionsVerification
     private static void VerifyRoomHeaderUpScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => header.UpScroller);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
     private static void VerifyRoomHeaderDownScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => header.DownScroller);
-    /// <summary>Checks the CRE selection bits at header byte eight.</summary>
-    private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => header.CreBitset);
+    /// <summary>
+    /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
+    /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the room header's isolated door transition bit")]
+    private static void VerifyRoomHeaderIsolatedDoorTransition(SuperMetroidAddressSpace rom, ushort[] rooms)
+    {
+        bool sawOtherBitsOnly = false;
+        foreach (ushort pointer in rooms)
+        {
+            int settings = rom.ReadCartridgeByte((0x8f0000 | pointer) + 8);
+            bool expected = (settings & 1) != 0;
+            AssertEqual(expected, RoomHeaderDefinitions.Get(pointer).UsesIsolatedDoorTransition,
+                $"Room {pointer:X4} settings ${settings:X2} isolated door transition");
+            if (!expected && settings != 0) sawOtherBitsOnly = true;
+        }
+        AssertTrue(sawOtherBitsOnly, "a room whose only header settings bits are other bits keeps the ordinary transition");
+    }
     /// <summary>Checks the two-byte door-list pointer at the end of each header.</summary>
     private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
 

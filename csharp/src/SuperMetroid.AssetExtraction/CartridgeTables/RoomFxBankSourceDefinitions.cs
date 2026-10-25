@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge banks whose bank-relative pointers the room-effect extractors resolve (#1415).</summary>
 [CpuBusBoundary("catalog: room-effect cartridge banks")]
-internal static class RoomFxCartridgeBanks
+internal static class RoomFxBankSourceDefinitions
 {
     /// <summary>Bank $8A, which holds the layer-three effect tilemaps.</summary>
     internal const int Tilemaps = 0x8a0000;

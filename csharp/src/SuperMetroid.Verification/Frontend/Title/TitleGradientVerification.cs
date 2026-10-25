@@ -298,15 +298,15 @@ internal static class TitleGradientVerification
                         color * sizeof(ushort)));
                     ushort expected = RomDataReader.ReadWordFixedBank(
                         CartridgeImportSource.Require(bus),
-                        RoomFxCartridgeBanks.PaletteFx | pointer);
+                        RoomFxBankSourceDefinitions.PaletteFx | pointer);
                     if (!presentation.TryReadColor(pointer, out Bgr555 actual) ||
                         actual.ToWord() != expected)
                     {
                         throw new InvalidDataException(
                             $"Extracted title ambient color $8D:{pointer:X4} differs from cartridge data.");
                     }
-                    colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx | pointer);
-                    colorAddresses.Add(RoomFxCartridgeBanks.PaletteFx |
+                    colorAddresses.Add(RoomFxBankSourceDefinitions.PaletteFx | pointer);
+                    colorAddresses.Add(RoomFxBankSourceDefinitions.PaletteFx |
                         unchecked((ushort)(pointer + 1)));
                 }
             }

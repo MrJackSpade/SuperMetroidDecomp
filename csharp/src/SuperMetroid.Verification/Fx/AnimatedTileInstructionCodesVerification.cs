@@ -91,7 +91,7 @@ internal static class AnimatedTileInstructionCodesVerification
             var error = AssertThrows<InvalidDataException>(() => state.StartDefinition(
                 WreckedShipTreadmillDirection.Rightwards, AnimatedTileObject.Lava),
                 "non-treadmill animated-tile object rejects before interpreting its program");
-            AssertTrue(error.Message.Contains("$87:82AB", StringComparison.Ordinal),
+            AssertTrue(error.Message.Contains(nameof(AnimatedTileObject.Lava), StringComparison.Ordinal),
                 "unsupported animated-tile error identifies the rejected object");
         }
         var mismatched = new WreckedShipTreadmillAnimatedTilesState();

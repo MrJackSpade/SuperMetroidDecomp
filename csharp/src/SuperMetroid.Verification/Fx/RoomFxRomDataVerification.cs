@@ -154,7 +154,7 @@ internal static class RoomFxRomDataVerification
         SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,
             RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
-            RoomFxRecordCodec.LayerBlendByte(LayerBlendingConfiguration.NormalGameplay));
+            RoomFxRecordEncoding.LayerBlendByte(LayerBlendingConfiguration.NormalGameplay));
 
         RoomFxType[] nonLayer3Types =
         [
@@ -165,7 +165,7 @@ internal static class RoomFxRomDataVerification
         ];
         foreach (RoomFxType type in nonLayer3Types)
         {
-            SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, RoomFxRecordCodec.TypeByte(type));
+            SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, RoomFxRecordEncoding.TypeByte(type));
             state = LoadSyntheticRoomFx(stateSession, bus, cgram, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertEqual(
@@ -190,7 +190,7 @@ internal static class RoomFxRomDataVerification
         ushort record,
         RoomFxType type)
     {
-        SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, RoomFxRecordCodec.TypeByte(type));
+        SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, RoomFxRecordEncoding.TypeByte(type));
         LayerBlendingConfiguration layerBlend = type switch
         {
             RoomFxType.Lava or RoomFxType.Acid =>
@@ -210,7 +210,7 @@ internal static class RoomFxRomDataVerification
             _ => throw new InvalidOperationException($"Unexpected renderable room FX {type}."),
         };
         SeedSyntheticRoomFxByte(bus, record,
-            RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset, RoomFxRecordCodec.LayerBlendByte(layerBlend));
+            RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset, RoomFxRecordEncoding.LayerBlendByte(layerBlend));
 
         RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, cgram, record);
         Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, cgram, session, state, record, type));

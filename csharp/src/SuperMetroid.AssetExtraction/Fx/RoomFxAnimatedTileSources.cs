@@ -35,7 +35,12 @@ internal static class RoomFxAnimatedTileSources
             AnimatedTileObject.Spores => Simple(RoomFxAnimatedTileSourceDefinitions.Spores),
             AnimatedTileObject.WreckedShipTreadmillRightwards => new PictureRun(
                 RoomFxAnimatedTileSourceDefinitions.WreckedShipTreadmill, WreckedShipTreadmillMechanicsDefinitions.FrameByteCount),
-            _ => throw new InvalidDataException($"{image.Object} has no pictures in the room-FX atlas."),
+            AnimatedTileObject.WreckedShipTreadmillLeftwards or AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or AnimatedTileObject.TourianStatueRidley
+                or AnimatedTileObject.TourianStatueKraid or AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty
+                or AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava
+                or AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen
+                => throw new InvalidDataException($"{image.Object} has no pictures in the room-FX atlas."),
+            _ => throw new InvalidDataException($"Undefined room-FX object {image.Object}."),
         };
         return first.AddWithinBank(image.Index * byteCount);
 

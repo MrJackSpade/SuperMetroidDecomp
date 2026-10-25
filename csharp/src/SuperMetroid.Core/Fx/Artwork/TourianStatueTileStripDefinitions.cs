@@ -16,14 +16,6 @@ public static class TourianStatueTileStripDefinitions
     /// <summary>The strip's length in bytes.</summary>
     public const int ByteCount = TileCount * BytesPerTile;
 
-    /// <summary>The statues whose pictures are windows of the strip.</summary>
-    public static IReadOnlyList<AnimatedTileObject> Statues { get; } =
-    [
-        AnimatedTileObject.TourianStatuePhantoon,
-        AnimatedTileObject.TourianStatueRidley,
-        AnimatedTileObject.TourianStatueKraid,
-        AnimatedTileObject.TourianStatueDraygon,
-    ];
 
     /// <summary>The pictures each statue shows, each one window of the strip.</summary>
     public static IReadOnlyList<TourianStatueTilePicture> Pictures { get; } = Enum.GetValues<TourianStatueTilePicture>();

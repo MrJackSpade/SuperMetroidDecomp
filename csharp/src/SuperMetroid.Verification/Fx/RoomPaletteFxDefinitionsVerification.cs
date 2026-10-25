@@ -47,7 +47,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         int specializedCompiledPrograms = 0;
         foreach (ushort pointer in pointers)
         {
-            int address = RoomFxCartridgeBanks.PaletteFx | pointer;
+            int address = RoomFxBankSourceDefinitions.PaletteFx | pointer;
             for (int index = 0; index < RoomPaletteFxDefinitions.DefinitionByteCount; index++)
                 forbidden.Add(address + index);
 

@@ -49,7 +49,7 @@ internal static class TreadmillVisualVerification
                     AnimatedTileImageSources.Treadmill(1), AnimatedTileImageSources.Treadmill(0)];
             // The floor's frames are selected (#1406): the frame boundary shows the frame the previous update selected, which the
             // render places over the room's characters where the cartridge copies it.
-            ArtworkAnimation treadmill = AnimatedTileFrames.Of((bits & 4) != 0
+            ArtworkAnimation treadmill = AnimatedTileFrames.Of(slots.Includes(2)
                 ? AnimatedTileObject.WreckedShipTreadmillRightwards : AnimatedTileObject.WreckedShipTreadmillLeftwards);
             RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
                 ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");

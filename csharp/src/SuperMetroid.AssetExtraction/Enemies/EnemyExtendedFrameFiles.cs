@@ -47,7 +47,7 @@ internal static class EnemyExtendedFrameFiles
     }
 
     /// <summary>$10: the high byte of Ceres steam's spritemap headers, cartridge drawing metadata after the component count (#1415).</summary>
-    private const byte CeresSteamHeaderHighByte = 0x10;
+    private const byte CeresSteamHeaderHighByte = 16;
 
     /// <summary>Decodes one declared visual root without importing its gameplay-owned hitboxes.</summary>
     internal static EnemyExtendedVisualComponent[] ExtractComponents(

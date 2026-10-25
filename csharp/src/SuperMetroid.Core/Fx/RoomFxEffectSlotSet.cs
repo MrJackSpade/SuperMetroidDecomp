@@ -11,16 +11,12 @@ public static class RoomFxEffectSlotSet
 
     /// <summary>Slot <paramref name="index"/>, 0 through 7.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not a slot.</exception>
-    public static RoomFxEffectSlots Slot(int index) => index switch
-    {
-        0 => RoomFxEffectSlots.Slot0,
-        1 => RoomFxEffectSlots.Slot1,
-        2 => RoomFxEffectSlots.Slot2,
-        3 => RoomFxEffectSlots.Slot3,
-        4 => RoomFxEffectSlots.Slot4,
-        5 => RoomFxEffectSlots.Slot5,
-        6 => RoomFxEffectSlots.Slot6,
-        7 => RoomFxEffectSlots.Slot7,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+    public static RoomFxEffectSlots Slot(int index) => Slots[Ensure.BetweenInclusive(0, Count - 1, index)];
+
+    /// <summary>Each slot, by its place in the area's list.</summary>
+    private static readonly RoomFxEffectSlots[] Slots =
+    [
+        RoomFxEffectSlots.Slot0, RoomFxEffectSlots.Slot1, RoomFxEffectSlots.Slot2, RoomFxEffectSlots.Slot3,
+        RoomFxEffectSlots.Slot4, RoomFxEffectSlots.Slot5, RoomFxEffectSlots.Slot6, RoomFxEffectSlots.Slot7,
+    ];
 }

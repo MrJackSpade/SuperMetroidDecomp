@@ -43,7 +43,8 @@ internal static class AnimatedTileImageSources
             foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
                 if (segment is RoomFxAtlasSegment.Image image && Of(image.Picture) == sourceAddress)
                     return atlas.TryResolve(image.Picture, byteCount, out data);
-            foreach (AnimatedTileObject statue in TourianStatueTileStripDefinitions.Statues)
+            foreach (AnimatedTileObject statue in (AnimatedTileObject[])[AnimatedTileObject.TourianStatuePhantoon,
+                AnimatedTileObject.TourianStatueRidley, AnimatedTileObject.TourianStatueKraid, AnimatedTileObject.TourianStatueDraygon])
             foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
             {
                 if (TourianStatue(statue, picture) != sourceAddress)

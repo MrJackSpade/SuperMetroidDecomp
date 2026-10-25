@@ -18,7 +18,7 @@ internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : 
     [CpuBusBoundary("exact bus test: retail ROM oracle for palette-FX color words")]
     public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color)
     {
-        int address = RoomFxCartridgeBanks.PaletteFx | PaletteFxRecordSources.ColorAddress(key);
+        int address = RoomFxBankSourceDefinitions.PaletteFx | PaletteFxRecordSources.ColorAddress(key);
         color = Bgr555.FromWord(CartridgeImportSource.Require(source).ReadCartridgeWord(address));
         return true;
     }

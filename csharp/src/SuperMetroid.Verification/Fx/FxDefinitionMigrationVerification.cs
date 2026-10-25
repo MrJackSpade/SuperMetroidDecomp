@@ -106,14 +106,14 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(LayerBlendingConfiguration.LavaAcidAdditive, climb.Layer3LayerBlend, "Climb layer-three blend");
         AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");
         AssertEqual(RoomFxEffectSlots.Slot3 | RoomFxEffectSlots.Slot4 | RoomFxEffectSlots.Slot5, climb.PaletteFxSlots, "Climb palette-effect slots");
-        AssertEqual((byte)0x04, RoomFxRecordCodec.TypeByte(climb.Type), "Climb type byte");
-        AssertEqual((byte)0x1e, RoomFxRecordCodec.LayerBlendByte(climb.Layer3LayerBlend), "Climb blend byte");
-        AssertEqual((byte)0x38, RoomFxRecordCodec.SlotsByte(climb.PaletteFxSlots), "Climb palette-effect byte");
+        AssertEqual((byte)0x04, RoomFxRecordEncoding.TypeByte(climb.Type), "Climb type byte");
+        AssertEqual((byte)0x1e, RoomFxRecordEncoding.LayerBlendByte(climb.Layer3LayerBlend), "Climb blend byte");
+        AssertEqual((byte)0x38, RoomFxRecordEncoding.SlotsByte(climb.PaletteFxSlots), "Climb palette-effect byte");
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
         AssertEqual(0x34, RoomFxRecordCodec.LayerBlends.Word(LayerBlendingConfiguration.MotherBrainPhaseTwo), "Mother Brain blend byte");
         AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
         AssertEqual("blend-EE", RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
-        AssertEqual((byte)0x80, RoomFxRecordCodec.SlotsByte(RoomFxEffectSlotSet.Slot(7)), "eighth effect slot");
+        AssertEqual((byte)0x80, RoomFxRecordEncoding.SlotsByte(RoomFxEffectSlotSet.Slot(7)), "eighth effect slot");
         Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");
     }
 

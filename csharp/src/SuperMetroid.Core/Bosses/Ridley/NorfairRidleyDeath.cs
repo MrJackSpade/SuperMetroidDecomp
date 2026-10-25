@@ -4,6 +4,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 
@@ -180,7 +181,7 @@ internal sealed class NorfairRidleyDeath
 
         _ridleyProjectiles.SpawnRidleyDust(
             body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
-            variant: 3);
+            MiscDustAnimation.SmallExplosion);
         state.LastDeathSoundEffect = RidleySoundDefinitions.DeathExplosion;
     }
 
@@ -224,8 +225,7 @@ internal sealed class NorfairRidleyDeath
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        RidleyExplosionPart part = ClosedNativeWords.Decode<RidleyExplosionPart>(
-            checked((ushort)fragment.Spawn.Population.Parameter1), "Ridley explosion part");
+        RidleyExplosionPart part = RidleyExplosionDefinitions.PartParameters.Decode(fragment.Spawn.Population.Parameter1);
 
         fragment.InstructionTimer = WrappingCountdown.Start(1);
         fragment.Timer = WrappingCountdown.Start(0);
@@ -244,7 +244,7 @@ internal sealed class NorfairRidleyDeath
 
         if (part <= RidleyExplosionPart.TailTip)
         {
-            int tailIndex = (int)part >> 1;
+            int tailIndex = RidleyExplosionDefinitions.TailSegment[part];
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
@@ -294,6 +294,6 @@ internal sealed class NorfairRidleyDeath
 
         // $A6:C90B calls EnemyDeathAnimation(0): clear the slot immediately and
         // retain the fragment header/position in the shared explosion-to-pickup actor.
-        _deathsAndDrops.StartGenericEnemyDeath(fragment, (ushort)EnemyDeathAnimation.SmallExplosion);
+        _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: 0);
     }
 }

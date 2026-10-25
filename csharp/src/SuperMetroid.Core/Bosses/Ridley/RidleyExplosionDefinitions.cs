@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -12,46 +14,77 @@ internal static class RidleyExplosionDefinitions
     internal const ushort FragmentSpeedMask = 0x0130;
     /// <summary>The tail tip's sixteen orientations.</summary>
     private const int TailTipOrientationCount = 16;
+    /// <summary>The part each authored spawn parameter of the breakup's embedded population records selects.</summary>
+    internal static readonly PopulationParameterVariants<RidleyExplosionPart> PartParameters = new(new Dictionary<int, RidleyExplosionPart>
+    {
+        [0] = RidleyExplosionPart.Tail0,
+        [2] = RidleyExplosionPart.Tail1,
+        [4] = RidleyExplosionPart.Tail2,
+        [6] = RidleyExplosionPart.Tail3,
+        [8] = RidleyExplosionPart.Tail4,
+        [10] = RidleyExplosionPart.Tail5,
+        [12] = RidleyExplosionPart.TailTip,
+        [14] = RidleyExplosionPart.Wings,
+        [16] = RidleyExplosionPart.Legs,
+        [18] = RidleyExplosionPart.OpenHeadAndNeck,
+        [20] = RidleyExplosionPart.Torso,
+        [22] = RidleyExplosionPart.Claw,
+    });
+
     /// <summary>
-    /// Native allocation order encoded by <c>SpawnEnemy_RidleyExplosion</c> at
-    /// <c>$A6:C932-$A6:C986</c>. Enemy-slot/OAM order makes this sequence observable.
+    /// The breakup's allocation order: the tail from tip to base, then wings, legs, torso, head and claw. Enemy-slot
+    /// and draw order make this sequence observable.
     /// </summary>
+    private static readonly RidleyExplosionPart[] BreakupOrder =
+    [
+        RidleyExplosionPart.TailTip, RidleyExplosionPart.Tail5, RidleyExplosionPart.Tail4, RidleyExplosionPart.Tail3,
+        RidleyExplosionPart.Tail2, RidleyExplosionPart.Tail1, RidleyExplosionPart.Tail0, RidleyExplosionPart.Wings,
+        RidleyExplosionPart.Legs, RidleyExplosionPart.Torso, RidleyExplosionPart.OpenHeadAndNeck, RidleyExplosionPart.Claw,
+    ];
+
+    /// <summary>
+    /// Each part's lifetime in frames: tail segments expire eight frames apart from the base, the body parts follow
+    /// the same eight-frame progression, and the torso expires last.
+    /// </summary>
+    private static readonly FrozenDictionary<RidleyExplosionPart, ushort> Lifetimes = new Dictionary<RidleyExplosionPart, ushort>
+    {
+        [RidleyExplosionPart.Tail0] = 72,
+        [RidleyExplosionPart.Tail1] = 80,
+        [RidleyExplosionPart.Tail2] = 88,
+        [RidleyExplosionPart.Tail3] = 96,
+        [RidleyExplosionPart.Tail4] = 104,
+        [RidleyExplosionPart.Tail5] = 112,
+        [RidleyExplosionPart.TailTip] = 120,
+        [RidleyExplosionPart.Wings] = 40,
+        [RidleyExplosionPart.Legs] = 48,
+        [RidleyExplosionPart.OpenHeadAndNeck] = 56,
+        [RidleyExplosionPart.Claw] = 64,
+        [RidleyExplosionPart.Torso] = 128,
+    }.ToFrozenDictionary();
+
+    /// <summary>The tail segment each tail fragment starts from.</summary>
+    internal static readonly FrozenDictionary<RidleyExplosionPart, int> TailSegment = new Dictionary<RidleyExplosionPart, int>
+    {
+        [RidleyExplosionPart.Tail0] = 0,
+        [RidleyExplosionPart.Tail1] = 1,
+        [RidleyExplosionPart.Tail2] = 2,
+        [RidleyExplosionPart.Tail3] = 3,
+        [RidleyExplosionPart.Tail4] = 4,
+        [RidleyExplosionPart.Tail5] = 5,
+        [RidleyExplosionPart.TailTip] = 6,
+    }.ToFrozenDictionary();
+
+    /// <summary>Spawns every part's authored parameter in the breakup's allocation order.</summary>
     internal static void SpawnInBreakupOrder(Action<ushort> spawn)
     {
         Ensure.NotNull(spawn);
-        for (int parameter = (int)RidleyExplosionPart.TailTip; parameter >= (int)RidleyExplosionPart.Tail0;
-             parameter -= RidleyExplosionPart.Tail1 - RidleyExplosionPart.Tail0)
-            spawn((ushort)parameter);
-        spawn((ushort)RidleyExplosionPart.Wings);
-        spawn((ushort)RidleyExplosionPart.Legs);
-        spawn((ushort)RidleyExplosionPart.Torso);
-        spawn((ushort)RidleyExplosionPart.OpenHeadAndNeck);
-        spawn((ushort)RidleyExplosionPart.Claw);
+        foreach (RidleyExplosionPart part in BreakupOrder)
+            spawn(checked((ushort)PartParameters.Parameter(part)));
     }
 
-    /// <summary>
-    /// $A6:C6CE lifetimes and $A6:C6E6 initializer pointers, selected by the even
-    /// parameter at $0FB4. Tail segments expire eight frames apart and their
-    /// equal-sized initializers advance by 24 bytes. Lifetime bases 72/40, the shared
-    /// step 8 and torso lifetime 128 are authored breakup timing (see residualScalarInputsReview).
-    /// </summary>
-    public static RidleyExplosionPartDefinition GetPart(ushort parameter)
-    {
-        if ((parameter & 1) != 0 || parameter > (ushort)RidleyExplosionPart.Claw)
-            throw new ArgumentOutOfRangeException(nameof(parameter));
-
-        int part = parameter >> 1;
-        if (parameter <= (ushort)RidleyExplosionPart.TailTip)
-            return new((ushort)(0x48 + 8 * part));
-
-        // Body initializers have the same two-facing layout, so their native
-        // addresses advance by 50 bytes. Torso is the last fragment to expire;
-        // the other body parts follow the eight-frame lifetime progression.
-        int body = (parameter - (ushort)RidleyExplosionPart.Wings) / 2;
-        ushort lifetime = parameter == (ushort)RidleyExplosionPart.Torso ? (ushort)0x80
-            : (ushort)(0x28 + 8 * (body - (parameter == (ushort)RidleyExplosionPart.Claw ? 1 : 0)));
-        return new(lifetime);
-    }
+    /// <summary>The definition of the part an authored spawn parameter selects.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The parameter selects no part.</exception>
+    public static RidleyExplosionPartDefinition GetPart(ushort parameter) => new(Lifetimes[PartParameters.Decode(parameter)]);
 
     /// <summary>
     /// Returns one of the ten body-relative positions consumed cyclically by

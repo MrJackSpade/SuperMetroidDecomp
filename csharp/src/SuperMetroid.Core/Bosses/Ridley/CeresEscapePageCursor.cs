@@ -29,7 +29,7 @@ internal readonly record struct CeresEscapePageCursor(CeresEscapePageList List, 
         CeresEscapePageList.Objects => CeresEscapePageDefinitions.ObjectPages.Count,
         CeresEscapePageList.Backgrounds => CeresEscapePageDefinitions.BackgroundPageUpdates,
         CeresEscapePageList.None => throw new InvalidOperationException("A Ceres escape page cursor that was never started has no pages."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(CeresEscapePageList)} {(int)List}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(CeresEscapePageList)} {List}."),
     };
 
     /// <summary>The cursor after the next page has been shown.</summary>

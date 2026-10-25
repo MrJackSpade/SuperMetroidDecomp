@@ -39,5 +39,16 @@ public sealed class TorizoSwapArtwork
     /// <summary>The <paramref name="byteCount"/> installed characters of <paramref name="page"/> from byte <paramref name="pageByte"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The range leaves the page.</exception>
     internal ReadOnlyMemory<byte> Characters(TorizoTilePage page, int pageByte, int byteCount) =>
-        pages[(int)page].Characters.Slice(pageByte, byteCount);
+        Page(page).Characters.Slice(pageByte, byteCount);
+
+    /// <summary>The installed atlas of <paramref name="page"/>, found by its tile sheet's identity.</summary>
+    private RoomCharacterAtlas Page(TorizoTilePage page)
+    {
+        for (int index = 0; index < pages.Length; index++)
+        {
+            if (TorizoSwapArtworkDefinitions.All[index].Page == page)
+                return pages[index];
+        }
+        throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined Torizo tile page.");
+    }
 }

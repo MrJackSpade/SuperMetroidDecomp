@@ -38,7 +38,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 $"Ridley breakup native spawn order {index}");
         }
 
-        for (ushort parameter = 0; parameter <= (ushort)RidleyExplosionPart.Claw; parameter += 2)
+        for (ushort parameter = 0; parameter <= RidleyExplosionDefinitions.PartParameters.Parameter(RidleyExplosionPart.Claw); parameter += 2)
         {
             RidleyExplosionPartDefinition definition =
                 RidleyExplosionDefinitions.GetPart(parameter);
@@ -52,7 +52,7 @@ internal static class RidleyExplosionDefinitionsVerification
             ushort parameter = unchecked((ushort)(tailIndex * 2));
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(fixedTailOperands[tailIndex]),
-                RidleyAnimationsVerification.BreakupList(RidleyExplosionDefinitions.SelectTailFrame((RidleyExplosionPart)parameter, 0)),
+                RidleyAnimationsVerification.BreakupList(RidleyExplosionDefinitions.SelectTailFrame(RidleyExplosionDefinitions.PartParameters.Decode(parameter), 0)),
                 $"Ridley tail fragment instruction ${parameter:X2}");
         }
         for (int orientation = 0; orientation < 16; orientation++)
@@ -192,10 +192,10 @@ internal static class RidleyExplosionDefinitionsVerification
         };
 
         int cases = 0;
-        for (ushort parameter = 0; parameter <= (ushort)RidleyExplosionPart.Claw; parameter += 2)
+        for (ushort parameter = 0; parameter <= RidleyExplosionDefinitions.PartParameters.Parameter(RidleyExplosionPart.Claw); parameter += 2)
         {
-            int orientationCount = parameter == (ushort)RidleyExplosionPart.TailTip ? 16 : 1;
-            int facingCount = parameter > (ushort)RidleyExplosionPart.TailTip ? 2 : 1;
+            int orientationCount = parameter == RidleyExplosionDefinitions.PartParameters.Parameter(RidleyExplosionPart.TailTip) ? 16 : 1;
+            int facingCount = parameter > RidleyExplosionDefinitions.PartParameters.Parameter(RidleyExplosionPart.TailTip) ? 2 : 1;
             for (int facingIndex = 0; facingIndex < facingCount; facingIndex++)
             for (int orientation = 0; orientation < orientationCount; orientation++)
             {
@@ -220,14 +220,14 @@ internal static class RidleyExplosionDefinitionsVerification
                 AssertEqual(unchecked((ushort)-0x0130), fragmentState.Velocity.X.RawValue,
                     "Ridley breakup production signed random velocity");
 
-                if (parameter <= (ushort)RidleyExplosionPart.TailTip)
+                if (parameter <= RidleyExplosionDefinitions.PartParameters.Parameter(RidleyExplosionPart.TailTip))
                 {
                     int tailIndex = parameter >> 1;
                     AssertEqual(state.TailSegments[tailIndex].Position.X, fragment.Position.X.Whole,
                         $"Ridley breakup production tail X ${parameter:X2}");
                     AssertEqual(state.TailSegments[tailIndex].Position.Y, fragment.Position.Y.Whole,
                         $"Ridley breakup production tail Y ${parameter:X2}");
-                    ushort expectedInstruction = parameter == (ushort)RidleyExplosionPart.TailTip
+                    ushort expectedInstruction = parameter == RidleyExplosionDefinitions.PartParameters.Parameter(RidleyExplosionPart.TailTip)
                         ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2))
                         : CartridgeImportSource.Require(rom).ReadCartridgeWord(TailBreakupInstructionAddresses
                                 [tailIndex]);
@@ -236,7 +236,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 }
                 else
                 {
-                    int bodyIndex = (parameter - (ushort)RidleyExplosionPart.Wings) >> 1;
+                    int bodyIndex = (parameter - RidleyExplosionDefinitions.PartParameters.Parameter(RidleyExplosionPart.Wings)) >> 1;
                     int[] xTables = [0xa6c804, 0xa6c836, 0xa6c868, 0xa6c89a, 0xa6c8cc];
                     int[] yOperands = [0xa6c7f4, 0xa6c826, 0xa6c858, 0xa6c88a, 0xa6c8bc];
                     int[] instructionTables = [0xa6c808, 0xa6c83a, 0xa6c86c, 0xa6c89e, 0xa6c8d0];

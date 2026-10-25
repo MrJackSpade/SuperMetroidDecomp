@@ -7,11 +7,13 @@ public static class RidleyMovementTargets
     public static ushort DescendingPogoX(RidleyFacing facing) => (ushort)(256 - AscendingPogoX(facing));
 
     /// <summary>$A6:B63B Ridley_Func_16: ascending pogo uses successive 64-pixel quarter-arena points.</summary>
-    public static ushort AscendingPogoX(RidleyFacing facing)
+    public static ushort AscendingPogoX(RidleyFacing facing) => facing switch
     {
-        ValidateFacing(facing);
-        return (ushort)(64 * ((int)facing + 1));
-    }
+        RidleyFacing.Left => 64,
+        RidleyFacing.Turning => 128,
+        RidleyFacing.Right => 192,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
+    };
 
     /// <summary>$A6:B6C8 Ridley_Func_19: left, turning and right attack staging positions.</summary>
     public static ushort GroundAttackX(RidleyFacing facing) => facing switch
@@ -19,7 +21,7 @@ public static class RidleyMovementTargets
         RidleyFacing.Left => 176,
         RidleyFacing.Turning => 128,
         RidleyFacing.Right => 96,
-        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
     };
 
     /// <summary>$A6:BBEB Ridley_Func_36: carry anchors at the left/right sides; turning has no anchor.</summary>
@@ -28,15 +30,17 @@ public static class RidleyMovementTargets
         RidleyFacing.Left => 64,
         RidleyFacing.Turning => 0,
         RidleyFacing.Right => 208,
-        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
     };
 
     /// <summary>$A6:BC62: carry-release destinations reflected about the arena center; turning has no target.</summary>
-    public static ushort CarryReleaseX(RidleyFacing facing)
+    public static ushort CarryReleaseX(RidleyFacing facing) => facing switch
     {
-        ValidateFacing(facing);
-        return facing == RidleyFacing.Turning ? (ushort)0 : (ushort)(176 - 48 * (int)facing);
-    }
+        RidleyFacing.Left => 176,
+        RidleyFacing.Turning => 0,
+        RidleyFacing.Right => 80,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
+    };
 
     /// <summary>$A6:B439: hover divisor index first rises by four, then by two per health stage.</summary>
     public static ushort HoverDivisorIndexes(int stage)
@@ -50,13 +54,6 @@ public static class RidleyMovementTargets
     {
         ValidateStage(stage);
         return (ushort)Math.Min(10, (1 << (stage + 1)) - 1);
-    }
-
-    /// <summary>Rejects facing values outside the three native arena-table indices.</summary>
-    private static void ValidateFacing(RidleyFacing facing)
-    {
-        if (!Enum.IsDefined(facing))
-            throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}.");
     }
 
     /// <summary>Limits health-stage selection to the four entries represented by the native movement tables.</summary>

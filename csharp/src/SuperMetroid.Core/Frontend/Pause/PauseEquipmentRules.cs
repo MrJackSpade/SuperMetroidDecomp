@@ -41,8 +41,13 @@ internal static class PauseEquipmentRules
     /// Native $82:B212 masks the entire equipped-items word to Varia/Hi-Jump, then
     /// searches [neither, Hi-Jump, Varia, both]. Pack Hi-Jump into result bit0 and
     /// Varia into bit1. All65536 input words are supported; every other bit, including
-    /// Gravity, is ignored. The resulting0..3 ordinal selects the matching wireframe kind.</summary>
-    public static int WireframeIndex(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
-        (equippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots) ? 1 : 0) |
-        (equippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 0);
+    /// Gravity, is ignored.</summary>
+    public static PauseWireframeKind WireframeKind(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
+        (equippedItems.HasAny(SamusEquipmentFlags.VariaSuit), equippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots)) switch
+        {
+            (false, false) => PauseWireframeKind.PowerSuit,
+            (false, true) => PauseWireframeKind.PowerSuitHiJump,
+            (true, false) => PauseWireframeKind.VariaSuit,
+            (true, true) => PauseWireframeKind.VariaSuitHiJump,
+        };
 }

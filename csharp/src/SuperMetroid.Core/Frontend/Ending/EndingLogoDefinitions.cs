@@ -15,8 +15,16 @@ internal static class EndingLogoDefinitions
     /// <summary>$8B:EF93: lower circle, initialized by F1D4, stationary running LogoLowerCircle.</summary>
     private static CinematicActorDefinition LowerCircle => new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.LogoLowerCircle);
 
+    /// <summary>The logo actors in allocation order.</summary>
+    private static readonly EndingLogoActorKind[] ActorKinds =
+        [EndingLogoActorKind.UpperS, EndingLogoActorKind.LowerS, EndingLogoActorKind.UpperCircle, EndingLogoActorKind.LowerCircle];
+
+    /// <summary>The logo actor allocated at <paramref name="index"/>.</summary>
+    private static EndingLogoActorKind KindAt(int index, string parameter) =>
+        (uint)index < (uint)ActorKinds.Length ? ActorKinds[index] : throw new ArgumentOutOfRangeException(parameter);
+
     /// <summary>Named native actor cases; allocation index is not a sampled numeric curve.</summary>
-    public static CinematicActorDefinition Actor(int index) => (EndingLogoActorKind)index switch
+    public static CinematicActorDefinition Actor(int index) => KindAt(index, nameof(index)) switch
     {
         EndingLogoActorKind.UpperS => UpperS,
         EndingLogoActorKind.LowerS => LowerS,
@@ -25,7 +33,7 @@ internal static class EndingLogoDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
     /// <summary>F18F–F1D4 initialize these world-space centers before the $100 scroll subtraction.</summary>
-    public static Position16<ScreenPixels> Origin(int actor) => (EndingLogoActorKind)actor switch
+    public static Position16<ScreenPixels> Origin(int actor) => KindAt(actor, nameof(actor)) switch
     {
         EndingLogoActorKind.UpperS => new(530, 231),
         EndingLogoActorKind.LowerS => new(246, 519),

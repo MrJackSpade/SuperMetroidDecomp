@@ -22,7 +22,7 @@ internal static class EndingScreenPublicationVerification
     {
         var screen = new EndingScreen();
         screen.Record(EndingUploadKind.CreditsTilemap, 0, new ushort[] { 1, 2 });
-        screen.Record(EndingUploadKind.TextTilemap, 1, new ushort[] { 3 });
+        screen.Record(EndingTextTilemap.FinalText, new ushort[] { 3 });
         screen.Record(EndingUploadKind.CreditsTilemap, 0, new ushort[] { 4, 5 });
         AssertEqual(2, screen.Uploads.Count, "a transfer covering an earlier one's words replaces it");
         AssertEqual(EndingUploadKind.CreditsTilemap, screen.Uploads[^1].Kind, "the replacing transfer is replayed last");

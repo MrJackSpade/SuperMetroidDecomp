@@ -22,26 +22,26 @@ public static class RoomStateSelectionDefinitions
     {
         [RoomHeaderDefinitions.LandingSite] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.LandingSite3)) return CrateriaRoomStateDefinitions.LandingSite3;
+            if (match(selection.IsEventSet(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.LandingSite3)) return CrateriaRoomStateDefinitions.LandingSite3;
             if (match(selection.HasPowerBombs, CrateriaRoomStateDefinitions.LandingSite2)) return CrateriaRoomStateDefinitions.LandingSite2;
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.LandingSite1)) return CrateriaRoomStateDefinitions.LandingSite1;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.LandingSite1)) return CrateriaRoomStateDefinitions.LandingSite1;
             return CrateriaRoomStateDefinitions.LandingSite0;
         },
         [RoomHeaderDefinitions.GauntletEntrance] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.GauntletEntrance1)) return CrateriaRoomStateDefinitions.GauntletEntrance1;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.GauntletEntrance1)) return CrateriaRoomStateDefinitions.GauntletEntrance1;
             return CrateriaRoomStateDefinitions.GauntletEntrance0;
         },
         [RoomHeaderDefinitions.Parlor] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Parlor2)) return CrateriaRoomStateDefinitions.Parlor2;
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.Parlor1)) return CrateriaRoomStateDefinitions.Parlor1;
+            if (match(selection.IsEventSet(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Parlor2)) return CrateriaRoomStateDefinitions.Parlor2;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.Parlor1)) return CrateriaRoomStateDefinitions.Parlor1;
             return CrateriaRoomStateDefinitions.Parlor0;
         },
         [RoomHeaderDefinitions.Climb] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Climb2)) return CrateriaRoomStateDefinitions.Climb2;
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.Climb1)) return CrateriaRoomStateDefinitions.Climb1;
+            if (match(selection.IsEventSet(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Climb2)) return CrateriaRoomStateDefinitions.Climb2;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.Climb1)) return CrateriaRoomStateDefinitions.Climb1;
             return CrateriaRoomStateDefinitions.Climb0;
         },
         [RoomHeaderDefinitions.Pit] = static (selection, match) =>
@@ -56,24 +56,24 @@ public static class RoomStateSelectionDefinitions
         },
         [RoomHeaderDefinitions.BombTorizo] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.BombTorizo2)) return CrateriaRoomStateDefinitions.BombTorizo2;
+            if (match(selection.IsEventSet(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.BombTorizo2)) return CrateriaRoomStateDefinitions.BombTorizo2;
             if (match(selection.IsBossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.BombTorizo1)) return CrateriaRoomStateDefinitions.BombTorizo1;
             return CrateriaRoomStateDefinitions.BombTorizo0;
         },
         [RoomHeaderDefinitions.Flyway] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Flyway2)) return CrateriaRoomStateDefinitions.Flyway2;
+            if (match(selection.IsEventSet(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.Flyway2)) return CrateriaRoomStateDefinitions.Flyway2;
             if (match(selection.IsBossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.Flyway1)) return CrateriaRoomStateDefinitions.Flyway1;
             return CrateriaRoomStateDefinitions.Flyway0;
         },
         [RoomHeaderDefinitions.FinalMissileBombway] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissileBombway1)) return CrateriaRoomStateDefinitions.FinalMissileBombway1;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissileBombway1)) return CrateriaRoomStateDefinitions.FinalMissileBombway1;
             return CrateriaRoomStateDefinitions.FinalMissileBombway0;
         },
         [RoomHeaderDefinitions.FinalMissile] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissile1)) return CrateriaRoomStateDefinitions.FinalMissile1;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissile1)) return CrateriaRoomStateDefinitions.FinalMissile1;
             return CrateriaRoomStateDefinitions.FinalMissile0;
         },
         [RoomHeaderDefinitions.SporeSpawn] = static (selection, match) =>
@@ -83,17 +83,17 @@ public static class RoomStateSelectionDefinitions
         },
         [RoomHeaderDefinitions.MorphBall] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.MorphBall1)) return BrinstarRoomStateDefinitions.MorphBall1;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.MorphBall1)) return BrinstarRoomStateDefinitions.MorphBall1;
             return BrinstarRoomStateDefinitions.MorphBall0;
         },
         [RoomHeaderDefinitions.ConstructionZone] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.ConstructionZone1)) return BrinstarRoomStateDefinitions.ConstructionZone1;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.ConstructionZone1)) return BrinstarRoomStateDefinitions.ConstructionZone1;
             return BrinstarRoomStateDefinitions.ConstructionZone0;
         },
         [RoomHeaderDefinitions.BlueBrinstarETank] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.BlueBrinstarETank1)) return BrinstarRoomStateDefinitions.BlueBrinstarETank1;
+            if (match(selection.IsEventSet(EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.BlueBrinstarETank1)) return BrinstarRoomStateDefinitions.BlueBrinstarETank1;
             return BrinstarRoomStateDefinitions.BlueBrinstarETank0;
         },
         [RoomHeaderDefinitions.MiniKraid] = static (selection, match) =>
@@ -203,7 +203,7 @@ public static class RoomStateSelectionDefinitions
         },
         [RoomHeaderDefinitions.GlassTunnel] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.MaridiaNoobTubeBroken), MaridiaRoomStateDefinitions.GlassTunnel1)) return MaridiaRoomStateDefinitions.GlassTunnel1;
+            if (match(selection.IsEventSet(EventNumber.MaridiaNoobTubeBroken), MaridiaRoomStateDefinitions.GlassTunnel1)) return MaridiaRoomStateDefinitions.GlassTunnel1;
             return MaridiaRoomStateDefinitions.GlassTunnel0;
         },
         [RoomHeaderDefinitions.ThePrecious] = static (selection, match) =>
@@ -213,7 +213,7 @@ public static class RoomStateSelectionDefinitions
         },
         [RoomHeaderDefinitions.Shaktool] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.ShaktoolClearedPath), MaridiaRoomStateDefinitions.Shaktool1)) return MaridiaRoomStateDefinitions.Shaktool1;
+            if (match(selection.IsEventSet(EventNumber.ShaktoolClearedPath), MaridiaRoomStateDefinitions.Shaktool1)) return MaridiaRoomStateDefinitions.Shaktool1;
             return MaridiaRoomStateDefinitions.Shaktool0;
         },
         [RoomHeaderDefinitions.Botwoon] = static (selection, match) =>
@@ -228,43 +228,43 @@ public static class RoomStateSelectionDefinitions
         },
         [RoomHeaderDefinitions.Metroids1] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.FirstMetroidHallCleared), TourianRoomStateDefinitions.Metroids11)) return TourianRoomStateDefinitions.Metroids11;
+            if (match(selection.IsEventSet(EventNumber.FirstMetroidHallCleared), TourianRoomStateDefinitions.Metroids11)) return TourianRoomStateDefinitions.Metroids11;
             return TourianRoomStateDefinitions.Metroids10;
         },
         [RoomHeaderDefinitions.Metroids2] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.FirstMetroidShaftCleared), TourianRoomStateDefinitions.Metroids21)) return TourianRoomStateDefinitions.Metroids21;
+            if (match(selection.IsEventSet(EventNumber.FirstMetroidShaftCleared), TourianRoomStateDefinitions.Metroids21)) return TourianRoomStateDefinitions.Metroids21;
             return TourianRoomStateDefinitions.Metroids20;
         },
         [RoomHeaderDefinitions.Metroids3] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.SecondMetroidHallCleared), TourianRoomStateDefinitions.Metroids31)) return TourianRoomStateDefinitions.Metroids31;
+            if (match(selection.IsEventSet(EventNumber.SecondMetroidHallCleared), TourianRoomStateDefinitions.Metroids31)) return TourianRoomStateDefinitions.Metroids31;
             return TourianRoomStateDefinitions.Metroids30;
         },
         [RoomHeaderDefinitions.Metroids4] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.SecondMetroidShaftCleared), TourianRoomStateDefinitions.Metroids41)) return TourianRoomStateDefinitions.Metroids41;
+            if (match(selection.IsEventSet(EventNumber.SecondMetroidShaftCleared), TourianRoomStateDefinitions.Metroids41)) return TourianRoomStateDefinitions.Metroids41;
             return TourianRoomStateDefinitions.Metroids40;
         },
         [RoomHeaderDefinitions.BlueHopper] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.Unused14), TourianRoomStateDefinitions.BlueHopper1)) return TourianRoomStateDefinitions.BlueHopper1;
+            if (match(selection.IsEventSet(EventNumber.Unused14), TourianRoomStateDefinitions.BlueHopper1)) return TourianRoomStateDefinitions.BlueHopper1;
             return TourianRoomStateDefinitions.BlueHopper0;
         },
         [RoomHeaderDefinitions.DustTorizo] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.Unused14), TourianRoomStateDefinitions.DustTorizo1)) return TourianRoomStateDefinitions.DustTorizo1;
+            if (match(selection.IsEventSet(EventNumber.Unused14), TourianRoomStateDefinitions.DustTorizo1)) return TourianRoomStateDefinitions.DustTorizo1;
             return TourianRoomStateDefinitions.DustTorizo0;
         },
         [RoomHeaderDefinitions.BigBoy] = static (selection, match) =>
         {
-            if (match(selection.IsEventSet((byte)EventNumber.Unused14), TourianRoomStateDefinitions.BigBoy1)) return TourianRoomStateDefinitions.BigBoy1;
+            if (match(selection.IsEventSet(EventNumber.Unused14), TourianRoomStateDefinitions.BigBoy1)) return TourianRoomStateDefinitions.BigBoy1;
             return TourianRoomStateDefinitions.BigBoy0;
         },
         [RoomHeaderDefinitions.MotherBrain] = static (selection, match) =>
         {
             if (match(selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss), TourianRoomStateDefinitions.MotherBrain2)) return TourianRoomStateDefinitions.MotherBrain2;
-            if (match(selection.IsEventSet((byte)EventNumber.MotherBrainGlassDestroyed), TourianRoomStateDefinitions.MotherBrain1)) return TourianRoomStateDefinitions.MotherBrain1;
+            if (match(selection.IsEventSet(EventNumber.MotherBrainGlassDestroyed), TourianRoomStateDefinitions.MotherBrain1)) return TourianRoomStateDefinitions.MotherBrain1;
             return TourianRoomStateDefinitions.MotherBrain0;
         },
         [RoomHeaderDefinitions.CeresElev] = static (selection, match) =>

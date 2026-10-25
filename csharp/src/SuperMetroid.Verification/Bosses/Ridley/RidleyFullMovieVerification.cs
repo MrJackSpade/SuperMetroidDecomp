@@ -1751,7 +1751,7 @@ internal static class RidleyFullMovieVerification
                     "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
-                game.Step(ControllerButtons.FromRaw((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}"));
+                game.Step(ControllerWordCodec.FromRaw((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}"));
             }
         }
         AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");

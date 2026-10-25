@@ -85,6 +85,16 @@ internal sealed class EndingScreen
     /// <summary>Records a tilemap transfer of <paramref name="words"/>, copying them as they are now.</summary>
     public void Record(EndingUploadKind kind, int key, ReadOnlySpan<ushort> words) => Record(new EndingUpload(kind, key, words.ToArray()));
 
+    /// <summary>Records the transfer of the installed floor scene <paramref name="scene"/>.</summary>
+    public void Record(EndingFloorSceneId scene) => Record(new EndingUpload(EndingUploadKind.FloorSceneTiles, 0, null, scene));
+
+    /// <summary>Records the transfer of the installed explosion map <paramref name="fragment"/>.</summary>
+    public void Record(EndingObjectFragmentId fragment) => Record(new EndingUpload(EndingUploadKind.ObjectFragment, 0, null, fragment));
+
+    /// <summary>Records a transfer of <paramref name="words"/> to the text tilemap <paramref name="tilemap"/>, copying them as they are now.</summary>
+    internal void Record(EndingTextTilemap tilemap, ReadOnlySpan<ushort> words) =>
+        Record(new EndingUpload(EndingUploadKind.TextTilemap, 0, words.ToArray(), tilemap));
+
     /// <summary>How many of the logo's character chunks the post-shot has shown.</summary>
     internal int LogoChunksShown => uploads.Count(upload => upload.Kind == EndingUploadKind.PostShotTransfer &&
         EndingPostShotUploadDefinitions.Get(upload.Key).Source == EndingPostShotUploadSource.LogoTiles);

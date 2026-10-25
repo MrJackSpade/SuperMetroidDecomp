@@ -457,7 +457,7 @@ internal static class LookupStream3Verification
             {
                 ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                 ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
-                expected.Add(new(SnesLittleEndian.LowByte(position), SnesLittleEndian.HighByte(position), glyph, glyph == (ushort)IntroNarrationSymbolWord.Blank));
+                expected.Add(new(SnesLittleEndian.LowByte(position), SnesLittleEndian.HighByte(position), glyph, glyph == IntroNarrationDefinitions.CompileGlyph(' ')));
                 cursor += 6;
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
@@ -2670,7 +2670,7 @@ internal static class LookupStream3Verification
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.Current,
+            Version = EnemySpritemapSchema.Current,
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };

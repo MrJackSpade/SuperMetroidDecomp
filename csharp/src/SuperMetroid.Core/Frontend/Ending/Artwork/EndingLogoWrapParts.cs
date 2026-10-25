@@ -29,17 +29,20 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingRightCorner), false),
         new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.RightCap), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.LeftCap), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.LeftCap), true),
         new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.UpperSpanLeft), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.UpperSpanRight), false),
-        new EndingLogoWrapSelection((int)EndingLogoWrapCorner.LeftCorner, false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapCorner.LeftCorner), false),
         new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerEdgeRight), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerEdgeLeft), false),
         new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchBottomRight), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchBottomLeft), false),
         new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchTopRight), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchTopLeft), false),
-        new EndingLogoWrapSelection((int)EndingLogoWrapCorner.LowerSideEndpoint, false), new EndingLogoWrapSelection((int)EndingLogoWrapCorner.InnerSideJunction, false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapCorner.LowerSideEndpoint), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapCorner.InnerSideJunction), false),
         new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerSideBottom), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerSideTop), false),
-        new EndingLogoWrapSelection((int)EndingLogoWrapCorner.OuterSideJunction, false), new EndingLogoWrapSelection((int)EndingLogoWrapCorner.UpperSideEndpoint, false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapCorner.OuterSideJunction), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapCorner.UpperSideEndpoint), false),
     ];
 
     /// <summary>The atlas tile number of <paramref name="tile"/>.</summary>
-    private static int Tile(EndingLogoWrapTile tile) => (int)tile;
+    private static int Tile(EndingLogoWrapTile tile) => EndingLogoWrapTileDefinitions.Tiles[tile];
+
+    /// <summary>The atlas tile number of <paramref name="corner"/>.</summary>
+    private static int Tile(EndingLogoWrapCorner corner) => EndingLogoWrapTileDefinitions.Corners[corner];
 
     /// <summary>Selects a native tile and crop flag in the wrap's 25-part OAM order.</summary>
     internal static EndingLogoWrapSelection StockSelection(int index) =>
@@ -66,52 +69,53 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         int x, y;
         bool large = false, rotate = false;
         int column = tile % 16, row = tile / 16;
-        if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.ClosingRightSpan or EndingLogoWrapTile.ClosingMiddleSpan or
+        bool isPiece = EndingLogoWrapTileDefinitions.TilePieces.TryGetValue(tile, out EndingLogoWrapTile piece);
+        if (isPiece && piece is EndingLogoWrapTile.ClosingRightSpan or EndingLogoWrapTile.ClosingMiddleSpan or
             EndingLogoWrapTile.ClosingLeftSpan or EndingLogoWrapTile.ClosingOuterLeftTip or EndingLogoWrapTile.ClosingRightCorner or
             EndingLogoWrapTile.ClosingInnerLeftTip or EndingLogoWrapTile.ClosingInnerRightTip)
         {
             // Closing arc: a packed two-row region, half-turned into the lower edge.
             x = 8 * (column - 9) - 39;
             y = 8 * row - 57;
-            large = (EndingLogoWrapTile)tile is EndingLogoWrapTile.ClosingRightSpan or EndingLogoWrapTile.ClosingMiddleSpan or
+            large = piece is EndingLogoWrapTile.ClosingRightSpan or EndingLogoWrapTile.ClosingMiddleSpan or
                 EndingLogoWrapTile.ClosingLeftSpan or EndingLogoWrapTile.ClosingRightCorner;
             rotate = true;
         }
-        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.LeftCap or EndingLogoWrapTile.RightCap)
+        else if (isPiece && piece is EndingLogoWrapTile.LeftCap or EndingLogoWrapTile.RightCap)
         {
             // Overlapping top caps and an eight-pixel crop of the left cap.
             x = cropped ? 8 : 16 + 8 * (tile - Tile(EndingLogoWrapTile.LeftCap));
             y = cropped ? -24 : -32;
             large = !cropped;
         }
-        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.UpperSpanLeft or EndingLogoWrapTile.UpperSpanRight)
+        else if (isPiece && piece is EndingLogoWrapTile.UpperSpanLeft or EndingLogoWrapTile.UpperSpanRight)
         {
             x = 8 * (tile - Tile(EndingLogoWrapTile.UpperSpanLeft)); y = -16; large = true;
         }
-        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.PatchTopLeft or EndingLogoWrapTile.PatchTopRight or
+        else if (isPiece && piece is EndingLogoWrapTile.PatchTopLeft or EndingLogoWrapTile.PatchTopRight or
             EndingLogoWrapTile.PatchBottomLeft or EndingLogoWrapTile.PatchBottomRight)
         {
             // Upper-right patch is a two-by-two small-tile rectangle.
             x = 32 + 8 * (column - 8);
             y = -16 + 8 * (row - 6);
         }
-        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.InnerEdgeLeft or EndingLogoWrapTile.InnerEdgeRight)
+        else if (isPiece && piece is EndingLogoWrapTile.InnerEdgeLeft or EndingLogoWrapTile.InnerEdgeRight)
         {
             x = -8 + 8 * (tile - Tile(EndingLogoWrapTile.InnerEdgeLeft)); y = 0;
         }
-        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.InnerSideTop or EndingLogoWrapTile.InnerSideBottom)
+        else if (isPiece && piece is EndingLogoWrapTile.InnerSideTop or EndingLogoWrapTile.InnerSideBottom)
         {
             x = 24; y = -8 + 8 * row;
         }
         else
         {
             // Separately packed corners and vertical-edge endpoints.
-            if (!Enum.IsDefined((EndingLogoWrapCorner)tile))
+            if (!EndingLogoWrapTileDefinitions.CornerPieces.TryGetValue(tile, out EndingLogoWrapCorner corner))
             {
                 part = default;
                 return false;
             }
-            switch ((EndingLogoWrapCorner)tile)
+            switch (corner)
             {
                 case EndingLogoWrapCorner.LeftCorner: x = -8; y = -8; break;
                 case EndingLogoWrapCorner.InnerSideJunction: x = 24; y = 8; break;

@@ -912,7 +912,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         PrepareRenderSprites();
         RenderLayer[] layers;
-        if (usesFloor && (mainScreenLayers & ScreenLayers.Bg1) == 0)
+        if (usesFloor && (mainScreenLayers & ScreenLayers.Bg1) == ScreenLayers.None)
         {
             layers = [new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
                 new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];

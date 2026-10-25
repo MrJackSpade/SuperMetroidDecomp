@@ -56,6 +56,16 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         Interior,
     }
 
+    /// <summary>The glow quadrant's pieces in part order.</summary>
+    private static readonly GlowPiece[] GlowPieces = [GlowPiece.TopCap, GlowPiece.OuterBody, GlowPiece.InnerBody];
+
+    /// <summary>A supernova quadrant's pieces in part order.</summary>
+    private static readonly SupernovaPiece[] SupernovaPieces =
+    [
+        SupernovaPiece.LowerOuterEdge, SupernovaPiece.UpperOuterEdge, SupernovaPiece.InnerTopEdge,
+        SupernovaPiece.OuterTopEdge, SupernovaPiece.Interior,
+    ];
+
     /// <summary>Original base-quadrant packing at atlas origins$80/$83/$86.
     /// A24-pixel quadrant uses three overlapping large glow pieces, or four small
     /// edge pieces around one large supernova interior. Native first quadrant is
@@ -72,14 +82,14 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
                 Pose.Afterglow => throw new ArgumentOutOfRangeException(nameof(pose)),
             _ => throw new ArgumentOutOfRangeException(nameof(pose)),
         };
-        if ((uint)index >= (pose == Pose.Glow ? 3 : 5)) throw new ArgumentOutOfRangeException(nameof(index));
-        var (column, row) = pose == Pose.Glow ? (GlowPiece)index switch
+        if ((uint)index >= (pose == Pose.Glow ? GlowPieces.Length : SupernovaPieces.Length)) throw new ArgumentOutOfRangeException(nameof(index));
+        var (column, row) = pose == Pose.Glow ? GlowPieces[index] switch
         {
             GlowPiece.TopCap => new Position16<TilemapCells>(1, 0),
             GlowPiece.OuterBody => new Position16<TilemapCells>(0, 1),
             GlowPiece.InnerBody => new Position16<TilemapCells>(1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        } : (SupernovaPiece)index switch
+        } : SupernovaPieces[index] switch
         {
             SupernovaPiece.LowerOuterEdge => new Position16<TilemapCells>(0, 2),
             SupernovaPiece.UpperOuterEdge => new Position16<TilemapCells>(0, 1),
@@ -88,7 +98,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             SupernovaPiece.Interior => new Position16<TilemapCells>(1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        bool large = pose == Pose.Glow || (SupernovaPiece)index == SupernovaPiece.Interior;
+        bool large = pose == Pose.Glow || SupernovaPieces[index] == SupernovaPiece.Interior;
         bool right = pose != Pose.SupernovaSecond;
         int x = column * 8 - 24, y = row * 8 - 24;
         if (right) x = -x - (large ? 16 : 8);

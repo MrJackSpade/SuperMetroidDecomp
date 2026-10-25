@@ -66,7 +66,7 @@ internal static class EnemyContentIdentityVerification
         EnemySpritemapCatalog stockOam = baseline.Oam();
         var legacyOam = baseline.OamDocument() with
         {
-            Version = (int)EnemySpritemapSchema.PreDisplayBindings,
+            Version = EnemySpritemapSchema.PreDisplayBindings,
             Frames = baseline.OamDocument().Frames.Take(EnemySpritemapDefinitions.PreDisplayBindingsFrameCount).ToDictionary(),
             DisplayFrames = null,
         };
@@ -80,7 +80,7 @@ internal static class EnemyContentIdentityVerification
         EnemyExtendedFrameCatalog stockExtended = baseline.Extended();
         var legacyExtended = baseline.ExtendedDocument() with
         {
-            Version = (int)EnemyExtendedFrameSchema.PreDisplayBindings,
+            Version = EnemyExtendedFrameSchema.PreDisplayBindings,
             Frames = baseline.ExtendedDocument().Frames.Take(EnemyExtendedFrameDefinitions.PirateFrameCount).ToDictionary(),
             DisplayFrames = null,
         };

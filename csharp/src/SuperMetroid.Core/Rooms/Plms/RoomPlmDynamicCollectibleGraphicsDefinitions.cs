@@ -6,33 +6,39 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
 {
-    /// <summary>First permanent collectible kind whose artwork uses the dynamic PLM upload.</summary>
-    internal const int FirstKind = (int)InWorldCollectibleKind.Bombs;
+    /// <summary>The permanent-item kinds whose artwork uses the dynamic PLM upload, in collectible-kind order: every kind after the four tanks.</summary>
+    internal static readonly InWorldCollectibleKind[] Kinds =
+    [
+        InWorldCollectibleKind.Bombs, InWorldCollectibleKind.ChargeBeam, InWorldCollectibleKind.IceBeam,
+        InWorldCollectibleKind.HiJumpBoots, InWorldCollectibleKind.SpeedBooster, InWorldCollectibleKind.WaveBeam,
+        InWorldCollectibleKind.SpazerBeam, InWorldCollectibleKind.SpringBall, InWorldCollectibleKind.VariaSuit,
+        InWorldCollectibleKind.GravitySuit, InWorldCollectibleKind.XrayScope, InWorldCollectibleKind.PlasmaBeam,
+        InWorldCollectibleKind.GrappleBeam, InWorldCollectibleKind.SpaceJump, InWorldCollectibleKind.ScrewAttack,
+        InWorldCollectibleKind.MorphBall, InWorldCollectibleKind.ReserveTank,
+    ];
+
     /// <summary>Number of permanent-item kinds with a bank $89 graphics block.</summary>
-    internal const int GraphicCount = RoomPlmHeaders.PermanentCollectibleKindCount - FirstKind;
+    internal static int GraphicCount => Kinds.Length;
+
+    /// <summary>The artwork blocks in their stored order.</summary>
+    private static readonly ItemGraphic[] StoredGraphics = Enum.GetValues<ItemGraphic>();
+
+    /// <summary>The place of <paramref name="kind"/> in <see cref="Kinds"/>, or -1 when it has no dynamic graphics upload.</summary>
+    internal static int KindIndex(InWorldCollectibleKind kind) => Array.IndexOf(Kinds, kind);
 
     /// <summary>Enumerates the complete set of dynamic permanent-item graphics in collectible-kind order.</summary>
-    internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All
-    {
-        get
-        {
-            for (int kind = FirstKind; kind < FirstKind + GraphicCount; kind++)
-                yield return Get((InWorldCollectibleKind)kind);
-        }
-    }
+    internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All => Kinds.Select(Get);
 
     /// <summary>Combines a permanent item's eight palette selectors and tile bytes.</summary>
     internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
-        int index = (int)kind - FirstKind;
-        if ((uint)index >= GraphicCount)
+        if (KindIndex(kind) < 0)
             throw new InvalidDataException(
                 $"Permanent-item kind {kind} has no dynamic graphics upload.");
-        ItemGraphic graphic = GraphicFor(kind);
         byte[] palettes = new byte[8];
         for (int tile = 0; tile < palettes.Length; tile++)
             palettes[tile] = PaletteOffset(kind, tile);
-        return new(kind, palettes, Convert.FromHexString(Tiles[(int)graphic]));
+        return new(kind, palettes, Convert.FromHexString(Tiles[GraphicIndex(kind)]));
     }
 
     /// <summary>Consecutive 256-byte artwork blocks in native bank-$89 order, $8000 through $9000.</summary>
@@ -75,7 +81,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
     }
 
     /// <summary>The place of <paramref name="kind"/>'s artwork block among the item graphics, in their stored order.</summary>
-    internal static int GraphicIndex(InWorldCollectibleKind kind) => (int)GraphicFor(kind);
+    internal static int GraphicIndex(InWorldCollectibleKind kind) => Array.IndexOf(StoredGraphics, GraphicFor(kind));
 
     /// <summary>Maps collectible identity to its distinct bank $89 tile block, independent of enum order.</summary>
     private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch
@@ -111,7 +117,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
     /// </summary>
     internal static byte PaletteOffset(InWorldCollectibleKind kind, int tile)
     {
-        if ((uint)((int)kind - FirstKind) >= GraphicCount)
+        if (KindIndex(kind) < 0)
             throw new InvalidDataException(
                 $"Permanent-item kind {kind} has no dynamic graphics upload.");
         if ((uint)tile >= 8)

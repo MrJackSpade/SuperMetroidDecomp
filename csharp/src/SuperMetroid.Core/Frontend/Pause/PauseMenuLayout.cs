@@ -16,9 +16,9 @@ internal static class PauseMenuLayout
     {
         get
         {
-            for (int label = 0; label < 3; label++)
+            foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
             for (int row = 0; row < 2; row++)
-                yield return ButtonLabelSpan((PauseButtonLabel)label, row);
+                yield return ButtonLabelSpan(label, row);
         }
     }
 

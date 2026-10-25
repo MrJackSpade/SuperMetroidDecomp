@@ -11,7 +11,7 @@ internal static class OrdinaryEnemyResourceChecks
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount;
-        int previousVersion = (int)EnemySpritemapSchema.PreAuditOrdinary;
+        int previousVersion = EnemySpritemapSchema.PreAuditOrdinary;
         // Typed families (#641) name their spritemaps; the rest still resolve compiled operands.
         OrdinaryEnemyResourceFamily[] families =
         [

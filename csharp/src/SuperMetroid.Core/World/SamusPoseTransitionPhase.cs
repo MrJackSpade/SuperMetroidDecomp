@@ -358,7 +358,7 @@ internal sealed class SamusPoseTransitionPhase
                     SamusPoseMetadata.ReadMovementType(frame.PoseAtFrameStart));
                 if (command is not (SamusProspectivePoseChangeCommand.Decelerate or SamusProspectivePoseChangeCommand.Stop))
                     throw new InvalidDataException(
-                        $"Ran-into-wall source ${(int)frame.PoseAtFrameStart:X2} selected unexpected lookup-failure command {command}.");
+                        $"Ran-into-wall source {frame.PoseAtFrameStart} selected unexpected lookup-failure command {command}.");
                 samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
                     command == SamusProspectivePoseChangeCommand.Decelerate && frame.DeceleratingFallbackHasMomentum,
                     SamusPoseMetadata.ReadFacingDirection(samus));
@@ -923,8 +923,8 @@ internal sealed class SamusPoseTransitionPhase
                 // owned by one of the explicit families above means the pose
                 // table or state was mixed from an incompatible revision.
                 throw new InvalidDataException(
-                    $"Grounded input transition ${(int)frame.PoseAtFrameStart:X2} -> " +
-                    $"${(int)targetPose:X2} escaped the exhaustive retail dispatcher.");
+                    $"Grounded input transition {frame.PoseAtFrameStart} -> " +
+                    $"{targetPose} escaped the exhaustive retail dispatcher.");
         }
     }
 

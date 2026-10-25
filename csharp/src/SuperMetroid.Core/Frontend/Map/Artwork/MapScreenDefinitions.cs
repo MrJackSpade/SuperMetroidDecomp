@@ -32,17 +32,17 @@ public static class MapScreenDefinitions
     /// <param name="area">A playable Zebes area from zero through five.</param>
     public static MapScreenPageId RoomFrame(AreaId area) => new MapScreenPageId.RoomFrame(area);
     /// <summary>Returns <paramref name="area"/> when it is a playable Zebes area, rejecting menu or other non-area identities.</summary>
-    internal static AreaId RequireZebesArea(AreaId area) => (uint)area < ZebesAreas
+    internal static AreaId RequireZebesArea(AreaId area) => AreaIds.IsZebes(area)
         ? area : throw new ArgumentOutOfRangeException(nameof(area));
 
     /// <summary>Named pages select one of the authored PNG atlases, never a VRAM address.</summary>
     public static IEnumerable<MapScreenPage> Pages()
     {
         yield return new(WorldForeground, WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.ForegroundTileCount);
-        for (int area = 0; area < ZebesAreas; area++)
+        foreach (AreaId area in AreaIds.Zebes)
         {
-            yield return new(WorldBackground((AreaId)area), WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.BackgroundTileCount);
-            yield return new(RoomFrame((AreaId)area), MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.ByteCount / 32);
+            yield return new(WorldBackground(area), WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.BackgroundTileCount);
+            yield return new(RoomFrame(area), MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.ByteCount / 32);
         }
     }
 }

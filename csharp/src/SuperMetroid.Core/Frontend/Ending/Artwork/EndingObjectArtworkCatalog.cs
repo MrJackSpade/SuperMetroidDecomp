@@ -13,6 +13,9 @@ public sealed class EndingObjectArtworkCatalog
     /// <summary>Copied four-fragment sequence ordered by explosion VRAM destination page.</summary>
     private readonly RoomCharacterAtlas[] fragments;
 
+    /// <summary>The same fragments keyed by the explosion map each one holds.</summary>
+    private readonly Dictionary<EndingObjectFragmentId, RoomCharacterAtlas> fragmentsById;
+
     /// <summary>Combines already compiled ending artwork and sprite compositions, enforcing the native transfer lengths.</summary>
     /// <param name="parts">The ending's object character atlases, tilemaps and sprite presentations (#633).</param>
     /// <remarks>Copies the fragment sequence but retains the supplied atlas and presentation objects. This constructor validates transfer sizes, not stock hashes or manifest provenance; installation loading performs those checks.</remarks>
@@ -51,6 +54,8 @@ public sealed class EndingObjectArtworkCatalog
                 !HasRequiredLength(fragment, EndingObjectTransfer.ExplosionFragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         this.fragments = parts.Fragments.ToArray();
+        fragmentsById = Enum.GetValues<EndingObjectFragmentId>().Zip(fragments)
+            .ToDictionary(pair => pair.First, pair => pair.Second);
     }
 
     /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>
@@ -116,10 +121,10 @@ public sealed class EndingObjectArtworkCatalog
     });
 
     /// <summary>Returns one $0800-byte explosion tilemap fragment uploaded within VRAM bytes $E000-$FFFF.</summary>
-    /// <param name="id">Native destination-page identity; the enum's numeric values index the copied fragment sequence.</param>
+    /// <param name="id">The explosion map; the copied fragment sequence holds the maps in its declaration order.</param>
     /// <returns>The retained atlas carrying the selected raw tilemap bytes.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not one of the four defined fragment identities.</exception>
     public RoomCharacterAtlas Fragment(EndingObjectFragmentId id) =>
-        (uint)id < fragments.Length ? fragments[(int)id] :
+        fragmentsById.TryGetValue(id, out RoomCharacterAtlas? fragment) ? fragment :
             throw new ArgumentOutOfRangeException(nameof(id));
 }

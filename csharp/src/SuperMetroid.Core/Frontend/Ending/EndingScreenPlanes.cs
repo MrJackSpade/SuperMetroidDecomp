@@ -52,7 +52,7 @@ internal static class EndingScreenPlanes
 
     /// <summary>Whether <paramref name="upload"/> writes the text tilemap <paramref name="tilemap"/>.</summary>
     private static bool IsText(EndingUpload upload, EndingTextTilemap tilemap) =>
-        upload.Kind == EndingUploadKind.TextTilemap && (EndingTextTilemap)upload.Key == tilemap;
+        upload.Kind == EndingUploadKind.TextTilemap && upload.Subject is EndingTextTilemap written && written == tilemap;
 
     /// <summary>The words the explosion's <paramref name="fragment"/> map holds once <paramref name="uploads"/> have been made.</summary>
     /// <exception cref="InvalidOperationException">An upload names installed artwork that is not bound.</exception>
@@ -61,7 +61,7 @@ internal static class EndingScreenPlanes
         var words = new ushort[Cells];
         foreach (EndingUpload upload in uploads)
         {
-            if (upload.Kind == EndingUploadKind.ObjectFragment && (EndingObjectFragmentId)upload.Key == fragment)
+            if (upload.Kind == EndingUploadKind.ObjectFragment && upload.Subject is EndingObjectFragmentId loaded && loaded == fragment)
                 Load(Objects(objects).Fragment(fragment).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentBytes], words);
         }
         return words;

@@ -42,8 +42,8 @@ internal static class FileSelectDataNavigation
 
         // Preserve the managed input order, including validation on idle frames
         // and Up priority when both directions are pressed. The caller owns sound.
-        int step = (pressed & ControllerButton.Up) != 0 ? -1
-            : (pressed & ControllerButton.Down) != 0 ? 1 : 0;
+        int step = (pressed & ControllerButton.Up) != ControllerButton.None ? -1
+            : (pressed & ControllerButton.Down) != ControllerButton.None ? 1 : 0;
         if (step == 0) return selected;
         for (int row = FileSelectItemRows.DataRow(selected) + step; row is >= 0 and < FileSelectLayout.DataSelectionCount; row += step)
             if (Selectable(FileSelectItemRows.DataItem(row))) return FileSelectItemRows.DataItem(row);

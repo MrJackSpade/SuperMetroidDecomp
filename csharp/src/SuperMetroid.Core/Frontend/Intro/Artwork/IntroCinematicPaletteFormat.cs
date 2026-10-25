@@ -13,6 +13,10 @@ public static class IntroCinematicPaletteFormat
     internal const int NeutralCycleStep = IntroCinematicPaintDefinitions.WhiteCycleStep;
     /// <summary>$8C:E42B-E43A supplies the eight-color gradient also copied atE5AB-E5BA.</summary>
     internal const int SharedCrossFadeSourceRow = 2;
+    /// <summary>$8C:E4E9-E508: the first object palette repeats a neutral ramp after its background slot.</summary>
+    internal const int NeutralCycleRow = 8;
+    /// <summary>$8C:E5A9-E5C8, Palettes_Intro_CrossFade: its first eight visible inks repeat the shared cross-fade source row.</summary>
+    internal const int CrossFadeRow = 14;
     /// <summary>$8C:E5BB-E5C2: reviewed blue endpoints31/4 derive their equal three-interval decrement.</summary>
     internal const int CrossFadeBlueStep = IntroCinematicPaintDefinitions.CrossfadeBlueStep;
     /// <summary>Editable JSON filename for the opening narration's complete native-precision CGRAM palette.</summary>

@@ -81,7 +81,7 @@ internal static class LookupStream2Verification
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = (int)EnemySpritemapSchema.Current,
+            Version = EnemySpritemapSchema.Current,
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };
@@ -671,7 +671,7 @@ internal static class LookupStream2Verification
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
             Confirm(stock, kind, native, "Actual mirrored stock wireframe preserves every native tile word");
-            var edits = stock.frames[(int)kind].edits;
+            var edits = stock.frames[kind].edits;
             stockOverrides += edits.Count;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {

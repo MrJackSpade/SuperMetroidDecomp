@@ -38,15 +38,15 @@ public sealed class EndingCloudSpritePresentation : ICinematicSpriteFrames
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Ending clouds require exactly six named visual frames.");
         var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
-        for (int index = 0; index < definitions.Count; index++)
+        foreach (EndingCloudSpriteDefinitions.Role role in Enum.GetValues<EndingCloudSpriteDefinitions.Role>())
         {
-            CinematicSpriteFrameDefinition definition = definitions[index];
+            CinematicSpriteFrameDefinition definition = EndingCloudSpriteDefinitions.Frame(role);
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Ending cloud sprite {definition.Name} is missing.");
             frames.Add(definition.Pose,
                 IntroCinematicSpriteCompiler.Compile(visual, definition.Name)
-                    .CalculateIfMatching(new EndingCloudGridParts((EndingCloudSpriteDefinitions.Role)index)));
+                    .CalculateIfMatching(new EndingCloudGridParts(role)));
         }
         return new EndingCloudSpritePresentation(frames);
     }

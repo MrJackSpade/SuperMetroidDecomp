@@ -14,6 +14,6 @@ internal static class HorizontalCameraTargetDefinitions
         CameraDistanceMode.BossTracking => facingRight ? (ushort)64 : (ushort)80,
         CameraDistanceMode.LeftEdge => 32,
         CameraDistanceMode.RightEdge => 256 - 32,
-        _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {(int)mode}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {mode}."),
     };
 }

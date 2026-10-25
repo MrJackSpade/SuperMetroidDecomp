@@ -192,14 +192,14 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
             case GameOverMenuPhase.Main:
                 StepBabyMetroid();
-                if ((pressed & (ControllerButton.Select | ControllerButton.Up | ControllerButton.Down)) != 0)
+                if ((pressed & (ControllerButton.Select | ControllerButton.Up | ControllerButton.Down)) != ControllerButton.None)
                 {
                     audio.QueueSound(
                         Library1Sound.MenuCursor,
                         maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }
-                else if ((pressed & ControllerButton.A) != 0)
+                else if ((pressed & ControllerButton.A) != ControllerButton.None)
                 {
                     // `$81:914B` holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.

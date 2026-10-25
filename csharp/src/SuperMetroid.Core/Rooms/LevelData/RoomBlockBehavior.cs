@@ -104,50 +104,20 @@ public readonly record struct RoomBlockBehavior(int Value)
     public bool IsUnusedShootableReaction => Value is >= 17 and <= 63 or 78;
 
     /// <summary>Decodes the four contiguous blue-door cap values.</summary>
-    public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation)
-    {
-        int index = Value - RoomBlockBehaviorValues.BlueDoorFacingLeft.Value;
-        if ((uint)index <= (uint)ColoredDoorOrientation.Down)
-        {
-            orientation = (ColoredDoorOrientation)index;
-            return true;
-        }
-
-        orientation = default;
-        return false;
-    }
+    public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation) =>
+        RoomBlockBehaviorCodec.TryBlueDoorOrientation(this, out orientation);
 
     /// <summary>Decodes a map, recharge, or save-station access byte.</summary>
-    public bool TryGetStationAccess(out StationAccessBehavior access)
-    {
-        if (Value is >= (byte)StationAccessBehavior.MapRight and
-            <= (byte)StationAccessBehavior.SaveFloor)
-        {
-            access = (StationAccessBehavior)Value;
-            return true;
-        }
-
-        access = default;
-        return false;
-    }
+    public bool TryGetStationAccess(out StationAccessBehavior access) =>
+        RoomBlockBehaviorCodec.TryStationAccess(this, out access);
 
     /// <summary>
     /// Decodes the eight shootable-block values reserved for downward gate triggers.
     /// These bytes overlap unrelated meanings in other collision families, so the caller
     /// must first establish that the level word is a shootable block.
     /// </summary>
-    public bool TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger)
-    {
-        if (Value is >= (byte)DownwardGateTriggerBehavior.BlueLeft and
-            <= (byte)DownwardGateTriggerBehavior.YellowRight)
-        {
-            trigger = (DownwardGateTriggerBehavior)Value;
-            return true;
-        }
-
-        trigger = default;
-        return false;
-    }
+    public bool TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger) =>
+        RoomBlockBehaviorCodec.TryDownwardGateTrigger(this, out trigger);
 
     /// <summary>Formats the native BTS byte as a two-digit hexadecimal value.</summary>
     public override string ToString() => $"${Value:X2}";

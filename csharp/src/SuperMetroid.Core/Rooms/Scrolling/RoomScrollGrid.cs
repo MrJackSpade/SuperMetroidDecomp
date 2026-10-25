@@ -70,9 +70,9 @@ public sealed class RoomScrollGrid
         RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(storage, size);
         for (int index = 0; index < grid.LogicalCellCount; index++)
-            storage[index] = (byte)(index / size.X == size.Y - 1
+            storage[index] = (index / size.X == size.Y - 1
                 ? lastRowState
-                : RoomScrollState.Green);
+                : RoomScrollState.Green).ToStorageByte();
         return grid;
     }
 
@@ -85,7 +85,7 @@ public sealed class RoomScrollGrid
     }
 
     /// <summary>Typed view of one byte inside the 50-byte scroll allocation.</summary>
-    public RoomScrollState ReadState(int index) => (RoomScrollState)ReadStorage(index);
+    public RoomScrollState ReadState(int index) => RoomScrollStates.FromStorageByte(ReadStorage(index));
 
     /// <summary>
     /// Reads the native WRAM-relative byte selected by a bank-$80 scroll calculation.
@@ -108,7 +108,7 @@ public sealed class RoomScrollGrid
     /// preserve unexpected byte values; callers can still distinguish every raw state.
     /// </summary>
     public RoomScrollState ReadCameraState(int index) =>
-        (RoomScrollState)ReadCameraStorage(index);
+        RoomScrollStates.FromStorageByte(ReadCameraStorage(index));
 
     /// <summary>
     /// Writes one raw byte in the fixed 50-byte scroll allocation. Enemy and PLM scripts use
@@ -120,7 +120,7 @@ public sealed class RoomScrollGrid
         if ((uint)index >= StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         RoomScrollStates.Validate(state, nameof(state));
-        Storage[index] = (byte)state;
+        Storage[index] = state.ToStorageByte();
     }
 
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
@@ -129,6 +129,6 @@ public sealed class RoomScrollGrid
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
         RoomScrollStates.Validate(state, nameof(state));
-        Storage[screen.Y * Size.X + screen.X] = (byte)state;
+        Storage[screen.Y * Size.X + screen.X] = state.ToStorageByte();
     }
 }

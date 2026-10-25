@@ -33,7 +33,7 @@ public static class LoadStationDefinitions
             throw new ArgumentOutOfRangeException(nameof(stationIndex), stationIndex,
                 $"{areaIndex} has {count} load-station slots.");
         int preceding = 0;
-        for (int index = 0; index < area; index++) preceding += Count((AreaId)index);
+        for (int index = 0; index < area; index++) preceding += Count(AreaIds.At(index));
         LoadStationDefinition entry = areaIndex == AreaId.Ceres
             ? new(RoomHeaderDefinitions.CeresElev, CeresDoorDefinitions.FallingTile0, Position16<RoomPixels>.Zero, new(0, (short)(stationIndex == 0 ? 72 : 64)))
             : Placement(areaIndex, stationIndex);

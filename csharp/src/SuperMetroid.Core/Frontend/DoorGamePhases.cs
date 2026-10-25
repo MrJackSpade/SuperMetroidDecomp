@@ -46,7 +46,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
                 maximumQueued: SoundQueueLimit.Max15, soundSuppressed: doorSoundsSuppressed);
         }
         // `$90:F48A` tests $8B against the shot binding; the action latch holds it as X.
-        else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == 0 &&
+        else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == ControllerButton.None &&
             session.GameplayRuntime.BeamCharge.FlareCounter < 16)
         {
             session.audio.QueueSound(Library1Sound.Silence,

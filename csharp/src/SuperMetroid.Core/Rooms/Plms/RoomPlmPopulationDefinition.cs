@@ -61,7 +61,7 @@ public sealed class RoomPlmPopulationDefinition
             for (int offset = 0; offset < program.Length - 1; offset += 2)
             {
                 if (program[offset] >= RoomScrollGrid.StorageByteCount ||
-                    program[offset + 1] > (byte)RoomScrollState.Green)
+                    !RoomScrollStates.IsAuthoredByte(program[offset + 1]))
                     throw new InvalidDataException("A decoded scroll PLM contains an invalid index/state pair.");
             }
         }

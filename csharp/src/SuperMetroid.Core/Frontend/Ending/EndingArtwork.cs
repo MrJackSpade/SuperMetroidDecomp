@@ -103,7 +103,7 @@ internal sealed class EndingArtwork
             "Ending object fragments require installed artwork.")).Fragment(fragmentId).Characters.ToArray();
         EndingStage.RequireMinimum(fragment, EndingArtworkExtentDefinitions.ObjectFragmentBytes,
             "ending OBJ fragment");
-        screen.Record(EndingUploadKind.ObjectFragment, (int)fragmentId);
+        screen.Record(fragmentId);
     }
 
     /// <summary>Performs the one-time palette, font and post-credits art transfers at the staff handoff.</summary>

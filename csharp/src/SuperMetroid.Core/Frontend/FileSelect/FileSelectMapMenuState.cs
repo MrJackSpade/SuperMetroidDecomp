@@ -82,7 +82,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         system.LoadExploredMapBytes(slot.ExploredMapBytes);
         for (int index = 0; index < usedStations.Length; index++)
             usedStations[index] = BinaryPrimitives.ReadUInt16LittleEndian(slot.UsedSaveStationBytes.AsSpan(index * 2));
-        var typedArea = (AreaId)area;
+        var typedArea = AreaIds.At(area);
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
         InstalledSpriteSheets sheets = spriteSheets ?? throw new InvalidOperationException("File-select map requires the installed sprite sheets.");
@@ -116,13 +116,13 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         animations.BindPalette(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);
         roomGraphics.BindMapPresentation(catalog);
-        marker.BindPosition((AreaId)area, stationIndex, catalog?.SaveMarkers);
+        marker.BindPosition(AreaIds.At(area), stationIndex, catalog?.SaveMarkers);
     }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
-        var typedArea = (AreaId)area;
+        var typedArea = AreaIds.At(area);
         AreaMapPresentationCatalog catalog = mapPresentation ?? throw new InvalidOperationException(
             "File-select map requires installed map presentation assets.");
         var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
@@ -163,7 +163,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 Scroll = CreateScrollForCurrentContent();
-                marker = new FileSelectStationMarker((AreaId)area, stationIndex, mapPresentation?.SaveMarkers);
+                marker = new FileSelectStationMarker(AreaIds.At(area), stationIndex, mapPresentation?.SaveMarkers);
                 markerDrawn = false;
                 animations.ResetPalette();
             }

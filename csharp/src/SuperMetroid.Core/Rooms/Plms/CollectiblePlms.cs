@@ -594,9 +594,9 @@ internal sealed class CollectiblePlms : IPlmFamilySource
 
                 // Spazer and Plasma are the only mutually exclusive beam pair: $84:88B0 shifts the
                 // collected beam onto its partner, so collecting either one unequips the other.
-                if ((beamMask & SamusBeamFlags.Spazer) != 0)
+                if ((beamMask & SamusBeamFlags.Spazer) != SamusBeamFlags.None)
                     samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
-                if ((beamMask & SamusBeamFlags.Plasma) != 0)
+                if ((beamMask & SamusBeamFlags.Plasma) != SamusBeamFlags.None)
                     samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
                 return;
             default:

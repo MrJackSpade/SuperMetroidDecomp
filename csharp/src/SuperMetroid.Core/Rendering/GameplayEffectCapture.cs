@@ -30,7 +30,7 @@ public static class GameplayEffectCapture
         RoomLayer3FxRenderSnapshot fx,
         Position16<Bg2Pixels> bg2Scroll)
     {
-        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == 0)
+        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
             return null;
 
         var result = Enumerable.Repeat(bg2Scroll.X, Height - HudHeight).ToArray();
@@ -59,9 +59,9 @@ public static class GameplayEffectCapture
     {
         bool isLavaAcid = fx.Type is RoomFxType.Lava or RoomFxType.Acid;
         bool usesVertical =
-            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) != 0;
+            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) != RoomLiquidOptions.None;
         bool usesHorizontal =
-            (fx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0;
+            (fx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
         if (!isLavaAcid || usesVertical || !usesHorizontal)
             return null;
 
@@ -78,7 +78,7 @@ public static class GameplayEffectCapture
         ushort bg2VerticalScroll)
     {
         if (fx.Type is not (RoomFxType.Lava or RoomFxType.Acid) ||
-            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == 0)
+            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
         {
             return null;
         }

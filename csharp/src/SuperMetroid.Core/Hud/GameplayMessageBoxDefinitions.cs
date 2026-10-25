@@ -94,7 +94,5 @@ public static class GameplayMessageBoxDefinitions
         internal const ushort SelectedItemPanelGlyphOffset = 0x12c;
         /// <summary>The byte offset of the glyph in the speed booster panel.</summary>
         internal const ushort SpeedBoosterPanelGlyphOffset = 0x120;
-        /// <summary>The message identities that have a panel-glyph table entry: 1 to 27; the 27th is the table's dummy boundary.</summary>
-        internal const int GlyphTableEntries = 27;
     }
 }

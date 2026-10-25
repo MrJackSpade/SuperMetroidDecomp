@@ -44,7 +44,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[i].Pose), $"explosion catalog native pointer {i}");
             AssertEqual(frames[i].Pose, i < 10 ? EndingExplosionSpriteDefinitions.PlanetPose(i) :
-                EndingExplosionSpriteDefinitions.PoseOf((EndingExplosionSpriteDefinitions.Pose)i),
+                EndingExplosionSpriteDefinitions.PoseOf(Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[i - 10]),
                 $"explosion shared pose {i}");
             AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
@@ -58,9 +58,13 @@ internal static class EndingExplosionSpriteArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPose(invalid),
                 "explosion planet record bounds");
         }
-        foreach (int planet in new[] { 0, 9 })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PoseOf(
-                (EndingExplosionSpriteDefinitions.Pose)planet), "planet records are not composite poses");
+        // The composite poses and the planet records name disjoint compositions.
+        foreach (EndingExplosionSpriteDefinitions.Pose composite in Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>())
+        {
+            for (int planet = 0; planet < 10; planet++)
+                AssertTrue(EndingExplosionSpriteDefinitions.PoseOf(composite) != EndingExplosionSpriteDefinitions.PlanetPose(planet),
+                    "planet records are not composite poses");
+        }
         AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPose(10),
             "planet record count");
     }
@@ -121,7 +125,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             SpriteVisualPart first = visual[0];
             if (pose is >= 10 and <= 12)
             {
-                var role = (EndingExplosionSpriteDefinitions.Pose)pose;
+                EndingExplosionSpriteDefinitions.Pose role = Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[pose - 10];
                 int basisCount = pose == 10 ? 3 : 5;
                 for (int index = 0; index < basisCount; index++)
                     AssertEqual(original.Part(index), EndingExplosionQuadrantParts.StockBasis(role, index), "original packed quadrant basis");
@@ -159,9 +163,13 @@ internal static class EndingExplosionSpriteArtworkVerification
             SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
             AssertTrue(pose >= 13 ? Identity(shortened) == Identity(Calculate(shown, shortened)) : ReferenceEquals(shortened, Calculate(shown, shortened)), "edited part count is preserved");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 0, 9, 13, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(
-                (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
+        foreach (EndingExplosionSpriteDefinitions.Pose invalid in new[]
+        {
+            (EndingExplosionSpriteDefinitions.Pose)int.MinValue, (EndingExplosionSpriteDefinitions.Pose)(-1),
+            EndingExplosionSpriteDefinitions.Pose.Stars, EndingExplosionSpriteDefinitions.Pose.Silhouette,
+            EndingExplosionSpriteDefinitions.Pose.Afterglow, (EndingExplosionSpriteDefinitions.Pose)int.MaxValue,
+        })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(invalid, 0), "quadrant basis role bounds");
     }
 
     /// <summary>Compares installed explosion OAM with native maps for visible and wrapped offscreen origins after checking frame and program catalogs.</summary>

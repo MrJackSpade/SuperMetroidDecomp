@@ -56,7 +56,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     // Native is suspended in WaitForNMI here: no actor, animation, or
                     // script advances during the ninety-frame final-image hold.
                     session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                    if (session.GameplayRuntime.Controller1.NewlyPressed != 0)
+                    if (session.GameplayRuntime.Controller1.NewlyPressed != ControllerButton.None)
                         FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
                     else if (session.Demo.CountHoldFrame())
                         FinishAttractPlayback(end: AttractPlaybackEnd.Completed);
@@ -66,7 +66,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(session.GameplayRuntime) });
                     session.display.PublishGameplay(session.GameplayRuntime);
                     // Demo beta has restored the physical controller pair at this point.
-                    if (session.GameplayRuntime.Controller1.NewlyPressed != 0)
+                    if (session.GameplayRuntime.Controller1.NewlyPressed != ControllerButton.None)
                         FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
                     else
                         session.Demo.CountPlaybackFrame();

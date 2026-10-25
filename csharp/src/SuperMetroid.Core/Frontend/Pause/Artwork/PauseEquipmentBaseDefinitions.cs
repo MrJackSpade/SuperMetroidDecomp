@@ -207,5 +207,5 @@ public static class PauseEquipmentBaseDefinitions
 
     /// <summary>Packs a SNES tilemap word from its glyph, palette, priority, and reflection bits.</summary>
     private static ushort Tile(int character, int palette, bool priority = true, SnesTileFlipFlags flips = SnesTileFlipFlags.None) =>
-        (ushort)(character | palette << 10 | (priority ? 0x2000 : 0) | (ushort)flips);
+        SnesBgTilemapWord.Create(character, palette, priority, flips).Raw;
 }

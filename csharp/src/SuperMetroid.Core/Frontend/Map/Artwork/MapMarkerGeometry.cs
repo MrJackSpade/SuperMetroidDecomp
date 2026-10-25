@@ -98,27 +98,27 @@ internal static class MapMarkerGeometry
                 break;
             case MapSpriteId.ArrowRight:
             case MapSpriteId.ArrowLeft:
-                x = -4; y = -7 * index; tile = (int)MapMarkerCell.HorizontalArrowHalf; priority = 3;
+                x = -4; y = -7 * index; tile = MapMarkerCellDefinitions.Tiles[MapMarkerCell.HorizontalArrowHalf]; priority = 3;
                 flipX = id == MapSpriteId.ArrowLeft; flipY = index == 0;
                 break;
             case MapSpriteId.ArrowUp:
             case MapSpriteId.ArrowDown:
-                x = -1 - 7 * index; y = -4; tile = (int)MapMarkerCell.VerticalArrowHalf; priority = 3;
+                x = -1 - 7 * index; y = -4; tile = MapMarkerCellDefinitions.Tiles[MapMarkerCell.VerticalArrowHalf]; priority = 3;
                 flipX = index == 0; flipY = id == MapSpriteId.ArrowUp;
                 break;
             case MapSpriteId.MarkerGunship:
-                x = 4 - 8 * index; y = -2; tile = (int)MapMarkerCell.GunshipHalf; flipX = index == 0;
+                x = 4 - 8 * index; y = -2; tile = MapMarkerCellDefinitions.Tiles[MapMarkerCell.GunshipHalf]; flipX = index == 0;
                 break;
             case MapSpriteId.MarkerDefeatedBoss:
                 flipX = index < 2; flipY = (index & 1) == 0;
-                x = flipX ? 3 : -4; y = flipY ? 4 : -4; tile = (int)MapMarkerCell.DefeatedBossCorner;
+                x = flipX ? 3 : -4; y = flipY ? 4 : -4; tile = MapMarkerCellDefinitions.Tiles[MapMarkerCell.DefeatedBossCorner];
                 break;
             case MapSpriteId.IndicatorFrame0:
             case MapSpriteId.IndicatorFrame1:
             case MapSpriteId.IndicatorFrame2:
                 int radius = 4 + (id - MapSpriteId.IndicatorFrame0);
                 flipX = (index & 1) == 0; flipY = index < 2;
-                x = flipX ? radius : -radius; y = flipY ? radius : -radius; tile = (int)MapMarkerCell.IndicatorCorner;
+                x = flipX ? radius : -radius; y = flipY ? radius : -radius; tile = MapMarkerCellDefinitions.Tiles[MapMarkerCell.IndicatorCorner];
                 break;
             case MapSpriteId.MarkerBoss:
             case MapSpriteId.StationEnergy:
@@ -134,11 +134,11 @@ internal static class MapMarkerGeometry
                 x = 1; y = 0;
                 tile = id switch
                 {
-                    MapSpriteId.MarkerBoss => (int)MapMarkerCell.Boss,
-                    MapSpriteId.StationEnergy => (int)MapMarkerCell.EnergyStation,
-                    MapSpriteId.StationMissile => (int)MapMarkerCell.MissileStation,
-                    MapSpriteId.StationMap => (int)MapMarkerCell.MapStation,
-                    MapSpriteId.IndicatorBacking => (int)MapMarkerCell.IndicatorBacking,
+                    MapSpriteId.MarkerBoss => MapMarkerCellDefinitions.Tiles[MapMarkerCell.Boss],
+                    MapSpriteId.StationEnergy => MapMarkerCellDefinitions.Tiles[MapMarkerCell.EnergyStation],
+                    MapSpriteId.StationMissile => MapMarkerCellDefinitions.Tiles[MapMarkerCell.MissileStation],
+                    MapSpriteId.StationMap => MapMarkerCellDefinitions.Tiles[MapMarkerCell.MapStation],
+                    MapSpriteId.IndicatorBacking => MapMarkerCellDefinitions.Tiles[MapMarkerCell.IndicatorBacking],
                     MapSpriteId.ArrowRight or
                         MapSpriteId.ArrowLeft or
                         MapSpriteId.ArrowUp or

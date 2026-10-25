@@ -21,7 +21,7 @@ internal static class EnemyDisplayArtworkContractChecks
         var simpleFrames = EnemySpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var simpleBindings = simpleFrames.Keys.ToDictionary(name => name, name => name);
         var simpleDocument = new EnemySpritemapDocument {
-            Version = (int)EnemySpritemapSchema.Current, Frames = simpleFrames, DisplayFrames = simpleBindings };
+            Version = EnemySpritemapSchema.Current, Frames = simpleFrames, DisplayFrames = simpleBindings };
         Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
@@ -36,7 +36,7 @@ internal static class EnemyDisplayArtworkContractChecks
             new EnemyExtendedVisualComponent { OffsetX = 0, OffsetY = 0, Parts = [] } });
         var extendedBindings = extendedFrames.Keys.ToDictionary(name => name, name => name);
         var extendedDocument = new EnemyExtendedFrameDocument {
-            Version = (int)EnemyExtendedFrameSchema.Current, Frames = extendedFrames, DisplayFrames = extendedBindings };
+            Version = EnemyExtendedFrameSchema.Current, Frames = extendedFrames, DisplayFrames = extendedBindings };
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameDocuments.Load(Json(extendedDocument));
         EnemySpritemapDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
         Require(extended.TryGetDisplay(extendedId.Frame, out var components) && components.Length == 1 &&

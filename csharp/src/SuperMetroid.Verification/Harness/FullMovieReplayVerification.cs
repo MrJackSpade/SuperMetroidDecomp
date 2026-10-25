@@ -170,7 +170,7 @@ internal static class FullMovieReplayVerification
             // The last controller read of an eliminated music wait is still input the
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)
-                game.AcceptDoorMusicWaitControllerRead(ControllerButtons.FromRaw(latched, $"movie update {update} wait latch"));
+                game.AcceptDoorMusicWaitControllerRead(ControllerWordCodec.FromRaw(latched, $"movie update {update} wait latch"));
             NativeCheckpointMemory? nativeAfter = checkpoints.ReadAfter(update);
             // A dispatch that jumped into CommonBootSection has no checkpoint of its own, and
             // the clear erases the sound handler's waiting states before the next one. Both
@@ -181,7 +181,7 @@ internal static class FullMovieReplayVerification
             bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
             try
             {
-                Advance(ControllerButtons.FromRaw(step.Input, $"movie update {update}"));
+                Advance(ControllerWordCodec.FromRaw(step.Input, $"movie update {update}"));
             }
             catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or InvalidDataException)
             {
@@ -215,7 +215,7 @@ internal static class FullMovieReplayVerification
                 // so they read the session's SPC model frame by frame.
                 soundAcknowledgements.Expect(null);
                 for (; frame < boxFrameLimit && game.GameplayRuntimeForVerification.MessageBox.IsActive; frame++)
-                    Advance(ControllerButtons.FromRaw(frameInputs[frame], $"movie frame {frame}"));
+                    Advance(ControllerWordCodec.FromRaw(frameInputs[frame], $"movie frame {frame}"));
                 if (step.MessageBoxEndFrame is { } nativeEnd)
                 {
                     if (game.GameplayRuntimeForVerification.MessageBox.IsActive || frame != nativeEnd + 1)

@@ -52,8 +52,8 @@ public sealed record ImageSpriteDraw : SpriteDraw
         get
         {
             int originX = unchecked((short)Origin.X), originY = unchecked((short)Origin.Y);
-            int x = (Mirror & SpriteMirror.Horizontal) != 0 ? originX + Image.Origin.X - Image.Size.X : originX - Image.Origin.X;
-            int y = (Mirror & SpriteMirror.Vertical) != 0 ? originY + Image.Origin.Y - Image.Size.Y : originY - Image.Origin.Y;
+            int x = (Mirror & SpriteMirror.Horizontal) != SpriteMirror.None ? originX + Image.Origin.X - Image.Size.X : originX - Image.Origin.X;
+            int y = (Mirror & SpriteMirror.Vertical) != SpriteMirror.None ? originY + Image.Origin.Y - Image.Size.Y : originY - Image.Origin.Y;
             return new(checked((short)x), checked((short)y));
         }
     }

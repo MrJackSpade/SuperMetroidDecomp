@@ -286,14 +286,14 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Handles primary rows for language, subpages, start, and cancel.</summary>
     private void StepPrimary(ControllerButton pressed)
     {
-        if ((pressed & ControllerButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != ControllerButton.None)
         {
             SelectedItem = SelectedItem == 0
                 ? GameOptionsDefinitions.Rows.PrimaryCount - 1
                 : SelectedItem - 1;
             QueueMoveSound();
         }
-        else if ((pressed & ControllerButton.Down) != 0)
+        else if ((pressed & ControllerButton.Down) != ControllerButton.None)
         {
             SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.PrimaryCount - 1
                 ? 0
@@ -301,18 +301,17 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             QueueMoveSound();
         }
 
-        if ((pressed & ControllerButton.B) != 0)
+        if ((pressed & ControllerButton.B) != ControllerButton.None)
         {
             Phase = GameOptionsPhase.FadeOutToFileSelect;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
         QueueSelectSound();
-        var row = (GameOptionsPrimaryRow)SelectedItem;
-        if (!Enum.IsDefined(row))
-            throw new InvalidOperationException($"Primary options row {SelectedItem} is outside the five-row page.");
+        GameOptionsPrimaryRow row = GameOptionsLayout.PrimaryRowAt(SelectedItem)
+            ?? throw new InvalidOperationException($"Primary options row {SelectedItem} is outside the five-row page.");
         switch (row)
         {
             case GameOptionsPrimaryRow.StartGame:
@@ -343,7 +342,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Handles button swaps, reset and exit rows, and upper/lower page scrolling.</summary>
     private void StepController(ControllerButton pressed)
     {
-        if ((pressed & ControllerButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != ControllerButton.None)
         {
             QueueMoveSound();
             SelectedItem--;
@@ -358,7 +357,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             }
             return;
         }
-        if ((pressed & ControllerButton.Down) != 0)
+        if ((pressed & ControllerButton.Down) != ControllerButton.None)
         {
             QueueMoveSound();
             SelectedItem++;
@@ -395,7 +394,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             return;
         }
 
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
         switch (kind)
         {
@@ -410,21 +409,21 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsControllerRowKind.Action:
                 throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsControllerRowKind)} {(int)kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(GameOptionsControllerRowKind)} {kind}.");
         }
     }
 
     /// <summary>Handles icon-cancel and moonwalk toggles or returns to the primary page.</summary>
     private void StepSpecial(ControllerButton pressed)
     {
-        if ((pressed & ControllerButton.Up) != 0)
+        if ((pressed & ControllerButton.Up) != ControllerButton.None)
         {
             SelectedItem = SelectedItem == 0
                 ? GameOptionsDefinitions.Rows.SpecialCount - 1
                 : SelectedItem - 1;
             QueueMoveSound();
         }
-        else if ((pressed & ControllerButton.Down) != 0)
+        else if ((pressed & ControllerButton.Down) != ControllerButton.None)
         {
             SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.SpecialCount - 1
                 ? 0
@@ -432,19 +431,18 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             QueueMoveSound();
         }
 
-        if ((pressed & ControllerButton.B) != 0)
+        if ((pressed & ControllerButton.B) != ControllerButton.None)
         {
             QueueSelectSound();
             BeginDissolveTo(GameOptionsPage.Primary);
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.Left | ControllerButton.Right | ControllerButton.A)) == 0)
+        if ((pressed & (ControllerButton.Start | ControllerButton.Left | ControllerButton.Right | ControllerButton.A)) == ControllerButton.None)
             return;
 
         QueueSelectSound();
-        var row = (GameOptionsSpecialRow)SelectedItem;
-        if (!Enum.IsDefined(row))
-            throw new InvalidOperationException($"Special options row {SelectedItem} is outside the three-row page.");
+        GameOptionsSpecialRow row = GameOptionsLayout.SpecialRowAt(SelectedItem)
+            ?? throw new InvalidOperationException($"Special options row {SelectedItem} is outside the three-row page.");
         switch (row)
         {
             case GameOptionsSpecialRow.IconCancel:
@@ -457,7 +455,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 BeginDissolveTo(GameOptionsPage.Primary);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {(int)row}.");
+                throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {row}.");
         }
         ApplySpecialPaletteBits();
         LoadVisiblePage();

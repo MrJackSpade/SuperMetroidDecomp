@@ -468,7 +468,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.PageOneAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
                     SetupMotherBrainFlashback();
                 break;
 
@@ -489,7 +489,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.PageTwoAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
                     SetupBabyDiscoveryCrossfade();
                 break;
 
@@ -510,7 +510,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.PageThreeAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
                     SetupBabyMetroidDelivery();
                 break;
 
@@ -531,7 +531,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.PageFourAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
                     SetupBabyMetroidExamination();
                 break;
 
@@ -552,7 +552,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.PageFiveAwaitingInput:
-                if (!subtitles.HoldInputWait() && controller.NewlyPressed != 0)
+                if (!subtitles.HoldInputWait() && controller.NewlyPressed != ControllerButton.None)
                     SetupPageSix();
                 break;
 

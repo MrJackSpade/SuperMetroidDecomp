@@ -36,14 +36,14 @@ public sealed class WorldMapLabelLayout
     /// <remarks>Reviewed for #1165: the six native area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
     /// from another area or storing a positional lookup. Only area IDs0..5 are valid.</remarks>
-    public Position16<OamPixels> Get(int area) => area switch
+    public Position16<OamPixels> Get(int area) => ((uint)area < AreaIds.Zebes.Count ? AreaIds.Zebes[area] : AreaId.Ceres) switch
     {
-        (int)AreaId.Crateria => crateria,
-        (int)AreaId.Brinstar => brinstar,
-        (int)AreaId.Norfair => norfair,
-        (int)AreaId.WreckedShip => wreckedShip,
-        (int)AreaId.Maridia => maridia,
-        (int)AreaId.Tourian => tourian,
+        AreaId.Crateria => crateria,
+        AreaId.Brinstar => brinstar,
+        AreaId.Norfair => norfair,
+        AreaId.WreckedShip => wreckedShip,
+        AreaId.Maridia => maridia,
+        AreaId.Tourian => tourian,
         _ => throw new ArgumentOutOfRangeException(nameof(area)),
     };
 

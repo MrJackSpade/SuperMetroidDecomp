@@ -184,8 +184,8 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         if ((uint)palette > 7) throw new ArgumentOutOfRangeException(nameof(palette));
-        int itemIndex = (int)selectedItem - 1;
-        if ((uint)itemIndex >= GameplayHudDefinitions.IconNames.Length) return;
+        int itemIndex = Array.IndexOf(GameplayHudDefinitions.IconItems, selectedItem);
+        if (itemIndex < 0) return;
         CompiledIcon icon = Icon(itemIndex);
         for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)

@@ -29,5 +29,5 @@ public readonly record struct RoomIdentity
     public int RoomIndex { get; }
 
     /// <summary>Formats the native logical pair used in diagnostics and debugger watches.</summary>
-    public override string ToString() => $"${(byte)Area:X2}/${RoomIndex:X2}";
+    public override string ToString() => $"${AreaIds.ToIndex(Area):X2}/${RoomIndex:X2}";
 }

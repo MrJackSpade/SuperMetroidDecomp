@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -216,7 +217,7 @@ internal sealed class GameplayActorDrawing
             // echoes, and grapple graphics. Projectile drawing remains in the shared
             // tail below, exactly as `DrawSamusAndProjectiles` does after this handler.
             bool elevatorOwnsSamusDrawing =
-                room.Enemies.Elevator.ElevatorStatus != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
+                room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))

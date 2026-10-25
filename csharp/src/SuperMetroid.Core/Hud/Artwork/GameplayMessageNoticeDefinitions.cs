@@ -74,7 +74,7 @@ public static class GameplayMessageNoticeDefinitions
                     {
                         ushort word = template[row * width + column].Word.Raw;
                         if (IsText(word)) { column++; continue; }
-                        if ((GameplayMessageTitleGlyph)(word & 0x03ff) == GameplayMessageTitleGlyph.Space &&
+                        if ((word & 0x03ff) == GameplayMessageTitleDefinitions.SpaceTile &&
                             column + 1 < width && IsText(template[row * width + column + 1].Word.Raw))
                         {
                             column += 2;
@@ -89,7 +89,7 @@ public static class GameplayMessageNoticeDefinitions
 
         static bool IsText(ushort word) =>
             GameplayMessageTitleDefinitions.IsLetterTile((ushort)(word & 0x03ff)) ||
-            (GameplayMessageTitleGlyph)(word & 0x03ff) is GameplayMessageTitleGlyph.Hyphen or
-                GameplayMessageTitleGlyph.Period or GameplayMessageTitleGlyph.QuestionMark;
+            (word & 0x03ff) is GameplayMessageTitleDefinitions.HyphenTile or
+                GameplayMessageTitleDefinitions.PeriodTile or GameplayMessageTitleDefinitions.QuestionMarkTile;
     }
 }

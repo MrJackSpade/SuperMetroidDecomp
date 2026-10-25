@@ -166,8 +166,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
             byte[] selectedTiles = overridePath is not null && File.Exists(overridePath)
                 ? ReadTiles(File.ReadAllBytes(overridePath), overridePath)
                 : stockTiles;
-            int index = (int)graphic.Kind -
-                RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
+            int index = RoomPlmDynamicCollectibleGraphicsDefinitions.KindIndex(graphic.Kind);
             entries.Add(new RoomPlmDynamicCollectibleArtEntry(graphic.Kind,
                 selectedTiles, selectedOffsets[index]));
         }
@@ -226,8 +225,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
                 !string.Equals(entry.Id, kind.ToString(), StringComparison.Ordinal))
                 throw new InvalidDataException(
                     "Item palette document has an unknown item kind.");
-            int index = (int)kind -
-                RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
+            int index = RoomPlmDynamicCollectibleGraphicsDefinitions.KindIndex(kind);
             if ((uint)index >= result.Length || seen[index] ||
                 entry.Offsets is not { Length: 8 } ||
                 entry.Offsets.Any(offset => offset is < 0 or > 7))

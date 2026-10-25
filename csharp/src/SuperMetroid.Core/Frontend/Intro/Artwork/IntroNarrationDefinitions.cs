@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Programs;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Schema, glyph encoding, and fixed layout limits for opening narration.</summary>
@@ -27,6 +25,16 @@ public static class IntroNarrationDefinitions
     public const ushort UppercaseAWord = 0x2000;
     /// <summary>BG word $201A for digit zero, from the glyph record at <c>$8C:D721</c>; zero through nine use consecutive high-priority tile indices.</summary>
     public const ushort DigitZeroWord = 0x201a;
+    /// <summary>Blank-space BG word $002F from <c>IndirectInstructions_IntroText_Space</c> at <c>$8C:D67D</c>, without the nonblank glyphs' priority bit.</summary>
+    private const ushort BlankWord = 0x002f;
+    /// <summary>High-priority period BG word $2024 from <c>IndirectInstructions_IntroText_Period</c> at <c>$8C:D75D</c>, distinct from the unused decimal-point glyph.</summary>
+    private const ushort PeriodWord = 0x2024;
+    /// <summary>High-priority comma BG word $2025 from <c>IndirectInstructions_IntroText_Comma</c> at <c>$8C:D763</c>.</summary>
+    private const ushort CommaWord = 0x2025;
+    /// <summary>High-priority apostrophe BG word $2027 from <c>IndirectInstructions_IntroText_Apostrophe</c> at <c>$8C:D76F</c>.</summary>
+    private const ushort ApostropheWord = 0x2027;
+    /// <summary>High-priority exclamation BG word $202A from <c>IndirectInstructions_IntroText_ExclamationPoint</c> at <c>$8C:D77B</c>.</summary>
+    private const ushort ExclamationWord = 0x202a;
 
     /// <summary>Compiles one supported narration character into its exact native BG tilemap word, preserving glyph priority bits.</summary>
     /// <param name="character">Space, uppercase A-Z, digit 0-9, period, comma, straight apostrophe, or exclamation mark; no case or punctuation normalization is performed.</param>
@@ -34,13 +42,13 @@ public static class IntroNarrationDefinitions
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="character"/> is outside the supported narration alphabet.</exception>
     public static ushort CompileGlyph(char character) => character switch
     {
-        ' ' => (ushort)IntroNarrationSymbolWord.Blank,
+        ' ' => BlankWord,
         >= 'A' and <= 'Z' => unchecked((ushort)(UppercaseAWord + character - 'A')),
         >= '0' and <= '9' => unchecked((ushort)(DigitZeroWord + character - '0')),
-        '.' => (ushort)IntroNarrationSymbolWord.Period,
-        ',' => (ushort)IntroNarrationSymbolWord.Comma,
-        '\'' => (ushort)IntroNarrationSymbolWord.Apostrophe,
-        '!' => (ushort)IntroNarrationSymbolWord.Exclamation,
+        '.' => PeriodWord,
+        ',' => CommaWord,
+        '\'' => ApostropheWord,
+        '!' => ExclamationWord,
         _ => throw new ArgumentOutOfRangeException(nameof(character), character,
             "Opening narration supports space, A-Z, 0-9, period, comma, apostrophe and exclamation mark."),
     };
@@ -55,15 +63,12 @@ public static class IntroNarrationDefinitions
             (char)('A' + word - UppercaseAWord),
         >= DigitZeroWord and <= DigitZeroWord + 9 =>
             (char)('0' + word - DigitZeroWord),
-        _ => ClosedNativeWords.Decode<IntroNarrationSymbolWord>(word, "opening-narration glyph word") switch
-        {
-            IntroNarrationSymbolWord.Blank => ' ',
-            IntroNarrationSymbolWord.Period => '.',
-            IntroNarrationSymbolWord.Comma => ',',
-            IntroNarrationSymbolWord.Apostrophe => '\'',
-            IntroNarrationSymbolWord.Exclamation => '!',
-            _ => throw new InvalidOperationException($"Undefined narration symbol ${word:X4}."),
-        },
+        BlankWord => ' ',
+        PeriodWord => '.',
+        CommaWord => ',',
+        ApostropheWord => '\'',
+        ExclamationWord => '!',
+        _ => throw new InvalidDataException($"${word:X4} is not an opening-narration glyph word."),
     };
 
     /// <summary>Checks whether a character can be compiled without changing case or substituting punctuation.</summary>

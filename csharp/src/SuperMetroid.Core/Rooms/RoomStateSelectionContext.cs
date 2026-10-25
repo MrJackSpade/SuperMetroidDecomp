@@ -20,6 +20,9 @@ public readonly record struct RoomStateSelectionContext(
         return byteIndex < events.Length && (events[byteIndex] & (1 << (eventIndex & 7))) != 0;
     }
 
+    /// <summary>Tests whether the named persistent event <paramref name="eventNumber"/> is set.</summary>
+    public bool IsEventSet(EventNumber eventNumber) => IsEventSet(checked((byte)eventNumber.ToEventBit()));
+
     /// <summary>Tests whether the selected area's boss-state word contains any bit from a validated known mask.</summary>
     /// <param name="mask">A mask composed only of established <see cref="BossBits"/> values; zero is allowed.</param>
     /// <returns>True when at least one selected boss-defeat bit is set; a zero mask returns false.</returns>
@@ -27,6 +30,6 @@ public readonly record struct RoomStateSelectionContext(
     public bool IsBossDead(BossBits mask)
     {
         BossBitMasks.Validate(mask, "Room-state boss selector");
-        return (BossBits & mask) != 0;
+        return (BossBits & mask) != BossBits.None;
     }
 }

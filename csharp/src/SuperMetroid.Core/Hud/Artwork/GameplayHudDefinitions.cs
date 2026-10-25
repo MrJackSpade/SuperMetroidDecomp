@@ -35,6 +35,13 @@ public static class GameplayHudDefinitions
     /// <summary>Required case-sensitive icon keys in zero-based native layout order: Missile, SuperMissile, PowerBomb, Grapple and XRay. The array reference is fixed but its entries are not protected from caller mutation.</summary>
     public static readonly string[] IconNames = ["Missile", "SuperMissile", "PowerBomb", "Grapple", "XRay"];
 
+    /// <summary>The selectable item each icon in <see cref="IconNames"/> order shows; the beam selection has no icon.</summary>
+    internal static readonly SuperMetroid.Core.Samus.HudItem[] IconItems =
+    [
+        SuperMetroid.Core.Samus.HudItem.Missile, SuperMetroid.Core.Samus.HudItem.SuperMissile,
+        SuperMetroid.Core.Samus.HudItem.PowerBomb, SuperMetroid.Core.Samus.HudItem.Grapple, SuperMetroid.Core.Samus.HudItem.XRay,
+    ];
+
     /// <summary>Fourteen energy-tank cells addressed by $80:9CCE, arranged in two seven-cell rows; this excludes the numeric health counter.</summary>
     public const int EnergyTankCount = 14;
     /// <summary>Five selectable item pictograms in the native icon-offset table; the no-item selection is not an icon.</summary>

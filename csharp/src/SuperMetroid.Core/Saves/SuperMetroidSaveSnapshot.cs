@@ -159,7 +159,7 @@ public sealed record SuperMetroidSaveSnapshot
         for (int index = 0; index < events.Length; index++)
             events[index] = system.GetEventByteRaw(index);
         for (int index = 0; index < bosses.Length; index++)
-            bosses[index] = (BossBits)system.GetBossBitsRaw(index);
+            bosses[index] = BossBitsCodec.FromSaveByte(system.GetBossBitsRaw(index));
         for (int index = 0; index < roomChozo.Length; index++)
             roomChozo[index] = system.GetRoomChozoByteRaw(index);
         for (int index = 0; index < collectedItems.Length; index++)

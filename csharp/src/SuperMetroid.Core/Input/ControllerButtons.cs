@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// Named combinations of the player's controller buttons and the checked conversion from a recorded controller word.
+/// Named combinations of the player's controller buttons; <see cref="ControllerWordCodec"/> converts a recorded controller word.
 /// Keeping these combinations beside <see cref="ControllerButton"/> prevents gameplay code from
 /// reintroducing opaque masks such as <c>$0300</c> for the horizontal directions.
 /// </summary>
@@ -23,26 +23,6 @@ public static class ControllerButtons
     /// <summary>The fixed portion of the retail Crystal Flash chord.</summary>
     public const ControllerButton CrystalFlashWithoutShot =
         ControllerButton.Down | ControllerButton.L | ControllerButton.R;
-
-    /// <summary>
-    /// Converts an external 16-bit controller sample once at its boundary and rejects bits
-    /// that the twelve-button controller cannot produce. This makes corrupt recordings and
-    /// accidental non-input words fail at their source instead of influencing gameplay.
-    /// </summary>
-    [ControllerWordBoundary("the validated conversion every inbound controller word passes through")]
-    public static ControllerButton FromRaw(ushort rawInput, string sourceContext)
-    {
-        var input = (ControllerButton)rawInput;
-        ControllerButton unknown = input & ~All;
-        if (unknown != ControllerButton.None)
-        {
-            throw new InvalidDataException(
-                $"{sourceContext} supplied non-controller bits ${unknown:X} " +
-                $"in input word ${rawInput:X4}.");
-        }
-
-        return input;
-    }
 
     /// <summary>Tests whether at least one requested button is present.</summary>
     public static bool HasAny(this ControllerButton input, ControllerButton buttons) =>

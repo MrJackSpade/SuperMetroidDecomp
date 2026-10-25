@@ -43,14 +43,17 @@ internal static class FileSelectMapWindowMotions
     /// These stock inputs determine compiled motion; independently editable installed
     /// label anchors determine the actual starting rectangle.
     /// </remarks>
-    internal static Position16<ScreenPixels> StockOrigin(int area) => area switch
+    internal static Position16<ScreenPixels> StockOrigin(int area) => ZebesArea(area) switch
     {
-        (int)AreaId.Crateria => new Position16<ScreenPixels>(91, 50),
-        (int)AreaId.Brinstar => new Position16<ScreenPixels>(42, 127),
-        (int)AreaId.Norfair => new Position16<ScreenPixels>(94, 181),
-        (int)AreaId.WreckedShip => new Position16<ScreenPixels>(206, 80),
-        (int)AreaId.Maridia => new Position16<ScreenPixels>(206, 159),
-        (int)AreaId.Tourian => new Position16<ScreenPixels>(135, 139),
+        AreaId.Crateria => new Position16<ScreenPixels>(91, 50),
+        AreaId.Brinstar => new Position16<ScreenPixels>(42, 127),
+        AreaId.Norfair => new Position16<ScreenPixels>(94, 181),
+        AreaId.WreckedShip => new Position16<ScreenPixels>(206, 80),
+        AreaId.Maridia => new Position16<ScreenPixels>(206, 159),
+        AreaId.Tourian => new Position16<ScreenPixels>(135, 139),
         _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have world-map transitions.")
     };
+
+    /// <summary>The Zebes area at index <paramref name="area"/>, or Ceres for any index that names no Zebes area.</summary>
+    private static AreaId ZebesArea(int area) => (uint)area < AreaIds.Zebes.Count ? AreaIds.Zebes[area] : AreaId.Ceres;
 }

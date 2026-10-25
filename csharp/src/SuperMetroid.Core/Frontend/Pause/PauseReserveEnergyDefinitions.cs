@@ -1,10 +1,14 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>How the equipment screen shows and refills reserve energy: the tank gauge's steps and the manual refill's sound.</summary>
 internal static class PauseReserveEnergyDefinitions
 {
+    /// <summary>The reserve controls in cursor order: the AUTO/MANUAL mode switch, then the manual transfer.</summary>
+    internal static readonly ImmutableArray<PauseReserveItem> Items = [PauseReserveItem.Mode, PauseReserveItem.Transfer];
     /// <summary>The reserve control the cursor starts on and returns to after a manual refill: the AUTO/MANUAL mode switch.</summary>
-    internal const int ModeItem = (int)PauseReserveItem.Mode;
+    internal static readonly int ModeItem = Items.IndexOf(PauseReserveItem.Mode);
     /// <summary>Reserve energy one tank of the gauge holds.</summary>
     internal const int EnergyPerTank = 100;
     /// <summary>Reserve energy each of a partly filled tank's seven fill steps stands for.</summary>

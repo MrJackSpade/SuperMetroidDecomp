@@ -30,8 +30,8 @@ public static class EnemySpritemapDocuments
         Ensure.NotNull(json);
         EnemySpritemapDocument document;
         document = JsonAssetDocument.Read<EnemySpritemapDocument>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, }, "enemy composition");
-        var schema = (EnemySpritemapSchema)document.Version;
-        int expectedCount = !Enum.IsDefined(schema) ||
+        int schema = document.Version;
+        int expectedCount = !EnemySpritemapSchema.IsSupported(schema) ||
             (schema != EnemySpritemapSchema.Current && stockForLegacyOverride is null)
             ? -1
             : EnemySpritemapFrameCounts.FrameCount(schema);
@@ -69,7 +69,7 @@ public static class EnemySpritemapDocuments
         // selection; only earlier art-only schemas inherit stock bindings.
         // Do not maintain a second version list that can silently lose new edits.
         bool hasAuthoredBindings =
-            document.Version > (int)EnemySpritemapSchema.PreDisplayBindings;
+            document.Version > EnemySpritemapSchema.PreDisplayBindings;
         if (hasAuthoredBindings)
         {
             if (document.DisplayFrames is null ||

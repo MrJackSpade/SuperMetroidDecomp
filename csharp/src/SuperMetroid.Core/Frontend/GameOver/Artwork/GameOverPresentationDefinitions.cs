@@ -61,9 +61,8 @@ public static class GameOverPresentationDefinitions
     internal static ushort TilemapWord(int cell)
     {
         if ((uint)cell >= TilemapCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
-        for (int index = 0; index < GameOverTexts.Count; index++)
+        foreach (GameOverTextElement element in Enum.GetValues<GameOverTextElement>())
         {
-            var element = (GameOverTextElement)index;
             GameOverTextStream stream = GameOverTexts.Get(element);
             int column = cell % TilemapWidth - stream.Origin.X;
             int row = cell / TilemapWidth - stream.Origin.Y;

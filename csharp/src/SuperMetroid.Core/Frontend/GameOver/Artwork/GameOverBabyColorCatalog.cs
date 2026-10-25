@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
@@ -38,9 +37,14 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 internal sealed class GameOverBabyColorCatalog
 {
     /// <summary>Independent Baby ink endpoints and otherwise unreferenced palette words.</summary>
-    private readonly Dictionary<ColourCell, Bgr555> inputs = new();
+    private readonly Dictionary<BabyInk, Bgr555> inputs = new();
     /// <summary>Per-channel edits that differ from derived cry shades and ramps.</summary>
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> differences = new();
+    private readonly Dictionary<BabyInk, LoadingPaletteInputView.Channels> differences = new();
+
+    /// <summary>One ink of one Baby palette phase.</summary>
+    /// <param name="Palette">The phase.</param>
+    /// <param name="Colour">The ink, 0 through 15.</param>
+    private readonly record struct BabyInk(GameOverBabyPalette Palette, int Colour);
     /// <summary>Authored red endpoint for the closed-cry green ink.</summary>
     private readonly int greenCryRed;
     /// <summary>Authored red endpoint for the closed-cry glass ink.</summary>
@@ -56,8 +60,7 @@ internal sealed class GameOverBabyColorCatalog
         for (int color = 0; color < 16; color++)
         {
             Bgr555 supplied = palettes[palette][color];
-            int key = (int)palette * 16 + color;
-            var keyCell = new ColourCell((int)palette, color);
+            var key = new BabyInk(palette, color);
             bool idle = palette == GameOverBabyPalette.Idle;
             bool closedCry = palette == GameOverBabyPalette.ClosedCry;
             bool greenShade = (idle || closedCry) && color is 2 or 3;
@@ -70,7 +73,7 @@ internal sealed class GameOverBabyColorCatalog
             if (!greenShade && !warmCry && !middleShade && !coolCry && !greenCry && !glassHighlight && !glassCry &&
                 (idle || (closedCry && color != 0)))
             {
-                inputs.Add(keyCell, supplied);
+                inputs.Add(key, supplied);
                 continue;
             }
             Bgr555 expected = glassCry
@@ -100,9 +103,8 @@ internal sealed class GameOverBabyColorCatalog
     {
         if (!Enum.IsDefined(palette)) throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));
-        int key = (int)palette * 16 + color;
-        var keyCell = new ColourCell((int)palette, color);
-        if (inputs.TryGetValue(keyCell, out Bgr555 value)) return value;
+        var key = new BabyInk(palette, color);
+        if (inputs.TryGetValue(key, out Bgr555 value)) return value;
         bool idle = palette == GameOverBabyPalette.Idle;
         bool closedCry = palette == GameOverBabyPalette.ClosedCry;
         Bgr555 expected = closedCry && color == 13
@@ -117,7 +119,7 @@ internal sealed class GameOverBabyColorCatalog
             : (idle || closedCry) && color is 2 or 3
             ? GreenShade(Read(palette, 4), color)
             : closedCry && color is >= 5 and <= 12 ? WarmCry(Read(GameOverBabyPalette.Idle, color))
-            : color == 0 ? inputs[new ColourCell(0, 0)] : CryShade(Read(GameOverBabyPalettes.PreviousCry(palette), color),
+            : color == 0 ? inputs[new BabyInk(GameOverBabyPalette.Idle, 0)] : CryShade(Read(GameOverBabyPalettes.PreviousCry(palette), color),
                 palette, color, color == 13 ? Read(palette, 14) : Bgr555.Black);
         return differences.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }

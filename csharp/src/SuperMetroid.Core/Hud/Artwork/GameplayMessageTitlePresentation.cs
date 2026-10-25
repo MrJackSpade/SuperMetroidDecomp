@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud.Artwork;
@@ -146,10 +145,10 @@ public sealed class GameplayMessageTitlePresentation
     {
         ushort tile = character switch
         {
-            ' ' => (ushort)GameplayMessageTitleGlyph.Space,
-            '-' => (ushort)GameplayMessageTitleGlyph.Hyphen,
-            '.' => (ushort)GameplayMessageTitleGlyph.Period,
-            '?' => (ushort)GameplayMessageTitleGlyph.QuestionMark,
+            ' ' => GameplayMessageTitleDefinitions.SpaceTile,
+            '-' => GameplayMessageTitleDefinitions.HyphenTile,
+            '.' => GameplayMessageTitleDefinitions.PeriodTile,
+            '?' => GameplayMessageTitleDefinitions.QuestionMarkTile,
             >= 'A' and <= 'Z' => (ushort)(GameplayMessageTitleDefinitions.FirstLetterTile + character - 'A'),
             _ => throw new InvalidDataException(
                 $"Gameplay-message title glyph U+{(int)character:X4} is not supported."),
@@ -164,15 +163,13 @@ public sealed class GameplayMessageTitlePresentation
         ushort tile = (ushort)new SnesBgTilemapWord(word).CharacterIndex;
         if (GameplayMessageTitleDefinitions.IsLetterTile(tile))
             return (char)('A' + tile - GameplayMessageTitleDefinitions.FirstLetterTile);
-        GameplayMessageTitleGlyph glyph = ClosedNativeWords.Decode<GameplayMessageTitleGlyph>(
-            tile, "gameplay-message title glyph");
-        return glyph switch
+        return tile switch
         {
-            GameplayMessageTitleGlyph.Space => ' ',
-            GameplayMessageTitleGlyph.Hyphen => '-',
-            GameplayMessageTitleGlyph.Period => '.',
-            GameplayMessageTitleGlyph.QuestionMark => '?',
-            _ => throw new InvalidOperationException($"Undefined {nameof(GameplayMessageTitleGlyph)} {(int)glyph:X3}."),
+            GameplayMessageTitleDefinitions.SpaceTile => ' ',
+            GameplayMessageTitleDefinitions.HyphenTile => '-',
+            GameplayMessageTitleDefinitions.PeriodTile => '.',
+            GameplayMessageTitleDefinitions.QuestionMarkTile => '?',
+            _ => throw new InvalidDataException($"${tile:X4} is not a gameplay-message title glyph."),
         };
     }
 

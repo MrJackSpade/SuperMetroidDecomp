@@ -34,7 +34,7 @@ public sealed class SpriteSheet
     internal void AppendIdentity(SelectedPresentationHash content)
     {
         content.AppendName("sheet", Image.Name);
-        content.Append("palette", (int)Image.Colours);
+        content.AppendName("palette", Image.Colours.ToString());
         content.Append("width", Image.Size.X);
         content.Append("height", Image.Size.Y);
         content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(Image.Pixels));
@@ -54,7 +54,7 @@ public sealed class SpriteSheet
             content.Append("origin x", frame.Origin.X);
             content.Append("origin y", frame.Origin.Y);
             foreach (SpritePaletteRows row in SpritePaletteRowSet.Rows)
-                content.Append("row", (frame.Rows & row) != 0 ? 1 : 0);
+                content.Append("row", (frame.Rows & row) != SpritePaletteRows.None ? 1 : 0);
             foreach (SpriteSheetFramePart part in frame.Parts)
             {
                 content.Append("part corner x", part.Image.Corner.X);

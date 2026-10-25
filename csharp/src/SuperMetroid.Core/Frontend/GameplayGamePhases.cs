@@ -219,7 +219,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                !samus.Xray.TimeIsFrozen &&
                !session.Runtime.RoomLoader.HasPendingDoorTransition &&
                session.Runtime.Room.ActiveRoom.AreaIndex != AreaId.Ceres &&
-               (session.Runtime.Controller1.NewlyPressed & ControllerButton.Start) != 0;
+               (session.Runtime.Controller1.NewlyPressed & ControllerButton.Start) != ControllerButton.None;
     }
 
     /// <summary>

@@ -76,7 +76,7 @@ internal sealed class EndingStage
         _ = FloorArtwork ?? throw new InvalidOperationException(
             "Ending Mode-7 scene requires installed artwork.");
         screen.Clear();
-        screen.Record(EndingUploadKind.FloorSceneTiles, (int)scene);
+        screen.Record(scene);
     }
 
     /// <summary>Allocates or replaces a native cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>

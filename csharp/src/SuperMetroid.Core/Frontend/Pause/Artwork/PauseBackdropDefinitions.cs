@@ -100,5 +100,5 @@ public static class PauseBackdropDefinitions
 
     /// <summary>Applies stock palette and priority bits with optional tile flips to a frame glyph.</summary>
     private static ushort Styled(int glyph, SnesTileFlipFlags flips = SnesTileFlipFlags.None) =>
-        (ushort)(0x2800 | glyph | (ushort)flips);
+        new SnesBgTilemapWord(unchecked((ushort)(0x2800 | glyph))).ToggleFlips(flips).Raw;
 }

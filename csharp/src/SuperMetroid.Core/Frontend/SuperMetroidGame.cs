@@ -489,11 +489,11 @@ public sealed class SuperMetroidGame
     /// </summary>
     public string CaptureGameplayFailureContext()
     {
-        string location = $"frame=${FrameNumber:X4}; state=${(ushort)Session.GameState:X2} {Session.GameState}; " +
+        string location = $"frame=${FrameNumber:X4}; state={Session.GameState}; " +
             $"room={GameplayActiveRoom?.Name}; roomState={GameplayActiveRoomState?.Name}; door={GameplayActiveDoor?.Name}";
         if (Session.Runtime?.Player.Samus is not { } samus)
             return location + "; Samus=not initialized";
-        return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
+        return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
             $"animationList={samus.AnimationDelayList}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
             $"input=${Session.Runtime.Controller1.Current:X}; newlyPressed=${Session.Runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +

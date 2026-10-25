@@ -78,7 +78,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         if ((uint)selectedArea >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(selectedArea));
-        var area = (AreaId)selectedArea;
+        var area = AreaIds.At(selectedArea);
         LoadInstalledPalette(area);
         LoadBackground(area);
         SelectedArea = selectedArea;
@@ -117,14 +117,14 @@ public sealed class FileSelectAreaMapGraphics
         screens = content;
         screen.BindWorldArtwork(artwork);
         LoadForeground();
-        LoadBackground((AreaId)SelectedArea);
+        LoadBackground(AreaIds.At(SelectedArea));
     }
 
     /// <summary>Replaces installed area palettes and refreshes CGRAM for the current selection.</summary>
     private void BindPalettes(MapStaticPalettes? content)
     {
         Palettes = content;
-        if (content is not null) LoadInstalledPalette((AreaId)SelectedArea);
+        if (content is not null) LoadInstalledPalette(AreaIds.At(SelectedArea));
     }
     /// <summary>Rebinds the menu screen's label OBJ art.</summary>
     private void BindSprites(MapSpriteCatalog? content) => screen.BindMapSprites(content);
@@ -156,18 +156,19 @@ public sealed class FileSelectAreaMapGraphics
         Draw(MapSpriteId.WorldTitle, new(128, 16), 0);
         for (int displayArea = 0; displayArea < FileSelectMapDefinitions.AreaCount; displayArea++)
         {
-            ushort area = (ushort)FileSelectMapAreaOrder.Get(displayArea);
-            if (area >= FileSelectMapDefinitions.AreaCount)
+            AreaId area = FileSelectMapAreaOrder.Get(displayArea);
+            if (!AreaIds.IsZebes(area))
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
-            if (MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, usedStationMasks[area]))
-                DrawArea(area);
+            int index = AreaIds.ToIndex(area);
+            if (MapSaveMarkerDefinitions.HasUsedMarker(area, usedStationMasks[index]))
+                DrawArea(area, index);
         }
         entries.FinishFrame();
 
-        void DrawArea(ushort area)
+        void DrawArea(AreaId shown, int shownIndex)
         {
-            Draw(MapSpriteDefinitions.WorldLabel((AreaId)area), labels.Get(area),
-                area == SelectedArea ? (ushort)0 : SnesObjPalettes.Palette(1).PaletteBits);
+            Draw(MapSpriteDefinitions.WorldLabel(shown), labels.Get(shownIndex),
+                shownIndex == SelectedArea ? (ushort)0 : SnesObjPalettes.Palette(1).PaletteBits);
         }
 
         void Draw(MapSpriteId id, Position16<OamPixels> origin, ushort palette)
@@ -189,7 +190,7 @@ public sealed class FileSelectAreaMapGraphics
     internal LayeredScene CaptureBackgrounds(AreaMapColorMath colorMath)
     {
         // The foreground and the area's background draw from the area's pre-coloured tiles (#1392).
-        AreaMapTiles tiles = screen.AreaMapTiles((AreaId)SelectedArea);
+        AreaMapTiles tiles = screen.AreaMapTiles(AreaIds.At(SelectedArea));
         var foreground = new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(32, 32),
             tiles.Foreground), new Position16<BgPlanePixels>(0, 0), null);
         return new(screen.Paint(), new RenderLayer[] {

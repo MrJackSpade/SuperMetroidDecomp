@@ -210,9 +210,10 @@ internal sealed class GatePlms : IPlmFamilySource
                 DownwardGateDefinitions.GateHeightInBlocks;
     }
 
-    /// <summary>Distinguishes left-side trigger codes using their native low direction bit.</summary>
+    /// <summary>Whether <paramref name="trigger"/> is a left-side trigger.</summary>
     private static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
-        ((byte)trigger & 1) == 0;
+        trigger is DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.RedLeft or
+            DownwardGateTriggerBehavior.GreenLeft or DownwardGateTriggerBehavior.YellowLeft;
 
     /// <summary>Maps a color-and-side trigger behavior to the matching temporary PLM header.</summary>
     private static PlmHeaderId HeaderForGateTrigger(DownwardGateTriggerBehavior trigger) => trigger switch

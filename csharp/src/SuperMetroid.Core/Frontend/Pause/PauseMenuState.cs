@@ -203,7 +203,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             // `$82:9120`: L/R, then Start, then map scrolling. A Start press does not stop
             // the same frame's scroll pulse.
-            if ((delayedPressed & ControllerButton.R) != 0)
+            if ((delayedPressed & ControllerButton.R) != ControllerButton.None)
             {
                 audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
                 SetPauseButtonLabelMode(2);
@@ -228,7 +228,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // which would erase the cartridge's same-frame VAR overrun.
         WriteReserveSupplyDigits();
         UploadEquipmentTilemap();
-        if ((delayedPressed & ControllerButton.L) != 0)
+        if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
         {
             audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
             SetPauseButtonLabelMode(0);
@@ -245,7 +245,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </summary>
     private bool HandleStartButton(ControllerButton delayedPressed)
     {
-        if ((delayedPressed & ControllerButton.Start) == 0)
+        if ((delayedPressed & ControllerButton.Start) == ControllerButton.None)
             return false;
         audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
         SetPauseButtonLabelMode(1);
@@ -467,10 +467,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Selects and patches the pause wireframe for Samus's equipped suit.</summary>
     private void WriteSamusWireframe()
     {
-        int variant = PauseEquipmentRules.WireframeIndex(samus.EquippedItems);
+        PauseWireframeKind variant = PauseEquipmentRules.WireframeKind(samus.EquippedItems);
         (mapPresentation ?? throw new InvalidOperationException(
             "Pause wireframe requires installed presentation assets."))
-            .PauseWireframes.ApplyTo(equipmentTilemap, (PauseWireframeKind)variant);
+            .PauseWireframes.ApplyTo(equipmentTilemap, variant);
     }
 
     /// <summary>Builds the area map from installed presentation and exploration bits into BG1.</summary>
@@ -632,7 +632,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Advances the equipment selector only while inventory offers a selectable item.</summary>
     private void StepItemSelectorAnimation()
     {
-        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
+        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
             return;
 
         // DrawPauseScreenSpriteAnim(3) selects the third timer/frame pair. Its animation
@@ -650,7 +650,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Draws the selected equipment item's authored sprite and records its origin.</summary>
     private void DrawEquipmentItemSelector()
     {
-        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
+        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
             return;
 
         var selector = (mapPresentation ?? throw new InvalidOperationException(
@@ -759,9 +759,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
         }
         MoveEquipmentSelector(pressed);
-        if ((pressed & ControllerButton.A) == 0)
+        if ((pressed & ControllerButton.A) == ControllerButton.None)
             return;
-        if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == 0)
+        if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
             return;
         if (SelectedCategory == PauseEquipmentCategory.Reserves)
             throw new NotSupportedException("Same-frame equipment toggle into reserve tables requires native out-of-table WRAM behavior.");
@@ -783,15 +783,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (dispatchedCategory == PauseEquipmentCategory.Beams)
         {
             SamusBeamFlags added = samus.EquippedBeams & ~previousBeams;
-            if ((added & SamusBeamFlags.Spazer) != 0 &&
-                (samus.EquippedBeams & SamusBeamFlags.Plasma) != 0)
+            if ((added & SamusBeamFlags.Spazer) != SamusBeamFlags.None &&
+                (samus.EquippedBeams & SamusBeamFlags.Plasma) != SamusBeamFlags.None)
             {
                 samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
                 UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
-            else if ((added & SamusBeamFlags.Plasma) != 0 &&
-                (samus.EquippedBeams & SamusBeamFlags.Spazer) != 0)
+            else if ((added & SamusBeamFlags.Plasma) != SamusBeamFlags.None &&
+                (samus.EquippedBeams & SamusBeamFlags.Spazer) != SamusBeamFlags.None)
             {
                 samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
                 UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.SpazerItem,
@@ -856,8 +856,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Applies native directional links among beam, suit, boot, and reserve rows.</summary>
     private void MoveEquipmentSelector(ControllerButton pressed)
     {
-        bool left = (pressed & ControllerButton.Left) != 0, right = (pressed & ControllerButton.Right) != 0;
-        bool up = (pressed & ControllerButton.Up) != 0, down = (pressed & ControllerButton.Down) != 0;
+        bool left = (pressed & ControllerButton.Left) != ControllerButton.None, right = (pressed & ControllerButton.Right) != ControllerButton.None;
+        bool up = (pressed & ControllerButton.Up) != ControllerButton.None, down = (pressed & ControllerButton.Down) != ControllerButton.None;
         PauseEquipmentCategory beams = PauseEquipmentCategory.Beams, suits = PauseEquipmentCategory.Suits, boots = PauseEquipmentCategory.Boots;
         switch (SelectedCategory)
         {
@@ -1107,8 +1107,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
-    private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)SelectedItem)
-        ? (PauseReserveItem)SelectedItem
+    private PauseReserveItem SelectedReserveItem => (uint)SelectedItem < (uint)PauseReserveEnergyDefinitions.Items.Length
+        ? PauseReserveEnergyDefinitions.Items[SelectedItem]
         : throw new InvalidDataException($"Unsupported native reserve subdispatcher {SelectedItem}.");
 
     /// <summary>Runs the tank subdispatcher before its D-pad response, as at $82:AC70.</summary>
@@ -1117,7 +1117,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         switch (SelectedReserveItem)
         {
             case PauseReserveItem.Mode:
-                if ((pressed & ControllerButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
+                if ((pressed & ControllerButton.A) == ControllerButton.None || samus.MaxReserveEnergy == 0) return;
                 audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
                 samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
                     ? ReserveTankMode.Manual : ReserveTankMode.Auto;
@@ -1131,7 +1131,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         if (ReserveTransferSoundDelay.IsZero)
         {
-            if ((pressed & ControllerButton.A) == 0) return;
+            if ((pressed & ControllerButton.A) == ControllerButton.None) return;
             ReserveTransferSoundDelay = WrappingCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
                 PauseReserveEnergyDefinitions.RefillSoundInterval - 1) & -PauseReserveEnergyDefinitions.RefillSoundInterval)));
         }

@@ -20,42 +20,42 @@ internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
             if (index < 2)
             {
                 // Lower edge, right to left.
-                x = -22 - 16 * index; y = 9; tile = SnesCharacterGrid.Cell(6, 4) - 2 * index;
+                x = -22 - 16 * index; y = 9; tile = CharacterSheetGrid.Cell(6, 4) - 2 * index;
             }
             else if (index < 4)
             {
                 // Narrow upper tip, bottom to top.
                 int row = 3 - index;
-                x = 26; y = -55 + 8 * row; tile = SnesCharacterGrid.Cell(0, 8) + 16 * row; large = false;
+                x = 26; y = -55 + 8 * row; tile = CharacterSheetGrid.Cell(0, 8) + 16 * row; large = false;
             }
             else if (index < 6)
             {
                 // Inner base, right to left.
                 int column = 5 - index;
-                x = -22 + 16 * column; y = -7; tile = SnesCharacterGrid.Cell(8, 0) + 2 * column;
+                x = -22 + 16 * column; y = -7; tile = CharacterSheetGrid.Cell(8, 0) + 2 * column;
             }
             else if (index == 6)
             {
                 // Upper-right cap.
-                x = 10; y = -55; tile = SnesCharacterGrid.Cell(0, 6);
+                x = 10; y = -55; tile = CharacterSheetGrid.Cell(0, 6);
             }
             else if (index < 10)
             {
                 // Shoulder, right to left.
                 int column = 9 - index;
-                x = -22 + 16 * column; y = -39; tile = SnesCharacterGrid.Cell(2, 2) + 2 * column;
+                x = -22 + 16 * column; y = -39; tile = CharacterSheetGrid.Cell(2, 2) + 2 * column;
             }
             else if (index < 12)
             {
                 // Middle bar, right to left.
                 int column = 11 - index;
-                x = -22 + 16 * column; y = -23; tile = SnesCharacterGrid.Cell(4, 2) + 2 * column;
+                x = -22 + 16 * column; y = -23; tile = CharacterSheetGrid.Cell(4, 2) + 2 * column;
             }
             else
             {
                 // Left stem, bottom to top.
                 int row = 13 - index;
-                x = -38; y = -23 + 16 * row; tile = SnesCharacterGrid.Cell(4, 0) + 32 * row;
+                x = -38; y = -23 + 16 * row; tile = CharacterSheetGrid.Cell(4, 0) + 32 * row;
             }
             return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);

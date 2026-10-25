@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Native post-credits star motion and animation data.</summary>
@@ -51,7 +53,7 @@ internal static class EndingShootingStarDefinitions
     internal static SnesObjAttributeWord Attribute(int frame) => frame switch
     {
         0 => default,
-        > 0 and < FrameCount => SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(31, Math.Min(frame - 1, 3)), 4, 0),
+        > 0 and < FrameCount => SnesObjAttributeWord.Create(CharacterSheetGrid.Cell(31, Math.Min(frame - 1, 3)), 4, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 }

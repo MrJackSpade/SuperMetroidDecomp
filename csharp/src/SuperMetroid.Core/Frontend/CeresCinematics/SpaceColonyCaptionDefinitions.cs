@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>English caption in native8C:D629..D66A: emit the non-space characters
@@ -37,7 +39,7 @@ internal static class SpaceColonyCaptionDefinitions
 
     /// <summary>The high-priority palette-0 tilemap word of the caption character at <paramref name="row"/> and <paramref name="column"/>.</summary>
     private static ushort Caption(int row, int column) =>
-        SnesBgTilemapWord.Create(SnesCharacterGrid.Cell(row, column), 0, priority: true).Raw;
+        SnesBgTilemapWord.Create(CharacterSheetGrid.Cell(row, column), 0, priority: true).Raw;
 
     /// <summary>Native SPACE COLONY glyph identities, including high-priority bit2000.
     /// Repeated C and O characters select the same drawing operation.</summary>

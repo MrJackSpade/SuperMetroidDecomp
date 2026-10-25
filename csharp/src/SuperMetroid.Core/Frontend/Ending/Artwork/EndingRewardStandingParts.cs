@@ -31,28 +31,28 @@ internal sealed class EndingRewardStandingParts(int armParts) : IReadOnlyList<Co
             bool large;
             if (index < armParts)
             {
-                tile = SnesCharacterGrid.Cell(11, 14) - 32 * index;
+                tile = CharacterSheetGrid.Cell(11, 14) - 32 * index;
                 x = 16; y = 8 - 16 * index; large = true;
             }
             else
             {
                 int piece = index - armParts;
-                if (piece < 2) tile = SnesCharacterGrid.Cell(14, 6) - 16 * piece; // outer foot edge, bottom to top
+                if (piece < 2) tile = CharacterSheetGrid.Cell(14, 6) - 16 * piece; // outer foot edge, bottom to top
                 else if (piece == 2) tile = EndingRewardStandingCellDefinitions.RightFoot;
-                else if (piece < 6) tile = SnesCharacterGrid.Cell(2, 6) - 16 * (piece - 3); // outer shoulder edge
-                else if (piece < 8) tile = SnesCharacterGrid.Cell(9, 1) - 16 * (piece - 6); // inner left hip edge
+                else if (piece < 6) tile = CharacterSheetGrid.Cell(2, 6) - 16 * (piece - 3); // outer shoulder edge
+                else if (piece < 8) tile = CharacterSheetGrid.Cell(9, 1) - 16 * (piece - 6); // inner left hip edge
                 else if (piece == 8) tile = EndingRewardStandingCellDefinitions.OuterLeftHip;
                 else if (piece == 9) tile = EndingRewardStandingCellDefinitions.LeftLegEdge;
-                else if (piece < 12) tile = SnesCharacterGrid.Cell(13, 2) - 2 * (piece - 10); // remaining feet, right to left
+                else if (piece < 12) tile = CharacterSheetGrid.Cell(13, 2) - 2 * (piece - 10); // remaining feet, right to left
                 else if (piece < 18)
                 {
                     int cell = piece - 12;
-                    tile = SnesCharacterGrid.Cell(12, 4) - 32 * (cell / 2) - 2 * (cell % 2); // two-column lower body
+                    tile = CharacterSheetGrid.Cell(12, 4) - 32 * (cell / 2) - 2 * (cell % 2); // two-column lower body
                 }
                 else
                 {
                     int cell = piece - 18;
-                    tile = SnesCharacterGrid.Cell(6, 4) - 32 * (cell / 3) - 2 * (cell % 3); // three-column upper body
+                    tile = CharacterSheetGrid.Cell(6, 4) - 32 * (cell / 3) - 2 * (cell % 3); // three-column upper body
                 }
                 x = 8 * (tile & 15) - 24;
                 y = 8 * (tile / 16) - 56;

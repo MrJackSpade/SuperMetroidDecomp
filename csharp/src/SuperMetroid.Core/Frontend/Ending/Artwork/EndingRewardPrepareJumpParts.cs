@@ -22,18 +22,18 @@ internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSprit
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int tile;
-            if (index < 2) tile = SnesCharacterGrid.Cell(16, 0) + 16 * index; // outer left edge, top to bottom
-            else if (index < 4) tile = SnesCharacterGrid.Cell(15, 7) - (index - 2); // upper-right cap
-            else if (index < 7) tile = SnesCharacterGrid.Cell(15, 3) - (index - 4); // upper-left cap
+            if (index < 2) tile = CharacterSheetGrid.Cell(16, 0) + 16 * index; // outer left edge, top to bottom
+            else if (index < 4) tile = CharacterSheetGrid.Cell(15, 7) - (index - 2); // upper-right cap
+            else if (index < 7) tile = CharacterSheetGrid.Cell(15, 3) - (index - 4); // upper-left cap
             else if (index == 7) tile = EndingRewardPrepareJumpCellDefinitions.LeftSideEdge;
             else if (index == 8) tile = EndingRewardPrepareJumpCellDefinitions.RightSideEdge;
             else if (index == 9) tile = EndingRewardPrepareJumpCellDefinitions.LowerEndpoint;
             else if (index < 18)
             {
                 int cell = index - 10;
-                tile = SnesCharacterGrid.Cell(24, 5) - 32 * (cell / 2) - 2 * (cell % 2); // interior rows, bottom-right first
+                tile = CharacterSheetGrid.Cell(24, 5) - 32 * (cell / 2) - 2 * (cell % 2); // interior rows, bottom-right first
             }
-            else tile = SnesCharacterGrid.Cell(16, 7) - 2 * (index - 18); // upper interior, right to left
+            else tile = CharacterSheetGrid.Cell(16, 7) - 2 * (index - 18); // upper interior, right to left
             int x = 8 * (tile & 15) - 38;
             int y = 8 * (tile / 16 - 16) - 35;
             bool large = index is 1 or >= 8;

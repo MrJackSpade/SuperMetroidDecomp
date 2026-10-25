@@ -34,10 +34,10 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 if (frame == 55)
                 {
                     // Native $B66F uses the same colon dot tile for both halves.
-                    tile = SnesCharacterGrid.Cell(21, 10);
+                    tile = CharacterSheetGrid.Cell(21, 10);
                     if (bottom) flips = TileFlip.Vertical;
                 }
-                else tile = SnesCharacterGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph((char)('0' + frame - 45), EndingTextStyle.CopyrightLarge, bottom);
+                else tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph((char)('0' + frame - 45), EndingTextStyle.CopyrightLarge, bottom);
             }
             else
             {
@@ -54,7 +54,7 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                     if (letter-- == 0) break;
                 }
                 x = start + column * 8;
-                tile = SnesCharacterGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom);
+                tile = CharacterSheetGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom);
             }
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(bottom ? bottomY : bottomY - 8),
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);

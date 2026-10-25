@@ -29,7 +29,7 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
             else if (index < 3)
             {
                 int row = 2 - index;
-                tile = SnesCharacterGrid.Cell(0, 14) + row * 32; x = 19; y = -61 + row * 16;
+                tile = CharacterSheetGrid.Cell(0, 14) + row * 32; x = 19; y = -61 + row * 16;
             }
             else if (index == 3)
             {
@@ -38,23 +38,23 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
             else if (index < 6)
             {
                 int row = 5 - index;
-                tile = SnesCharacterGrid.Cell(1, 7) + row * 16; x = -36; y = -52 + row * 8;
+                tile = CharacterSheetGrid.Cell(1, 7) + row * 16; x = -36; y = -52 + row * 8;
             }
             else if (index < 11)
             {
                 // Lower upper-body row right-to-left, then the two upper corners.
-                tile = index < 9 ? SnesCharacterGrid.Cell(3, 13) - 2 * (index - 6) : SnesCharacterGrid.Cell(1, 13) - 4 * (index - 9);
+                tile = index < 9 ? CharacterSheetGrid.Cell(3, 13) - 2 * (index - 6) : CharacterSheetGrid.Cell(1, 13) - 4 * (index - 9);
                 x = -20 + 8 * ((tile & 15) - 9);
                 y = -53 + 8 * (tile / 16 - 1);
             }
             else
             {
-                if (index < 13) tile = SnesCharacterGrid.Cell(5, 12) - 2 * (index - 11); // waist pair
-                else if (index < 16) tile = SnesCharacterGrid.Cell(14, 12) - 32 * (index - 13); // lower leg, bottom to top
+                if (index < 13) tile = CharacterSheetGrid.Cell(5, 12) - 2 * (index - 11); // waist pair
+                else if (index < 16) tile = CharacterSheetGrid.Cell(14, 12) - 32 * (index - 13); // lower leg, bottom to top
                 else
                 {
                     int cell = index - 16;
-                    tile = SnesCharacterGrid.Cell(8, 12) - 32 * (cell / 2) - 2 * (cell % 2); // paired upper-leg rows
+                    tile = CharacterSheetGrid.Cell(8, 12) - 32 * (cell / 2) - 2 * (cell % 2); // paired upper-leg rows
                 }
                 x = -16 + 8 * ((tile & 15) - 10);
                 y = -13 + 8 * (tile / 16 - 6);

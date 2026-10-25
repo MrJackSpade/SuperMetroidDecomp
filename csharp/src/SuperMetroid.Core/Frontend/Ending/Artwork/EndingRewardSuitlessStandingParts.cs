@@ -43,7 +43,7 @@ internal static class EndingRewardSuitlessStandingParts
             {
                 bool right = index < 5;
                 int row = index - (right ? 1 : 21);
-                tile = (right ? SnesCharacterGrid.Cell(27, 5) : SnesCharacterGrid.Cell(27, 4)) - 16 * row;
+                tile = (right ? CharacterSheetGrid.Cell(27, 5) : CharacterSheetGrid.Cell(27, 4)) - 16 * row;
                 x = right ? 8 : -13; y = 24 - 8 * row; large = false;
             }
             else
@@ -53,9 +53,9 @@ internal static class EndingRewardSuitlessStandingParts
                 {
                     // Left edge, right edge, then center of the head's middle row.
                     int column = index == 18 ? 0 : index == 19 ? 3 : 1;
-                    tile = SnesCharacterGrid.Cell(26, 0) + column;
+                    tile = CharacterSheetGrid.Cell(26, 0) + column;
                 }
-                else if (index < 27) tile = SnesCharacterGrid.Cell(27, 2) - 2 * (index - 25);
+                else if (index < 27) tile = CharacterSheetGrid.Cell(27, 2) - 2 * (index - 25);
                 else tile = EndingRewardSuitlessStandingCellDefinitions.HeadTop;
                 x = -15 + 8 * (tile & 15); y = -40 + 8 * (tile / 16 - 24);
                 large = index is 20 or >= 25;
@@ -69,7 +69,7 @@ internal static class EndingRewardSuitlessStandingParts
             }
             else if (index is >= 6 and < 10)
             {
-                tile = SnesCharacterGrid.Cell(21, 13) - 16 * (index - 6); x = -16; y = 24 - 8 * (index - 6); large = false;
+                tile = CharacterSheetGrid.Cell(21, 13) - 16 * (index - 6); x = -16; y = 24 - 8 * (index - 6); large = false;
             }
             else
             {
@@ -79,7 +79,7 @@ internal static class EndingRewardSuitlessStandingParts
                     1 => EndingRewardSuitlessStandingCellDefinitions.LeftUpperEdge,
                     _ => EndingRewardSuitlessStandingCellDefinitions.LeftFootTip,
                 };
-                else if (index < 5) tile = SnesCharacterGrid.Cell(0, 3) + 16 * (index - 3);
+                else if (index < 5) tile = CharacterSheetGrid.Cell(0, 3) + 16 * (index - 3);
                 else if (index < 14) tile = index switch
                 {
                     10 => EndingRewardSuitlessStandingCellDefinitions.RightUpperBody,
@@ -87,10 +87,10 @@ internal static class EndingRewardSuitlessStandingParts
                     12 => EndingRewardSuitlessStandingCellDefinitions.RightFootTip,
                     _ => EndingRewardSuitlessStandingCellDefinitions.RightFoot,
                 };
-                else if (index < 17) tile = SnesCharacterGrid.Cell(10, 2) - 32 * (index - 14);
-                else if (index < 20) tile = SnesCharacterGrid.Cell(4, 0) - 16 * (index - 17);
+                else if (index < 17) tile = CharacterSheetGrid.Cell(10, 2) - 32 * (index - 14);
+                else if (index < 20) tile = CharacterSheetGrid.Cell(4, 0) - 16 * (index - 17);
                 else if (index == 20) tile = EndingRewardSuitlessStandingCellDefinitions.RightShoulder;
-                else tile = SnesCharacterGrid.Cell(12, 1) - 32 * (index - 21);
+                else tile = CharacterSheetGrid.Cell(12, 1) - 32 * (index - 21);
                 x = -16 + 8 * (tile & 15); y = -40 + 8 * (tile / 16);
                 large = index is 10 or >= 13 and < 17 or >= 20;
             }

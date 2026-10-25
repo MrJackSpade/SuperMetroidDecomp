@@ -31,7 +31,6 @@ internal static class RoomCharacterInstallationVerification
 {
     /// <summary>Full stock import, live edit, repair and invalid-override contract for room art.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue ghost and scrolling-sky source bytes")]
     internal static void VerifyRoomArtworkInstallation(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("room-character-installation");

@@ -86,7 +86,6 @@ internal static class EndingWavySamusTests
     }
 
     /// <summary>Reads a signed native sine sample used by the independent wave-scroll calculation.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending wave sine table at $A0:B443")]
     private static short NativeWaveSample(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, int offset) =>
         unchecked((short)rom.ReadCartridgeWord(0xa0b443 + offset));
 }

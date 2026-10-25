@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Harness;
 internal static class AudioSoundProgramsVerification
 {
     /// <summary>Compares stock program bytes and routes with APU memory, then verifies an edited note changes audible PCM.</summary>
-    [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableSoundEffectPrograms()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;

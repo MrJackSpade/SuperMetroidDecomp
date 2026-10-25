@@ -143,7 +143,6 @@ internal static class StationVisualsVerification
     }
 
     /// <summary>Seeds one map-station `$B6D3` room PLM record at block (6,6) and its terminator.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the map-station room PLM population")]
     static void WriteStationVisualMapPopulation(TestAddressSpace bus, ushort population) =>
         bus.WriteBytes(0x8f0000 | population,
             [0xd3, 0xb6, 0x06, 0x06, 0x00, 0x00, 0x00, 0x00]);

@@ -126,6 +126,5 @@ internal static class GeneratedBossBg2CatalogsVerification
         RoomEnemySlotFrameAccess.TryFrameAt(bank, pointer) ?? throw new InvalidOperationException($"No installed frame at ${bank:X2}:{pointer:X4}.");
 
     /// <summary>Reads native frame words while comparing generated BG2 catalogs.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for generated BG2 catalog")]
     private static byte GeneratedBg2CatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

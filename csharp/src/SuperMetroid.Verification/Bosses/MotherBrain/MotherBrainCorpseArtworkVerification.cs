@@ -31,7 +31,6 @@ internal static class MotherBrainCorpseArtworkVerification
     }
 
     /// <summary>Reads the banked native corpse character sheet solely as a verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain corpse character sheet")]
     private static byte[] ReadNativeMotherBrainCorpseArtwork(CartridgeImportAddressSpace rom) =>
         RomDataReader.ReadFixedBank(rom,
             MotherBrainSourceDefinitions.Corpse.Characters,

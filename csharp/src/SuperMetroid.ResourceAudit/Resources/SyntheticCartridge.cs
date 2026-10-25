@@ -10,7 +10,6 @@ namespace SuperMetroid.ResourceAudit.Resources;
 /// configured exception, so an importer or audit proves exactly which cartridge bytes it consumes.
 /// Every served read is logged in order; writes are rejected.
 /// </summary>
-[CpuBusBoundary("exact bus test: constructed cartridge serving only declared bytes")]
 internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSource
 {
     /// <summary>Explicit CPU-address bytes that take precedence over declared zero ranges.</summary>

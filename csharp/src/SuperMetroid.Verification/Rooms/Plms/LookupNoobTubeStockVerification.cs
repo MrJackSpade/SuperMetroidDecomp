@@ -85,6 +85,5 @@ internal static class LookupNoobTubeStockVerification
     }
 
     /// <summary>Reads native PLM run displacement bytes for the stock visual comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Noob tube stock mapping")]
     private static byte NoobTubeStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -1,11 +1,9 @@
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers enemy and enemy-projectile codecs resolve.</summary>
-[CpuBusBoundary("catalog: enemy cartridge tables")]
 internal static class EnemySourceDefinitions
 {
     /// <summary>

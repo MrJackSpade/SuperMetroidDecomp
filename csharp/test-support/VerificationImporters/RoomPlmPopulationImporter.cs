@@ -11,7 +11,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// Import/reference-only decoding of native PLM placements. The resulting typed
 /// population can be consumed by Core without a cartridge-capable address space.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$8F PLM populations with bank-$84 headers and bank-$89 item graphics → RoomPlmPopulationDefinition")]
 internal static class RoomPlmPopulationImporter
 {
     /// <summary>Imports bounded PLM placements, header words, scroll programs, and dynamic collectible graphics.</summary>

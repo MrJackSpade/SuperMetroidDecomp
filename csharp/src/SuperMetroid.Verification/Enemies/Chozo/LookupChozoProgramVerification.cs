@@ -53,6 +53,5 @@ internal static class LookupChozoProgramVerification
     }
 
     /// <summary>Reads one retail PLM byte for the selected field's source comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo program field")]
     private static byte ChozoProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

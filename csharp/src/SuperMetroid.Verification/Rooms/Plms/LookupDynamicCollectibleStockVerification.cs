@@ -80,6 +80,5 @@ internal static class LookupDynamicCollectibleStockVerification
     }
 
     /// <summary>Reads native graphics and palette bytes for the independent stock reference.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible stock mapping")]
     private static byte DynamicCollectibleStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

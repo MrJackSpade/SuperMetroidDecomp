@@ -133,7 +133,6 @@ internal static class KraidHeadInstructionsVerification
     }
 
     /// <summary>Guards compiled head-program bytes while observing Kraid's typed live-tilemap WRAM read.</summary>
-    [CpuBusBoundary("exact bus test: witnesses that Kraid reads the $A7:1002 live tilemap alias only through typed WRAM reads, never the generic bus, with compiled head-program bytes forbidden")]
     internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
         ISnesWritableAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {

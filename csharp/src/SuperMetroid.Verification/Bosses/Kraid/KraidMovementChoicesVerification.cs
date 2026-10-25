@@ -121,6 +121,5 @@ internal static class KraidMovementChoicesVerification
     }
 
     /// <summary>Reads one native movement-table byte for the independent selection oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid movement choices")]
     private static byte KraidMovementChoicesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

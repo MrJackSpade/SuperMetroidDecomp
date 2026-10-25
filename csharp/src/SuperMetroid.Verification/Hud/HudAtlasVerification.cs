@@ -34,7 +34,6 @@ internal static class HudAtlasVerification
     /// HUD was set up.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, ImportedAreaMap[] rules,
         GameplayBasePaletteCatalog initialPalettes,

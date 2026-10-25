@@ -14,7 +14,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports the native cannon-cover pose/OAM selectors and twelve character tiles.</summary>
-[CpuBusBoundary("codec: ROM arm-cannon pose/OAM selectors and character tiles → arm cannon artwork files")]
 public static class SamusArmCannonArtworkFiles
 {
     /// <summary>Companion file recording cartridge provenance and hashes of the stock placement and tile assets.</summary>

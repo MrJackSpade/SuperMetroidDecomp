@@ -18,7 +18,6 @@ internal static class RoomPlmInstructionListCatalogVerification
     /// LoROM offsets. When the private cartridge is available, every named list is also
     /// read through the production address space so a typo cannot survive as documentation.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room PLM instruction list catalog")]
     internal static void VerifyRoomPlmInstructionListCatalog()
     {
         FieldInfo[] fields = typeof(RoomPlmInstructionListsConstants).GetFields(BindingFlags.Public | BindingFlags.Static)

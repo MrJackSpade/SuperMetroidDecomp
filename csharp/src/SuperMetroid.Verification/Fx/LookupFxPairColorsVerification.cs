@@ -98,7 +98,6 @@ internal static class LookupFxPairColorsVerification
     }
 
     /// <summary>Clears derived color bits in the cartridge source to check extractor recomputation.</summary>
-    [CpuBusBoundary("exact bus test: cartridge source that clears the calculated FX-pair color bits, proving the blend extractor recomputes them")]
     internal sealed class DerivedBlendSourceGuard(ISnesAddressSpace source) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
         /// <summary>Returns a source byte with calculated pair-color bits removed at blend records.</summary>

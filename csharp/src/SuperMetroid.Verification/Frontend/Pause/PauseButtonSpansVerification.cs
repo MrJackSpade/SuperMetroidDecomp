@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseButtonSpansVerification
 {
     /// <summary>Matches the six compiled span offsets to independent native WRAM load sites and rejects invalid selectors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span words")]
     internal static void VerifyPauseButtonSpanWords(ISnesAddressSpace rom)
     {
         // Independent native LDA long,X sites, in the original six-span order.
@@ -35,7 +34,6 @@ internal static class PauseButtonSpansVerification
     }
 
     /// <summary>Matches each compiled span width to the native byte count divided into tilemap words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span counts")]
     internal static void VerifyPauseButtonSpanCounts(ISnesAddressSpace rom)
     {
         int[] sites = [0x82a62d, 0x82a64b, 0x82a669, 0x82a687, 0x82a6a5, 0x82a6c3];

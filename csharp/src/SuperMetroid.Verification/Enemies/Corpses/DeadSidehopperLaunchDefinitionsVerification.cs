@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 internal static class DeadSidehopperLaunchDefinitionsVerification
 {
     /// <summary>Checks every phase and timer with the migrated velocity tables forbidden to production reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Sidehopper launch definitions")]
     internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

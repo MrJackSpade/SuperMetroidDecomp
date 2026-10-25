@@ -70,7 +70,6 @@ internal static class CrocomireSkeletonResourceChecks
     }
 
     /// <summary>Synthetic import bytes for exactly one root; unspecified reads, including hitboxes, fail.</summary>
-    [CpuBusBoundary("exact bus test: lays out one native extended-frame root and its components at their cartridge addresses")]
     private static SyntheticCartridge ConstructedComponentSource(EnemySpritemapDefinition frame, int count)
     {
         var source = new SyntheticCartridge(

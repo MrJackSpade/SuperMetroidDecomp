@@ -1,12 +1,10 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers pause-menu codecs resolve.</summary>
-[CpuBusBoundary("catalog: pause menu cartridge tables")]
 internal static class PauseMenuSourceDefinitions
 {
     /// <summary>

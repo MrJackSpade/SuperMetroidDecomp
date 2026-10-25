@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts the starting gameplay CGRAM image and shared room-sprite palette.</summary>
-[CpuBusBoundary("codec: ROM starting gameplay CGRAM image and room-sprite palette → GameplayBasePaletteCatalog")]
 public static class GameplayBasePaletteFiles
 {
     /// <summary>

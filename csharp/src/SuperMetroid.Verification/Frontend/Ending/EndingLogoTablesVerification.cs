@@ -10,7 +10,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingLogoTablesVerification
 {
     /// <summary>Checks both palettes' sixteen source pointers and invalid step or palette selectors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette sources")]
     internal static void VerifyEndingLogoPaletteSources(ISnesAddressSpace rom)
     {
         for (int palette = 0; palette < 2; palette++)
@@ -39,7 +38,6 @@ internal static class EndingLogoTablesVerification
     };
 
     /// <summary>Checks all six post-shot transfer lengths, sources, destinations, and out-of-range indexes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending post shot transfer fields")]
     internal static void VerifyEndingPostShotTransferFields(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)

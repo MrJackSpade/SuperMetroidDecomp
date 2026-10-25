@@ -139,7 +139,6 @@ internal static class KraidFootCollisionDefinitionsVerification
     }
 
     /// <summary>Reads one native bank-$A7 collision byte for the independent hitbox oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot collision definitions")]
     private static byte KraidFootCollisionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects all cartridge reads and writes while installed Kraid foot collision runs.</summary>

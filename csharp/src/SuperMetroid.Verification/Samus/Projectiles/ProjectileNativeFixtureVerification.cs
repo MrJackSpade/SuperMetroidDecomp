@@ -9,7 +9,6 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileNativeFixtureVerification
 {
     /// <summary>Follows a retail bank-$93 explosion list through timed records and branches until its delete opcode.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile lifetime")]
     internal static int NativeProjectileLifetime(SuperMetroidAddressSpace rom, int selector)
     {
         int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selector), ticks = 0;
@@ -28,7 +27,6 @@ internal static class ProjectileNativeFixtureVerification
     }
 
     /// <summary>Seeds cartridge-selected projectile programs into a test bus, replacing only spritemap references while retaining native timing and collision.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile fixture")]
     internal static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

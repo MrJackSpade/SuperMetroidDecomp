@@ -10,7 +10,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts the cartridge bytes Samus's glitch paths read as data (owner question 3).</summary>
-[CpuBusBoundary("codec: cartridge bytes Samus's glitch paths read → SamusOverreadCatalog")]
 public static class SamusOverreadFiles
 {
     /// <summary>Writes every overread range as base-64 JSON with a hashed manifest, then validates the result.</summary>

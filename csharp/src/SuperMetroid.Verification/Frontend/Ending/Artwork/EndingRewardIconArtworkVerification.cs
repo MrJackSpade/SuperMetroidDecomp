@@ -21,7 +21,6 @@ internal static class EndingRewardIconArtworkVerification
 {
     /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the landing upload.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon Mode-7 characters")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingFloorArtworkCatalog stock = installation.LoadEndingMode7Art();

@@ -12,7 +12,6 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class ProjectileInstructionsVerification
 {
     /// <summary>Compares the inventoried mechanics words and timed frames for every authored projectile list entry.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile instructions")]
     internal static void VerifyProjectileInstructions(SuperMetroidAddressSpace rom)
     {
         ushort[] entries =

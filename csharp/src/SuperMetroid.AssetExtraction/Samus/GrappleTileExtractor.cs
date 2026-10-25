@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts four endpoint tiles and twelve angle/animation segment tiles, omitting unused source-sheet padding.</summary>
-[CpuBusBoundary("codec: ROM Grapple endpoint and segment tiles → Grapple tile artwork")]
 public static class GrappleTileExtractor
 {
     /// <summary>Compacts four endpoint characters and three four-character rope-orientation groups from bank $9A into one verified replacement atlas.</summary>

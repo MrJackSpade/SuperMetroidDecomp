@@ -920,7 +920,6 @@ internal static class CollectiblesVerification
         int BlockIndex);
 
     /// <summary>Synthetic cartridge with the suit-pickup fade curve and distinct suit palette first words.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for suit pickup fades and suit palettes")]
     private static TestAddressSpace CreateSuitPickupCartridge()
     {
         var bus = new TestAddressSpace();

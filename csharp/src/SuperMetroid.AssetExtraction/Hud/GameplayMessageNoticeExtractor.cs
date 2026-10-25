@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Extracts completion and save-confirmation notices as bounded UTF-8 text regions.</summary>
-[CpuBusBoundary("codec: ROM completion and save-confirmation message tilemaps → gameplay message notices")]
 public static class GameplayMessageNoticeExtractor
 {
     /// <summary>Imports completion and save-confirmation notice templates, editable text regions, borders, and save-selection rows.</summary>

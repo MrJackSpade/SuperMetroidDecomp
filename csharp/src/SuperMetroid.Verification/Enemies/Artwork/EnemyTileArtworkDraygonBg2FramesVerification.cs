@@ -26,7 +26,6 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering and editable overrides.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon BG2 frames")]
     internal static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)
@@ -141,7 +140,6 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     }
 
     /// <summary>Compares native frame roots and hitbox lists, then runs the production overlap walker with cartridge reads denied.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon BG2 collision")]
     internal static void VerifyCompiledDraygonBg2Collision(
         SuperMetroidAddressSpace rom)
     {

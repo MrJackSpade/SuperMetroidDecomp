@@ -19,7 +19,6 @@ using SuperMetroid.Core.Spatial;
 internal static class CompiledProjectileMathVerification
 {
     /// <summary>Checks Crocomire gradient overread, signed sine products, and native vector and arc arithmetic.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile math")]
     internal static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 20; parameter++)

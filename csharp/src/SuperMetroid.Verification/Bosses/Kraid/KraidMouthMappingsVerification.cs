@@ -33,7 +33,6 @@ internal static class KraidMouthMappingsVerification
     }
 
     /// <summary>Reads an original shape-table byte for the authored-case comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid mouth shape cases")]
     private static byte KraidMouthShapeCasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

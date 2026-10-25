@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Read one native on-screen OAM frame into visual-only editable fields.</summary>
-[CpuBusBoundary("codec: ROM opening-scene OAM spritemap frames → intro sprite frames")]
 internal static class IntroCinematicSpriteFrameExtractor
 {
     /// <summary>Decodes a bank-$8C opening spritemap and checks its authored OAM part count before importing editable visual attributes.</summary>

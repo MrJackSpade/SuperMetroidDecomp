@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 internal static class CrocomireSpikeMotionDefinitionsVerification
 {
     /// <summary>Checks each slot's acceleration increment and rejects indexes outside the native table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire spike acceleration delta")]
     internal static void VerifyCrocomireSpikeAccelerationDelta(SuperMetroidAddressSpace rom)
     {
         for (int slot = 0; slot < 18; slot++)
@@ -23,7 +22,6 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
     }
 
     /// <summary>Checks each slot's acceleration cap and native table bounds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire spike maximum acceleration")]
     internal static void VerifyCrocomireSpikeMaximumAcceleration(SuperMetroidAddressSpace rom)
     {
         for (int slot = 0; slot < 18; slot++)
@@ -38,7 +36,6 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
     }
 
     /// <summary>Checks the low byte of each slot's velocity cap and native table bounds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire spike maximum velocity")]
     internal static void VerifyCrocomireSpikeMaximumVelocity(SuperMetroidAddressSpace rom)
     {
         for (int slot = 0; slot < 18; slot++)

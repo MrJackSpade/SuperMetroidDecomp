@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresFlightFrameCatalogVerification
 {
     /// <summary>Compares six pointer, part-count, key, and enumeration identities, plus invalid-index rejection.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight frame catalog")]
     internal static void VerifyCeresFlightFrameCatalog(ISnesAddressSpace rom)
     {
         // Independent native instruction operands in the published catalog order.

@@ -14,7 +14,6 @@ using SuperMetroid.Core.World;
 internal static class RidleyAttackChoicesVerification
 {
     /// <summary>Compares all 48 native choices and verifies RNG consumption, branch priority, and chosen-action setup.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley attack choices")]
     internal static void VerifyRidleyAttackChoices(SuperMetroidAddressSpace rom)
     {
         RidleyAiFunction Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch

@@ -12,7 +12,6 @@ using SuperMetroid.Core.World;
 internal static class EnemyDropChanceDefinitionsVerification
 {
     /// <summary>Compares every native six-byte record and verifies that production selection rejects invalid restored pointers.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy drop chance definitions")]
     internal static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Span<byte> actual = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];

@@ -19,7 +19,6 @@ using SuperMetroid.Core.Progression;
 internal static class SamusAtmosphericAnimationDefinitionsVerification
 {
     /// <summary>Compares all active frame timers and liquid-damage words with the cartridge, then exercises their consumers.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric animation definitions")]
     internal static void VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroidAddressSpace rom)
     {

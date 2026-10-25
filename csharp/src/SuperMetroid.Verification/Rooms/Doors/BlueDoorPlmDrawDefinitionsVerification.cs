@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class BlueDoorPlmDrawDefinitionsVerification
 {
     /// <summary>Runs all four door orientations through opening, closing, and closed lists with native source reads denied.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Blue door PLM draw definitions")]
     internal static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));

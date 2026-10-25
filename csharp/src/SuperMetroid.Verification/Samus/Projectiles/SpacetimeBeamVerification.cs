@@ -163,7 +163,6 @@ internal static class SpacetimeBeamVerification
     }
 
     /// <summary>Checks each installed copy-source byte against the supported ROM before replaying the beam.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed SpaceTime copy source")]
     private static void VerifySpacetimeCopySourceAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -302,7 +301,6 @@ internal static class SpacetimeBeamVerification
     }
     /// <summary>Checks direct and queued beam uploads while the aliased WRAM palette changes between runs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: the SpaceTime palette pointer $90:19FF reads live enemy-projectile WRAM at $7E:19FF")]
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -328,7 +326,6 @@ internal static class SpacetimeBeamVerification
     }
 
     /// <summary>Checks the SpaceTime graphics pointers against their native table words and returns the native tiles.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the SpaceTime adjacent-table graphics pointers and tiles")]
     private static byte[] ReadRetailSpacetimeGraphicsOracle(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         AssertEqual(SpacetimeBeamGraphicsDefinitionsConstants.TileSource & 0xffff,

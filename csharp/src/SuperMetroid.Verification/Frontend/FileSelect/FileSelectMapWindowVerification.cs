@@ -157,11 +157,9 @@ internal static class FileSelectMapWindowVerification
     }
 
     /// <summary>Reads one cartridge map-background byte for the native BG3 transfer comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for file select area map graphics")]
     private static byte FileSelectAreaMapGraphicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Synthetic cartridge with a one-frame map-window timer and .C000 edge velocities.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for fractional file-select map-window motion")]
     private static TestAddressSpace CreateFractionalMapWindowCartridge()
     {
         var fake = new TestAddressSpace();
@@ -174,7 +172,6 @@ internal static class FileSelectMapWindowVerification
     }
 
     /// <summary>Synthetic cartridge with a label at (40, 30), a two-frame timer and one-pixel edge velocities.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for file-select map-window composition")]
     private static TestAddressSpace CreateComposedMapWindowCartridge()
     {
         var fake = new TestAddressSpace();

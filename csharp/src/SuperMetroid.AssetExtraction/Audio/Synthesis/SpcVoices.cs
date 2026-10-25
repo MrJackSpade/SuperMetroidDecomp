@@ -6,13 +6,11 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcVoices
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    [SpcMemoryAccess]
     private readonly byte[] ram;
     /// <summary>DSP renderer reading BRR and echo data from this driver's APU RAM.</summary>
     private readonly ManagedSnesDsp dsp;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    [SpcMemoryBoundary("implementation: shares the APU RAM the player owns")]
     internal SpcVoices(byte[] ram, ManagedSnesDsp dsp)
     {
         this.ram = ram;
@@ -108,19 +106,15 @@ internal sealed class SpcVoices
     }
 
     /// <summary>The little-endian pointer word at <paramref name="address"/>; the high byte wraps at 16 bits.</summary>
-    [SpcMemoryBoundary("driver-memory view: little-endian pointer words")]
     internal ushort ReadWord(int address) => SpcRamWords.Read(ram, address);
 
     /// <summary>Entry <paramref name="index"/> of the pointer table at <paramref name="table"/> (two bytes per entry).</summary>
-    [SpcMemoryBoundary("driver-memory view: pointer tables")]
     internal ushort ReadPointerEntry(int table, int index) => ReadWord(table + index * 2);
 
     /// <summary>The pan-volume table pair (this entry and the next) at <paramref name="address"/>.</summary>
-    [SpcMemoryBoundary("driver-memory view: pan volume table")]
     internal PanVolumePair ReadPanVolumePair(int address) => new PanVolumePair(ram[address], ram[address + 1]);
 
     /// <summary>The instrument record at <paramref name="address"/> (pitch base big-endian).</summary>
-    [SpcMemoryBoundary("driver-memory view: instrument records")]
     internal SpcInstrumentRecord ReadInstrument(int address) => new(
         ram[address], ram[address + 1], ram[address + 2], ram[address + 3],
         unchecked(SnesLittleEndian.Word(ram[address + 5], ram[address + 4])));

@@ -14,7 +14,6 @@ using SuperMetroid.Verification.Harness;
 internal static class CrystalFlashPaletteTimingDefinitionsVerification
 {
     /// <summary>Compares ten native timer words and checks 100 palette updates without runtime timer reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash palette timing definitions")]
     internal static void VerifyCrystalFlashPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {

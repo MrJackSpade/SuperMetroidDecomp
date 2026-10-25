@@ -9,7 +9,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports only landmark positions; validates mixed-record identities against compiled definitions.</summary>
-[CpuBusBoundary("codec: ROM map landmark position records → map landmarks")]
 public static class MapLandmarkExtractor
 {
     /// <summary>Exports named boss, elevator-destination-label, and Crateria gunship drawing positions from native area-map records.</summary>

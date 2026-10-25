@@ -21,7 +21,6 @@ internal static class TorizoSwapArtworkVerification
 {
     /// <summary>Matches all Torizo transfer descriptors and bytes to cartridge data, then checks live PNG edits and rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo instruction VRAM artwork")]
     internal static void VerifyTorizoSwapArtwork(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

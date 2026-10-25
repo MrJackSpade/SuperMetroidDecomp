@@ -23,7 +23,6 @@ internal static class KraidCeilingRockPositionsVerification
     }
 
     /// <summary>Reads one bank-$A7 coordinate byte solely for the native oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock coordinates")]
     private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Confirms each ceiling spawn advances the byte selector and pairs its native X coordinate with the PLM mutation while source-table reads are forbidden.</summary>
@@ -65,7 +64,6 @@ internal static class KraidCeilingRockPositionsVerification
     }
 
     /// <summary>Reads a retail placement byte for the production-spawn comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock positions")]
     private static byte KraidCeilingRockPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

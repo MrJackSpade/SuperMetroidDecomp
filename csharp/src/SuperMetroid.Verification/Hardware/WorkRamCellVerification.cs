@@ -1,4 +1,3 @@
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -7,76 +6,25 @@ namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
-/// <summary>Checks catalog ownership and the WRAM/SRAM cell primitives against the real address-space mapping.</summary>
-internal static class CpuBusBoundaryVerification
+/// <summary>Checks the test-support WRAM/SRAM cell primitives against the real address-space mapping.</summary>
+internal static class WorkRamCellVerification
 {
-    /// <summary>Inventory cell fields compared between the generated and committed CPU-bus inventories.</summary>
-    private static readonly string[] InventoryCellFields =
-        ["owner", "name", "region", "address", "byteCount", "encoding", "aliasOf"];
-
     /// <summary>
-    /// Checks the #629 CPU-bus boundary: catalog identities and aliases, the repository inventory,
-    /// and the cell primitives' mapping, mirroring, wrapping, bounds and write order on a real
+    /// Checks the cell primitives' mapping, mirroring, wrapping, bounds and write order on a real
     /// <see cref="SuperMetroidAddressSpace"/>.
     /// </summary>
-    [CpuBusBoundary("exact bus test: suite driver over the catalog inventory")]
-    internal static void VerifyCpuBusBoundary()
+    internal static void VerifyWorkRamCells()
     {
-        IReadOnlyList<CpuBusCatalogEntry> entries = CpuBusCatalogInventory.Enumerate(CpuBusCatalogInventory.ProductionAssemblies);
-        Suite(nameof(VerifyCpuBusCatalogIdentities), () => VerifyCpuBusCatalogIdentities(entries));
-        Suite(nameof(VerifyCpuBusInventoryCurrent), () => VerifyCpuBusInventoryCurrent(entries));
-        Suite(nameof(VerifyCoreDeclaresNoWorkRamCells), () => VerifyCoreDeclaresNoWorkRamCells(entries));
         Suite(nameof(VerifyWramWordBankWrap), VerifyWramWordBankWrap);
         Suite(nameof(VerifyCpuBusTableBounds), VerifyCpuBusTableBounds);
         Suite(nameof(VerifyCpuBusCellShapeRejection), VerifyCpuBusCellShapeRejection);
         Suite(nameof(VerifyWramLowWindowMirror), VerifyWramLowWindowMirror);
         Suite(nameof(VerifyCpuBusWritesLowByteFirst), VerifyCpuBusWritesLowByteFirst);
         Suite(nameof(VerifyCpuBusTypedRoundTrips), VerifyCpuBusTypedRoundTrips);
-        Console.WriteLine($"CPU-bus boundary: {entries.Count} catalog cells, " +
-            $"{entries.Count(entry => entry.Cell.AliasOf is not null)} declared aliases, primitives and views verified.");
-    }
-
-    /// <summary>Every (owner, name) is unique and bytes are shared only through a declared alias.</summary>
-    [CpuBusBoundary("exact bus test: catalog identity and alias rules")]
-    private static void VerifyCpuBusCatalogIdentities(IReadOnlyList<CpuBusCatalogEntry> entries)
-    {
-        AssertTrue(entries.Count > 0, "production catalogs declare CPU-bus cells");
-        AssertTrue(entries.GroupBy(entry => new VerifyCpuBusCatalogIdentitiesCase(entry.Owner.FullName, entry.Cell.Name)).All(group => group.Count() == 1),
-            "every (owner, name) cell identity is unique");
-        IReadOnlyList<string> violations = CpuBusCatalogInventory.Violations(entries);
-        AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
-    }
-
-    /// <summary>Core gameplay catalogs declare no WRAM cell (#1319): gameplay state lives in its owning system.</summary>
-    [CpuBusBoundary("exact bus test: Core gameplay WRAM-cell rule over the catalog inventory")]
-    private static void VerifyCoreDeclaresNoWorkRamCells(IReadOnlyList<CpuBusCatalogEntry> entries)
-    {
-        string[] declared = [.. entries
-            .Where(entry => entry.Cell.Region == CpuBusRegion.WorkRam &&
-                entry.Owner.Assembly == typeof(SuperMetroid.Core.Ensure).Assembly)
-            .Select(entry => $"{entry.Owner.FullName ?? entry.Owner.Name}.{entry.Cell.Name}")
-            .Order(StringComparer.Ordinal)];
-        AssertTrue(declared.Length == 0, "Core gameplay WRAM cells; move the state into its owning system:" +
-            Environment.NewLine + string.Join(Environment.NewLine, declared));
-    }
-
-    /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>
-    [CpuBusBoundary("exact bus test: inventory matches the catalogs")]
-    private static void VerifyCpuBusInventoryCurrent(IReadOnlyList<CpuBusCatalogEntry> entries)
-    {
-        string root = Directory.GetCurrentDirectory();
-        using JsonDocument expected = JsonDocument.Parse(CpuBusCatalogInventory.RenderJson(entries, root));
-        using JsonDocument actual = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, CpuBusCatalogInventory.InventoryPath)));
-        string[] Cells(JsonDocument document) => document.RootElement.GetProperty("cells").EnumerateArray()
-            .Select(cell => string.Join('|', InventoryCellFields
-                .Select(field => cell.GetProperty(field).ToString())))
-            .ToArray();
-        AssertTrue(Cells(expected).SequenceEqual(Cells(actual)),
-            $"{CpuBusCatalogInventory.InventoryPath} is current; regenerate it with DebugRunner --generate-cpu-bus-inventory");
+        Console.WriteLine("WRAM cell primitives verified.");
     }
 
     /// <summary>A fixed-bank word at $xx:FFFF takes its high byte from $xx:0000, never the next bank.</summary>
-    [CpuBusBoundary("exact bus test: WramWord and WramWords bank wrap")]
     private static void VerifyWramWordBankWrap()
     {
         var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
@@ -95,7 +43,6 @@ internal static class CpuBusBoundaryVerification
     }
 
     /// <summary>Tables and ranges reject indexes outside their cell.</summary>
-    [CpuBusBoundary("exact bus test: WramWords and WramBytes bounds")]
     private static void VerifyCpuBusTableBounds()
     {
         var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
@@ -111,7 +58,6 @@ internal static class CpuBusBoundaryVerification
     }
 
     /// <summary>Primitives reject a cell of the wrong store or width.</summary>
-    [CpuBusBoundary("exact bus test: region and width mismatch rejection")]
     private static void VerifyCpuBusCellShapeRejection()
     {
         var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
@@ -126,7 +72,6 @@ internal static class CpuBusBoundaryVerification
     }
 
     /// <summary>System banks $00-$3F/$80-$BF below $2000 read and write bank-$7E WRAM; nothing else does.</summary>
-    [CpuBusBoundary("exact bus test: low-window WRAM mirror")]
     private static void VerifyWramLowWindowMirror()
     {
         var bus = new WorkRamImageBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
@@ -144,21 +89,19 @@ internal static class CpuBusBoundaryVerification
     }
 
     /// <summary>Every word write stores its low byte before its high byte.</summary>
-    [CpuBusBoundary("exact bus test: write ordering")]
     private static void VerifyCpuBusWritesLowByteFirst()
     {
         var bus = new WriteOrderRecordingBus();
         new WramWord(bus, CpuBusCellConstants.WramWord("Order", 0x7e1000)).Write(0xabcd);
         new WramWords(bus, CpuBusCellConstants.WramWords("OrderTable", 0x7e2000, 2))[1].Write(0x1234);
-        AssertTrue(bus.Writes.SequenceEqual(new CpuBusBoundaryWrite[]
+        AssertTrue(bus.Writes.SequenceEqual(new RecordedBusWrite[]
             {
-                new CpuBusBoundaryWrite(0x7e1000, 0xcd), new CpuBusBoundaryWrite(0x7e1001, 0xab),
-                new CpuBusBoundaryWrite(0x7e2002, 0x34), new CpuBusBoundaryWrite(0x7e2003, 0x12),
+                new RecordedBusWrite(0x7e1000, 0xcd), new RecordedBusWrite(0x7e1001, 0xab),
+                new RecordedBusWrite(0x7e2002, 0x34), new RecordedBusWrite(0x7e2003, 0x12),
             }), "word writes are low byte then high byte, in call order");
     }
 
     /// <summary>Representative typed domain views round-trip their values through the bus.</summary>
-    [CpuBusBoundary("exact bus test: representative typed view round trips")]
     private static void VerifyCpuBusTypedRoundTrips()
     {
         var scratch = new EnemyStagingSurfaces();
@@ -166,19 +109,18 @@ internal static class CpuBusBoundaryVerification
     }
 
     /// <summary>A real address space that records each write in order.</summary>
-    [CpuBusBoundary("exact bus test: write-order recording double")]
     internal sealed class WriteOrderRecordingBus : ISnesMemoryBus
     {
         /// <summary>Backing address space used so recorded writes retain normal WRAM and SRAM behavior.</summary>
         private readonly SuperMetroidAddressSpace inner = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
         /// <summary>CPU addresses and bytes in the order they reached the bus.</summary>
-        public List<CpuBusBoundaryWrite> Writes { get; } = [];
+        public List<RecordedBusWrite> Writes { get; } = [];
 
         /// <summary>Records the requested write before forwarding it to the backing address space.</summary>
         public void WriteByte(int address, byte value)
         {
-            Writes.Add(new CpuBusBoundaryWrite(address, value));
+            Writes.Add(new RecordedBusWrite(address, value));
             inner.WriteByte(address, value);
         }
 
@@ -186,11 +128,11 @@ internal static class CpuBusBoundaryVerification
         public byte ReadWorkRamByte(int cpuAddress) => inner.ReadWorkRamByte(cpuAddress);
     }
 
-    /// <summary>Runs the CPU-bus catalog and primitive boundary suite from the verification command.</summary>
-    [VerificationCommand("--cpu-bus-boundary")]
-    internal static int CpuBusBoundaryCommand()
+    /// <summary>Runs the WRAM cell primitive suite from the verification command.</summary>
+    [VerificationCommand("--work-ram-cells")]
+    internal static int WorkRamCellsCommand()
     {
-        Suite(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary());
+        Suite(nameof(VerifyWorkRamCells), () => VerifyWorkRamCells());
         return 0;
     }
 }

@@ -17,7 +17,6 @@ internal static class MenuSmallFontPixelsVerification
     /// <summary>Compares every small-font pixel with bank-$B6 tiles and checks
     /// isolated and full-sheet edits preserve adjacent glyph boundaries.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for menu small font pixels")]
     internal static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);

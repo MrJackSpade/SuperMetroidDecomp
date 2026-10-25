@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Installs native ending colors as independently replaceable RGB5 JSON files.</summary>
-[CpuBusBoundary("codec: ROM ending palettes and bank-$8C logo crossfade colors → ending palette artwork files")]
 public static class EndingPaletteArtworkFiles
 {
     /// <summary>Manifest schema recording seven stock hashes and cartridge provenance.</summary>

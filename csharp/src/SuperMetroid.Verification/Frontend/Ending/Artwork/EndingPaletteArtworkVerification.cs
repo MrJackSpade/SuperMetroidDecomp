@@ -29,7 +29,6 @@ internal static class EndingPaletteArtworkVerification
 
     /// <summary>Checks the logo's reverse-copy palette fade against native pointers and actual CGRAM writes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette fade")]
     internal static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];
@@ -138,7 +137,6 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Derives six ending palette source ranges from native load operands and validates catalog metadata.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending palette metadata")]
     internal static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
         // Original indexed LDA operands select the six contiguous resources. The gunship
@@ -501,7 +499,6 @@ internal static class EndingPaletteArtworkVerification
 
     /// <summary>Compares installed logo fade CGRAM with native playback while prohibiting source color reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette artwork")]
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {

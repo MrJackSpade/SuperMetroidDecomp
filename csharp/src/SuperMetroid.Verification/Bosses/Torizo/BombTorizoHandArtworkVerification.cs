@@ -15,7 +15,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 internal static class BombTorizoHandArtworkVerification
 {
     /// <summary>Confirms the installed debris page matches the cartridge and its overrides edit exactly their pixels.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo hand artwork")]
     internal static void VerifyBombTorizoHandArtwork()
     {
         var importer = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

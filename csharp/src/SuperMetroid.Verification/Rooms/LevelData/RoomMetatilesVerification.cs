@@ -16,7 +16,6 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class RoomMetatilesVerification
 {
     /// <summary>Roundtrips distinct CRE and area metatiles, then checks a visual edit leaves collision and BTS intact.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room metatile (block) definitions")]
     internal static void VerifyRoomMetatileExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

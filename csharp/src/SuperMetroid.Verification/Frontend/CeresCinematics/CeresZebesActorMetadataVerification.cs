@@ -10,7 +10,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresZebesActorMetadataVerification
 {
     /// <summary>Compares spawn, slide, and completion callbacks while rejecting invalid actor ordinals.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Zebes actor metadata")]
     internal static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {
         int[] xAddresses = [0x8bc83c, 0x8bc944, 0x8bc958, 0x8bc96c, 0x8bc980, 0x8bc993];

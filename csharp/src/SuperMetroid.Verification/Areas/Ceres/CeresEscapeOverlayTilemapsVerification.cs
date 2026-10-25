@@ -25,7 +25,6 @@ internal static class CeresEscapeOverlayTilemapsVerification
 
     /// <summary>Compares five native overlays, then checks live override, reload, and missing-resource behavior.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
     internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

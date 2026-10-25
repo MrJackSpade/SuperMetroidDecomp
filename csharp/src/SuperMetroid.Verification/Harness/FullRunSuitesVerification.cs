@@ -64,7 +64,7 @@ using static SuperMetroid.Verification.Hardware.CompressionVerification;
 using static SuperMetroid.Verification.Rooms.Plms.ContactCrumbleProgramsVerification;
 using static SuperMetroid.Verification.Audio.ContactDamageSoundVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
-using static SuperMetroid.Verification.Hardware.CpuBusBoundaryVerification;
+using static SuperMetroid.Verification.Hardware.WorkRamCellVerification;
 using static SuperMetroid.Verification.Samus.Movement.CrampedAerialLandingVerification;
 using static SuperMetroid.Verification.Rooms.Plms.CrateriaMainstreetEscapePassageVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaPlmsVerification;
@@ -99,7 +99,7 @@ using static SuperMetroid.Verification.Bosses.Draygon.DraygonPrebattleXrayVerifi
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonScrollingSpeedCapVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonTilemapProductionVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonTurretCadenceVerification;
-using static SuperMetroid.Verification.Audio.DspRegisterBoundaryVerification;
+using static SuperMetroid.Verification.Audio.DspControlsVerification;
 using static SuperMetroid.Verification.Enemies.Elevator.ElevatorStandUpContactVerification;
 using static SuperMetroid.Verification.Areas.Maridia.ElevatubeScrollingVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EmptyExtendedFrameShotsVerification;
@@ -339,7 +339,7 @@ using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateCollision
 using static SuperMetroid.Verification.Samus.Projectiles.SpacetimeBeamVerification;
 using static SuperMetroid.Verification.Enemies.Sparks.SparkCrashAlignmentVerification;
 using static SuperMetroid.Verification.Spatial.SpatialValuesVerification;
-using static SuperMetroid.Verification.Audio.SpcMemoryBoundaryVerification;
+using static SuperMetroid.Verification.Audio.SpcDriverMemoryVerification;
 using static SuperMetroid.Verification.Audio.SpcSoundLibrary2PointersVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterVisualsVerification;
@@ -448,11 +448,11 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyLowcPlaythroughMovie), () => VerifyLowcPlaythroughMovie("csharp/test-fixtures/replay-traces/lowc")),
         new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
-        new(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary()),
+        new(nameof(VerifyWorkRamCells), () => VerifyWorkRamCells()),
         new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
         new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),
-        new(nameof(VerifyDspRegisterBoundary), () => VerifyDspRegisterBoundary()),
-        new(nameof(VerifySpcMemoryBoundary), () => VerifySpcMemoryBoundary()),
+        new(nameof(VerifyDspControls), () => VerifyDspControls()),
+        new(nameof(VerifySpcDriverMemory), () => VerifySpcDriverMemory()),
         new(nameof(VerifyRoomEnemyLoadContracts), () => VerifyRoomEnemyLoadContracts()),
         new(nameof(VerifyOperationContracts), () => VerifyOperationContracts()),
         new(nameof(VerifyNullContracts), () => VerifyNullContracts()),

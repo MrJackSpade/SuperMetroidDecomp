@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -32,7 +31,6 @@ internal static class KraidPaletteDefinitionsVerification
     }
 
     /// <summary>Reads a byte of retail bank-$A7 code solely for the source-address oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid palette source addresses")]
     private static byte KraidPaletteSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Uses adjacent bank-$A7 symbol boundaries to check complete backdrop, target, health, secondary, and death-arm palette lengths.</summary>

@@ -3,7 +3,6 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Cartridge values and helpers of <see cref="CpuBusCell"/> that only verification reads.</summary>
-[CpuBusAccess]
 internal static class CpuBusCellConstants
 {
     /// <summary>A WRAM byte.</summary>

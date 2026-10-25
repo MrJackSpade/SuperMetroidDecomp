@@ -26,7 +26,6 @@ internal static class SamusBodyArtworkVerification
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus body artwork")]
     internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyArtworkCatalog stock = installation.LoadSamusBodyArt();
@@ -589,7 +588,6 @@ internal static class SamusBodyArtworkVerification
 
     /// <summary>Compares arm-cannon pose records and tiles to ROM, then checks guarded cover OAM and DMA output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus arm cannon artwork")]
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
         SamusBodyArtworkCatalog body)
     {
@@ -672,7 +670,6 @@ internal static class SamusBodyArtworkVerification
     }
 
     /// <summary>Import-only oracle for Samus's bank-$92 OAM record format.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle drawing a Samus spritemap record straight from bank $92")]
     private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort index, Position16<SpritePixels> origin)
     {

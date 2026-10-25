@@ -14,7 +14,6 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 internal static class YardDirectionDefinitionsVerification
 {
     /// <summary>Compares every direction and airborne-list word with ROM, then exercises initialization, turning, and launch paths without table reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Yard direction definitions")]
     internal static void VerifyYardDirectionDefinitions(SuperMetroidAddressSpace rom)
     {
         const int directionAddress = 0xa3cd42;

@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Hardware;
 /// A bounded table of little-endian WRAM words at a fixed CPU address, stepping two bytes per
 /// element within the bank. Constructed only by domain memory views.
 /// </summary>
-[CpuBusAccess]
 internal readonly struct WramWords
 {
     /// <summary>Mutable CPU bus supplying the table's two-byte elements.</summary>

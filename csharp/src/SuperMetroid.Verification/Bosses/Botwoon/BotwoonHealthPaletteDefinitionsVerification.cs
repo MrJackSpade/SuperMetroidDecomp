@@ -16,7 +16,6 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 internal static class BotwoonHealthPaletteDefinitionsVerification
 {
     /// <summary>Compares all signed health decisions with native thresholds and drives the production palette update.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palette definitions")]
     internal static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
 

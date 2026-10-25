@@ -110,7 +110,6 @@ internal static class EndingPlanetBoundaryVerification
     }
 
     /// <summary>Reconstructs native explosion DMA ranges and compares crossfade and flyaway pixels frame by frame.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending planet-explosion VRAM reconstruction")]
     internal static void VerifyEndingPlanetBoundary(PlanetFrameCapture? capture)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

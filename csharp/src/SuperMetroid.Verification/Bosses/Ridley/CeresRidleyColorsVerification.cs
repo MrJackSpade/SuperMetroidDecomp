@@ -382,7 +382,6 @@ internal static class CeresRidleyColorsVerification
             .Forbid(forbidden.Contains, address => $"Ceres Ridley color reread ${address:X6}.");
 
     /// <summary>Reads one BGR555 word from the pinned retail palette oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's native palette rows")]
     private static ushort ReadNativeCeresRidleyColor(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

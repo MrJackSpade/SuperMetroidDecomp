@@ -12,7 +12,6 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 internal static class GrapplePointAnimationVerification
 {
     /// <summary>Checks repeated frame stride and restored frame/timer boundaries, including wrapped pointer arithmetic.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple point tile pointers")]
     internal static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));

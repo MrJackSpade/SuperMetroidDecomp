@@ -35,7 +35,6 @@ internal static class CeresFlightArtworkVerification
 
     /// <summary>Checks native front and rear transfers, visible edits, restored bindings, and stock repair.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight Mode 7 characters, maps, object characters and palette")]
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -200,7 +199,6 @@ internal static class CeresFlightArtworkVerification
     }
 
     /// <summary>Checks five native rear-view actor positions and an edited asteroid's live OAM result.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres flight actor spritemap layout")]
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock)
     {

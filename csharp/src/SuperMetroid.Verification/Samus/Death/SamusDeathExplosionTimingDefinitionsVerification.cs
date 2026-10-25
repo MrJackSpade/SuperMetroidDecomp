@@ -11,7 +11,6 @@ using SuperMetroid.Verification.Harness;
 internal static class SamusDeathExplosionTimingDefinitionsVerification
 {
     /// <summary>Compares all nine authored durations and rejects a restored index beyond the final record.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus death explosion timing definitions")]
     internal static void VerifySamusDeathExplosionTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {

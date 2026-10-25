@@ -13,7 +13,6 @@ using SuperMetroid.Core.World;
 internal static class PhantoonCasualFlamesVerification
 {
     /// <summary>Compares four schedule word lists, every RNG selector, and complete mouth-animation transitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon casual flames")]
     internal static void VerifyCompiledPhantoonCasualFlames(SuperMetroidAddressSpace rom)
     {
         for (int pattern = 0; pattern < 4; pattern++)

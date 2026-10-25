@@ -26,7 +26,6 @@ internal static class HalfWaveAlgorithmsVerification
     }
 
     /// <summary>Reads the original byte sine table only for this retail oracle check.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for eight bit half wave algorithm")]
     private static byte EightBitHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks all 128 unsigned word samples, precise rounding bounds, and invalid indices.</summary>
@@ -49,6 +48,5 @@ internal static class HalfWaveAlgorithmsVerification
     }
 
     /// <summary>Reads bytes of the original unsigned sine table for this retail oracle check.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for unsigned half wave algorithm")]
     private static byte UnsignedHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

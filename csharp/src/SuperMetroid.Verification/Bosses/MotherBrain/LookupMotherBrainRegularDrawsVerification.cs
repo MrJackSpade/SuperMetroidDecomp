@@ -89,6 +89,5 @@ internal static class LookupMotherBrainRegularDrawsVerification
     }
 
     /// <summary>Reads a native Mother Brain PLM draw-list byte for the shape oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain regular draw mapping")]
     private static byte MotherBrainRegularDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

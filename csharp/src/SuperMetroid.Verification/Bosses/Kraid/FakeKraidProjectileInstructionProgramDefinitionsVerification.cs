@@ -113,7 +113,6 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
     }
 
     /// <summary>Reads one bank-$86 projectile program word from the retail ROM as an exact verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid projectile instruction words")]
     internal static ushort ReadFakeKraidProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>

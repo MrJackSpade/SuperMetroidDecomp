@@ -19,7 +19,6 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
 {
     /// <summary>Compares native CGRAM, checks an isolated live color edit, and verifies guard and override persistence.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ninja Space Pirate palette")]
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

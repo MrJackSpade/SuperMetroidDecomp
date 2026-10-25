@@ -61,7 +61,6 @@ internal static class PauseReserveFramesVerification
     }
 
     /// <summary>Compares each stock reserve part and independently edited OAM attribute against its native map.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve stock parts")]
     private static void VerifyPauseReserveStockParts(ISnesAddressSpace rom, PauseReserveTankDocument document)
     {
         foreach (var frame in ReserveFrameOracle())
@@ -101,7 +100,6 @@ internal static class PauseReserveFramesVerification
     }
 
     /// <summary>Checks native role and partial-fill selectors and OAM capacity for all reserve frames.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve native frames")]
     internal static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
     {
         foreach (var (site, identity) in new[] { new VerifyPauseReserveNativeFramesCase(0x82b305, 0x1b), new VerifyPauseReserveNativeFramesCase(0x82b37d, 0x20), new VerifyPauseReserveNativeFramesCase(0x82b396, 0x1f) })

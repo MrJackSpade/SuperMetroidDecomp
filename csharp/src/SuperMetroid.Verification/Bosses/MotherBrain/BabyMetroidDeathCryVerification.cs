@@ -17,7 +17,6 @@ internal static class BabyMetroidDeathCryVerification
 {
     /// <summary>Compares all affected CGRAM entries and verifies exactly one native library-three sound publication.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Baby Metroid death-cry palette frames")]
     internal static int VerifyBabyMetroidDeathCry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

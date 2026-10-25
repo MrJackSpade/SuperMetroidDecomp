@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class SpaceColonyCaptionVerification
 {
     /// <summary>Checks eleven letter positions and tiles while confirming native timing, row, and one-cell draw shape remain fixed.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Space Colony caption")]
     internal static void VerifySpaceColonyCaption(ISnesAddressSpace rom)
     {
         AssertEqual(11, SpaceColonyCaptionDefinitions.LetterCount, "native caption length");

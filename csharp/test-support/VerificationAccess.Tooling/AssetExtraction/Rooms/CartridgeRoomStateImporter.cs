@@ -12,7 +12,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Reads one native 26-byte bank-$8F room-state payload during import.</summary>
-[CpuBusBoundary("codec: ROM bank-$8F 26-byte room-state payload → RoomStateSettings")]
 public static class CartridgeRoomStateImporter
 {
     /// <summary>Decodes one 26-byte bank-$8F room-state payload, including its level (named by extraction's map from its compressed source) and native graphics, music (decoded by <see cref="RoomMusicCodec"/>), population, and setup fields.</summary>

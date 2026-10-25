@@ -131,7 +131,6 @@ internal static class BotwoonNavigationDefinitionsVerification
     }
 
     /// <summary>Compares hole rectangles and movement samples against retail words while guarding compiled source ranges during production navigation.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon navigation definitions")]
     internal static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));

@@ -58,7 +58,6 @@ internal static class CeresSteamCollisionDefinitionsVerification
     }
 
     /// <summary>Checks frame components, hitbox lists, and shot/touch boundary behavior without production ROM reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres steam collision definitions")]
     internal static void VerifyCeresSteamCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

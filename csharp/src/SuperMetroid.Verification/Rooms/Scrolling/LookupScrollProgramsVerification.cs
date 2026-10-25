@@ -83,6 +83,5 @@ internal static class LookupScrollProgramsVerification
     }
 
     /// <summary>Reads an original scroll-program byte for independent field comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for scroll program field")]
     private static byte ScrollProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

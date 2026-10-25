@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -49,7 +48,6 @@ internal static class PauseCategoryCasesVerification
     }
 
     /// <summary>Matches each category's item bound to its native inventory-scan comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause category item counts")]
     private static void VerifyPauseCategoryItemCounts(ISnesAddressSpace rom)
     {
         // Independent original CPX instruction sites in the initial inventory scan.
@@ -62,7 +60,6 @@ internal static class PauseCategoryCasesVerification
     }
 
     /// <summary>Matches label widths to the native dispatched category copy lengths.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause category copy lengths")]
     private static void VerifyPauseCategoryCopyLengths(ISnesAddressSpace rom)
     {
         // The dispatched category owns this byte count even if movement changes the selection.

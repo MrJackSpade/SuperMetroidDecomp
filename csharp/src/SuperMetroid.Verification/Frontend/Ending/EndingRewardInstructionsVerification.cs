@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingRewardInstructionsVerification
 {
     /// <summary>Compares all 37 reward artwork identities and their compositions with the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward instructions")]
     internal static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
     {
         // Original display operands select catalog frames independently of native storage order.

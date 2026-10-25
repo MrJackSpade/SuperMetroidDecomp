@@ -42,7 +42,6 @@ internal static class PauseEquipmentRulesVerification
     internal static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
 
     /// <summary>Matches a category's native mask table and verifies category-first bounds rejection.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause mask cases")]
     private static void VerifyPauseMaskCases(ISnesAddressSpace rom, PauseEquipmentCategory category, int address, int count)
     {
         for (int item = 0; item < count; item++)
@@ -70,7 +69,6 @@ internal static class PauseEquipmentRulesVerification
     }
 
     /// <summary>Compares the compiled suit-wireframe selector with every sixteen-bit equipped-item word.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause wireframe selection")]
     internal static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0x29, rom.ReadCartridgeByte(0x82b212), "native AND immediate opcode");
@@ -94,7 +92,6 @@ internal static class PauseEquipmentRulesVerification
     }
 
     /// <summary>Checks real menu toggles, first-owned selection, rendered wireframes, Start+A ordering, and reserve transfer cadence.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment set, mask and reserve-transfer tables")]
     internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(bus));

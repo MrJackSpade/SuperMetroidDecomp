@@ -23,7 +23,6 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
     /// <summary>Exercises edited RGB5 colors through live CGRAM updates while preserving phase and next-frame selection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Dachora colors and selector pointers")]
     internal static void VerifyInstalledDachoraColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {

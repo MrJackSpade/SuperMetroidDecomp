@@ -15,7 +15,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Extracts supported extended enemy visual components without exporting their
 /// native hitbox pointers or any instruction/callback words.
 /// </summary>
-[CpuBusBoundary("codec: ROM extended enemy spritemap component records → enemy extended frame files")]
 internal static class EnemyExtendedFrameFiles
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>

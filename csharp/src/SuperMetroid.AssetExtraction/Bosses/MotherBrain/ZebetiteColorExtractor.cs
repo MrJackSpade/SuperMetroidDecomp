@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Extracts only Zebetite's eight authored pulse images from the pinned cartridge.</summary>
-[CpuBusBoundary("codec: ROM Zebetite pulse color images → ZebetiteColorCatalog")]
 public static class ZebetiteColorExtractor
 {
     /// <summary>Exports the eight two-color Zebetite pulse images from $A6:FD87 in native frame order.</summary>

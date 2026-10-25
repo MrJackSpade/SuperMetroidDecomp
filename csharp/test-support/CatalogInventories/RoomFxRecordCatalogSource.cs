@@ -24,7 +24,6 @@ internal static class RoomFxRecordCatalogSource
         SortedDictionary<ushort, ushort[]> Lists);
 
     /// <summary>Walks every compiled header's records, plus the Mother Brain records her FX entries index after its default.</summary>
-    [CpuBusBoundary("codec: ROM bank-$83 room FX headers → RoomFxDefinition catalog source")]
     internal static RetailRoomFxCapture CaptureRetailRoomFx(ISnesAddressSpace bus)
     {
         var records = new SortedDictionary<ushort, RoomFxRecordDefinition>();

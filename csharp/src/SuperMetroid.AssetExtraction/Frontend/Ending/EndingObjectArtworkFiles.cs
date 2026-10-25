@@ -18,7 +18,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Extracts ending/reward character PNGs and the waiting-scene BG2 tilemap.</summary>
-[CpuBusBoundary("codec: ROM ending/reward OBJ characters and waiting-scene BG2 tilemap → ending object artwork")]
 public static class EndingObjectArtworkFiles
 {
     /// <summary>Creates ending/reward PNG transports, BG2 map JSON, sprite-composition JSON, and a hashed manifest, checking character and map transfers round-trip to native bytes.</summary>

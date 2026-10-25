@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Extracts only BGR555 payloads selected by the compiled room-flash program.</summary>
-[CpuBusBoundary("codec: ROM Mother Brain room-flash BGR555 payloads → Mother Brain room colors")]
 internal static class MotherBrainRoomColorExtractor
 {
     /// <summary>Locates the palette operand of room-flash frame <paramref name="index"/> in the cartridge's flash list.</summary>

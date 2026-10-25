@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Cartridge bytes available only to the asset-import assembly.
 /// </summary>
-[CpuBusAccess]
 public interface IImportCartridgeSource
 {
     /// <summary>Reads a cartridge byte by its CPU-visible address for asset extraction.</summary>

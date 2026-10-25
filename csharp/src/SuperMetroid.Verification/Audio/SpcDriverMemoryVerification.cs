@@ -4,15 +4,14 @@ namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks typed SPC RAM views, address wrapping, record order, aliasing, and APU port limits.</summary>
-internal static class SpcMemoryBoundaryVerification
+internal static class SpcDriverMemoryVerification
 {
     /// <summary>
     /// #632: the typed driver-memory views keep native byte order and 16-bit wrapping, advance stream
     /// cursors after reading, round-trip instrument records, upload records across the address-space end,
     /// expose the pan-table overrun as the FIR preset table it aliases, and type the APU ports.
     /// </summary>
-    [SpcMemoryBoundary("exact APU memory test: typed driver-memory views against APU RAM")]
-    internal static void VerifySpcMemoryBoundary()
+    internal static void VerifySpcDriverMemory()
     {
         var player = new ManagedSpcPlayer();
 
@@ -60,11 +59,11 @@ internal static class SpcMemoryBoundaryVerification
             "another library's sound is refused");
     }
 
-    /// <summary>Runs the focused SPC memory and APU port boundary check.</summary>
-    [VerificationCommand("--spc-memory-boundary")]
-    internal static int SpcMemoryBoundaryCommand()
+    /// <summary>Runs the focused SPC driver-memory and APU port check.</summary>
+    [VerificationCommand("--spc-driver-memory")]
+    internal static int SpcDriverMemoryCommand()
     {
-        Suite(nameof(VerifySpcMemoryBoundary), () => VerifySpcMemoryBoundary());
+        Suite(nameof(VerifySpcDriverMemory), () => VerifySpcDriverMemory());
         return 0;
     }
 }

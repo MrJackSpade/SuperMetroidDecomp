@@ -19,7 +19,6 @@ internal static class RoomStaticPalettesVerification
 {
     /// <summary>Compares all distinct native palettes and checks room loading plus a single-color JSON edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room base palettes")]
     internal static void VerifyRoomStaticPaletteExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

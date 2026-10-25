@@ -71,6 +71,5 @@ internal static class FuneNamiheDefinitionsVerification
     }
 
     /// <summary>Reads one native selector byte solely as the verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe program selection")]
     private static byte FuneNamiheProgramSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

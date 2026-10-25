@@ -60,7 +60,6 @@ internal static class DoorDefinitionsVerification
     }
 
     /// <summary>Reads a native door word solely for verification against compiled definitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for door definition words")]
     internal static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 

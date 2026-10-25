@@ -8,8 +8,6 @@ namespace SuperMetroid.Verification.Audio;
 internal static class SpcDspPublicationVerification
 {
     /// <summary>Checks unconditional and gated register writes, plus clearing of pending key-on/off bytes.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC DSP publication")]
     internal static void VerifySpcDspPublication(ISnesAddressSpace rom)
     {
         foreach (byte stored in new byte[] { 0x80, 1, 2 })

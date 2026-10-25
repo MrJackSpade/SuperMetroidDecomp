@@ -13,7 +13,6 @@ using SuperMetroid.Core.World;
 internal static class MotherBrainTurretDefinitionsVerification
 {
     /// <summary>Exercises all twelve turret placements and eight bullet directions with source table reads forbidden.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret definitions")]
     internal static void VerifyMotherBrainTurretDefinitions(SuperMetroidAddressSpace rom)
     {
         var guarded = NewMotherBrainTurretReadGuard(rom);

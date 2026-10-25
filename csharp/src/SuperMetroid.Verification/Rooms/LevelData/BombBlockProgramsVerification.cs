@@ -17,7 +17,6 @@ using SuperMetroid.Core.Progression;
 internal static class BombBlockProgramsVerification
 {
     /// <summary>Checks the three native restoration draws and their exact bank-$84 pointer ownership.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb block restoration mapping")]
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
@@ -126,7 +125,6 @@ internal static class BombBlockProgramsVerification
     }
 
     /// <summary>Checks packed collision and projectile sound bytes at both entry points of each native shape list.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb block sound mapping")]
     private static void VerifyBombBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcc37,0xcc3e,0xcc61,0xcc68,0xcc8d,0xcc94,0xccb9,0xccc0,

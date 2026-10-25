@@ -11,7 +11,6 @@ using SuperMetroid.Core.World;
 internal static class CrocomireBridgeFragmentDefinitionsVerification
 {
     /// <summary>Compares native X positions with real allocations, movement seeds, cursor advance, and cutoff.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge fragment definitions")]
     internal static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa49156;

@@ -14,7 +14,6 @@ using SuperMetroid.Core.World;
 internal static class SbugMovementDefinitionsVerification
 {
     /// <summary>Checks compiled Sbug facing, activation, and instruction data against retail words, then runs every facing loop with migrated reads forbidden.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Sbug movement definitions")]
     internal static void VerifySbugMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa3a111;

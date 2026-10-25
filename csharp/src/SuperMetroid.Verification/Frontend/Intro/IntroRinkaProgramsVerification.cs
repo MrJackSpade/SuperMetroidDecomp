@@ -32,6 +32,5 @@ internal static class IntroRinkaProgramsVerification
     }
 
     /// <summary>Reads one native frame-record byte solely as a verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka frame catalog")]
     private static byte IntroRinkaFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

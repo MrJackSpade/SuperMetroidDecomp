@@ -113,7 +113,6 @@ internal sealed class CorpseStaging
 
     /// <summary>The bytes the cartridge uploads for <paramref name="row"/> now.</summary>
     /// <exception cref="InvalidDataException">The row uploads bytes the corpse never wrote, or lies outside its work memory.</exception>
-    [CpuBusBoundary("codec: a corpse row transfer's native work-memory source")]
     internal byte[] Upload(CorpseRotRow row)
     {
         Ensure.NotNull(row);

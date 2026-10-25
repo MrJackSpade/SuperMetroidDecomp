@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Enemies.Puyo;
 internal static class PuyoHopDefinitionsVerification
 {
     /// <summary>Checks seven native records and the six non-dropping integrations, then rejects invalid byte selectors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo hops")]
     internal static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {
         Action<PuyoEnemyState> calculate = PuyoBehavior.CalculateInitialPuyoHopSpeed;

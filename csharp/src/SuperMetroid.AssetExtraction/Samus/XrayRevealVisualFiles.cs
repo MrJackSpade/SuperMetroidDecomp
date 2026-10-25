@@ -18,7 +18,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Extracts the visual metatile operands of the retail X-ray reveal table. Rule selection,
 /// copy shape, extensions, and area gating stay in the compiled collision dispatcher.
 /// </summary>
-[CpuBusBoundary("codec: ROM X-ray reveal metatile operand table → X-ray reveal visual files")]
 public static class XrayRevealVisualFiles
 {
     /// <summary>Family-relative version-two stock/override JSON filename for reveal-rule operands, eight item metatiles, and special-room overlay records.</summary>

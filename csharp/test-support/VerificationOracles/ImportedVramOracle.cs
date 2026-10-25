@@ -45,7 +45,6 @@ internal static class ImportedVramOracle
         queue.DrainTo(vram, new ImportedTransfers(source), null, BgArtworkFixtures.For(vram));
 
     /// <summary>Reads a bank-contained DMA span from the cartridge, WRAM, or SRAM region named by each address.</summary>
-    [CpuBusBoundary("exact bus test: reference DMA source read (cartridge, WRAM or SRAM) for installed-artwork VRAM comparisons")]
     private static byte[] ReadTransfer(ISnesAddressSpace source, int sourceAddress, int length)
     {
         SnesAddress start = SnesAddress.FromBusAddress(sourceAddress);

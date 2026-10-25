@@ -87,6 +87,5 @@ internal static class LookupCrocomireDrawsVerification
     }
 
     /// <summary>Reads native draw-list bytes solely as the physical-layout oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire physical draw mapping")]
     private static byte CrocomirePhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

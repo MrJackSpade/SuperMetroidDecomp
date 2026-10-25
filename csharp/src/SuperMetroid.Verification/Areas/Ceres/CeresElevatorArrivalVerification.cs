@@ -70,7 +70,6 @@ internal static class CeresElevatorArrivalVerification
     }
 
     /// <summary>Matches the arrival projectiles' definitions and typed programs (#641) to the retail bank-$86 lists.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres elevator arrival definitions")]
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);

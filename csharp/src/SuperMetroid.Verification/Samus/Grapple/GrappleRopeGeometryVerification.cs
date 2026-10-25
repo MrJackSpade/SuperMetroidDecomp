@@ -13,7 +13,6 @@ internal static class GrappleRopeGeometryVerification
 {
     /// <summary>Compares real drawing with the native fractional accumulator across directions, origins, and rope lengths.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple rope angle tables")]
     internal static void VerifyGrappleRopeGeometry(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleEndpointGeometry), () => VerifyGrappleEndpointGeometry());

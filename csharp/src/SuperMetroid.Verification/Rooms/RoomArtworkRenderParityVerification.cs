@@ -26,7 +26,6 @@ internal static class RoomArtworkRenderParityVerification
     /// real door-selected sky page and ordinary room-art upload in one frame.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky transfer bytes compared with installed artwork")]
     internal static void VerifyRoomArtworkRenderParity(
         GameInstallation installation, string sourceRom)
     {

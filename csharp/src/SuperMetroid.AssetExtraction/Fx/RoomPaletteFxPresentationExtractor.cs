@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;
@@ -8,7 +7,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Extracts authored room and cinematic palette animation colors to RGB5 JSON.</summary>
-[CpuBusBoundary("codec: ROM room and cinematic palette-FX colors → palette-FX presentation")]
 internal static class RoomPaletteFxPresentationExtractor
 {
     /// <summary>Reads compiled room and cinematic palette-FX source colors and writes their RGB5 presentation document.</summary>

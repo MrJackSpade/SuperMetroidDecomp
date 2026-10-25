@@ -48,7 +48,6 @@ internal static class TourianAccessPlmProgramsVerification
     }
 
     /// <summary>Checks five native draw spans, row shapes, physical words, and continuation offsets.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access physical draw mapping")]
     private static void VerifyTourianAccessPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =

@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 internal static class CrocomireSkeletonFrameGeometryVerification
 {
     /// <summary>Derives 33 selected skeleton roots from native instruction operands and checks component counts, strides, ordering, and rejected gaps.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton frame geometry")]
     internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Skeleton));

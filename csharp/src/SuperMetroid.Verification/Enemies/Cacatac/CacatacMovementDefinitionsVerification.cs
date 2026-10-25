@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Enemies.Cacatac;
 internal static class CacatacMovementDefinitionsVerification
 {
     /// <summary>Checks six native distances and wrapped min/max positions while a guard forbids the migrated table read in production initialization.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac movement definitions")]
     internal static void VerifyCacatacMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int distanceTable = 0xa29f36;

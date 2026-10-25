@@ -88,7 +88,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks every foreground explosion palette hold, CGRAM exposure, deletion, and star handoff tick.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for foreground cadence")]
     internal static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyZebesExplosionForegroundPaletteFxColorDefinitions), () => VerifyZebesExplosionForegroundPaletteFxColorDefinitions(rom));
@@ -150,7 +149,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks title tube and display shades against native words and confirms edited RGB channels propagate independently.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient colors")]
     private static void VerifyLookupStream4TitleAmbientColors(ISnesAddressSpace rom)
     {
         ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
@@ -200,7 +198,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Runs both title ambient loops for two cycles and checks per-tick CGRAM colors without live cartridge reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient mechanics")]
     internal static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
         int ticks = 0;
@@ -346,7 +343,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Confirms the ending font preserves cartridge space glyph data and layout boundaries.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending font character data")]
     internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom),
@@ -417,7 +413,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Maridia palette colors and source ownership against the native palette rows.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia colors")]
     internal static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
     {
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
@@ -484,7 +479,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the planet text glyphs and placement data against cartridge definitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for planet text")]
     internal static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
     {
         var all = PlanetZebesTextPaletteFxColorDefinitions.All;
@@ -562,7 +556,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Ceres fade phases, native color rows, and installed CGRAM exposure.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres fades")]
     internal static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -634,7 +627,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Ceres alarm palette timing and color output at its native CGRAM destination.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres alarm")]
     internal static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {
         ushort Native(int row, int color)
@@ -723,7 +715,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Maridia palette definition pointers and their imported color rows.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia palette definitions")]
     internal static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
     {
         var all = MaridiaEnvironmentalPaletteFxColorDefinitions.All;
@@ -768,7 +759,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks ending shake displacement and timing data against its native program.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending shake")]
     internal static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
     {
         int Native(int address)
@@ -830,7 +820,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn health-dependent palette stages against native colors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore health ramp")]
     internal static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4)
@@ -891,7 +880,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the healthy Spore Spawn palette aliases the intended native color range.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore healthy alias")]
     internal static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -942,7 +930,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn level-fade phases and their source palette rows.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn level-fade palette")]
     internal static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
     {
         byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
@@ -1013,7 +1000,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn background-fade stages against native palette words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn background-fade palette")]
     internal static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
     {
         byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
@@ -1083,7 +1069,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn sprite-fade stages against native palette words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore sprite fade")]
     internal static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -1260,7 +1245,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ridley tail rest offsets and geometry against native coordinate data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for tail rest geometry")]
     internal static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
@@ -1309,7 +1293,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks the Baby Metroid transfer graphics phase at the native VRAM locations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby transfer phase")]
     internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
@@ -1358,7 +1341,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Fly animation frame identities against the cartridge instruction data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Fly frame identities")]
     internal static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
     {
         NativeEnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
@@ -1373,7 +1355,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks HUD icon tiles and their source identities against native artwork.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for HUD icons")]
     internal static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1444,7 +1425,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the HUD template cells against their native layout words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for HUD template")]
     internal static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1482,7 +1462,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks the installed HUD top row at the native VRAM tile positions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for HUD top row")]
     internal static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1559,7 +1538,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks auto-reserve HUD cell identities against the cartridge tile words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for HUD auto cells")]
     internal static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
@@ -1608,7 +1586,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks HUD digit tile identities and their native order.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for HUD digits")]
     internal static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
@@ -1649,7 +1626,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for title sprite identities")]
     internal static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
     {
         var nativeTitlePointers = new HashSet<ushort> { 0x8103, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8ba0c7) };
@@ -1677,7 +1653,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks title card tile placement and dimensions against cartridge layout data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for title card layout")]
     internal static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
     {
         int steps = SuperMetroid.Verification.Frontend.Title.TitleCardOracle.CompareAll(rom);
@@ -1685,7 +1660,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room sprite dispatch")]
     internal static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
     {
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spriteSpawn =
@@ -1715,7 +1689,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks which Ridley frame pointers are presentation data and which are control words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley frame domain")]
     private static void VerifyLookupStream4RidleyFrameDomain(ISnesAddressSpace rom)
     {
         var nativeFrames = new List<ushort>();
@@ -1755,7 +1728,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks beam palette relations and installed CGRAM and VRAM output against native data.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for beam color relations")]
     internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
@@ -1800,7 +1772,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley movement policy")]
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
@@ -1840,7 +1811,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ridley tail angle selection data against native table values.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for tail angles")]
     private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
     {
         Func<RidleyTailSegment[]> create = RidleyTail.CreateInitialRidleyTailSegments;
@@ -1879,7 +1849,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for tail terrain")]
     private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
     {
         Func<RidleyEnemyState, RoomLevelData?, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
@@ -1911,7 +1880,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks enemy notice-region bounds and their native coordinate ordering.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for notice regions")]
     private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
     {
         byte[] bytes = GameplayMessageNoticeExtractor.Extract(rom);
@@ -1979,7 +1947,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks message dispatch IDs and their cartridge table positions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for message dispatch")]
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
         var resolve = new Func<ControllerButton, ushort>(GameplayMessageBoxState.ResolveButtonTilemapWord);
@@ -2014,7 +1981,6 @@ internal static class LookupStream4Verification
         }
     }
     /// <summary>Runs the stream-four table checks over installed presentation and behavior definitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-4 inline tables")]
     internal static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4RidleyFrameDomain), () => VerifyLookupStream4RidleyFrameDomain(rom));
@@ -2101,7 +2067,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for dark lightning colors")]
     private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
     {
         var program = CrateriaLightningColorDefinitions.DarkProgram;
@@ -2143,7 +2108,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks normal lightning palette rows and their source pointers against native values.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lightning colors")]
     private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
     {
         var program = CrateriaLightningColorDefinitions.SurfaceProgram;
@@ -2185,7 +2149,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks stream-four enemy and projectile instruction words and terminal controls against cartridge programs.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-4 enemy and enemy-projectile instruction lists")]
     private static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
     {
 
@@ -2202,7 +2165,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks projectile instruction consumers select the compiled program words they expect.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-4 enemy-projectile instruction consumers")]
     private static void VerifyLookupStream4ProgramConsumers(ISnesAddressSpace rom)
     {
 
@@ -2225,7 +2187,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks statue palette rows and selection data against native colors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for statue colors")]
     private static void VerifyLookupStream4StatueColors(ISnesAddressSpace rom)
     {
 
@@ -2277,7 +2238,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the burial presentation constants against the cartridge layout.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for burial")]
     private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
     {
 
@@ -2295,7 +2255,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Spore Spawn and Fly visual identity data against native tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore and Fly")]
     private static void VerifyLookupStream4SporeAndFly(ISnesAddressSpace rom)
     {
 
@@ -2312,7 +2271,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks power-bomb palette color stages against cartridge words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb colors")]
     private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
@@ -2362,7 +2320,6 @@ internal static class LookupStream4Verification
     /// select ($86:B65B shot origins at operands 0 and 20, $86:B6B1 sweat velocities at operands 0 and 4) equal them,
     /// rather than comparing every word of the tables, whose other entries no retail eye door selects.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-4 eye-door projectile geometry layout")]
     private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
     {
         short NativeWord(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
@@ -2408,7 +2365,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon presentation layout")]
     internal static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
     {
         // #1283: the typed programs own the frame layout; the oracle matches every frame to its native operand.
@@ -2418,7 +2374,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Draygon intro palette phases and installed CGRAM colors against native stages.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro")]
     internal static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2486,7 +2441,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Draygon sprite palette stages and their installed CGRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon sprite")]
     internal static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2549,7 +2503,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Draygon background palette stages and their installed CGRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon background")]
     internal static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2614,7 +2567,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Draygon health-driven palette selection and installed CGRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health")]
     internal static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
@@ -2737,7 +2689,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Norfair reveal room palette")]
     internal static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2828,7 +2779,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Norfair initial palette state and its installed CGRAM colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair initial")]
     internal static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
@@ -2923,7 +2873,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Botwoon color progression and installed CGRAM slots against native rows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon colors")]
     internal static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
         byte[] original = BotwoonColorExtractor.Extract(rom);
@@ -2998,7 +2947,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Oum instruction-list boundaries and pointer order against the cartridge.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Oum list layout")]
     internal static void VerifyLookupStream4OumListLayout(ISnesAddressSpace rom)
     {
         var nativeFrames = new Dictionary<ushort, ushort>();
@@ -3046,7 +2994,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks the authored breakup phase sequence against native instruction order.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for breakup order")]
     internal static void VerifyLookupStream4BreakupOrder(ISnesAddressSpace rom)
     {
         ushort[] expected = Enumerable.Range(0, 12).Select(index =>
@@ -3090,7 +3037,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks beam tile geometry and installed VRAM words against native layouts.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for beam tile geometry")]
     internal static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
         int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
@@ -3215,7 +3161,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Ceres starting palette state and installed CGRAM colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres start")]
     internal static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3271,7 +3216,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Ceres Baby palette phases and installed CGRAM colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Baby")]
     internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3363,7 +3307,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks shared Ceres retreat colors and phase ownership against cartridge rows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres retreat shared")]
     internal static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3405,7 +3348,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Ceres zoom and retreat palette phases in their native order.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres zoom and retreat")]
     internal static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
     {
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
@@ -3485,7 +3427,6 @@ internal static class LookupStream4Verification
 
     /// <summary>Checks Ceres health-dependent palette phases and installed CGRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres health")]
     internal static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
@@ -3566,7 +3507,6 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks HUD anchor coordinates and cell placement against native layout data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for HUD anchors")]
     internal static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);

@@ -8,13 +8,9 @@ internal static class ManagedSpcPlayerAccess
     extension(ManagedSpcPlayer self)
     {
         /// <summary>Exposes the mirrored DSP register file to deterministic verification.</summary>
-        [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
-        [DspRegisterAccess]
         internal byte ReadDspRegisterForVerification(byte address) => self.dsp.ReadRegister(address);
 
         /// <summary>Exposes one APU byte only to deterministic friend-assembly verification.</summary>
-        [SpcMemoryAccess]
-        [SpcMemoryBoundary("exact APU memory test: reads one byte of the SPC700's 64 KiB RAM")]
         internal byte ReadApuByteForVerification(int address)
         {
             if ((uint)address >= self.ram.Length)

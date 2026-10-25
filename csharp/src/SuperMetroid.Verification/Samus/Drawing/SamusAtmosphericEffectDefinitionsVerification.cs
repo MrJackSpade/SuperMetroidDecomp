@@ -18,7 +18,6 @@ using SuperMetroid.Core.Progression;
 internal static class SamusAtmosphericEffectDefinitionsVerification
 {
     /// <summary>Compares four native selector tables with compiled policies, then exercises splash, running, and landing handoffs with source reads guarded.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric effect definitions")]
     internal static void VerifySamusAtmosphericEffectDefinitions(SuperMetroidAddressSpace rom)
     {
         const int waterSplashTypes = 0x9081a4;

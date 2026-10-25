@@ -29,7 +29,6 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 
     /// <summary>Compares all fade selectors and RGB5 words, edits a palette channel, and checks live body, corpse, and door destinations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Mother Brain death colors and selectors")]
     internal static void VerifyInstalledMotherBrainDeathColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

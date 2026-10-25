@@ -50,7 +50,6 @@ internal static class OwtchMovementDefinitionsVerification
     }
 
     /// <summary>Compares eight indexed travel distances with their original cartridge words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch travel distance algorithm")]
     private static void VerifyOwtchTravelDistanceAlgorithm(SuperMetroidAddressSpace rom)
     {
         AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.TravelDistance(8), "Owtch distance upper bound");
@@ -65,7 +64,6 @@ internal static class OwtchMovementDefinitionsVerification
     }
 
     /// <summary>Compares six underground timers with their original cartridge words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch underground timer algorithm")]
     private static void VerifyOwtchUndergroundTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
         AssertThrows<InvalidDataException>(() => OwtchMovementDefinitions.UndergroundTimer(6), "Owtch timer upper bound");

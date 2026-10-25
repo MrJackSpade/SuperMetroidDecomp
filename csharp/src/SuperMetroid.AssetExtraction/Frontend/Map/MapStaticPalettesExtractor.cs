@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Resolves native palette-copy programs at import time into named world-selection palettes.</summary>
-[CpuBusBoundary("codec: ROM map palette-copy programs and colors → map world-selection palettes")]
 internal static class MapStaticPalettesExtractor
 {
     /// <summary>

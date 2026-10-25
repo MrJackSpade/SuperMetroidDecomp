@@ -14,7 +14,6 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// Imports the game-over screen's presentation and verifies the compiled Baby animation
 /// dispatcher against the selected cartridge revision.
 /// </summary>
-[CpuBusBoundary("codec: ROM game-over screen tilemaps, palettes and Baby animation dispatcher → game-over presentation")]
 public static class GameOverPresentationExtractor
 {
     /// <summary>Imports game-over text, Baby and egg artwork, cursor frames, and Baby palettes after verifying the compiled native animation sequence.</summary>

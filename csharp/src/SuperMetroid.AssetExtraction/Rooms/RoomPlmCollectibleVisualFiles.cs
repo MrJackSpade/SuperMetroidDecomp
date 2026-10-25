@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Installs named collectible block art while checking all 24 native draw records
 /// and the eight dynamic-slot selectors against compiled physical definitions.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$84 collectible PLM draw records and selectors → collectible visual files")]
 public static class RoomPlmCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the complete twenty-four-frame collectible visual set.</summary>

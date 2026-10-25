@@ -16,7 +16,6 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
 {
     /// <summary>Compares the 12 native empty-frame records and blocks cartridge reads during installed draw and callback selection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for shared empty extended frames")]
     internal static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {

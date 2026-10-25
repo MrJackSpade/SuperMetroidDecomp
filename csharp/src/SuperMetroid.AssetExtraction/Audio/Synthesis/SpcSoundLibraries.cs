@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcSoundLibraries
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    [SpcMemoryAccess]
     private readonly byte[] ram;
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels ;
@@ -21,7 +20,6 @@ internal sealed class SpcSoundLibraries
     private readonly SpcVoices _voices;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    [SpcMemoryBoundary("implementation: shares the APU RAM the player owns")]
     internal SpcSoundLibraries(byte[] ram, ManagedSpcMusicChannel[] channels, ManagedSpcSoundLibrary[] soundLibraries, ManagedSpcSoundChannel[][] soundChannels, ManagedSnesDsp dsp, SpcVoices voices)
     {
         this.ram = ram;
@@ -33,7 +31,6 @@ internal sealed class SpcSoundLibraries
     }
 
     /// <summary>The next byte of a sound-effect stream: the channel's stream pointer plus its index, wrapping at 16 bits.</summary>
-    [SpcMemoryBoundary("driver-memory view: sound-effect instruction stream bytes")]
     private byte ReadSoundByte(ManagedSpcSoundChannel channel)
     {
         byte value = ram[unchecked((ushort)(channel.Pointer + channel.PointerIndex))];
@@ -407,7 +404,6 @@ internal sealed class SpcSoundLibraries
     /// formed from voice × 8 rather than the sixteen-byte voice stride, so for odd voices these two
     /// writes land on another register. The quirk is preserved exactly.
     /// </summary>
-    [DspRegisterBoundary("native quirk: sound-effect ADSR writes address voice × 8 + ADSR1/ADSR2, as the cartridge driver does")]
     private void WriteSoundEffectAdsr(int voiceIndexTimesEight, int adsr)
     {
         dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterLayout.Voice.Adsr1)), unchecked((byte)adsr));

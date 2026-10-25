@@ -1,7 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The ten registers at the low offsets of each voice's sixteen-byte block.</summary>
-[DspRegisterAccess]
 internal enum DspVoiceRegister : byte
 {
     /// <summary>VxVOLL: left volume.</summary>

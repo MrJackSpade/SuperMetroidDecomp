@@ -120,6 +120,5 @@ internal static class LookupBombTorizoHandDrawVerification
     }
 
     /// <summary>Reads a native bank-$84 hand-draw offset byte for run transitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for bomb Torizo hand draw field")]
     private static byte BombTorizoHandDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

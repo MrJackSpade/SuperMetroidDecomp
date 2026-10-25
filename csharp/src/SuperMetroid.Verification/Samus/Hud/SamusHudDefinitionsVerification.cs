@@ -19,7 +19,6 @@ namespace SuperMetroid.Verification.Samus.Hud;
 internal static class SamusHudDefinitionsVerification
 {
     /// <summary>Compares every native handler and posture branch, then checks Grapple admission and charged-shot preservation.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus HUD definitions")]
     internal static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
         bool Transition(SamusPoseId pose, bool active) => pose >= SamusHudDefinitions.StandardTransitionStart ||

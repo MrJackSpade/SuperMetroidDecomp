@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Installs independently editable ending Mode-7 maps and character PNGs.</summary>
-[CpuBusBoundary("codec: ROM ending Mode-7 tilemaps and characters → ending Mode-7 artwork files")]
 public static class EndingMode7ArtworkFiles
 {
     /// <summary>Manifest revision covering the three backdrop pairs and reward-icon pair.</summary>

@@ -60,12 +60,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 internal static class EnemyTileArtworkVerification
 {
     /// <summary>Reads the exact tile upload bytes named by an enemy definition for the retail oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native tile bytes")]
     private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, EnemyDefinitionId definition, int byteCount) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(bus, definition), byteCount);
 
     /// <summary>Loads a definition's native palette into OBJ CGRAM slots starting at index 128.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native palette DMA")]
     private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, EnemyDefinitionId definition)
     {
         var cgram = new SnesCgram();
@@ -79,7 +77,6 @@ internal static class EnemyTileArtworkVerification
     /// The melt image the cartridge assembles for <paramref name="pass"/> from its retail graphics: each band's $0402-byte
     /// copy, $0200 bytes after the last, from its $0200-byte chunk of bank $A4, sized as the installed image.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire melting pass source bytes")]
     private static byte[] ReadNativeCrocomireMeltingPassImage(ISnesAddressSpace rom, CrocomireMeltingIllustration pass)
     {
         bool first = pass == CrocomireMeltingIllustration.First;

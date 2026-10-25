@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Phantoon's health, fade-out, and ship-power RGB5 targets.</summary>
-[CpuBusBoundary("codec: ROM Phantoon health, fade-out and ship-power colors → PhantoonColorCatalog")]
 public static class PhantoonColorExtractor
 {
     /// <summary>Reads all Phantoon health bands, fade-out colors, and ship-power targets, rejects high-bit colors, and serializes their RGB5 components.</summary>

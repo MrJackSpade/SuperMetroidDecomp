@@ -21,7 +21,6 @@ internal static class MapAtlasVerification
 {
     /// <summary>Compares stock tile bytes with ROM, then verifies override pixels, identity, rebind, and invalid asset handling.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map tile atlas")]
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, ImportedAreaMap[] rules)
     {

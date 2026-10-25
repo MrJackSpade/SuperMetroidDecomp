@@ -14,7 +14,6 @@ internal static class KraidInstalledPresentationOracleVerification
     /// Import-only expected image for $A7:AAC6/AB19. This deliberately does not
     /// invoke the production constructor or give its cartridge source to gameplay.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the Kraid upper and lower BG2 tilemaps")]
     internal static ushort[] ReadImportedKraidWorkingMap(CartridgeImportAddressSpace source)
     {
         byte[] upper = RomDataReader.Decompress(source, KraidSourceDefinitions.UpperBodyTilemap,
@@ -41,7 +40,6 @@ internal static class KraidInstalledPresentationOracleVerification
     /// The BG2 tilemap one native head transfer shows over blank pages (#1352): $A7:AF5D sends the head source straight
     /// to the display without changing the body map that later rise/growth/sink requests upload from WRAM.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
     internal static ReadImportedKraidHeadFrameResult ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)
     {

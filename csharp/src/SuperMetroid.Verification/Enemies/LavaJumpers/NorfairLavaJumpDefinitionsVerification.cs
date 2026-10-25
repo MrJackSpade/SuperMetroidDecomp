@@ -10,7 +10,6 @@ using SuperMetroid.Core.World;
 internal static class NorfairLavaJumpDefinitionsVerification
 {
     /// <summary>Compares all RNG values through production jump setup while forbidding runtime reads of the migrated velocity table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Lava jump definitions")]
     internal static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
 

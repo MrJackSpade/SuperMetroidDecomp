@@ -16,7 +16,6 @@ internal static class AudioInstrumentsVerification
     /// generated beside still-authoritative opaque upload bytes. Stock definitions must first
     /// match every uploaded SPC record; an edited copy must then alter both APU RAM and PCM.
     /// </summary>
-    [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableAudioInstruments()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;

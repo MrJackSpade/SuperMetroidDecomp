@@ -19,7 +19,6 @@ using SuperMetroid.Core.Progression;
 internal static class SpeedBoosterPlmProgramsVerification
 {
     /// <summary>Checks the bomb-reveal draw identity, one-run geometry, physical word, and continuation bytes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for speed block reveal draw mapping")]
     private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;

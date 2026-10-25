@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Exports the nine palette rows selected by the compiled Ceres getaway zoom curve.</summary>
-[CpuBusBoundary("codec: ROM Ceres getaway Mode-7 palette rows → Ceres Ridley Mode-7 colors")]
 public static class CeresRidleyMode7ColorExtractor
 {
     /// <summary>Reads the nine fixed-stride native palette rows selected by the compiled getaway zoom curve and serializes their RGB5 components.</summary>

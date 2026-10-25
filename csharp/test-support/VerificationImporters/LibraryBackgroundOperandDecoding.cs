@@ -11,7 +11,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// The verification oracle's decoding of the cartridge's library-background operands into the named sources,
 /// destinations and commands the compiled programs hold (#1414), and back to the cartridge's addresses.
 /// </summary>
-[CpuBusBoundary("codec: library-background command words and operands ↔ named sources, destinations and commands")]
 internal static class LibraryBackgroundOperandDecoding
 {
     /// <summary>Bank $8F, which holds every room state's library-background command list.</summary>

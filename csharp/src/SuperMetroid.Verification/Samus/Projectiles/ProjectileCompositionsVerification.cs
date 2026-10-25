@@ -107,7 +107,6 @@ internal static class ProjectileCompositionsVerification
     }
 
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
-    [CpuBusBoundary("exact bus test: reference bank-$93 projectile spritemap decoder over a retail or synthetic cartridge")]
     internal static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
         OamBuffer oam, ushort pointer, Position16<SpritePixels> origin)
     {

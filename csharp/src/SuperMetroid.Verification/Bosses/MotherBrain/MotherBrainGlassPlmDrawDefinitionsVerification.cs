@@ -27,7 +27,6 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 {
     /// <summary>Compares eleven physical draw lists with cartridge data and verifies editable visual words leave collision blocks intact.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM draw definitions")]
     internal static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
     {

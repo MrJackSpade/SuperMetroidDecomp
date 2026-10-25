@@ -25,7 +25,6 @@ internal static class AtomicMovementDefinitionsVerification
     }
 
     /// <summary>Runs the initializers and all four spinning loops with the selector table forbidden, checking native speeds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for atomic movement definitions")]
     internal static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));

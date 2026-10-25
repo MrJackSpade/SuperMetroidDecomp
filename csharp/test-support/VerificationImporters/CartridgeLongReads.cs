@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -9,7 +8,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// byte follows its word on the 24-bit bus. Production reads its longs bank-relative through
 /// <see cref="CartridgeWordReads"/>.
 /// </summary>
-[CpuBusAccess]
 [EncodingOwner("cartridge 24-bit long reads")]
 internal static class CartridgeLongReads
 {

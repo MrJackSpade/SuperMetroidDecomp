@@ -33,7 +33,6 @@ internal static class EnemyTileArtworkKraidVerification
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
 
     /// <summary>Matches Kraid's working BG2 map and both shown body pages, then checks an edited tile.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
     internal static void VerifyInstalledKraidBackground(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
@@ -98,7 +97,6 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>Checks each authored Kraid head frame and confirms a JSON edit reaches the shown body.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid head frames")]
     private static void VerifyInstalledKraidHeadFrames(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
@@ -161,7 +159,6 @@ internal static class EnemyTileArtworkKraidVerification
 
     /// <summary>Checks queued, direct, and restored BG3 tile uploads against installed HUD pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid BG3 restoration")]
     private static void VerifyInstalledKraidBg3Restoration(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork enemyArtwork)
     {
@@ -256,7 +253,6 @@ internal static class EnemyTileArtworkKraidVerification
 
     /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid room background")]
     private static void VerifyInstalledKraidRoomBackground(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {

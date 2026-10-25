@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 internal static class EnemyTileArtworkKraidColorsVerification
 {
     /// <summary>Compares every stock color with ROM, checks guarded production writes, and confirms edited colors survive reload.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid palette rows")]
     internal static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
@@ -128,7 +127,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
 
     /// <summary>Builds an independent CGRAM reference from pinned sm_a7.c palette writes; zero thresholds select health band eight at 1000 HP and odd hurt frames select flash.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid palette consumer reference")]
     private static ushort[] ReferenceKraidPaletteConsumer(
         ISnesAddressSpace rom, KraidPaletteConsumer consumer)
     {

@@ -12,7 +12,6 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class RoomStateSelectionDefinitionsVerification
 {
     /// <summary>Decodes each native selector and compares all relevant predicate assignments with room loading.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room state selection definitions")]
     internal static void VerifyCompiledRoomStateSelectionDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

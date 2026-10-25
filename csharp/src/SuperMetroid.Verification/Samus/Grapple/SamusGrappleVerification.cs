@@ -1146,7 +1146,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
 /// Sets direction <paramref name="direction"/>'s entries of the non-running grapple flare
 /// origin tables <c>$9B:C14A</c> (X) and <c>$9B:C15E</c> (Y), one signed word per direction.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $9B:C14A/$C15E grapple flare origin tables")]
 static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset16<RoomPixels> origin)
 {
     Ensure.AtLeastZero(direction);
@@ -1159,7 +1158,6 @@ static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset1
 /// Sets the <c>$9B:C1C2</c> swing-frame table entry selected by swing-angle high byte
 /// <paramref name="angle"/> to animation frame <paramref name="frame"/>.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $9B:C1C2 grapple swing-frame table")]
 static void WriteGrappleSwingFrame(TestAddressSpace bus, byte angle, byte frame) =>
     WriteTestByte(bus, 0x9bc1c2 + angle, frame);
 

@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Extracts the visual block references of ordinary shot-block PLM draw lists.
 /// The native draw shapes and complete collision-changing level words stay compiled.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$84 shot-block PLM draw lists → shot-block visual files")]
 public static class RoomPlmShotBlockVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>

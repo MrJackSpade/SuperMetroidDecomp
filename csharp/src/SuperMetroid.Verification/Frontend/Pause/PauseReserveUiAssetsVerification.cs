@@ -125,7 +125,6 @@ internal static class PauseReserveUiAssetsVerification
     }
 
     /// <summary>Forbids the migrated reserve tilemap and arrow color ranges during installed menu playback.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve UI tilemap ranges")]
     private static CartridgeReadGuard NewPauseReserveUiReadGuard(ISnesAddressSpace source)
     {
         var blocked = new HashSet<int>();

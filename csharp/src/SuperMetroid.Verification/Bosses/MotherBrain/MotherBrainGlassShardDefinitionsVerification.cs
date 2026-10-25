@@ -103,7 +103,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
     }
 
     /// <summary>Reads a native shard table word solely for the independent comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass shard words")]
     internal static ushort ReadMotherBrainGlassShardWord(
         SuperMetroidAddressSpace bus,
         int address) =>

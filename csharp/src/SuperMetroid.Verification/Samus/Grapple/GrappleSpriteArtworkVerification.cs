@@ -21,7 +21,6 @@ internal static class GrappleSpriteArtworkVerification
 {
     /// <summary>Compares native OAM across angles and animation ticks, then isolates tile and palette edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple endpoint and segment OBJ attributes")]
     internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);

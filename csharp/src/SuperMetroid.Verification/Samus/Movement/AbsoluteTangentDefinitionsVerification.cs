@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Harness;
 internal static class AbsoluteTangentDefinitionsVerification
 {
     /// <summary>Compares 129 native samples and wrapped caller directions while forbidding live tangent reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled absolute tangent")]
     internal static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var eye = new Func<int, int>(EyeBeamWindowBuilder.Tangent);

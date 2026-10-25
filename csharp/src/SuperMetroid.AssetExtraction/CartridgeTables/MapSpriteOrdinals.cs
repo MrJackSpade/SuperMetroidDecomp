@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -8,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// The cartridge's menu spritemap ordinals naming each <see cref="MapSpriteId"/> (#1416): indices into the $82:C569
 /// pointer table, which the map sprite, arrow and landmark extractors translate once at import.
 /// </summary>
-[CpuBusBoundary("catalog: map sprite ordinals")]
 internal static class MapSpriteOrdinals
 {
     /// <summary>The spritemap ordinal of each map sprite.</summary>

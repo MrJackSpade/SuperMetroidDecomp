@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts Dachora's contiguous default, speed and shine RGB5 frames.</summary>
-[CpuBusBoundary("codec: ROM Dachora default, speed and shine RGB5 frames → DachoraColorCatalog")]
 public static class DachoraColorExtractor
 {
     /// <summary>Imports Dachora's default palette and ordered speed and shine frames as editable RGB5 colors.</summary>

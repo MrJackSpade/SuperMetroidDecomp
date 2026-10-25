@@ -23,7 +23,6 @@ internal static class GrappleTileArtworkVerification
 {
     /// <summary>Compares every angle's source selection and all uploaded bytes while preserving rope state and OAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple tile transfers and segment tile pointers")]
     internal static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));

@@ -125,6 +125,5 @@ internal static class LookupRetailPopulationsVerification
     }
 
     /// <summary>Reads native placement coordinate bytes for the independent oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for retail population field")]
     private static byte RetailPopulationFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

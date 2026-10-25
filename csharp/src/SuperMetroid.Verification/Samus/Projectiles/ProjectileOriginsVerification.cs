@@ -10,7 +10,6 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class ProjectileOriginsVerification
 {
     /// <summary>Exercises authored and adjacent table words through physical projectile initialization.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile origins")]
     internal static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));

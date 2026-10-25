@@ -18,7 +18,6 @@ internal static class PauseMapArrowsVerification
 {
     /// <summary>Compares native arrow OAM and palette cycling and checks page fade and restored snapshot behavior.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map arrow palette and spritemaps")]
     internal static void VerifyPauseMapArrows()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

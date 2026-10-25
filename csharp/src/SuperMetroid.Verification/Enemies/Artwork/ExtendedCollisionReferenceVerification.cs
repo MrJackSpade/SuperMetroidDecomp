@@ -12,7 +12,6 @@ internal static class ExtendedCollisionReferenceVerification
     /// retaining shot versus touch edge rules and the selected reaction pointer.</summary>
     /// <remarks>The argument array mirrors the reflected production helper, including
     /// its output slot; this oracle remains independent of compiled geometry.</remarks>
-    [CpuBusBoundary("exact bus test: retail ROM reference model of extended spritemap collision")]
     internal static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, byte frameBank, object?[] arguments)
     {
         var enemy = (RoomEnemySlot)(arguments[0] ?? throw new InvalidOperationException("Verification requires arguments[0]."));

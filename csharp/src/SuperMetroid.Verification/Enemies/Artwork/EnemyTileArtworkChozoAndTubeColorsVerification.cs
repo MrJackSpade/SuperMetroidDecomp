@@ -25,7 +25,6 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 
     /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo and tube palette bands")]
     internal static void VerifyInstalledChozoAndTubeColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {

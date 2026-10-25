@@ -96,7 +96,6 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>Matches the installed stationary frame's 25 OAM parts against the native spritemap.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo stationary visual")]
     private static void VerifyDeadTorizoStationaryVisual(
         EnemyTileArtworkCatalog stock)
     {
@@ -125,7 +124,6 @@ internal static class DeadTorizoArtworkVerification
     /// Compares the extraction's two row upload tables with the retail descriptors, and checks each main-AI call selects the
     /// corpse's rot step for the half the cartridge uploads that call (#1406).
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo row upload definitions")]
     private static void VerifyDeadTorizoRowUploads(
         InstalledEnemyArtwork stock)
     {
@@ -202,12 +200,10 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>Reads one oracle byte from the corpse sheet at $B7:A800.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo corpse tile sheet at $B7:A800")]
     private static byte ReadNativeDeadTorizoSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
         rom.ReadCartridgeByte(0xb7a800 + sheetOffset);
 
     /// <summary>Obtains a sand line's WRAM destination and sheet source from separate retail tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo sand-line destination and source offset tables")]
     private static ReadNativeDeadTorizoSandLineOffsetsResult ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
     {
         return new ReadNativeDeadTorizoSandLineOffsetsResult(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));

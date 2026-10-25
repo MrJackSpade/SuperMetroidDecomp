@@ -17,7 +17,6 @@ internal static class PauseMapPositionVerification
 {
     /// <summary>Compares two room positions across two full 24-frame marker pulse cycles.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map position palette and spritemaps")]
     internal static void VerifyPauseMapPosition()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

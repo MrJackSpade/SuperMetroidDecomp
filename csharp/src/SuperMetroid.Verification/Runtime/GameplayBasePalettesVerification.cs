@@ -98,7 +98,6 @@ internal static class GameplayBasePalettesVerification
     }
 
     /// <summary>Reads native palette bytes for the installed-color comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay base palettes")]
     private static byte GameplayBasePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the gameplay base palette installation and override check.</summary>

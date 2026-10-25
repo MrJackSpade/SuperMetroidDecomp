@@ -20,7 +20,6 @@ internal static class RoomTilesetSources
     /// statue ghost, which no tileset names, is the library background's.
     /// </summary>
     /// <exception cref="InvalidDataException">Two graphics sets that share a set name different sources for it.</exception>
-    [CpuBusBoundary("codec: the tileset table's bank-$8F entry pointers")]
     internal static RoomTilesetSourceMap Read(IImportCartridgeSource cartridge)
     {
         Ensure.NotNull(cartridge);
@@ -58,7 +57,6 @@ internal static class RoomTilesetSources
         palette => palette.PackedColours);
 
     /// <summary>The long pointer <paramref name="offset"/> bytes into the tileset entry at <paramref name="entry"/>.</summary>
-    [CpuBusBoundary("codec: a tileset entry's long pointers to its sources")]
     private static SnesAddress Source(IImportCartridgeSource cartridge, SnesAddress entry, int offset) =>
         SnesAddress.FromBusAddress(RomDataReader.ReadLongFixedBank(cartridge, entry.AddWithinBank(offset)));
 

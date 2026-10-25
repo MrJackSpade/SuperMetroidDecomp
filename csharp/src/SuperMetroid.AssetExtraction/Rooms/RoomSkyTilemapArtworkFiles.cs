@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installs seven literal bank-$8A sky tilemap pages with persistent JSON overrides.</summary>
-[CpuBusBoundary("codec: ROM bank-$8A sky tilemap pages → room sky tilemap artwork files")]
 public static class RoomSkyTilemapArtworkFiles
 {
     /// <summary>Schema version recorded with the extracted sky-page manifest; 2 names each page by its place rather than its cartridge address (#1414).</summary>

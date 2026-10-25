@@ -12,7 +12,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// Import-only decoding of bank-$8F background lists. Gameplay executes compiled
 /// instructions and never interprets cartridge commands or decompresses ROM data.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$8F library background command lists and their staged sources → LibraryBackgroundProgram")]
 internal static class LibraryBackgroundProgramImporter
 {
     /// <summary>Decodes one bounded bank $8F list into typed transfer, decompression, and clear commands.</summary>

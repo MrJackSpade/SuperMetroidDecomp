@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -10,7 +9,6 @@ using SuperMetroid.Verification.Harness;
 internal static class SaveStationAnimationDefinitionsVerification
 {
     /// <summary>Compares the native 21-loop operand, then exercises the sequential station population loader.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for save station animation definitions")]
     internal static void VerifySaveStationAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         AssertEqual(

@@ -108,7 +108,6 @@ internal static class MapArrowsVerification
     }
 
     /// <summary>Forbids the native arrow records, animation tables, and sprite programs during installed arrow playback.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle walking the native map-arrow records, animation tables and sprite programs to forbid them")]
     private static MutableCartridgeReadGuard NewMapArrowGuard(ISnesAddressSpace source)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);

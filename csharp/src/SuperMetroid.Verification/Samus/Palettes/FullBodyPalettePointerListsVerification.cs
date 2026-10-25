@@ -199,7 +199,6 @@ internal static class FullBodyPalettePointerListsVerification
 
     /// <summary>Compares the sixteen Samus OBJ palette colors with one native palette source.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for full-body cycle palette colors")]
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SamusColourRig actual, int pointer, string context)
     {

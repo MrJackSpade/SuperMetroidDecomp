@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts only trail-owned tiles, omitting the intervening missile/explosion graphics.</summary>
-[CpuBusBoundary("codec: ROM projectile trail tiles → trail tile atlas")]
 public static class ProjectileTrailAtlasExtractor
 {
     /// <summary>Imports eight ice/wave trail characters followed by four missile-family characters, excluding the unrelated native tile gap.</summary>

@@ -4,15 +4,14 @@ namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks typed S-DSP controls against their exact register-file writes.</summary>
-internal static class DspRegisterBoundaryVerification
+internal static class DspControlsVerification
 {
     /// <summary>
     /// #631: every typed S-DSP control writes exactly its register, for all eight voices and eight FIR
     /// taps; pitch and ADSR keep their native write order; FLG's control bits and noise rate are two
     /// views of one register; out-of-range voices and taps are rejected; and typed writes allocate nothing.
     /// </summary>
-    [DspRegisterBoundary("exact register test: typed controls against the register file")]
-    internal static void VerifyDspRegisterBoundary()
+    internal static void VerifyDspControls()
     {
         var dsp = new ManagedSnesDsp(new byte[0x10000]);
         var controls = new SnesDspControls(dsp);
@@ -106,11 +105,11 @@ internal static class DspRegisterBoundaryVerification
         controls.Global.WriteEchoFeedback(0);
     }
 
-    /// <summary>Runs the typed S-DSP register boundary verification.</summary>
-    [VerificationCommand("--dsp-register-boundary")]
-    internal static int DspRegisterBoundaryCommand()
+    /// <summary>Runs the typed S-DSP controls verification.</summary>
+    [VerificationCommand("--dsp-controls")]
+    internal static int DspControlsCommand()
     {
-        Suite(nameof(VerifyDspRegisterBoundary), () => VerifyDspRegisterBoundary());
+        Suite(nameof(VerifyDspControls), () => VerifyDspControls());
         return 0;
     }
 }

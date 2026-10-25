@@ -16,7 +16,6 @@ using SuperMetroid.Verification.Harness;
 internal static class PoseDispatchDefinitionsVerification
 {
     /// <summary>Compares all 256 pose records with the ROM while forbidding live pose-table reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pose dispatch definitions")]
     internal static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();

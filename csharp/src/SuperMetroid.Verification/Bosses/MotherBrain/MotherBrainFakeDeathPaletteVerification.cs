@@ -16,7 +16,6 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainFakeDeathPaletteVerification
 {
     /// <summary>Compares both descent and ascent color tables, timers, and zero-terminator transitions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain fake-death palette")]
     internal static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
     {

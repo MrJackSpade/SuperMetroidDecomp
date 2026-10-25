@@ -71,7 +71,6 @@ internal static class CeresPlacementSelectorsVerification
     }
 
     /// <summary>Requires an immediate LDA before the coordinate and compares its retail word.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres placement operands")]
     private static void VerifyPlacementOperand(ISnesAddressSpace rom, ushort operand, ushort coordinate)
     {
         int address = 0x8b0000 | operand;

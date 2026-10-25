@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcDefinitionUploads
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    [SpcMemoryAccess]
     private readonly byte[] ram;
     /// <summary>The SPC driver's music sequencer: track commands, effects, notes and the pan, sweep, vibrato and tremolo it ticks.</summary>
     private readonly SpcMusicSequencer _music;
@@ -15,7 +14,6 @@ internal sealed class SpcDefinitionUploads
     private readonly SpcVoices _voices;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    [SpcMemoryBoundary("implementation: shares the APU RAM the player owns")]
     internal SpcDefinitionUploads(byte[] ram, SpcMusicSequencer music, SpcVoices voices)
     {
         this.ram = ram;
@@ -24,7 +22,6 @@ internal sealed class SpcDefinitionUploads
     }
 
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
-    [SpcMemoryBoundary("driver-memory view: instrument records")]
     internal void WriteInstrument(int address, SpcInstrumentRecord record)
     {
         ushort pitchBase = checked((ushort)record.PitchBase);
@@ -37,7 +34,6 @@ internal sealed class SpcDefinitionUploads
     }
 
     /// <summary>Copies <paramref name="bytes"/> to APU RAM at <paramref name="address"/>, wrapping at 16 bits.</summary>
-    [SpcMemoryBoundary("codec: upload and compiled-definition bytes")]
     private void WriteBytes(int address, ReadOnlySpan<byte> bytes)
     {
         for (int index = 0; index < bytes.Length; index++)
@@ -45,7 +41,6 @@ internal sealed class SpcDefinitionUploads
     }
 
     /// <summary>Stores one compiled-definition byte at <paramref name="address"/>.</summary>
-    [SpcMemoryBoundary("codec: compiled-definition bytes")]
     private void WriteByte(int address, byte value) => ram[address] = value;
 
     /// <summary>

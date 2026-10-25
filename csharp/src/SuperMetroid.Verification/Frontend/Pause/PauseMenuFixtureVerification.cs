@@ -21,7 +21,6 @@ internal static class PauseMenuFixtureVerification
 {
     /// <summary>Translates constructed cartridge visuals into the installed pause contract without mutating shared retail catalog data.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the constructed pause presentation source bytes")]
     internal static AreaMapPresentationCatalog CreateConstructedPausePresentation(
         CartridgeImportAddressSpace bus)
     {

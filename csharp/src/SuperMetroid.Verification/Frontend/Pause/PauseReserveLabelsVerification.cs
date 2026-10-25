@@ -19,7 +19,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class PauseReserveLabelsVerification
 {
     /// <summary>Compares six capacity and mode combinations using native source and destination words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve label tilemaps")]
     internal static void VerifyPauseReserveLabels()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

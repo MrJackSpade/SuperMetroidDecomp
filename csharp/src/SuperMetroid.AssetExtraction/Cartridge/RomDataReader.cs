@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// headers have been parsed. Keeping that traversal here prevents every cinematic, room, and
 /// menu loader from inventing a compressed byte count beside the real ROM address.
 /// </remarks>
-[CpuBusAccess]
 public static class RomDataReader
 {
     /// <summary>

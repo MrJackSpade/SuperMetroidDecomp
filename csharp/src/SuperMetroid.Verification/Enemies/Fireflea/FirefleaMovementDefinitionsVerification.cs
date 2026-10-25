@@ -42,6 +42,5 @@ internal static class FirefleaMovementDefinitionsVerification
     }
 
     /// <summary>Reads one pinned bank-$A3 radius-table byte for the verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Fireflea movement definitions")]
     private static byte FirefleaMovementDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

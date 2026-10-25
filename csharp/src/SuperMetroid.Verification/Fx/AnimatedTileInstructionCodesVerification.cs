@@ -103,7 +103,6 @@ internal static class AnimatedTileInstructionCodesVerification
     }
 
     /// <summary>Creates a non-treadmill bank-87 object with supplied program words to check admission behavior.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a constructed bank-$87 lava animated-tile header and program")]
     private static TestAddressSpace CreateConstructedLavaAnimatedTileCartridge(ushort[] program)
     {
         var bus = new TestAddressSpace();

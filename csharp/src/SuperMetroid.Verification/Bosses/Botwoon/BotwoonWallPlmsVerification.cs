@@ -16,7 +16,6 @@ using SuperMetroid.Verification.Harness;
 internal static class BotwoonWallPlmsVerification
 {
     /// <summary>Compares program and nine-block draw words, then checks both wall paths through deletion.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Botwoon wall PLMs")]
     internal static void VerifyCompiledBotwoonWallPlms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

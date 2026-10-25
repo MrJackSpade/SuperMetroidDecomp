@@ -81,7 +81,6 @@ internal static class IntroEggMotionDefinitionsVerification
     }
 
     /// <summary>Reads native egg motion bytes solely as the cartridge comparison oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled intro egg motion")]
     private static byte CompiledIntroEggMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects runtime rereads of compiled fragment positions and motion curves.</summary>

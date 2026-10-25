@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Harness;
 internal static class AudioMusicProgramsVerification
 {
     /// <summary>Matches compiled stock banks to APU RAM, then checks an authored note edit changes audible PCM and malformed references fail.</summary>
-    [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableMusicPrograms()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;

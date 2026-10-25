@@ -14,7 +14,6 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileRadiiVerification
 {
     /// <summary>Compares 805 bank 93 radius pairs and checks projectile and bomb frames under changed sprite bindings.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile radii")]
     internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.

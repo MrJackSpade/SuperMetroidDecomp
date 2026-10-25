@@ -20,7 +20,6 @@ internal static class WramHelperBoundaryVerification
     }
 
     /// <summary>Checks word wrapping, system-bank mirrors, and rejection of non-WRAM addresses.</summary>
-    [CpuBusBoundary("exact bus test: WRAM word bank wrap, system-bank mirror and non-WRAM source rejection")]
     private static void VerifyWramWordMapping(SuperMetroidAddressSpace memory)
     {
         memory.WriteByte(0x7effff, 0x12);

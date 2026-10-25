@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 /// Reads where the getaway's floor runs take their tile numbers from out of the cartridge's floor update lists, and
 /// reads and writes the installed document that carries them (#1415).
 /// </summary>
-[CpuBusBoundary("codec: ROM Ceres getaway floor update lists → Ceres Ridley floor update sources")]
 public static class CeresRidleyFloorUpdateFiles
 {
     /// <summary>Reads each capsule and wing run's tile source from its descriptor and serializes the validated document.</summary>

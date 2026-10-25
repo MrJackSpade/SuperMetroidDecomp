@@ -33,6 +33,5 @@ internal static class IntroMotherBrainFrameCatalogVerification
     }
 
     /// <summary>Reads a native catalog byte for the frame-pointer and part-count comparisons.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain frame catalog")]
     private static byte IntroMotherBrainFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

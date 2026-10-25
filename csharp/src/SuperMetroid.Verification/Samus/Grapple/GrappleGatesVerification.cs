@@ -72,11 +72,9 @@ internal static class GrappleGatesVerification
     }
 
     /// <summary>Reads a retail gate sprite-map byte for the fixture's exact OAM comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple green gate visibility")]
     private static byte GrappleGreenGateVisibilityRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Copies the retail bank-$8D sprite maps into the gate fixture for the observable OAM check.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture copying retail bank $8D sprite maps for green-gate visibility")]
     private static void SeedRetailGateSpriteMaps(TestAddressSpace bus, ISnesAddressSpace retail)
     {
         var maps = new byte[0x8000];

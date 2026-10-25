@@ -26,7 +26,6 @@ using SuperMetroid.Core.Progression;
 internal static class KiHunterSpitAudioVerification
 {
     /// <summary>Checks the native sound opcode, real projectile spawn, single SPC start, and door transition.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the KiHunter spit instruction that queues sound $4C")]
     internal static void VerifyKiHunterSpitAudio()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

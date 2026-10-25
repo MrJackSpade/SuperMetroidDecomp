@@ -49,7 +49,6 @@ internal static class SamusProjectilesVerification
 /// Byte <paramref name="offset"/> of the bank-$93 power-beam projectile record that the native
 /// direction table at $93:8433 selects for <paramref name="direction"/>.
 /// </summary>
-[CpuBusBoundary("exact bus test: retail ROM oracle for power-beam projectile radius bytes")]
 static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, int offset) =>
     rom.ReadCartridgeByte(0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x938433 + direction * 2)) + offset));
 
@@ -1694,7 +1693,6 @@ internal static void VerifySamusPowerBeamProjectiles()
 /// Seeds the one-object bank-$93 spritemaps that the power-beam projectile and explosion
 /// programs draw through.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-beam projectile spritemaps")]
 static void InstallPowerBeamSpritemapFixture(TestAddressSpace bus)
 {
     // The substituted `$A24D` pointer is a bank-$93 spritemap, not merely an opaque
@@ -1714,7 +1712,6 @@ static void InstallPowerBeamSpritemapFixture(TestAddressSpace bus)
 /// Seeds the bank-$90 trail-stream selectors and charged-power trail program prefix and
 /// the bank-$9B trail offset tables used by power-beam trails.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-beam trail programs and offsets")]
 static void InstallPowerBeamTrailFixture(TestAddressSpace bus)
 {
     // `$90:B5BB/$B609` select two independent trail instruction streams from the beam's
@@ -1764,7 +1761,6 @@ static void InstallPowerBeamTrailFixture(TestAddressSpace bus)
 /// Overwrites the retired bank-$90 beam sound and pre-instruction tables with distinct
 /// verifier-owned values so any remaining production read is observable.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture poisoning retired beam routing tables")]
 static void PoisonRetiredBeamRoutingTables(TestAddressSpace bus)
 {
     // Poison the retired cartridge tables. Production firing must use the compiled
@@ -1790,7 +1786,6 @@ static void PoisonRetiredBeamRoutingTables(TestAddressSpace bus)
 /// <summary>
 /// Seeds one shared beam tile sheet and palette for every legal beam tile-atlas selection.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for beam tile atlas selections")]
 static void InstallBeamTileAtlasFixture(TestAddressSpace bus)
 {
     // Installed catalogs require every legal selection; share this fixture sheet.
@@ -1809,7 +1804,6 @@ static void InstallBeamTileAtlasFixture(TestAddressSpace bus)
 /// Seeds the Samus normal-suit, Hyper-shot, beam-charge, and pseudo-Screw palette pointer
 /// tables in bank $91 and their distinct bank-$9B palettes.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus suit and beam palettes")]
 static void InstallSamusBeamPaletteFixture(TestAddressSpace bus)
 {
     // Samus body palette fixtures for `$91:D743`. The normal table uses all three native
@@ -1887,7 +1881,6 @@ static void InstallSamusBeamPaletteFixture(TestAddressSpace bus)
 /// Seeds one-object artwork for every compiled charge-flare spritemap and the bank-$90 main
 /// flare animation delays.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for charge-flare artwork and delays")]
 static void InstallChargeFlareFixture(TestAddressSpace bus)
 {
     // Every compiled flare identity uses the original one-OBJ synthetic artwork.
@@ -1910,7 +1903,6 @@ static void InstallChargeFlareFixture(TestAddressSpace bus)
 /// list, the activation/flash/open-trigger/opening lists, the closed-blue draw pointer, and
 /// the four door draw lists.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the grey-door PLM instruction graph")]
 static void InstallGreyDoorPlmGraphFixture(TestAddressSpace bus)
 {
     const ushort greyDoorInitialList = 0x0900;
@@ -1959,7 +1951,6 @@ static void InstallGreyDoorPlmGraphFixture(TestAddressSpace bus)
 /// Seeds the resident colored-door PLM graph in bank $84 reached from header <c>$C88A</c>:
 /// initial, closed-blue, hit, and colored-closed lists and their draw lists.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the resident colored-door PLM instruction graph")]
 static void InstallResidentDoorPlmGraphFixture(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x84c88c, 0x0400);
@@ -1983,7 +1974,6 @@ static void InstallResidentDoorPlmGraphFixture(TestAddressSpace bus)
 /// Seeds the retail right-facing blue-door PLM program at <c>$84:C4BA</c> and its four
 /// bank-$84 draw lists.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Landing Site blue-door PLM program")]
 static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x84c4ba, 0x8c19);
@@ -2008,7 +1998,6 @@ static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
 /// Installs a bank-$8F room PLM population at <paramref name="population"/>: six-byte
 /// records of header word, block X, block Y, and argument word, terminated by a zero word.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$8F room PLM populations")]
 static void WriteRoomPlmPopulationFixture(
     TestAddressSpace bus,
     ushort population,

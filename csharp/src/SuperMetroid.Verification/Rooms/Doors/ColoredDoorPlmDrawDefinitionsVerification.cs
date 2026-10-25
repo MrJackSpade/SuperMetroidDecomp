@@ -25,7 +25,6 @@ using SuperMetroid.Core.World;
 internal static class ColoredDoorPlmDrawDefinitionsVerification
 {
     /// <summary>Runs all twelve resident door orientations through load, physical draw, close, projectile hits, open, and opened-state reload without compiled ROM reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for colored door PLM draw definitions")]
     internal static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));

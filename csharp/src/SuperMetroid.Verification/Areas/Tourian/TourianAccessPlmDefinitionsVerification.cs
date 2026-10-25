@@ -54,7 +54,6 @@ internal static class TourianAccessPlmDefinitionsVerification
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, true));
 
     /// <summary>Reads the native crumble and already-unlocked spawn operands, including their fixed block coordinates.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access spawn field")]
     private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Native spawn operands: completed descent crumbles; already-unlocked room clears.

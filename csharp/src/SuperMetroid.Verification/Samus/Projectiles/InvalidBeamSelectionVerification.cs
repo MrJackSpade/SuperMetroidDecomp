@@ -92,7 +92,6 @@ internal static class InvalidBeamSelectionVerification
     }
 
     /// <summary>Reads native Spazer label words for the disabled-beam comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for invalid beam selection")]
     private static byte InvalidBeamSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the retail inventory beam-selection fixture.</summary>

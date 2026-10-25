@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// Maps the room-FX atlas's picture identities to where the cartridge stores their characters (#1415): the only place
 /// the import knows the bank-$87 artwork addresses the runtime atlas used to be keyed by.
 /// </summary>
-[CpuBusBoundary("codec: room-FX atlas picture identities → bank-$87 artwork sources")]
 internal static class RoomFxAnimatedTileSources
 {
     /// <summary>Where the cartridge stores <paramref name="segment"/>'s characters.</summary>

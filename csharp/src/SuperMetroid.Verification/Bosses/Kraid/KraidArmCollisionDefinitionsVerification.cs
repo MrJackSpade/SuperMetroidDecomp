@@ -79,7 +79,6 @@ internal static class KraidArmCollisionDefinitionsVerification
     }
 
     /// <summary>Reads a bank-$A7 arm word from the retail cartridge for selector comparisons.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid arm instruction words")]
     internal static ushort ReadKraidArmInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>

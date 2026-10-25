@@ -83,7 +83,6 @@ internal static class GunshipMotionDefinitionsVerification
     }
 
     /// <summary>Reads one native motion-table byte for the independent gunship oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship motion definitions")]
     private static byte GunshipMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the complete brake displacement sequence and rejects indices past its final frame.</summary>
@@ -107,7 +106,6 @@ internal static class GunshipMotionDefinitionsVerification
     }
 
     /// <summary>Reads a native hover timer byte for comparison with compiled phase data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship hover timer algorithm")]
     private static byte GunshipHoverTimerAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the signed vertical movement selected in each idle-bob phase.</summary>
@@ -121,7 +119,6 @@ internal static class GunshipMotionDefinitionsVerification
     }
 
     /// <summary>Reads a native signed bob displacement byte for comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship hover delta selection")]
     private static byte GunshipHoverDeltaSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>

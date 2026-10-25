@@ -57,7 +57,6 @@ internal static class PauseSelectorDurationsVerification
     }
 
     /// <summary>Compares each installed selector duration with the native timed instruction list.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for pause selector native durations")]
     internal static void VerifyPauseSelectorNativeDurations(ISnesAddressSpace rom, PauseSelectorPresentation selector)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);

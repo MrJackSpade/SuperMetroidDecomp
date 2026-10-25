@@ -37,7 +37,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
 
     /// <summary>Compares installed legs, Baby, attack and exploded-door sheets with native records and guarded VRAM uploads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain special sprite sheets and Baby tile records")]
     internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
         string directory, InstalledEnemyArtwork stock)
     {
@@ -145,7 +144,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     /// the call that completes the list and the produced characters.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain leg-loading records and pixels")]
     private static void VerifyMotherBrainLegLoadPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
@@ -219,7 +217,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>Reads source bytes from retail data for independent comparison with a shown page.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for a Mother Brain sprite page source")]
     private static byte[] ReadNativeMotherBrainPageSource(
         CartridgeImportAddressSpace rom, int sourceAddress, int byteCount) =>
         RomDataReader.ReadFixedBank(rom, sourceAddress, byteCount);
@@ -232,7 +229,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
 
     /// <summary>Copies each native sheet page directly from retail data into its authored VRAM destination for the oracle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle: independent cartridge transfer of a Mother Brain special sprite sheet")]
     private static SnesVram ReferenceMotherBrainSpecialPages(
         ISnesAddressSpace bus, MotherBrainSpecialSpriteSheetDefinition sheet)
     {

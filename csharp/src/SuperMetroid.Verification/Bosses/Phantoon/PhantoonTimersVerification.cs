@@ -12,7 +12,6 @@ internal static class PhantoonTimersVerification
 {
     /// <summary>Compares all twenty-four timer words, full-word RNG masking,
     /// first-round NMI selection, and RNG call counts without a runtime bus.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon timers")]
     internal static void VerifyCompiledPhantoonTimers(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 8; i++)

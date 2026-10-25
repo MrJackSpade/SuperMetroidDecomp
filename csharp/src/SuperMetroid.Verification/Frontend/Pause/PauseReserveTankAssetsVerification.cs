@@ -137,7 +137,6 @@ internal static class PauseReserveTankAssetsVerification
         }
     }
     /// <summary>Blocks native reserve anchor and spritemap reads after installed artwork is bound.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the reserve-tank pause spritemap and tilemap ranges")]
     private static CartridgeReadGuard NewReserveTankAssetReadGuard(ISnesAddressSpace source)
     {
         var blocked = new HashSet<int>();

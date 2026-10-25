@@ -8,7 +8,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Reads native load-station records only while importing or verifying a cartridge.</summary>
-[CpuBusBoundary("codec: ROM bank-$80 load-station pointer table and entries → LoadStationEntry")]
 internal static class LoadStationEntryImporter
 {
     /// <summary>Follows the area's bank-$80 station table to import its room, door,

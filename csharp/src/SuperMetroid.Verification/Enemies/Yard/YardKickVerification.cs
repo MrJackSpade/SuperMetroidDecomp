@@ -54,7 +54,6 @@ internal static class YardKickVerification
     }
 
     /// <summary>Reads a capped vertical kick-speed pair from the retail bank-$A3 table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A3:D517 Yard kick vertical-speed table")]
     private static ReadNativeYardKickVerticalSpeedResult ReadNativeYardKickVerticalSpeed(ISnesAddressSpace bus, int index) =>
         new ReadNativeYardKickVerticalSpeedResult(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D517 + index * 4),
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D519 + index * 4));

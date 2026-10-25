@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction;
 /// Exports one tile-aligned four-bit cartridge source to indexed PNG and proves
 /// that an unedited import restores every source byte. Callers own its identity.
 /// </summary>
-[CpuBusAccess]
 internal static class IndexedTilePageExtractor
 {
     /// <summary>Reads a bounded four-bit tile page, emits indexed PNG, and rejects any round trip that changes source bytes.</summary>

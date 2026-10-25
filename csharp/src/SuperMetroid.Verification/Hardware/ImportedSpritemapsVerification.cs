@@ -19,7 +19,6 @@ internal static class ImportedSpritemapsVerification
     /// keep a blank spritemap and name the image by instruction operand; the cartridge's spritemap
     /// for such a frame is the word stored at that operand in bank $86.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the bank-$86 spritemap word an installed-presentation enemy projectile operand names")]
     internal static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, RoomEnemyProjectileSlot projectile) =>
         projectile.PresentationOperandAddress != 0
             ? SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -47,7 +46,6 @@ internal static class ImportedSpritemapsVerification
     }
 
     /// <summary>Reads one native enemy frame-selector byte for the executed-instruction check.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for executed enemy selector")]
     private static byte ExecutedEnemySelectorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Compares the executed projectile frame's installed OAM with its native selector and spritemap.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
@@ -86,6 +84,5 @@ internal static class ImportedSpritemapsVerification
     }
 
     /// <summary>Reads a native bank-$86 projectile frame-selector byte for the OAM comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for executed projectile frame")]
     private static byte ExecutedProjectileFrameRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -5,7 +5,6 @@
 /// The translated runtime does not implement this hardware; focused native-operand
 /// fixtures may provide a device response. This is not an open-bus default.
 /// </summary>
-[CpuBusAccess]
 public interface ISnesCpuPeripheralSource
 {
     /// <summary>Supplies one explicit device response for a translated CPU operand read outside supported WRAM/SRAM and compiled cartridge definitions; must not silently substitute an open-bus default for unimplemented hardware.</summary>

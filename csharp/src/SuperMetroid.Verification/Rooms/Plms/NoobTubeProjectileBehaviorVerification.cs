@@ -25,7 +25,6 @@ internal static class NoobTubeProjectileBehaviorVerification
     /// list, every shown frame draws as its native spritemap does, each shard flicker picks the pose and column its frame
     /// parity selects, and all ninety poses are shown with the lists' bytes forbidden.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the n00b tube's flicker commands")]
     internal static void VerifyNoobTubeProjectileBehavior(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);

@@ -68,7 +68,6 @@ internal static class SamusEaterPlmDefinitionsVerification
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
     /// <summary>Checks header selection across all 16-bit identities and one native setup field.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater header field")]
     private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
     {
         // PlmHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
@@ -106,7 +105,6 @@ internal static class SamusEaterPlmDefinitionsVerification
     }
 
     /// <summary>Reads a native bank-$84 PLM word for independent header and program comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater PLM words")]
     internal static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 }

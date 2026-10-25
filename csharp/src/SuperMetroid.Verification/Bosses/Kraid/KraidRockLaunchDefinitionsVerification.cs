@@ -23,7 +23,6 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native velocity table as the selection oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch speed selection")]
     private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks wrapped spawn offsets, projectile fields, and RNG read count without table rereads.</summary>
@@ -73,7 +72,6 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the original launch-speed words for production spawn comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch definitions")]
     private static byte KraidRockLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

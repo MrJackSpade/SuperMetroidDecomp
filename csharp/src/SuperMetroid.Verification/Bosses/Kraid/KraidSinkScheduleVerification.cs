@@ -61,7 +61,6 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads a native callback byte for the independent PLM argument oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink PLM field")]
     private static byte KraidSinkPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Exercises each production callback and checks its rock X, PLM request count, and event count.</summary>
@@ -93,7 +92,6 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads a native rock-placement immediate for comparison with the spawned projectile.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink rock placement")]
     private static byte KraidSinkRockPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks native schedule rows and optionally runs all 65,536 body Y values through production sinking behavior.</summary>
@@ -143,7 +141,6 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads the bank-$A7 schedule and inline callback data for the cartridge oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink schedule")]
     private static byte KraidSinkScheduleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

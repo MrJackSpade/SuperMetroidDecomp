@@ -83,7 +83,6 @@ internal static class XrayRevealVerification
     }
 
     /// <summary>Reads a fixed-bank native table word, rejecting pointers outside bank $91's mapped range.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for native X-ray reveal words")]
     private static ushort ReadNativeXrayRevealWord(ISnesAddressSpace bus, int pointer)
     {
         if (pointer is < 0x8000 or >= ushort.MaxValue)

@@ -1,9 +1,7 @@
-﻿using SuperMetroid.Core.Hardware;
-
+﻿
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge values and helpers of <see cref="SamusSourceDefinitions"/> that only verification reads.</summary>
-[CpuBusBoundary("catalog: Samus cartridge tables")]
 internal static class SamusCartridgeTablesConstants
 {
     /// <summary>$90:DD05: the movement-type weapon-admission handler pointer table.</summary>

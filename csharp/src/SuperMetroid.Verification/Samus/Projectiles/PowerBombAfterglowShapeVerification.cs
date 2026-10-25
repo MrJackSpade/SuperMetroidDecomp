@@ -11,7 +11,6 @@ using SuperMetroid.Verification.Harness;
 internal static class PowerBombAfterglowShapeVerification
 {
     /// <summary>Compares each afterglow scanline's captured window with the native shape profile.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb afterglow shape")]
     internal static void VerifyPowerBombAfterglowShape()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

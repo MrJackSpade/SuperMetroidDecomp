@@ -139,7 +139,6 @@ internal static class ShutterBehaviorVerification
     }
 
     /// <summary>Reads a native bank-$A2 shutter word for the oracles above.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for shutter tables and maps")]
     private static ushort ReadShutterWord(SuperMetroidAddressSpace bus, SnesAddress address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address.Value);
 

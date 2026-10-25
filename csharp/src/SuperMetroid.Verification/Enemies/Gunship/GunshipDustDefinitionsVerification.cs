@@ -68,7 +68,6 @@ internal static class GunshipDustDefinitionsVerification
     }
 
     /// <summary>Reads a native dust-table byte solely as the verification oracle at the CPU bus boundary.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Gunship dust")]
     private static byte CompiledGunshipDustRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

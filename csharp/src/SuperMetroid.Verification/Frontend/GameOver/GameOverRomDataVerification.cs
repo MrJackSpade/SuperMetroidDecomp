@@ -22,7 +22,6 @@ internal static class GameOverRomDataVerification
     /// Compares the live Baby animation against the original bank-$82 stream,
     /// then reaches the live menu to cover its fixed text and selection layout.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the game-over Baby animation stream")]
     internal static void VerifyGameOverRomData()
     {
         // #1416: the stride is the import's; the check asserts it is one page row of the installed page width.

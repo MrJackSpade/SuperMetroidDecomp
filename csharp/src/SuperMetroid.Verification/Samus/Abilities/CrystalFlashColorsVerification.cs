@@ -21,7 +21,6 @@ internal static class CrystalFlashColorsVerification
 {
     /// <summary>Compares cartridge source words, then checks edited CGRAM, unchanged timers, and stock repair.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash body and bubble colors")]
     internal static void VerifyCrystalFlashColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
@@ -167,7 +166,6 @@ internal static class CrystalFlashColorsVerification
     }
 
     /// <summary>Blocks all native body and bubble pointer and color bytes during installed palette updates.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash palette pointers and colors the installed cycle must not reread")]
     private static CartridgeReadGuard NewCrystalFlashColorReadGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();

@@ -19,7 +19,6 @@ internal static class CrocomireSkeletonArtworkVerification
 {
     /// <summary>Exercises six installed uploads and a single-pixel PNG override with cartridge reads forbidden.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton artwork")]
     internal static void VerifyCrocomireSkeletonArtwork(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -161,7 +160,6 @@ internal static class CrocomireSkeletonArtworkVerification
             .RejectWrites(address => $"Installed Crocomire skeleton wrote cartridge byte ${address:X6}.");
 
     /// <summary>Reads a native destination or source-table word for the independent upload oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire's native skeleton destination and source tables")]
     private static ushort ReadNativeCrocomireSkeletonWord(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

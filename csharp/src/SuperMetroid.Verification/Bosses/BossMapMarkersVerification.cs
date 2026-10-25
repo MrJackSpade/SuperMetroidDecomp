@@ -21,7 +21,6 @@ using SuperMetroid.Verification.Harness;
 internal static class BossMapMarkersVerification
 {
     /// <summary>Checks native marker placement, defeat changes, pause reopen, SRAM/JSON restore, and file-select rendering.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause-map boss marker coordinate lists")]
     internal static void VerifyPauseBossMarkers()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

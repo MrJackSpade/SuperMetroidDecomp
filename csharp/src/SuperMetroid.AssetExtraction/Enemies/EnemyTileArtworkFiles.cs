@@ -39,7 +39,6 @@ using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Exports every retail room-enemy graphics sheet; user PNG overrides live outside stock content.</summary>
-[CpuBusBoundary("codec: ROM enemy graphics sheets, palettes and tile copy programs → enemy tile artwork")]
 public static class EnemyTileArtworkFiles
 {
     /// <summary>Serializer settings shared by the stock enemy-art manifest and its supplemental JSON resources.</summary>

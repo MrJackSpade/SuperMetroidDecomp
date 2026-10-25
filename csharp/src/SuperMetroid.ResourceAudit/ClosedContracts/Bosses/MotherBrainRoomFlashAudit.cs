@@ -49,7 +49,6 @@ internal static class MotherBrainRoomFlashAudit
         MotherBrainSourceDefinitions.RoomColors.FlashBank >> 16, pointer);
 
     /// <summary>Only declared pointer slots and color payload ranges may be read; mutations are forbidden.</summary>
-    [CpuBusBoundary("exact bus test: declares the Mother Brain room palette pointer slots and color ranges the importer may read")]
     private static SyntheticCartridge ConstructedColorSource()
     {
         // A synthetic RGB5 payload, not a native resource identity.

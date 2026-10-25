@@ -938,7 +938,6 @@ floorLevel, downKnockback, frameCounter: 0);
 }
 
 /// <summary>Seeds the dry-air `$90:9EA1/$9EA7` vertical sub-acceleration and acceleration words.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the aerial-turn dry vertical acceleration")]
 static void SeedAerialTurnDryVerticalAcceleration(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909ea1, 0x2800);
@@ -946,7 +945,6 @@ static void SeedAerialTurnDryVerticalAcceleration(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the dry wall-jump `$90:9ED1/$9ED7` initial Y speed and subspeed words.</summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the dry wall-jump launch speed")]
 static void SeedWallJumpDryLaunchSpeed(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909ed1, 4);
@@ -960,7 +958,6 @@ static void SeedWallJumpDryLaunchSpeed(TestAddressSpace bus)
 /// address, while the named arrays themselves live at `$90:9EE9/$9EEF`. Their non-adjacent
 /// placement is explicit in the symbol map.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the dry knockback, jump and gravity rows")]
 static void SeedKnockbackDryVerticalRows(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909ee9, 0x0005);

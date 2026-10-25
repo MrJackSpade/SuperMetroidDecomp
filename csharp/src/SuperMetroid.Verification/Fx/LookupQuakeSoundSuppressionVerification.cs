@@ -49,6 +49,5 @@ internal static class LookupQuakeSoundSuppressionVerification
     }
 
     /// <summary>Reads a cartridge opcode or operand for the quake-suppression comparison chain.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for quake sound suppression")]
     private static byte QuakeSoundSuppressionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

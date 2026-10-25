@@ -23,7 +23,6 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
 
     /// <summary>Compares 128 stock colors with the ROM and checks edited colors flow through live health-band updates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palettes and thresholds")]
     internal static void VerifyInstalledBotwoonColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

@@ -14,7 +14,6 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class EnemyQuadraticSpeedsVerification
 {
     /// <summary>Compares native word windows and focused production integrations, including odd offsets and wrap.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled quadratic enemy speeds")]
     internal static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         for (int offset = 0; offset <= 758; offset++)

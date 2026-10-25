@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class SpcMusicSequencer
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
-    [SpcMemoryAccess]
     private readonly byte[] ram;
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels ;
@@ -14,7 +13,6 @@ internal sealed class SpcMusicSequencer
     private readonly SpcVoices _voices;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    [SpcMemoryBoundary("implementation: shares the APU RAM the player owns")]
     internal SpcMusicSequencer(byte[] ram, ManagedSpcMusicChannel[] channels, SpcVoices voices)
     {
         this.ram = ram;
@@ -685,7 +683,6 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>The next byte of a music sequence stream at <paramref name="cursor"/>, advancing it with 16-bit wrap.</summary>
-    [SpcMemoryBoundary("driver-memory view: music sequence stream bytes")]
     internal byte NextSequenceByte(ref int cursor)
     {
         byte value = ram[cursor];
@@ -694,11 +691,9 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>The music sequence byte at <paramref name="cursor"/>, without advancing.</summary>
-    [SpcMemoryBoundary("driver-memory view: music sequence stream bytes")]
     internal byte PeekSequenceByte(int cursor) => ram[cursor];
 
     /// <summary>Byte <paramref name="index"/> of the echo FIR coefficient preset table.</summary>
-    [SpcMemoryBoundary("driver-memory view: echo FIR preset table")]
     internal sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverDefinitions.Echo.FirCoefficientTableAddress + index]);
 
     /// <summary>

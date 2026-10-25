@@ -50,7 +50,6 @@ internal static class BossOamRootGeometryVerification
 
     /// <summary>Compares recorded roots with compiled selectors and confirms each stride through native part counts.</summary>
     /// <remarks>Expected roots were captured from the published catalog before conversion.</remarks>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for boss OAM roots")]
     private static void VerifyBossOamRoots(SuperMetroidAddressSpace rom, byte bank,
         ushort[] expected, Func<int, ushort> actual, Func<int, int> componentCount)
     {

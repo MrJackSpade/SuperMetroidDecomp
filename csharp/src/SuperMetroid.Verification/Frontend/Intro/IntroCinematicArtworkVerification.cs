@@ -52,7 +52,6 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro cinematic characters, tilemaps and palette")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;

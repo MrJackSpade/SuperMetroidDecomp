@@ -17,7 +17,6 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
     /// Checks native zero-hitbox components and guarded shot and touch lookup. Version 6 grouped
     /// 60 bank $A5 roots under Draygon, but the final twelve belong to Spore Spawn and must be excluded.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon OAM collision")]
     internal static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)
     {

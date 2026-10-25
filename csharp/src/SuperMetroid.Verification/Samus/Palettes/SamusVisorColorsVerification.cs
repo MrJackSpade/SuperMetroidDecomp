@@ -32,7 +32,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class SamusVisorColorsVerification
 {
     /// <summary>Compares six extracted colors with the cartridge and verifies guarded room and X-ray cycling.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus visor colors")]
     internal static void VerifySamusVisorColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -64,7 +63,6 @@ internal static class SamusVisorColorsVerification
     }
 
     /// <summary>Builds an independent color catalog from the six native visor table words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for original visor colors")]
     private static SamusVisorColorCatalog ReadOriginalVisorColors(ISnesAddressSpace rom)
     {
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];

@@ -116,7 +116,6 @@ internal static class HopperAnimationDefinitionsVerification
     }
 
     /// <summary>Reads a native hopper word for independent bank-A3 definition comparisons.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Hopper animation words")]
     internal static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWord(address);
 

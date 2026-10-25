@@ -225,7 +225,6 @@ internal static class ProjectileInheritanceProbeVerification
     }
 
     /// <summary>The two retail speed words the uncharged power beam adds to inherited launch velocity.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the power beam launch speed words")]
     private static int ReadPowerBeamLaunchSpeedSum(ISnesAddressSpace rom)
     {
         return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);

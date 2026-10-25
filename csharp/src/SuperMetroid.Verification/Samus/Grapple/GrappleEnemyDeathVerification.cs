@@ -82,11 +82,9 @@ internal static class GrappleEnemyDeathVerification
     }
 
     /// <summary>Reads a retail cartridge byte while seeding the focused synthetic death fixture.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple enemy death")]
     private static byte GrappleEnemyDeathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Copies the retail enemy-projectile ($86) and sprite-map ($8D) banks into the synthetic cartridge.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture copying retail banks $86 and $8D for grapple enemy death")]
     private static void SeedGrappleEnemyDeathRetailBanks(TestAddressSpace bus)
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

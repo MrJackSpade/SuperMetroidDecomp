@@ -75,6 +75,5 @@ internal static class KiHunterMotionDefinitionsVerification
     }
 
     /// <summary>Reads the retail motion record as the oracle for the compiled constants.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ki Hunter motion definitions")]
     private static byte KiHunterMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

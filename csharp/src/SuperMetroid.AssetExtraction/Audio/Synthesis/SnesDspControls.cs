@@ -1,7 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The S-DSP's global and per-voice registers as typed controls (#631).</summary>
-[DspRegisterBoundary("typed controls: S-DSP register file")]
 internal readonly struct SnesDspControls(ManagedSnesDsp dsp)
 {
     /// <summary>The global (non-voice) registers.</summary>

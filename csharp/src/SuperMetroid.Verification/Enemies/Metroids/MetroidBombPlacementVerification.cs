@@ -24,7 +24,6 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class MetroidBombPlacementVerification
 {
     /// <summary>Checks natural bomb detonation, four native jitter updates, and return to homing.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Metroid post-bomb escape jitter table")]
     internal static void VerifyMetroidBombPlacement()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

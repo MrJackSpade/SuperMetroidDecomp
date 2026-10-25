@@ -20,7 +20,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 internal static class SamusHurtColorsVerification
 {
     /// <summary>Compares extracted colors and ordinary and cinematic flash cycles, including malformed inputs.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt colors")]
     internal static void VerifySamusHurtColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -158,7 +157,6 @@ internal static class SamusHurtColorsVerification
             address => $"Installed hurt handler read native artwork ${address:X6}.");
 
     /// <summary>Reads one cartridge BGR555 word for a source-palette comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt-cycle palette colors")]
     private static ushort ReadNativeHurtCycleColor(ISnesAddressSpace rom, int paletteAddress, int index) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), paletteAddress + index * sizeof(ushort));
 

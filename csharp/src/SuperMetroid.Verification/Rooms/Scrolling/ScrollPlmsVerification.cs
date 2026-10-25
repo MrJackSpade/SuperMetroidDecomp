@@ -178,7 +178,6 @@ internal static class ScrollPlmsVerification
     /// mutates terrain immediately and deletes its temporary slot; only `$B703` remains active.
     /// `$84:8B55` consumes `(scroll index,value)` byte pairs until a negative index.
     /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the room-scroll PLM population and scroll program")]
     static void SeedRoomScrollPlmCartridge(TestAddressSpace bus, ushort population, ushort scrollProgram)
     {
         bus.WriteBytes(0x8f0000 | population, [

@@ -172,7 +172,6 @@ internal static class TourianStatueUnlockDefinitionsVerification
             address => $"Tourian statue unlock attempted migrated eye-position read ${address:X6}.");
 
     /// <summary>Reads one native animated-tile frame for the independent pixel-data comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue animated-tile frame pixels")]
     private static byte[] ReadNativeTourianStatueFrame(IImportCartridgeSource rom, int source, int byteCount) =>
         RomDataReader.ReadFixedBank(rom, source, byteCount);
 

@@ -9,9 +9,6 @@ using SuperMetroid.Verification.Harness;
 internal static class SpcPanInterpolationVerification
 {
     /// <summary>Compares both DSP volume registers for the failing descending pair and all 16-bit pan inputs.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan interpolation")]
-    [SpcMemoryBoundary("exact APU memory test: fills APU RAM with the pan interpolation table")]
     internal static void VerifySpcPanInterpolation()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -28,7 +28,6 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// Installs the pre-coloured sprite sheets (#1392): for each sheet an RGBA PNG and its frame manifest, with a provenance
 /// manifest of their hashes. A player override of either file replaces the stock one.
 /// </summary>
-[CpuBusBoundary("codec: ROM sprite frames, characters and palette rows → pre-coloured sprite sheets")]
 public static class SpriteSheetFiles
 {
     /// <summary>The provenance manifest's file name.</summary>

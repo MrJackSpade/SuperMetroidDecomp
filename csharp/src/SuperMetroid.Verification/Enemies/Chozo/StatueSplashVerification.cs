@@ -95,7 +95,6 @@ internal static class StatueSplashVerification
     }
 
     /// <summary>Reads one native launch-table word for the independent trajectory reference.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B3C3 statue-particle launch table")]
     private static ushort ReadNativeStatueParticleWord(ISnesAddressSpace bus, int index) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + index * 2);
 

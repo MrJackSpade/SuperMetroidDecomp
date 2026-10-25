@@ -17,7 +17,6 @@ internal static class ProjectileFrameBindingsVerification
 {
     /// <summary>Checks 805 native sprite references, both projectile handlers, and a visible override without ROM fallback.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for timed projectile records' native sprite references")]
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);

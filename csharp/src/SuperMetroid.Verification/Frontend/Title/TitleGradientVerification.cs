@@ -63,7 +63,6 @@ internal static class TitleGradientVerification
     }
 
     /// <summary>Compares extracted title character and map transfers with their retail source streams and live title rendering.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for title graphics streams and the year text pointer")]
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
         _ = TitleCardOracle.CompareAll(bus);
@@ -228,7 +227,6 @@ internal static class TitleGradientVerification
 
     /// <summary>Checks extracted title colors, skip colors, ambient loops, overrides, and installed CGRAM reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the title palette")]
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteExtractor.Extract(bus);
@@ -280,7 +278,6 @@ internal static class TitleGradientVerification
     }
 
     /// <summary>Matches all ambient palette-FX color frames to cartridge words and guards installed loops against rereads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient palette color words")]
     private static void VerifyExtractedTitleAmbientPalette(
         ISnesAddressSpace bus,
         TitlePalettePresentation presentation)

@@ -8,7 +8,6 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Enumerates the raw cartridge operands of every room background command list, as the verification oracle reads them.</summary>
-[CpuBusBoundary("codec: ROM bank-$8F library background command lists → LibraryBackgroundNativeOperand inventory")]
 internal static class LibraryBackgroundSourceInventory
 {
     /// <summary>Traverses distinct compiled room background lists and records each source transfer operand.</summary>

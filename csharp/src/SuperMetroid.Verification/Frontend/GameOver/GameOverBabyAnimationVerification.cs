@@ -75,6 +75,5 @@ internal static class GameOverBabyAnimationVerification
     }
 
     /// <summary>Reads one native animation byte solely as the game-over Baby oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for game over Baby animation")]
     private static byte GameOverBabyAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

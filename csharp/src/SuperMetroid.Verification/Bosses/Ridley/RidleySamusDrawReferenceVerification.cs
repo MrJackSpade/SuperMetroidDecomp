@@ -23,7 +23,6 @@ internal static class RidleySamusDrawReferenceVerification
         Position16<ScreenPixels> Screen = default);
 
     /// <summary>Independent $90:C663 arm-cannon draw/transfer result from native state and ROM.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:C663 arm-cannon draw")]
     internal static RidleyNativeCannonDrawResult RidleyNativeCannonDraw(
         ISnesAddressSpace rom, NativeCheckpointMemory checkpoint, bool invincibleAtDraw, ushort nmi)
     {
@@ -68,7 +67,6 @@ internal static class RidleySamusDrawReferenceVerification
     /// and original ROM definitions, never production draw methods or extracted art.
     /// Validated against visible native records before covering opposite NMI phases.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:85E2/$864E/$8C1F Samus body draw record")]
     internal static RidleyNativeBodyRecordResult RidleyNativeBodyRecord(
         ISnesAddressSpace rom, NativeCheckpointMemory checkpoint)
     {

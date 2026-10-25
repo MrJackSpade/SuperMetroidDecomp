@@ -661,7 +661,6 @@ internal static class EnemyTrigonometryVerification
     internal static void VerifyCompiledEnemyTrigonometry() => RunSuitesSerially(CompiledEnemyTrigonometrySuites());
 
     /// <summary>Checks byte and unsigned sine products, phase shifts, truncation, and Sbug vectors against retail tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy sine")]
     private static void VerifyCompiledEnemySine()
     {
         var rom = LoadRepositoryRom();
@@ -729,7 +728,6 @@ internal static class EnemyTrigonometryVerification
     }
 
     /// <summary>Checks signed sine and cinematic samples, then every tide phase and option combination against retail words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled signed trigonometry")]
     internal static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         short Reference(int index)

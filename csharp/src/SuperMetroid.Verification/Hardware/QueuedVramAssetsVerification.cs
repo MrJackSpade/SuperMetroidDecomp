@@ -8,7 +8,6 @@ using SuperMetroid.Verification.Harness;
 internal static class QueuedVramAssetsVerification
 {
     /// <summary>Places <paramref name="data"/> at the $7E:0000 A-bus source the queued DMA records name.</summary>
-    [CpuBusBoundary("exact bus test: WRAM A-bus DMA source bytes at $7E:0000 for queued VRAM asset parity")]
     private static TestAddressSpace CreateWorkRamDmaSource(ReadOnlySpan<byte> data)
     {
         var bus = new TestAddressSpace();

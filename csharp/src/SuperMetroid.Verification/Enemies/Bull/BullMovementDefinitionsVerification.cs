@@ -11,7 +11,6 @@ namespace SuperMetroid.Verification.Enemies.Bull;
 internal static class BullMovementDefinitionsVerification
 {
     /// <summary>Checks all 104 parameter pairs through the real initializer, including timers and initial instruction.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Bull movement")]
     internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession());

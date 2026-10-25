@@ -14,7 +14,6 @@ internal static class CrawlerSpeedsVerification
 {
     /// <summary>Compares all authored speeds, preserve-sentinel behavior,
     /// and Yard direction transforms across the effective ushort input domain.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled crawler speeds")]
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
         var reset = new Func<RoomEnemySlot, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(

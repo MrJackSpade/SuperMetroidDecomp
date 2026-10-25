@@ -22,7 +22,6 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseWireframesVerification
 {
     /// <summary>Compares all four native patches, page transitions, equipment toggles, and restored-content rebinding.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause wireframe artwork")]
     internal static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
@@ -148,7 +147,6 @@ internal static class PauseWireframesVerification
     }
 
     /// <summary>Blocks the four native wireframe bodies and their pointer table during installed pause rendering.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause wireframe pointer table and artwork ranges")]
     private static CartridgeReadGuard NewPauseWireframeReadGuard(ISnesAddressSpace source)
     {
         var blocked = new HashSet<int>();

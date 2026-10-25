@@ -50,7 +50,6 @@ internal static class KraidFootCoordinateMappingsVerification
     }
 
     /// <summary>Reads one native foot component byte solely as the verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot coordinate")]
     private static byte KraidFootCoordinateRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the shared foot rectangle and exhaustive native component-frame membership.</summary>
@@ -96,6 +95,5 @@ internal static class KraidFootCoordinateMappingsVerification
     }
 
     /// <summary>Reads one native shared-hitbox byte solely as the verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot shared hitbox")]
     private static byte KraidFootSharedHitboxRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

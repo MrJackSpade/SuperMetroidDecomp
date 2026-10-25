@@ -14,7 +14,6 @@ internal static class MenuBeveledSquarePixelsVerification
 {
     /// <summary>Compares both native square tile colorways with pixel calculations and verifies isolated PNG edits survive VRAM encoding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for menu beveled square pixels")]
     internal static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x98, 0x99];

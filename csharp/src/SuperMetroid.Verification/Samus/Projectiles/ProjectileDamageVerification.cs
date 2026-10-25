@@ -22,7 +22,6 @@ internal static class ProjectileDamageVerification
         0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7];
 
     /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
     internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
@@ -154,7 +153,6 @@ internal static class ProjectileDamageVerification
     }
 
     /// <summary>Compares all byte-valued angle and amplitude pairs with the native sine-offset calculation.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for combo sine offset alias")]
     internal static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
     {
         Offset16<RoomPixels> NativeOffset(int angle, int amplitude)

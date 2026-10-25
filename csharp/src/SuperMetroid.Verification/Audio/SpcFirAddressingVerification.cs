@@ -9,9 +9,6 @@ using SuperMetroid.Verification.Harness;
 internal static class SpcFirAddressingVerification
 {
     /// <summary>Confirms MUL YA drops the high byte before indexing eight FIR taps, so all 256 byte presets alias only within the selected RAM page.</summary>
-    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC FIR addressing")]
-    [SpcMemoryBoundary("exact APU memory test: fills APU RAM around the echo FIR preset table")]
     internal static void VerifySpcFirAddressing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

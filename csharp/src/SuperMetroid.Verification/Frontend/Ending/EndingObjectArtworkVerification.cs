@@ -37,7 +37,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingObjectArtworkVerification
 {
     /// <summary>Matches four explosion-fragment source pointers and filenames to their native loader operands.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending object fragment metadata")]
     internal static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
         string[] names = ["ending-explosion-fragment-70.png", "ending-explosion-fragment-74.png",
@@ -60,7 +59,6 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Compares the six cloud compositions and grids with native OAM.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending cloud definitions")]
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
         string[] names = ["scene-b-upper-a", "scene-b-upper-b", "scene-b-lower-a", "scene-b-lower-b", "scene-a-right", "scene-a-left"];
@@ -120,7 +118,6 @@ internal static class EndingObjectArtworkVerification
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending object sheets and BG maps")]
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();

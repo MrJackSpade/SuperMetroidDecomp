@@ -15,7 +15,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Installs named elevator-platform appearances. Native draw geometry and physical level
 /// words are checked against the compiled cartridge definitions.
 /// </summary>
-[CpuBusBoundary("codec: ROM bank-$84 elevator platform PLM draw lists → elevator platform visual files")]
 public static class RoomPlmElevatorPlatformVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for the elevator platform's three six-cell artwork frames.</summary>

@@ -42,6 +42,5 @@ internal static class KraidGrowthPlmMappingsVerification
     }
 
     /// <summary>Reads a native Kraid growth callback byte for the focused cartridge comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth PLM field")]
     private static byte KraidGrowthPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

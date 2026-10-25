@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Harness;
 internal static class SamusAnimationDelayDefinitionsVerification
 {
     /// <summary>Checks the entire compiled pose-delay definition domain against retail.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus pose-delay definitions and the invalid-pose $0302 low-WRAM overread")]
     internal static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus)
     {
         for (int pose = 0; pose < 256; pose++)

@@ -17,7 +17,6 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
 {
 
     /// <summary>Seeds the WRAM bytes a null bank-$90 atmospheric pointer reads through its system-bank mirror.</summary>
-    [CpuBusBoundary("exact bus test: seeds low WRAM that a null bank-$90 atmospheric pointer reads through the $90:0000 mirror")]
     private static void SeedNullAtmosphericPointerWram(SuperMetroidAddressSpace bus)
     {
         bus.WriteByte(SamusSourceDefinitions.MovementBank.Value, 0x5a);

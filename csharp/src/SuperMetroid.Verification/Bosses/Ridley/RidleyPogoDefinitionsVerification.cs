@@ -14,7 +14,6 @@ using SuperMetroid.Core.World;
 internal static class RidleyPogoDefinitionsVerification
 {
     /// <summary>Compares native path and acceleration records across all seed, health, and prior-speed combinations.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley pogo")]
     internal static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads());

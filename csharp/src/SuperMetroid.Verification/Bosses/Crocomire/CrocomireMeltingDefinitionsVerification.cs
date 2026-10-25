@@ -33,7 +33,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     private const ushort Terminator = 0xffff;
 
     /// <summary>Compares the melt's columns, masks, passes and dissolve with the ROM.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting definitions")]
     internal static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireMaskAlgorithm), () => VerifyCrocomireMaskAlgorithm(rom));
@@ -47,7 +46,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Checks the eight repeating erase masks at every dissolve step.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire mask algorithm")]
     internal static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
@@ -67,7 +65,6 @@ internal static class CrocomireMeltingDefinitionsVerification
         HeaderAddress(pass) + 8 + 4 * CrocomireMelting.BandCount(pass) + 2;
 
     /// <summary>Checks each pass's header: its distortion rows, its copy length and its graphics bank.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt headers")]
     internal static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
     {
         var source = CartridgeImportSource.Require(rom);
@@ -89,7 +86,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Checks every band copy each pass makes: its graphics source and where in the image it lands.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt copies")]
     internal static void VerifyCrocomireMeltCopies(SuperMetroidAddressSpace rom)
     {
         var source = CartridgeImportSource.Require(rom);
@@ -110,7 +106,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Checks every band upload each pass makes: its size, the characters it shows over and its row of the image.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt uploads")]
     internal static void VerifyCrocomireMeltUploads(SuperMetroidAddressSpace rom)
     {
         var source = CartridgeImportSource.Require(rom);
@@ -134,7 +129,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Compares all 49 extraction erase steps with an independently calculated bitplane silhouette.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting production sequence")]
     internal static void VerifyCrocomireMeltingProductionSequence(SuperMetroidAddressSpace rom)
     {
         var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.SecondByteCount).ToArray();
@@ -172,7 +166,6 @@ internal static class CrocomireMeltingDefinitionsVerification
 
     /// <summary>Loads one installed BG2 melt tilemap and compares its working copy and shown words with native words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire melting tilemap")]
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork artwork,
         CrocomireMeltingIllustration source, CrocomireBodyProgram bodyProgram, bool compareRom = true)

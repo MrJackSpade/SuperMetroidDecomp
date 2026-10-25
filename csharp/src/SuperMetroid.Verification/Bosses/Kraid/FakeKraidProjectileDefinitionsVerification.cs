@@ -120,7 +120,6 @@ internal static class FakeKraidProjectileDefinitionsVerification
     }
 
     /// <summary>Reads one native spike offset byte for the independent placement reference.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid spike row selection")]
     private static byte FakeKraidSpikeRowSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Binds a fresh projectile pool to a bus that rejects migrated definition reads.</summary>

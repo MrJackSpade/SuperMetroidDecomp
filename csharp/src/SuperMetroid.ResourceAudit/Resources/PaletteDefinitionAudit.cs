@@ -152,7 +152,6 @@ internal static class PaletteDefinitionAudit
 
     /// <summary>Serves zero for every palette-FX bank or title initial-palette byte and records the read order.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: records which palette-FX bank and title palette bytes the color importers read")]
     private static SyntheticCartridge ColorAddressRecorder()
     {
         var recorder = new SyntheticCartridge(

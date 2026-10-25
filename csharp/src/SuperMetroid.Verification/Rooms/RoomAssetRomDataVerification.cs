@@ -24,7 +24,6 @@ internal static class RoomAssetRomDataVerification
     /// Proves the named room-asset definitions remain inside the retail cartridge and that
     /// every graphics set selected by a retail room state resolves to three valid streams.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for tileset definition pointers and compressed graphics streams")]
     internal static void VerifyRoomAssetRomData()
     {
         ValidateLibraryBackgroundClear(LibraryBackgroundStagingDefinitions.ClearFx, "clear FX");
@@ -151,7 +150,6 @@ internal static class RoomAssetRomDataVerification
 
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room character streams compared with installed character atlases")]
     internal static void VerifyRoomCharacterAtlases()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

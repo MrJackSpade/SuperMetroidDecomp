@@ -96,6 +96,5 @@ internal static class HighlightTilePixelsVerification
     }
 
     /// <summary>Reads a native map OBJ character byte for the highlight-pixel oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for highlight tile pixels")]
     private static byte HighlightTilePixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

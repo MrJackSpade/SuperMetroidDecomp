@@ -252,7 +252,6 @@ internal static class SamusSuitColorsVerification
     }
 
     /// <summary>Reads a native suit palette word solely for comparison with extracted colors.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus normal-suit palette colors")]
     private static ushort ReadNativeSuitColor(IImportCartridgeSource cartridge, int sourceAddress, int color) =>
         RomDataReader.ReadWordFixedBank(cartridge, sourceAddress + color * sizeof(ushort));
 

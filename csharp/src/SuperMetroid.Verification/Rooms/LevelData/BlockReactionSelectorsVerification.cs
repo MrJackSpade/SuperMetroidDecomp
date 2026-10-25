@@ -34,7 +34,6 @@ internal static class BlockReactionSelectorsVerification
     }
 
     /// <summary>Checks the complete bombed-reveal physical draw domain and native run geometry.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for bombed reveal physical draw mapping")]
     internal static void VerifyBombedRevealPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];

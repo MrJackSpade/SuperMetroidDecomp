@@ -192,7 +192,6 @@ internal static class SpeedBoosterCollisionBlocksVerification
     }
 
     /// <summary>Seeds the empty population, single-block draw, and five bank-$84 speed-block lists used by collision-spawned PLMs.</summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Speed Booster block PLM instruction lists and an empty room population")]
     private static void SeedSpeedBoosterBlockCartridge(TestAddressSpace bus, ushort emptyPopulation)
     {
         bus.WriteBytes(0x8f0000 | emptyPopulation, [0x00, 0x00]);

@@ -24,7 +24,6 @@ internal static class CeresEscapeTileArtworkVerification
 {
     /// <summary>Compares native transfer bytes, then checks a PNG edit reaches VRAM without cartridge reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape tile artwork")]
     internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

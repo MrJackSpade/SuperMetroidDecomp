@@ -12,7 +12,6 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidContourCaseMappingsVerification
 {
     /// <summary>Walks the seven native contour records using wrapped CMP/BPL subtraction.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid body contour left-edge records")]
     internal static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
     {
         for (int record = 0; record < 7; record++)
@@ -54,7 +53,6 @@ internal static class KraidContourCaseMappingsVerification
     }
 
     /// <summary>Decodes native tilemap comparisons and offsets to find Kraid's head-resume pointer and timer.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
     internal static NativeKraidGrowthResumeResult NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.

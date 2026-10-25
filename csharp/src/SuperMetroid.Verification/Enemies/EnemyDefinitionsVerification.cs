@@ -105,7 +105,6 @@ internal static class EnemyDefinitionsVerification
     }
 
     /// <summary>Compares five tube population records and checks production spawns plus an authored fixture override.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain falling tube population definitions")]
     internal static void VerifyMotherBrainFallingTubePopulationDefinitions(
         ISnesAddressSpace rom)
     {
@@ -163,7 +162,6 @@ internal static class EnemyDefinitionsVerification
     }
 
     /// <summary>Decodes every native enemy header field directly from bank $A0 for comparison with compiled catalogs.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition records")]
     internal static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
@@ -192,7 +190,6 @@ internal static class EnemyDefinitionsVerification
     }
 
     /// <summary>Reads the bank-qualified words of a native enemy header that the decoded definition replaces.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy header words")]
     internal static RoomEnemyNativeWords ReadNativeHeaderWords(ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
         int address = RoomEnemyRomLayout.DefinitionBank | SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(pointer);

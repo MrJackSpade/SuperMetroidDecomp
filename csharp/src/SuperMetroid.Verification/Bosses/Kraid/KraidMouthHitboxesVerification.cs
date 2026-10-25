@@ -76,7 +76,6 @@ internal static class KraidMouthHitboxesVerification
     /// pointers below $8000 the live low-WRAM mirror or the unmapped-window rejection that
     /// bank $A7's lower half selects.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM and live low-half CPU-bus oracle for Kraid mouth hitbox words")]
     private static byte KraidMouthHitboxesBusByte(SuperMetroidAddressSpace rom, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

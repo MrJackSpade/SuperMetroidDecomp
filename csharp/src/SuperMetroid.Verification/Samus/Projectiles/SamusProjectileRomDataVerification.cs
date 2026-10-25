@@ -15,7 +15,6 @@ internal static class SamusProjectileRomDataVerification
     /// Validates projectile table shapes plus every beam data-to-instruction indirection
     /// against the retail cartridge, catching both wrong bases and wrong record strides.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile ROM data")]
     internal static void VerifySamusProjectileRomData()
     {
         AssertEqual(12, SamusFiringTableDefinitions.CombinationCount,
@@ -164,7 +163,6 @@ internal static class SamusProjectileRomDataVerification
     }
 
     /// <summary>Reads a projectile table word from the retail cartridge as the audit's address oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile data words")]
     internal static ushort ReadProjectileWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 }

@@ -13,7 +13,6 @@ internal static class SamusMovementDefinitionsVerification
     /// Walks the named movement tables through their last retail entry so an address typo,
     /// truncated range, wrong record width, or cross-bank pointer fails in verification.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus movement ROM data")]
     internal static void VerifySamusMovementRomData()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -110,7 +109,6 @@ internal static class SamusMovementDefinitionsVerification
     }
 
     /// <summary>Checks both ends of a positive-length table range stay mapped within one SNES bank.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle reads at both ends of a Samus movement data range")]
     internal static void TouchRange(
         SuperMetroidAddressSpace bus,
         int address,

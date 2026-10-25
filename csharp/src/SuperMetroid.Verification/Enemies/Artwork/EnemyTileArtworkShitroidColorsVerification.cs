@@ -24,7 +24,6 @@ internal static class EnemyTileArtworkShitroidColorsVerification
 
     /// <summary>Exercises edited colors through live CGRAM consumers while preserving native timer selection and forbidding source reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
     internal static void VerifyInstalledShitroidColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

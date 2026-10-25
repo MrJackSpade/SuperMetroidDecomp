@@ -30,7 +30,6 @@ internal static class SamusHyperBeamColorsVerification
 {
     /// <summary>Checks extracted RGB5 endpoint sharing, native CGRAM rows and guarded rainbow playback against the supported cartridge.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hyper beam colors")]
     internal static void VerifySamusHyperBeamColors()
     {
         if (!File.Exists("Super Metroid.smc"))

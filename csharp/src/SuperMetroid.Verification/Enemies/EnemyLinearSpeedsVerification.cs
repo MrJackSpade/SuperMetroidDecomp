@@ -13,7 +13,6 @@ using SuperMetroid.Core.World;
 internal static class EnemyLinearSpeedsVerification
 {
     /// <summary>Compares all 517 byte windows and optionally verifies 65 speeds through Cacatac, Owtch, Stoke, and Ripper.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
     internal static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         Func<int, SignedSixteenSixteen> shared = EnemyMath.ReadLinearEnemySpeed;

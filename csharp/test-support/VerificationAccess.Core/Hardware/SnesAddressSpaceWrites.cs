@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Writes into whichever address space a test holds: a writable test bus or the runtime's WRAM image.</summary>
-[CpuBusAccess]
 internal static class SnesAddressSpaceWrites
 {
     /// <summary>Writes through an address space held as its common identity.</summary>

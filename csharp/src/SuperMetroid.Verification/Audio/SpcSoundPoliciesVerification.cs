@@ -15,7 +15,6 @@ internal static class SpcSoundPoliciesVerification
     internal static void VerifySpcSoundPolicy3(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 2, 47, 0x4776, 0x0479, 0x04bd);
 
     /// <summary>Decodes native SPC handlers and confirms production policy writes, preserved registers, and invalid command rejection.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound policy")]
     private static void VerifySpcSoundPolicy(ISnesAddressSpace rom, int library, int count, int dispatch, int voicesAddress, int priorityAddress)
     {
         // Original SPC image is loaded from CF:6C08 + SPC address. These dispatch

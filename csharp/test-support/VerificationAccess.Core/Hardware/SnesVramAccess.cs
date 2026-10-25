@@ -44,7 +44,6 @@ internal static class SnesVramAccess
         /// <param name="sourceAddress">Fixed source bank plus initial 16-bit offset.</param>
         /// <param name="sizeInBytes">Number of source bytes copied, 1 through 65535.</param>
         /// <param name="encodedDestination">Initial VMADD word plus this model's VMAIN-column marker in bit 15.</param>
-        [CpuBusBoundary("exact bus test: a queued DMA channel 1 transfer from live WRAM")]
         internal void ExecuteQueuedMemoryWrite(ISnesMutableMemory memory, int sourceAddress, int sizeInBytes, ushort encodedDestination)
         {
             Ensure.NotNull(memory);
@@ -60,7 +59,6 @@ internal static class SnesVramAccess
         /// high byte by the destination's step, and read each source byte from WRAM. A cartridge source needs installed
         /// artwork, and an unmapped one is rejected.
         /// </summary>
-        [CpuBusBoundary("exact bus test: a DMA channel's A-bus source reads, classified per byte")]
         internal void ExecuteDmaWrite(ISnesMutableMemory memory, SnesAddress sourceAddress, int sizeInBytes, ushort encodedDestination)
         {
             if (sizeInBytes is <= 0 or > SnesBusLayout.BankBytes)

@@ -24,7 +24,6 @@ internal static class EscapeTimerPresentationVerification
 {
     /// <summary>Checks extraction, installed overrides, VRAM transfers, and rendered OAM against native timer assets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed escape-timer characters")]
     internal static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
@@ -146,7 +145,6 @@ internal static class EscapeTimerPresentationVerification
 
     /// <summary>Checks the compiled digit pointer table and confirms the timer sheet is composed without rereading it.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled escape-timer digit pointers")]
     internal static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
     {
         for (int digit = 0; digit < 10; digit++)

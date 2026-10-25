@@ -24,7 +24,6 @@ internal static class EndingLogoVerification
 {
     /// <summary>Steps the logo, comparing its crossfade palettes with the cartridge tables and its timing with the native scene.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo crossfade palette tables")]
     internal static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));
@@ -67,7 +66,6 @@ internal static class EndingLogoVerification
     }
 
     /// <summary>Checks logo frame operands, sprite relationships, and instruction cursors against cartridge words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo instruction words")]
     internal static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
         ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
@@ -176,7 +174,6 @@ internal static class EndingLogoVerification
     }
 
     /// <summary>Checks the four logo actor definitions, origins, and palette pointer bounds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo definitions")]
     internal static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
 

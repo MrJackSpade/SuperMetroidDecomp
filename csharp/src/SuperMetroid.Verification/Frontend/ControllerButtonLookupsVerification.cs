@@ -54,7 +54,6 @@ internal static class ControllerButtonLookupsVerification
     }
 
     /// <summary>Reads native default binding instructions and checks their action-to-WRAM mapping.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for default controller buttons")]
     internal static void VerifyDefaultControllerButtons(ISnesAddressSpace rom)
     {
         // Parse the seven original LDA-immediate/STA-absolute pairs, including their

@@ -15,7 +15,6 @@ using SuperMetroid.Core.World;
 internal static class RidleyMovementTargetsVerification
 {
     /// <summary>Compares 23 native words and exact carry, pogo, side, release, and grab acceleration.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley movement targets")]
     internal static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
     {
         ushort[] Facings(int address, Func<RidleyFacing, ushort> compiled)

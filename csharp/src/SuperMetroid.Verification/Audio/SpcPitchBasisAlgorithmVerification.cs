@@ -11,7 +11,6 @@ internal static class SpcPitchBasisAlgorithmVerification
 {
     /// <summary>Brackets the twelfth root of two, compares all thirteen native
     /// frequencies, and confirms invalid semitone indices are rejected.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pitch basis algorithm")]
     internal static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
     {
         BigInteger scale = BigInteger.Pow(10, 28);

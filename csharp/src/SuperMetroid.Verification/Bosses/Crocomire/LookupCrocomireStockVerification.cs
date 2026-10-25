@@ -80,7 +80,6 @@ internal static class LookupCrocomireStockVerification
     }
 
     /// <summary>Reads native draw-stream bytes for the independent stock catalog oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire stock mapping")]
     private static byte CrocomireStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

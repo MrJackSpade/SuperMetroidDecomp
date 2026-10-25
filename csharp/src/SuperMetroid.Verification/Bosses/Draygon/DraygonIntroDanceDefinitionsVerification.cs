@@ -27,7 +27,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>Compares all four Evir slot delays with native words and checks slot bounds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro latency definitions")]
     internal static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
@@ -49,7 +48,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>Compares reachable motion deltas and rejection of unaligned or out-of-range stream indices.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro movement definitions")]
     internal static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroDeleteSelection), () => VerifyDraygonIntroDeleteSelection(rom));
@@ -80,7 +78,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>Checks that the two native sentinel records delete sprites at the authored aligned offsets.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro delete selection")]
     private static void VerifyDraygonIntroDeleteSelection(SuperMetroidAddressSpace rom)
     {
         int commands = 0;
@@ -99,7 +96,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>Compares every Evir slot's position and lifetime across the full intro, including the fight handoff.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for complete Draygon intro trajectory")]
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));

@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class LookupCeresHazeRampVerification
 {
     /// <summary>Replays the native descending fill and HDMA bands to produce 224 expected haze rows.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze ramp")]
     private static byte[] OriginalCeresHazeRamp(ISnesAddressSpace rom, int counter)
     {
         // Execute the original descending table-fill semantics using its LDX operand.

@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Enemies.Rios;
 internal static class RioLaunchDefinitionsVerification
 {
     /// <summary>Checks five fixed velocities and all 65,536 random inputs for Norfair's two Y-launch words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Rio launches")]
     internal static void VerifyCompiledRioLaunches(SuperMetroidAddressSpace rom)
     {
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa2bbbb), RioLaunchDefinitions.RioYVelocity, "Rio NTSC Y launch");

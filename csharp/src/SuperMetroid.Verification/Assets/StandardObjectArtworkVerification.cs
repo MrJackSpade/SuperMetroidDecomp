@@ -31,7 +31,6 @@ internal static class StandardObjectArtworkVerification
     }
 
     /// <summary>Compares every native OBJ byte, then checks the edited PNG, provenance, and the ROM-free setup selection.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for standard object artwork")]
     internal static void VerifyStandardObjectArtwork(string sourceRom)
     {
         using var directoryScratch = new TestScratchDirectory("standard-objects");

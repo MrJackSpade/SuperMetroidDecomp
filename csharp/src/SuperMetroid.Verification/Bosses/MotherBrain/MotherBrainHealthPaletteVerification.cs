@@ -12,7 +12,6 @@ internal static class MotherBrainHealthPaletteVerification
 {
     /// <summary>Compares each selected health palette with cartridge colors while guarding neighboring CGRAM slots.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain health palette")]
     internal static void VerifyMotherBrainHealthPalette(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

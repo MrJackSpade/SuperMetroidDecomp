@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Decodes the native map highlight sequence into colors/durations, not an executable palette program.</summary>
-[CpuBusBoundary("codec: ROM map highlight palette sequence → map palette cycle colors and durations")]
 internal static class MapPaletteCycleExtractor
 {
     /// <summary>Reads timed RGB5 map-highlight frames until the native $FF duration

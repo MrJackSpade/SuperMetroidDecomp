@@ -50,7 +50,6 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
     }
 
     /// <summary>Reads a bank-$84 native graphics instruction word for the independent oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for collectible graphics words")]
     internal static ushort ReadCollectibleGraphicsWord(
         ISnesAddressSpace bus, int address) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | address);
 

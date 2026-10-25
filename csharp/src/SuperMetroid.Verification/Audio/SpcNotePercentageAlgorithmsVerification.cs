@@ -8,7 +8,6 @@ namespace SuperMetroid.Verification.Audio;
 internal static class SpcNotePercentageAlgorithmsVerification
 {
     /// <summary>Compares operand counts for opcodes $E0-$FE and rejects indices outside the table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC effect operand selection")]
     internal static void VerifySpcEffectOperandSelection(SuperMetroidAddressSpace rom)
     {
         for (int opcode = 0xe0; opcode <= 0xfe; opcode++)
@@ -23,7 +22,6 @@ internal static class SpcNotePercentageAlgorithmsVerification
     }
 
     /// <summary>Checks that all timing and volume commands use the low nibble to select volume.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC note volume algorithm")]
     internal static void VerifySpcNoteVolumeAlgorithm(SuperMetroidAddressSpace rom)
     {
         // Every possible timing/volume command byte: the decoder uses its low nibble.
@@ -38,7 +36,6 @@ internal static class SpcNotePercentageAlgorithmsVerification
     }
 
     /// <summary>Checks that bits 4 through 6 select the gate-off percentage for note commands.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC note gate algorithm")]
     internal static void VerifySpcNoteGateAlgorithm(SuperMetroidAddressSpace rom)
     {
         // The high command bit is clear; bits4..6 select the gate fraction.

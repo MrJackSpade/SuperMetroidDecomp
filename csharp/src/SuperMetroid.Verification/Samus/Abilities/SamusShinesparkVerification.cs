@@ -23,7 +23,6 @@ internal static class SamusShinesparkVerification
 /// Seeds the six compiled stored-shine phase targets with distinct sentinel colors, making an
 /// incorrect suit or phase selection immediately observable, plus a distinct first Power Suit color.
 /// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the stored-shine and Power Suit palettes")]
 static void SeedStoredShinePalettes(TestAddressSpace bus)
 {
     for (int frame = 0; frame < 6; frame++)

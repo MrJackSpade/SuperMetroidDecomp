@@ -49,7 +49,6 @@ internal static class GrowingShutterDefinitionsVerification
     }
 
     /// <summary>Reads cartridge bytes used as the compiled shutter comparison oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled growing shutters")]
     private static byte CompiledGrowingShuttersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks all four native initial dispatch pointers and rejects out-of-range selectors.</summary>
     private static void VerifyGrowingShutterInitialSelection(SuperMetroidAddressSpace rom)
@@ -67,7 +66,6 @@ internal static class GrowingShutterDefinitionsVerification
     }
 
     /// <summary>Reads a native initial dispatch pointer byte for selector verification.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for growing shutter initial selection")]
     private static byte GrowingShutterInitialSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks signed whole-pixel shutter velocities across high-byte selector aliases.</summary>
@@ -101,6 +99,5 @@ internal static class GrowingShutterDefinitionsVerification
     }
 
     /// <summary>Reads a native velocity byte for the shutter speed-field comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for growing shutter speed field")]
     private static byte GrowingShutterSpeedFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

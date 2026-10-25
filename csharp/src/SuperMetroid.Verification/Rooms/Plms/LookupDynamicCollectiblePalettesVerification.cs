@@ -42,6 +42,5 @@ internal static class LookupDynamicCollectiblePalettesVerification
     }
 
     /// <summary>Reads a bank-$84 palette byte from the retail collectible upload program.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible palette selectors")]
     private static byte DynamicCollectiblePaletteSelectorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

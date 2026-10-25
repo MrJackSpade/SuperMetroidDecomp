@@ -135,7 +135,6 @@ internal static class RoomSkyTilemapsVerification
     }
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count);
 

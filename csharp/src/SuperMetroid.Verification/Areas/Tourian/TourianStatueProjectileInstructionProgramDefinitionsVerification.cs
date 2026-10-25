@@ -25,7 +25,6 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Checks compiled words and eye, particle, tail, splash, soul, and entrance-statue instruction paths.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue projectile instruction program definitions")]
     internal static void VerifyTourianStatueProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {

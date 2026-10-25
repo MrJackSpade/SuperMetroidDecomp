@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Fx;
 /// (#1415): the room-FX catalog generator decodes the retail records once, and checks that seed synthetic records encode
 /// through it. Core holds only the decoded fields. Never linked by player hosts.
 /// </summary>
-[CpuBusBoundary("codec: room-FX record bytes ↔ RoomFxRecordDefinition")]
 internal static class RoomFxRecordCodec
 {
     /// <summary>The bank-$88 dispatcher byte naming each <see cref="LayerBlendingConfiguration"/>.</summary>

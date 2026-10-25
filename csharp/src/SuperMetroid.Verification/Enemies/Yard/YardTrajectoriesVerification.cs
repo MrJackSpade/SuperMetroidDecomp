@@ -94,7 +94,6 @@ internal static class YardTrajectoriesVerification
     }
 
     /// <summary>Reads the parameter-selected crawl speed from the retail bank-$A3 table.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A3:E5F0 Yard crawl-speed table")]
     private static ushort ReadNativeYardCrawlSpeed(ISnesAddressSpace bus, int parameter) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + parameter * 2);
 

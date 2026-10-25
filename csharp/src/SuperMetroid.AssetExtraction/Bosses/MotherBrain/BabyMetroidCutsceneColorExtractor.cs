@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports the cutscene Baby's initial and displayed fade-to-black RGB5 images.</summary>
-[CpuBusBoundary("codec: ROM cutscene Baby Metroid initial and fade-to-black colors → BabyMetroidCutsceneColorCatalog")]
 public static class BabyMetroidCutsceneColorExtractor
 {
     /// <summary>Reads the initial Baby palette and every authored fade row, rejects colors with the native high bit set, and serializes the versioned RGB5 document.</summary>

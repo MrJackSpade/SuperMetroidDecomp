@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapArrowDurationsVerification
 {
     /// <summary>Compares four native cycles, bounds, custom phase edits, and frame-by-frame arrow timing.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow durations")]
     internal static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
@@ -75,7 +74,6 @@ internal static class MapArrowDurationsVerification
     }
 
     /// <summary>Checks visible and hidden ticks against the native left-arrow timing program.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow duration ticks")]
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         var actual = new FileSelectMapAnimations(presentation);

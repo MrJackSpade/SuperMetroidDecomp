@@ -89,6 +89,5 @@ internal static class LookupDownwardGateStockVerification
     }
 
     /// <summary>Reads a native downward-gate draw-list byte for the stock oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate stock mapping")]
     private static byte DownwardGateStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

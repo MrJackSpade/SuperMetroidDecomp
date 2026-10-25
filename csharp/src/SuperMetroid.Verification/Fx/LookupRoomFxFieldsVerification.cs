@@ -144,7 +144,6 @@ internal static class LookupRoomFxFieldsVerification
     }
 
     /// <summary>Reads an unmodified bank-$83 field byte for the independent record oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room FX field")]
     private static byte RoomFxFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares every accepted list root and door value with a first-match native byte walk.</summary>

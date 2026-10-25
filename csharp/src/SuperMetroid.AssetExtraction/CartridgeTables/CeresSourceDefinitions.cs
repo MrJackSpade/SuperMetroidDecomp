@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -7,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Ceres station's door visuals, escape character pages and floor animation lists
 /// (#1415): the import pipeline's private knowledge of the cartridge, decoded once into the installed Ceres documents.
 /// </summary>
-[CpuBusBoundary("catalog: Ceres cartridge sources")]
 internal static class CeresSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>

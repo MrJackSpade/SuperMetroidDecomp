@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports fixed Ceres warning tile words without exposing DMA control metadata.</summary>
-[CpuBusBoundary("codec: ROM Ceres escape warning tilemap words → Ceres escape overlay tilemap files")]
 internal static class CeresEscapeOverlayTilemapFiles
 {
     /// <summary>Exports every fixed warning page's tile words, then reloads the catalog and byte-compares each page with the cartridge source.</summary>

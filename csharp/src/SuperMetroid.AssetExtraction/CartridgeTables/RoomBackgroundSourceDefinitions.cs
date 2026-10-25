@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -8,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the library backgrounds' sources and where their transfers write (#1414): the import
 /// pipeline's private knowledge of the cartridge, decoded once into the installed background tilemaps and images.
 /// </summary>
-[CpuBusBoundary("catalog: library-background cartridge sources and destinations")]
 internal static class RoomBackgroundSourceDefinitions
 {
     /// <summary>Where each compressed background tilemap is stored, as the disassembly labels it.</summary>

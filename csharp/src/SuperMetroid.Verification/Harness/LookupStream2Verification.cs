@@ -75,7 +75,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Chozo statue foot spritemap geometry and independent compiled edits.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo foot geometry")]
     internal static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
     {
         int[] nativeIdentities = [0xaae943, 0xaae9ae, 0xaaea1e, 0xaaea8e, 0xaaeafe, 0xaaeb69, 0xaaebd9, 0xaaec49];
@@ -163,7 +162,6 @@ internal static class LookupStream2Verification
 
     /// <summary>Checks Wrecked Ship ghost palette phases against native CGRAM writes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ghost palette")]
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession());
@@ -657,7 +655,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks pause wireframe mirror relationships and independently edited cells.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for wireframe mirrors")]
     internal static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
@@ -891,7 +888,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks pause equipment blank cells against native art and edited label boundaries.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for equipment blank")]
     internal static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
@@ -1076,12 +1072,10 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Copies a bounded span of native Dead Torizo artwork bytes for the oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo artwork bytes")]
     private static byte[] ReadDeadTorizoRomBytes(ISnesAddressSpace rom, int address, int count) =>
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
         Func<RoomEnemySlot, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
@@ -1163,7 +1157,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks eight Torizo tile-page identities, decoded sources, and dispatch bounds.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo page dispatch")]
     internal static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
     {
         TorizoTileSheet[] original =
@@ -1228,7 +1221,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Kraid lint initialization's source values and live actor state.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
@@ -1265,7 +1257,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks enemy drop cumulative weights, RNG reroll, and resource eligibility.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for drop selection")]
     internal static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
     {
         // Native first record weights60,60,60,5,60,10 yield cumulative thresholds
@@ -1304,7 +1295,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks five-member Pipe Bug formation positions and native spawn data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug formation")]
     internal static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
         for (int member = 0; member < 5; member++)
@@ -1392,7 +1382,6 @@ internal static class LookupStream2Verification
 
     /// <summary>Checks trail instruction words and emitted OAM across the compiled programs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program words")]
     internal static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);
@@ -1484,7 +1473,6 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks left/right trail pointer selectors and their native table domain.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
     internal static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
 
@@ -2162,7 +2150,6 @@ internal static class LookupStream2Verification
 
     /// <summary>Checks Golden Torizo foot extended frames, OAM geometry, and independent edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo foot geometry")]
     internal static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
     {
         var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();

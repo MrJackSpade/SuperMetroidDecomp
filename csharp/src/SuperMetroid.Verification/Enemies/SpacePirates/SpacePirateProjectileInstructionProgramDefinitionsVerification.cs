@@ -25,7 +25,6 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Executes both laser and claw facings through callbacks, loops, and deletion while checking migrated word ownership.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate projectile instruction program definitions")]
     internal static void VerifySpacePirateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {

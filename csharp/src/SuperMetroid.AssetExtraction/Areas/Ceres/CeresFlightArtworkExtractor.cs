@@ -15,7 +15,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the Ceres approach's consumed Mode-7 and OBJ visual streams.</summary>
-[CpuBusBoundary("codec: ROM Ceres approach Mode-7 and OBJ graphics streams → Ceres flight artwork")]
 internal static class CeresFlightArtworkExtractor
 {
     /// <summary>Exports Ceres flight's Mode-7 tiles/maps, OBJ sheets and frames, palette, and actor placements, then round-trips their native bytes.</summary>

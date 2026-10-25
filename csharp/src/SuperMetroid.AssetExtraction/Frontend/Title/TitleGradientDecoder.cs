@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Import-time expansion of the title's native direct-mode HDMA tables.</summary>
-[CpuBusBoundary("codec: ROM title direct-mode HDMA gradient tables → TitleGradientLine[]")]
 public static class TitleGradientDecoder
 {
     /// <summary>Expands the selected title gradient's fixed-color and control HDMA tables into one descriptor per scanline.</summary>

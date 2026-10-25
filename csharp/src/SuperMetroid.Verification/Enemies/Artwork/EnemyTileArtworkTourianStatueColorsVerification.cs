@@ -29,7 +29,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
     /// <summary>Checks entrance, eye, and grey-room palette writes, isolated edits, override persistence, and invalid file rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Tourian statue palette sources")]
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

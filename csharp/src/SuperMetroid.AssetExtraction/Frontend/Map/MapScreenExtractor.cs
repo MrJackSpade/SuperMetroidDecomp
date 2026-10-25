@@ -12,7 +12,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Resolves native world layers and final room-map frames into editable visual resources.</summary>
-[CpuBusBoundary("codec: ROM world map layers and room-map frames → map screen resources")]
 public static class MapScreenExtractor
 {
     /// <summary>The frame word $82:9628 writes the selected area name from.</summary>

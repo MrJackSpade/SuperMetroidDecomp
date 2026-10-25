@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 internal static class PhantoonDeathExplosionsVerification
 {
     /// <summary>Compares thirteen native records and frame-exact repeated requests while forbidding schedule reads in production.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon death explosions")]
     internal static void VerifyCompiledPhantoonDeathExplosions(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 13; i++)

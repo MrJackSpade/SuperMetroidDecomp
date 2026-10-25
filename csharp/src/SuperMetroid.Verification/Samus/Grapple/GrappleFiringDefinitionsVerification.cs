@@ -200,7 +200,6 @@ internal static class GrappleFiringDefinitionsVerification
     }
 
     /// <summary>Reads a native grapple definition byte solely for comparison with compiled data.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple firing definitions")]
     private static byte GrappleFiringDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks normal and running X-origin aliases across all ten directions.</summary>
@@ -239,7 +238,6 @@ internal static class GrappleFiringDefinitionsVerification
     }
 
     /// <summary>Reads a native Grapple origin byte for the comparison oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple origin field")]
     private static byte GrappleOriginFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks launch X velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
@@ -271,7 +269,6 @@ internal static class GrappleFiringDefinitionsVerification
     }
 
     /// <summary>Reads a native Grapple launch byte for the comparison oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple launch field")]
     private static byte GrappleLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Forbids the selected source pose's compiled movement and graphics-offset bytes and every migrated Grapple firing table.</summary>
     internal static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,

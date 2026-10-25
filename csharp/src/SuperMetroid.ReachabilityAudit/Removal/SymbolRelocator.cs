@@ -754,8 +754,7 @@ internal static class SymbolRelocator
         public string RenderMembers()
         {
             string ownerName = TypeName(Owner);
-            var output = new StringBuilder("/// <summary>").Append(string.Format(style.MembersSummary, ownerName)).Append("</summary>\r\n")
-                .Append(OwnerAttributes());
+            var output = new StringBuilder("/// <summary>").Append(string.Format(style.MembersSummary, ownerName)).Append("</summary>\r\n");
             if (Interfaces.Count > 0)
                 output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract class {style.AdapterName(Owner)} : {string.Join(", ", Interfaces)}\r\n");
             else
@@ -766,16 +765,9 @@ internal static class SymbolRelocator
         /// <summary>Emits the class holding the owner's moved instance members.</summary>
         public string RenderExtensions() =>
             new StringBuilder("/// <summary>").Append(string.Format(style.ExtensionsSummary, TypeName(Owner))).Append("</summary>\r\n")
-                .Append(OwnerAttributes())
                 .Append($"internal static class {style.ExtensionsName(Owner)}\r\n{{\r\n")
                 .Append(string.Join("\r\n", Extensions.Select(e => e.Receiver).Distinct(StringComparer.Ordinal).Select(ExtensionBlock)))
                 .Append("}\r\n").ToString();
-
-        /// <summary>The owner's analyzer-classification attributes, one per line, as applied in its source.</summary>
-        private string OwnerAttributes() => string.Concat(Owner.GetAttributes()
-            .Where(attribute => attribute.AttributeClass is { } type && RelocationStyle.CarriedAttributes.Contains(type.Name))
-            .Select(attribute => "[" + (attribute.ApplicationSyntaxReference ?? throw new InvalidOperationException(
-                $"{Owner.Name} carries {attribute.AttributeClass} without source syntax.")).GetSyntax() + "]\r\n"));
 
         /// <summary>The documented block for one receiver holding its moved members, indented one level.</summary>
         public string ExtensionBlock(string receiver)

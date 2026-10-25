@@ -125,6 +125,5 @@ internal static class LookupDownwardGateDrawsVerification
     }
 
     /// <summary>Reads a native draw-list byte for the retail ROM comparison only.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate draw field")]
     private static byte DownwardGateDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

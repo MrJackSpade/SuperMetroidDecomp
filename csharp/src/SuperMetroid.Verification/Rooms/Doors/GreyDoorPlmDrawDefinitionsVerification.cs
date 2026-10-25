@@ -173,7 +173,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     }
 
     /// <summary>Reads retail draw and program bytes only for the comparison oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grey door PLM draw definitions")]
     private static byte GreyDoorPlmDrawDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Blocks compiled ordinary, Bomb Torizo and draw-list byte ranges during resident-door playback.</summary>

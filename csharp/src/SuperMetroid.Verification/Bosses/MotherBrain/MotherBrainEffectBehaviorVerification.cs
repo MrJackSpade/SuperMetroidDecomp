@@ -25,7 +25,6 @@ internal static class MotherBrainEffectBehaviorVerification
     /// its three fired beams, the onion ring grows to its final radii and its touched impact plays out, each drool releases
     /// and splashes, and the subtitle sleeps; every shown frame keeps its native duration, with the lists' bytes forbidden.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain effect frame durations")]
     internal static void VerifyMotherBrainEffectBehavior(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);

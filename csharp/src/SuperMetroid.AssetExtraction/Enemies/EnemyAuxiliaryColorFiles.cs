@@ -11,7 +11,6 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Import-only conversion of the four bounded enemy color animations.</summary>
-[CpuBusBoundary("codec: ROM enemy auxiliary color animation tables → EnemyAuxiliaryColorCatalog")]
 public static class EnemyAuxiliaryColorFiles
 {
     /// <summary>Imports the face-block glow, drained sidehopper, and Golden Torizo body and belly palette rows.</summary>

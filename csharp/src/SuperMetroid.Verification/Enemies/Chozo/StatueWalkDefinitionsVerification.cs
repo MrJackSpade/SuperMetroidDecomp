@@ -14,7 +14,6 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class StatueWalkDefinitionsVerification
 {
     /// <summary>Compares overlapping Torizo velocity windows and Chozo carry words, then checks production movement and Samus offsets without a bus.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for statue walking")]
     internal static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 38; offset++)

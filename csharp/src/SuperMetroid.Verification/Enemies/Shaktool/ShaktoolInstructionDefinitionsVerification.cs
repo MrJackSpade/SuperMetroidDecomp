@@ -14,7 +14,6 @@ using SuperMetroid.Core.World;
 internal static class ShaktoolInstructionDefinitionsVerification
 {
     /// <summary>Compares orientation and collision lists with the cartridge and checks live Shaktool handoffs.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool instruction definitions")]
     internal static void VerifyShaktoolInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
 

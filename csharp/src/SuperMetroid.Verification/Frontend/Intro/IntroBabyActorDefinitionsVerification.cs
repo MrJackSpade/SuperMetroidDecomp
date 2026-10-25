@@ -160,7 +160,6 @@ internal static class IntroBabyActorDefinitionsVerification
     }
 
     /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby actor definitions")]
     private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects production rereads of compiled Baby actor, instruction, demo-input and discovery-collision regions.</summary>

@@ -23,7 +23,6 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
     /// <summary>Compares live pulse frames with cartridge colors, then checks
     /// one edited channel, override persistence, and malformed asset rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Zebetite colors")]
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

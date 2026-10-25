@@ -14,7 +14,6 @@ internal static class WorkRobotInitialSelectionVerification
     /// The three retail table words name the three unpowered programs and the production initializer installs them; the
     /// native overrun selector three and out-of-range selectors fail loudly.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot initial selection")]
     internal static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)

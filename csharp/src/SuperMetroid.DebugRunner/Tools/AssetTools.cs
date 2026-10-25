@@ -17,8 +17,6 @@ internal static class AssetTools
             case ["--dump-instruction-layouts", var outputPath]:
                 InstructionLayoutDump.DumpInstructionLayouts(outputPath);
                 return 0;
-            case ["--generate-cpu-bus-inventory"]:
-                return CpuBusInventoryGenerator.GenerateCpuBusInventory();
             case ["--generate-ppu-layout-inventory"]:
                 return PpuLayoutInventoryGenerator.GeneratePpuLayoutInventory();
             case ["--generate-room-fx-records"]:

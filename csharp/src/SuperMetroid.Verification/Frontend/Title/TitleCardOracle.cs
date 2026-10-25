@@ -23,7 +23,6 @@ internal static class TitleCardOracle
     /// the scene trigger and deletion. Also requires the extraction to give all 31 compositions distinct spritemaps,
     /// with the logo on the title's logo pointer. Returns the number of steps compared.
     /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the title cards' native lists")]
     internal static int CompareAll(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);

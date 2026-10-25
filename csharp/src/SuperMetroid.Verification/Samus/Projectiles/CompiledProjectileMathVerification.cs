@@ -78,7 +78,7 @@ internal static class CompiledProjectileMathVerification
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
             var cosineAngle = RotationAngle.FromTableIndex(unchecked((byte)(angle - 64))).AddRaw(255);
-            if (EnemyTrigonometryTables.MultiplySignedSine((ushort)speed, new ByteAngle((byte)angle)) != expected ||
+            if (Trigonometry.MultiplySignedSine((ushort)speed, new ByteAngle((byte)angle)) != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");

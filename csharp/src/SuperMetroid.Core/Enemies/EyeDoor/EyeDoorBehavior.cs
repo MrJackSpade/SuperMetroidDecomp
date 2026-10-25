@@ -310,7 +310,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
     internal static short ReadEyeDoorAcceleration(int tableIndex)
     {
-        int sample = EnemyTrigonometryTables.SignedSine(unchecked(new ByteAngle((byte)tableIndex)));
+        int sample = Trigonometry.SignedSine(unchecked(new ByteAngle((byte)tableIndex)));
         return unchecked((short)(sample >> 4));
     }
 
@@ -352,8 +352,8 @@ internal sealed class EyeDoorBehavior
         projectile.Variable0 = unchecked((ushort)(2 * EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue));
         int angle = projectile.Variable0 >> 1;
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)angle)))));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)(angle - 64))))));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)angle)))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)(angle - 64))))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>

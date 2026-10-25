@@ -22,7 +22,7 @@ internal static class FamilyTrigonometryVerification
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
             short original = unchecked((short)(SnesLittleEndian.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
-            AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine(new ByteAngle((byte)angle)), "signed 16-bit sample");
+            AssertEqual(original, Trigonometry.SignedSixteenBitSine(new ByteAngle((byte)angle)), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }

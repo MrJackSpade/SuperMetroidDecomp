@@ -1,8 +1,11 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Spatial;
 
-/// <summary>Immutable integer samples used by the shared enemy multiplication routines.
-/// These are engine math definitions, not editable presentation assets.</summary>
-public static class EnemyTrigonometryTables
+/// <summary>
+/// The game's sine and cosine samples over byte angles and the multiplications that use them (#1422): the signed 8.8
+/// and sixteen-bit sine waves, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
+/// projectile and screen effect samples them. These are engine math definitions, not editable presentation assets.
+/// </summary>
+public static class Trigonometry
 {
     /// <summary>$A0:B1C3-$B3C2, SineCosineTables_16bitSine and its three
     /// quadrant continuations. These signed samples peak at +/-32767, unlike

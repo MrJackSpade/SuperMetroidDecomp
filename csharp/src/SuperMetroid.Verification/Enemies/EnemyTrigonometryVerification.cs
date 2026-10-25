@@ -740,11 +740,11 @@ internal static class EnemyTrigonometryVerification
         for (int index = 0; index < 320; index++)
         {
             short expected = Reference(index);
-            AssertEqual(expected, EnemyTrigonometryTables.SignedNegativeCosineWord(index), "all 320 native prefix/full-wave words");
+            AssertEqual(expected, Trigonometry.SignedNegativeCosineWord(index), "all 320 native prefix/full-wave words");
             if (index >= 64)
             {
                 byte angle = (byte)(index - 64);
-                AssertEqual(expected, EnemyTrigonometryTables.SignedSine(new ByteAngle(angle)), "all signed sine quadrants match cartridge");
+                AssertEqual(expected, Trigonometry.SignedSine(new ByteAngle(angle)), "all signed sine quadrants match cartridge");
                 foreach (var reader in cinematicReaders)
                     AssertEqual(expected, reader(angle), "cinematic matrix sample matches cartridge without bus");
             }
@@ -752,7 +752,7 @@ internal static class EnemyTrigonometryVerification
         foreach (int invalid in new[] { -1, 320, int.MinValue, int.MaxValue })
         {
             bool rejected = false;
-            try { _ = EnemyTrigonometryTables.SignedNegativeCosineWord(invalid); }
+            try { _ = Trigonometry.SignedNegativeCosineWord(invalid); }
             catch (ArgumentOutOfRangeException) { rejected = true; }
             AssertTrue(rejected, "signed table does not silently wrap invalid prefix indexes");
         }

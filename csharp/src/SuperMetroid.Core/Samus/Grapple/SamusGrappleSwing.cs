@@ -88,7 +88,7 @@ public static class SamusGrappleSwing
     /// <summary>Reads the signed negative-cosine table used to project grapple angles into room coordinates.</summary>
     internal static short ReadSignedSine(int index)
     {
-        return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
+        return Trigonometry.SignedNegativeCosineWord(index);
     }
 
 

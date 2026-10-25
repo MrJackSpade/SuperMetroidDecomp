@@ -391,7 +391,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
         int tableIndex = (angle.RawValue + phase) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
-        uint product = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex) * (uint)speed;
+        uint product = Trigonometry.UnsignedHalfWave(tableIndex) * (uint)speed;
         return UnsignedSixteenSixteen.FromRaw(product);
     }
 
@@ -413,7 +413,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         int tableAngle = angle.AddTableUnits(phase).RawValue;
-        int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
+        int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         int product = unchecked((ushort)(sineMagnitude * speed));
         int pixel = EightEight.WholeOf(product);
         int subpixel = unchecked((ushort)SixteenSixteen.FromEightEight(product));

@@ -306,8 +306,8 @@ internal sealed class RidleyTail
         // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(
-            unchecked((short)(EightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(angle)))),
-            unchecked((short)(EightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))))));
+            unchecked((short)(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle)))),
+            unchecked((short)(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))))));
     }
 
     /// <summary>Ends a joint's active whip and flips its movement direction for the next activation.</summary>

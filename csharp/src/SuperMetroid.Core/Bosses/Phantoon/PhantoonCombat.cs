@@ -570,7 +570,7 @@ internal sealed class PhantoonCombat
     internal static int ReadPhantoonFlameComponent(ByteAngle angle, int radius)
     {
         int byteAngle = angle.RawValue;
-        int sample = EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)(byteAngle & 127)));
+        int sample = Trigonometry.SignedSine(new ByteAngle((byte)(byteAngle & 127)));
         int magnitude = (EightEight.Multiply(unchecked((byte)sample), unchecked((byte)radius))) + EightEight.WholeOf(sample) * unchecked((byte)radius);
         return byteAngle < 128 ? magnitude : -magnitude;
     }

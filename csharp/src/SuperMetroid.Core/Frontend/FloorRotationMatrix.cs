@@ -18,7 +18,7 @@ internal static class FloorRotationMatrix
     }
 
     /// <summary>Reads the compiled signed sine sample for a floor angle.</summary>
-    internal static short ReadSine(ByteAngle angle) => EnemyTrigonometryTables.SignedSine(angle);
+    internal static short ReadSine(ByteAngle angle) => Trigonometry.SignedSine(angle);
 
     /// <summary>Multiplies a signed trigonometric component by the 8.8 scale, which stays below 32768, keeping signed 16 bits.</summary>
     private static short Scale(int component, int scalar) =>

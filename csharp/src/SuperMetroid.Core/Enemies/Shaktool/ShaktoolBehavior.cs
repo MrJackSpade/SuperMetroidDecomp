@@ -497,7 +497,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Maps the Shaktool orbit index into the shared signed enemy sine table.</summary>
     internal static ushort ReadShaktoolCommonSineSample(int fullTableIndex) =>
-        unchecked((ushort)EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)(fullTableIndex - 64))));
+        unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)(fullTableIndex - 64))));
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail at <c>$AA:DF34</c>, including its read

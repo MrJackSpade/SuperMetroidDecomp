@@ -248,9 +248,9 @@ internal sealed class TorizoAttacks
             angle = unchecked((byte)(baseAngle + (random & TorizoRandomDefinitions.DroolFacingAngleMask) - 8));
         }
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)
-            EnemyTrigonometryTables.SignedSine(unchecked(new ByteAngle((byte)angle))))));
+            Trigonometry.SignedSine(unchecked(new ByteAngle((byte)angle))))));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)
-            EnemyTrigonometryTables.SignedNegativeCosineWord(angle))));
+            Trigonometry.SignedNegativeCosineWord(angle))));
         projectile.Position = projectile.Position.WithWholeX(_access.FacesRight(torizo)
             ? unchecked((ushort)(torizo.Position.X.Whole + 8))
             : unchecked((ushort)(torizo.Position.X.Whole - 8)));
@@ -467,9 +467,9 @@ internal sealed class TorizoAttacks
         // The native combined table starts at negative cosine, not sine. Its
         // quarter-turn offset selects sine for X; the unshifted sample gives Y.
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(8 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex + 64)))));
+            Trigonometry.SignedNegativeCosineWord(sineIndex + 64)))));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(8 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)))));
+            Trigonometry.SignedNegativeCosineWord(sineIndex)))));
     }
 
     /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
@@ -738,9 +738,9 @@ internal sealed class TorizoAttacks
         // Preserve the native up-zero angle convention: X is sine, Y is
         // negative cosine. Starting both reads at sine rotates the shot.
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(4 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64)))));
+            Trigonometry.SignedNegativeCosineWord(angle + 64)))));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(4 *
-            EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
+            Trigonometry.SignedNegativeCosineWord(angle)))));
     }
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>

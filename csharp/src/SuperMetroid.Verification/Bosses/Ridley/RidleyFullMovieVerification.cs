@@ -1707,7 +1707,11 @@ internal static class RidleyFullMovieVerification
                     // again. Their retained per-slot word is not a live source identity.
                     if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
                         Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(projectile.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
-                    Check(owner + " killed enemy index", projectile.KilledEnemyNativeIndex, NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
+                    // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none.
+                    KilledEnemy killed = projectile.KilledEnemy;
+                    Check(owner + " killed enemy index", killed.SlotIndex < 0 ? 0xffff
+                        : killed.SlotIndex * EnemySlotTable.NativeSlotSize | (killed.Respawns ? 0x8000 : 0),
+                        NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);
                 if (projectile.Damage != nativeDamage) mismatches.Add(owner + $" damage: native={nativeDamage} port={projectile.Damage}");

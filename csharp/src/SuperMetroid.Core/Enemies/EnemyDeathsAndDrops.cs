@@ -119,9 +119,7 @@ internal sealed class EnemyDeathsAndDrops
                 graphicsIndex: 0);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.DropDefinitionId = enemy.DefinitionId;
-            explosion.KilledEnemyNativeIndex = respawns
-                ? unchecked((ushort)(enemy.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
-                : enemy.NativeIndex;
+            explosion.KilledEnemy = KilledEnemy.Of(enemy, respawns);
             explosion.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathExplosionDefinitions.Program(deathAnimation)));
         }
 
@@ -230,7 +228,7 @@ internal sealed class EnemyDeathsAndDrops
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.DropDefinitionId = definitionId;
-        pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
+        pickup.KilledEnemy = KilledEnemy.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
     }
@@ -255,7 +253,7 @@ internal sealed class EnemyDeathsAndDrops
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.DropChancesOverride = dropChances is { } table ? EnemyDropChanceDefinitions.At(table) : null;
-        pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
+        pickup.KilledEnemy = KilledEnemy.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
     }
@@ -594,18 +592,18 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Executes instruction $86:EF10 for the high-bit enemy index retained by a death actor.
+    /// Executes instruction $86:EF10 for the respawning enemy a death actor retains.
     /// The method is deliberately population/snapshot based so later respawning families can
     /// share it without acquiring a Rinka-specific reconstruction path.
     /// </summary>
-    internal void RespawnEnemyFromSnapshot(ushort nativeIndex)
+    internal void RespawnEnemyFromSnapshot(int slotIndex)
     {
-        RoomEnemySlot slot = _slotTable.SlotFromNativeIndex(nativeIndex);
+        RoomEnemySlot slot = _slotTable.Slots[slotIndex];
         RoomEnemySpawnSnapshot spawn = slot.Spawn;
         if (spawn.Population.DefinitionId == 0)
         {
             throw new InvalidDataException(
-                $"Enemy slot ${nativeIndex:X4} has no surviving population snapshot to respawn.");
+                $"Enemy slot {slotIndex} has no surviving population snapshot to respawn.");
         }
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
@@ -666,8 +664,8 @@ internal sealed class EnemyDeathsAndDrops
                     throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the death-drop command $EEAF.");
                 return ConvertEnemyDeathExplosionToPickup(projectile);
             case EnemyDeathProjectileCueKind.HandleRespawningEnemy:
-                if (unchecked((short)projectile.KilledEnemyNativeIndex) <= -2)
-                    RespawnEnemyFromSnapshot(unchecked((ushort)(projectile.KilledEnemyNativeIndex & KilledEnemyIndexMasks.IndexBits)));
+                if (projectile.KilledEnemy.Respawns)
+                    RespawnEnemyFromSnapshot(projectile.KilledEnemy.SlotIndex);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyDeathProjectileCueKind)} {cue.Kind}.");

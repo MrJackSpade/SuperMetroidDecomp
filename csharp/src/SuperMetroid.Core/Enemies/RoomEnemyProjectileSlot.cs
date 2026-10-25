@@ -119,15 +119,8 @@ public sealed class RoomEnemyProjectileSlot
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-    /// <summary>
-    /// Native <c>eproj_killed_enemy_index</c>. Enemy-death explosions set bit $8000 when
-    /// their terminal instruction must rebuild this physical enemy slot.
-    /// </summary>
-    public int KilledEnemyNativeIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>The enemy a death explosion or its drop came from, and whether the explosion rebuilds it when it ends.</summary>
+    public KilledEnemy KilledEnemy { get; internal set; }
     /// <summary>
     /// Native bank-$A0 enemy-header pointer retained in the parallel bank-$7E projectile
     /// metadata. Death explosions use offset $3A of this record to find their six-byte
@@ -174,7 +167,8 @@ public sealed class RoomEnemyProjectileSlot
         NextAfterburnKind = RoomEnemyProjectileKind.None;
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = EnemyProjectileCollisionOption.RunShotList;
-        CollidedProjectileType = KilledEnemyNativeIndex = 0;
+        CollidedProjectileType = 0;
+        KilledEnemy = default;
         DropDefinitionId = EnemyDefinitionId.None;
         DropChancesOverride = null;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;

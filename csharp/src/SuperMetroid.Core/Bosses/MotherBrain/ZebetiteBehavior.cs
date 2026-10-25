@@ -298,7 +298,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 graphicsIndex: 0);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
-            projectile.KilledEnemyNativeIndex = slot.NativeIndex;
+            projectile.KilledEnemy = KilledEnemy.Of(slot, respawns: false);
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 

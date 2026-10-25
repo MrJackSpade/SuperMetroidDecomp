@@ -582,7 +582,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             return unchecked((ushort)(2 * (SnesLittleEndian.HighByte(product))));
 
         ushort negatedProduct = unchecked((ushort)-product);
-        return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | EnemyWordMasks.SignExtendedHighByte));
+        return EnemyMath.FillHighByte(2 * SnesLittleEndian.HighByte(negatedProduct));
     }
 
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>

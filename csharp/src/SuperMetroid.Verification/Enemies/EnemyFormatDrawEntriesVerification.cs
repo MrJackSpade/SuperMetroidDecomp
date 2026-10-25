@@ -101,7 +101,7 @@ internal static class EnemyFormatDrawEntriesVerification
         for (int component = 0; component < components.Length; component++)
         {
             Position16<OamPixels> origin = new Position16<OamPixels>(120, 110) + components.Span[component].Offset;
-            if (((origin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 || ((origin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
+            if (!EnemyDrawRange.Contains(origin))
                 continue;
             AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.Enemy, 1),
                 pirateSheet.Frame(EnemySheetDefinitions.ComponentFrameName(extendedFrame, component)), new(origin.X, origin.Y), null,

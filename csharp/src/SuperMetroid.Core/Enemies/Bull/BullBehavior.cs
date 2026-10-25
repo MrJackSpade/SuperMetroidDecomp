@@ -148,8 +148,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
         // takes the absolute value and CMP/BMI tests it against $30.
         ushort difference = unchecked((ushort)(state.AngleToSamus.TableIndex - state.Angle));
-        if ((difference & EnemyWordMasks.LowByteSignBit) != 0)
-            difference |= EnemyWordMasks.SignExtendedHighByte;
+        difference = EnemyMath.SignExtendLowByte(difference);
         if (EnemyMath.IsNegative16(difference))
             difference = unchecked((ushort)-difference);
         if (unchecked((short)(difference - 48)) < 0)

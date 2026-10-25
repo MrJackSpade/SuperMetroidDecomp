@@ -220,6 +220,16 @@ internal static class EnemyMath
     internal static ushort MultiplyCartridgeSinCos(ushort speed, SnesByteAngle angle) =>
         EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
 
+    /// <summary>
+    /// The cartridge's sign extension of a word's low byte (<c>Sign_Extend_A</c>): a negative low byte fills the high byte
+    /// with ones; a positive one leaves whatever high byte the word already had, so a borrowed one survives (#1412).
+    /// </summary>
+    internal static ushort SignExtendLowByte(ushort word) =>
+        unchecked((sbyte)(byte)word) < 0 ? FillHighByte(word) : word;
+
+    /// <summary>The word whose low byte is <paramref name="value"/>'s and whose high byte is all ones: a negative 8-bit result (#1412).</summary>
+    internal static ushort FillHighByte(int value) => unchecked((ushort)(value | ~byte.MaxValue));
+
     /// <summary>Tests the sign of the low sixteen bits as a 65816 word, ignoring higher host bits.</summary>
     internal static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 }

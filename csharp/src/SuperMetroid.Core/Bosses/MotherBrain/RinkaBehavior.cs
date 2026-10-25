@@ -563,9 +563,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 graphicsIndex: 0);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
-            projectile.KilledEnemyNativeIndex = respawns
-                ? unchecked((ushort)(slot.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
-                : slot.NativeIndex;
+            projectile.KilledEnemy = KilledEnemy.Of(slot, respawns);
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 

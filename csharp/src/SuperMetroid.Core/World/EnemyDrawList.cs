@@ -187,8 +187,7 @@ internal sealed class EnemyDrawList
                 {
                     EnemyExtendedDrawComponent component = components[index];
                     Position16<OamPixels> componentOrigin = draw.Origin.ToOam() + component.Offset;
-                    if (((componentOrigin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 ||
-                        ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
+                    if (!EnemyDrawRange.Contains(componentOrigin))
                         continue;
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId,
                         EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(

@@ -321,7 +321,7 @@ internal sealed class BeamCombos
                         if (slot.Velocity.X.SignedRawValue >= 96) BeginSpazerFall(slot);
                     }
                     break;
-                default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {(int)slot.AuxiliaryPhase}.");
+                default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {slot.AuxiliaryPhase}.");
             }
         }
         shared.SetSharedCooldown(2);

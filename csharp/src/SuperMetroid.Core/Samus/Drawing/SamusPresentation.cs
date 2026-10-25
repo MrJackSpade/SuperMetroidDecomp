@@ -102,7 +102,7 @@ internal sealed class SamusPresentation
         if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
         {
             throw new InvalidOperationException(
-                $"Samus pose ${(int)samus.Pose:X2} cannot initialize directly on delay command ${initialDelay:X2}.");
+                $"Samus pose {samus.Pose} cannot initialize directly on delay command ${initialDelay:X2}.");
         }
 
         samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameBuffer + initialDelay)));
@@ -159,7 +159,7 @@ internal sealed class SamusPresentation
     public static void SetGrappleSwingAnimationFrame(SamusState samus, int frame)
     {
         if (samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
-            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
         samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(15);
     }
@@ -261,7 +261,7 @@ internal sealed class SamusPresentation
 
         bool activeDashAnimation = samus.HorizontalSpeed.HasRunningMomentum &&
             SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running &&
-            (controllerInput & ControllerButton.B) != 0;
+            (controllerInput & ControllerButton.B) != ControllerButton.None;
         if (activeDashAnimation)
         {
             // `$90:852C-$8543` intercepts a command byte before the generic command table.
@@ -349,8 +349,8 @@ internal sealed class SamusPresentation
                 // The runtime consumes this after AnimateNoFx, where Samus_HandleTransitions
                 // runs in the native frame. `$BF-$C4` use the same command to start their
                 // literal `$19/$1A` spin-jump operand after the grounded turn art finishes.
-                samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(samus, 
-                    unchecked((ushort)(samus.AnimationFrame + 1)));
+                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
+                    unchecked((ushort)(samus.AnimationFrame + 1))));
                 return;
 
             case 9:
@@ -365,8 +365,8 @@ internal sealed class SamusPresentation
                 ushort targetOffset = itemEquipped
                     ? movingVertically ? (ushort)6 : (ushort)5
                     : movingVertically ? (ushort)4 : (ushort)3;
-                samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(samus, 
-                    unchecked((ushort)(samus.AnimationFrame + targetOffset)));
+                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
+                    unchecked((ushort)(samus.AnimationFrame + targetOffset))));
                 return;
 
             case 10:
@@ -376,8 +376,8 @@ internal sealed class SamusPresentation
                 // preserving it completes the actual sixteen-entry interpreter instead of
                 // treating valid cartridge bytecode as corrupt data.
                 bool faMovingVertically = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
-                samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(samus, 
-                    unchecked((ushort)(samus.AnimationFrame + (faMovingVertically ? 2 : 1))));
+                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
+                    unchecked((ushort)(samus.AnimationFrame + (faMovingVertically ? 2 : 1)))));
                 return;
 
             case 11:
@@ -399,16 +399,16 @@ internal sealed class SamusPresentation
                 // command still publishes through the ordinary transitional-pose seam.
                 ushort fcItemMask = SnesLittleEndian.Word(ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2))));
                 bool fcItemEquipped = (samus.EquippedItems.ToEquipmentWord() & fcItemMask) != 0;
-                samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(samus, 
-                    unchecked((ushort)(samus.AnimationFrame + (fcItemEquipped ? 4 : 3))));
+                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
+                    unchecked((ushort)(samus.AnimationFrame + (fcItemEquipped ? 4 : 3)))));
                 return;
 
             case 13:
                 // $90:83A0, command $FD pp: publish pose pp through the same command-three
                 // seam as $F8. Unlike F8, FD has no auto-jump special case before it falls
                 // through here. The one-frame $4B/$4C neutral-jump transitions use it.
-                samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(samus, 
-                    unchecked((ushort)(samus.AnimationFrame + 1)));
+                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
+                    unchecked((ushort)(samus.AnimationFrame + 1))));
                 return;
 
             case 14:

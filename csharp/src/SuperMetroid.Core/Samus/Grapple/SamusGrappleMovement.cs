@@ -53,11 +53,11 @@ public static class SamusGrappleMovement
         if (direction >= 10)
         {
             throw new InvalidOperationException(
-                $"Pose ${(int)samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
+                $"Pose {samus.Pose} has no fireable grapple direction (${direction:X2}).");
         }
 
         grapple.Phase = GrapplePhase.Firing;
-        grapple.FireDirection = (SamusProjectileDirection)direction;
+        grapple.FireDirection = SamusProjectileDirectionCodec.FromAimIndex(direction);
         grapple.PoseChangeAutoFireTimer = WrappingCountdown.Start(GrappleBeamDefinitions.Firing.PoseChangeAutoFireFrames);
         var launch = GrappleFiringDefinitions.Launch(direction);
         grapple.ExtensionVelocity = launch.Velocity;
@@ -158,7 +158,7 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> previousPosition = samus.Position.Whole;
 
         // $9B:C703 treats release of Shoot as cancellation before length or collision work.
-        if ((controllerInput & ControllerButton.X) == 0)
+        if ((controllerInput & ControllerButton.X) == ControllerButton.None)
             return QueueFiringCancellation(grapple);
 
         grapple.RopeLength += 12;
@@ -316,7 +316,7 @@ public static class SamusGrappleMovement
 
         // $9B:C79D first checks Shoot. Releasing it does not immediately install jumping
         // art: it computes velocity and queues the release function for the following frame.
-        if ((controllerInput & ControllerButton.X) == 0)
+        if ((controllerInput & ControllerButton.X) == ControllerButton.None)
         {
             if (grapple.AngularVelocity == 0 && grapple.Angle == SnesAngle.HalfTurn)
             {
@@ -412,7 +412,7 @@ public static class SamusGrappleMovement
 
         // `$9B:C77E` does no pendulum work. It merely retains the frozen pose while Shoot
         // remains held and either an enemy or the stored block still supports the endpoint.
-        bool shootHeld = (controllerInput & ControllerButton.X) != 0;
+        bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
         bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
             ? false
@@ -498,7 +498,7 @@ public static class SamusGrappleMovement
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
-        bool shootHeld = (controllerInput & ControllerButton.X) != 0;
+        bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
         bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
             ? false
@@ -548,7 +548,7 @@ public static class SamusGrappleMovement
             level,
             samus.Kinematics, samus,
             signedProbe);
-        bool jumpNew = (newlyPressedInput & ControllerButton.A) != 0;
+        bool jumpNew = (newlyPressedInput & ControllerButton.A) != ControllerButton.None;
         if (wall.Collided && jumpNew)
         {
             if (wall.EnemyCollision is { EnemySlot: int enemySlot })
@@ -874,8 +874,8 @@ public static class SamusGrappleMovement
                         catch (UnsupportedShotBlockReactionException error)
                         {
                             throw new UnmodeledBehaviorException(
-                                $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Bts.Value:X2}",
-                                $"Grapple shootable dispatch type ${(int)block.CollisionType:X}/BTS ${block.Bts.Value:X2} " +
+                                $"grapple-shootable/type-{block.CollisionType}/bts-{block.Bts.Value:X2}",
+                                $"Grapple shootable dispatch type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
                                 $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",
                                 error);
                         }
@@ -896,7 +896,7 @@ public static class SamusGrappleMovement
 
                 default:
                     throw new InvalidDataException(
-                        $"Grapple block type ${(int)block.CollisionType:X1} escaped the complete " +
+                        $"Grapple block type {block.CollisionType} escaped the complete " +
                         $"sixteen-entry dispatcher at ({resolvedX},{resolvedY}).");
             }
         }
@@ -934,7 +934,7 @@ public static class SamusGrappleMovement
             : sourceMovementType == SamusMovementType.Crouching
                 ? GrappleConnectionTable.Crouching
                 : GrappleConnectionTable.Default;
-        var connection = GrappleConnectionDefinitions.ResolveConnection(connectionTable, (int)grapple.FireDirection);
+        var connection = GrappleConnectionDefinitions.ResolveConnection(connectionTable, grapple.FireDirection.ToAimIndex());
         GrappleConnectionFunction nextFunction = connection.Function;
         GrappleConnectionHandler handler = connection.Handler;
 
@@ -1066,8 +1066,8 @@ public static class SamusGrappleMovement
             // Special pose command 10 runs $9B:BEEB. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
-            var origin = GrappleFiringDefinitions.Origin((byte)grapple.FireDirection, running: false);
-            var flare = ReadFlareOrigin(grapple, (byte)grapple.FireDirection, running: false);
+            var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection.ToAimIndex(), running: false);
+            var flare = ReadFlareOrigin(grapple, grapple.FireDirection.ToAimIndex(), running: false);
             samus.Position = samus.Position.WithWhole(grapple.RopeStart - new Offset16<RoomPixels>(origin.X, origin.Y));
             grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
             grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -1163,7 +1163,7 @@ public static class SamusGrappleMovement
             if (fallback == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback)
             {
                 throw new InvalidDataException(
-                    $"Connected grapple pose ${(int)samus.Pose:X2} has no cancellation fallback.");
+                    $"Connected grapple pose {samus.Pose} has no cancellation fallback.");
             }
 
             samus.Pose = fallback;
@@ -1196,11 +1196,11 @@ public static class SamusGrappleMovement
         bool left = pose == SamusPoseId.DraygonGrabbedMovingLeftPose;
         bool outward = (input & (left ? ControllerButton.Left : ControllerButton.Right)) != ControllerButton.None;
         SamusProjectileDirection direction = left ? SamusProjectileDirection.Left : SamusProjectileDirection.Right;
-        if (outward && (input & ControllerButton.Down) != 0)
+        if (outward && (input & ControllerButton.Down) != ControllerButton.None)
             direction = left ? SamusProjectileDirection.DownLeft : SamusProjectileDirection.DownRight;
-        else if (outward && (input & ControllerButton.Up) != 0)
+        else if (outward && (input & ControllerButton.Up) != ControllerButton.None)
             direction = left ? SamusProjectileDirection.UpLeft : SamusProjectileDirection.UpRight;
-        return (byte)direction;
+        return direction.ToAimIndex();
     }
 
     /// <summary>Firing branch of native $9B:C490/$B861, before the selected grapple function runs.</summary>
@@ -1213,7 +1213,7 @@ public static class SamusGrappleMovement
         bool banned = GrappleConnectionDefinitions.CancelsFiring(SamusPoseMetadata.ReadMovementType(samus));
         if (!banned && direction < 16)
         {
-            if (direction == (byte)grapple.FireDirection) return null;
+            if (direction == grapple.FireDirection.ToAimIndex()) return null;
             if (!grapple.PoseChangeAutoFireTimer.IsZero)
             {
                 // Native changes the function pointer before dispatch: restart from

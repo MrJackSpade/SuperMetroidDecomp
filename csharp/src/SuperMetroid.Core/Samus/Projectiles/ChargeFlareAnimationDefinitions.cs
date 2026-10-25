@@ -58,7 +58,7 @@ internal static class ChargeFlareAnimationDefinitions
         if ((uint)delay >= RegionByteCount)
             throw new InvalidDataException($"Charge-flare cadence byte {offset} is outside the compiled programs.");
         if (delay < 30) return 3;
-        if (delay == 30) return (byte)ChargeFlareDelayCommand.Rewind;
+        if (delay == 30) return RewindByte;
         if (delay == 31) return 14;
 
         // Each spark cycle ramps down for two frames, holds its minimum for
@@ -66,18 +66,29 @@ internal static class ChargeFlareAnimationDefinitions
         int sparkOffset = offset - SlowSparks;
         int frame = sparkOffset % 7;
         int minimum = sparkOffset < 7 ? 3 : 2;
-        return frame == 6 ? (byte)ChargeFlareDelayCommand.Restart : (byte)Math.Max(minimum, minimum + 2 - frame);
+        return frame == 6 ? RestartByte : (byte)Math.Max(minimum, minimum + 2 - frame);
     }
     /// <summary>Distinguishes a flare delay-stream command byte from an ordinary delay.</summary>
     internal static bool TryDecodeCommand(byte streamByte, out ChargeFlareDelayCommand command)
     {
-        if (!Enum.IsDefined((ChargeFlareDelayCommand)streamByte))
+        switch (streamByte)
         {
-            command = default;
-            return false;
+            case RewindByte:
+                command = ChargeFlareDelayCommand.Rewind;
+                return true;
+            case RestartByte:
+                command = ChargeFlareDelayCommand.Restart;
+                return true;
+            default:
+                command = default;
+                return false;
         }
-        command = (ChargeFlareDelayCommand)streamByte;
-        return true;
     }
+
+    /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
+    private const byte RewindByte = 0xfe;
+
+    /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Restart"/>.</summary>
+    private const byte RestartByte = 0xff;
 
 }

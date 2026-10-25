@@ -86,10 +86,10 @@ internal static class XraySetupVerification
         IBgTileSource bg1 = level.ForegroundPlane.Tiles(scroll.Bg1Offset.AsBgPlaneOffset());
         var original = XrayRevealTilemap.Build(level, bg1,
             scroll.Layer1Position + scroll.Bg1Offset,
-            scroll.Layer1Position, (byte)room.AreaIndex);
+            scroll.Layer1Position, room.AreaIndex);
         var expected = XrayRevealTilemap.Build(level, bg1,
             scroll.Layer1Position + scroll.Bg1Offset,
-            scroll.Layer1Position, (byte)room.AreaIndex,
+            scroll.Layer1Position, room.AreaIndex,
             runtime.Xray.XrayRevealVisuals);
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");

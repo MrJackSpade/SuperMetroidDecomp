@@ -85,7 +85,7 @@ internal sealed class BeamFiring
         // desktop-held button from allocating more frequently than the cartridge.
         if (samus.HyperBeamEnabled)
         {
-            (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != 0
+            (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != ControllerButton.None
                 ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)
                 : new BeamShot(null, null);
             return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
@@ -98,7 +98,7 @@ internal sealed class BeamFiring
         SamusBeamLoadoutWord beamLoadout = samus.EquippedBeams;
 
         bool chargeEquipped = beamLoadout.HasAny(SamusBeamFlags.Charge);
-        bool held = (controllerInput & shoot) != 0;
+        bool held = (controllerInput & shoot) != ControllerButton.None;
         if (!chargeEquipped)
         {
             _charge.FlareCounter = 0;
@@ -296,7 +296,7 @@ internal sealed class BeamFiring
             ? SamusProjectileCooldownDefinitions.ReadByte(
                 SamusFiringTableDefinitions.UnchargedCooldowns +
                 SamusFiringTableDefinitions.ChargedRowOffset + beamType.TableIndex)
-            : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != 0
+            : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != ControllerButton.None
                 ? SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + beamType.TableIndex)
                 : SamusProjectileCooldownDefinitions.ReadByte(SamusFiringTableDefinitions.AutoFireCooldowns + beamType.TableIndex);
         sharedProjectiles.SetSharedCooldown(cooldown);
@@ -418,7 +418,7 @@ internal sealed class BeamFiring
         // a press one frame before cooldown expires to fire on the following frame.
         // Bank-$91 demo playback supplies the analogous scripted edge. Cooldown still
         // owns admission, so the delayed copy cannot manufacture held-button auto-fire.
-        if (((controllerNewInput | controllerPreviousNewInput) & shoot) == 0)
+        if (((controllerNewInput | controllerPreviousNewInput) & shoot) == ControllerButton.None)
             return new BeamShot(null, null);
 
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
@@ -455,7 +455,7 @@ internal sealed class BeamFiring
         else
             samus.Missiles = SamusQuantity.DecrementWord(samus.Missiles);
         slot.TrailTimer = WrappingCountdown.Start(4);
-        slot.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile));
+        slot.Type = SamusProjectileTypeWord.Live(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         slot.Variable = 0;
 
         // The producer first calls the generic velocity initializer with base speed zero.

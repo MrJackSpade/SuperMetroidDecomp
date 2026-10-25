@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Physical launch and hand-anchor definitions; flare artwork placement is separate.</summary>
@@ -51,25 +53,25 @@ internal static class GrappleFiringDefinitions
             throw new InvalidDataException(
                 $"Grapple firing direction {direction} is outside the ten compiled origin records.");
         }
-        var aim = (GrappleOriginDirection)direction;
+        SamusProjectileDirection aim = SamusProjectileDirectionCodec.FromAimIndex(direction);
         short x = aim switch
         {
-            GrappleOriginDirection.UpFacingRight or GrappleOriginDirection.Right => 2,
-            GrappleOriginDirection.UpRight or GrappleOriginDirection.DownRight => 10,
-            GrappleOriginDirection.DownFacingRight => 3,
-            GrappleOriginDirection.DownFacingLeft => -4,
-            GrappleOriginDirection.DownLeft or GrappleOriginDirection.UpLeft => -10,
-            GrappleOriginDirection.Left or GrappleOriginDirection.UpFacingLeft => -2,
-            _ => throw new InvalidOperationException($"Undefined GrappleOriginDirection {aim}."),
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.Right => 2,
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight => 10,
+            SamusProjectileDirection.DownFacingRight => 3,
+            SamusProjectileDirection.DownFacingLeft => -4,
+            SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft => -10,
+            SamusProjectileDirection.Left or SamusProjectileDirection.UpFacingLeft => -2,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {aim}."),
         };
         short y = aim switch
         {
-            GrappleOriginDirection.UpFacingRight or GrappleOriginDirection.UpFacingLeft => -16,
-            GrappleOriginDirection.UpRight or GrappleOriginDirection.UpLeft => -12,
-            GrappleOriginDirection.Right or GrappleOriginDirection.Left => running ? (short)-2 : (short)2,
-            GrappleOriginDirection.DownRight or GrappleOriginDirection.DownLeft => 0,
-            GrappleOriginDirection.DownFacingRight or GrappleOriginDirection.DownFacingLeft => 6,
-            _ => throw new InvalidOperationException($"Undefined GrappleOriginDirection {aim}."),
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => -16,
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => -12,
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left => running ? (short)-2 : (short)2,
+            SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft => 0,
+            SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => 6,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {aim}."),
         };
         return new Offset16<RoomPixels>(x, y);
     }

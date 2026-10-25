@@ -14,8 +14,30 @@ public sealed class SamusAtmosphericEffectSlot
     /// <summary>The zero-based frame within the current graphics type, held in the packed word's low byte.</summary>
     public int AnimationFrame => unchecked((byte)FrameAndType);
 
+    /// <summary>
+    /// The graphics types in the order the packed word's high byte numbers them, the order of the native per-type
+    /// tables: a type is held as its position here.
+    /// </summary>
+    private static readonly SamusAtmosphericEffectType[] TypeOrder =
+    [
+        SamusAtmosphericEffectType.Inactive, SamusAtmosphericEffectType.FootstepSplash,
+        SamusAtmosphericEffectType.AlternateFootstepSplash, SamusAtmosphericEffectType.DivingSplash,
+        SamusAtmosphericEffectType.LavaSurfaceDamage, SamusAtmosphericEffectType.Bubbles, SamusAtmosphericEffectType.Dust,
+        SamusAtmosphericEffectType.AlternateDust,
+    ];
+
     /// <summary>The slot's graphics type, held in the packed word's high byte; <see cref="SamusAtmosphericEffectType.Inactive"/> when cleared.</summary>
-    public SamusAtmosphericEffectType Type => (SamusAtmosphericEffectType)SnesLittleEndian.HighByte(checked((ushort)FrameAndType));
+    public SamusAtmosphericEffectType Type => TypeOrder[SnesLittleEndian.HighByte(checked((ushort)FrameAndType))];
+
+    /// <summary>Packs a graphics type and its animation frame into the slot word.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The type is not one the word can hold.</exception>
+    internal void SetFrameAndType(SamusAtmosphericEffectType type, byte animationFrame)
+    {
+        int position = Array.IndexOf(TypeOrder, type);
+        if (position < 0)
+            throw new ArgumentOutOfRangeException(nameof(type), type, "Atmospheric type must be one of the eight native types.");
+        FrameAndType = SnesLittleEndian.Word(animationFrame, checked((byte)position));
+    }
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
     public WrappingCountdown AnimationTimer { get; internal set; }

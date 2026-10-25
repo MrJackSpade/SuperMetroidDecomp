@@ -377,7 +377,7 @@ public sealed class SamusProjectileSystem
             // rejected; selection alone must not consume Shoot. Inputs are normalized
             // by the runtime, so the canonical Run bit also honors remapped bindings.
             bool xrayBeamFallback = samus.SelectedHudItem == HudItem.XRay &&
-                (buttons.ControllerInput & ControllerButton.B) == 0;
+                (buttons.ControllerInput & ControllerButton.B) == ControllerButton.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
                 (firedSlot, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
@@ -625,7 +625,7 @@ public sealed class SamusProjectileSystem
         {
             SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
             if (!slot.IsActive ||
-                slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.PowerBomb)
+                slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.PowerBomb))
                 continue;
 
             // `$93:8268` first exempts every charged/projectile-family word selected by

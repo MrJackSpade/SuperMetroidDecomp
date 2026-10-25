@@ -476,23 +476,23 @@ public sealed class SamusLiquidPhysicsState
                 // to dust, while every other Brinstar room falls through Tourian's room set.
                 if (RoomIdentity == RoomIdentities.BrinstarDirectLandingDust ||
                     RoomIdentities.UsesTourianStyleLandingDust(RoomIdentity))
-                    SpawnLandingPairUnlessSubmerged(samus, type: 6);
+                    SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
                 else
                     DeleteLandingPair();
                 return;
 
             case AreaId.Norfair:
             case AreaId.WreckedShip:
-                SpawnLandingPairUnlessSubmerged(samus, type: 6);
+                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
                 return;
 
             case AreaId.Maridia:
-                SpawnLandingPairUnlessSubmerged(samus, type: 1);
+                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
                 return;
 
             case AreaId.Tourian:
                 if (RoomIdentities.UsesTourianStyleLandingDust(RoomIdentity))
-                    SpawnLandingPairUnlessSubmerged(samus, type: 6);
+                    SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
                 else
                     DeleteLandingPair();
                 return;
@@ -502,7 +502,7 @@ public sealed class SamusLiquidPhysicsState
                 return;
 
             default:
-                throw new InvalidDataException($"Landing graphics area {(byte)AreaIndex} is outside the seven retail areas.");
+                throw new InvalidDataException($"Landing graphics area {AreaIndex} is outside the seven retail areas.");
         }
     }
 
@@ -521,7 +521,7 @@ public sealed class SamusLiquidPhysicsState
         // always chooses the dry-dust handler, still subject to live liquid submersion.
         if (RoomIdentity == RoomIdentities.CrateriaSpacePirateShaft)
         {
-            SpawnLandingPairUnlessSubmerged(samus, type: 6);
+            SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
             return;
         }
 
@@ -535,30 +535,30 @@ public sealed class SamusLiquidPhysicsState
         // effects. Preserve its BIT priority even though retail rows contain one bit each.
         CrateriaAtmosphericEffectFlags roomFlags =
             SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity.RoomIndex);
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
+        if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
             // sky type deletes the pair. This exact comparison is not a generic water test.
             if (FxType == RoomFxType.Rain)
-                SpawnLandingPairUnlessSubmerged(samus, type: 1);
+                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
             else
                 DeleteLandingPair();
             return;
         }
 
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
+        if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
         {
             // Above Y=$03B0 the entrance is dry and deletes; at/below it, use wet splashes.
             if (samus.Position.Y.Whole >= 944)
-                SpawnLandingPairUnlessSubmerged(samus, type: 1);
+                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
             else
                 DeleteLandingPair();
             return;
         }
 
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.WetFootsteps) != 0)
+        if ((roomFlags & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
         {
-            SpawnLandingPairUnlessSubmerged(samus, type: 1);
+            SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
             return;
         }
 
@@ -566,7 +566,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Writes landing-owned particle slots two and three when Samus's last occupied pixel is above active liquid.</summary>
-    private void SpawnLandingPairUnlessSubmerged(SamusState samus, byte type)
+    private void SpawnLandingPairUnlessSubmerged(SamusState samus, SamusAtmosphericEffectType type)
     {
         // GetBottom_R18 uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
@@ -580,11 +580,11 @@ public sealed class SamusLiquidPhysicsState
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
-        ushort rightOffset = type == 1 ? (ushort)4 : (ushort)8;
-        ushort leftSeparation = type == 1 ? (ushort)7 : (ushort)16;
+        ushort rightOffset = type == SamusAtmosphericEffectType.FootstepSplash ? (ushort)4 : (ushort)8;
+        ushort leftSeparation = type == SamusAtmosphericEffectType.FootstepSplash ? (ushort)7 : (ushort)16;
         ushort firstX = unchecked((ushort)(samus.Position.X.Whole + rightOffset));
         ushort secondX = unchecked((ushort)(firstX - leftSeparation));
-        ushort y = type == 1 ? unchecked((ushort)(bottom - 4)) : bottom;
+        ushort y = type == SamusAtmosphericEffectType.FootstepSplash ? unchecked((ushort)(bottom - 4)) : bottom;
 
         // Landing owns WRAM slots two and three (byte offsets +4/+6), not the running-foot
         // slots zero/one. Both begin immediately on frame zero with timer three.
@@ -673,16 +673,16 @@ public sealed class SamusLiquidPhysicsState
             WaterSplashKind.Diving)
         {
             AtmosphericEffects.SetSlot(
-                0, type: 3, animationFrame: 0, animationTimer: 2,
+                0, SamusAtmosphericEffectType.DivingSplash, animationFrame: 0, animationTimer: 2,
                 new(samus.Position.X.Whole, checked((ushort)FxYPosition)));
             return;
         }
 
         AtmosphericEffects.SetSlot(
-            0, type: 1, animationFrame: 0, animationTimer: 3,
+            0, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
             new(unchecked((ushort)(samus.Position.X.Whole + 4)), unchecked((ushort)(bottom - 4))));
         AtmosphericEffects.SetSlot(
-            1, type: 1, animationFrame: 0, animationTimer: 3,
+            1, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
             new(unchecked((ushort)(samus.Position.X.Whole - 3)), unchecked((ushort)(bottom - 4))));
     }
 
@@ -702,7 +702,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         AtmosphericEffects.SetSlot(
-            2, type: 5, animationFrame: 0, animationTimer: 3,
+            2, SamusAtmosphericEffectType.Bubbles, animationFrame: 0, animationTimer: 3,
             new(samus.Position.X.Whole, unchecked((ushort)(top + 6))));
         int sample = random.Generate();
         QueueSound((sample & 1) != 0 ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, maximumQueued: SoundQueueLimit.Max6);
@@ -731,7 +731,7 @@ public sealed class SamusLiquidPhysicsState
         for (int slot = 0; slot < SamusAtmosphericEffectsState.SlotCount; slot++)
         {
             AtmosphericEffects.SetSlot(
-                slot, type: 4, animationFrame: 0, timers[slot],
+                slot, SamusAtmosphericEffectType.LavaSurfaceDamage, animationFrame: 0, timers[slot],
                 new(xPositions[slot], checked((ushort)LavaAcidYPosition)));
         }
 
@@ -765,20 +765,20 @@ public sealed class SamusLiquidPhysicsState
                     SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity.RoomIndex);
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
-                if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
+                if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = FxType == RoomFxType.Rain;
-                else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
+                else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = samus.Position.Y.Whole >= 944;
-                else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != 0)
+                else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = true;
             }
         }
 
         if (useWetFootsteps)
-            SpawnFootstepPair(samus, type: 1);
+            SpawnFootstepPair(samus, SamusAtmosphericEffectType.FootstepSplash);
         else if (samus.HorizontalSpeed.IsFullSpeedBoost &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
-            SpawnFootstepPair(samus, type: 7);
+            SpawnFootstepPair(samus, SamusAtmosphericEffectType.AlternateDust);
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress library-three sound $06.
@@ -793,7 +793,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Places the two running-footstep particles on opposite sides of Samus according to facing.</summary>
-    private void SpawnFootstepPair(SamusState samus, byte type)
+    private void SpawnFootstepPair(SamusState samus, SamusAtmosphericEffectType type)
     {
         bool directionIsFour = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         ushort firstX = directionIsFour
@@ -826,7 +826,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>Applies the room's water-disable option before comparing a boundary with the water surface.</summary>
     internal bool WaterAffectsBoundary(int boundary) =>
-        (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) == 0 &&
+        (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) == RoomLiquidOptions.None &&
         IsBelowSurface(FxYPosition, boundary);
 
     /// <summary>Uses native signed 16-bit subtraction and rejects a negative absent-surface sentinel.</summary>

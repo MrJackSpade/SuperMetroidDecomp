@@ -30,7 +30,7 @@ public static class SamusPostureMovement
             !SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Crouching movement requires pose $27/$28/$71-$74/$85/$86, not ${(int)samus.Pose:X2}.");
+                $"Crouching movement requires pose $27/$28/$71-$74/$85/$86, not {samus.Pose}.");
         }
 
         GroundedMovementResult result = MoveWithZeroBaseSpeed(
@@ -63,7 +63,7 @@ public static class SamusPostureMovement
         if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Crouch/stand transition movement requires pose $35/$36/$3B/$3C/$F1-$FC, not ${(int)samus.Pose:X2}.");
+                $"Crouch/stand transition movement requires pose $35/$36/$3B/$3C/$F1-$FC, not {samus.Pose}.");
         }
 
         // All four corresponding entries in $90:A659 are RTS. Unlike movement type five,

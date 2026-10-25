@@ -30,8 +30,8 @@ internal static class WallJumpDustVerification
             liquid.FxYPosition = medium is 1 or 3 ? (ushort)100 : medium == 4 ? (ushort)114 : ushort.MaxValue;
             liquid.LavaAcidYPosition = medium == 2 ? (ushort)100 : ushort.MaxValue;
             liquid.LiquidOptions = medium == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
-            liquid.AtmosphericEffects.SetSlot(3, 1, 2, 7, new(33, 44));
-            liquid.AtmosphericEffects.SetSlot(2, 1, 1, 9, new(55, 66));
+            liquid.AtmosphericEffects.SetSlot(3, SamusAtmosphericEffectType.FootstepSplash, 2, 7, new(33, 44));
+            liquid.AtmosphericEffects.SetSlot(2, SamusAtmosphericEffectType.FootstepSplash, 1, 9, new(55, 66));
             if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
             else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus);
 

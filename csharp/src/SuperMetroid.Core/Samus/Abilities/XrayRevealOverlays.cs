@@ -24,8 +24,15 @@ public static class XrayRevealOverlays
         {
             CollectiblePlmSnapshot item = items[i];
             if (unchecked((short)item.RoomArgument) < 0 || system.HasCollectedItemBit(item.RoomArgument)) continue;
-            int graphics = item.Kind < InWorldCollectibleKind.Bombs
-                ? XrayOverlayVisualCatalog.DynamicGraphicsSlots + (int)item.Kind : item.GraphicsSlot;
+            // The four tanks draw from the dynamic slots that follow the loaded item graphics, in tank order.
+            int graphics = item.Kind switch
+            {
+                InWorldCollectibleKind.EnergyTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots,
+                InWorldCollectibleKind.MissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 1,
+                InWorldCollectibleKind.SuperMissileTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 2,
+                InWorldCollectibleKind.PowerBombTank => XrayOverlayVisualCatalog.DynamicGraphicsSlots + 3,
+                _ => item.GraphicsSlot,
+            };
             if ((uint)graphics >= XrayOverlayVisualCatalog.DynamicGraphicsSlots * 2)
                 throw new InvalidDataException($"Item {item.Header} has invalid X-ray graphics slot {graphics}.");
             var metatile = new RoomLevelWord(overlays.ItemMetatile(graphics));
@@ -53,7 +60,7 @@ public static class XrayRevealOverlays
         int destination = y * XrayTilemapLayout.MetatileRowStride + x * 2;
         // $91:D0A6 swaps the two tile rows for vertical flip. It neither toggles each
         // tile's flip bits nor implements horizontal flip; preserve that native behavior.
-        bool flip = (metatileWord.VisualFlipFlags & LevelBlockFlipFlags.Vertical) != 0;
+        bool flip = (metatileWord.VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None;
         for (int row = 0; row < 2; row++)
         for (int col = 0; col < 2; col++)
         {

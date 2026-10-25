@@ -58,7 +58,7 @@ internal sealed class ProjectileMotion
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + directionOffset))))));
 
-        SamusProjectileDirection direction = slot.PackedDirection.Direction;
+        SamusProjectileDirection? direction = slot.PackedDirection.Direction;
         bool collided = direction switch
         {
             SamusProjectileDirection.UpFacingRight or
@@ -356,7 +356,7 @@ internal sealed class ProjectileMotion
             return;
 
         link.ClearFields();
-        link.Type = SamusProjectileTypeWord.LiveMarker | (ushort)SamusProjectileFamily.SuperMissile;
+        link.Type = SamusProjectileTypeWord.Live(SamusProjectileFamily.SuperMissile);
         link.Direction = owner.Direction;
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
@@ -564,9 +564,9 @@ internal sealed class ProjectileMotion
                 RoomCollisionType.ShootableBlock or
                 RoomCollisionType.VerticalExtension or
                 RoomCollisionType.BombableBlock => throw new InvalidDataException(
-                $"Invalid missile collision type ${(int)block.CollisionType:X2} at block {block.Index}."),
+                $"Invalid missile collision type {block.CollisionType} at block {block.Index}."),
             _ => throw new InvalidDataException(
-                $"Invalid missile collision type ${(int)block.CollisionType:X2} at block {block.Index}."),
+                $"Invalid missile collision type {block.CollisionType} at block {block.Index}."),
         };
     }
 

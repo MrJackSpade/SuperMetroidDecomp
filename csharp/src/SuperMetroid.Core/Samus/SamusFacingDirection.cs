@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Verified pose-definition byte-zero values. This is not a flags enum: a pose has one
-/// facing discriminator, and zero remains meaningful for front-view/special records.
-/// Unnamed cartridge values remain losslessly representable through the underlying byte.
+/// The way a pose faces. This is not a flags enum: a pose has one facing. The pose-definition record's facing byte
+/// belongs to <see cref="Poses.SamusPoseRecordCodec"/>.
 /// </summary>
 public enum SamusFacingDirection : byte
 {

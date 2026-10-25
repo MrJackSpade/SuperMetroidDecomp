@@ -78,14 +78,16 @@ internal static void VerifyTypedNativeWords()
             .GetSuitPaletteTableOffset(),
         "Gravity Suit palette table priority");
 
-    // Facing is an ordinary discriminator, not a flag set. The typed view must recognize
-    // verified values four/eight while retaining an unknown byte for debugger inspection.
+    // Facing is an ordinary discriminator, not a flag set. The typed view recognizes left and right and faces
+    // neither way for every other record; the record's own byte stays exact in the pose-record codec.
     var poseBus = new TestAddressSpace();
     AssertTrue(SamusPoseMetadata.IsFacingLeft(SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
     AssertEqual(SamusFacingDirection.Right, SamusPoseMetadata.ReadFacingDirection(SamusPoseId.FacingRightNormalPose),
         "typed right-facing pose query");
-    AssertEqual(41, (byte)SamusPoseMetadata.ReadFacingDirection((SamusPoseId)0xfe),
-        "typed facing query preserves compiled unnamed adjacent-code byte");
+    AssertEqual(SamusFacingDirection.ForwardOrSpecial, SamusPoseMetadata.ReadFacingDirection((SamusPoseId)0xfe),
+        "typed facing query faces an unnamed adjacent-code record neither way");
+    AssertEqual(41, SamusPoseMetadata.ReadPoseXDirection((SamusPoseId)0xfe),
+        "pose-record facing byte preserves the compiled unnamed adjacent-code byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would
     // incorrectly cross from bank $91 into $92 and read unrelated cartridge data.

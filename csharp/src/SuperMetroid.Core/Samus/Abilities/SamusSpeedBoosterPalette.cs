@@ -26,7 +26,7 @@ internal static class SamusSpeedBoosterPalette
                     SpeedBoosterPaletteOverrun.GrappleCode => (overreads ?? throw new InvalidOperationException(
                             "The Speed Booster grapple-code overrun needs the installed Samus overread catalog."))
                         .SpeedBoosterGrappleCodeWord(index),
-                    _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {(int)overrun}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {overrun}."),
                 };
                 // Arbitrary bus words reach CGRAM through its fifteen-bit data port.
                 colours.Suit.Write(index, Bgr555.FromCgramPortWord(word));

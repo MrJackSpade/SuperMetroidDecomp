@@ -47,8 +47,14 @@ public static class SamusTerrainHazardCollision
             return;
 
         // Every other spike-block BTS value selects a harmless reaction.
-        var behavior = (SpikeBlockBehavior)block.Bts.Value;
-        if (!Enum.IsDefined(behavior))
+        SpikeBlockBehavior? spike = block.Bts.Value switch
+        {
+            0 => SpikeBlockBehavior.Heavy,
+            1 => SpikeBlockBehavior.Light,
+            3 => SpikeBlockBehavior.AlternateLight,
+            _ => null,
+        };
+        if (spike is not { } behavior)
             return;
         ushort damage = behavior switch
         {

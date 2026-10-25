@@ -37,7 +37,7 @@ public static class SamusMorphBallMovement
             (!spring || movementType != SamusMovementType.SpringBallGround))
         {
             throw new InvalidOperationException(
-                $"Grounded ball movement requires type-$04 or type-$11 pose, not ${(int)samus.Pose:X2}/type ${(byte)movementType:X2}.");
+                $"Grounded ball movement requires type-$04 or type-$11 pose, not {samus.Pose}/type {movementType}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -126,11 +126,11 @@ public static class SamusMorphBallMovement
             (!spring || movementType != SamusMovementType.SpringBallFalling))
         {
             throw new InvalidOperationException(
-                $"Falling ball movement requires type-$08 or type-$13 pose, not ${(int)samus.Pose:X2}/type ${(byte)movementType:X2}.");
+                $"Falling ball movement requires type-$08 or type-$13 pose, not {samus.Pose}/type {movementType}.");
         }
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
             // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
@@ -161,7 +161,7 @@ public static class SamusMorphBallMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
         SamusHorizontalDisplacement requestedHorizontal;
@@ -228,7 +228,7 @@ public static class SamusMorphBallMovement
             SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpringBallInAir)
         {
             throw new InvalidOperationException(
-                $"Spring-Ball powered jump requires type-$12 pose $7F/$80, not ${(int)samus.Pose:X2}.");
+                $"Spring-Ball powered jump requires type-$12 pose $7F/$80, not {samus.Pose}.");
         }
 
         // `$90:A6F4`: a nonzero bounce state selects the bouncing routine instead of the
@@ -246,7 +246,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         // while rising cancels the remaining magnitude; signed underflow at the apex takes
         // the same branch even if Jump is still held.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            (((controllerInput & ControllerButton.A) == 0) ||
+            (((controllerInput & ControllerButton.A) == ControllerButton.None) ||
              unchecked((short)samus.Kinematics.YSpeed.Whole) < 0))
         {
             samus.Kinematics.YSpeed = default;
@@ -257,7 +257,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
             speed.CalculateBaseSpeedDecelerationDisallowed(
                 movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != 0;
+            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         int requestedHorizontal;
         // Null when native skips MoveSamus_Horizontally entirely ($90:902B): no probe runs.
         SamusCollisionDirection? collisionDirection = null;
@@ -310,7 +310,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
             SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.PostureTransition)
         {
             throw new InvalidOperationException(
-                $"Morph transition movement requires type-$0F pose $37/$38/$3D/$3E, not ${(int)samus.Pose:X2}.");
+                $"Morph transition movement requires type-$0F pose $37/$38/$3D/$3E, not {samus.Pose}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

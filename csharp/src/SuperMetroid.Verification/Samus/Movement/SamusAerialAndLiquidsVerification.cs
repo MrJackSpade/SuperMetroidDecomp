@@ -1119,7 +1119,7 @@ internal static void VerifySamusAtmosphericEffects()
     // applies +1/-1 motion before clipping. The next call reloads ROM timer zero, advances to
     // frame one, and consumes its distinct `$2A49` attribute word.
     var effects = new SamusAtmosphericEffectsState();
-    effects.SetSlot(0, type: 4, animationFrame: 0, animationTimer: 2, anchor: new(104, 104));
+    effects.SetSlot(0, type: SamusAtmosphericEffectType.LavaSurfaceDamage, animationFrame: 0, animationTimer: 2, anchor: new(104, 104));
     var oamFrame = new SpriteFrameBuffer();
     oamFrame.BeginFrame();
     OamBuffer oam;
@@ -1145,7 +1145,7 @@ internal static void VerifySamusAtmosphericEffects()
     // `$8002` is not a large positive delay: one call reaches `$8001` and does nothing;
     // the next reaches `$8000`, reloads the current ROM duration, moves, and draws.
     effects.Clear();
-    effects.SetSlot(1, type: 4, animationFrame: 0, animationTimer: 0x8002, anchor: new(100, 100));
+    effects.SetSlot(1, type: SamusAtmosphericEffectType.LavaSurfaceDamage, animationFrame: 0, animationTimer: 0x8002, anchor: new(100, 100));
     oamFrame.BeginFrame();
     effects.UpdateAndDraw(oamFrame, new(0, 0), 0, SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
@@ -1279,7 +1279,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Active liquid returns without touching the landing slots. This is intentionally not
     // deletion: seed an unrelated type-seven record and prove its packed word survives.
     landing.LiquidPhysics.AtmosphericEffects.SetSlot(
-        2, type: 7, animationFrame: 2, animationTimer: 9, anchor: new(77, 88));
+        2, type: SamusAtmosphericEffectType.AlternateDust, animationFrame: 2, animationTimer: 9, anchor: new(77, 88));
     landing.LiquidPhysics.ConfigureWater(surfaceY: 110);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1305,7 +1305,7 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(77, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,
         "Ceres delete preserves atmospheric X");
     landing.LiquidPhysics.AtmosphericEffects.SetSlot(
-        2, type: 7, animationFrame: 0, animationTimer: 3, anchor: new(1, 2));
+        2, type: SamusAtmosphericEffectType.AlternateDust, animationFrame: 0, animationTimer: 3, anchor: new(1, 2));
     landing.Kinematics.YSpeed = default;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,

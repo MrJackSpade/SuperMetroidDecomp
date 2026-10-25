@@ -771,7 +771,7 @@ public sealed class SamusHorizontalSpeedState
     /// reaction chose the table.
     /// </summary>
     public int ResolveEntryRow(SamusMovementType movementType) =>
-        SamusHorizontalMotionDefinitions.FirstRow(ActiveSpeedTable) + (byte)movementType;
+        SamusHorizontalMotionDefinitions.Row(ActiveSpeedTable, movementType);
 
     /// <summary>
     /// Resolves authored speed entries without ROM access. Fields remain split into the

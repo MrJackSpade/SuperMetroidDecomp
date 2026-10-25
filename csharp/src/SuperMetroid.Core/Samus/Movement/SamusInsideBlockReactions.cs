@@ -42,7 +42,7 @@ public static class SamusInsideBlockReactions
                     area,
                     block.Bts.AreaReactionIndex);
             PlmHeaderId header = areaReaction.Header;
-            if (header == 0) return;
+            if (header == PlmHeaderId.None) return;
             bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
                 header,
                 out QuicksandReactionDefinition reaction);
@@ -77,8 +77,7 @@ public static class SamusInsideBlockReactions
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
                         QuicksandDefinitions.SurfacePhysics(
-                            (samus.EquippedItems &
-                                SamusEquipmentFlags.GravitySuit) != 0);
+                            samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
                     // $84:B433 indexes a four-entry table with the direction's low two bits;
                     // its fourth entry repeats the grounded handler, but $0B36 only ever
                     // holds the three defined directions.
@@ -103,7 +102,7 @@ public static class SamusInsideBlockReactions
                             break;
                         default:
                             throw new InvalidOperationException(
-                                $"Undefined {nameof(SamusVerticalDirection)} {(int)body.YDirection}.");
+                                $"Undefined {nameof(SamusVerticalDirection)} {body.YDirection}.");
                     }
                     break;
                 case SpecialAirReactionSetup.SubmergingQuicksand:
@@ -131,8 +130,15 @@ public static class SamusInsideBlockReactions
         void ApplyConveyor(int bts)
         {
             // The normal special-air table shares its BTS space; only conveyor entries react here.
-            if (!Enum.IsDefined((ConveyorBlockBts)bts)) return;
-            var conveyor = (ConveyorBlockBts)bts;
+            ConveyorBlockBts? carrier = bts switch
+            {
+                8 => ConveyorBlockBts.GroundedRight,
+                9 => ConveyorBlockBts.GroundedLeft,
+                10 => ConveyorBlockBts.UnconditionalRight,
+                11 => ConveyorBlockBts.UnconditionalLeft,
+                _ => null,
+            };
+            if (carrier is not { } conveyor) return;
             bool groundedOnly = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.GroundedLeft;
             bool rightward = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.UnconditionalRight;
             samus.HorizontalSpeed.SelectNormalAirSpeedTable();
@@ -167,7 +173,7 @@ public static class SamusInsideBlockReactions
                 body.SandCollisionArea,
                 block.Bts.AreaReactionIndex);
         PlmHeaderId header = areaReaction.Header;
-        if (header == 0) return false;
+        if (header == PlmHeaderId.None) return false;
         bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
             header,
             out QuicksandReactionDefinition reaction);
@@ -207,7 +213,7 @@ public static class SamusInsideBlockReactions
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(SamusVerticalDirection)} {(int)body.YDirection}.");
+                    $"Undefined {nameof(SamusVerticalDirection)} {body.YDirection}.");
         }
         if (contact.ContactDamage == SamusContactDamageIndex.SpeedBooster)
         {

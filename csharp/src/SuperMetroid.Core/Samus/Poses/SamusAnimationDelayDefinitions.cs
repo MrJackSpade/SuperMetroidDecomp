@@ -26,9 +26,6 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>Whether a delay-stream byte is an animation command rather than a frame delay (the handler's <c>BMI</c>).</summary>
     internal static bool IsCommand(byte delayOrCommand) => (delayOrCommand & CommandBit) != 0;
 
-    /// <summary>$91:B010-$B209, AnimationDelayTable: the 253 real pose selectors before the delay programs.</summary>
-    private const int RealPoseCount = 253;
-
     /// <summary>$91:B56F, AnimationDelays_0_9B: animation selected by ForwardFacingPowerSuitPose and its explicit pose aliases below.</summary>
     private static readonly SamusAnimationDelayList ForwardFacingPowerSuitAnimation = new(158, 0);
 
@@ -417,9 +414,9 @@ internal static class SamusAnimationDelayDefinitions
     /// </remarks>
     internal static SamusAnimationDelayList ListForPose(SamusPoseId pose)
     {
-        if ((int)pose >= RealPoseCount)
+        if (!SamusPoseNumbering.HasRecord(pose))
         {
-            int position = ((int)pose - RealPoseCount) * sizeof(ushort);
+            int position = (SamusPoseNumbering.Number(pose) - SamusPoseNumbering.RecordCount) * sizeof(ushort);
             return new(null, SnesLittleEndian.Word(SamusAnimationDelayPrograms.ByteAt(position),
                 SamusAnimationDelayPrograms.ByteAt(position + 1)));
         }

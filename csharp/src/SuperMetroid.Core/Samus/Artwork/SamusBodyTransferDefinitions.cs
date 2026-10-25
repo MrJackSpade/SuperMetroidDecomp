@@ -21,7 +21,7 @@ internal static class SamusBodyTransferDefinitions
         {
             int start = poseFirstFrames[pose], end = SamusBodyArtworkCatalog.FrameCount;
             foreach (int next in poseFirstFrames) if (next > start && next < end) end = next;
-            int baseIndex = upper ? body.Spritemaps.TopBase((SamusPoseId)pose) : body.Spritemaps.BottomBase((SamusPoseId)pose);
+            int baseIndex = upper ? body.Spritemaps.TopBase(SamusPoseNumbering.FromNumber(pose)) : body.Spritemaps.BottomBase(SamusPoseNumbering.FromNumber(pose));
             for (int phase = 0; phase < end - start; phase++)
             {
                 int frameIndex = start + phase;

@@ -118,7 +118,7 @@ public static class SamusHurtFlashPalette
         if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.Clear)
             return false;
 
-        bool queued = (controllerInput & ControllerButton.X) != 0;
+        bool queued = (controllerInput & ControllerButton.X) != ControllerButton.None;
         if (queued)
         {
             samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, maximumQueued: SoundQueueLimit.Max9);
@@ -149,7 +149,7 @@ public static class SamusHurtFlashPalette
             }
 
             if (samus.ProjectileFlareCounter >= 16 &&
-                (controllerInput & ControllerButton.X) != 0)
+                (controllerInput & ControllerButton.X) != ControllerButton.None)
             {
                 samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
                 return SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested;

@@ -44,11 +44,11 @@ internal static class EnemyColorPresentationContractChecks
                     kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPaletteRomData.BandColors);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount - 1, BotwoonHealthPaletteDefinitions.ColorsPerPalette - 1);
                     botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount, 0);
-                    baby.InitialColor(BabyMetroidCutsceneColorRomData.InitialColorCount - 1);
-                    baby.InitialColor(BabyMetroidCutsceneColorRomData.InitialColorCount);
-                    baby.FadeColor(BabyMetroidCutsceneColorRomData.FadeFrameCount, BabyMetroidCutsceneColorRomData.FadeColorCount - 1);
+                    baby.InitialColor(BabyMetroidCutsceneColorDefinitions.InitialColorCount - 1);
+                    baby.InitialColor(BabyMetroidCutsceneColorDefinitions.InitialColorCount);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount - 1);
                     baby.FadeColor(0, 0);
-                    baby.FadeColor(BabyMetroidCutsceneColorRomData.FadeFrameCount, BabyMetroidCutsceneColorRomData.FadeColorCount);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount);
                     ridley.ApplyInitial(cgram);
                     ridley.ApplyReveal(cgram, NorfairRidleyPaletteRomData.RevealRowCount - 1);
                     ridley.ApplyReveal(cgram, NorfairRidleyPaletteRomData.RevealRowCount);

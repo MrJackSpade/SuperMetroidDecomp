@@ -3011,15 +3011,15 @@ internal static class LookupStream3Verification
         var initial = stock.initial;
         AssertTrue(initial.supplied is null, "Baby stock initial has no stored color array");
         AssertEqual(0, MetadataShape.Fields(initial.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
-        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
         {
-            int address = BabyMetroidCutsceneColorRomData.InitialSource + color * sizeof(ushort);
+            int address = MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * sizeof(ushort);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, stock.InitialColor(color), "Baby initial exact native color");
             AssertEqual(native, liveStock.TargetColor(ShitroidColorTarget.Shitroid, color + 1), "Baby live initial alias");
         }
         Check(stock, babyDocument);
-        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
         foreach (string component in new[] { "red", "green", "blue" })
         {
             var editedBabyDocument = babyDocument.DeepClone();
@@ -3030,7 +3030,7 @@ internal static class LookupStream3Verification
             rgb = editedLiveDocument.Required("shitroid")[color + 1];
             (rgb ?? throw new InvalidOperationException("Verification requires rgb."))[component] = rgb.Required(component).GetValue<int>() ^ 1;
             var editedLive = LoadLive(editedLiveDocument);
-            for (int index = 0; index < BabyMetroidCutsceneColorRomData.InitialColorCount; index++)
+            for (int index = 0; index < BabyMetroidCutsceneColorDefinitions.InitialColorCount; index++)
             {
                 AssertEqual(Word(editedLiveDocument.Required("shitroid").Required(index + 1)), editedLive.TargetColor(ShitroidColorTarget.Shitroid, index + 1), "independent live alias edit");
                 AssertEqual(Word(babyDocument.Required("initial").Required(index)), stock.InitialColor(index), "live edit cannot mutate Baby instance");
@@ -3038,7 +3038,7 @@ internal static class LookupStream3Verification
             }
         }
         Check(stock, babyDocument);
-        foreach (int invalid in new[] { -1, BabyMetroidCutsceneColorRomData.InitialColorCount, int.MaxValue })
+        foreach (int invalid in new[] { -1, BabyMetroidCutsceneColorDefinitions.InitialColorCount, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.InitialColor(invalid), "Baby initial index domain preserved");
         static BabyMetroidCutsceneColorCatalog LoadBaby(System.Text.Json.Nodes.JsonNode document) =>
             BabyMetroidCutsceneColorFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -12,6 +13,30 @@ internal static class MotherBrainSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>
     internal const int ColorWordBytes = sizeof(ushort);
+
+    /// <summary>The cutscene Baby Metroid's colour images.</summary>
+    internal static class BabyMetroid
+    {
+        /// <summary>$A9:94D4, colours 1..15 of the Baby's initial image.</summary>
+        internal const int InitialColors = 0xa994d4;
+
+        /// <summary>$AD:E8E2, the seven fade-image pointers; index zero is never displayed.</summary>
+        internal const int FadePointerTable = 0xade8e2;
+
+        /// <summary>$AD:E90C, the first displayed fourteen-colour fade-to-black image; the six images follow in order.</summary>
+        internal const int FirstFadeColors = 0xade90c;
+
+        /// <summary>
+        /// The source of displayed fade image <paramref name="paletteIndex"/> (one-based, 1..6), from $AD:E90C through
+        /// $AD:E998 in fourteen-colour strides; the last image is entirely black.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The fade index is outside 1..6.</exception>
+        internal static int FadeColors(int paletteIndex) =>
+            paletteIndex is >= 1 and <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount
+                ? FirstFadeColors + (paletteIndex - 1) *
+                    BabyMetroidCutsceneColorDefinitions.FadeColorCount * ColorWordBytes
+                : throw new ArgumentOutOfRangeException(nameof(paletteIndex));
+    }
 
     /// <summary>The Shitroid's bank-$A9 colour images.</summary>
     internal static class Shitroid

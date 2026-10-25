@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -17,15 +18,15 @@ public static class BabyMetroidCutsceneColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var fade = new PaletteRgb5[BabyMetroidCutsceneColorRomData.FadeFrameCount][];
+        var fade = new PaletteRgb5[BabyMetroidCutsceneColorDefinitions.FadeFrameCount][];
         for (int frame = 0; frame < fade.Length; frame++)
-            fade[frame] = Read(BabyMetroidCutsceneColorRomData.FadeSource(frame + 1),
-                BabyMetroidCutsceneColorRomData.FadeColorCount);
+            fade[frame] = Read(MotherBrainSourceDefinitions.BabyMetroid.FadeColors(frame + 1),
+                BabyMetroidCutsceneColorDefinitions.FadeColorCount);
         return BabyMetroidCutsceneColorFile.Write(new BabyMetroidCutsceneColorDocument
         {
             Version = BabyMetroidCutsceneColorFormat.Version,
-            Initial = Read(BabyMetroidCutsceneColorRomData.InitialSource,
-                BabyMetroidCutsceneColorRomData.InitialColorCount),
+            Initial = Read(MotherBrainSourceDefinitions.BabyMetroid.InitialColors,
+                BabyMetroidCutsceneColorDefinitions.InitialColorCount),
             Fade = fade,
         });
 
@@ -34,7 +35,7 @@ public static class BabyMetroidCutsceneColorExtractor
             var colors = new PaletteRgb5[count];
             for (int color = 0; color < count; color++)
             {
-                int address = source + color * sizeof(ushort);
+                int address = source + color * MotherBrainSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
                 if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(

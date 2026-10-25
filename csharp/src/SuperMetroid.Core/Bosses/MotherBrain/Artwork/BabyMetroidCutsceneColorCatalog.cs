@@ -36,8 +36,8 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// <returns>The selected image color, retaining independently supplied artwork edits.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Either selector is outside the installed fade images; the exception names <paramref name="paletteIndex"/> for both invalid cases.</exception>
     public Bgr555 FadeColor(int paletteIndex, int color) =>
-        paletteIndex is >= 1 and <= BabyMetroidCutsceneColorRomData.FadeFrameCount &&
-        (uint)color < BabyMetroidCutsceneColorRomData.FadeColorCount
+        paletteIndex is >= 1 and <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount &&
+        (uint)color < BabyMetroidCutsceneColorDefinitions.FadeColorCount
             ? fade.Resolve(paletteIndex - 1, color)
             : throw new ArgumentOutOfRangeException(nameof(paletteIndex),
                 $"Cutscene Baby fade index {paletteIndex}, color {color} is outside the authored images.");
@@ -71,17 +71,17 @@ public sealed class BabyMetroidCutsceneColorCatalog
         /// <summary>Scales each RGB5 channel by the native remaining-sevenths intensity.</summary>
         private static Bgr555 Calculate(int frame, int color)
         {
-            int remaining = BabyMetroidCutsceneColorRomData.FadeFrameCount - 1 - frame;
-            int intervals = BabyMetroidCutsceneColorRomData.FadeFrameCount + 1;
+            int remaining = BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1 - frame;
+            int intervals = BabyMetroidCutsceneColorDefinitions.FadeFrameCount + 1;
             return Endpoint(color).Map((_, channel) => channel * remaining / intervals);
         }
 
         /// <summary>Hashes the six resolved rows so native and equivalent supplied artwork share an identity.</summary>
         internal void AppendIdentity(SelectedPresentationHash content)
         {
-            content.Append("fade", BabyMetroidCutsceneColorRomData.FadeFrameCount);
-            Span<Bgr555> row = stackalloc Bgr555[BabyMetroidCutsceneColorRomData.FadeColorCount];
-            for (int frame = 0; frame < BabyMetroidCutsceneColorRomData.FadeFrameCount; frame++)
+            content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
+            Span<Bgr555> row = stackalloc Bgr555[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
+            for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
                 content.AppendColors("row", row);

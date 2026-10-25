@@ -726,7 +726,7 @@ internal static class RoomPlmProgramsVerification
                 length = 2;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
-                AssertEqual((ushort)GreyDoorPreInstruction.WakeWhenShot, Word(2), $"grey {variant} shot wake");
+                AssertEqual(DoorsNativeWords.GreyDoorPreInstructions.Word(GreyDoorPreInstruction.WakeWhenShot), Word(2), $"grey {variant} shot wake");
                 cue = GreyDoorCue.ArmShotWake;
                 length = 4;
                 return true;
@@ -886,11 +886,11 @@ internal static class RoomPlmProgramsVerification
                 length = 4;
                 return true;
             case RoomPlmInstruction.InstallPreInstruction:
-                cue = (EyeDoorPreInstruction)Word(2) switch
+                cue = DoorsNativeWords.EyeDoorPreInstructions.Decode(Word(2), "eye-door pre-instruction") switch
                 {
                     EyeDoorPreInstruction.MissileHit => EyeDoorPlmCue.ArmMissileWake,
                     EyeDoorPreInstruction.WakeWhenDoorBitSet => EyeDoorPlmCue.ArmDoorBitWake,
-                    var wake => throw new InvalidDataException($"{at}: wake ${(ushort)wake:X4}."),
+                    var wake => throw new InvalidDataException($"{at}: wake {wake}."),
                 };
                 length = 4;
                 return true;

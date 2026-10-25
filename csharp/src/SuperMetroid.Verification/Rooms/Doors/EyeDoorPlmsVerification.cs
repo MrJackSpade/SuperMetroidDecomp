@@ -169,7 +169,7 @@ internal static class EyeDoorPlmsVerification
         AssertEqual(orientation, shot.Facing, $"{orientation} attack carries the eye's facing");
         AssertEqual(eyeBlock, shot.PlmBlockIndex, $"{orientation} attack leaves the eye's block");
         AssertEqual(doorBit, shot.DoorBit, $"{orientation} attack carries the door bit");
-        AssertEqual((ushort)EyeDoorPreInstruction.MissileHit,
+        AssertEqual(DoorsNativeWords.EyeDoorPreInstructions.Word(EyeDoorPreInstruction.MissileHit),
             plms.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye).PreInstruction,
             $"{orientation} open eye arms its missile wake");
 

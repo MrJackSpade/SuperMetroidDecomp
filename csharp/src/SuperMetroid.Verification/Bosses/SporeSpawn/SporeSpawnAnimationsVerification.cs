@@ -111,7 +111,7 @@ internal static class SporeSpawnAnimationsVerification
                     switch (cue)
                     {
                         case SporeSpawnCue.SetFunction setFunction:
-                            AssertEqual(operand, (ushort)setFunction.Function, $"{at}: function");
+                            AssertEqual(operand, SporeSpawnNativeWords.SporeSpawnFunctions.Word(setFunction.Function), $"{at}: the cartridge's routine word names the cue's function");
                             break;
                         case SporeSpawnCue.SetMaxXRadiusAndAngleDelta sway:
                             AssertEqual(operand, sway.MaximumXRadius, $"{at}: maximum X radius in pixels");

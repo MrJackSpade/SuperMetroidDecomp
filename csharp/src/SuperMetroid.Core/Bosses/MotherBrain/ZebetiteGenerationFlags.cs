@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Zebetite variable F: a barrier generation's form. Only the sign bit is set by the cartridge.</summary>
+/// <summary>A barrier generation's form. Its value is arbitrary; verification's native view encodes it as the cartridge's sign bit (#1413).</summary>
 [Flags]
 public enum ZebetiteGenerationFlags : ushort
 {
     /// <summary>A single large barrier.</summary>
     None = 0,
-    /// <summary>Bit 15: the generation is a split pair, so the primary half spawns its linked second half.</summary>
-    LinkedPair = 0x8000,
+    /// <summary>The generation is a split pair, so the primary half spawns its linked second half.</summary>
+    LinkedPair = 1,
 }

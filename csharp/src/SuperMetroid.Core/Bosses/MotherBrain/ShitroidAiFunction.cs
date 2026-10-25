@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Typed names for the bank-$A9 function pointers stored in Shitroid's enemy variable A.
-/// The numeric values intentionally remain the cartridge addresses used by the dispatcher.
+/// The routines Shitroid's main AI dispatches.
+/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1413).
 /// </summary>
 public enum ShitroidAiFunction : ushort
 {

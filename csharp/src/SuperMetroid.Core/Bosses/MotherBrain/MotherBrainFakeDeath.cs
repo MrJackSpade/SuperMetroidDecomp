@@ -239,7 +239,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain tube function $A9:{(ushort)state.TubeCollapseFunction:X4} is not translated.");
+                    $"Mother Brain tube function {state.TubeCollapseFunction} is not translated.");
         }
     }
 

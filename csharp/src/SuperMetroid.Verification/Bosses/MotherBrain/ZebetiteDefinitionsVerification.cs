@@ -31,7 +31,7 @@ internal static class ZebetiteDefinitionsVerification
                 ZebetiteDefinitions.Generation(generation);
             ushort[] actual =
             [
-                (ushort)definition.GenerationFlags,
+                MotherBrainNativeWords.GenerationFlagsWord(definition.GenerationFlags),
                 definition.YRadius,
                 ZebetiteEntry(definition.Program),
                 definition.XPosition,

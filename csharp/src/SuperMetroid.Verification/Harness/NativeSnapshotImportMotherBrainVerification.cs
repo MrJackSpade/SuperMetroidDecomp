@@ -24,7 +24,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         ImportMotherBrainBodyImage(runtime, state, W);
         state.Pose = (MotherBrainBodyPose)W(MotherBrainMemory.Pose);
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
-        state.Function = (MotherBrainBodyFunction)W(MotherBrainMemory.BodyFunction);
+        state.Function = MotherBrainNativeWords.MotherBrainBodyFunctions.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyFunction");
         state.BrainFunction = MotherBrainNativeListAddresses.NativeBrainFunctions[W(MotherBrainMemory.BrainFunction)];
         state.FunctionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
         ushort flash = W(MotherBrainMemory.RoomPaletteInstructionList);
@@ -229,7 +229,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// </summary>
     private static void ImportMotherBrainBodyImage(SuperMetroidRuntime runtime, MotherBrainEnemyState state, Func<int, ushort> W)
     {
-        var function = (MotherBrainBodyFunction)W(MotherBrainMemory.BodyFunction);
+        var function = MotherBrainNativeWords.MotherBrainBodyFunctions.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyFunction");
         bool transferred = state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath && function is
             MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain or MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense or
             MotherBrainBodyFunction.FakeDeathAscentPrepareForRising or MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles or

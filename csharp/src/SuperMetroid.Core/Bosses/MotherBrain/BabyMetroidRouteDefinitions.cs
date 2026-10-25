@@ -45,7 +45,7 @@ internal static class BabyMetroidRouteDefinitions
             BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight => 0x0008,
             BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen => 0x0010,
             _ => throw new InvalidDataException(
-                $"Baby route names unknown movement function ${(int)movementFunction:X4}."),
+                $"Baby route names unknown movement function {movementFunction}."),
         };
 
 }

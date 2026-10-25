@@ -171,6 +171,8 @@ public sealed class SamusKinematicsState
             SamusCollisionDirection.Right => 1,
             SamusCollisionDirection.Up => 2,
             SamusCollisionDirection.Down => 3,
+            SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction), direction,
+                "A non-directional probe publishes no solid-enemy collision."),
             _ => throw new ArgumentOutOfRangeException(nameof(direction)),
         };
         _solidEnemyCollisionIndexes[word] = checked((ushort)(nativeEnemyIndex ?? ushort.MaxValue));

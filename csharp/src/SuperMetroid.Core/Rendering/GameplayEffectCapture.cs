@@ -75,7 +75,7 @@ public static class GameplayEffectCapture
     /// <summary>Resolves the Norfair heat-haze BG2VOFS waveform from <c>$88:B5A9</c>.</summary>
     public static ushort[]? BuildLavaAcidBg2VerticalScrolls(
         RoomLayer3FxRenderSnapshot fx,
-        ushort bg2VerticalScroll)
+        int bg2VerticalScroll)
     {
         if (fx.Type is not (RoomFxType.Lava or RoomFxType.Acid) ||
             (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
@@ -92,8 +92,8 @@ public static class GameplayEffectCapture
 
     /// <summary>Expands the rotating sixteen-entry heat-haze wave into one BG2 scroll word per gameplay scanline.</summary>
     private static ushort[] BuildLavaAcidBg2Wave(
-        ushort baseScroll,
-        ushort bg2VerticalScroll,
+        int baseScroll,
+        int bg2VerticalScroll,
         int wavePhase,
         Axis axis)
     {
@@ -107,7 +107,7 @@ public static class GameplayEffectCapture
             // waveform periods, so gameplay-local and physical scanline indices coincide.
             int waveIndex = (verticalPhase + line + wavePhase) &
                 (LavaAcidWaveDefinitions.WaveDisplacementCount - 1);
-            short displacement = axis == Axis.Vertical
+            int displacement = axis == Axis.Vertical
                 ? LiquidEffects.HeatVerticalWaveDisplacement(waveIndex)
                 : LiquidEffects.HeatHorizontalWaveDisplacement(waveIndex);
             result[line] = unchecked((ushort)(baseScroll + displacement));
@@ -141,7 +141,7 @@ public static class GameplayEffectCapture
             int shapeLine = Math.Abs(yFromCenter);
             if ((uint)shapeLine >= 192)
                 return -1;
-            byte halfWidth = PowerBombShapeDefinitions.ReadPreScaledHalfWidth(
+            int halfWidth = PowerBombShapeDefinitions.ReadPreScaledHalfWidth(
                 shape, shapeLine);
             return halfWidth == 0 ? -1 : halfWidth;
         }
@@ -236,11 +236,11 @@ public static class GameplayEffectCapture
         ushort[] nativeWindows = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        byte red = ExpandFiveBit(beam.Color.Red), green = ExpandFiveBit(beam.Color.Green), blue = ExpandFiveBit(beam.Color.Blue);
+        int red = ExpandFiveBit(beam.Color.Red), green = ExpandFiveBit(beam.Color.Green), blue = ExpandFiveBit(beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
             int left = SnesLittleEndian.LowByte(nativeWindows[y]), right = SnesLittleEndian.HighByte(nativeWindows[y]);
-            if (left <= right) windows[y] = new((byte)left, (byte)right, red, green, blue);
+            if (left <= right) windows[y] = new(left, right, red, green, blue);
         }
         return new(windows);
     }
@@ -256,13 +256,13 @@ public static class GameplayEffectCapture
         MotherBrainBeamLine[] lines = RainbowBeamWindowBuilder.Build(beam.Geometry);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        byte red = ExpandFiveBit((byte)beam.Color.Red);
-        byte green = ExpandFiveBit((byte)beam.Color.Green);
-        byte blue = ExpandFiveBit((byte)beam.Color.Blue);
+        int red = ExpandFiveBit((byte)beam.Color.Red);
+        int green = ExpandFiveBit((byte)beam.Color.Green);
+        int blue = ExpandFiveBit((byte)beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
             MotherBrainBeamLine line = lines[y];
-            if (line.Crosses) windows[y] = new(checked((byte)line.Left), checked((byte)line.Right), red, green, blue);
+            if (line.Crosses) windows[y] = new(line.Left, line.Right, red, green, blue);
         }
         return new(windows);
     }
@@ -309,11 +309,10 @@ public static class GameplayEffectCapture
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (SnesPpuLayout.BackgroundTileSizePixels - 1);
         for (int y = HudHeight; y < Height; y++)
         {
-            ushort vertical = liquid && y < firstSurfaceLine ? (ushort)0 : fx.Scroll.Y;
             int wave = RoomFxTypes.UsesWater(fx.Type) && y > fx.WaterSurfaceScreenY
                 ? LiquidEffects.WaterWaveDisplacement((y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
                     WaterWaveDefinitions.WaveDisplacementCount) % WaterWaveDefinitions.WaveDisplacementCount) : 0;
-            scrolls[y] = new(unchecked((ushort)(fx.Scroll.X + wave)), vertical);
+            scrolls[y] = new(unchecked((ushort)(fx.Scroll.X + wave)), liquid && y < firstSurfaceLine ? (ushort)0 : fx.Scroll.Y);
         }
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
@@ -372,9 +371,9 @@ public static class GameplayEffectCapture
             .RelativeToCamera(layer1);
         int centerX = center.X;
         int centerY = center.Y;
-        byte red = ExpandFiveBit(explosion.FixedColor.Red);
-        byte green = ExpandFiveBit(explosion.FixedColor.Green);
-        byte blue = ExpandFiveBit(explosion.FixedColor.Blue);
+        int red = ExpandFiveBit(explosion.FixedColor.Red);
+        int green = ExpandFiveBit(explosion.FixedColor.Green);
+        int blue = ExpandFiveBit(explosion.FixedColor.Blue);
         // Gameplay protects its HUD; full-screen cinematics use the same native
         // window profile starting at scanline zero instead.
         for (int y = firstVisibleScanline; y < Height; y++)
@@ -383,7 +382,7 @@ public static class GameplayEffectCapture
             if (halfWidth < 0) continue;
             int left = Math.Max(0, centerX - halfWidth);
             int right = Math.Min(Width - 1, centerX + halfWidth);
-            if (left <= right) windows[y] = new((byte)left, (byte)right, red, green, blue);
+            if (left <= right) windows[y] = new(left, right, red, green, blue);
         }
         return new(windows);
     }
@@ -433,9 +432,9 @@ public static class GameplayEffectCapture
         if (flash is not { } active) return null;
         ushort[] endpoints = SuitPickupBeamWindowBuilder.Build(active.Beam);
         var windows = new ColorAddWindow[Height];
-        byte red = ExpandFiveBit(active.Color.Red);
-        byte green = ExpandFiveBit(active.Color.Green);
-        byte blue = ExpandFiveBit(active.Color.Blue);
+        int red = ExpandFiveBit(active.Color.Red);
+        int green = ExpandFiveBit(active.Color.Green);
+        int blue = ExpandFiveBit(active.Color.Blue);
         for (int y = 0; y < Height; y++)
             windows[y] = new(SnesLittleEndian.LowByte(endpoints[y]), SnesLittleEndian.HighByte(endpoints[y]), red, green, blue);
         return new(windows);

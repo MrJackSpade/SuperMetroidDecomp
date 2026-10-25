@@ -74,7 +74,7 @@ internal static class ClosedPresentationIndexDefinitions
             MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 1, MotherBrainBeamRomData.ColorStride),
         ("MotherBrainRainbowPalettePresentation", "ApplyRainbow", "frame") => new(0, MotherBrainRainbowPaletteFormat.RainbowFrameCount),
         ("MotherBrainRainbowPalettePresentation", "ApplyToGrey" or "ApplyFromGrey" or "ApplyFakeDeathFromGrey", "frame") => new(0, MotherBrainRainbowPaletteFormat.GreyFrameCount),
-        ("MotherBrainRainbowPalettePresentation", "ApplyFakeDeathToGrey", "frame") => new(0, MotherBrainFakeDeathPaletteRomData.FrameCount),
+        ("MotherBrainRainbowPalettePresentation", "ApplyFakeDeathToGrey", "frame") => new(0, MotherBrainFakeDeathPaletteDefinitions.FrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathRomData.BodyFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor" or "ExplodedDoorColor", "color") => new(0, MotherBrainDeathRomData.BodyColorCount),
         ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathRomData.CorpseFadeFrameCount),

@@ -30,12 +30,42 @@ internal static class MotherBrainSourceDefinitions
         /// The source of displayed fade image <paramref name="paletteIndex"/> (one-based, 1..6), from $AD:E90C through
         /// $AD:E998 in fourteen-colour strides; the last image is entirely black.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">The fade index is outside 1..6.</exception>
         internal static int FadeColors(int paletteIndex) =>
-            paletteIndex is >= 1 and <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount
-                ? FirstFadeColors + (paletteIndex - 1) *
-                    BabyMetroidCutsceneColorDefinitions.FadeColorCount * ColorWordBytes
-                : throw new ArgumentOutOfRangeException(nameof(paletteIndex));
+            FirstFadeColors + (paletteIndex - 1) * BabyMetroidCutsceneColorDefinitions.FadeColorCount * ColorWordBytes;
+    }
+
+    /// <summary>Mother Brain's bank-$AD colour images and the pointer tables that order them.</summary>
+    internal static class Palettes
+    {
+        /// <summary>The bank every Mother Brain palette pointer table's bank-local pointers resolve in.</summary>
+        internal const int PaletteBank = 0xad0000;
+
+        /// <summary>The bytes of one bank-local pointer in a palette pointer table.</summary>
+        internal const int PointerBytes = sizeof(ushort);
+
+        /// <summary>$AD:E434, the zero-terminated rainbow image pointers the rainbow handler at $A9:BCFD consumes.</summary>
+        internal const int RainbowPointerTable = 0xade434;
+
+        /// <summary>$A9:9474, the normal body and brain colours (after the transparent colour) the rainbow's end restores.</summary>
+        internal const int NormalBrainColors = 0xa99474;
+
+        /// <summary>$A9:9494, the normal rear-leg colours the rainbow's end restores; phase two's setup also installs them.</summary>
+        internal const int NormalRearLegColors = 0xa99494;
+
+        /// <summary>$AD:EF87, the eight drained-to-grey image pointers followed by zero.</summary>
+        internal const int DrainedToGreyPointerTable = 0xadef87;
+
+        /// <summary>$AD:ED9C, the eight revival (grey-to-colour) image pointers followed by zero; the fake-death resurrection reuses them.</summary>
+        internal const int RevivalFromGreyPointerTable = 0xaded9c;
+
+        /// <summary>$AD:ED8A, the eight fake-death brain grey-fade pointers followed by zero.</summary>
+        internal const int FakeDeathToGreyPointerTable = 0xaded8a;
+
+        /// <summary>$AD:E6A2, the four health-band body and brain image pointers.</summary>
+        internal const int HealthBodyPointerTable = 0xade6a2;
+
+        /// <summary>$AD:E742, the four health-band rear-leg image pointers.</summary>
+        internal const int HealthRearLegPointerTable = 0xade742;
     }
 
     /// <summary>The Shitroid's bank-$A9 colour images.</summary>

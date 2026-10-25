@@ -74,7 +74,7 @@ internal sealed class MotherBrainFakeDeath
         {
             state.FunctionTimer = WrappingCountdown.Start(8);
             int step = state.GrayFadeIndex++;
-            if (step == MotherBrainFakeDeathPaletteRomData.FrameCount)
+            if (step == MotherBrainFakeDeathPaletteDefinitions.FrameCount)
             {
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentCollapseTubes;
             }
@@ -560,7 +560,7 @@ internal sealed class MotherBrainFakeDeath
 
         state.FunctionTimer = WrappingCountdown.Start(4);
         int paletteStep = state.GrayTransitionCounter++;
-        if (paletteStep < MotherBrainFakeDeathPaletteRomData.FrameCount)
+        if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
             if (_bossArtwork.MotherBrainRainbowColors is { } colors)

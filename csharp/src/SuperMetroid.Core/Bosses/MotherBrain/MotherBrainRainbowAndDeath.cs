@@ -475,7 +475,7 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's drained palette requires installed artwork.");
-            installed.ApplyRainbow(_presentation.Colours, MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort));
+            installed.ApplyRainbow(_presentation.Colours, MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame);
             return;
         }
         bool rainbowPhase = step.PhaseBefore is

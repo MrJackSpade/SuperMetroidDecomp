@@ -2257,8 +2257,8 @@ internal static class LookupStream3Verification
             stock.Apply(actual, state);
             foreach (var (table, destination) in new[]
             {
-                new VerifyStream3HealthTintCase(MotherBrainHealthPaletteRomData.BrainTable, MotherBrainRainbowPaletteRomDataConstants.BodyColor),
-                new VerifyStream3HealthTintCase(MotherBrainHealthPaletteRomData.BackLegTable, MotherBrainRainbowPaletteRomData.SecondaryColor),
+                new VerifyStream3HealthTintCase(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable, MotherBrainColorDestinations.BodyColor),
+                new VerifyStream3HealthTintCase(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable, MotherBrainColorDestinations.RearLegColor),
             })
             {
                 int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(table + state * 2);
@@ -2270,8 +2270,8 @@ internal static class LookupStream3Verification
                 }
             }
             for (int color = 0; color < 15; color++)
-                AssertEqual(actual.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor + color],
-                    actual.Colors[MotherBrainRainbowPaletteRomDataConstants.BrainColor + color], "stream 3 health tint body/brain copies");
+                AssertEqual(actual.Colors[MotherBrainColorDestinations.BodyColor + color],
+                    actual.Colors[MotherBrainColorDestinations.BrainColor + color], "stream 3 health tint body/brain copies");
         }
         foreach (string group in new[] { "body", "backLegs" })
             for (int state = 0; state < 4; state++)
@@ -2289,8 +2289,8 @@ internal static class LookupStream3Verification
                             edited.Apply(actual, checkState);
                             foreach (var (checkGroup, destination) in new[]
                             {
-                                new LookupStream3VerifyStream3HealthTintCase("body", MotherBrainRainbowPaletteRomDataConstants.BodyColor),
-                                new LookupStream3VerifyStream3HealthTintCase("backLegs", MotherBrainRainbowPaletteRomData.SecondaryColor),
+                                new LookupStream3VerifyStream3HealthTintCase("body", MotherBrainColorDestinations.BodyColor),
+                                new LookupStream3VerifyStream3HealthTintCase("backLegs", MotherBrainColorDestinations.RearLegColor),
                             })
                                 for (int checkColor = 0; checkColor < 15; checkColor++)
                                 {

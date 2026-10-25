@@ -91,14 +91,14 @@ internal static class PaletteJsonContractsLegacyVerification
         var migratedRainbow = ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPaletteFile.Read(json, rainbowStock));
         var legacyCgram = new GameplayColours(new SpriteColourSets());
         var stockCgram = new GameplayColours(new SpriteColourSets());
-        for (int frame = 0; frame < MotherBrainFakeDeathPaletteRomData.FrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainFakeDeathPaletteDefinitions.FrameCount; frame++)
         {
             migratedRainbow.ApplyFakeDeathToGrey(legacyCgram, frame); rainbowStock.ApplyFakeDeathToGrey(stockCgram, frame);
             AssertTrue(new CgramPalettes(legacyCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(stockCgram.AsPaletteColors())), "legacy inherits exact fake-death colors");
         }
         migratedRainbow.ApplyNormal(legacyCgram);
         AssertEqual(PackPaletteContractColor((JsonObject)oldRainbow.Required("normal").Required("body").Required(0)),
-            legacyCgram.Colors[MotherBrainRainbowPaletteRomDataConstants.BodyColor], "legacy retains edited normal colors");
+            legacyCgram.Colors[MotherBrainColorDestinations.BodyColor], "legacy retains edited normal colors");
     }
 
     /// <summary>Packs JSON red, green, and blue channels into the cartridge's 15-bit color word.</summary>

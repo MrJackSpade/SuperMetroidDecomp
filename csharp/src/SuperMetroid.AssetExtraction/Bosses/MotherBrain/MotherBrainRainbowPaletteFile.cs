@@ -26,20 +26,20 @@ public static class MotherBrainRainbowPaletteFile
         return MotherBrainRainbowPalettePresentation.Create(new MotherBrainRainbowPaletteColours
         {
             Rainbow = CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
-                MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
+                MotherBrainRainbowPaletteDefinitions.ColorCount,
+                MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
             ToGrey = CompileFrames(document.ToGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteRomData.DrainedColors,
-                MotherBrainDrainedPaletteRomData.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
+                MotherBrainDrainedPaletteDefinitions.DrainedColors,
+                MotherBrainDrainedPaletteDefinitions.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
             FromGrey = CompileFrames(document.FromGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
-                MotherBrainDrainedPaletteRomData.RevivalColors,
-                MotherBrainDrainedPaletteRomData.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
+                MotherBrainDrainedPaletteDefinitions.RevivalColors,
+                MotherBrainDrainedPaletteDefinitions.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
             // A pre-fake-death override inherits that fade from the current stock the version check required.
             FakeDeathToGrey = version == MotherBrainRainbowPaletteVersion.PreFakeDeath
                 ? null
                 : CompileFakeDeathFrames(document.FakeDeathToGrey),
-            Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
+            Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteDefinitions.ColorCount,
+                MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
             BeamInitial = CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
             BeamCycle = CompileColors(document.BeamCycle, MotherBrainRainbowPaletteFormat.BeamCycleColorCount,
                 nameof(document.BeamCycle)),
@@ -49,12 +49,12 @@ public static class MotherBrainRainbowPaletteFile
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>
     private static Bgr555[][] CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
-        if (source is null || source.Length != MotherBrainFakeDeathPaletteRomData.FrameCount)
+        if (source is null || source.Length != MotherBrainFakeDeathPaletteDefinitions.FrameCount)
             throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
         var frames = new Bgr555[source.Length][];
         for (int frame = 0; frame < source.Length; frame++)
             frames[frame] = CompileColors(source[frame],
-                MotherBrainFakeDeathPaletteRomData.ColorCount, $"fake-death frame {frame}");
+                MotherBrainFakeDeathPaletteDefinitions.ColorCount, $"fake-death frame {frame}");
         return frames;
     }
 

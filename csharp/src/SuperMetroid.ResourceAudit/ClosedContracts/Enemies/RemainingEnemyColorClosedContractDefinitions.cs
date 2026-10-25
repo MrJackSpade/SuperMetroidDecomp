@@ -70,6 +70,6 @@ internal static class RemainingEnemyColorClosedContractDefinitions
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation", "mother-brain-complete-health-colors", ["Apply"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRainbowPaletteRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRainbowPaletteDefinitions.cs")]),
     ];
 }

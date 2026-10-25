@@ -32,17 +32,4 @@ public static class RoomAssetRomData
         /// <summary>Palette bytes copied by <c>LoadCRETilesTilesetTilesAndPalette</c>.</summary>
         public const int BackgroundPaletteByteCount = 0x0100;
     }
-
-    /// <summary>Bank-$82 library-background command memory and transfer definitions.</summary>
-    public static class LibraryBackground
-    {
-        /// <summary>Direct-ROM character upload for the Tourian entrance statue's ghostly BG effect.</summary>
-        public static class TourianStatueGhost
-        {
-            /// <summary><c>$87:AD64</c>, the 48 raw 4-bpp ghost characters named <c>kTileData_TourianEntranceStatueGhost</c>.</summary>
-            public const int SourceAddress = 0x87ad64;
-        }
-    }
-    /// <summary>$8A:B180: first of the seven contiguous 32x32 scrolling-sky tilemap pages.</summary>
-    public const int ScrollingSkyTilemapPages = 0x8ab180;
 }

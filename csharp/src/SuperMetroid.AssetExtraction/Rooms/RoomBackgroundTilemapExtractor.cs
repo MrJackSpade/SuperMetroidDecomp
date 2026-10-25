@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -11,25 +12,20 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 [CpuBusBoundary("codec: ROM compressed library-background tilemaps → room background tile references")]
 public static class RoomBackgroundTilemapExtractor
 {
-    /// <summary>Decompresses every compiled retail library-background source and exports its ordered BG tilemap pages.</summary>
+    /// <summary>Decompresses every background tilemap and exports its ordered BG tilemap pages.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>
     /// <returns>A new filename-keyed collection of UTF-8 JSON byte arrays, each preserving one or two 32x32 pages of tile references and BG attributes.</returns>
-    /// <remarks>Verifies the retail source count and exact native-word roundtrips. Page order is retained without inferring room geometry, and files are not written.</remarks>
+    /// <remarks>Verifies exact native-word roundtrips. Page order is retained without inferring room geometry, and files are not written.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Source coverage, decompression, page size, or tilemap roundtrip validation fails.</exception>
+    /// <exception cref="InvalidDataException">Decompression, page size, or tilemap roundtrip validation fails.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        IReadOnlyList<int> addresses = RoomBackgroundTilemapSources.All;
-        if (addresses.Count != RoomBackgroundTilemapFormat.RetailCompressedSourceCount)
-            throw new InvalidDataException(
-                $"Expected {RoomBackgroundTilemapFormat.RetailCompressedSourceCount} " +
-                $"retail compressed background sources, found {addresses.Count}.");
         var files = new Dictionary<string, byte[]>();
-        foreach (int source in addresses)
+        foreach ((RoomBackgroundTilemap tilemap, int source) in RoomBackgroundSourceDefinitions.Tilemaps.OrderBy(pair => pair.Key))
         {
             byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
-            files.Add(RoomBackgroundTilemapFormat.SourceFileName(source), Encode(native));
+            files.Add(RoomBackgroundTilemapFormat.FileName(tilemap), Encode(native));
         }
         return files;
     }

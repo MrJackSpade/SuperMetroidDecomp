@@ -507,8 +507,12 @@ as the stock file. Files are named for the artwork, not its cartridge location: 
 is `room-characters-{set}.png` (for example `room-characters-upper-crateria.png`), a block table
 `room-blocks-{set}.json` and a palette `room-palette-{set}.json` (for example
 `room-palette-heated-norfair.json`); the common room elements stay `room-characters-cre.png` and
-`room-blocks-cre.json`. Overrides saved under the older names, which carried the cartridge address
-(`room-characters-BAC629.png`), are renamed when the installation is rebuilt; an override present
+`room-blocks-cre.json`. Library-background tilemaps and scrolling-sky pages go in
+`overrides/room-backgrounds`: a tilemap is named for the background it pictures,
+`room-background-{background}.json` (for example `room-background-brinstar-kraid-upper.json`), and a sky page
+for its place among the seven, `scrolling-sky-page-{0-6}.json`. Overrides saved under the older names, which
+carried the cartridge address (`room-characters-BAC629.png`, `room-background-B9FA38.json`,
+`scrolling-sky-8AB180.json`), are renamed when the installation is rebuilt; an override present
 under both names stops the rebuild, leaving the previous installation in place, until one of them is removed.
 
 Sprites are moving to finished images. A sprite family that has moved is drawn from a pre-coloured

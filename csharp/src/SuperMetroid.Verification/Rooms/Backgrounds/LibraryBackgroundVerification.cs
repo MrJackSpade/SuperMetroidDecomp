@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
@@ -24,38 +25,42 @@ using SuperMetroid.AssetExtraction.Hud;
 /// <summary>Checks library-background command sources, native transfer behavior, and installed artwork boundaries.</summary>
 internal static class LibraryBackgroundVerification
 {
+/// <summary>The lowest full 24-bit address of cartridge ROM: transfers from below it read work RAM.</summary>
+private const int CartridgeRomFloor = 0x800000;
+
 /// <summary>Compares the retail list operands with compiled sources and validates every compressed page count.</summary>
 [CpuBusBoundary("exact bus test: retail ROM oracle decompressing every library-background tilemap source to validate its page count")]
 internal static void VerifyLibraryBackgroundSourceInventory()
 {
     ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
-    IReadOnlyList<LibraryBackgroundSource> sources =
+    IReadOnlyList<LibraryBackgroundNativeOperand> sources =
         LibraryBackgroundSourceInventory.Scan(bus);
     VerifyCompiledLibraryBackgroundPrograms(bus);
     int listCount = sources.Select(source => source.ListPointer).Distinct().Count();
     int compressedCount = sources
-        .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+        .Where(source => source.Command == LibraryBackgroundCommand.Decompress)
         .Select(source => source.SourceAddress).Distinct().Count();
-    LibraryBackgroundSource[] romTransfers = sources
-        .Where(source => source.Command != LibraryBackgroundCommand.DecompressToWorkRam &&
-            source.SourceAddress >= (int)LibraryBackgroundStagingDefinitions.RomSourceAddressFloor).ToArray();
-    LibraryBackgroundSource[] workRamTransfers = sources
-        .Where(source => source.Command != LibraryBackgroundCommand.DecompressToWorkRam &&
-            source.SourceAddress < (int)LibraryBackgroundStagingDefinitions.RomSourceAddressFloor).ToArray();
+    LibraryBackgroundNativeOperand[] romTransfers = sources
+        .Where(source => source.Command != LibraryBackgroundCommand.Decompress &&
+            source.SourceAddress >= CartridgeRomFloor).ToArray();
+    LibraryBackgroundNativeOperand[] workRamTransfers = sources
+        .Where(source => source.Command != LibraryBackgroundCommand.Decompress &&
+            source.SourceAddress < CartridgeRomFloor).ToArray();
     AssertEqual(190, sources.Count, "retail library-background source operand count");
     AssertEqual(66, listCount, "retail source-bearing background list count");
-    AssertEqual(RoomBackgroundTilemapFormat.RetailCompressedSourceCount, compressedCount,
-        "retail distinct compressed background count");
+    AssertEqual(Enum.GetValues<RoomBackgroundTilemap>().Length, compressedCount,
+        "retail distinct compressed background count is one per named background tilemap");
+    // The named tilemaps' cartridge sources (#1414) are exactly the retail decompression operands.
     AssertTrue(sources
-            .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+            .Where(source => source.Command == LibraryBackgroundCommand.Decompress)
             .Select(source => source.SourceAddress).Distinct().Order()
-            .SequenceEqual(RoomBackgroundTilemapSources.All),
-        "compiled background source identities exactly match retail command operands");
+            .SequenceEqual(RoomBackgroundSourceDefinitions.Tilemaps.Values.Order()),
+        "named background tilemap sources exactly match retail command operands");
     AssertEqual(18, romTransfers.Length, "retail direct ROM background transfer count");
     AssertEqual(114, workRamTransfers.Length, "retail work-RAM background transfer count");
     foreach (int source in sources
-        .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+        .Where(source => source.Command == LibraryBackgroundCommand.Decompress)
         .Select(source => source.SourceAddress).Distinct())
         RoomBackgroundTilemapFormat.ValidatePageCount(
             RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source).Length);
@@ -64,7 +69,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
         $"{listCount} source-bearing lists, {compressedCount} distinct compressed sources, " +
         $"{romTransfers.Length} direct ROM transfers, " +
         $"{workRamTransfers.Length} work-RAM transfers.");
-    foreach (LibraryBackgroundSource transfer in romTransfers
+    foreach (LibraryBackgroundNativeOperand transfer in romTransfers
         .DistinctBy(source => new VerifyLibraryBackgroundSourceInventoryCase(source.SourceAddress, source.TransferByteCount, source.VramDestination)))
         Console.WriteLine($"    ROM ${transfer.SourceAddress:X6}: {transfer.TransferByteCount} bytes to " +
             $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
@@ -74,16 +79,16 @@ internal static void VerifyLibraryBackgroundSourceInventory()
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid HUD library-background planar characters")]
 static void VerifyKraidLibraryHudArtwork(
-    ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundSource> romTransfers)
+    ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundNativeOperand> romTransfers)
 {
-    LibraryBackgroundSource transfer = romTransfers.First(source =>
+    LibraryBackgroundNativeOperand transfer = romTransfers.First(source =>
         source.SourceAddress == HudTileAtlasFormat.SourceAddress);
     if (romTransfers.Where(source => source.SourceAddress == HudTileAtlasFormat.SourceAddress)
         .Any(source => source.Command != transfer.Command ||
             source.TransferByteCount != transfer.TransferByteCount ||
             source.VramDestination != transfer.VramDestination))
         throw new InvalidDataException("Kraid HUD lists disagree about their direct-ROM upload geometry.");
-    AssertEqual(LibraryBackgroundCommand.TransferToVramForKraid, transfer.Command,
+    AssertEqual(LibraryBackgroundCommand.TransferForKraid, transfer.Command,
         "Kraid HUD upload uses the special library-background transfer");
     AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, (transfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires transfer.TransferByteCount.")),
         "Kraid HUD upload contains characters without the normal clearing half");
@@ -131,15 +136,16 @@ internal static void VerifyLibraryBackgroundLoader()
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
 
     // Fixture list mirrors Ceres $8F:E4A5: decompress a four-byte tilemap to $7E:4000,
-    // copy it to both BG2 screen pages, then terminate. The compressed stream begins at
-    // $90:8000 and consists of one four-byte literal followed by $FF.
+    // copy it to both BG2 screen pages, then terminate. The compressed stream sits where the cartridge stores a named
+    // background tilemap, so the list decodes to it (#1414), and consists of one four-byte literal followed by $FF.
     byte[] compressed = [0x03, 0x11, 0x22, 0x33, 0x44, 0xff];
-    int compressedOffset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(0x908000);
+    int compressedSource = RoomBackgroundSourceDefinitions.Tilemaps[RoomBackgroundTilemap.NorfairSmallPatternBrownPurpleBright];
+    int compressedOffset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(compressedSource);
     compressed.CopyTo(rom, compressedOffset);
 
     ushort cursor = 0xe000;
     WriteLibraryWord(rom, cursor, 0x0004); cursor += 2;
-    WriteLibraryLong(rom, cursor, 0x908000); cursor += 3;
+    WriteLibraryLong(rom, cursor, compressedSource); cursor += 3;
     WriteLibraryWord(rom, cursor, 0x4000); cursor += 2;
     WriteLibraryWord(rom, cursor, 0x0002); cursor += 2;
     WriteLibraryLong(rom, cursor, 0x7e4000); cursor += 3;

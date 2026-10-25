@@ -32,7 +32,7 @@ internal static class RoomSkyTilemapsVerification
         var json = new byte[pages.Length][];
         for (int page = 0; page < pages.Length; page++)
         {
-            byte[] native = ReadRetailSkyBytes(bus, RoomSkyTilemapFormat.SourceAddress(page), RoomSkyTilemapFormat.PageByteCount);
+            byte[] native = ReadRetailSkyBytes(bus, LibraryBackgroundOperands.SkyPageAddress(page), RoomSkyTilemapFormat.PageByteCount);
             json[page] = RoomBackgroundTilemapExtractor.Encode(native);
             pages[page] = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(json[page], writable: false), native.Length);
@@ -41,11 +41,11 @@ internal static class RoomSkyTilemapsVerification
         }
         var stock = new RoomSkyTilemapCatalog(pages);
         AssertThrows<InvalidDataException>(
-            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 0x40, 0x40, out _),
+            () => stock.Page(0, 0x40),
             "sky catalog rejects a row: rows are drawn from the pages, not transferred (#1347)");
-        AssertThrows<InvalidDataException>(
-            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 2, RoomSkyTilemapFormat.PageByteCount, out _),
-            "sky catalog rejects an unaligned page");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => stock.Page(RoomSkyTilemapFormat.PageCount, RoomSkyTilemapFormat.PageByteCount),
+            "sky catalog rejects a page outside the sky");
         // Every row the land and ocean tables select is the native page row at that offset; the ocean table's
         // adjacent-code chunks select no row.
         foreach (ScrollingSkyChunkTable table in new[] { ScrollingSkyChunkTable.Land, ScrollingSkyChunkTable.Ocean })
@@ -54,19 +54,19 @@ internal static class RoomSkyTilemapsVerification
             AssertTrue(ReferenceEquals(rows, stock.Tilemap(table)), $"{table} sky rows are built once per installed catalog");
             for (int row = 0; row < SkyTilemap.Rows; row++)
             {
-                if (!ScrollingSkyChunkDefinitions.TryGetPage(table, row / 32, out ushort page))
+                if (!ScrollingSkyChunks.TryGetPage(table, row / 32, out int page))
                 {
                     AssertTrue(!rows.RowShown(row), $"{table} row {row} selects no page");
                     continue;
                 }
-                byte[] native = ReadRetailSkyBytes(bus, 0x8a0000 | (page + row % 32 * 0x40), 0x40);
+                byte[] native = ReadRetailSkyBytes(bus, LibraryBackgroundOperands.SkyPageAddress(page) + row % 32 * 0x40, 0x40);
                 for (int column = 0; column < SkyTilemap.Columns; column++)
                     AssertEqual(SnesLittleEndian.Word(native[column * 2], native[column * 2 + 1]), rows.Words[row * SkyTilemap.Columns + column],
                         $"{table} sky row {row} column {column} is the native page word");
             }
         }
         var guard = NewSkyPageReadGuard(bus);
-        LibraryBackgroundSource[] landingSources = LibraryBackgroundSourceInventory.Scan(bus)
+        LibraryBackgroundNativeOperand[] landingSources = LibraryBackgroundSourceInventory.Scan(bus)
             .Where(source => source.ListPointer ==
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
             .ToArray();
@@ -76,29 +76,31 @@ internal static class RoomSkyTilemapsVerification
             "compiled Landing Site transfer count matches the native list");
         for (int index = 0; index < landingSources.Length; index++)
         {
-            LibraryBackgroundSource native = landingSources[index];
+            LibraryBackgroundNativeOperand native = landingSources[index];
             LibraryBackgroundInstruction compiled = landingProgram.Instructions[index];
             CartridgeDoorHeader compiledDoor = compiled.Door ?? throw new InvalidOperationException("Verification requires compiled.Door.");
             AssertEqual(LibraryBackgroundCommand.TransferForDoor, native.Command,
                 $"Landing Site command {index} is door-selected");
             AssertEqual(DoorDefinitions.PointerOf(compiledDoor), (native.DoorPointer ?? throw new InvalidOperationException("Verification requires native.DoorPointer.")),
                 $"Landing Site command {index} door");
-            AssertEqual(compiled.SourceAddress, native.SourceAddress,
-                $"Landing Site command {index} sky source");
-            AssertEqual(compiled.FirstWord, (native.VramDestination ?? throw new InvalidOperationException("Verification requires native.VramDestination.")),
+            AssertEqual(LibraryBackgroundSourceKind.SkyPage, compiled.Source.Kind,
+                $"Landing Site command {index} copies a sky page");
+            AssertEqual(LibraryBackgroundOperandDecoding.Address(compiled.Source), native.SourceAddress,
+                $"Landing Site command {index} sky source {compiled.Source}");
+            AssertEqual(LibraryBackgroundOperands.DestinationWord(compiled.Destination), (native.VramDestination ?? throw new InvalidOperationException("Verification requires native.VramDestination.")),
                 $"Landing Site command {index} VRAM destination");
             AssertEqual(compiled.ByteCount, (native.TransferByteCount ?? throw new InvalidOperationException("Verification requires native.TransferByteCount.")),
                 $"Landing Site command {index} transfer size");
             _ = LandingSiteEntryState.Load(
                 NewSkyPageReadGuard(bus, blockLandingList: true), DoorDefinitions.PointerOf(compiledDoor));
-            AssertEqual(compiled.SourceAddress,
+            AssertEqual(compiled.Source,
                 LibraryBackgroundProgramDefinitions.GetDoorTransfer(
                     unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
-                    DoorDefinitions.PointerOf(compiledDoor)).SourceAddress,
+                    DoorDefinitions.PointerOf(compiledDoor)).Source,
                 $"Landing Site door {index} uses compiled sky selection without list ROM reads");
             var expectedVram = new SnesVram();
-            expectedVram.LoadBytes(compiled.FirstWord * 2,
-                ReadRetailSkyBytes(bus, compiled.SourceAddress, compiled.ByteCount));
+            expectedVram.LoadBytes(LibraryBackgroundOperands.DestinationWord(compiled.Destination) * 2,
+                ReadRetailSkyBytes(bus, LibraryBackgroundOperandDecoding.Address(compiled.Source), compiled.ByteCount));
             var compiledVram = new SnesVram();
             LibraryBackgroundReplay.Execute(compiledVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), compiledDoor, new LibraryBackgroundArtwork { SkyArt = stock });
             AssertTrue(expectedVram.ImageEquals(compiledVram),
@@ -141,8 +143,8 @@ internal static class RoomSkyTilemapsVerification
     private static MutableCartridgeReadGuard NewSkyPageReadGuard(ISnesAddressSpace source, bool blockLandingList = false)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= RoomSkyTilemapFormat.FirstSourceAddress and
-                < (RoomSkyTilemapFormat.FirstSourceAddress + RoomSkyTilemapFormat.TotalByteCount),
+        int firstPage = LibraryBackgroundOperands.SkyPageAddress(0);
+        guard.Forbid(address => address >= firstPage && address < firstPage + RoomSkyTilemapFormat.TotalByteCount,
             address => $"Scrolling sky reread installed visual source ${address:X6}.");
         if (blockLandingList)
             guard.Forbid(address => address >= LandingSiteRomData.LibraryBackgroundListAddress &&

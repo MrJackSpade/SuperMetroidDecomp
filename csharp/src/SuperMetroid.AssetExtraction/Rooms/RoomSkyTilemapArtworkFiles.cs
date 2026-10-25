@@ -13,8 +13,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 [CpuBusBoundary("codec: ROM bank-$8A sky tilemap pages → room sky tilemap artwork files")]
 public static class RoomSkyTilemapArtworkFiles
 {
-    /// <summary>Schema version recorded with the extracted sky-page manifest.</summary>
-    private const int FormatVersion = 1;
+    /// <summary>Schema version recorded with the extracted sky-page manifest; 2 names each page by its place rather than its cartridge address (#1414).</summary>
+    private const int FormatVersion = 2;
 
     /// <summary>Exports seven contiguous bank-$8A scrolling-sky pages to editable BG tile-word JSON and creates their hashed provenance manifest.</summary>
     /// <param name="bus">Cartridge import source for seven 32x32 tilemap pages beginning at $8A:B180.</param>
@@ -31,7 +31,7 @@ public static class RoomSkyTilemapArtworkFiles
         {
             string name = RoomSkyTilemapFormat.FileName(page);
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                RoomSkyTilemapFormat.SourceAddress(page), RoomSkyTilemapFormat.PageByteCount);
+                LibraryBackgroundOperands.SkyPageAddress(page), RoomSkyTilemapFormat.PageByteCount);
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);
@@ -89,6 +89,10 @@ public static class RoomSkyTilemapArtworkFiles
         }
         return new RoomSkyTilemapCatalog(pages);
     }
+
+    /// <summary>Each sky page's file name before #1414, which carried its cartridge source, and its current name.</summary>
+    internal static IReadOnlyDictionary<string, string> LegacyNames() => Enumerable.Range(0, RoomSkyTilemapFormat.PageCount).ToDictionary(
+        page => $"scrolling-sky-{LibraryBackgroundOperands.SkyPageAddress(page):X6}.json", RoomSkyTilemapFormat.FileName);
 
     /// <summary>Checks stock provenance, all seven page digests, and compilation of every fixed-size scrolling-sky page; ignores overrides.</summary>
     /// <param name="stockDirectory">Installed stock scrolling-sky directory.</param>

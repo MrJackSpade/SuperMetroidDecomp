@@ -40,18 +40,20 @@ internal static class LibraryBackgroundReplay
         {
             switch (instruction.Command)
             {
-                case LibraryBackgroundCommand.TransferToVram:
+                case LibraryBackgroundCommand.Transfer:
                     Transfer(staging, vram, instruction, artwork, characters);
                     break;
-                case LibraryBackgroundCommand.DecompressToWorkRam:
-                    staging.WriteDecompressed(instruction.StagingOffset, (artwork.TilemapArt ?? throw new InvalidOperationException(
-                        "Library-background decompression requires installed tilemaps.")).Get(instruction.SourceAddress).Bytes.Span,
-                        instruction.SourceAddress);
+                case LibraryBackgroundCommand.Decompress:
+                    if (instruction.Destination != LibraryBackgroundDestination.TilemapStaging || instruction.Source.Kind != LibraryBackgroundSourceKind.Tilemap)
+                        throw new InvalidDataException($"A decompression in list {program.Name} stages {instruction.Source} at {instruction.Destination}.");
+                    staging.WriteDecompressed(LibraryBackgroundStagingDefinitions.TilemapStagingBankOffset, (artwork.TilemapArt ?? throw new InvalidOperationException(
+                        "Library-background decompression requires installed tilemaps.")).Get(instruction.Source.Tilemap).Bytes.Span,
+                        instruction.Source);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                     FillAndTransfer(staging, vram, LibraryBackgroundStagingDefinitions.ClearFx);
                     break;
-                case LibraryBackgroundCommand.TransferToVramForKraid:
+                case LibraryBackgroundCommand.TransferForKraid:
                     Transfer(staging, vram, instruction, artwork, characters);
                     selectsKraidHudCharacters = true;
                     break;
@@ -69,7 +71,6 @@ internal static class LibraryBackgroundReplay
                     if (instruction.Door == activeDoor)
                         Transfer(staging, vram, instruction, artwork, characters);
                     break;
-                case LibraryBackgroundCommand.End:
                 default:
                     throw new InvalidDataException(
                         $"Unknown compiled library-background command {instruction.Command} in list {program.Name}.");
@@ -79,30 +80,27 @@ internal static class LibraryBackgroundReplay
     }
 
     /// <summary>
-    /// One transfer command: characters bind as the runtime binds them; a work-RAM source copies the staging; a sky page
+    /// One transfer command: characters bind as the runtime binds them; a staged source copies the staging; a sky page
     /// copies its installed rows.
     /// </summary>
-    /// <exception cref="InvalidDataException">The transfer is empty, or reads ROM that no installed artwork owns.</exception>
+    /// <exception cref="InvalidDataException">The transfer is empty, or reads a source no installed artwork owns.</exception>
     private static void Transfer(Staging staging, SnesVram vram, LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork,
         LibraryBackgroundCharacterArtwork characters)
     {
         if (transfer.ByteCount == 0)
-            throw new InvalidDataException($"Library-background transfer from ${transfer.SourceAddress:X6} uses unsupported DMA size zero.");
+            throw new InvalidDataException($"Library-background transfer from {transfer.Source} uses unsupported DMA size zero.");
         // The destination is an encoded VRAM word with the increment in its top bit, as the DMA's VMADD/VMAIN take it.
-        ushort destination = checked((ushort)transfer.FirstWord);
-        if (staging.TryRead(transfer.SourceAddress, transfer.ByteCount, out ReadOnlySpan<byte> staged))
+        ushort destination = LibraryBackgroundOperands.DestinationWord(transfer.Destination);
+        if (staging.TryRead(transfer.Source, transfer.ByteCount, out ReadOnlySpan<byte> staged))
             vram.ExecuteQueuedAssetWrite(staged, destination);
         else if (LibraryBackgroundLoader.TryBindTransferredCharacters(transfer, characters))
             return;
-        else if (artwork.SkyArt is { } skies && skies.TryResolve(transfer.SourceAddress, transfer.ByteCount, out ReadOnlyMemory<byte> sky))
-            vram.ExecuteQueuedAssetWrite(sky.Span, destination);
-        else if (transfer.SourceAddress >= (int)LibraryBackgroundStagingDefinitions.RomSourceAddressFloor && artwork.SkyArt is not null && artwork.HudArt is not null
-            && artwork.CharacterArt is not null)
-            // Every installed catalog is bound: a source none of them owns must not fall back to the cartridge's bytes.
-            throw new InvalidDataException(
-                $"Installed library-background art does not own ROM transfer ${transfer.SourceAddress:X6} ({transfer.ByteCount} bytes).");
+        else if (transfer.Source.Kind == LibraryBackgroundSourceKind.SkyPage && artwork.SkyArt is { } skies)
+            vram.ExecuteQueuedAssetWrite(skies.Page(transfer.Source.SkyPage, transfer.ByteCount).Span, destination);
         else
-            throw new InvalidDataException($"Library-background transfer ${transfer.SourceAddress:X6} has no installed artwork.");
+            // A source no bound catalog owns must not fall back to the cartridge's bytes.
+            throw new InvalidDataException(
+                $"Library-background transfer from {transfer.Source} ({transfer.ByteCount} bytes) has no installed artwork.");
     }
 
     /// <summary>Fills the staging as <paramref name="clear"/> names, then transfers it to its VRAM destination.</summary>
@@ -128,8 +126,27 @@ internal static class LibraryBackgroundReplay
             TryRead(address, byteCount, out ReadOnlySpan<byte> bytes) ? bytes
                 : throw new InvalidDataException($"Library-background work-RAM transfer ${address:X6}+{byteCount} has no staging.");
 
+        /// <summary>Whether <paramref name="source"/> is a staging holding <paramref name="byteCount"/> bytes, and those bytes.</summary>
+        /// <exception cref="InvalidDataException">The range leaves the staging.</exception>
+        public bool TryRead(LibraryBackgroundSource source, int byteCount, out ReadOnlySpan<byte> bytes)
+        {
+            int address = source.Kind switch
+            {
+                LibraryBackgroundSourceKind.TilemapStaging => (int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress,
+                LibraryBackgroundSourceKind.EnemyTilemapStaging => (int)LibraryBackgroundStagingDefinitions.EnemyBg2StagingAddress,
+                _ => -1,
+            };
+            if (address < 0)
+            {
+                bytes = default;
+                return false;
+            }
+            bytes = Read(address, byteCount);
+            return true;
+        }
+
         /// <summary>Whether <paramref name="address"/> and its <paramref name="byteCount"/> bytes lie in one staging, and those bytes.</summary>
-        public bool TryRead(int address, int byteCount, out ReadOnlySpan<byte> bytes)
+        private bool TryRead(int address, int byteCount, out ReadOnlySpan<byte> bytes)
         {
             if (Within(address, byteCount, (int)LibraryBackgroundStagingDefinitions.TilemapStagingAddress, LibraryBackgroundStagingDefinitions.TilemapStagingByteCount))
             {
@@ -147,9 +164,9 @@ internal static class LibraryBackgroundReplay
 
         /// <summary>Writes a decompressed tilemap at bank-$7E <paramref name="destination"/>.</summary>
         /// <exception cref="InvalidDataException">The tilemap leaves the staging.</exception>
-        public void WriteDecompressed(int destination, ReadOnlySpan<byte> bytes, int sourceAddress) =>
+        public void WriteDecompressed(int destination, ReadOnlySpan<byte> bytes, LibraryBackgroundSource source) =>
             bytes.CopyTo(tilemap.AsSpan(Offset(destination, bytes.Length,
-                $"Library-background decompression from ${sourceAddress:X6} to $7E:{destination:X4} leaves the tilemap staging buffer.")));
+                $"Library-background decompression of {source} to $7E:{destination:X4} leaves the tilemap staging buffer.")));
 
         /// <summary>Fills <paramref name="byteCount"/> bytes at bank-$7E <paramref name="destination"/> with <paramref name="value"/> words.</summary>
         /// <exception cref="InvalidDataException">The fill leaves the staging.</exception>

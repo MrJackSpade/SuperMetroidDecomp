@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -16,8 +17,8 @@ public static class RoomBgArtwork
     /// <summary>The characters of tileset <paramref name="set"/>.</summary>
     public static BgArtworkIdentity Tileset(RoomCharacterSet set) => new($"tileset characters {set}");
 
-    /// <summary>The characters a library background transfers from <paramref name="sourceAddress"/>.</summary>
-    public static BgArtworkIdentity Library(int sourceAddress) => new($"library characters ${sourceAddress:X6}");
+    /// <summary>The characters a library background transfers from <paramref name="source"/>.</summary>
+    public static BgArtworkIdentity Library(LibraryBackgroundSource source) => new($"library characters {source.Name}");
 
     /// <summary>The installed graphics of collectible <paramref name="kind"/>, two animation frames of four characters.</summary>
     public static BgArtworkIdentity Collectible(InWorldCollectibleKind kind) => new($"collectible {kind}");

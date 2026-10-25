@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -24,7 +23,7 @@ internal static class RoomBackgroundLibraryParityVerification
     {
         SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifyCompiledLibraryBackgroundPrograms), () => VerifyCompiledLibraryBackgroundPrograms(inventoryBus));
-        IReadOnlyList<LibraryBackgroundSource> sources =
+        IReadOnlyList<LibraryBackgroundNativeOperand> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
         RoomBackgroundTilemapCatalog backgrounds = installed.LoadRoomBackgroundTilemaps();
         RoomSkyTilemapCatalog skies = installed.LoadRoomSkyTilemaps();
@@ -34,7 +33,7 @@ internal static class RoomBackgroundLibraryParityVerification
 
         foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)
         {
-            LibraryBackgroundSource[] list = sources
+            LibraryBackgroundNativeOperand[] list = sources
                 .Where(source => source.ListPointer == program.Pointer).ToArray();
             // Zero tests the ordinary path. Each authored door pointer additionally
             // selects its conditional DMA; a list can contain more than one.
@@ -86,14 +85,14 @@ internal static class RoomBackgroundLibraryParityVerification
         ushort listPointer, int sourceAddress, ushort byteCount)
     {
         var bus = new TestAddressSpace();
-        int commandAddress = RoomAssetRomData.LibraryBackground.CommandBank | listPointer;
-        WriteTestWord(bus, commandAddress, (ushort)LibraryBackgroundCommand.TransferToVram);
+        int commandAddress = LibraryBackgroundOperandDecoding.CommandListBank | listPointer;
+        WriteTestWord(bus, commandAddress, LibraryBackgroundOperandDecoding.Word(LibraryBackgroundCommand.Transfer));
         WriteTestByte(bus, commandAddress + 2, unchecked((byte)sourceAddress));
         WriteTestByte(bus, commandAddress + 3, SnesLittleEndian.HighByte(unchecked((ushort)sourceAddress)));
         WriteTestByte(bus, commandAddress + 4, SnesLittleEndianConstants.BankByte(sourceAddress));
         WriteTestWord(bus, commandAddress + 5, 0x4800);
         WriteTestWord(bus, commandAddress + 7, byteCount);
-        WriteTestWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
+        WriteTestWord(bus, commandAddress + 9, LibraryBackgroundOperandDecoding.EndCommandWord);
         return bus;
     }
 
@@ -108,7 +107,9 @@ internal static class RoomBackgroundLibraryParityVerification
     /// A fully bound installation must never quietly fall back to stock ROM pixels
     /// when a direct-transfer source or size is absent from its presentation assets.
     /// The authored retail lists are covered above; these synthetic command lists
-    /// test the failure boundary that no retail list presently exercises.
+    /// test the failure boundary that no retail list presently exercises. A transfer from
+    /// ROM that names no library-background source cannot be compiled at all (#1414): its
+    /// list fails to decode, naming the source.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyInstalledBackgroundTransferFailures(
@@ -117,26 +118,17 @@ internal static class RoomBackgroundLibraryParityVerification
     {
         const ushort listPointer = 0xf000;
 
-        foreach ((int sourceAddress, ushort byteCount) in new[]
-        {
-            new VerifyInstalledBackgroundTransferFailuresCase(RoomSkyTilemapFormat.FirstSourceAddress, 2),
-            new VerifyInstalledBackgroundTransferFailuresCase(0x8a8000, 2),
-        })
-        {
-            TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, sourceAddress, byteCount);
-            try
-            {
-                LibraryBackgroundReplay.Execute(new SnesVram(), LibraryBackgroundProgramImporter.Read(bus, listPointer), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
-                throw new InvalidOperationException(
-                    $"Installed art silently accepted ROM transfer ${sourceAddress:X6}.");
-            }
-            catch (InvalidDataException error)
-            {
-                AssertTrue(error.Message.Contains($"${sourceAddress:X6}",
-                        StringComparison.Ordinal),
-                    "invalid installed background transfer identifies its ROM source");
-            }
-        }
+        var partialSky = new LibraryBackgroundProgram("partial sky page",
+            [new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.Sky(0), LibraryBackgroundDestination.BackgroundFirstPage, 2, null)]);
+        AssertThrows<InvalidDataException>(
+            () => LibraryBackgroundReplay.Execute(new SnesVram(), partialSky, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters }),
+            "installed art rejects a partial sky page");
+        const int unownedRomSource = 0x8a8000;
+        TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, unownedRomSource, 2);
+        InvalidDataException unowned = AssertThrows<InvalidDataException>(() => LibraryBackgroundProgramImporter.Read(bus, listPointer),
+            "a transfer from ROM no library-background source names does not compile");
+        AssertTrue(unowned.Message.Contains($"${unownedRomSource:X6}", StringComparison.Ordinal),
+            "the uncompiled background transfer identifies its ROM source");
 
         // A WRAM-sourced transfer remains a native streaming operation from the owned staging,
         // not a replacement artwork lookup: it must still transfer when all art catalogs are bound.

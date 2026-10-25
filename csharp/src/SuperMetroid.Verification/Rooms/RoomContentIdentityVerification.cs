@@ -122,12 +122,12 @@ internal static class RoomContentIdentityVerification
             colors[definition.PaletteAddress] = palette;
             metatiles[definition.BlockDefinitionsAddress] = blocks;
         }
-        var backgrounds = new Dictionary<int, RoomBackgroundTilemapAtlas>();
-        IEnumerable<int> pages = RoomBackgroundTilemapSources.All;
+        var backgrounds = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>();
+        IEnumerable<RoomBackgroundTilemap> pages = Enum.GetValues<RoomBackgroundTilemap>();
         if (reverse) pages = pages.Reverse();
-        foreach (int page in pages)
+        foreach (RoomBackgroundTilemap page in pages)
             backgrounds[page] = Page(edited == GameInstallationLayout.RoomBackgroundTilemapDirectoryName &&
-                page == RoomBackgroundTilemapSources.All[0]);
+                page == Enum.GetValues<RoomBackgroundTilemap>()[0]);
         RoomBackgroundTilemapAtlas[] skies = Enumerable.Range(0, RoomSkyTilemapFormat.PageCount)
             .Select(page => Page(edited == nameof(RoomSkyTilemapCatalog) && page == 0)).ToArray();
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;

@@ -25,16 +25,12 @@ internal static class RoomArtworkPresentationContractChecks
             class RoomArtConsumer {
                 void Inspect(RoomCharacterAtlasCatalog characters, RoomMetatileCatalog metatiles,
                     RoomStaticPaletteCatalog colors, RoomSkyTilemapCatalog sky, RoomBackgroundTilemapCatalog library) {
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress, RoomSkyTilemapFormat.PageByteCount, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 64, 64, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 2, RoomSkyTilemapFormat.PageByteCount, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 2, 64, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 1, 64, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + RoomSkyTilemapFormat.TotalByteCount - 64, 64, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + RoomSkyTilemapFormat.TotalByteCount - 2, 64, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress, 0, out _);
-                    sky.TryResolve(0, 0, out _);
-                    sky.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress - 1, int.MaxValue, out _);
+                    sky.Page(0, RoomSkyTilemapFormat.PageByteCount);
+                    sky.Page(RoomSkyTilemapFormat.PageCount - 1, RoomSkyTilemapFormat.PageByteCount);
+                    sky.Page(0, 64);
+                    sky.Page(RoomSkyTilemapFormat.PageCount, RoomSkyTilemapFormat.PageByteCount);
+                    sky.Page(-1, RoomSkyTilemapFormat.PageByteCount);
+                    sky.Page(0, 0);
                     library.Get(0);
                 }
             }
@@ -57,11 +53,11 @@ internal static class RoomArtworkPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 11, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
-        // The sky uploads whole aligned pages only; its rows are read from the pages, not transferred (#1347). So the
-        // first page and the two queries outside the pages qualify, and every partial-page transfer stays a finding.
-        Require(after.Classifications.Count == 3 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
-            after.Consumers.Count == 11, "whole sky pages and false queries qualify, not partial pages or bad transfers" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 7, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
+        // The sky copies whole pages only; its rows are read from the pages, not transferred (#1347). So the first and
+        // last whole pages qualify, and a partial page or a page outside the seven stays a finding (#1414).
+        Require(after.Classifications.Count == 2 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
+            after.Consumers.Count == 7, "whole sky pages qualify, not partial pages or pages outside the sky" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "RoomBackgroundTilemapCatalog.Get"),
             "an unowned background source must not borrow required graphics-set source closure");
     }

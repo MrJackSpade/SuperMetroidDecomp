@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -171,7 +172,7 @@ internal static class RoomAssetRomDataVerification
             int address = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;
             sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
         }
-        int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
+        int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
         sources[RoomCharacterAtlasFormat.SourceFileName(ghostSource)] = ghostSource;
         AssertEqual(sources.Count, files.Count, "one PNG per distinct retail room-character source");
 
@@ -278,13 +279,13 @@ internal static class RoomAssetRomDataVerification
         string description)
     {
         AssertEqual(
-            RoomAssetRomData.LibraryBackground.WorkRamBank | transfer.WorkRamDestination,
+            LibraryBackgroundListConstants.WorkRamBank | transfer.WorkRamDestination,
             transfer.WorkRamSourceAddress,
             $"{description} WRAM source corresponds to its fill destination");
         AssertTrue((transfer.ByteCount & 1) == 0,
             $"{description} transfer contains complete words");
         AssertTrue(transfer.WorkRamDestination + transfer.ByteCount <=
-            RoomAssetRomData.LibraryBackground.BankByteCount,
+            LibraryBackgroundListConstants.BankByteCount,
             $"{description} transfer remains in bank $7E");
         AssertTrue(transfer.VramDestination.Word + transfer.ByteCount / 2 <= 0x8000,
             $"{description} transfer remains in 64-KiB VRAM");

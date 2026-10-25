@@ -134,7 +134,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("IntroEyeTilemapPresentation", "FrameWords", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
         ("CeresDoorVisualCatalog", "LoadAnimationColors", "row") => new(0, CeresDoorVisualRomData.AnimationRowCount),
         ("CeresDoorVisualCatalog", "Mode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
-        ("RoomSkyTilemapCatalog", "Row", "page") => new(0, RoomSkyTilemapFormat.PageCount),
+        ("RoomSkyTilemapCatalog", "Row" or "Page", "page") => new(0, RoomSkyTilemapFormat.PageCount),
         ("RoomSkyTilemapCatalog", "Row", "row") => new(0, RoomSkyTilemapFormat.RowsPerPage),
         ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
         ("ChargeFlareSpriteCatalog", "Frame", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Count),

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -23,33 +24,30 @@ internal static class RoomBackgroundTilemapsVerification
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomBackgroundTilemapExtractor.Extract(bus);
         int[] sources = LibraryBackgroundSourceInventory.Scan(bus)
-            .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+            .Where(source => source.Command == LibraryBackgroundCommand.Decompress)
             .Select(source => source.SourceAddress).Distinct().Order().ToArray();
-        AssertEqual(RoomBackgroundTilemapFormat.RetailCompressedSourceCount, files.Count,
+        AssertEqual(sources.Length, files.Count,
             "one tilemap resource per distinct retail compressed background source");
-        foreach (int source in sources)
+        AssertTrue(sources.SequenceEqual(RoomBackgroundSourceDefinitions.Tilemaps.Values.Order()),
+            "every retail compressed background source is a named background tilemap");
+        // Each named tilemap's installed file (#1414) holds the words its cartridge source decompresses to.
+        var compiled = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>();
+        foreach ((RoomBackgroundTilemap tilemap, int source) in RoomBackgroundSourceDefinitions.Tilemaps)
         {
             byte[] native = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source);
             RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(
-                new MemoryStream(files[RoomBackgroundTilemapFormat.SourceFileName(source)],
+                new MemoryStream(files[RoomBackgroundTilemapFormat.FileName(tilemap)],
                     writable: false), native.Length);
             AssertTrue(atlas.Bytes.Span.SequenceEqual(native),
-                $"background tilemap ${source:X6} preserves all native tile words");
-        }
-
-        var compiled = new Dictionary<int, RoomBackgroundTilemapAtlas>();
-        foreach (int source in sources)
-        {
-            byte[] native = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source);
-            compiled.Add(source, RoomBackgroundTilemapAtlas.Load(
-                new MemoryStream(files[RoomBackgroundTilemapFormat.SourceFileName(source)],
-                    writable: false), native.Length));
+                $"background tilemap {tilemap} preserves all native tile words");
+            compiled.Add(tilemap, atlas);
         }
         var catalog = new RoomBackgroundTilemapCatalog(compiled);
         const ushort ceresList = 0xe4a5;
         int ceresSource = LibraryBackgroundSourceInventory.Scan(bus)
             .Single(source => source.ListPointer == ceresList &&
-                source.Command == LibraryBackgroundCommand.DecompressToWorkRam).SourceAddress;
+                source.Command == LibraryBackgroundCommand.Decompress).SourceAddress;
+        RoomBackgroundTilemap ceresTilemap = LibraryBackgroundOperandDecoding.DecompressedSource(ceresSource).Tilemap;
         var nativeVram = new SnesVram();
         var selectedVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
@@ -58,7 +56,7 @@ internal static class RoomBackgroundTilemapsVerification
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
         byte[] original = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), ceresSource);
-        JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapFormat.SourceFileName(ceresSource)])
+        JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapFormat.FileName(ceresTilemap)])
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
         JsonNode firstCell = edited.Required("pages").Required(0).Required("cells").Required(0);
         firstCell["tileColumn"] = (firstCell.Required("tileColumn").GetValue<int>() + 1)
@@ -69,7 +67,7 @@ internal static class RoomBackgroundTilemapsVerification
         AssertTrue(!modified.Bytes.Span[..2].SequenceEqual(original.AsSpan(0, 2)) &&
             modified.Bytes.Span[2..].SequenceEqual(original.AsSpan(2)),
             "editing one background tile reference changes only its native BG word");
-        compiled[ceresSource] = modified;
+        compiled[ceresTilemap] = modified;
         var editedVram = new SnesVram();
         LibraryBackgroundReplay.Execute(editedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = new RoomBackgroundTilemapCatalog(compiled) });
         AssertTrue(nativeVram.ReadWord(0x4800) != editedVram.ReadWord(0x4800) &&

@@ -124,7 +124,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShitroidEnemyState state,
         ShitroidColorTarget target)
     {
-        for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
+        for (int color = 0; color < ShitroidColorDefinitions.TargetColorCount; color++)
         {
             Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
@@ -773,7 +773,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
+        for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
         {
             Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);

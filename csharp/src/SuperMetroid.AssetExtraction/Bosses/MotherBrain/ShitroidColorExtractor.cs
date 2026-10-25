@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -21,21 +22,21 @@ public static class ShitroidColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var normal = new PaletteRgb5[ShitroidColorRomData.NormalFrameCount][];
+        var normal = new PaletteRgb5[ShitroidColorDefinitions.NormalFrameCount][];
         for (int frame = 0; frame < normal.Length; frame++)
-            normal[frame] = Read(ShitroidColorRomData.NormalCycle +
-                frame * ShitroidColorRomData.NormalColorsPerFrame * sizeof(ushort),
-                ShitroidColorRomData.NormalColorsPerFrame);
+            normal[frame] = Read(MotherBrainSourceDefinitions.Shitroid.NormalCycle +
+                frame * ShitroidColorDefinitions.NormalColorsPerFrame * MotherBrainSourceDefinitions.ColorWordBytes,
+                ShitroidColorDefinitions.NormalColorsPerFrame);
         return ShitroidColorFile.Write(new ShitroidColorDocument
         {
             Version = ShitroidColorFormat.Version,
             Normal = normal,
-            Sidehopper = Read(ShitroidColorRomData.SidehopperTarget,
-                ShitroidColorRomData.TargetColorCount),
-            Shitroid = Read(ShitroidColorRomData.ShitroidTarget,
-                ShitroidColorRomData.TargetColorCount),
-            DeadSidehopper = Read(ShitroidColorRomData.DeadSidehopperTarget,
-                ShitroidColorRomData.TargetColorCount),
+            Sidehopper = Read(MotherBrainSourceDefinitions.Shitroid.SidehopperTarget,
+                ShitroidColorDefinitions.TargetColorCount),
+            Shitroid = Read(MotherBrainSourceDefinitions.Shitroid.ShitroidTarget,
+                ShitroidColorDefinitions.TargetColorCount),
+            DeadSidehopper = Read(MotherBrainSourceDefinitions.Shitroid.DeadSidehopperTarget,
+                ShitroidColorDefinitions.TargetColorCount),
         });
 
         PaletteRgb5[] Read(int source, int count)

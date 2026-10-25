@@ -49,7 +49,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ZebetitePulsePaintDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.ShitroidColorCatalog", "shitroid-complete-live-color-images", ["NormalColor", "TargetColor"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ShitroidColorCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidColorRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidColorDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidInitialPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidInitialPalette.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/BabyMetroidCutsceneColorRomData.cs"),

@@ -54,9 +54,9 @@ internal static class EnemyColorPresentationContractChecks
                     ridley.ApplyReveal(cgram, NorfairRidleyPaletteRomData.RevealRowCount);
                     zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount - 1);
                     zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount);
-                    shitroid.NormalColor(ShitroidColorRomData.NormalFrameCount - 1, ShitroidColorRomData.NormalColorsPerFrame - 1);
-                    shitroid.NormalColor(0, ShitroidColorRomData.NormalColorsPerFrame);
-                    shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorRomData.TargetColorCount - 1);
+                    shitroid.NormalColor(ShitroidColorDefinitions.NormalFrameCount - 1, ShitroidColorDefinitions.NormalColorsPerFrame - 1);
+                    shitroid.NormalColor(0, ShitroidColorDefinitions.NormalColorsPerFrame);
+                    shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount - 1);
                     shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
                     mode7.Apply(cgram, CeresRidleyPaletteRomData.Mode7ZoomRowCount - 1);
                     mode7.Apply(cgram, CeresRidleyPaletteRomData.Mode7ZoomRowCount);

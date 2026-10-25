@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Harness;
@@ -28,12 +29,12 @@ internal static void VerifyGameOptionsRomDataCatalog()
 {
     const ushort packedTile = 0xe155;
     SnesBgTilemapWord selected = new SnesBgTilemapWord(packedTile)
-        .WithPaletteIndex(GameOptionsRomData.TilePalettes.Selected);
+        .WithPaletteIndex(GameOptionsDefinitions.TilePalettes.Selected);
     SnesBgTilemapWord unselected = selected
-        .WithPaletteIndex(GameOptionsRomData.TilePalettes.Unselected);
-    AssertEqual(GameOptionsRomData.TilePalettes.Selected, selected.PaletteIndex,
+        .WithPaletteIndex(GameOptionsDefinitions.TilePalettes.Unselected);
+    AssertEqual(GameOptionsDefinitions.TilePalettes.Selected, selected.PaletteIndex,
         "selected option uses typed tile palette");
-    AssertEqual(GameOptionsRomData.TilePalettes.Unselected, unselected.PaletteIndex,
+    AssertEqual(GameOptionsDefinitions.TilePalettes.Unselected, unselected.PaletteIndex,
         "unselected option uses typed tile palette");
     AssertEqual(new SnesBgTilemapWord(packedTile).CharacterIndex, unselected.CharacterIndex,
         "options palette replacement preserves character index");
@@ -72,28 +73,28 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     // production-ROM capture audits rather than embedding copyrighted menu data here.
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.Get(GameOptionsTilemap.Primary).Address,
-        GameOptionsRomData.TilemapByteCount,
+        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.Primary].Address,
+        GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerEnglish).Address,
-        GameOptionsRomData.TilemapByteCount,
+        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerEnglish].Address,
+        GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.Get(GameOptionsTilemap.ControllerJapanese).Address,
-        GameOptionsRomData.TilemapByteCount,
+        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerJapanese].Address,
+        GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialEnglish).Address,
-        GameOptionsRomData.TilemapByteCount,
+        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialEnglish].Address,
+        GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese).Address,
-        GameOptionsRomData.TilemapByteCount,
+        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialJapanese].Address,
+        GameOptionsDefinitions.TilemapByteCount,
         0);
     var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
     StepOptionsUntil(options, GameOptionsPhase.Main);

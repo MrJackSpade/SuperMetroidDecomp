@@ -1,4 +1,3 @@
-
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
 /// <summary>Source-reviewed title, opening and Ceres visual providers; no scene, timing or pixel-parity claim.</summary>

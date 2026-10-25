@@ -28,9 +28,9 @@ internal static class GameOptionsLanguagePalettesVerification
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(extracted);
         for (int setting = 0; setting < 2; setting++)
         {
-            GameOptionsToggleLayout layout = GameOptionsRomData.SpecialToggles.Layout(setting);
-            AssertEqual(setting == 0 ? GameOptionsRomData.SpecialToggles.IconCancel :
-                GameOptionsRomData.SpecialToggles.Moonwalk, layout, "named toggle layout alias");
+            GameOptionsToggleLayout layout = GameOptionsLayout.ToggleLayout(setting);
+            AssertEqual(setting == 0 ? GameOptionsLayout.IconCancel :
+                GameOptionsLayout.Moonwalk, layout, "named toggle layout alias");
             int[] actual = [layout.EnabledTop, layout.EnabledBottom, layout.DisabledTop, layout.DisabledBottom];
             for (int enabled = 0; enabled < 2; enabled++)
             {
@@ -50,7 +50,7 @@ internal static class GameOptionsLanguagePalettesVerification
                     AssertEqual((byte)0xa0, GameOptionsToggleGeometryRomByte(bus, operand - 1), "toggle LDY count opcode");
                     AssertEqual((byte)0xa9, GameOptionsToggleGeometryRomByte(bus, operand + 2), "toggle LDA palette opcode");
                     int count = ReadVerificationWord(bus, operand);
-                    AssertEqual(count, GameOptionsRomData.SpecialToggles.PaletteRegionByteCount,
+                    AssertEqual(count, GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount,
                         "native toggle box width");
                     int expectedPalette = ReadVerificationWord(bus, operand + 3) >> 10;
                     for (int cell = offset; cell < offset + count; cell += 2)
@@ -61,7 +61,7 @@ internal static class GameOptionsLanguagePalettesVerification
             }
         }
         foreach (int setting in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.SpecialToggles.Layout(setting),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsLayout.ToggleLayout(setting),
                 $"invalid toggle layout {setting}");
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
@@ -81,9 +81,9 @@ internal static class GameOptionsLanguagePalettesVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(new MemoryStream(extracted));
         AreaMapPresentationCatalog installed = RetailPresentationFixture();
-        AssertEqual(4, GameOptionsRomData.LanguagePaletteRegionCount, "native language highlight has four regions");
+        AssertEqual(4, GameOptionsDefinitions.LanguagePaletteRegionCount, "native language highlight has four regions");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.LanguagePaletteRegion(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsLayout.LanguagePaletteRegion(index),
                 $"unsupported language region {index}");
 
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for
@@ -107,7 +107,7 @@ internal static class GameOptionsLanguagePalettesVerification
                 int originalOffset = ReadVerificationWord(bus, instruction + 1);
                 int originalCount = ReadVerificationWord(bus, instruction + 4);
                 int expected = ReadVerificationWord(bus, instruction + 7) >> 10;
-                GameOptionsLanguagePaletteRegion region = GameOptionsRomData.LanguagePaletteRegion(regionIndex);
+                GameOptionsLanguagePaletteRegion region = GameOptionsLayout.LanguagePaletteRegion(regionIndex);
                 AssertEqual(originalOffset, region.ByteOffset, "language region offset");
                 AssertEqual(originalCount, region.ByteCount, "language region byte count");
                 AssertEqual(expected == 0, region.HighlightWhenJapanese == japanese, "language selection polarity");

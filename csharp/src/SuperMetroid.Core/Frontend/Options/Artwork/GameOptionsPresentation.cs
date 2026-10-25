@@ -57,7 +57,7 @@ public sealed class GameOptionsPresentation
         controllerLabelAnchors = document.ControllerLabelAnchors.Where((point, index) =>
             point != GameOptionsPresentationDefinitions.ControllerAnchor(index)).Any() ? document.ControllerLabelAnchors : null;
         languageRegions = document.LanguageRegions.Where((region, index) =>
-            region.HighlightWhenJapanese != GameOptionsRomData.LanguagePaletteRegion(index).HighlightWhenJapanese ||
+            region.HighlightWhenJapanese != GameOptionsLayout.LanguagePaletteRegion(index).HighlightWhenJapanese ||
             !region.Cells.SequenceEqual(GameOptionsPresentationDefinitions.LanguageCells(index))).Any()
             ? document.LanguageRegions : null;
         Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> toggles = GameOptionsPresentationDefinitions.Toggles.ToDictionary(
@@ -106,9 +106,9 @@ public sealed class GameOptionsPresentation
     {
         if (languageRegions is null)
         {
-            for (int index = 0; index < GameOptionsRomData.LanguagePaletteRegionCount; index++)
+            for (int index = 0; index < GameOptionsDefinitions.LanguagePaletteRegionCount; index++)
             {
-                var region = GameOptionsRomData.LanguagePaletteRegion(index);
+                var region = GameOptionsLayout.LanguagePaletteRegion(index);
                 ApplyPalette(primaryPage, GameOptionsPresentationDefinitions.LanguageCells(index),
                     japanese == region.HighlightWhenJapanese ? SelectedPalette : UnselectedPalette);
             }
@@ -125,7 +125,7 @@ public sealed class GameOptionsPresentation
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
     internal void ApplyControllerLabel(Span<byte> page, int action, int button)
     {
-        if ((uint)action >= GameOptionsRomData.Rows.ControllerActionCount)
+        if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
         SnesButton label = GameOptionsPresentationDefinitions.ControllerLabelButton(button);
         controllerLabels.TryGetValue(label, out ushort[]? cells);
@@ -133,7 +133,7 @@ public sealed class GameOptionsPresentation
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPresentationDefinitions.ControllerLabelWidth; column++)
         {
-            int destination = (anchor.Y + row) * GameOptionsRomData.MenuTilemapWidth +
+            int destination = (anchor.Y + row) * GameOptionsDefinitions.MenuTilemapWidth +
                 anchor.X + column;
             BinaryPrimitives.WriteUInt16LittleEndian(
                 page.Slice(destination * sizeof(ushort)),
@@ -232,7 +232,7 @@ public sealed class GameOptionsPresentation
         ValidateExactKeys(document.HeadingAnchors, menuNames, "options heading anchors");
         ValidateExactKeys(document.CursorAnchors, menuNames, "options cursor anchors");
         if (document.ControllerLabelAnchors is null ||
-            document.ControllerLabelAnchors.Length != GameOptionsRomData.Rows.ControllerActionCount)
+            document.ControllerLabelAnchors.Length != GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new InvalidDataException("Options require seven controller-label anchors.");
         if (document.LanguageRegions is null || document.LanguageRegions.Length != 4)
             throw new InvalidDataException("Options require four primary-language highlight regions.");
@@ -401,8 +401,8 @@ public sealed class GameOptionsPresentation
     private static void ValidateTilePoint(Position16<TilemapCells> point, string owner, Extent16<TilemapCells> size)
     {
         if (point.X < 0 || point.Y < 0 ||
-            point.X + size.X > GameOptionsRomData.MenuTilemapWidth ||
-            point.Y + size.Y > GameOptionsRomData.MenuTilemapHeight)
+            point.X + size.X > GameOptionsDefinitions.MenuTilemapWidth ||
+            point.Y + size.Y > GameOptionsDefinitions.MenuTilemapHeight)
             throw new InvalidDataException($"Options {owner} escapes the 32x32 page.");
     }
 

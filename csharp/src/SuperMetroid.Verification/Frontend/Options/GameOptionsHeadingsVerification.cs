@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
@@ -43,7 +44,7 @@ internal static class GameOptionsHeadingsVerification
         int[] entries = [0x82c5ff, 0x82c601, 0x82c603];
         for (int page = 0; page < 3; page++)
         {
-            ushort id = GameOptionsRomData.Spritemaps.Heading((GameOptionsPage)page);
+            ushort id = GameOptionsSourceDefinitions.HeadingSpritemaps[(GameOptionsPage)page];
             AssertEqual(entries[page], 0x82c569 + 2 * id, "original heading table entry identity");
             ushort pointer = ReadVerificationWord(rom, entries[page]);
             int list = 0x82f47e + 16 * page;
@@ -54,7 +55,7 @@ internal static class GameOptionsHeadingsVerification
                 "imported original heading part count");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.Spritemaps.Heading((GameOptionsPage)invalid),
+            AssertThrows<KeyNotFoundException>(() => _ = GameOptionsSourceDefinitions.HeadingSpritemaps[(GameOptionsPage)invalid],
                 "heading sprite selector bounds");
     }
 
@@ -63,19 +64,19 @@ internal static class GameOptionsHeadingsVerification
     {
         AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, 0x82f369), "native heading common Y LDA");
         ushort y = ReadVerificationWord(rom, 0x82f36a);
-        AssertEqual(y, GameOptionsRomData.Spritemaps.HeadingY, "native common heading Y");
+        AssertEqual(y, GameOptionsDefinitions.Headings.HeadingY, "native common heading Y");
         for (int page = 0; page < 3; page++)
         {
             int setup = 0x82f34b + 8 * page;
             AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
-            AssertEqual(x, GameOptionsRomData.Spritemaps.HeadingX((GameOptionsPage)page), "native heading X case");
+            AssertEqual(x, GameOptionsLayout.HeadingX((GameOptionsPage)page), "native heading X case");
             Position16<OamPixels> actual = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(OriginalHeadingPage(page))];
             AssertEqual((int)x, actual.X, "imported heading X");
             AssertEqual((int)y, actual.Y, "imported heading Y");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.Spritemaps.HeadingX((GameOptionsPage)invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsLayout.HeadingX((GameOptionsPage)invalid),
                 "heading anchor selector bounds");
     }
 

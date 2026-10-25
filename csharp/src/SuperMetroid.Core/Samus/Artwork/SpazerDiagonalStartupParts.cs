@@ -20,7 +20,7 @@ internal readonly struct SpazerDiagonalStartupParts(int group, int pairs) : IRea
             bool flipX = group != 0, flipY = group == 2;
             if (!flipX) x = -size - x;
             if (flipY) y = -size - y;
-            var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
+            var flips = (flipX ? TileFlip.Horizontal : 0) | (flipY ? TileFlip.Vertical : 0);
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(ProjectileSpritePartDefinitions.SpazerDiagonalGlyph - index % 2, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }

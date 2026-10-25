@@ -126,8 +126,8 @@ public class TitleGraphicsPresentation
                     throw new InvalidDataException($"Title frame {frame.Sprite} part {index} is invalid.");
                 int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
                 var attributes = SnesObjAttributeWord.Create(tile, 0, part.Priority,
-                    (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                    (part.FlipY ? SnesTileFlipFlags.Vertical : 0));
+                    (part.FlipX ? TileFlip.Horizontal : 0) |
+                    (part.FlipY ? TileFlip.Vertical : 0));
                 parts[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                     new SnesSpritemapYByte(unchecked((byte)part.OffsetY)), attributes, InheritPalette: true);
             }

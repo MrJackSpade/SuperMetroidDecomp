@@ -166,7 +166,7 @@ internal static class MapMarkerGeometry
             default:
                 throw new InvalidOperationException($"Undefined MapSpriteId {id}.");
         }
-        var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
+        var flips = (flipX ? TileFlip.Horizontal : 0) | (flipY ? TileFlip.Vertical : 0);
         return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
             SnesObjAttributeWord.Create(tile, 0, priority, flips), true);
     }

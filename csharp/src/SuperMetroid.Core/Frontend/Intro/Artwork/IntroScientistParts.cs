@@ -24,12 +24,12 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int x, y, tile;
             bool large = false;
-            SnesTileFlipFlags flips = 0;
+            TileFlip flips = 0;
             if (frame < 3)
             {
                 x = -1 - 7 * index;
                 y = 0;
-                flips = index == 0 ? SnesTileFlipFlags.Horizontal : 0;
+                flips = index == 0 ? TileFlip.Horizontal : 0;
                 tile = frame == 0 ? IntroScientistCellDefinitions.InitialArrow
                     : IntroScientistCellDefinitions.ArrowColumn + 16 * (frame - 1);
             }

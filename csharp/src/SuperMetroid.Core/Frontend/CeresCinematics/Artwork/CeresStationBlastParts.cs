@@ -84,8 +84,8 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                     tile = CeresStationBlastCellDefinitions.DetachedCore;
                 }
             }
-            var flips = (x >= 0 ? SnesTileFlipFlags.Horizontal : 0)
-                | (y >= 0 ? SnesTileFlipFlags.Vertical : 0);
+            var flips = (x >= 0 ? TileFlip.Horizontal : 0)
+                | (y >= 0 ? TileFlip.Vertical : 0);
             return new(SnesSpritemapXWord.Create(x, size == 16), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }

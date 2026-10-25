@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
@@ -24,7 +25,7 @@ internal static class CharacterSpriteDrawAccess
         internal int Priority => Character(draw).Priority;
 
         /// <summary>Mirrors the whole frame about its origin.</summary>
-        internal SnesTileFlipFlags Flip => Character(draw).Flip;
+        internal TileFlip Flip => Character(draw).Flip;
 
         /// <summary>Places one part on the screen.</summary>
         internal SpriteScreenPart Place(int index) => Character(draw).Place(index);

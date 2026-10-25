@@ -24,16 +24,16 @@ internal static class SpazerCompositionGeometryDefinitions
     internal const int HorizontalStripOriginY = -TileSize / 2;
 
     /// <summary>$93:D10E..D842: how each seed direction mirrors its cells.</summary>
-    internal static readonly IReadOnlyDictionary<SpazerSeedDirection, SnesTileFlipFlags> SeedFlips =
-        new Dictionary<SpazerSeedDirection, SnesTileFlipFlags>
+    internal static readonly IReadOnlyDictionary<SpazerSeedDirection, TileFlip> SeedFlips =
+        new Dictionary<SpazerSeedDirection, TileFlip>
         {
-            [SpazerSeedDirection.UpRight] = SnesTileFlipFlags.Horizontal,
-            [SpazerSeedDirection.DownRight] = SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical,
-            [SpazerSeedDirection.DownLeft] = SnesTileFlipFlags.Vertical,
-            [SpazerSeedDirection.UpLeft] = SnesTileFlipFlags.None,
-            [SpazerSeedDirection.Down] = SnesTileFlipFlags.Vertical,
-            [SpazerSeedDirection.Left] = SnesTileFlipFlags.None,
-            [SpazerSeedDirection.Up] = SnesTileFlipFlags.None,
-            [SpazerSeedDirection.Right] = SnesTileFlipFlags.Horizontal,
+            [SpazerSeedDirection.UpRight] = TileFlip.Horizontal,
+            [SpazerSeedDirection.DownRight] = TileFlip.Horizontal | TileFlip.Vertical,
+            [SpazerSeedDirection.DownLeft] = TileFlip.Vertical,
+            [SpazerSeedDirection.UpLeft] = TileFlip.None,
+            [SpazerSeedDirection.Down] = TileFlip.Vertical,
+            [SpazerSeedDirection.Left] = TileFlip.None,
+            [SpazerSeedDirection.Up] = TileFlip.None,
+            [SpazerSeedDirection.Right] = TileFlip.Horizontal,
         };
 }

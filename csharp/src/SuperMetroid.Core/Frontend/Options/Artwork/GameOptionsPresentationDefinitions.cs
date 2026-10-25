@@ -141,17 +141,17 @@ public static class GameOptionsPresentationDefinitions
         int row = cell / ControllerLabelWidth;
         int column = cell % ControllerLabelWidth;
         int tile;
-        SnesTileFlipFlags flips = SnesTileFlipFlags.None;
+        TileFlip flips = TileFlip.None;
         switch (label)
         {
             case ControllerButton.A:
             case ControllerButton.Y:
                 tile = column == 2 ? ButtonPaddingTile : (label == ControllerButton.A ? AButtonTile : YButtonTile) + row * ButtonAtlasRowStride;
-                if (column == 1) flips = SnesTileFlipFlags.Horizontal;
+                if (column == 1) flips = TileFlip.Horizontal;
                 break;
             case ControllerButton.X:
                 tile = column == 2 ? ButtonPaddingTile : XButtonTile + (row ^ column) * ButtonAtlasRowStride;
-                if (column == 1) flips = SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical;
+                if (column == 1) flips = TileFlip.Horizontal | TileFlip.Vertical;
                 break;
             case ControllerButton.B:
                 tile = column == 2 ? ButtonPaddingTile : BButtonTile + column + row * ButtonAtlasRowStride;
@@ -163,8 +163,8 @@ public static class GameOptionsPresentationDefinitions
             case ControllerButton.R:
                 tile = column == 1 ? (label == ControllerButton.L ? LeftShoulderTile : RightShoulderTile) + row * ButtonAtlasRowStride : ShoulderCornerTile;
                 if (column != 1)
-                    flips = (row == 1 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)
-                        | (column == 2 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None);
+                    flips = (row == 1 ? TileFlip.Vertical : TileFlip.None)
+                        | (column == 2 ? TileFlip.Horizontal : TileFlip.None);
                 break;
             case ControllerButton.None:
             case ControllerButton.Right:

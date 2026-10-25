@@ -28,7 +28,7 @@ internal sealed class CeresReflectedStarParts(SpriteComposition source) : IReadO
             int x = ((-part.X.SignedOffset - size + 256) & 511) - 256;
             return new(SnesSpritemapXWord.Create(x, part.X.IsLarge), part.Y,
                 SnesObjAttributeWord.Create(part.Attributes.TileNumber, part.Attributes.PaletteIndex,
-                    part.Attributes.Priority, part.Attributes.FlipFlags ^ SnesTileFlipFlags.Horizontal), part.InheritPalette);
+                    part.Attributes.Priority, part.Attributes.FlipFlags ^ TileFlip.Horizontal), part.InheritPalette);
         }
     }
     /// <summary>Yields reflected source parts 2..24 in their original order.</summary>

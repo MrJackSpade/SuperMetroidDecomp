@@ -29,9 +29,9 @@ internal static class IntroCinematicSpriteCompiler
                 part.TileRow > TileRows - part.Size / 8)
                 throw new InvalidDataException(
                     $"Opening sprite {name} part {index} has invalid visual fields.");
-            SnesTileFlipFlags flips =
-                (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
+            TileFlip flips =
+                (part.FlipX ? TileFlip.Horizontal : 0) |
+                (part.FlipY ? TileFlip.Vertical : 0);
             compiled[index] = new CompiledSpritePart(
                 SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                 new SnesSpritemapYByte(unchecked((byte)part.OffsetY)),

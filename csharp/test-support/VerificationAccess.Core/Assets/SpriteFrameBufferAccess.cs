@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
@@ -69,7 +70,7 @@ internal static class SpriteFrameBufferAccess
                         16 => true,
                         _ => throw new InvalidDataException($"{entry} has a {placed.Size.X}-pixel part, not a gameplay OBJ size."),
                     };
-                    var flips = (placed.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (placed.FlipY ? SnesTileFlipFlags.Vertical : 0);
+                    var flips = (placed.FlipX ? TileFlip.Horizontal : 0) | (placed.FlipY ? TileFlip.Vertical : 0);
                     Write(placed.Position.X, placed.Position.Y,
                         SnesObjAttributeWord.Create(baseCharacter + placed.Character, placed.Palette, placed.Priority, flips), large);
                 }

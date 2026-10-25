@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Artwork;
@@ -42,7 +43,7 @@ internal static class SamusSpritemapDrawsAccess
             // A spritemap that names a character beyond its own sheet reads the rest of the OBJ table there.
             SpriteArtwork characters = frame.LastCharacter < artwork.Characters.CharacterCount
                 ? artwork.Characters : artwork.PageCharacters();
-            return SpriteFrameBufferAccess.Assemble([new CharacterSpriteDraw(source, frame, characters, origin, SnesTileFlipFlags.None, 0, 0)],
+            return SpriteFrameBufferAccess.Assemble([new CharacterSpriteDraw(source, frame, characters, origin, TileFlip.None, 0, 0)],
                 parkUnused: false);
         }
         // A zero entry in the installed pointer table dereferences $92:0000, direct-page scratch. Its parts would need

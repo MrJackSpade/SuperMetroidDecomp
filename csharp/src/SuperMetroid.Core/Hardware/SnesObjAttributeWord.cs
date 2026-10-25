@@ -27,11 +27,11 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Gets only the palette field in its packed bit positions, suitable for native palette composition.</summary>
     public ushort PaletteBits => unchecked((ushort)(Raw & PaletteFieldMask));
     /// <summary>Gets both reflection flags without including tile, palette, or priority bits.</summary>
-    public SnesTileFlipFlags FlipFlags => (SnesTileFlipFlags)(Raw & FlipMask);
+    public TileFlip FlipFlags => (TileFlip)(Raw & FlipMask);
     /// <summary>Gets whether the object's pixels are drawn in reverse horizontal order.</summary>
-    public bool FlipHorizontally => (FlipFlags & SnesTileFlipFlags.Horizontal) != 0;
+    public bool FlipHorizontally => (FlipFlags & TileFlip.Horizontal) != 0;
     /// <summary>Gets whether the object's rows are drawn in reverse vertical order.</summary>
-    public bool FlipVertically => (FlipFlags & SnesTileFlipFlags.Vertical) != 0;
+    public bool FlipVertically => (FlipFlags & TileFlip.Vertical) != 0;
 
     /// <summary>Bits 9 through 11 are the only bits accepted by palette-fragment operations.</summary>
     private const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
@@ -41,7 +41,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
         int tileNumber,
         int paletteIndex,
         int priority,
-        SnesTileFlipFlags flips = SnesTileFlipFlags.None)
+        TileFlip flips = TileFlip.None)
     {
         if ((uint)tileNumber > TileNumberMask)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));
@@ -97,9 +97,9 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
         new(unchecked((ushort)(Raw | attributes.Raw)));
 
     /// <summary>Rejects unsupported reflection bits before composing an OBJ attribute word.</summary>
-    private static void ValidateFlips(SnesTileFlipFlags flips)
+    private static void ValidateFlips(TileFlip flips)
     {
-        if ((flips & ~(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)) != 0)
+        if ((flips & ~(TileFlip.Horizontal | TileFlip.Vertical)) != 0)
             throw new ArgumentOutOfRangeException(nameof(flips));
     }
 

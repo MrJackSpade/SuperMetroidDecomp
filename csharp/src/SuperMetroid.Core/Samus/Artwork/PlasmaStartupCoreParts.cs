@@ -23,7 +23,7 @@ internal readonly struct PlasmaStartupCoreParts(int group) : IReadOnlyList<Compi
             if (reflected) x = -size - x;
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(-size / 2),
                 SnesObjAttributeWord.Create(ProjectileSpritePartDefinitions.SpazerDiagonalGlyph - index, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority,
-                    reflected ? SnesTileFlipFlags.Horizontal : 0), false);
+                    reflected ? TileFlip.Horizontal : 0), false);
         }
     }
     /// <summary>Yields the selected startup core's one or two OAM entries.</summary>

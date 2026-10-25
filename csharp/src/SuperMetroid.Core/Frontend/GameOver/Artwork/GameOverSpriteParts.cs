@@ -49,12 +49,12 @@ internal sealed class GameOverSpriteParts : IReadOnlyList<CompiledSpritePart>
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             if (!Shell)
                 return new(SnesSpritemapXWord.Create(-8, true), SnesSpritemapYByte.Create(-8),
-                    SnesObjAttributeWord.Create(Tile, 0, 3, SnesTileFlipFlags.None), true);
+                    SnesObjAttributeWord.Create(Tile, 0, 3, TileFlip.None), true);
             // The eight-pixel caps lie outside the centered sixteen-pixel Baby region.
             bool left = (index & 1) != 0;
             bool upper = index >= 2;
-            var flips = (left ? SnesTileFlipFlags.None : SnesTileFlipFlags.Horizontal) |
-                (upper ? SnesTileFlipFlags.None : SnesTileFlipFlags.Vertical);
+            var flips = (left ? TileFlip.None : TileFlip.Horizontal) |
+                (upper ? TileFlip.None : TileFlip.Vertical);
             return new(SnesSpritemapXWord.Create(left ? -8 : 0, false), SnesSpritemapYByte.Create(upper ? -16 : 8),
                 SnesObjAttributeWord.Create(Tile, 0, 3, flips), true);
         }

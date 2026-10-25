@@ -58,9 +58,9 @@ public sealed class RoomMetatileAtlas
                 (uint)cell.Palette >= RoomMetatileFormat.PaletteCount)
                 throw new InvalidDataException(
                     $"Room metatile {block} {quadrant} has an invalid tile or palette index.");
-            SnesTileFlipFlags flips =
-                (cell.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                (cell.FlipY ? SnesTileFlipFlags.Vertical : 0);
+            TileFlip flips =
+                (cell.FlipX ? TileFlip.Horizontal : 0) |
+                (cell.FlipY ? TileFlip.Vertical : 0);
             BinaryPrimitives.WriteUInt16LittleEndian(
                 bytes.AsSpan(block * RoomMetatileFormat.BytesPerBlock + index * sizeof(ushort)),
                 SnesBgTilemapWord.Create(

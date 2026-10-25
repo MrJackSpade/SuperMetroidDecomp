@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -480,15 +481,15 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(0x155, bgEntry.CharacterIndex, "BG tile character field");
     AssertEqual(5, bgEntry.PaletteIndex, "BG tile palette field");
     AssertTrue(bgEntry.HasPriority, "BG tile priority bit");
-    AssertEqual(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical,
+    AssertEqual(TileFlip.Horizontal | TileFlip.Vertical,
         bgEntry.FlipFlags, "BG tile flip flags");
-    AssertEqual(0x7555, bgEntry.ToggleFlips(SnesTileFlipFlags.Vertical),
+    AssertEqual(0x7555, bgEntry.ToggleFlips(TileFlip.Vertical),
         "BG tile toggles only vertical flip");
     SnesBgTilemapWord encodedBg = SnesBgTilemapWord.Create(
         characterIndex: 0x155,
         paletteIndex: 5,
         priority: true,
-        SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical);
+        TileFlip.Horizontal | TileFlip.Vertical);
     AssertEqual(bgEntry, encodedBg, "BG tile encode/decode round trip");
     AssertEqual(0xd955, encodedBg.WithPaletteIndex(6).WithPriority(false),
         "BG tile field replacement preserves character and flips");
@@ -503,12 +504,12 @@ internal static void VerifyTypedNativeWords()
         tileNumber: 0x1ab,
         paletteIndex: 6,
         priority: 2,
-        SnesTileFlipFlags.Horizontal);
+        TileFlip.Horizontal);
     AssertEqual(objEntry, encodedObj, "OBJ attribute encode/decode round trip");
     AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1),
         "OBJ palette replacement preserves tile, priority, and flips");
     AssertEqual(0x6e00, SnesObjPalettes.Palette(7).Or(
-            SnesObjAttributeWord.Create(0, 0, 2, SnesTileFlipFlags.Horizontal)),
+            SnesObjAttributeWord.Create(0, 0, 2, TileFlip.Horizontal)),
         "typed OBJ palette fragment composes with priority and flip fields");
     SnesOamHighTablePair highPair = SnesOamHighTablePair.FromSprite(
         screenX: 0x0100,

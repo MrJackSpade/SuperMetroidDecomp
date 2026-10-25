@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -1010,7 +1011,7 @@ internal static class LookupStream2Verification
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
             [EnemyFrameId.DeadTorizoStationary] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
-                SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
+                SnesObjAttributeWord.Create(0, 7, 3, TileFlip.Horizontal))]),
         };
         var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationary] = EnemyFrameId.DeadTorizoStationary };
         var display = new EnemySpritemapCatalog(displayParts, displayBindings);
@@ -1379,7 +1380,7 @@ internal static class LookupStream2Verification
                     var appearance = frames[ProjectileTrailNative.Name(other)];
                     ushort expected = SnesObjAttributeWord.Create(appearance.TileRow * 16 + appearance.TileColumn,
                         appearance.Palette, appearance.Priority,
-                        (appearance.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (appearance.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
+                        (appearance.FlipX ? TileFlip.Horizontal : 0) | (appearance.FlipY ? TileFlip.Vertical : 0)).Raw;
                     AssertEqual(expected, catalog.Resolve(other), "Every independently edited trail field survives");
                 }
             }

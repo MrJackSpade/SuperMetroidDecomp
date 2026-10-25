@@ -17,10 +17,10 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     private const ushort FlipMask = 0xc000;
 
     /// <summary>Bit 14, the horizontal-mirror flag.</summary>
-    internal const ushort HorizontalFlipMask = (ushort)SnesTileFlipFlags.Horizontal;
+    internal const ushort HorizontalFlipMask = (ushort)TileFlip.Horizontal;
 
     /// <summary>Bit 15, the vertical-mirror flag.</summary>
-    internal const ushort VerticalFlipMask = (ushort)SnesTileFlipFlags.Vertical;
+    internal const ushort VerticalFlipMask = (ushort)TileFlip.Vertical;
 
     /// <summary>Gets the ten-bit character number, from 0 through 1023, relative to the background's character base.</summary>
     public int CharacterIndex => Raw & CharacterMask;
@@ -29,17 +29,17 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// <summary>Gets whether bit 13 selects this background tile's higher priority tier.</summary>
     public bool HasPriority => (Raw & PriorityMask) != 0;
     /// <summary>Gets the horizontal and vertical reflection bits in their original packed positions.</summary>
-    public SnesTileFlipFlags FlipFlags => (SnesTileFlipFlags)(Raw & FlipMask);
+    public TileFlip FlipFlags => (TileFlip)(Raw & FlipMask);
     /// <summary>Gets whether pixels are reflected across the tile's horizontal axis of traversal.</summary>
-    public bool FlipHorizontally => (FlipFlags & SnesTileFlipFlags.Horizontal) != 0;
+    public bool FlipHorizontally => (FlipFlags & TileFlip.Horizontal) != 0;
     /// <summary>Gets whether rows are drawn in reverse vertical order.</summary>
-    public bool FlipVertically => (FlipFlags & SnesTileFlipFlags.Vertical) != 0;
+    public bool FlipVertically => (FlipFlags & TileFlip.Vertical) != 0;
 
     /// <summary>
     /// Toggles only the requested PPU flip bits, exactly matching the XOR performed while
     /// expanding a flipped 16×16 room block into four 8×8 entries.
     /// </summary>
-    public SnesBgTilemapWord ToggleFlips(SnesTileFlipFlags flags)
+    public SnesBgTilemapWord ToggleFlips(TileFlip flags)
     {
         ValidateFlips(flags);
         return new(unchecked((ushort)(Raw ^ (ushort)flags)));
@@ -50,7 +50,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
         int characterIndex,
         int paletteIndex,
         bool priority,
-        SnesTileFlipFlags flips = SnesTileFlipFlags.None)
+        TileFlip flips = TileFlip.None)
     {
         if ((uint)characterIndex > CharacterMask)
             throw new ArgumentOutOfRangeException(nameof(characterIndex));
@@ -88,9 +88,9 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     }
 
     /// <summary>Rejects flags outside the two reflection bits before packing a background word.</summary>
-    private static void ValidateFlips(SnesTileFlipFlags flips)
+    private static void ValidateFlips(TileFlip flips)
     {
-        if ((flips & ~(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)) != 0)
+        if ((flips & ~(TileFlip.Horizontal | TileFlip.Vertical)) != 0)
             throw new ArgumentOutOfRangeException(nameof(flips));
     }
 

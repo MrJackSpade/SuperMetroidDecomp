@@ -52,9 +52,9 @@ public sealed class RoomBackgroundTilemapAtlas
                     (uint)definition.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
                     throw new InvalidDataException(
                         $"Room background page {page} cell {cell} has an invalid tile or palette.");
-                SnesTileFlipFlags flips =
-                    (definition.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                    (definition.FlipY ? SnesTileFlipFlags.Vertical : 0);
+                TileFlip flips =
+                    (definition.FlipX ? TileFlip.Horizontal : 0) |
+                    (definition.FlipY ? TileFlip.Vertical : 0);
                 BinaryPrimitives.WriteUInt16LittleEndian(
                     bytes.AsSpan((page * RoomBackgroundTilemapFormat.CellsPerPage + cell) * 2),
                     SnesBgTilemapWord.Create(

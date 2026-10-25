@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using System.Text.Json;
@@ -157,7 +158,7 @@ internal static class PpuLayoutBoundaryVerification
     {
         var vram = new SnesVram();
         var bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
-        SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, SnesTileFlipFlags.Vertical);
+        SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, TileFlip.Vertical);
         bg1.Write([tile.Raw], 0x41);
         AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
         AssertEqual(SnesLittleEndian.LowByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
@@ -173,7 +174,7 @@ internal static class PpuLayoutBoundaryVerification
 
         var oam = new OamBuffer();
         oam.BeginFrame();
-        SnesObjAttributeWord attributes = SnesObjAttributeWord.Create(0x1c3, paletteIndex: 6, priority: 2, SnesTileFlipFlags.Horizontal);
+        SnesObjAttributeWord attributes = SnesObjAttributeWord.Create(0x1c3, paletteIndex: 6, priority: 2, TileFlip.Horizontal);
         oam.AddRawSmallSprite(new Position16<SpritePixels>(0x01f0, 0x0080), attributes);
         OamEntry entry = oam.GetEntry(0);
         AssertEqual(new OamEntry(new Position16<SpritePixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,

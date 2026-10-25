@@ -72,13 +72,13 @@ public static class PauseBackdropDefinitions
     {
         int row = cell / Columns, column = cell % Columns;
         if (row is >= 6 and <= 23)
-            return column is 0 or 31 ? Styled(Side, flips: (column == 0 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None)) : InsetWord;
+            return column is 0 or 31 ? Styled(Side, flips: (column == 0 ? TileFlip.Horizontal : TileFlip.None)) : InsetWord;
         if (row == 24)
-            return Styled(column is 0 or 31 ? Corner : Bar, flips: (column == 0 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) | SnesTileFlipFlags.Vertical);
+            return Styled(column is 0 or 31 ? Corner : Bar, flips: (column == 0 ? TileFlip.Horizontal : TileFlip.None) | TileFlip.Vertical);
         if (row == 5)
         {
-            if (column is 0 or 31) return Styled(Corner, flips: (column == 0 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None));
-            if (column is 9 or 22) return Styled(TitleEnd, flips: (column == 9 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None));
+            if (column is 0 or 31) return Styled(Corner, flips: (column == 0 ? TileFlip.Horizontal : TileFlip.None));
+            if (column is 9 or 22) return Styled(TitleEnd, flips: (column == 9 ? TileFlip.Horizontal : TileFlip.None));
             return column is >= 10 and <= 21 ? BlankWord : Styled(Bar);
         }
         if (row is 25 or 26)
@@ -86,10 +86,10 @@ public static class PauseBackdropDefinitions
             int lower = (row - 25) * ControlAtlasStride;
             if (column is >= 1 and <= 4) return Styled(ShoulderButton + column - 1 + lower);
             if (column is >= 5 and <= 9) return Styled(MapButton + column - 5 + lower);
-            if (column is 10 or 21) return Styled(ControlSeparator, flips: (column == 10 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None));
+            if (column is 10 or 21) return Styled(ControlSeparator, flips: (column == 10 ? TileFlip.Horizontal : TileFlip.None));
             if (column is >= 12 and <= 15) return Styled(ExitButton + column - 12 + lower);
             if (column is >= 16 and <= 19)
-                return column == 19 && row == 25 ? Styled(StartButton, flips: SnesTileFlipFlags.Horizontal)
+                return column == 19 && row == 25 ? Styled(StartButton, flips: TileFlip.Horizontal)
                     : Styled(StartButton + column - 16 + lower);
             if (column is >= 22 and <= 26) return Styled(SamusButton + column - 22 + lower);
             if (column is 27 or 30) return Styled(ShoulderButton + column - 27 + lower);
@@ -99,6 +99,6 @@ public static class PauseBackdropDefinitions
     }
 
     /// <summary>Applies stock palette and priority bits with optional tile flips to a frame glyph.</summary>
-    private static ushort Styled(int glyph, SnesTileFlipFlags flips = SnesTileFlipFlags.None) =>
+    private static ushort Styled(int glyph, TileFlip flips = TileFlip.None) =>
         new SnesBgTilemapWord(unchecked((ushort)(0x2800 | glyph))).ToggleFlips(flips).Raw;
 }

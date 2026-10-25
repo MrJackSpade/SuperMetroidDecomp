@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
 /// <summary>Physical DMA-record availability, independently reviewed from Samus placement tables.</summary>
@@ -29,7 +31,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Movement/SamusMovementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapPoseDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesTileFlipFlags.cs"),
+             new("csharp/src/SuperMetroid.Core/Hardware/TileFlip.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),

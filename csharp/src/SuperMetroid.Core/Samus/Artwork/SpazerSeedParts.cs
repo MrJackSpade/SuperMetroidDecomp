@@ -22,14 +22,14 @@ internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSprit
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int size = SpazerCompositionGeometryDefinitions.TileSize;
             SpazerSeedDirection direction = PhaseDirections[pose];
-            SnesTileFlipFlags flips = SpazerCompositionGeometryDefinitions.SeedFlips[direction];
+            TileFlip flips = SpazerCompositionGeometryDefinitions.SeedFlips[direction];
             int x, y, tile;
             if (pose < 4)
             {
                 x = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX + (index / 2 + index % 2) * size;
                 y = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY - (index / 2) * size;
-                if (!flips.HasFlag(SnesTileFlipFlags.Horizontal)) x = -size - x;
-                if (flips.HasFlag(SnesTileFlipFlags.Vertical)) y = -size - y;
+                if (!flips.HasFlag(TileFlip.Horizontal)) x = -size - x;
+                if (flips.HasFlag(TileFlip.Vertical)) y = -size - y;
                 tile = ProjectileSpritePartDefinitions.SpazerDiagonalGlyph - index % 2;
             }
             else

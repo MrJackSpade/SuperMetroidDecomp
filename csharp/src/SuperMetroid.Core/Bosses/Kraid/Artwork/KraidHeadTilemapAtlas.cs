@@ -42,9 +42,9 @@ public sealed class KraidHeadTilemapAtlas
                 (uint)cell.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
                 (uint)cell.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
                 throw new InvalidDataException($"Kraid head tilemap cell {index} is invalid.");
-            SnesTileFlipFlags flips =
-                (cell.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                (cell.FlipY ? SnesTileFlipFlags.Vertical : 0);
+            TileFlip flips =
+                (cell.FlipX ? TileFlip.Horizontal : 0) |
+                (cell.FlipY ? TileFlip.Vertical : 0);
             words[index] = SnesBgTilemapWord.Create(
                 cell.TileRow * RoomBackgroundTilemapFormat.TileColumns + cell.TileColumn,
                 cell.Palette, cell.Priority, flips).Raw;

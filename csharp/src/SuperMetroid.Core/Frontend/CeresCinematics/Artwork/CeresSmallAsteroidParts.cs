@@ -71,7 +71,7 @@ internal sealed class CeresSmallAsteroidParts(Offset16<SpritePixels>[] anchors) 
                 if (flip) y = -y - (large ? 8 : 0);
             }
             return new(SnesSpritemapXWord.Create(anchors[group].X + x, large), SnesSpritemapYByte.Create(anchors[group].Y + y),
-                SnesObjAttributeWord.Create(tile, 0, 0, flip ? SnesTileFlipFlags.Vertical : 0), true);
+                SnesObjAttributeWord.Create(tile, 0, 0, flip ? TileFlip.Vertical : 0), true);
         }
     }
     /// <summary>Enumerates asteroid parts in their original OAM order.</summary>

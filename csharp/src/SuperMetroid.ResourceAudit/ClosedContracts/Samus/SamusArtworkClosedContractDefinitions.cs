@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
 /// <summary>Complete placement/composition domains, separate from editable DMA frame-selector closure.</summary>
@@ -28,7 +30,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Movement/SamusMovementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapPoseDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesTileFlipFlags.cs"),
+             new("csharp/src/SuperMetroid.Core/Hardware/TileFlip.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),
@@ -52,7 +54,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPlacementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPoseDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOriginDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesTileFlipFlags.cs"),
+             new("csharp/src/SuperMetroid.Core/Hardware/TileFlip.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),
@@ -93,7 +95,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Movement/SamusMovementDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapPoseDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesTileFlipFlags.cs"),
+             new("csharp/src/SuperMetroid.Core/Hardware/TileFlip.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),

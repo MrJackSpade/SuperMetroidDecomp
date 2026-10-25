@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -156,7 +157,7 @@ internal static class CoreAccess
     extension(MapTileWord tile)
     {
         /// <summary>Horizontal and vertical flip bits encoded in a map tile word.</summary>
-        internal SnesTileFlipFlags FlipFlags => (SnesTileFlipFlags)(tile.Raw & 0xc000);
+        internal TileFlip FlipFlags => (TileFlip)(tile.Raw & 0xc000);
     }
 
     /// <summary>Builds the exact OAM upload byte payload from a prepared sprite buffer.</summary>

@@ -179,9 +179,9 @@ public sealed class EnemyProjectileSpritemapCatalog
                 part.TileRow is < 0 or >= EnemyProjectileSpritemapDefinitions.TileRows)
                 throw new InvalidDataException(
                     $"Enemy-projectile composition {name} part {index} is invalid.");
-            SnesTileFlipFlags flips =
-                (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
+            TileFlip flips =
+                (part.FlipX ? TileFlip.Horizontal : 0) |
+                (part.FlipY ? TileFlip.Vertical : 0);
             parts[index] = new SpritemapPart(
                 SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                 SnesSpritemapYByte.Create(part.OffsetY),

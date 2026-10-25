@@ -16,8 +16,8 @@ internal readonly struct ChargedBeamParts(int phase, bool ice) : IReadOnlyList<C
             int column = ice ? index % 2 : index / 2;
             int row = ice ? index / 2 : index % 2;
             int tile = ProjectileSpritePartDefinitions.ChargedBeamTile + (ice ? phase % 2 : phase / 8);
-            var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
-                (row == 0 ? SnesTileFlipFlags.Vertical : 0);
+            var flips = (column == 0 ? TileFlip.Horizontal : 0) |
+                (row == 0 ? TileFlip.Vertical : 0);
             return new(SnesSpritemapXWord.Create(-column * 8, false), SnesSpritemapYByte.Create(-row * 8),
                 SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }

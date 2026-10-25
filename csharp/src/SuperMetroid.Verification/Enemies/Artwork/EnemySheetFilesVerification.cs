@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -66,7 +67,7 @@ internal static class EnemySheetFilesVerification
         // The cartridge ORs the enemy's palette bits into each part's own row.
         var ored = new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | sources.PaletteBits })]);
         var character = new CharacterSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy), ored, source.Characters, origin,
-            SnesTileFlipFlags.None, 0, 0);
+            TileFlip.None, 0, 0);
         UploadedPictureChecks.AssertSameInks([image], [character], label, requirePixels: false);
     }
 

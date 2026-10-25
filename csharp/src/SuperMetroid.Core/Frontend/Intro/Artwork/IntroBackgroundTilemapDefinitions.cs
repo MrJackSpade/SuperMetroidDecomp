@@ -61,11 +61,11 @@ internal static class IntroBackgroundTilemapDefinitions
     {
         p.Patch(new(10, 2), new(3, 1), 0x089d);
         p.Put(new(13, 2), 0x08b0);
-        p.Patch(new(15, 2), new(3, 1), 0x089d, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(15, 2), new(3, 1), 0x089d, TileFlip.Horizontal);
         p.Put(new(14, 2), 0x48b0);
         p.Put(new(18, 2), BorderBlank | 0x4000);
         p.Patch(new(10, 3), new(4, 1), 0x08b1);
-        p.Patch(new(14, 3), new(4, 1), 0x08b1, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(14, 3), new(4, 1), 0x08b1, TileFlip.Horizontal);
         for (int row = 0; row < 20; row++)
         for (int column = 0; column < 16; column++)
         {
@@ -81,13 +81,13 @@ internal static class IntroBackgroundTilemapDefinitions
             };
             if (occupied) p.Put(new(checked((ushort)(4 + column)), checked((ushort)(4 + row))), 0x09c0 + row * 16 + column);
         }
-        p.Patch(new(10, 4), new(4, 2), 0x09ca, SnesTileFlipFlags.Horizontal);
-        p.Patch(new(11, 6), new(3, 4), 0x09ea, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(10, 4), new(4, 2), 0x09ca, TileFlip.Horizontal);
+        p.Patch(new(11, 6), new(3, 4), 0x09ea, TileFlip.Horizontal);
         p.Patch(new(12, 7), new(1, 3), 0x09ed);
         p.Put(new(12, 10), 0x0a89);
-        p.Patch(new(13, 10), new(1, 1), 0x0a2a, SnesTileFlipFlags.Horizontal);
-        p.Patch(new(12, 11), new(2, 5), 0x0a3a, SnesTileFlipFlags.Horizontal);
-        p.Patch(new(13, 16), new(1, 1), 0x0a8a, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(13, 10), new(1, 1), 0x0a2a, TileFlip.Horizontal);
+        p.Patch(new(12, 11), new(2, 5), 0x0a3a, TileFlip.Horizontal);
+        p.Patch(new(13, 16), new(1, 1), 0x0a8a, TileFlip.Horizontal);
         p.Put(new(13, 22), 0x0ae8);
         p.Put(new(13, 23), 0x0ae8);
         p.Put(new(18, 23), 0x0aee);
@@ -125,7 +125,7 @@ internal static class IntroBackgroundTilemapDefinitions
         for (int x = 16; x <= 20; x += 4) p.Patch(new(checked((ushort)x), 6), new(2, 2), 0x3e28);
         p.Put(new(15, 7), 0x7e17);
         p.Put(new(22, 7), 0x3e17);
-        p.Patch(new(15, 8), new(2, 1), 0x3e18, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(15, 8), new(2, 1), 0x3e18, TileFlip.Horizontal);
         p.Patch(new(21, 8), new(2, 1), 0x3e18);
         p.Patch(new(18, 8), new(2, 1), 0x3df8);
         p.Patch(new(18, 9), new(2, 1), 0x3e68);
@@ -135,11 +135,11 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Patch(new(2, 10), new(2, 2), 0x1c7c);
         p.Patch(new(4, 10), new(2, 2), 0x1c5c);
         p.Patch(new(6, 10), new(1, 2), 0x1cc0);
-        p.Patch(new(7, 10), new(1, 2), 0x1cc0, SnesTileFlipFlags.Horizontal);
-        p.Patch(new(8, 10), new(2, 2), 0x1c5c, SnesTileFlipFlags.Horizontal);
-        p.Patch(new(10, 10), new(2, 2), 0x1c7c, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(7, 10), new(1, 2), 0x1cc0, TileFlip.Horizontal);
+        p.Patch(new(8, 10), new(2, 2), 0x1c5c, TileFlip.Horizontal);
+        p.Patch(new(10, 10), new(2, 2), 0x1c7c, TileFlip.Horizontal);
         p.Patch(new(2, 12), new(2, 3), 0x1c0c);
-        p.Patch(new(2, 15), new(2, 3), 0x1c0c, SnesTileFlipFlags.Vertical);
+        p.Patch(new(2, 15), new(2, 3), 0x1c0c, TileFlip.Vertical);
         p.Patch(new(10, 12), new(2, 5), 0x1c0e);
         p.Put(new(10, 17), 0x1c5e);
         p.Patch(new(10, 18), new(2, 1), 0x1c6e);
@@ -147,17 +147,17 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Put(new(2, 18), 0x9c8c);
         p.Put(new(3, 18), 0x1ce0);
         p.Patch(new(2, 19), new(2, 1), 0x9c7c);
-        p.Patch(new(10, 19), new(2, 1), 0x9c7c, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(10, 19), new(2, 1), 0x9c7c, TileFlip.Horizontal);
         p.Patch(new(5, 18), new(5, 1), 0x1e01);
         p.Patch(new(4, 19), new(6, 1), 0x1e10);
 
         p.Patch(new(0, 20), new(2, 2), 0x1de6);
-        p.Patch(new(12, 20), new(2, 2), 0x3de6, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(12, 20), new(2, 2), 0x3de6, TileFlip.Horizontal);
         for (int side = 0; side < 2; side++)
         {
             p.Fill(new(checked((ushort)(2 + side * 8)), 20), new(2, 2), 0x1de9);
             p.Fill(new(checked((ushort)(2 + side * 8)), 24), new(2, 2), 0x1de9);
-            p.Patch(new(checked((ushort)(0 + side * 8)), 24), new(2, 2), 0x1de6, SnesTileFlipFlags.Vertical);
+            p.Patch(new(checked((ushort)(0 + side * 8)), 24), new(2, 2), 0x1de6, TileFlip.Vertical);
         }
         for (int x = 4; x < 10; x += 2)
         {
@@ -167,12 +167,12 @@ internal static class IntroBackgroundTilemapDefinitions
         for (int y = 22; y < 24; y++)
         {
             p.Patch(new(0, checked((ushort)y)), new(2, 1), 0x1df8);
-            p.Patch(new(12, checked((ushort)y)), new(2, 1), 0x3df8, SnesTileFlipFlags.Horizontal);
+            p.Patch(new(12, checked((ushort)y)), new(2, 1), 0x3df8, TileFlip.Horizontal);
         }
         p.Patch(new(2, 22), new(2, 2), 0x1de6);
-        p.Patch(new(10, 22), new(2, 2), 0x1de6, SnesTileFlipFlags.Horizontal);
-        p.Patch(new(4, 24), new(2, 2), 0x1de6, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical);
-        p.Patch(new(12, 24), new(2, 2), 0x3de6, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical);
+        p.Patch(new(10, 22), new(2, 2), 0x1de6, TileFlip.Horizontal);
+        p.Patch(new(4, 24), new(2, 2), 0x1de6, TileFlip.Horizontal | TileFlip.Vertical);
+        p.Patch(new(12, 24), new(2, 2), 0x3de6, TileFlip.Horizontal | TileFlip.Vertical);
         p.Patch(new(6, 24), new(2, 2), 0x3e48);
         p.Patch(new(18, 17), new(2, 1), 0xbe06);
         p.Patch(new(18, 18), new(2, 1), 0xbe68);
@@ -201,19 +201,19 @@ internal static class IntroBackgroundTilemapDefinitions
         {
             p.Patch(new(checked((ushort)(group * 4)), 4), new(4, 2), 0x1dc0);
             p.Patch(new(checked((ushort)(24 + group * 4)), 4), new(4, 2), 0x1dc0);
-            p.Patch(new(checked((ushort)(group * 4)), 6), new(4, 2), 0x1dc0, SnesTileFlipFlags.Vertical);
+            p.Patch(new(checked((ushort)(group * 4)), 6), new(4, 2), 0x1dc0, TileFlip.Vertical);
         }
         p.Patch(new(8, 4), new(2, 2), 0x1dc2);
         CeilingPoint(p, new(10, 4), IntroCeilingPointWidth.Wide);
         CeilingPoint(p, new(12, 4), IntroCeilingPointWidth.Narrow);
-        p.Patch(new(14, 4), new(2, 2), 0x1dc6, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(14, 4), new(2, 2), 0x1dc6, TileFlip.Horizontal);
         p.Patch(new(16, 4), new(4, 2), 0x1dc4);
         CeilingPoint(p, new(20, 4), IntroCeilingPointWidth.Wide);
-        p.Patch(new(22, 4), new(2, 2), 0x1dc6, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(22, 4), new(2, 2), 0x1dc6, TileFlip.Horizontal);
         p.Patch(new(8, 6), new(2, 2), 0x1dc6);
-        p.Patch(new(24, 6), new(2, 2), 0x1dc6, SnesTileFlipFlags.Horizontal);
-        p.Patch(new(26, 6), new(4, 2), 0x1dc0, SnesTileFlipFlags.Vertical);
-        p.Patch(new(30, 6), new(2, 2), 0x1dc0, SnesTileFlipFlags.Vertical);
+        p.Patch(new(24, 6), new(2, 2), 0x1dc6, TileFlip.Horizontal);
+        p.Patch(new(26, 6), new(4, 2), 0x1dc0, TileFlip.Vertical);
+        p.Patch(new(30, 6), new(2, 2), 0x1dc0, TileFlip.Vertical);
         p.Patch(new(0, 8), new(4, 2), 0x1dc4);
         CeilingPoint(p, new(4, 8), IntroCeilingPointWidth.Wide);
         CeilingPoint(p, new(6, 8), IntroCeilingPointWidth.Narrow);
@@ -221,10 +221,10 @@ internal static class IntroBackgroundTilemapDefinitions
         CeilingPoint(p, new(28, 8), IntroCeilingPointWidth.Narrow);
         CeilingPoint(p, new(30, 8), IntroCeilingPointWidth.Wide);
 
-        p.Patch(new(0, 20), new(4, 2), 0x1dc4, SnesTileFlipFlags.Vertical);
+        p.Patch(new(0, 20), new(4, 2), 0x1dc4, TileFlip.Vertical);
         p.Patch(new(7, 20), new(2, 2), 0x1c97);
         p.Patch(new(9, 20), new(3, 1), 0x1de3);
-        p.Patch(new(17, 20), new(3, 1), 0x1de3, SnesTileFlipFlags.Horizontal);
+        p.Patch(new(17, 20), new(3, 1), 0x1de3, TileFlip.Horizontal);
         p.Put(new(4, 21), 0x9dd4);
         p.Put(new(5, 21), 0x9dd7);
         p.Put(new(6, 21), 0x1ee0);
@@ -237,9 +237,9 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Put(new(23, 21), 0x3ee0);
         for (int group = 0; group < 6; group++)
             p.Patch(new(checked((ushort)(group * 4)), 22), new(4, 2), 0x1dc0 | (group == 5 ? 0x2000 : 0));
-        p.Patch(new(24, 22), new(4, 2), 0x3dc4, SnesTileFlipFlags.Vertical);
-        p.Patch(new(28, 22), new(2, 2), 0x3dc6, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical);
-        p.Patch(new(30, 22), new(2, 2), 0x3dc4, SnesTileFlipFlags.Vertical);
+        p.Patch(new(24, 22), new(4, 2), 0x3dc4, TileFlip.Vertical);
+        p.Patch(new(28, 22), new(2, 2), 0x3dc6, TileFlip.Horizontal | TileFlip.Vertical);
+        p.Patch(new(30, 22), new(2, 2), 0x3dc4, TileFlip.Vertical);
         p.Fill(new(20, 24), new(12, 4), BorderBlank | 0x2000);
     }
 
@@ -268,13 +268,13 @@ internal static class IntroBackgroundTilemapDefinitions
             for (int column = 0; column < size.X; column++) Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)), word);
         }
         /// <summary>Copies a row-major atlas patch with a 16-word source stride, applying SNES flip bits when reflected.</summary>
-        internal void Patch(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word, SnesTileFlipFlags flips = SnesTileFlipFlags.None)
+        internal void Patch(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word, TileFlip flips = TileFlip.None)
         {
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++)
             {
-                int sx = (flips & SnesTileFlipFlags.Horizontal) != SnesTileFlipFlags.None ? size.X - 1 - column : column;
-                int sy = (flips & SnesTileFlipFlags.Vertical) != SnesTileFlipFlags.None ? size.Y - 1 - row : row;
+                int sx = (flips & TileFlip.Horizontal) != TileFlip.None ? size.X - 1 - column : column;
+                int sy = (flips & TileFlip.Vertical) != TileFlip.None ? size.Y - 1 - row : row;
                 Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)),
                     new SnesBgTilemapWord(unchecked((ushort)(word + sy * 16 + sx))).ToggleFlips(flips).Raw);
             }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Frontend;
@@ -1377,7 +1378,7 @@ internal static class LookupStream4Verification
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
-            (cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
+            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
         foreach(var icon in new[]{stock.missile,stock.superMissile,stock.powerBomb,stock.grapple,stock.xray})
         {
@@ -1463,7 +1464,7 @@ internal static class LookupStream4Verification
             ushort[] tiles=new ushort[96];selected.ApplyTemplate(tiles);
             for(int index=0;index<96;index++)
             {
-                var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
+                var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
                 AssertEqual(expected,tiles[index],"Independent template cell and all untouched neighbors");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8098cb+index*2),GameplayHudDefinitions.TemplateWord(index),"Exact native template word");
             }
@@ -1502,7 +1503,7 @@ internal static class LookupStream4Verification
             AssertEqual(32,row.Length,"Top row covers every HUD column");
             for(int column=0;column<32;column++)
             {
-                var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
+                var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
                 AssertEqual(expected, row[column], "Every supplied top-row cell survives into the shown row");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),GameplayHudDefinitions.TopRowWord(column),"Native calculated top-row word");
             }
@@ -1525,7 +1526,7 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
-            (cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
+            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
         for(int edit=-1;edit<72;edit++)
         {
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
@@ -1595,8 +1596,8 @@ internal static class LookupStream4Verification
             {
                 GameplayHudCell supplied = (state == 0 ? document.AutoReserve.ContainsEnergy : document.AutoReserve.Empty)[cell];
                 ushort expected = SnesBgTilemapWord.Create(supplied.TileRow * 32 + supplied.TileColumn, supplied.Palette,
-                    supplied.Priority, (supplied.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                    (supplied.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
+                    supplied.Priority, (supplied.FlipX ? TileFlip.Horizontal : 0) |
+                    (supplied.FlipY ? TileFlip.Vertical : 0)).Raw;
                 AssertEqual(expected, tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],
                     "AUTO preserves each independent edit and every unedited neighbor");
             }

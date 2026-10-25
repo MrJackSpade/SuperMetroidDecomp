@@ -59,9 +59,9 @@ public sealed class RoomFxLayer3TilemapCatalog
                     (uint)value.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
                     throw new InvalidDataException(
                         $"Room-FX BG3 {type} cell {cell} has an invalid tile or palette.");
-                SnesTileFlipFlags flips =
-                    (value.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                    (value.FlipY ? SnesTileFlipFlags.Vertical : 0);
+                TileFlip flips =
+                    (value.FlipX ? TileFlip.Horizontal : 0) |
+                    (value.FlipY ? TileFlip.Vertical : 0);
                 int word = SnesBgTilemapWord.Create(
                     value.TileRow * RoomBackgroundTilemapFormat.TileColumns + value.TileColumn,
                     value.Palette, value.Priority, flips).Raw;

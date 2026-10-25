@@ -78,9 +78,9 @@ public sealed class EnemySpritemapCatalog
                 part.TileRow is < 0 or >= EnemySpritemapCatalog.TileRows)
                 throw new InvalidDataException(
                     $"Enemy composition {frameName} part {index} has invalid visual fields.");
-            SnesTileFlipFlags flips =
-                (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-                (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
+            TileFlip flips =
+                (part.FlipX ? TileFlip.Horizontal : 0) |
+                (part.FlipY ? TileFlip.Vertical : 0);
             parts[index] = new SpritemapPart(
                 SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                 SnesSpritemapYByte.Create(part.OffsetY),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -51,8 +52,8 @@ internal static class GrappleSheetComposer
                 foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
                 {
                     // `$94:AFDE` ORs the rope direction's flips into the segment's own attributes.
-                    SnesTileFlipFlags flips = ((mirror & SpriteMirror.Horizontal) != 0 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
-                        ((mirror & SpriteMirror.Vertical) != 0 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None);
+                    TileFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
+                        ((mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
                     frames.Add(new(GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror),
                         SpritePartFrames.SmallObject(new SnesObjAttributeWord(appearance).Or(SnesObjAttributeWord.Create(0, 0, 0, flips)), 0), page));
                 }

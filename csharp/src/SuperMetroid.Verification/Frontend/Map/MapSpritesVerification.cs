@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Menus;
@@ -43,7 +44,7 @@ internal static class MapSpritesVerification
         {
             installed.BeginFrame();
             installed.AddOnScreenSpritePart(SnesSpritemapXWord.Create(-1, true), new SnesSpritemapYByte((byte)offset),
-                SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<SpritePixels>(0, (ushort)origin));
+                SnesObjAttributeWord.Create(3, 2, 1, TileFlip.Horizontal), new Position16<SpritePixels>(0, (ushort)origin));
             int sum = origin + offset;
             int signedY = origin + unchecked((sbyte)offset);
             bool hidden = signedY is < -32 or >= 224;

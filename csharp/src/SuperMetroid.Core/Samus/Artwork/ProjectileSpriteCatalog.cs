@@ -70,7 +70,7 @@ public sealed class ProjectileSpriteCatalog
                 // Hardware wraps a large part's adjacent tile at row/sheet boundaries.
                 // Do not impose the menu atlas's contiguous-rectangle restriction here.
                 var attributes = SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                    p.Palette.Value, p.Priority, (p.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (p.FlipY ? SnesTileFlipFlags.Vertical : 0));
+                    p.Palette.Value, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0));
                 compiled[i] = new(SnesSpritemapXWord.Create(p.OffsetX, p.Size == 16), new SnesSpritemapYByte(unchecked((byte)p.OffsetY)), attributes, false);
             }
             var composition = new SpriteComposition(compiled);

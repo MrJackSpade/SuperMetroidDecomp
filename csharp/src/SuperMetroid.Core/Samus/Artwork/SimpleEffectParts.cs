@@ -17,8 +17,8 @@ internal readonly struct SimpleEffectParts(int phase, bool quad) : IReadOnlyList
             int x = quad ? -column * 8 : -8 / 2;
             int y = quad ? -row * 8 : -8 / 2;
             int tile = (quad ? ProjectileSpritePartDefinitions.BeamExplosionQuadGlyphStart : ProjectileSpritePartDefinitions.BombGlyphStart) + phase;
-            var flips = quad ? (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
-                (row == 0 ? SnesTileFlipFlags.Vertical : 0) : 0;
+            var flips = quad ? (column == 0 ? TileFlip.Horizontal : 0) |
+                (row == 0 ? TileFlip.Vertical : 0) : 0;
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, quad ? ProjectileSpritePartDefinitions.BeamExplosionPalette : ProjectileSpritePartDefinitions.BombPalette, ProjectileSpritePartDefinitions.EffectPriority, flips), false);
         }

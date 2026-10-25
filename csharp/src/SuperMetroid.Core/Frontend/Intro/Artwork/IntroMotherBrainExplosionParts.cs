@@ -25,7 +25,7 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
             bool large = big && frame >= 2;
             int tile;
             int x, y;
-            SnesTileFlipFlags flips = 0;
+            TileFlip flips = 0;
             if (Count == 1)
             {
                 tile = big ? IntroMotherBrainExplosionCellDefinitions.BigFlash
@@ -40,8 +40,8 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 int size = large ? 16 : 8;
                 x = -size * column;
                 y = -size * row;
-                flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0)
-                    | (row == 0 ? SnesTileFlipFlags.Vertical : 0);
+                flips = (column == 0 ? TileFlip.Horizontal : 0)
+                    | (row == 0 ? TileFlip.Vertical : 0);
                 tile = big
                     ? frame == 1 ? IntroMotherBrainExplosionCellDefinitions.BigInitialQuadrant
                         : IntroMotherBrainExplosionCellDefinitions.BigQuadrantStart + 2 * (frame - 2)

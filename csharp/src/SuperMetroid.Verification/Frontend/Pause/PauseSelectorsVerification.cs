@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
@@ -101,7 +102,7 @@ internal static class PauseSelectorsVerification
                 AssertEqual((byte)112, oam.LowTable[0], "authored selector anchor plus X offset");
                 AssertEqual((byte)86, oam.LowTable[1], "authored selector anchor plus Y offset");
                 var attributes = new SnesObjAttributeWord(SnesLittleEndian.Word(oam.LowTable[2], oam.LowTable[3]));
-                AssertEqual(SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), attributes, "authored selector tile, explicit palette, priority and flips");
+                AssertEqual(SnesObjAttributeWord.Create(50, 5, 3, TileFlip.Horizontal | TileFlip.Vertical), attributes, "authored selector tile, explicit palette, priority and flips");
                 AssertTrue((oam.HighTable[0] & 2) != 0, "authored large selector sprite size");
                 AssertEqual(4, new SnesObjAttributeWord(SnesLittleEndian.Word(oam.LowTable[6], oam.LowTable[7])).PaletteIndex, "null part palette inherits authored selector palette");
             }

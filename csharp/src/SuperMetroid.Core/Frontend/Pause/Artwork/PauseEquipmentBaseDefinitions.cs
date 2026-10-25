@@ -166,7 +166,7 @@ public static class PauseEquipmentBaseDefinitions
             PanelShape panel = Panel(kind);
             int guideRow = kind == PanelKind.Boots ? panel.Bottom - 1 : panel.Top + 2;
             if (column == panel.Left && row == guideRow)
-                return Tile(GuideBorderJunction, 6, flips: SnesTileFlipFlags.Horizontal | (kind == PanelKind.Boots ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None));
+                return Tile(GuideBorderJunction, 6, flips: TileFlip.Horizontal | (kind == PanelKind.Boots ? TileFlip.Vertical : TileFlip.None));
         }
         if (row == 12 && column == 2) return Tile(ArrowJoin, 7);
         if (row == 12 && column is >= 3 and <= 6) return Tile(EmptyGauge, 7, false);
@@ -178,18 +178,18 @@ public static class PauseEquipmentBaseDefinitions
             if (row == panel.Top)
             {
                 if (column == panel.Left || column == panel.Right)
-                    return Tile(PanelCorner, 6, flips: (column == panel.Right ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None));
+                    return Tile(PanelCorner, 6, flips: (column == panel.Right ? TileFlip.Horizontal : TileFlip.None));
                 if (column >= panel.TextColumn && column < panel.TextColumn + panel.TextWidth)
                     return Tile(panel.TextTile + column - panel.TextColumn, panel.TextPalette, panel.TextPriority);
                 if (column == panel.TextColumn - 1 || column == panel.TextColumn + panel.TextWidth)
-                    return Tile(PanelTitleEnd, 6, flips: (column > panel.TextColumn ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None));
+                    return Tile(PanelTitleEnd, 6, flips: (column > panel.TextColumn ? TileFlip.Horizontal : TileFlip.None));
                 return Tile(PanelHorizontal, 6);
             }
             if (row == panel.Bottom)
                 return Tile(column == panel.Left || column == panel.Right ? PanelCorner : PanelHorizontal,
-                    6, flips: (column == panel.Right ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) | SnesTileFlipFlags.Vertical);
+                    6, flips: (column == panel.Right ? TileFlip.Horizontal : TileFlip.None) | TileFlip.Vertical);
             if (column == panel.Left || column == panel.Right)
-                return Tile(PanelSide, 6, flips: (column == panel.Right ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None));
+                return Tile(PanelSide, 6, flips: (column == panel.Right ? TileFlip.Horizontal : TileFlip.None));
             if (kind == PanelKind.Supply) return Tile(1, 2);
         }
         if (column == 1 && row is >= 4 and <= 12)
@@ -198,7 +198,7 @@ public static class PauseEquipmentBaseDefinitions
         if (row == 5 && column is >= 9 and <= 22)
         {
             if (column is 9 or 10 or 21 or 22) return Tile(TitleBar, 2);
-            if (column is 11 or 20) return Tile(TitleBarEnd, 2, flips: (column == 11 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None));
+            if (column is 11 or 20) return Tile(TitleBarEnd, 2, flips: (column == 11 ? TileFlip.Horizontal : TileFlip.None));
             if (column is 12 or 19) return Tile(1, 2);
             return Tile(SamusTitle + column - 13, 2);
         }
@@ -206,6 +206,6 @@ public static class PauseEquipmentBaseDefinitions
     }
 
     /// <summary>Packs a SNES tilemap word from its glyph, palette, priority, and reflection bits.</summary>
-    private static ushort Tile(int character, int palette, bool priority = true, SnesTileFlipFlags flips = SnesTileFlipFlags.None) =>
+    private static ushort Tile(int character, int palette, bool priority = true, TileFlip flips = TileFlip.None) =>
         SnesBgTilemapWord.Create(character, palette, priority, flips).Raw;
 }

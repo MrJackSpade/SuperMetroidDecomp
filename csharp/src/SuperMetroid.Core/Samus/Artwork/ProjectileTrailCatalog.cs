@@ -35,7 +35,7 @@ public sealed class ProjectileTrailCatalog
         int phase = ice ? index % 17 : (index - 34) % 4;
         if (ice) phase = phase < 4 ? 0 : phase < 8 ? 1 : phase < 16 ? 2 : 3;
         int firstTile = ice ? IceFirstTile : index < 38 ? WaveFirstTile : MissileFirstTile;
-        return SnesObjAttributeWord.Create(firstTile + phase, ice ? 6 : 5, 2, SnesTileFlipFlags.None).Raw;
+        return SnesObjAttributeWord.Create(firstTile + phase, ice ? 6 : 5, 2, TileFlip.None).Raw;
     }
     /// <summary>Uses stable camel-case output and rejects unknown appearance properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -85,7 +85,7 @@ public sealed class ProjectileTrailCatalog
                 (uint)p.Palette > 7 || (uint)p.Priority > 3)
                 throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
             attributes.Add(frame, SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                p.Palette, p.Priority, (p.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (p.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw);
+                p.Palette, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0)).Raw);
         }
         return new(attributes);
     }

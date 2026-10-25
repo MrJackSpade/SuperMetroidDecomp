@@ -1,11 +1,11 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// Independent horizontal/vertical flip bits shared by SNES BG tilemap and OBJ attribute
-/// words. These are genuine flags: the PPU supports neither, either, or both simultaneously.
+/// The mirroring a sprite part or background tile is drawn with. The two axes are independent:
+/// a picture is drawn unmirrored, mirrored on either axis, or on both.
 /// </summary>
 [Flags]
-public enum SnesTileFlipFlags : ushort
+public enum TileFlip : ushort
 {
     /// <summary>Leaves both axes in their stored pixel order.</summary>
     None = 0,

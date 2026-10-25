@@ -23,7 +23,7 @@ internal readonly struct AxialSuperMissileParts(int pose) : IReadOnlyList<Compil
                 else x = -8 - x;
             }
             int tile = vertical ? ProjectileSpritePartDefinitions.SuperMissileVerticalGlyph + index : ProjectileSpritePartDefinitions.SuperMissileHorizontalGlyph - index;
-            var flips = reflected ? (vertical ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.Horizontal) : 0;
+            var flips = reflected ? (vertical ? TileFlip.Vertical : TileFlip.Horizontal) : 0;
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.FixedProjectilePalette, ProjectileSpritePartDefinitions.SuperMissilePriority, flips), false);
         }

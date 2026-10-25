@@ -33,8 +33,8 @@ internal readonly struct AlternateDiagonalStartupParts(bool reflected, int phase
                 if (!rotated) { x = -size - x; y = -size - y; }
             }
             if (reflected) x = -size - x;
-            var flips = (rotated != reflected ? SnesTileFlipFlags.Horizontal : 0) |
-                (rotated ? SnesTileFlipFlags.Vertical : 0);
+            var flips = (rotated != reflected ? TileFlip.Horizontal : 0) |
+                (rotated ? TileFlip.Vertical : 0);
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }

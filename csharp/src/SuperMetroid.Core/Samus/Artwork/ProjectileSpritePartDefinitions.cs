@@ -80,8 +80,8 @@ public static class ProjectileSpritePartDefinitions
     private static CompiledSpritePart SingleBeamPart(int phase)
     {
         int tile = PowerTile + 2 - Math.Abs(2 - (phase & 3));
-        var flips = (phase is >= 3 and <= 5 ? SnesTileFlipFlags.Horizontal : 0) |
-            (phase >= 4 ? SnesTileFlipFlags.Vertical : 0);
+        var flips = (phase is >= 3 and <= 5 ? TileFlip.Horizontal : 0) |
+            (phase >= 4 ? TileFlip.Vertical : 0);
         return new(SnesSpritemapXWord.Create(-8 / 2, false), SnesSpritemapYByte.Create(-8 / 2),
             SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
     }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -108,7 +109,7 @@ internal static class ObjCharacterImageConstants
             // OAM X is a signed/modular 9-bit coordinate and Y wraps above the visible field.
             int objectX = entry.Position.X >= XRange / 2 ? entry.Position.X - XRange : entry.Position.X;
             int objectY = entry.Position.Y >= SnesPpuLayout.ScreenHeightPixels ? entry.Position.Y - YRange : entry.Position.Y;
-            var flip = (entry.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (entry.FlipY ? SnesTileFlipFlags.Vertical : 0);
+            var flip = (entry.FlipX ? TileFlip.Horizontal : 0) | (entry.FlipY ? TileFlip.Vertical : 0);
             int columns = width / SpriteArtwork.CharacterPixels;
             int rows = height / SpriteArtwork.CharacterPixels;
             for (int row = 0; row < rows; row++)

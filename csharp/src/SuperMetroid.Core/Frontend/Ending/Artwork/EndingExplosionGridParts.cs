@@ -37,9 +37,9 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
             bool lava = pose >= 8;
             int tile = lava ? 0x99 + (pose - 8) * 2 : // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
                 (pose / 4) * 0x40 + (pose % 4) * 4 + row * 0x20 + column * 2; // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
-            SnesTileFlipFlags flips = lava ?
-                (column != 0 ? SnesTileFlipFlags.Horizontal : 0) |
-                (row != 0 ? SnesTileFlipFlags.Vertical : 0) : 0;
+            TileFlip flips = lava ?
+                (column != 0 ? TileFlip.Horizontal : 0) |
+                (row != 0 ? TileFlip.Vertical : 0) : 0;
             return new(SnesSpritemapXWord.Create((column - 1) * 16, true),
                 SnesSpritemapYByte.Create((row - 1) * 16), SnesObjAttributeWord.Create(tile, 0, 0, flips), true);
         }

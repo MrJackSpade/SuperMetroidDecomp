@@ -60,7 +60,7 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
                 SnesSpritemapYByte.Create(-part.Y.SignedOffset - size),
                 SnesObjAttributeWord.Create(part.Attributes.TileNumber, part.Attributes.PaletteIndex,
                     part.Attributes.Priority, part.Attributes.FlipFlags ^
-                    (SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)), part.InheritPalette);
+                    (TileFlip.Horizontal | TileFlip.Vertical)), part.InheritPalette);
         }
     }
     /// <summary>Yields the selected logo parts in their authored OAM order.</summary>

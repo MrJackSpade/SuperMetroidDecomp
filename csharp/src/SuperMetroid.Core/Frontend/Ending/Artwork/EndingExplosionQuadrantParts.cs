@@ -105,7 +105,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         if (right) x = -x - (large ? 16 : 8);
         return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
             SnesObjAttributeWord.Create(atlasOrigin + row * 16 + column, 0, 0,
-                right ? SnesTileFlipFlags.Horizontal : 0), true);
+                right ? TileFlip.Horizontal : 0), true);
     }
 
     /// <summary>Uses a supplied first quadrant to calculate matching glow or supernova reflections.</summary>
@@ -145,8 +145,8 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             CompiledSpritePart part = basis is null ? StockBasis(pose, index % basisCount) : basis[index % basisCount];
             int size = part.X.IsLarge ? 16 : 8;
             int x = part.X.SignedOffset, y = part.Y.SignedOffset;
-            SnesTileFlipFlags flips = part.Attributes.FlipFlags ^
-                (reflectX ? SnesTileFlipFlags.Horizontal : 0) ^ (reflectY ? SnesTileFlipFlags.Vertical : 0);
+            TileFlip flips = part.Attributes.FlipFlags ^
+                (reflectX ? TileFlip.Horizontal : 0) ^ (reflectY ? TileFlip.Vertical : 0);
             return new(SnesSpritemapXWord.Create(reflectX ? -x - size : x, part.X.IsLarge),
                 SnesSpritemapYByte.Create(reflectY ? -y - size : y),
                 SnesObjAttributeWord.Create(part.Attributes.TileNumber, part.Attributes.PaletteIndex, part.Attributes.Priority, flips),

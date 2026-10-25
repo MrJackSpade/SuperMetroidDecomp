@@ -65,7 +65,7 @@ public sealed class GrappleSpriteCatalog
             style.Palette is < 0 or > 7 || style.Priority is < 0 or > 3)
             throw new InvalidDataException("Invalid Grapple tile, palette or priority.");
         return SnesObjAttributeWord.Create(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Priority,
-            (style.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (style.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
+            (style.FlipX ? TileFlip.Horizontal : 0) | (style.FlipY ? TileFlip.Vertical : 0)).Raw;
     }
 
     /// <summary>Serializes and validates all five appearances using the same strict schema as <see cref="Load"/>.</summary>

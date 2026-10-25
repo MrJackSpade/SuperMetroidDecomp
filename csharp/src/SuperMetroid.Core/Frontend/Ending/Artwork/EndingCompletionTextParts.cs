@@ -27,7 +27,7 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             bool bottom = index % 2 == 0;
             int x, bottomY = 0, tile;
-            SnesTileFlipFlags flips = 0;
+            TileFlip flips = 0;
             if (frame >= 45)
             {
                 x = -4;
@@ -35,7 +35,7 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 {
                     // Native $B66F uses the same colon dot tile for both halves.
                     tile = SnesCharacterGrid.Cell(21, 10);
-                    if (bottom) flips = SnesTileFlipFlags.Vertical;
+                    if (bottom) flips = TileFlip.Vertical;
                 }
                 else tile = SnesCharacterGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph((char)('0' + frame - 45), EndingTextStyle.CopyrightLarge, bottom);
             }

@@ -23,7 +23,7 @@ internal readonly struct SpazerAxialStartupParts(int group, int length) : IReadO
             int glyph = group >= 4
                 ? (vertical ? ProjectileSpritePartDefinitions.ChargedSpazerVerticalGlyph : ProjectileSpritePartDefinitions.ChargedSpazerHorizontalGlyph)
                 : (vertical ? ProjectileSpritePartDefinitions.SpazerVerticalGlyph : ProjectileSpritePartDefinitions.SpazerHorizontalGlyph);
-            var flips = reflected ? (vertical ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.Horizontal) : 0;
+            var flips = reflected ? (vertical ? TileFlip.Vertical : TileFlip.Horizontal) : 0;
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(glyph, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }

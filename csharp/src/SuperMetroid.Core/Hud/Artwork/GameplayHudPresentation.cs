@@ -333,8 +333,8 @@ public sealed class GameplayHudPresentation
             (uint)cell.Palette > 7)
             throw new InvalidDataException($"{name} has invalid tile or palette coordinates.");
         return SnesBgTilemapWord.Create(cell.TileRow * 32 + cell.TileColumn, cell.Palette,
-            cell.Priority, (cell.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
-            (cell.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
+            cell.Priority, (cell.FlipX ? TileFlip.Horizontal : 0) |
+            (cell.FlipY ? TileFlip.Vertical : 0)).Raw;
     }
 
     /// <summary>Uses an edited tank position when present, otherwise the native HUD offset.</summary>

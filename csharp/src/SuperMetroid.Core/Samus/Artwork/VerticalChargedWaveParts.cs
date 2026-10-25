@@ -17,8 +17,8 @@ internal readonly struct VerticalChargedWaveParts(int phase) : IReadOnlyList<Com
             int column = quadrant % 2, row = quadrant / 2;
             int centerY = phase < 2 ? 0 : (lobe == 0 ? 1 : -1) * SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance((phase - 2) / 2);
             int tile = ProjectileSpritePartDefinitions.ChargedBeamTile + (phase < 2 ? 1 - phase : (phase + lobe) % 2);
-            var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
-                (row == 0 ? SnesTileFlipFlags.Vertical : 0);
+            var flips = (column == 0 ? TileFlip.Horizontal : 0) |
+                (row == 0 ? TileFlip.Vertical : 0);
             return new(SnesSpritemapXWord.Create(-column * 8, false), SnesSpritemapYByte.Create(centerY - row * 8),
                 SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }

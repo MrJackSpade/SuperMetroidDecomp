@@ -110,7 +110,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
                 part.Attributes.TileNumber,
                 part.Attributes.PaletteIndex,
                 part.Attributes.Priority,
-                part.Attributes.FlipFlags ^ SnesTileFlipFlags.Horizontal),
+                part.Attributes.FlipFlags ^ TileFlip.Horizontal),
         };
     }
 }

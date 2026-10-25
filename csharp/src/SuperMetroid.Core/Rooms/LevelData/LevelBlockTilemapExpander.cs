@@ -40,24 +40,24 @@ public static class LevelBlockTilemapExpander
             LevelBlockFlipFlags.None =>
                 new ExpandedBlockTiles(topLeft, topRight, bottomLeft, bottomRight),
             LevelBlockFlipFlags.Horizontal => new ExpandedBlockTiles(
-                topRight.ToggleFlips(SnesTileFlipFlags.Horizontal),
-                topLeft.ToggleFlips(SnesTileFlipFlags.Horizontal),
-                bottomRight.ToggleFlips(SnesTileFlipFlags.Horizontal),
-                bottomLeft.ToggleFlips(SnesTileFlipFlags.Horizontal)),
+                topRight.ToggleFlips(TileFlip.Horizontal),
+                topLeft.ToggleFlips(TileFlip.Horizontal),
+                bottomRight.ToggleFlips(TileFlip.Horizontal),
+                bottomLeft.ToggleFlips(TileFlip.Horizontal)),
             LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
-                bottomLeft.ToggleFlips(SnesTileFlipFlags.Vertical),
-                bottomRight.ToggleFlips(SnesTileFlipFlags.Vertical),
-                topLeft.ToggleFlips(SnesTileFlipFlags.Vertical),
-                topRight.ToggleFlips(SnesTileFlipFlags.Vertical)),
+                bottomLeft.ToggleFlips(TileFlip.Vertical),
+                bottomRight.ToggleFlips(TileFlip.Vertical),
+                topLeft.ToggleFlips(TileFlip.Vertical),
+                topRight.ToggleFlips(TileFlip.Vertical)),
             LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
                 bottomRight.ToggleFlips(
-                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
+                    TileFlip.Horizontal | TileFlip.Vertical),
                 bottomLeft.ToggleFlips(
-                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
+                    TileFlip.Horizontal | TileFlip.Vertical),
                 topRight.ToggleFlips(
-                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical),
+                    TileFlip.Horizontal | TileFlip.Vertical),
                 topLeft.ToggleFlips(
-                    SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)),
+                    TileFlip.Horizontal | TileFlip.Vertical)),
             _ => throw new InvalidDataException(
                 $"Level word ${levelEntry.Raw:X4} contains unsupported visual flip flags."),
         };

@@ -36,7 +36,7 @@ internal sealed class EndingStage
     internal int Brightness { get; set; }
 
     /// <summary>Mode-7 translation; only X uses a subpixel because native Y has no fractional word.</summary>
-    internal FixedPosition<Mode7Pixels> FloorPosition { get; set; }
+    internal FixedPosition<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
     /// Mode-7 scale in 8.8 units (256 is unity), initially the identity. Every scene starts it at an authored

@@ -1542,7 +1542,7 @@ internal static class RidleyFullMovieVerification
                     expectedOam.BeginFrame();
                     actualOam.BeginFrame();
                     DrawImportedEnemyProjectileSpritemap(bus, expectedOam, nativeMap, new(128, 96), 0, true);
-                    actualOam.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(128, 96), 0, 0,
+                    actualOam.AddEnemySpritemap(parts.Span, new Position16<SpritePixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     if (actualOam.NextByteOffset != expectedOam.NextByteOffset ||
                         !actualOam.LowTable.SequenceEqual(expectedOam.LowTable) ||

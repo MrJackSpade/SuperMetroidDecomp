@@ -788,7 +788,7 @@ internal static class LookupStream3Verification
             new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82f33f, 3),
         })
             for (int row = 0; row < count; row++)
-                AssertEqual(new Position16<OamPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
+                AssertEqual(new Position16<SpritePixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
         var stockLabels = loaded.controllerLabels;
         AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
@@ -811,7 +811,7 @@ internal static class LookupStream3Verification
         edited.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)].EnabledCells[0] = 0;
         foreach (string page in edited.HeadingAnchors.Keys.ToArray())
         {
-            Position16<OamPixels> old = edited.HeadingAnchors[page];
+            Position16<SpritePixels> old = edited.HeadingAnchors[page];
             edited.HeadingAnchors[page] = new(checked((ushort)(old.X + 1)), old.Y);
             for (int row = 0; row < edited.CursorAnchors[page].Length; row++)
             {
@@ -862,13 +862,13 @@ internal static class LookupStream3Verification
             }
             foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
             {
-                Position16<OamPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
+                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
                 for (int row = 0; row < cursors.Length; row++)
                     AssertEqual(cursors[row], presentation.CursorPosition(page, row), "options stock/edited cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
             {
-                Position16<OamPixels> heading = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
+                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
@@ -2732,7 +2732,7 @@ internal static class LookupStream3Verification
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-            calculatedOam.AddEnemySpritemap(parts, new Position16<OamPixels>(128, 128), 0, 0);
+            calculatedOam.AddEnemySpritemap(parts, new Position16<SpritePixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(calculatedOam),
                 "stream 3 calculated Baby view matches native OAM drawing");
             SpriteVisualPart[] original = document.Frames[frame.Name];

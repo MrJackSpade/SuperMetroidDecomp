@@ -3,13 +3,13 @@ using System.Collections.Concurrent;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Converts authored OBJ parts (a spritemap X/size word, a signed Y byte and an attribute word) into whole-frame
-/// parts, sized by their screen's OBJ size selection. A part's character is its OBJ tile number minus the bound
-/// artwork's first character, so artwork holds only the characters its frames use.
+/// Converts authored sprite parts (a spritemap X/size word, a signed Y byte and an attribute word) into whole-frame
+/// parts, sized by their screen's sprite sizes. A part's character is its tile number minus the bound artwork's first
+/// character, so artwork holds only the characters its frames use.
 /// </summary>
-public static class ObjPartFrames
+public static class SpritePartFrames
 {
-    /// <summary>OBSEL size mode 0: the 8x8 and 16x16 objects gameplay and the menus draw.</summary>
+    /// <summary>The standard sprite sizes: the 8x8 and 16x16 sprites gameplay and the menus draw.</summary>
     public static ScreenObjectSizes StandardSizes { get; } = new(new(8, 8), new(16, 16));
 
     /// <summary>Single small-OBJ frames, shared because their content is only the attribute word and base.</summary>

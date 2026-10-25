@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Shared thirteen-part vortex drawing embedded in two star-field frames.
 /// Scene placement is authored content; see ceresStarPointContentReview in the lookup review inventory.</summary>
-internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IReadOnlyList<CompiledSpritePart> stars)
+internal sealed class CeresVortexParts(bool odd, Offset16<SpritePixels> anchor, IReadOnlyList<CompiledSpritePart> stars)
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Calculates stock vortex grid parts only when a recognized frame and its supplied part count match.</summary>
@@ -19,7 +19,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;
         var anchorPart = supplied.Part(core + 10);
-        var anchor = new Offset16<OamPixels>(checked((short)anchorPart.X.SignedOffset), (short)anchorPart.Y.SignedOffset);
+        var anchor = new Offset16<SpritePixels>(checked((short)anchorPart.X.SignedOffset), (short)anchorPart.Y.SignedOffset);
         if (anchor.X > 215) return supplied;
         var stars = new CompiledSpritePart[supplied.PartCount - 13];
         int next = 0;
@@ -38,7 +38,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int tip = odd ? 3 : 0, core = odd ? 12 : 18;
-            Offset16<OamPixels> offset;
+            Offset16<SpritePixels> offset;
             int tile;
             bool large;
             if (index >= tip && index < tip + 2)
@@ -55,7 +55,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
                 tile = CeresVortexCellDefinitions.Core + 32 * (cell / 8) + 2 * (cell % 8);
             }
             else return stars[index - (index >= tip + 2 ? 2 : 0) - (index >= core + 11 ? 11 : 0)];
-            Offset16<OamPixels> position = anchor + offset;
+            Offset16<SpritePixels> position = anchor + offset;
             return new(SnesSpritemapXWord.Create(position.X, large), SnesSpritemapYByte.Create(position.Y),
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }

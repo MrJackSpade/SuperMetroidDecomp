@@ -44,7 +44,7 @@ internal static class GameplaySnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new Bg2LineScrolls(new ushort[1], default),
             "reject partial gameplay HDMA");
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-            new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "base cannot erase prior operations");
+            new RenderLayer[] { new SpriteRenderLayer(), layer }, 15), "base cannot erase prior operations");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();

@@ -24,15 +24,15 @@ public sealed record FileSelectPresentationDocument
     /// <summary>Exactly the named border compositions, four cursor frames, and eight helmet frames, using sprite-part offsets relative to their drawing anchors.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }
     /// <summary>Main, copy, and clear border origins in screen pixels, with X=0-511 and Y=0-255.</summary>
-    public required Dictionary<string, Position16<OamPixels>> BorderAnchors { get; init; }
+    public required Dictionary<string, Position16<SpritePixels>> BorderAnchors { get; init; }
     /// <summary>Six missile-cursor origins in main-menu selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required Position16<OamPixels>[] MainCursorAnchors { get; init; }
+    public required Position16<SpritePixels>[] MainCursorAnchors { get; init; }
     /// <summary>Four missile-cursor origins in data-management selection order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required Position16<OamPixels>[] DataCursorAnchors { get; init; }
+    public required Position16<SpritePixels>[] DataCursorAnchors { get; init; }
     /// <summary>Two missile-cursor origins in confirmation-option order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required Position16<OamPixels>[] ConfirmationCursorAnchors { get; init; }
+    public required Position16<SpritePixels>[] ConfirmationCursorAnchors { get; init; }
     /// <summary>Three helmet origins in save-slot order, in screen pixels with X=0-511 and Y=0-255.</summary>
-    public required Position16<OamPixels>[] HelmetAnchors { get; init; }
+    public required Position16<SpritePixels>[] HelmetAnchors { get; init; }
     /// <summary>Exactly the four named copy/clear slot-letter anchors, in tile coordinates inside the 32-by-32 page.</summary>
     public required Dictionary<string, Position16<TilemapCells>> DynamicAnchors { get; init; }
     /// <summary>OBJ palette selector 0-7 applied to border, cursor, and helmet compositions.</summary>

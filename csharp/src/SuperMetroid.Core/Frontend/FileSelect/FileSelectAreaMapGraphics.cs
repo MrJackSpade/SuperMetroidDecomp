@@ -171,7 +171,7 @@ public sealed class FileSelectAreaMapGraphics
                 shownIndex == SelectedArea ? (ushort)0 : SnesObjPalettes.Palette(1).PaletteBits);
         }
 
-        void Draw(MapSpriteId id, Position16<OamPixels> origin, int palette)
+        void Draw(MapSpriteId id, Position16<SpritePixels> origin, int palette)
         {
             MapSpriteSheet.Draw(mapSheet, id, entries, origin, palette);
         }
@@ -182,7 +182,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         PrepareLabels(usedStationMasks);
         LayeredScene backgrounds = CaptureBackgrounds(colorMath);
-        return new(backgrounds.Paint, [.. backgrounds.Layers, new ObjRenderLayer()], FadeLevel.Full);
+        return new(backgrounds.Paint, [.. backgrounds.Layers, new SpriteRenderLayer()], FadeLevel.Full);
     }
 
     /// <summary>The area map's BG1 foreground with its additive BG3 background, without the labels.</summary>

@@ -145,10 +145,10 @@ internal static class CeresExplosionDefinitions
     /// would just encode this same layout. The initial square/center layout, final X rule,
     /// instruction delays and shared actor motion are calculated separately.
     /// </remarks>
-    private static readonly Offset16<OamPixels>[] RepeatingBurstLayout =
+    private static readonly Offset16<SpritePixels>[] RepeatingBurstLayout =
     [
-        new Offset16<OamPixels>(14, -8), new Offset16<OamPixels>(8, 12), new Offset16<OamPixels>(-16, 12), new Offset16<OamPixels>(-8, -14),
-        new Offset16<OamPixels>(0, 0), new Offset16<OamPixels>(16, 14), new Offset16<OamPixels>(-12, 4), new Offset16<OamPixels>(-8, -16),
+        new Offset16<SpritePixels>(14, -8), new Offset16<SpritePixels>(8, 12), new Offset16<SpritePixels>(-16, 12), new Offset16<SpritePixels>(-8, -14),
+        new Offset16<SpritePixels>(0, 0), new Offset16<SpritePixels>(16, 14), new Offset16<SpritePixels>(-12, 4), new Offset16<SpritePixels>(-8, -16),
     ];
 
     /// <summary>Returns a chosen repeating-burst position with its common first-call delay.</summary>

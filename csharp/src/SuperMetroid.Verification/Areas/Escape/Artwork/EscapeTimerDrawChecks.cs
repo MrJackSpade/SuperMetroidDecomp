@@ -83,5 +83,5 @@ internal static class EscapeTimerDrawChecks
 
     /// <summary>The frame the display renderer draws of <paramref name="paint"/>'s sprites alone.</summary>
     private static RgbaPixel[] Render(FramePaint paint) =>
-        DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+        DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
 }

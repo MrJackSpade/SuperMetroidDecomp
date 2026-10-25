@@ -131,7 +131,7 @@ public sealed class SamusSpritemapArtworkCatalog
             return false;
         }
         frame = frames.GetOrAdd(composition, selected => new SpriteFrame($"Samus.{selected.Ordinal}",
-            [.. definitions[selected.Ordinal].Parts.Select(part => ObjPartFrames.Part(part.X, part.Y,
+            [.. definitions[selected.Ordinal].Parts.Select(part => SpritePartFrames.Part(part.X, part.Y,
                 part.Attributes, 0))]));
         return true;
     }

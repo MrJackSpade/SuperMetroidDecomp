@@ -27,10 +27,10 @@ internal static class MapWindowMotionDefinitionsVerification
             int expected = ReadVerificationWord(rom, 0x81aa1c + area * 4 + field);
             var stock = FileSelectMapWindowMotions.StockOrigin(area);
             AssertEqual(expected, vertical ? stock.Y : stock.X, $"native area {area} origin field {field}");
-            Position16<OamPixels> installed = labels.Get(area);
+            Position16<SpritePixels> installed = labels.Get(area);
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
 
-            var editedAreas = new Dictionary<string, Position16<OamPixels>>();
+            var editedAreas = new Dictionary<string, Position16<SpritePixels>>();
             for (int identity = 0; identity < 6; identity++)
                 editedAreas.Add(((AreaId)identity).ToString(), labels.Get(identity));
             ushort editedCoordinate = vertical ? (ushort)223 : (ushort)255;

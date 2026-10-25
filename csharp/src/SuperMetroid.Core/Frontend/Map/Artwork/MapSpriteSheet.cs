@@ -17,7 +17,7 @@ internal static class MapSpriteSheet
     /// <param name="sprites">The screen's sprite entries.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="paletteBits">OBJ palette bits the draw places its palette-inheriting parts in.</param>
-    internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Position16<OamPixels> origin, int paletteBits)
+    internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Position16<SpritePixels> origin, int paletteBits)
     {
         Ensure.NotNull(sheet);
         // An undefined sprite fails before its palette is read.

@@ -97,17 +97,17 @@ internal static class EndingCloudPlacementVerification
         }
         AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Stage.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
-        Mode7RenderLayer shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<Mode7RenderLayer>().First();
+        FloorRenderLayer shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<FloorRenderLayer>().First();
         if (checkWrapping)
         {
             // SetupPpu_5_Mode7 ($8B:8293) writes M7SEL=0, not the $80 transparent-overflow mode.
-            AssertEqual(Mode7OverflowMode.Wrap, shown.Transform.Outside,
+            AssertEqual(FloorOverflowMode.Wrap, shown.Transform.Outside,
                 "takeoff M7SEL=0 wraps rotated background instead of exposing square map edges");
             return;
         }
         // D6xx: TM=BG1|OBJ, TS=BG1, CGWSEL=2, CGADSUB=BG1|OBJ: the floor is added once to the main pixels and no
         // object is subtracted.
-        AssertTrue(shown.AddBg1Subscreen && !shown.SubtractObjSubscreen, "takeoff applies native BG1 subscreen to eligible main pixels");
+        AssertTrue(shown.AddBg1Subscreen && !shown.SubtractSpriteSubscreen, "takeoff applies native BG1 subscreen to eligible main pixels");
     }
 
     /// <summary>Dispatches the requested ending takeoff wrapping or color-math suite.</summary>

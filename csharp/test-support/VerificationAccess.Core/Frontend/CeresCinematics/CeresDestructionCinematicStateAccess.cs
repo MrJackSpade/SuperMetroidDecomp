@@ -13,7 +13,7 @@ internal static class CeresDestructionCinematicStateAccess
         internal int Zoom => self.Zoom;
 
         /// <summary>Current fixed-point origin for the destruction background.</summary>
-        internal FixedPosition<Mode7Pixels> Background => self.Background;
+        internal FixedPosition<FloorPixels> Background => self.Background;
 
         /// <summary>Number of cinematic actors still held in the actor list.</summary>
         internal int ActiveActorCount => self.actors.Count;

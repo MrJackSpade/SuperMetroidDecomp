@@ -36,9 +36,9 @@ public sealed class SpriteComposition
     }
     /// <summary>
     /// The composition as a whole frame over artwork whose character 0 is OBJ character <paramref name="firstCharacter"/>,
-    /// on a screen drawing the <see cref="ObjPartFrames.StandardSizes"/>.
+    /// on a screen drawing the <see cref="SpritePartFrames.StandardSizes"/>.
     /// </summary>
-    internal SpriteFrame ToFrame(string name, int firstCharacter) => ToFrame(name, firstCharacter, ObjPartFrames.StandardSizes);
+    internal SpriteFrame ToFrame(string name, int firstCharacter) => ToFrame(name, firstCharacter, SpritePartFrames.StandardSizes);
 
     /// <summary>
     /// The composition as a whole frame over artwork whose character 0 is OBJ character <paramref name="firstCharacter"/>,
@@ -48,7 +48,7 @@ public sealed class SpriteComposition
     {
         var converted = ImmutableArray.CreateBuilder<SpriteFramePart>(parts.Count);
         foreach (CompiledSpritePart part in parts)
-            converted.Add(ObjPartFrames.Part(part.X, part.Y, part.Attributes, firstCharacter, sizes, part.InheritPalette));
+            converted.Add(SpritePartFrames.Part(part.X, part.Y, part.Attributes, firstCharacter, sizes, part.InheritPalette));
         return new(name, converted.MoveToImmutable());
     }
 

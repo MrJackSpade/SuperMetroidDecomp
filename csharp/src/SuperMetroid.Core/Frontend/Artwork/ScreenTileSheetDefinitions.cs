@@ -48,17 +48,17 @@ public static class ScreenTileSheetDefinitions
     /// <summary>The installed sheets of frontend Mode 7 characters (#1392).</summary>
     public static IReadOnlyList<SpriteSheetId> FloorSheets { get; } =
     [
-        SpriteSheetId.TitleMode7Tiles, SpriteSheetId.TitleBabyTiles, SpriteSheetId.CeresFlightMode7Tiles, SpriteSheetId.EndingEscapeAMode7Tiles,
-        SpriteSheetId.EndingEscapeBMode7Tiles, SpriteSheetId.EndingPlanetExplosionMode7Tiles, SpriteSheetId.EndingFlyawayMode7Tiles,
-        SpriteSheetId.EndingRewardIconMode7Tiles,
+        SpriteSheetId.TitleFloorTiles, SpriteSheetId.TitleBabyTiles, SpriteSheetId.CeresFlightFloorTiles, SpriteSheetId.EndingEscapeAFloorTiles,
+        SpriteSheetId.EndingEscapeBFloorTiles, SpriteSheetId.EndingPlanetExplosionFloorTiles, SpriteSheetId.EndingFlyawayFloorTiles,
+        SpriteSheetId.EndingRewardIconFloorTiles,
     ];
 
     /// <summary>Each ending Mode 7 scene's characters' sheet.</summary>
     public static IReadOnlyDictionary<EndingFloorSceneId, SpriteSheetId> EndingFloorScenes { get; } = new Dictionary<EndingFloorSceneId, SpriteSheetId>
     {
-        [EndingFloorSceneId.EscapeA] = SpriteSheetId.EndingEscapeAMode7Tiles,
-        [EndingFloorSceneId.EscapeB] = SpriteSheetId.EndingEscapeBMode7Tiles,
-        [EndingFloorSceneId.PlanetExplosion] = SpriteSheetId.EndingPlanetExplosionMode7Tiles,
+        [EndingFloorSceneId.EscapeA] = SpriteSheetId.EndingEscapeAFloorTiles,
+        [EndingFloorSceneId.EscapeB] = SpriteSheetId.EndingEscapeBFloorTiles,
+        [EndingFloorSceneId.PlanetExplosion] = SpriteSheetId.EndingPlanetExplosionFloorTiles,
     };
 
     /// <summary>The menu's world foreground characters under each Zebes area's world-map palette, which its area map shows.</summary>

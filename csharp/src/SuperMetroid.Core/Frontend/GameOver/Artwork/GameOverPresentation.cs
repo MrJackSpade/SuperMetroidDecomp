@@ -68,7 +68,7 @@ public sealed class GameOverPresentation
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
     public string ContentIdentity { get; }
     /// <summary>Shared drawing origin of the Baby and egg compositions in screen pixels, with both coordinates in 0-255.</summary>
-    public Position16<OamPixels> BabyAnchor { get; }
+    public Position16<SpritePixels> BabyAnchor { get; }
     /// <summary>Missile-cursor horizontal screen coordinate in pixels, shared by both answers and bounded to 0-255.</summary>
     public int CursorX { get; }
     /// <summary>Missile-cursor vertical screen coordinate in pixels for the Yes answer, bounded to 0-255.</summary>
@@ -123,7 +123,7 @@ public sealed class GameOverPresentation
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.CursorFrameName(frame)),
-            new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))));
+            new Position16<SpritePixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))));
     }
 
     /// <summary>Writes one selected sixteen-colour Baby animation palette over the Baby's sprite palette row.</summary>
@@ -237,7 +237,7 @@ public sealed class GameOverPresentation
     }
 
     /// <summary>Checks both coordinates of a game-over screen anchor fit the native OAM byte range.</summary>
-    private static void ValidatePoint(Position16<OamPixels> point, string name)
+    private static void ValidatePoint(Position16<SpritePixels> point, string name)
     {
         ValidateCoordinate(point.X, $"{name} X");
         ValidateCoordinate(point.Y, $"{name} Y");

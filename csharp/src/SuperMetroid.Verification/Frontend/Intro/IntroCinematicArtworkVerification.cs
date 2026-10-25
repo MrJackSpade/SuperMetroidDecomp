@@ -819,7 +819,7 @@ internal static class IntroCinematicArtworkVerification
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(definition.Pose, installed,
-                IntroMotherBrainSpriteState.Position.ToOam(),
+                IntroMotherBrainSpriteState.Position.ToSpritePosition(),
                 IntroMotherBrainSpriteState.PaletteBits);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -841,13 +841,13 @@ internal static class IntroCinematicArtworkVerification
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
-            IntroMotherBrainSpriteState.Position.ToOam(),
+            IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.PaletteBits);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         CinematicSheetFixtures.Drawer(edited.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), editedOam,
-            IntroMotherBrainSpriteState.Position.ToOam(),
+            IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.PaletteBits);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),

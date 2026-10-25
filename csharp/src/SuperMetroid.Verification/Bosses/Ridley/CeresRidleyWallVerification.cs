@@ -38,7 +38,7 @@ internal static class CeresRidleyWallVerification
         AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Bg1.Y, "native impact does not shift BG1 Y");
         AssertEqual(3, runtime.Enemies.Earthquake.LastRoomShake.Bg2.X, "native impact shifts BG2 three pixels on first frame");
         AssertTrue(!body.ShakeTimer.IsZero, "native impact also shakes selected enemies");
-        AssertEqual(runtime.Enemies.Earthquake.LastRoomShake, runtime.Display.DisplayedGameplayPpu.RoomShake,
+        AssertEqual(runtime.Enemies.Earthquake.LastRoomShake, runtime.Display.DisplayedGameplayScrolls.RoomShake,
             "accepted display snapshot carries the wall-impact displacement");
         // Stop further attack acceleration so this checks one impact's lifetime, not
         // repeated wall contacts refreshing its timer.
@@ -49,11 +49,11 @@ internal static class CeresRidleyWallVerification
             runtime.StepFrame(0);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertEqual(remaining, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "impact timer consumes exactly twelve frames");
-            AssertTrue(runtime.Display.DisplayedGameplayPpu.RoomShake != default, "each impact frame reaches the display");
+            AssertTrue(runtime.Display.DisplayedGameplayScrolls.RoomShake != default, "each impact frame reaches the display");
         }
         runtime.StepFrame(0);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.DisplayedGameplayPpu.RoomShake == default, "impact shake ends after twelve displayed frames");
+        AssertTrue(runtime.Display.DisplayedGameplayScrolls.RoomShake == default, "impact shake ends after twelve displayed frames");
         Console.WriteLine("Ceres Ridley: real lunge collision requests and publishes native room shake.");
     }
 }

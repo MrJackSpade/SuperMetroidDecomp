@@ -129,7 +129,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private IntroDiscoverySprite? zebesTitleActor;
 
     /// <summary>Signed 16.16 camera offset applied to the Mode-7 Ceres or Zebes scene.</summary>
-    internal FixedPosition<Mode7Pixels> Background { get; private set; } = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
+    internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
     /// <summary>
     /// Mode-7 scene scale in 1/256 units (256 is identity). Every producer keeps it within zero through
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
@@ -511,7 +511,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Upload(CeresDestructionUpload.ZebesReveal);
 
         actors.Clear();
-        Background = FixedPosition<Mode7Pixels>.Zero;
+        Background = FixedPosition<FloorPixels>.Zero;
         angle = RotationAngle.Zero;
         Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
         brightness = 0;
@@ -916,8 +916,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         RenderLayer[] layers;
         if (usesFloor && (mainScreenLayers & ScreenLayers.Bg1) == ScreenLayers.None)
         {
-            layers = [new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
-                new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+            layers = [new SpritePriorityRenderLayer(0), new SpritePriorityRenderLayer(1),
+                new SpritePriorityRenderLayer(2), new SpritePriorityRenderLayer(3)];
         }
         else if (usesFloor)
         {
@@ -925,9 +925,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 Phase <= CeresDestructionPhase.FadeOutCeres
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
-                Background.Whole.AsSignedRegister());
-            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
-                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+                Background.Whole.AsSignedWord());
+            layers = [new SpritePriorityRenderLayer(0), new FloorRenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
+                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2), new SpritePriorityRenderLayer(3)];
         }
         else
         {

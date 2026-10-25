@@ -1504,7 +1504,7 @@ internal static class LookupStream1Verification
         AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int[] anchorImmediates = [0x809f73, 0x809f7c, 0x809f85, 0x809f8e];
         foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
-            AssertEqual(new Offset16<OamPixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
+            AssertEqual(new Offset16<SpritePixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
         SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
@@ -1547,9 +1547,9 @@ internal static class LookupStream1Verification
                 Draw(0x800000 | Word(0x809fd4 + (bcd >> 4) * 2), selected.Anchors[anchor]);
                 Draw(0x800000 | Word(0x809fd4 + (bcd & 15) * 2), selected.Anchors[anchor] with { X = (short)(selected.Anchors[anchor].X + selected.DigitSpacing) });
             }
-            void Draw(int spritemap, Offset16<OamPixels> anchor) =>
+            void Draw(int spritemap, Offset16<SpritePixels> anchor) =>
                 SuperMetroid.Verification.Frontend.Map.MapSpritesVerification.DrawImportedSpritemap(rom, result, spritemap,
-                    timer.PixelPosition.ToOam() + anchor, EnemyPaletteBits.Palette5);
+                    timer.PixelPosition.ToSpritePosition() + anchor, EnemyPaletteBits.Palette5);
         }
     }
 

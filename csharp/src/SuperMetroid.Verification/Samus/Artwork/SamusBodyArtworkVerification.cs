@@ -674,7 +674,7 @@ internal static class SamusBodyArtworkVerification
     /// <summary>Import-only oracle for Samus's bank-$92 OAM record format.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle drawing a Samus spritemap record straight from bank $92")]
     private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        ushort index, Position16<OamPixels> origin)
+        ushort index, Position16<SpritePixels> origin)
     {
         int pointerAddress = SamusSpritemapArtworkCatalog.PointerTableAddress + index * 2;
         int recordAddress = 0x920000 | CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(pointerAddress);

@@ -78,7 +78,7 @@ internal static class ScreenTilePicturesVerification
         int layers = 0;
         void Check(LayeredScene scene, byte[] vram, string name)
         {
-            if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or Mode7RenderLayer)
+            if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or FloorRenderLayer)
                 && sampled.Add(name))
                 layers += AssertDrawnFromTiles(scene, vram, name);
         }
@@ -120,7 +120,7 @@ internal static class ScreenTilePicturesVerification
             while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
             {
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-                if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or Mode7RenderLayer)
+                if (scene.Layers.ToArray().Any(layer => layer is TileRenderLayer or TileViewportRenderLayer or TileAddRenderLayer or FloorRenderLayer)
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
                     layers += AssertDrawnFromTiles(scene, ending.ShownVram(), $"ending at {hours} hours, {ending.Stage.Phase}");
                 ending.Step();
@@ -203,7 +203,7 @@ internal static class ScreenTilePicturesVerification
             {
                 TileRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
                 TileViewportRenderLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                Mode7RenderLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(vram, scene.Paint.Colors).Tiles) },
+                FloorRenderLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(vram, scene.Paint.Colors).Tiles) },
                 TileAddRenderLayer sub => sub with
                 {
                     Cells = FromCharacters(sub.Cells),

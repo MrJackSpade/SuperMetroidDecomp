@@ -29,7 +29,7 @@ internal static class MochtroidVisualsVerification
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = MochtroidVisualDefinitions.Bank, Pointer = pose, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-            installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, new Position16<SpritePixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) && nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"Mochtroid pose ${pose:X4} installed OAM matches cartridge");
         }

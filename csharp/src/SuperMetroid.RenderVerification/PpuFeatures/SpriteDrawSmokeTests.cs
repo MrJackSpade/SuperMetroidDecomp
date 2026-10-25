@@ -68,7 +68,7 @@ internal static class SpriteDrawSmokeTests
                 new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 3), Frame(3), new(40, 30), SpriteMirror.Horizontal),
             ];
             var memory = new FramePaint(palette, draws);
-            RgbaPixel[] pixels = Check(memory, [new ObjRenderLayer()], "ordering and flip");
+            RgbaPixel[] pixels = Check(memory, [new SpriteRenderLayer()], "ordering and flip");
             RgbaPixel red = new(255, 0, 0), blue = new(0, 0, 255), yellow = new(255, 255, 0);
             ExpectPixel(11, 10, red, "the first draw alone");
             ExpectPixel(15, 10, red, "the first-emitted draw is in front of later ones");
@@ -133,13 +133,13 @@ internal static class SpriteDrawSmokeTests
             var memory = new FramePaint(palette, draws.ToImmutable());
             ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, BgBitDepth.FourBpp,
                 new Extent16<TilemapCells>(32, 32));
-            Check(memory, [new ObjRenderLayer()], $"seeded scene {cases}");
+            Check(memory, [new SpriteRenderLayer()], $"seeded scene {cases}");
             Check(memory, [
-                new ObjPriorityRenderLayer(0),
+                new SpritePriorityRenderLayer(0),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
-                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
+                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
-                new ObjPriorityRenderLayer(3)], $"seeded priority ladder {cases}");
+                new SpritePriorityRenderLayer(3)], $"seeded priority ladder {cases}");
         }
 
         RgbaPixel[] Check(FramePaint memory, RenderLayer[] layers, string label)

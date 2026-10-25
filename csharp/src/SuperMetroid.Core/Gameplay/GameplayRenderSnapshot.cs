@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Bg1Scroll">Layer 1's scroll.</param>
 /// <param name="Bg2Scroll">Layer 2's scroll.</param>
 /// <param name="RoomShake">The room shake displayed with this frame.</param>
-public readonly record struct GameplayPpuRenderSnapshot(
+public readonly record struct GameplayRenderSnapshot(
     Position16<RoomPixels> Layer1Position,
     Position16<RoomPixels> Bg1Scroll,
     Position16<Bg2Pixels> Bg2Scroll,

@@ -51,7 +51,7 @@ internal static class FrozenMetroidShellVerification
             "Installed frozen shell artwork must exist.");
         var expected = new OamBuffer();
         expected.BeginFrame();
-        expected.AddEnemySpritemap(parts, new Position16<OamPixels>(120, 100), 0x0c00,
+        expected.AddEnemySpritemap(parts, new Position16<SpritePixels>(120, 100), 0x0c00,
             checked((ushort)new SnesObjAttributeWord(checked((ushort)(indexes.TileIndex | indexes.PaletteIndex))).TileNumber));
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)

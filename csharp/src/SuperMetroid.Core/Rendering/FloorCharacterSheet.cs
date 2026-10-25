@@ -3,10 +3,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// An installed sheet of one frontend Mode 7 artwork's characters, pre-coloured (#1392): each 8x8 character,
+/// An installed sheet of one frontend floor artwork's characters, pre-coloured (#1392): each 8x8 character,
 /// <see cref="TilesPerRow"/> to a row, coloured from the full palette of the screen that shows it.
 /// </summary>
-public sealed class Mode7CharacterSheet
+public sealed class FloorCharacterSheet
 {
     /// <summary>The frame picturing every character.</summary>
     public const string FrameName = "tiles";
@@ -22,7 +22,7 @@ public sealed class Mode7CharacterSheet
 
     /// <summary>Checks the sheet holds whole rows of characters coloured from the full palette.</summary>
     /// <exception cref="InvalidDataException">The picture is not whole rows of characters, or not coloured from the full palette.</exception>
-    public Mode7CharacterSheet(SpriteSheetId id, SpriteSheet sheet)
+    public FloorCharacterSheet(SpriteSheetId id, SpriteSheet sheet)
     {
         Id = id;
         Picture = Ensure.NotNull(sheet).Frame(FrameName);

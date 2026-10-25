@@ -25,7 +25,7 @@ internal sealed class CeresStarPointParts(StarfieldPoint[] points, SnesTileFlipF
         for (int index = 0; index < points.Length; index++)
         {
             var part = supplied[index];
-            points[index] = new(Offset16<OamPixels>.Of(part.X.SignedOffset, part.Y.Raw), part.Attributes.TileNumber);
+            points[index] = new(Offset16<SpritePixels>.Of(part.X.SignedOffset, part.Y.Raw), part.Attributes.TileNumber);
         }
         var calculated = new CeresStarPointParts(points, flips);
         return supplied.SequenceEqual(calculated) ? calculated : supplied;

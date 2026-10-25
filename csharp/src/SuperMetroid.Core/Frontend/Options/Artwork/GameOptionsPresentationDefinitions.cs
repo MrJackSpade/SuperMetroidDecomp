@@ -181,7 +181,7 @@ public static class GameOptionsPresentationDefinitions
     internal static Position16<TilemapCells> ControllerAnchor(int action) => GameOptionsLayout.ControllerLabelAnchor(action);
 
     /// <summary>$82:F307/F31B/F33F selection missile rows, including controller scroll displacement.</summary>
-    internal static Position16<OamPixels> CursorAnchor(GameOptionsPage page, int row)
+    internal static Position16<SpritePixels> CursorAnchor(GameOptionsPage page, int row)
     {
         if ((uint)row >= CursorCount(page))
             throw new InvalidDataException($"Options cursor {page}[{row}] is not authored.");
@@ -195,7 +195,7 @@ public static class GameOptionsPresentationDefinitions
     }
 
     /// <summary>$82:F34B/F353/F35B and F369 named page heading setup anchors.</summary>
-    internal static Position16<OamPixels> HeadingAnchor(GameOptionsPage page) =>
+    internal static Position16<SpritePixels> HeadingAnchor(GameOptionsPage page) =>
         new(GameOptionsLayout.HeadingX(page), GameOptionsDefinitions.Headings.HeadingY);
 
     /// <summary>$82:EDF2..EE51 language highlight calls cover consecutive tile words in two text rows.</summary>

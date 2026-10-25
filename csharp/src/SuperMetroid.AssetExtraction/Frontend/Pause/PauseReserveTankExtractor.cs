@@ -19,7 +19,7 @@ public static class PauseReserveTankExtractor
         for (int index = 0; index < PauseMenuSourceDefinitions.ReserveTankPartialFillCount; index++)
             if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankPartialFills + index * 2) != (ushort)PauseReserveTankDefinitions.PartialMap(index))
                 throw new InvalidDataException("Unexpected native reserve fill binding.");
-        var anchors = new Position16<OamPixels>[PauseReserveTankDefinitions.AnchorCount];
+        var anchors = new Position16<SpritePixels>[PauseReserveTankDefinitions.AnchorCount];
         int y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankYPosition) - 1));
         for (int index = 0; index < anchors.Length; index++)
             anchors[index] = new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankXPositions + index * 2), checked((ushort)y));

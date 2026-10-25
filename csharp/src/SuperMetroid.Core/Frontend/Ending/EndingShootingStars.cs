@@ -67,7 +67,7 @@ internal sealed class EndingShootingStars
         {
             if (star.Delayed || star.AnimationFrame == 0) continue;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            objects.AddObjectImage(sheet.Frame(EndingShootingStarDefinitions.SheetFrameName(star.AnimationFrame)), origin.ToOam());
+            objects.AddObjectImage(sheet.Frame(EndingShootingStarDefinitions.SheetFrameName(star.AnimationFrame)), origin.ToSpritePosition());
         }
     }
 

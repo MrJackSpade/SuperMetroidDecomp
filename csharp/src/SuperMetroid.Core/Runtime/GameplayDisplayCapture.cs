@@ -26,7 +26,7 @@ public static class GameplayDisplayCapture
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
         LayeredScene basis = latched.ShowsPerspectiveFloor ? CapturePerspectiveFloorBase(frame) : CaptureOrdinaryBase(frame);
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
-        GameplayPpuRenderSnapshot scrolls = latched.Ppu;
+        GameplayRenderSnapshot scrolls = latched.Scrolls;
         bool doorOwnsDisplay = live.DoorTransitionMainScreenLayers is not null;
         if (!doorOwnsDisplay && CaptureXray(frame, basis) is { } xray) return xray;
         if (!doorOwnsDisplay && latched.Phantoon is { } phantoon)
@@ -86,7 +86,7 @@ public static class GameplayDisplayCapture
         if (latched.ShowsPerspectiveFloor)
             throw new InvalidOperationException("Ordinary base capture cannot represent a Mode-7 scene.");
 
-        GameplayPpuRenderSnapshot scrolls = latched.Ppu;
+        GameplayRenderSnapshot scrolls = latched.Scrolls;
         GameplayLatchedScene scene = latched.Scene;
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
@@ -224,14 +224,14 @@ public static class GameplayDisplayCapture
     private static LayeredScene CapturePerspectiveFloorBase(GameplayDisplayFrame frame)
     {
         GameplayDisplayLatch latched = frame.Latched;
-        GameplayPpuRenderSnapshot scrolls = latched.Ppu;
+        GameplayRenderSnapshot scrolls = latched.Scrolls;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         PerspectiveFloor perspective = latched.PerspectiveFloor
             ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
         // Room shake moves the floor with layer 1, wrapping as a sixteen-bit scroll.
         AffineTransform transform = perspective.Transform with
         {
-            Scroll = new Offset16<Mode7Pixels>(
+            Scroll = new Offset16<FloorPixels>(
                 unchecked((short)(perspective.Transform.Scroll.X + shake.Bg1.X)),
                 unchecked((short)(perspective.Transform.Scroll.Y + shake.Bg1.Y))),
         };
@@ -240,7 +240,7 @@ public static class GameplayDisplayCapture
                 new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
-        var layer = new Mode7GameplayRenderLayer(transform, Bg3(latched), (latched.Rooms?.Mode7
+        var layer = new GameplayFloorRenderLayer(transform, Bg3(latched), (latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), SnesPpuLayout.GameplayHudHeightPixels, floor);
         return new(frame.Paint, new RenderLayer[] { layer }, FadeLevel.Full);
     }
@@ -275,7 +275,7 @@ public static class GameplayDisplayCapture
         GameplayDisplayLatch latched = frame.Latched;
         GameplayLatchedScene scene = latched.Scene;
         RoomHeaderDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
-        var scrolls = latched.Ppu;
+        var scrolls = latched.Scrolls;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
         // The reveal shows once an accepted NMI has latched it; until then BG2 shows what the room shows (#1403).

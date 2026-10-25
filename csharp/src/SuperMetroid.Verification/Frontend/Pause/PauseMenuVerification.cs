@@ -125,7 +125,7 @@ internal static class PauseMenuVerification
             "downloaded pause map horizontal centering");
         AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
             "downloaded pause map vertical centering");
-        AssertEqual(new Position16<OamPixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
+        AssertEqual(new Position16<SpritePixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
         AssertEqual(SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorFrame0, pause.LastMapIndicatorSprite, "pause map marker initial frame");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
@@ -143,7 +143,7 @@ internal static class PauseMenuVerification
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
         AssertEqual(PauseEquipmentCategory.Suits, pause.LastSelectorCategory, "pause selector drawn for the suits category");
-        AssertEqual(new Position16<OamPixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
+        AssertEqual(new Position16<SpritePixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
             "pause map label dims on equipment page");
@@ -166,7 +166,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Down);
         AssertEqual(3, pause.SelectedItem, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(new Position16<OamPixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
+        AssertEqual(new Position16<SpritePixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
         pause.Step(0, ControllerButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
             "pause A unequips live Bombs bit");

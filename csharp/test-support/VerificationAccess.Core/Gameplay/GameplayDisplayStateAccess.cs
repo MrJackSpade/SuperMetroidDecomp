@@ -19,7 +19,7 @@ internal static class GameplayDisplayStateAccess
         /// Ordinary BG scroll registers and room-shake deltas published by the most recent
         /// accepted NMI. These belong to the same PPU-visible frame as <see cref="SuperMetroidRuntime.DisplayedSprites"/>.
         /// </summary>
-        public GameplayPpuRenderSnapshot DisplayedGameplayPpu => self.Latched.Ppu;
+        public GameplayRenderSnapshot DisplayedGameplayScrolls => self.Latched.Scrolls;
         /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
         public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx => self.Latched.RoomLayer3Fx;
     }

@@ -534,9 +534,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
         RenderLayer[] layers =
         [
-            new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
-            main with { Priority = false }, new ObjPriorityRenderLayer(2),
-            main with { Priority = true }, new ObjPriorityRenderLayer(3),
+            new SpritePriorityRenderLayer(0), new SpritePriorityRenderLayer(1),
+            main with { Priority = false }, new SpritePriorityRenderLayer(2),
+            main with { Priority = true }, new SpritePriorityRenderLayer(3),
             new TileAddRenderLayer(ExplosionCells(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];

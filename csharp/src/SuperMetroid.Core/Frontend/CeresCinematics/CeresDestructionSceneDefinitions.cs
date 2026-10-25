@@ -16,10 +16,10 @@ internal static class CeresDestructionSceneDefinitions
     /// The floor point, in floor pixels, the Ceres explosion's floor turns about before its fade-out; the station's
     /// explosions are also placed relative to it.
     /// </summary>
-    internal static Offset16<Mode7Pixels> CeresFloorCenter => new(52, 48);
+    internal static Offset16<FloorPixels> CeresFloorCenter => new(52, 48);
 
     /// <summary>The floor point, in floor pixels, the following Zebes approach's floor turns about.</summary>
-    internal static Offset16<Mode7Pixels> ZebesFloorCenter => new(56, 24);
+    internal static Offset16<FloorPixels> ZebesFloorCenter => new(56, 24);
 
     /// <summary>The width, in pixels, of the world the approach's actors wrap around horizontally.</summary>
     internal const int WorldWidth = 512;

@@ -20,24 +20,24 @@ internal static class EndingScreenTiles
     {
         Ensure.NotNull(sheets);
         var tiles = new FloorCharacters();
-        int chunkTiles = EndingArtworkExtentDefinitions.FlyawayChunkBytes / Mode7CharacterSheet.TileBytes;
+        int chunkTiles = EndingArtworkExtentDefinitions.FlyawayChunkBytes / FloorCharacterSheet.TileBytes;
         int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / EndingArtworkExtentDefinitions.FlyawayChunkBytes;
-        int rewardTiles = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes;
+        int rewardTiles = EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort) / FloorCharacterSheet.TileBytes;
         foreach (EndingUpload upload in Ensure.NotNull(uploads))
         {
             if (upload.Kind == EndingUploadKind.FloorSceneTiles)
             {
-                Mode7CharacterSheet scene = ScreenTileSheets.Floor(sheets, ScreenTileSheetDefinitions.EndingFloorScenes[upload.As<EndingFloorSceneUpload>().Scene]);
+                FloorCharacterSheet scene = ScreenTileSheets.Floor(sheets, ScreenTileSheetDefinitions.EndingFloorScenes[upload.As<EndingFloorSceneUpload>().Scene]);
                 tiles.Show(scene, 0, 0, scene.Tiles);
             }
             // The flyaway's first lane uploads the gunship's characters; its second, the map.
             else if (upload.Kind == EndingUploadKind.FlyawayChunk && upload.As<EndingChunkUpload>().Chunk < chunksPerLane)
-                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingFlyawayMode7Tiles), upload.As<EndingChunkUpload>().Chunk * chunkTiles, upload.As<EndingChunkUpload>().Chunk * chunkTiles, chunkTiles);
+                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingFlyawayFloorTiles), upload.As<EndingChunkUpload>().Chunk * chunkTiles, upload.As<EndingChunkUpload>().Chunk * chunkTiles, chunkTiles);
             // Each reward chunk pictures the next run of the floor's tiles.
             else if (upload.Kind == EndingUploadKind.RewardChunk)
-                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconMode7Tiles), upload.As<EndingChunkUpload>().Chunk * rewardTiles, upload.As<EndingChunkUpload>().Chunk * rewardTiles, rewardTiles);
+                tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.EndingRewardIconFloorTiles), upload.As<EndingChunkUpload>().Chunk * rewardTiles, upload.As<EndingChunkUpload>().Chunk * rewardTiles, rewardTiles);
             else if (upload.Kind == EndingUploadKind.CreditsCharacterArt)
-                tiles.Clear(0, EndingArtworkExtentDefinitions.FloorBytes / sizeof(ushort) / Mode7CharacterSheet.TileBytes);
+                tiles.Clear(0, EndingArtworkExtentDefinitions.FloorBytes / sizeof(ushort) / FloorCharacterSheet.TileBytes);
         }
         return tiles.Pictures();
     }

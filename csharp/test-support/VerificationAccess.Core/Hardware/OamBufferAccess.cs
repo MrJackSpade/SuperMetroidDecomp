@@ -17,7 +17,7 @@ internal static class OamBufferAccess
         /// </summary>
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for projectile parts")]
         public void AddProjectileSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
-            SnesObjAttributeWord attributes, Position16<OamPixels> origin)
+            SnesObjAttributeWord attributes, Position16<SpritePixels> origin)
         {
             ushort x = unchecked((ushort)(origin.X + xOffset.Raw));
             byte y = unchecked((byte)(origin.Y + yOffset));
@@ -41,7 +41,7 @@ internal static class OamBufferAccess
         /// small object at X 0..255 and is deliberately left untouched.
         /// </remarks>
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for projectile trails")]
-        public void AddProjectileTrailSprite(Position16<OamPixels> position, SnesObjAttributeWord attributes)
+        public void AddProjectileTrailSprite(Position16<SpritePixels> position, SnesObjAttributeWord attributes)
         {
             if (self.NextByteOffset >= OamBuffer.LowTableByteCount)
                 return;
@@ -56,7 +56,7 @@ internal static class OamBufferAccess
         /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
         public void AddEnemySpritemap(
             ReadOnlySpan<SpritemapPart> parts,
-            Position16<OamPixels> origin,
+            Position16<SpritePixels> origin,
             ushort paletteBits,
             ushort baseTileIndex,
             bool clipVerticalWrap = false,
@@ -71,7 +71,7 @@ internal static class OamBufferAccess
         /// <summary>Appends an installed enemy composition in its original drawing order, as the native writer does.</summary>
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy compositions")]
         public void AddEnemySpritemap(EnemySpritemapParts parts,
-            Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
+            Position16<SpritePixels> origin, ushort paletteBits, ushort baseTileIndex,
             bool clipVerticalWrap = false, bool originYIsOnScreen = true)
         {
             Ensure.NotNull(parts);
@@ -84,7 +84,7 @@ internal static class OamBufferAccess
         /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy parts")]
         internal void AppendEnemySpritemapPart(SpritemapPart part,
-            Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
+            Position16<SpritePixels> origin, ushort paletteBits, ushort baseTileIndex,
             bool clipVerticalWrap, bool originYIsOnScreen)
         {
             SnesSpritemapXWord encodedXOffset = part.X;

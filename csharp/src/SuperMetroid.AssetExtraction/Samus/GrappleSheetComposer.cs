@@ -36,7 +36,7 @@ internal static class GrappleSheetComposer
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.TileNumber:X3}, which its orientation selects.");
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++)
         {
-            frames.Add(new(GrappleSheetDefinitions.EndpointFrame(point), ObjPartFrames.SmallObject(endpoint, 0),
+            frames.Add(new(GrappleSheetDefinitions.EndpointFrame(point), SpritePartFrames.SmallObject(endpoint, 0),
                 tiles.OnStandardObjects(inputs.StandardObjects, point, GrappleRopeOrientation.Horizontal)));
         }
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
@@ -54,7 +54,7 @@ internal static class GrappleSheetComposer
                     SnesTileFlipFlags flips = ((mirror & SpriteMirror.Horizontal) != 0 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
                         ((mirror & SpriteMirror.Vertical) != 0 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None);
                     frames.Add(new(GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror),
-                        ObjPartFrames.SmallObject(new SnesObjAttributeWord(appearance).Or(SnesObjAttributeWord.Create(0, 0, 0, flips)), 0), page));
+                        SpritePartFrames.SmallObject(new SnesObjAttributeWord(appearance).Or(SnesObjAttributeWord.Create(0, 0, 0, flips)), 0), page));
                 }
             }
         }

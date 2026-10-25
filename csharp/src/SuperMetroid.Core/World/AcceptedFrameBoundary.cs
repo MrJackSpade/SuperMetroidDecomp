@@ -126,7 +126,7 @@ internal sealed class AcceptedFrameBoundary
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
-        var displayScroll = new GameplayPpuRenderSnapshot(
+        var displayScroll = new GameplayRenderSnapshot(
             _backgroundScroll.Layer1Position,
             _backgroundScroll.Bg1Scroll,
             _backgroundScroll.Bg2Scroll,

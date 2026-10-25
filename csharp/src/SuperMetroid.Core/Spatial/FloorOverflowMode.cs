@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
-/// <summary>What shows beyond a Mode 7 floor's 1024 by 1024 pixels (#1403).</summary>
-public enum Mode7OverflowMode : byte
+/// <summary>What shows beyond a turning floor's 1024 by 1024 pixels (#1403).</summary>
+public enum FloorOverflowMode : byte
 {
     /// <summary>Nothing shows beyond the floor.</summary>
     Transparent = 0,

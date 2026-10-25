@@ -51,7 +51,7 @@ internal static class MotherBrainBodyPublicationVerification
         AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.View.Bg2MapSize, "her body shows on one 32x32 screen");
-        AssertEqual(state.Bg2Scroll + runtime.Display.Latched.Ppu.RoomShake.Bg2, drawn.View.Bg2Scroll, "her scroll places her body");
+        AssertEqual(state.Bg2Scroll + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.Bg2Scroll, "her scroll places her body");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
         AssertTrue(drawn.View.MainScreenLayers.HasFlag(ScreenLayers.Bg2), "her shown body keeps BG2 on the main screen");
 

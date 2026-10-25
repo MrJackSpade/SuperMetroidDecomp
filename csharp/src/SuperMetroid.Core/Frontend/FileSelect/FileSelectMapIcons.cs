@@ -105,6 +105,6 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, int palette)
     {
         MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Map icons require the installed map sprite sheet."),
-            id, entries, position.ToScreen(scroll).ToOam(), palette);
+            id, entries, position.ToScreen(scroll).ToSpritePosition(), palette);
     }
 }

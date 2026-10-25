@@ -18,7 +18,7 @@ public static class PauseReserveTankDefinitions
     /// <param name="index">Zero-based tank/cap anchor, 0..5, not a reserve-energy quantity.</param>
     /// <returns>The stock screen-pixel origin before editable anchor deviations are applied.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The anchor is outside the six-entry strip.</exception>
-    public static Position16<OamPixels> StockAnchor(int index)
+    public static Position16<SpritePixels> StockAnchor(int index)
     {
         if ((uint)index >= AnchorCount) throw new ArgumentOutOfRangeException(nameof(index));
         return new(checked((ushort)(24 + index * 8)), 95);

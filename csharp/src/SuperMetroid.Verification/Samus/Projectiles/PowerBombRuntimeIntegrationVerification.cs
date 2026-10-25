@@ -57,7 +57,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         // write reaches the PPU only with the following accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 
-        GameplayPpuRenderSnapshot ppu = runtime.Display.DisplayedGameplayPpu;
+        GameplayRenderSnapshot ppu = runtime.Display.DisplayedGameplayScrolls;
         ScanlineColorAddRenderLayer expected = GameplayEffectCapture.CapturePowerBombColorMath(
                 PowerBombRenderSnapshot.Capture(explosion), ppu.Layer1Position)
             ?? throw new InvalidOperationException("The active Power Bomb captured no window.");

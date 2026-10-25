@@ -107,7 +107,7 @@ internal static class EndingShootingStarsTests
         logo.PaletteStep = 16;
         logo.CrossfadeStarted = true;
         var final = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-        Require(final.Paint.SpriteDraws.Length > 0 && final.LayersOf<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
+        Require(final.Paint.SpriteDraws.Length > 0 && final.LayersOf<SpriteRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 
         ushort Word(int address) => rom.ReadCartridgeWord(address);

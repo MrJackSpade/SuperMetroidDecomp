@@ -36,7 +36,7 @@ internal static class EndingSpriteSheetComposer
             frames.AddRange(EndingShootingStarDefinitions.SheetFrames.Select(frame =>
             {
                 string name = EndingShootingStarDefinitions.SheetFrameName(frame);
-                return new SheetFrameSource(name, new SpriteFrame(name, [ObjPartFrames.Part(SnesSpritemapXWord.Create(0, large: false),
+                return new SheetFrameSource(name, new SpriteFrame(name, [SpritePartFrames.Part(SnesSpritemapXWord.Create(0, large: false),
                     SnesSpritemapYByte.Create(0), EndingShootingStarDefinitions.Attribute(frame), 0, sizes)]), characters,
                     FrontendSheetPalette.FramePalette);
             }));
@@ -108,10 +108,10 @@ internal static class EndingSpriteSheetComposer
                 SpriteSheetId.EndingTextFontTiles or SpriteSheetId.EndingSubtitleTiles or
                 SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
                 SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles or
-                SpriteSheetId.TitleMode7Tiles or SpriteSheetId.TitleBabyTiles or
-                SpriteSheetId.CeresFlightMode7Tiles or SpriteSheetId.EndingEscapeAMode7Tiles or
-                SpriteSheetId.EndingEscapeBMode7Tiles or SpriteSheetId.EndingPlanetExplosionMode7Tiles or
-                SpriteSheetId.EndingFlyawayMode7Tiles or SpriteSheetId.EndingRewardIconMode7Tiles =>
+                SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or
+                SpriteSheetId.CeresFlightFloorTiles or SpriteSheetId.EndingEscapeAFloorTiles or
+                SpriteSheetId.EndingEscapeBFloorTiles or SpriteSheetId.EndingPlanetExplosionFloorTiles or
+                SpriteSheetId.EndingFlyawayFloorTiles or SpriteSheetId.EndingRewardIconFloorTiles =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Not an ending sheet."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };

@@ -174,9 +174,9 @@ internal static class PpuLayoutBoundaryVerification
         var oam = new OamBuffer();
         oam.BeginFrame();
         SnesObjAttributeWord attributes = SnesObjAttributeWord.Create(0x1c3, paletteIndex: 6, priority: 2, SnesTileFlipFlags.Horizontal);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x01f0, 0x0080), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x01f0, 0x0080), attributes);
         OamEntry entry = oam.GetEntry(0);
-        AssertEqual(new OamEntry(new Position16<OamPixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
+        AssertEqual(new OamEntry(new Position16<SpritePixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
             "an object's position and attributes round-trip through OAM");
 
     }
@@ -263,11 +263,11 @@ internal static class PpuLayoutBoundaryVerification
         var oam = new OamBuffer();
         oam.BeginFrame();
         var attributes = SnesObjAttributeWord.Create(0x0a0, paletteIndex: 1, priority: 3);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x0010, 0x0020), attributes);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x0180, 0x0021), attributes);
-        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), new SnesSpritemapYByte(0), attributes, new Position16<OamPixels>(0x0030, 0x0040));
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x01ff, 0x0022), attributes);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x0100, 0x0023), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x0010, 0x0020), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x0180, 0x0021), attributes);
+        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), new SnesSpritemapYByte(0), attributes, new Position16<SpritePixels>(0x0030, 0x0040));
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x01ff, 0x0022), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x0100, 0x0023), attributes);
 
         ReadOnlySpan<byte> low = oam.LowTable;
         AssertEqual((byte)0x10, low[0], "OBJ 0 X low byte");

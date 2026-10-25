@@ -13,7 +13,7 @@ internal static class SpriteCompositionAccess
         /// <param name="origin">Composition origin in screen-space pixels.</param>
         /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
         [PpuLayoutBoundary("frontend OAM writer: SpriteComposition.DrawOnScreen until #1358 moves it onto sprite entries")]
-        public void DrawOnScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+        public void DrawOnScreen(OamBuffer oam, Position16<SpritePixels> origin, ushort paletteBits)
         {
             _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
             foreach (var part in self.parts)
@@ -22,7 +22,7 @@ internal static class SpriteCompositionAccess
         }
         /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
         [PpuLayoutBoundary("frontend OAM writer: SpriteComposition.DrawOffScreen until #1358 moves it onto sprite entries")]
-        public void DrawOffScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+        public void DrawOffScreen(OamBuffer oam, Position16<SpritePixels> origin, ushort paletteBits)
         {
             _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
             foreach (var part in self.parts)

@@ -12,7 +12,7 @@ public sealed record PauseSelectorDocument
     /// <summary>Gets the OBJ palette index from zero through seven.</summary>
     public required int Palette { get; init; }
     /// <summary>Gets all sixteen named selector anchors in screen pixels.</summary>
-    public required Dictionary<string, Position16<OamPixels>> Anchors { get; init; }
+    public required Dictionary<string, Position16<SpritePixels>> Anchors { get; init; }
     /// <summary>Gets named selector frames as sprite-part compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
     /// <summary>Gets the ordered cyclic animation phases.</summary>

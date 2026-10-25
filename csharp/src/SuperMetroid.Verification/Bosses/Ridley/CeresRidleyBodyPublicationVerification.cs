@@ -37,8 +37,8 @@ internal static class CeresRidleyBodyPublicationVerification
             ?? throw new InvalidOperationException("The Ceres Ridley room loads Ridley.");
         ridley.GetawayActive = true;
         ridley.FloorAngle = RotationAngle.FromRaw(1);
-        ridley.FloorOffset = new Offset16<Mode7Pixels>(-128, 32);
-        ridley.FloorCenter = new Position16<Mode7Pixels>(64, 64);
+        ridley.FloorOffset = new Offset16<FloorPixels>(-128, 32);
+        ridley.FloorCenter = new Position16<FloorPixels>(64, 64);
         // The getaway setup's starting table position and animation frames ($A6:A2E3).
         ridley.GetawayFrameIndex = 0;
         ridley.GetawayBabyFrame = 0;
@@ -59,7 +59,7 @@ internal static class CeresRidleyBodyPublicationVerification
             foreach (CeresFloorTileRun transfer in CeresFloorAnimationDefinitions.Get(wings))
                 AssertTrue(map.Cells.Slice(transfer.FloorCell, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
                     $"angle {ridley.FloorAngle} publishes his {wings} body frame");
-            var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+            var mode7 = (GameplayFloorRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Cells.SequenceEqual(map.Cells), $"angle {ridley.FloorAngle} draws his published body");
         }
         Console.WriteLine("  Ceres Ridley body: two getaway rotations publish his transform and body frames on the Mode 7 layer.");

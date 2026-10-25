@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Escape.Artwork;
 public sealed class EscapeTimerPresentation
 {
     /// <summary>Only edited screen-relative offsets; stock anchors are calculated when absent.</summary>
-    internal readonly Dictionary<EscapeTimerAnchor, Offset16<OamPixels>> anchors;
+    internal readonly Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>> anchors;
 
     /// <summary>Retains validated anchor overrides and the digit spacing.</summary>
-    private EscapeTimerPresentation(Dictionary<EscapeTimerAnchor, Offset16<OamPixels>> anchors, int digitSpacing)
+    private EscapeTimerPresentation(Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>> anchors, int digitSpacing)
     {
         this.anchors = anchors;
         DigitSpacing = digitSpacing;
@@ -37,23 +37,23 @@ public sealed class EscapeTimerPresentation
         DrawPair(timer.Seconds, Anchor(EscapeTimerAnchor.Seconds));
         DrawPair(timer.Centiseconds, Anchor(EscapeTimerAnchor.Centiseconds));
 
-        void DrawPair(PackedDecimal pair, Offset16<OamPixels> anchor)
+        void DrawPair(PackedDecimal pair, Offset16<SpritePixels> anchor)
         {
             if (!pair.IsValid)
                 throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${pair.Raw:X2}.");
             DrawFrame(EscapeTimerPresentationDefinitions.DigitGlyph(pair.Tens), anchor);
             DrawFrame(EscapeTimerPresentationDefinitions.DigitGlyph(pair.Ones),
-                anchor + new Offset16<OamPixels>(checked((short)DigitSpacing), 0));
+                anchor + new Offset16<SpritePixels>(checked((short)DigitSpacing), 0));
         }
 
-        void DrawFrame(EscapeTimerGlyph glyph, Offset16<OamPixels> anchor) =>
+        void DrawFrame(EscapeTimerGlyph glyph, Offset16<SpritePixels> anchor) =>
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer),
                 sheet.Frame(EscapeTimerPresentationDefinitions.FrameName(glyph)),
                 timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SpriteMirror.None));
     }
 
     /// <summary>Resolves an edited timer anchor or its calculated stock position.</summary>
-    private Offset16<OamPixels> Anchor(EscapeTimerAnchor anchor) => anchors.TryGetValue(anchor, out var supplied)
+    private Offset16<SpritePixels> Anchor(EscapeTimerAnchor anchor) => anchors.TryGetValue(anchor, out var supplied)
         ? supplied : EscapeTimerPresentationDefinitions.DefaultAnchor(anchor);
 
     /// <summary>Validates an authored timer layout.</summary>
@@ -82,10 +82,10 @@ public sealed class EscapeTimerPresentation
             EscapeTimerPresentationDefinitions.Anchors.Any(anchor => !document.Anchors.ContainsKey(EscapeTimerPresentationDefinitions.AnchorName(anchor))))
             throw new InvalidDataException("Escape timer presentation requires Label, Minutes, Seconds and Centiseconds anchors exactly once.");
 
-        var anchors = new Dictionary<EscapeTimerAnchor, Offset16<OamPixels>>();
+        var anchors = new Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>>();
         foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
         {
-            Offset16<OamPixels> point = document.Anchors[EscapeTimerPresentationDefinitions.AnchorName(anchor)];
+            Offset16<SpritePixels> point = document.Anchors[EscapeTimerPresentationDefinitions.AnchorName(anchor)];
             if (point.X is < -256 or > 255 || point.Y is < -224 or > 223)
                 throw new InvalidDataException($"Escape timer anchor {anchor} is outside the supported screen-relative range.");
             if (point != EscapeTimerPresentationDefinitions.DefaultAnchor(anchor)) anchors.Add(anchor, point);

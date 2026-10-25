@@ -230,12 +230,12 @@ internal static class GameplayDisplayFrameTestsVerification
         getaway.GetawayActive = true;
         getaway.FloorMatrixA = SignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SignedEightEight.FromSignedRaw(33);
         getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
-        getaway.FloorCenter = new Position16<Mode7Pixels>(128, 120);
-        getaway.FloorOffset = new Offset16<Mode7Pixels>(7, 19);
+        getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
+        getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
             "Ridley's M7A..M7Y and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        var mode7 = (GameplayFloorRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual((short)240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
         AssertEqual((short)33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");

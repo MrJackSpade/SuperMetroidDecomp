@@ -1017,7 +1017,7 @@ internal static class LookupStream2Verification
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
         var editedOam = new OamBuffer();
-        editedOam.AddEnemySpritemap(selectedDisplay, new Position16<OamPixels>(128, 128), 0, 0);
+        editedOam.AddEnemySpritemap(selectedDisplay, new Position16<SpritePixels>(128, 128), 0, 0);
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlasPng.Read(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
@@ -1478,7 +1478,7 @@ internal static class LookupStream2Verification
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
-            oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y), nativeWords.GetValueOrDefault(side));
+            oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y), nativeWords.GetValueOrDefault(side));
         }
     }
 
@@ -2220,8 +2220,8 @@ internal static class LookupStream2Verification
                     AssertEqual((short)wanted.OffsetY, found.Offset.Y, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
                     ushort x = unchecked((ushort)(128 + wanted.OffsetX)), y = unchecked((ushort)(96 + wanted.OffsetY));
-                    expectedOam.AddEnemySpritemap(parts.AsSpan(), new Position16<OamPixels>(x, y), 0, 0);
-                    actualOam.AddEnemySpritemap(found.Parts, new Position16<OamPixels>(x, y), 0, 0);
+                    expectedOam.AddEnemySpritemap(parts.AsSpan(), new Position16<SpritePixels>(x, y), 0, 0);
+                    actualOam.AddEnemySpritemap(found.Parts, new Position16<SpritePixels>(x, y), 0, 0);
                 }
                 AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Golden Torizo packed OBJ count");
                 AssertTrue(expectedOam.ImageEquals(actualOam),

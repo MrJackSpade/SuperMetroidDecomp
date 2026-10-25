@@ -20,7 +20,7 @@ internal static class EndingCreditsPresentation
             if (ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted)
                 layers.Add(new TileRenderLayer(ending.Cells(EndingPlane.Logo, new Extent16<TilemapCells>(32, 32),
                     EndingTileLayer.Logo, BgBitDepth.FourBpp), new Position16<BgPlanePixels>(0, 0), null));
-            layers.Add(new ObjRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
+            layers.Add(new SpriteRenderLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending));
             // The logo assembles over the shooting scene's page.
             return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(), checked((byte)ending.Stage.Brightness));
@@ -29,11 +29,11 @@ internal static class EndingCreditsPresentation
         {
             // Mode 7 places OBJ priority zero below BG1; the other three priorities
             // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
-            layers.Add(new ObjPriorityRenderLayer(0));
-            layers.Add(new Mode7RenderLayer(PostShotTransform(ending), AffineFloor.Of(ending.FloorCells(), ending.FloorTiles()), true));
-            layers.Add(new ObjPriorityRenderLayer(1));
-            layers.Add(new ObjPriorityRenderLayer(2));
-            layers.Add(new ObjPriorityRenderLayer(3));
+            layers.Add(new SpritePriorityRenderLayer(0));
+            layers.Add(new FloorRenderLayer(PostShotTransform(ending), AffineFloor.Of(ending.FloorCells(), ending.FloorTiles()), true));
+            layers.Add(new SpritePriorityRenderLayer(1));
+            layers.Add(new SpritePriorityRenderLayer(2));
+            layers.Add(new SpritePriorityRenderLayer(3));
             return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(), checked((byte)ending.Stage.Brightness));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
@@ -49,7 +49,7 @@ internal static class EndingCreditsPresentation
             {
                 objectSheet = CurrentRewardObjectSheet(ending);
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
-                    layers.Add(new ObjPriorityRenderLayer(0));
+                    layers.Add(new SpritePriorityRenderLayer(0));
                 if (PostCreditsBackgroundEnabled(ending))
                     layers.Add(PostCreditsLayer(ending));
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
@@ -63,12 +63,12 @@ internal static class EndingCreditsPresentation
             {
                 // Fixed addition belongs to backdrop and eligible OBJ, not BG1.
                 if (ending.Flyaway.FlyawayFixedColor is { } backdropWhite) layers.Add(backdropWhite);
-                if (UsesFlyawayFloorPriority(ending)) layers.Add(new ObjPriorityRenderLayer(0, ending.Flyaway.FlyawayFixedColor));
+                if (UsesFlyawayFloorPriority(ending)) layers.Add(new SpritePriorityRenderLayer(0, ending.Flyaway.FlyawayFixedColor));
                 int a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.Stage.FloorZoom);
                 int b = Scale(ReadSine(ending.Stage.FloorAngle.ToByteAngle()), ending.Stage.FloorZoom);
-                layers.Add(new Mode7RenderLayer(new((short)a, (short)b, unchecked((short)-b), (short)a,
+                layers.Add(new FloorRenderLayer(new((short)a, (short)b, unchecked((short)-b), (short)a,
                     CurrentFloorCenter(ending),
-                    ending.Stage.FloorPosition.Whole.AsSignedRegister(), AtmosphericMapWraps(ending) ? Mode7OverflowMode.Wrap : Mode7OverflowMode.Transparent),
+                    ending.Stage.FloorPosition.Whole.AsSignedWord(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                     AffineFloor.Of(ending.FloorCells(), ending.FloorTiles()), AddBg1Subscreen: AtmosphericMapWraps(ending)));
             }
             memory = CaptureMemory(ending, objectSheet);
@@ -76,19 +76,19 @@ internal static class EndingCreditsPresentation
             {
                 if (UsesFlyawayFloorPriority(ending))
                 {
-                    layers.Add(new ObjPriorityRenderLayer(1, ending.Flyaway.FlyawayFixedColor));
-                    layers.Add(new ObjPriorityRenderLayer(2, ending.Flyaway.FlyawayFixedColor));
-                    layers.Add(new ObjPriorityRenderLayer(3, ending.Flyaway.FlyawayFixedColor));
+                    layers.Add(new SpritePriorityRenderLayer(1, ending.Flyaway.FlyawayFixedColor));
+                    layers.Add(new SpritePriorityRenderLayer(2, ending.Flyaway.FlyawayFixedColor));
+                    layers.Add(new SpritePriorityRenderLayer(3, ending.Flyaway.FlyawayFixedColor));
                 }
                 else if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
                 {
                     // Star priority zero sits behind BG2. Other cinematic OBJ remain
                     // above it; the BG3 wave applies only to the background plane.
-                    layers.Add(new ObjPriorityRenderLayer(1));
-                    layers.Add(new ObjPriorityRenderLayer(2));
-                    layers.Add(new ObjPriorityRenderLayer(3));
+                    layers.Add(new SpritePriorityRenderLayer(1));
+                    layers.Add(new SpritePriorityRenderLayer(2));
+                    layers.Add(new SpritePriorityRenderLayer(3));
                 }
-                else layers.Add(new ObjRenderLayer(RewardSubscreenAddition(ending), ending.Flyaway.FlyawayFixedColor));
+                else layers.Add(new SpriteRenderLayer(RewardSubscreenAddition(ending), ending.Flyaway.FlyawayFixedColor));
             }
             if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(EndingFlyaway.WhiteAddition(ending.CreditsRoll.WhiteFlashColor));
@@ -102,8 +102,8 @@ internal static class EndingCreditsPresentation
             int a = Scale(ReadSine(ending.PostShot.Angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.PostShot.Scale);
             int b = Scale(ReadSine(ending.PostShot.Angle.ToByteAngle()), ending.PostShot.Scale);
             return new((short)a, (short)b, unchecked((short)-b), (short)a,
-                new Offset16<Mode7Pixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
-                new Offset16<Mode7Pixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
+                new Offset16<FloorPixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
+                new Offset16<FloorPixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
         }
 
     /// <summary>Selects the cloud sheet before the explosion and the explosion sheet afterward.</summary>
@@ -133,7 +133,7 @@ internal static class EndingCreditsPresentation
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
     /// <summary>Mode 7 rotation center, shared by atmospheric scenes and changed for flyaway.</summary>
-    private static Offset16<Mode7Pixels> CurrentFloorCenter(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.PlanetEscapeFast
+    private static Offset16<FloorPixels> CurrentFloorCenter(EndingCreditsState ending) => ending.Stage.Phase < EndingCreditsPhase.PlanetEscapeFast
         ? EndingMotionDefinitions.AtmosphericFloorCenter
         : EndingMotionDefinitions.FloorCenter;
 

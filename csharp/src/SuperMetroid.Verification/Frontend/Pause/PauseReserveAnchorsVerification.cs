@@ -42,7 +42,7 @@ internal static class PauseReserveAnchorsVerification
             AssertEqual(expected, horizontal ? basis.X : basis.Y, "original reserve geometry");
             foreach (int value in new[] { 0, horizontal ? 255 : 223 })
             {
-                var anchors = (Position16<OamPixels>[])document.Anchors.Clone();
+                var anchors = (Position16<SpritePixels>[])document.Anchors.Clone();
                 anchors[index] = horizontal ? new(checked((ushort)value), anchors[index].Y) : new(anchors[index].X, checked((ushort)value));
                 using var stream = new MemoryStream(); PauseReserveTankPresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
                 var edited = PauseReserveTankPresentation.Load(stream);
@@ -59,7 +59,7 @@ internal static class PauseReserveAnchorsVerification
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })
         {
-            var anchors = (Position16<OamPixels>[])document.Anchors.Clone();
+            var anchors = (Position16<SpritePixels>[])document.Anchors.Clone();
             anchors[0] = horizontal ? new(unchecked((ushort)invalid), anchors[0].Y) : new(anchors[0].X, unchecked((ushort)invalid));
             AssertThrows<InvalidDataException>(() => PauseReserveTankPresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
                 "invalid authored reserve coordinate");

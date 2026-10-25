@@ -14,20 +14,20 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
     [IntegerQuantity("hair animation step index")]
     private readonly int stage;
     /// <summary>Supplied forearm positions retained only when they do not follow the symmetric pose rule.</summary>
-    private readonly Offset16<OamPixels>[]? moving;
+    private readonly Offset16<SpritePixels>[]? moving;
     /// <summary>First hand placement in a held-hair pose, used to derive the opposite arm when possible.</summary>
-    private readonly Offset16<OamPixels> forearmAnchor;
+    private readonly Offset16<SpritePixels> forearmAnchor;
     /// <summary>Captures authored hand placement for the held poses while calculating the remaining body pieces.</summary>
     private EndingRewardHairParts(int stage, SpriteComposition supplied)
     {
         this.stage = stage;
         if (stage is >= 1 and <= 3)
         {
-            var positions = new Offset16<OamPixels>[2];
+            var positions = new Offset16<SpritePixels>[2];
             for (int index = 0; index < 2; index++)
             {
                 CompiledSpritePart part = supplied.Part(index + 2);
-                positions[index] = new Offset16<OamPixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
+                positions[index] = new Offset16<SpritePixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
             }
             forearmAnchor = positions[0];
             moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;
@@ -35,8 +35,8 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
     }
     /// <summary>Reflects a sixteen-pixel forearm about the body center and raises the opposite cel one pixel.</summary>
     /// <remarks>Reflect the sixteen-pixel piece about x=0.5; the right cel sits one pixel higher.</remarks>
-    internal static Offset16<OamPixels> OppositeForearm(Offset16<OamPixels> anchor)
-        => new Offset16<OamPixels>(checked((short)(1 - 16 - anchor.X)), checked((short)(anchor.Y - 1)));
+    internal static Offset16<SpritePixels> OppositeForearm(Offset16<SpritePixels> anchor)
+        => new Offset16<SpritePixels>(checked((short)(1 - 16 - anchor.X)), checked((short)(anchor.Y - 1)));
     /// <summary>Replaces a matching hair-release frame with its packed atlas composition when the supplied part count agrees.</summary>
     internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
@@ -147,7 +147,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             int x = originX + 8 * (tile & 15), y = originY + 8 * (tile / 16);
             if (stage is >= 1 and <= 3 && index is 2 or 3)
             {
-                Offset16<OamPixels> forearm = moving is not null ? moving[index - 2]
+                Offset16<SpritePixels> forearm = moving is not null ? moving[index - 2]
                     : index == 2 ? forearmAnchor : OppositeForearm(forearmAnchor);
                 x = forearm.X;
                 y = forearm.Y;

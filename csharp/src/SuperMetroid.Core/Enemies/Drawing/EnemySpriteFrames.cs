@@ -49,7 +49,7 @@ internal static class EnemySpriteFrames
         {
             SpritemapPart part = parts[index];
             SnesObjAttributeWord attributes = part.Attributes.AddPackedTileBase(checked((ushort)baseTileIndex)).Or(palette);
-            framed[index] = ObjPartFrames.Part(part.X, part.Y, attributes, firstCharacter: 0);
+            framed[index] = SpritePartFrames.Part(part.X, part.Y, attributes, firstCharacter: 0);
         }
         return new SpriteFrame($"Enemy+{baseTileIndex:X3}/{palette.PaletteIndex}", ImmutableCollectionsMarshal.AsImmutableArray(framed));
     }

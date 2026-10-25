@@ -82,7 +82,7 @@ public static class GameOptionsPresentationExtractor
                 MenuSpriteExtractor.Read(bus, MenuMissileAnimationDefinitions.SpritemapId(frame)));
         }
 
-        var headings = new Dictionary<string, Position16<OamPixels>>(StringComparer.Ordinal)
+        var headings = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)] = new(
                 GameOptionsLayout.HeadingX(GameOptionsPage.Primary),
@@ -94,7 +94,7 @@ public static class GameOptionsPresentationExtractor
                 GameOptionsLayout.HeadingX(GameOptionsPage.Special),
                 GameOptionsDefinitions.Headings.HeadingY),
         };
-        var cursors = new Dictionary<string, Position16<OamPixels>[]>(StringComparer.Ordinal)
+        var cursors = new Dictionary<string, Position16<SpritePixels>[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)] = Points(
                 GameOptionsDefinitions.Cursors.PrimaryX, GameOptionsDefinitions.Rows.PrimaryCount, GameOptionsLayout.PrimaryY),
@@ -162,9 +162,9 @@ public static class GameOptionsPresentationExtractor
     }
 
     /// <summary>Builds row-specific cursor anchors at one native horizontal coordinate.</summary>
-    private static Position16<OamPixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
+    private static Position16<SpritePixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
-        var result = new Position16<OamPixels>[count];
+        var result = new Position16<SpritePixels>[count];
         for (int index = 0; index < result.Length; index++)
             result[index] = new(x, rowY(index));
         return result;

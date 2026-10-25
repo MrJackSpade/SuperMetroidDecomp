@@ -27,7 +27,7 @@ internal static class EnemyPresentationNativeDrawAccess
             if (self.TileArtwork?.Spritemaps?.TryGetDisplay(EnemyFrameCartridgeLookupTooling.Bank(frame), EnemyFrameCartridgeLookupTooling.Word(frame),
                     out EnemySpritemapParts installed) != true)
                 throw new InvalidDataException($"Enemy frame {frame} requires an installed display composition.");
-            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(draw.Origin.X, draw.Origin.Y),
+            oam.AddEnemySpritemap(installed, new Position16<SpritePixels>(draw.Origin.X, draw.Origin.Y),
                 checked((ushort)draw.PaletteBits), checked((ushort)draw.BaseTileIndex), draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
         }
     }

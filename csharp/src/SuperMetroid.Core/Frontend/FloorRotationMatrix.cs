@@ -9,8 +9,8 @@ internal static class FloorRotationMatrix
     /// $A0:B443 and keeps product bits 8..23, so reading the retail table makes the rotation agree at every one of 256
     /// angles.
     /// </summary>
-    internal static AffineTransform Transform(RotationAngle angle, int zoom, Offset16<Mode7Pixels> center,
-        Offset16<Mode7Pixels> scroll)
+    internal static AffineTransform Transform(RotationAngle angle, int zoom, Offset16<FloorPixels> center,
+        Offset16<FloorPixels> scroll)
     {
         int a = Scale(ReadSine(angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), zoom);
         int b = Scale(ReadSine(angle.ToByteAngle()), zoom);

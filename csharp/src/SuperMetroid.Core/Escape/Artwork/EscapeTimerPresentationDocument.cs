@@ -8,5 +8,5 @@ public sealed record EscapeTimerPresentationDocument
     /// <summary>Signed horizontal pixel displacement from tens to ones in every digit pair, from -256 through 255; stock value is 8.</summary>
     public required int DigitSpacing { get; init; }
     /// <summary>Exactly Label, Minutes, Seconds and Centiseconds pixel offsets relative to the live timer origin; X is -256..255 and Y is -224..223.</summary>
-    public required Dictionary<string, Offset16<OamPixels>> Anchors { get; init; }
+    public required Dictionary<string, Offset16<SpritePixels>> Anchors { get; init; }
 }

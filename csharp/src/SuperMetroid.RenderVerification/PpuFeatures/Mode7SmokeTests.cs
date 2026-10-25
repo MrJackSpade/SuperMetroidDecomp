@@ -31,17 +31,17 @@ internal static class Mode7SmokeTests
         int count = 0;
         foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })
         foreach (short offset in new short[] { -1024, -1, 0, 1023, short.MinValue, short.MaxValue })
-        foreach (Mode7OverflowMode overflow in Enum.GetValues<Mode7OverflowMode>())
+        foreach (FloorOverflowMode overflow in Enum.GetValues<FloorOverflowMode>())
         {
-            var registers = new AffineTransform(scale, 113, -113, scale, new Offset16<Mode7Pixels>(128, 112), new Offset16<Mode7Pixels>(offset, offset), overflow);
+            var registers = new AffineTransform(scale, 113, -113, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
             var frame = new DisplayPacket(new(++count, 1, 0),
                 new FloorScene(memory, registers, 13, floor: map), [new FadeLevel(11)]);
             Check(frame);
             Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
-                new RenderLayer[] { new ObjRenderLayer(), new Mode7RenderLayer(registers, map),
+                new RenderLayer[] { new SpriteRenderLayer(), new FloorRenderLayer(registers, map),
                     new FixedColorAddRenderLayer(3, 7, 11) }, 15)));
             Check(new DisplayPacket(new(++count, 1, 0), new LayeredScene(memory,
-                new RenderLayer[] { new Mode7RenderLayer(registers, map, AddBg1Subscreen: true) }, 15)));
+                new RenderLayer[] { new FloorRenderLayer(registers, map, AddBg1Subscreen: true) }, 15)));
         }
         Check(new DisplayPacket(new(++count, 1, 0), new FloorScene(memory, null, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })
@@ -51,8 +51,8 @@ internal static class Mode7SmokeTests
             var band = floorStart is { } start
                 ? new Mode1FloorBand(start, new Position16<Bg2Pixels>(17, 65535), new Extent16<TilemapCells>(64, 32), floorRoom)
                 : (Mode1FloorBand?)null;
-            var layer = new Mode7GameplayRenderLayer(
-                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), Mode7OverflowMode.CharacterZero),
+            var layer = new GameplayFloorRenderLayer(
+                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.CharacterZero),
                 bg3, map, hud, band);
             Check(new DisplayPacket(new(++count, 1, 0),
                 new LayeredScene(memory, new RenderLayer[] { layer }, 13)));
@@ -65,8 +65,8 @@ internal static class Mode7SmokeTests
         foreach (short scale in new short[] { 256, -113, 511 })
         foreach (bool fill in new[] { false, true })
         {
-            var layer = new Mode7GameplayRenderLayer(
-                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? Mode7OverflowMode.CharacterZero : Mode7OverflowMode.Transparent),
+            var layer = new GameplayFloorRenderLayer(
+                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.CharacterZero : FloorOverflowMode.Transparent),
                 bg3, shown, hud, null);
             Check(new DisplayPacket(new(++count, 1, 0),
                 new LayeredScene(memory, new RenderLayer[] { layer }, 13)));

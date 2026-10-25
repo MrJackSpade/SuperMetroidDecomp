@@ -53,8 +53,8 @@ internal static class ProjectileCompositionsVerification
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             {
-                native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
-                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
+                native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
+                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
             }
             DrawImportedProjectileSpritemap(rom, native, id, new(origin, origin));
             content.Draw(id, authored, new(origin, origin));
@@ -109,7 +109,7 @@ internal static class ProjectileCompositionsVerification
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
     [CpuBusBoundary("exact bus test: reference bank-$93 projectile spritemap decoder over a retail or synthetic cartridge")]
     internal static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
-        OamBuffer oam, ushort pointer, Position16<OamPixels> origin)
+        OamBuffer oam, ushort pointer, Position16<SpritePixels> origin)
     {
         int record = 0x930000 | pointer;
         ushort partCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(record);

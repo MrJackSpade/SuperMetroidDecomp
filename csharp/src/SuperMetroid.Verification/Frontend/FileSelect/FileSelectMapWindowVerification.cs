@@ -20,7 +20,7 @@ using SuperMetroid.Core.Frontend.Menus;
 internal static class FileSelectMapWindowVerification
 {
     /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
-    private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
+    private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<SpritePixels> label)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Progression.AreaId)area).ToString(),
             _ => label);

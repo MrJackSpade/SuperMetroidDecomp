@@ -182,7 +182,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the native wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
     public RotationAngle FloorAngle { get; internal set; }
     /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
-    public Offset16<Mode7Pixels> FloorOffset { get; internal set; }
+    public Offset16<FloorPixels> FloorOffset { get; internal set; }
     /// <summary>
     /// Gets the getaway's zoom in 1/256 of unit scale, which scales its sine/cosine matrix: 2048 when the getaway
     /// starts, then each table frame's zoom, which the table keeps from zero through 65535.
@@ -197,7 +197,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 D coefficient, equal to its A coefficient.</summary>
     public SignedEightEight FloorMatrixD { get; internal set; }
     /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 center, initialized to ($40,$40) and cleared on completion.</summary>
-    public Position16<Mode7Pixels> FloorCenter { get; internal set; }
+    public Position16<FloorPixels> FloorCenter { get; internal set; }
     /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index (zero through three) during the Mode-7 getaway.</summary>
     public int GetawayBabyFrame { get; internal set; }
     /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the Mode-7 getaway.</summary>

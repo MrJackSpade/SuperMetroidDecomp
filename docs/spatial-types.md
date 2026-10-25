@@ -35,7 +35,7 @@ different types; moving between spaces is always a named conversion.
 | `RoomPixels` | Room-relative pixels: Samus, enemies, projectiles, PLM blocks, the camera's top-left corner (BG1 scroll). |
 | `ScreenPixels` | Viewport-relative pixels: a room position minus the camera position, and the on-screen positions of cinematic and menu objects. |
 | `ScreenSubpixels` | Viewport positions in 1/256 pixels: unsigned 8.8 words whose high byte is the screen pixel (the escape timer). |
-| `OamPixels` | OAM sprite coordinates (nine-bit signed X, eight-bit Y): every spritemap draw origin and every authored sprite anchor. |
+| `SpritePixels` | Sprite placement coordinates relative to the screen: every spritemap draw origin and every authored sprite anchor. |
 | `Bg2Pixels`, `Bg3Pixels` | BG2/BG3 scroll-register pixels, which follow their own parallax/FX rules. |
 | `Bg3Subpixels` | BG3 room-FX texture drift in 1/256 pixels (the 8.8 rain, fog and spores accumulators). |
 | `BgPlanePixels` | The scroll words of whichever background plane a generic render layer samples. |
@@ -45,7 +45,7 @@ different types; moving between spaces is always a named conversion.
 | `TilemapCells` | VRAM tilemap cells. |
 | `MapTiles` | Area-map tiles (pause, file select, minimap). |
 | `MapPixels` | Area-map plane pixels (eight per tile): map scroll offsets, scroll bounds and map marker/arrow positions. |
-| `Mode7Pixels` | Mode 7 plane coordinates and matrix centre. |
+| `FloorPixels` | Coordinates on a turning, scaling floor image, and the centre it turns about. |
 | `CharacterPixels` | Pixels inside one eight-by-eight character cell. |
 | `ImagePixels` | Host raster pixels: decoded images, artwork atlases and other host images. |
 | `DisplayPixels` | Host window/swapchain pixels after presentation scaling. |
@@ -56,9 +56,9 @@ stick is `SuperMetroid.Desktop.Input.GamepadStick`.
 Add a space only when values in it must not mix with an existing space; document it here and give it its own
 `csharp/src/SuperMetroid.Core/Spatial/<Space>.cs` file beside the others.
 
-Sprite drawing: asset compositions draw at a `Position16<OamPixels>` origin and authored sprite
-anchors are OAM coordinates. Game and cinematic state keeps on-screen object positions in
-`ScreenPixels` and converts at the draw call with `ScreenConversions.ToOam`.
+Sprite drawing: asset compositions draw at a `Position16<SpritePixels>` origin and authored sprite
+anchors are sprite placement coordinates. Game and cinematic state keeps on-screen object positions in
+`ScreenPixels` and converts at the draw call with `ScreenConversions.ToSpritePosition`.
 
 ## Shapes
 
@@ -115,7 +115,7 @@ left unwrapped fails where it is stored instead of being truncated there.
   - `ScreenConversions.RelativeToCamera`: room position minus camera, as a signed screen offset;
     `ScreenConversions.ToScreen`: the same subtraction kept as the wrapped screen position words
     native code stores (Samus's death-sequence screen position);
-    `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin;
+    `ScreenConversions.ToSpritePosition`: an on-screen position as the sprite draw origin;
     `ScreenConversions.WholePixels`: an unsigned 8.8 screen position's high bytes as screen pixels.
   - `RoomGridConversions.ToRoomBlock`: a room pixel to its block (`LSR ×4`);
     `ToRoomPixels`: a scroll-zone screen, or a block (`ASL ×4`), to its top-left room pixel;
@@ -125,8 +125,8 @@ left unwrapped fails where it is stored instead of being truncated there.
   - `BgPlaneConversions.AsBgPlaneScroll`: a BG1, BG2 or area-map scroll as the generic plane's scroll words.
   - `Bg3FxConversions.AsBg3Scroll` / `WholePixels`: the layer-one anchor of a BG3 effect plane and
     the signed high bytes of its 8.8 drift.
-  - `Mode7Conversions.AsMode7Register`: a layer-one room point as signed Mode 7 register words;
-    `AsSignedRegister`: a Mode 7 plane position as its signed register words.
+  - `FloorConversions.AsFloorWord`: a layer-one room point as a signed floor offset;
+    `AsSignedWord`: a floor position as its signed floor offset.
   - `MapScreenConversions`: map tile → map pixel, map pixel → screen under the map scroll.
 - Never floating-point vectors in cartridge logic: preserve native width, signedness, wrap order,
   origin and truncation exactly.

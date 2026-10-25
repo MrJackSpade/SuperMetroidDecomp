@@ -27,7 +27,7 @@ internal static class ProjectileVisualPartsVerification
             ushort attribute = unchecked((ushort)~rawX);
             int index = count % OamBuffer.SpriteCount;
             SeedSinglePartProjectileSpritemap(bus, (ushort)rawX, yOffset, attribute);
-            parts.AddProjectileSpritePart(new((ushort)rawX), yOffset, new(attribute), new Position16<OamPixels>(origin, origin));
+            parts.AddProjectileSpritePart(new((ushort)rawX), yOffset, new(attribute), new Position16<SpritePixels>(origin, origin));
             DrawImportedProjectileSpritemap(bus, packed, 0xf700, new(origin, origin));
             ushort expectedX = unchecked((ushort)(origin + rawX));
             int offset = index * 4;

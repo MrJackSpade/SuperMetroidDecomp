@@ -714,7 +714,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         OamEntry entry = grappleOam.GetEntry(segment);
         AssertOamEntry(
             new OamEntry(
-                new Position16<OamPixels>(94, (ushort)(99 - segment * 8)),
+                new Position16<SpritePixels>(94, (ushort)(99 - segment * 8)),
                 expectedTiles[segment],
                 5,
                 3,

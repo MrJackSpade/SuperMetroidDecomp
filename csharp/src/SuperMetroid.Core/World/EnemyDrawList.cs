@@ -186,7 +186,7 @@ internal sealed class EnemyDrawList
                 for (int index = 0; index < components.Length; index++)
                 {
                     EnemyExtendedDrawComponent component = components[index];
-                    Position16<OamPixels> componentOrigin = draw.Origin.ToOam() + component.Offset;
+                    Position16<SpritePixels> componentOrigin = draw.Origin.ToSpritePosition() + component.Offset;
                     if (!EnemyDrawRange.Contains(componentOrigin))
                         continue;
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId,

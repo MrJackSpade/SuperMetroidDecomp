@@ -74,7 +74,7 @@ internal static class EndingSnapshotTestsVerification
                             | (((source >> 10 & 31) * step / 32) << 10));
                         AssertEqual(expectedColor, explosion.Paint.Colors[i], "native explosion OBJ palette fades in over both fade-in and crossfade phases");
                     }
-                    AssertTrue(explosion.LayersOf<ObjRenderLayer>().Single().AddToScreen,
+                    AssertTrue(explosion.LayersOf<SpriteRenderLayer>().Single().AddToScreen,
                         "explosion transition adds OBJ subscreen to BG1 and backdrop");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
@@ -117,7 +117,7 @@ internal static class EndingSnapshotTestsVerification
                         "native explosion finale selects both background maps in main-screen priority order");
                     AssertTrue(backgrounds.All(bg => ShowsCharacters(bg.Cells, legacy.LayerTiles(EndingTileLayer.Explosion, BgBitDepth.FourBpp))),
                         "explosion finale uses Mode1 character base, not stale Mode7 decoding");
-                    AssertTrue(!finale.Layers.Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),
+                    AssertTrue(!finale.Layers.Any(layer => layer is SpriteRenderLayer or SpritePriorityRenderLayer),
                         "F2FA moves OBJ exclusively to the subscreen");
                     if (hours == 2 && finaleDisplayFrames == 10)
                     {
@@ -131,7 +131,7 @@ internal static class EndingSnapshotTestsVerification
                         - phaseEntryFrames[EndingCreditsPhase.PostCreditsReward],
                         "gesture starts after two 64-frame reveals and the 180-frame copyright hold");
                     var gestureFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    AssertTrue(gestureFrame.Layers.All(layer => layer is ObjRenderLayer),
+                    AssertTrue(gestureFrame.Layers.All(layer => layer is SpriteRenderLayer),
                         "E342 gesture renders OBJ without the stale waiting or copyright backgrounds");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
@@ -156,7 +156,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(mismatches.Length == 0,
                         "live reward preserves native actor positions, sizes, tile indices and palettes on every jump frame" +
                         string.Concat(mismatches.Select(index => $" [part {index}: live {(index < liveParts.Length ? liveParts[index].Part.ToString() : "missing")}, native {jumpParts[index].Part}]")));
-                    AssertTrue(jumpFrame.Layers.All(layer => layer is ObjRenderLayer),
+                    AssertTrue(jumpFrame.Layers.All(layer => layer is SpriteRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShot)
@@ -195,8 +195,8 @@ internal static class EndingSnapshotTestsVerification
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];
                     var shotFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    var mode = shotFrame.LayersOf<Mode7RenderLayer>().Single();
-                    AssertTrue(mode.SubtractObjSubscreen, "live shot enables native BG1 minus OBJ blending");
+                    var mode = shotFrame.LayersOf<FloorRenderLayer>().Single();
+                    AssertTrue(mode.SubtractSpriteSubscreen, "live shot enables native BG1 minus OBJ blending");
                     AssertEqual((short)104, mode.Transform.Center.X, "post-shot matrix horizontal origin");
                     AssertEqual((short)112, mode.Transform.Center.Y, "post-shot matrix vertical origin");
                     AssertEqual((short)-4, mode.Transform.Scroll.X, "post-shot horizontal scroll");
@@ -234,7 +234,7 @@ internal static class EndingSnapshotTestsVerification
                     && tick - revealStart == 64)
                 {
                     var copyright = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    AssertTrue(!copyright.Layers.Any(layer => layer is ObjRenderLayer),
+                    AssertTrue(!copyright.Layers.Any(layer => layer is SpriteRenderLayer),
                         "native E293 hides reward actors during copyright panel");
                     AssertTrue(ShowsTilemap(legacy.ShownVram(), copyright.LayersOf<TileRenderLayer>().Single().Cells, 0x4800),
                         "native E293 selects copyright BG1 after first 64 reveal frames");
@@ -271,9 +271,9 @@ internal static class EndingSnapshotTestsVerification
                     if (expectedWhite > 0)
                     {
                         AssertEqual((byte)expectedWhite, fixedColors[0].Red, "native flyaway holds 192 calls then fades every eight");
-                        AssertTrue(flight.LayersOf<ObjPriorityRenderLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
-                        AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is ObjPriorityRenderLayer { Priority: 0 }
-                            && flight.Layers[2] is Mode7RenderLayer,
+                        AssertTrue(flight.LayersOf<SpritePriorityRenderLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
+                        AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is SpritePriorityRenderLayer { Priority: 0 }
+                            && flight.Layers[2] is FloorRenderLayer,
                             "fixed backdrop is composed before unaffected Mode7 BG1");
                     }
 

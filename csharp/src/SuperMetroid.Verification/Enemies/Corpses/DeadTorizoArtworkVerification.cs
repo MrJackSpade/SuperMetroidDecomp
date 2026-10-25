@@ -51,7 +51,7 @@ internal static class DeadTorizoArtworkVerification
         AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock spritemaps."))
             .TryGetDisplay(DeadTorizoArtworkDefinitions.HookFrame, out EnemySpritemapParts hook), "Dead Torizo hook has an installed composition");
         var installedCorpse = new OamBuffer();
-        installedCorpse.AddEnemySpritemap(hook, new Position16<OamPixels>(296, 187), 0, 0);
+        installedCorpse.AddEnemySpritemap(hook, new Position16<SpritePixels>(296, 187), 0, 0);
         AssertTrue(nativeCorpse.ImageEquals(installedCorpse) &&
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
             "Dead Torizo private corpse hook's installed composition is the native OAM");
@@ -112,7 +112,7 @@ internal static class DeadTorizoArtworkVerification
         var nativeOam = new OamBuffer();
         var installedOam = new OamBuffer();
         DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitionsConstants.SpritemapBank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-        installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
+        installedOam.AddEnemySpritemap(installedParts, new Position16<SpritePixels>(128, 128), 0, 0);
         AssertTrue(nativeOam.ImageEquals(installedOam) &&
                    nativeOam.NextByteOffset == installedOam.NextByteOffset,
             "Dead Torizo stationary installed OAM matches all native sprite entries");
@@ -261,7 +261,7 @@ internal static class DeadTorizoArtworkVerification
         if (artwork.Enemies.Spritemaps?.TryGetDisplay(DeadTorizoArtworkDefinitions.HookFrame, out EnemySpritemapParts hook) != true)
             throw new InvalidDataException("The dead Torizo hook has no installed composition.");
         var oam = new OamBuffer();
-        oam.AddEnemySpritemap(hook, new Position16<OamPixels>(296, 187), 0, 0);
+        oam.AddEnemySpritemap(hook, new Position16<SpritePixels>(296, 187), 0, 0);
         return oam;
     }
 

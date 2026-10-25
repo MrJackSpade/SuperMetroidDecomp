@@ -85,7 +85,7 @@ internal static class EndingRewardInstructionsVerification
         if (new[] { EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2, EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame3,
                 EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4 }.Any(hair => EndingRewardSpriteDefinitions.FramePose(hair) == definition.Pose))
         {
-            var opposite = EndingRewardHairParts.OppositeForearm(new Offset16<OamPixels>(checked((short)visual[2].OffsetX), checked((short)visual[2].OffsetY)));
+            var opposite = EndingRewardHairParts.OppositeForearm(new Offset16<SpritePixels>(checked((short)visual[2].OffsetX), checked((short)visual[2].OffsetY)));
             AssertEqual(visual[3].OffsetX, opposite.X, "original hair forearm reflection X");
             AssertEqual(visual[3].OffsetY, opposite.Y, "original hair forearm registration Y");
             SpriteVisualPart[] paired = (SpriteVisualPart[])visual.Clone();

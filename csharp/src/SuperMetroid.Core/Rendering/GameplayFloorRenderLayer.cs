@@ -3,9 +3,9 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Resolved Mode-7 viewport, opaque HUD, and optional bottom Mode-1 BG2/OBJ band.</summary>
+/// <summary>A gameplay room shown as a turning floor: the floor viewport, the opaque HUD, and an optional bottom band of layer two and sprites.</summary>
 /// <remarks>Scanline boundaries are physical screen coordinates; the transform never restarts at the band origin.</remarks>
-public sealed record Mode7GameplayRenderLayer : RenderLayer
+public sealed record GameplayFloorRenderLayer : RenderLayer
 {
     /// <summary>Gets the floor's transform; sampling uses physical screen coordinates even below the HUD band.</summary>
     public AffineTransform Transform { get; }
@@ -25,7 +25,7 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
     /// <param name="hudScanlines">Top HUD height, from zero through 224 physical scanlines and divisible by eight.</param>
     /// <param name="floor">Optional value-copied lower band; its first scanline must follow the HUD and be below 224, with each map dimension either 32 or 64 tiles.</param>
     /// <exception cref="ArgumentOutOfRangeException">The HUD height or supplied floor boundary/map dimensions are invalid.</exception>
-    public Mode7GameplayRenderLayer(AffineTransform transform, Layer3Cells hud, AffineFloor map,
+    public GameplayFloorRenderLayer(AffineTransform transform, Layer3Cells hud, AffineFloor map,
         int hudScanlines, Mode1FloorBand? floor = null)
     {
         if (hudScanlines < 0 || hudScanlines > SnesPpuLayout.ScreenHeightPixels ||

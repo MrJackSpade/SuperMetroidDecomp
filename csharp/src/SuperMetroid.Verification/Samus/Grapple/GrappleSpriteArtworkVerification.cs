@@ -36,14 +36,14 @@ internal static class GrappleSpriteArtworkVerification
         Dictionary<string, SpriteFrame> frames = composed.Frames.ToDictionary(frame => frame.Name, frame => frame.Frame, StringComparer.Ordinal);
         int cases = 0;
         for (int point = 0; point < GrappleSheetDefinitions.EndpointFrameCount; point++, cases++)
-            AssertEqual(ObjPartFrames.SmallObject(new SnesObjAttributeWord(checked((ushort)catalog.Endpoint)), 0).Parts.Single(),
+            AssertEqual(SpritePartFrames.SmallObject(new SnesObjAttributeWord(checked((ushort)catalog.Endpoint)), 0).Parts.Single(),
                 frames[GrappleSheetDefinitions.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
         for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
         foreach (SpriteMirror mirror in GrappleSheetDefinitions.RopeMirrors)
         {
             ushort flips = (ushort)(((mirror & SpriteMirror.Horizontal) != 0 ? 0x4000 : 0) | ((mirror & SpriteMirror.Vertical) != 0 ? 0x8000 : 0));
-            AssertEqual(ObjPartFrames.SmallObject(new SnesObjAttributeWord((ushort)(catalog.Segment(segment) | flips)), 0).Parts.Single(),
+            AssertEqual(SpritePartFrames.SmallObject(new SnesObjAttributeWord((ushort)(catalog.Segment(segment) | flips)), 0).Parts.Single(),
                 frames[GrappleSheetDefinitions.RopeFrame(orientation, segment, mirror)].Parts.Single(),
                 $"Grapple rope {orientation} frame {segment} mirrored {mirror} is the native segment OBJ with the rope's flips");
             cases++;

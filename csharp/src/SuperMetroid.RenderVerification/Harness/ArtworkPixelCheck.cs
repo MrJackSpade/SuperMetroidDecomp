@@ -48,7 +48,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
 
         DisplayPacket Packet(SnesVram vram) => new(new(++sequence, 1, 0),
             new LayeredScene(FramePaintConstants.CaptureFrontend(vram, colors, oam, 3),
-                [new ObjRenderLayer()], 15));
+                [new SpriteRenderLayer()], 15));
     }
 
     /// <summary>Reads a GPU frame and compares its pixels with the WARP reference's.</summary>

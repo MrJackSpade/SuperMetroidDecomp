@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Frontend.Ending;
 public static class EndingMotionDefinitions
 {
     /// <summary>The floor point, in floor pixels, the flyaway's perspective floor turns about.</summary>
-    public static Offset16<Mode7Pixels> FloorCenter => new(56, 24);
+    public static Offset16<FloorPixels> FloorCenter => new(56, 24);
 
     /// <summary>The floor point, in floor pixels, the atmospheric and explosion scenes' floor turns about.</summary>
-    public static Offset16<Mode7Pixels> AtmosphericFloorCenter => new(128, 128);
+    public static Offset16<FloorPixels> AtmosphericFloorCenter => new(128, 128);
 
     /// <summary>The unity zoom.</summary>
     public const ushort IdentityScale = 0x0100;

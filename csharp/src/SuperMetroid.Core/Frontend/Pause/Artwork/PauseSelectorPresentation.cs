@@ -24,7 +24,7 @@ public sealed class PauseSelectorPresentation
     private PauseSelectorPresentation(PauseSelectorParts parts)
     { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; ObjectPalette = SnesObjAttributeWord.Create(0, parts.Palette, 0); }
     /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
-    public Position16<OamPixels> Anchor(PauseEquipmentCategory category, int item)
+    public Position16<SpritePixels> Anchor(PauseEquipmentCategory category, int item)
     {
         string name = PauseSelectorDefinitions.Anchor(category, item);
         var basis = PauseSelectorDefinitions.StockAnchor(category, item);

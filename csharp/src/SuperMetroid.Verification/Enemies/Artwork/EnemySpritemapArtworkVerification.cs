@@ -477,7 +477,7 @@ internal static class EnemySpritemapArtworkVerification
                 var native = new OamBuffer();
                 var installed = new OamBuffer();
                 DrawImportedEnemySpritemap(rom, native, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = palette, BaseTileIndex = baseTile });
-                installed.AddEnemySpritemap(parts, new Position16<OamPixels>(x, y), palette, baseTile);
+                installed.AddEnemySpritemap(parts, new Position16<SpritePixels>(x, y), palette, baseTile);
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed {frame.Name} OAM matches native at {x:X4},{y:X4}");

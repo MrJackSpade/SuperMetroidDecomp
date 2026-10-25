@@ -14,7 +14,7 @@ internal static class ImportedSpritemapOracle
     /// <summary>Decodes packed five-byte parts with native bank wrap into on-screen or off-screen OAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     public static void DrawGeneric(IImportCartridgeSource source, OamBuffer oam,
-        int address, Position16<OamPixels> origin, ushort paletteBits,
+        int address, Position16<SpritePixels> origin, ushort paletteBits,
         bool originIsOnScreen = true)
     {
         Ensure.NotNull(source);
@@ -49,7 +49,7 @@ internal static class ImportedSpritemapOracle
 
     /// <summary>Uses bank $8D enemy-projectile graphics bits for palette and base tile selection.</summary>
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
-        ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
+        ushort bank8dSpritemapPointer, Position16<SpritePixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
         DrawEnemy(source, oam, new NativeEnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
 

@@ -105,7 +105,7 @@ internal static class FileMapSnapshotTestsVerification
         var red = new FramePaint(ToColors(palette), []);
         palette[0] = 31 << 10;
         var blue = new FramePaint(ToColors(palette), []);
-        var child = new LayeredScene(blue, new RenderLayer[] { new ObjRenderLayer() }, 15);
+        var child = new LayeredScene(blue, new RenderLayer[] { new SpriteRenderLayer() }, 15);
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
         var parent = new LayeredScene(red, new RenderLayer[] { window }, 15);
         var packet = new DisplayPacket(new(1, 1, 0), parent);

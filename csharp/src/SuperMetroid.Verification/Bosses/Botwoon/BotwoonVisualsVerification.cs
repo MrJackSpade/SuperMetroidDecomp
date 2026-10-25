@@ -38,7 +38,7 @@ internal static class BotwoonVisualsVerification
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = BotwoonVisualDefinitionsConstants.Bank, Pointer = native, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-            installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, new Position16<SpritePixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"Botwoon head frame $B3:{installedPointer:X4} matches cartridge OAM");

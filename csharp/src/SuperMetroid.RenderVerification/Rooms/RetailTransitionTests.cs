@@ -32,7 +32,7 @@ internal static class RetailTransitionTests
                 var expected = destruction.Render();
                 var scene = destruction.CaptureRenderSnapshot();
                 mode1 |= scene.Layers.Any(layer => layer is TileRenderLayer);
-                mode7 |= scene.Layers.Any(layer => layer is Mode7RenderLayer);
+                mode7 |= scene.Layers.Any(layer => layer is FloorRenderLayer);
                 var packet = new DisplayPacket(new(++cinematicCount, 1, (ushort)tick), scene);
                 Check(packet, expected, $"Ceres/Zebes {destruction.Phase}, tick {tick}");
                 destruction.Step();

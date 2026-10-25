@@ -60,8 +60,8 @@ internal static class ProjectileSheetComposer
             frames.Add(new(ProjectileSheetDefinitions.FlareFrame(composition), projectiles.FlareCompositions.Frame(selector), page));
         }
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
-            frames.Add(new(ProjectileSheetDefinitions.TrailFrame(pose), ObjPartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
-        frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, ObjPartFrames.SmallObject(default, 0), page));
+            frames.Add(new(ProjectileSheetDefinitions.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
+        frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, SpritePartFrames.SmallObject(default, 0), page));
         return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 

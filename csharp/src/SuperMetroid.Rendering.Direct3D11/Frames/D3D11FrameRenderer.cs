@@ -155,8 +155,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (packet.Mode7 is { } mode7)
         {
             var operations = new List<RenderLayer>();
-            if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new Mode7RenderLayer(background, shownFloor));
-            operations.Add(new ObjRenderLayer());
+            if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new FloorRenderLayer(background, shownFloor));
+            operations.Add(new SpriteRenderLayer());
             DrawLayers(packet, new LayeredScene(mode7.Paint,
                 operations.ToArray(), mode7.Brightness), mode7.Gradient);
             return;
@@ -354,7 +354,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Composes a room with a perspective floor: the floor, the sprites and layer 2 by priority, and the opaque HUD.</summary>
-    private void DispatchFloorRoom(Mode7GameplayRenderLayer layer)
+    private void DispatchFloorRoom(GameplayFloorRenderLayer layer)
     {
         // Clipping is in screen lines. Never move the floor's origin to the start of the band: the transform is the
         // whole screen's.
@@ -507,7 +507,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (TileRenderLayer or TileViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or FxPlaneBlendRenderLayer or TileAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
+            if (layer is not (TileRenderLayer or TileViewportRenderLayer or FixedColorAddRenderLayer or SpriteRenderLayer or SpritePriorityRenderLayer or FloorRenderLayer or GameplayFloorRenderLayer or ScanlineColorAddRenderLayer or FxPlaneBlendRenderLayer or TileAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         foreach (RenderLayer layer in scene.Layers)
@@ -533,7 +533,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         screens.Clear();
         foreach (RenderLayer layer in scene.Layers)
         {
-            if (layer is Mode7RenderLayer frontendMode7)
+            if (layer is FloorRenderLayer frontendMode7)
                 floorMap = SameFloor(floorMap, frontendMode7.Floor);
             // The frontend layers' cells (#1403), each once.
             foreach (ScreenTileMap cells in ScreenMaps(layer))
@@ -541,7 +541,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 if (!screens.Contains(cells))
                     screens.Add(cells);
             }
-            if (layer is Mode7GameplayRenderLayer mode7)
+            if (layer is GameplayFloorRenderLayer mode7)
             {
                 floor = mode7.Floor?.Room ?? floor;
                 bg3 = SameBg3(bg3, mode7.Hud);
@@ -606,16 +606,16 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case ScanlineColorAddRenderLayer windows:
                     DispatchColorWindows(windows);
                     break;
-                case Mode7GameplayRenderLayer gameplay:
+                case GameplayFloorRenderLayer gameplay:
                     DispatchFloorRoom(gameplay);
                     break;
-                case Mode7RenderLayer mode7:
-                    DispatchFloor(mode7.Transform, subtractSprites: mode7.SubtractObjSubscreen, addLayer1: mode7.AddBg1Subscreen);
+                case FloorRenderLayer mode7:
+                    DispatchFloor(mode7.Transform, subtractSprites: mode7.SubtractSpriteSubscreen, addLayer1: mode7.AddBg1Subscreen);
                     break;
-                case ObjRenderLayer objLayer:
+                case SpriteRenderLayer objLayer:
                     DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0 });
                     break;
-                case ObjPriorityRenderLayer obj:
+                case SpritePriorityRenderLayer obj:
                     DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
                     break;
                 case TileRenderLayer bg:
@@ -704,14 +704,14 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[22] = transform.Scroll.X; data[23] = transform.Scroll.Y;
         data[24] = transform.Outside switch
         {
-            Mode7OverflowMode.Transparent => 0,
-            Mode7OverflowMode.CharacterZero => 1,
-            Mode7OverflowMode.Wrap => 2,
+            FloorOverflowMode.Transparent => 0,
+            FloorOverflowMode.CharacterZero => 1,
+            FloorOverflowMode.Wrap => 2,
             _ => throw new ArgumentOutOfRangeException(nameof(transform), transform.Outside, "Unknown floor overflow."),
         };
         data[25] = firstScanline; data[26] = endScanline;
-        data[27] = (int)(addLayer1 ? Mode7ColorMathOperation.AddBg1
-            : subtractSprites ? Mode7ColorMathOperation.SubtractObj : Mode7ColorMathOperation.None);
+        data[27] = (int)(addLayer1 ? FloorColorBlend.AddBg1
+            : subtractSprites ? FloorColorBlend.SubtractSprites : FloorColorBlend.None);
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

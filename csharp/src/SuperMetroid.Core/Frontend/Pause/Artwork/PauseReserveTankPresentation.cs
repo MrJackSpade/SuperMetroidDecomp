@@ -22,7 +22,7 @@ public sealed class PauseReserveTankPresentation
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
     /// <returns>The configured screen-pixel anchor for that strip position.</returns>
-    public Position16<OamPixels> Anchor(int index)
+    public Position16<SpritePixels> Anchor(int index)
     {
         var basis = PauseReserveTankDefinitions.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
@@ -39,7 +39,7 @@ public sealed class PauseReserveTankPresentation
     public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseReserveTankVisual visual, int index)
     {
         // The strip position is checked before the visual.
-        Position16<OamPixels> anchor = Anchor(index);
+        Position16<SpritePixels> anchor = Anchor(index);
         string name = PauseReserveTankDefinitions.Frames().Where(frame => frame.Id == visual).Select(frame => frame.Name)
             .SingleOrDefault() ?? throw new InvalidOperationException($"Undefined PauseReserveTankVisual {visual}.");
         Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankDefinitions.SheetFrameName(name)), anchor);
@@ -51,8 +51,8 @@ public sealed class PauseReserveTankPresentation
     /// </summary>
     internal SpriteFrame ToFrame(PauseReserveTankVisual visual, string frameName) =>
         Composition(visual) is { } composition ? composition.ToFrame(frameName, 0)
-            : new(frameName, [ObjPartFrames.Part(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
-                SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(visual), 0, 3), 0, ObjPartFrames.StandardSizes,
+            : new(frameName, [SpritePartFrames.Part(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
+                SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(visual), 0, 3), 0, SpritePartFrames.StandardSizes,
                 inheritPalette: true)]);
 
     /// <summary>The authored composition of one reserve visual, or null where the stock character stands.</summary>

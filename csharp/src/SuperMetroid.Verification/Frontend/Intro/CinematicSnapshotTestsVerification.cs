@@ -64,7 +64,7 @@ internal static class CinematicSnapshotTestsVerification
             {
                 RgbaPixel[] expected = destruction.Render();
                 LayeredScene snapshot = destruction.CaptureRenderSnapshot();
-                mode7 |= snapshot.Layers.Any(layer => layer is Mode7RenderLayer);
+                mode7 |= snapshot.Layers.Any(layer => layer is FloorRenderLayer);
                 mode1 |= snapshot.Layers.Any(layer => layer is TileRenderLayer);
                 foreach (var window in snapshot.LayersOf<ScanlineColorAddRenderLayer>())
                 {

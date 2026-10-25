@@ -33,7 +33,7 @@ internal sealed class IntroCeresFlightState
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
     /// <summary>Mode 7 scroll position advanced with the star actor or rear-view drift.</summary>
-    private FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-72), 0), new(unchecked((ushort)-104), 0));
+    private FixedPosition<FloorPixels> background = new(new(unchecked((ushort)-72), 0), new(unchecked((ushort)-104), 0));
     /// <summary>
     /// Mode 7 scale in 8.8 fixed point: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
     /// for the front approach, then grown by 16 below 3072 and by 32 below 8192 for the rear view, ending at 8192.
@@ -203,7 +203,7 @@ internal sealed class IntroCeresFlightState
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        var layers = new List<RenderLayer> { new ObjPriorityRenderLayer(0) };
+        var layers = new List<RenderLayer> { new SpritePriorityRenderLayer(0) };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
@@ -212,18 +212,18 @@ internal sealed class IntroCeresFlightState
                 captionTiles ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets.")),
                 new Position16<BgPlanePixels>(0, 0), false);
             layers.Add(caption);
-            layers.Add(new ObjPriorityRenderLayer(1));
+            layers.Add(new SpritePriorityRenderLayer(1));
             layers.Add(caption with { Priority = true });
         }
         else
         {
-            layers.Add(new Mode7RenderLayer(FloorRotationMatrix.Transform(angle, zoom,
-                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedRegister()),
+            layers.Add(new FloorRenderLayer(FloorRotationMatrix.Transform(angle, zoom,
+                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedWord()),
                 AffineFloor.Of(FloorMap(), floorTiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
-            layers.Add(new ObjPriorityRenderLayer(1));
+            layers.Add(new SpritePriorityRenderLayer(1));
         }
-        layers.Add(new ObjPriorityRenderLayer(2));
-        layers.Add(new ObjPriorityRenderLayer(3));
+        layers.Add(new SpritePriorityRenderLayer(2));
+        layers.Add(new SpritePriorityRenderLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
             layers.Add(new FixedColorAddRenderLayer(checked((byte)flashIntensity), checked((byte)flashIntensity), checked((byte)flashIntensity)));

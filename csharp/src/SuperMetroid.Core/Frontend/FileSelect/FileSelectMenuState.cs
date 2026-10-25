@@ -244,7 +244,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
-                new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
+                new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
         }
         sprites.FinishFrame();
     }
@@ -672,7 +672,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Places the cursor on the active main, slot, or confirmation row at the installed presentation's anchor.</summary>
-    private Position16<OamPixels> GetSelectionMissilePosition(FileSelectPresentation presentation)
+    private Position16<SpritePixels> GetSelectionMissilePosition(FileSelectPresentation presentation)
     {
         FileSelectCursorPage page = IsMainScreenPhase ? FileSelectCursorPage.Main
             : Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm ? FileSelectCursorPage.Confirmation

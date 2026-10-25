@@ -106,10 +106,10 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or
             SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
             SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles or
-            SpriteSheetId.TitleMode7Tiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightMode7Tiles or
-            SpriteSheetId.EndingEscapeAMode7Tiles or SpriteSheetId.EndingEscapeBMode7Tiles or
-            SpriteSheetId.EndingPlanetExplosionMode7Tiles or SpriteSheetId.EndingFlyawayMode7Tiles or
-            SpriteSheetId.EndingRewardIconMode7Tiles =>
+            SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightFloorTiles or
+            SpriteSheetId.EndingEscapeAFloorTiles or SpriteSheetId.EndingEscapeBFloorTiles or
+            SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or
+            SpriteSheetId.EndingRewardIconFloorTiles =>
             SamusSheetSources.For(samus.Value, sheet),
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };

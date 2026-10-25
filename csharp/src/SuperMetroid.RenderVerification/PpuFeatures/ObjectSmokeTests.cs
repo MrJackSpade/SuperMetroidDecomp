@@ -30,13 +30,13 @@ internal static class ObjectSmokeTests
         {
             byte obsel = (byte)((size << 5) | selection);
             var memory = FramePaint.FromOam(vram, palette, oam, count, obsel);
-            Check(memory, obsel, new RenderLayer[] { new ObjRenderLayer() });
+            Check(memory, obsel, new RenderLayer[] { new SpriteRenderLayer() });
             Check(memory, obsel, new RenderLayer[] {
-                new ObjPriorityRenderLayer(0),
+                new SpritePriorityRenderLayer(0),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
-                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
+                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
-                new ObjPriorityRenderLayer(3) });
+                new SpritePriorityRenderLayer(3) });
         }
         // Earlier OAM wins even when the later entry has greater display priority.
         // A transparent hole in the winner must still expose that later entry.
@@ -47,9 +47,9 @@ internal static class ObjectSmokeTests
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;
         var overlap = FramePaint.FromOam(vram, palette, oam, 2, 0);
-        Check(overlap, 0, new RenderLayer[] { new ObjRenderLayer() });
+        Check(overlap, 0, new RenderLayer[] { new SpriteRenderLayer() });
         for (byte priority = 0; priority < 4; priority++)
-            Check(overlap, 0, new RenderLayer[] { new ObjPriorityRenderLayer(priority) });
+            Check(overlap, 0, new RenderLayer[] { new SpritePriorityRenderLayer(priority) });
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cases} exact OBJ comparisons passed.");
 
         void Check(FramePaint memory, byte obsel, RenderLayer[] layers)

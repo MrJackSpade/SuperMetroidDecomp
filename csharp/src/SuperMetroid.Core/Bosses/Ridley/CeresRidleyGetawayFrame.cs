@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// of the $A6:B00F X table (subtracted from the horizontal offset, so the image moves right) and
 /// the $A6:AF2F Y table (added to the vertical offset).
 /// </summary>
-public readonly record struct CeresRidleyGetawayFrame(int Zoom, Offset16<Mode7Pixels> Velocity)
+public readonly record struct CeresRidleyGetawayFrame(int Zoom, Offset16<FloorPixels> Velocity)
 {
     /// <summary>The frame after the last, which ends the getaway and carries no zoom or motion (#1413).</summary>
-    public static CeresRidleyGetawayFrame Finished { get; } = new(0, Offset16<Mode7Pixels>.Zero) { IsFinished = true };
+    public static CeresRidleyGetawayFrame Finished { get; } = new(0, Offset16<FloorPixels>.Zero) { IsFinished = true };
 
     /// <summary>Whether this is <see cref="Finished"/>, the frame that ends the getaway.</summary>
     public bool IsFinished { get; private init; }

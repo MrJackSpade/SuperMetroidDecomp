@@ -78,9 +78,9 @@ internal static void VerifyObjRendering()
     // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
     // the display renderer then shows that draw over the backdrop.
     RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(
-        new FramePaint(cgram.Colors, []), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+        new FramePaint(cgram.Colors, []), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
     RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
     AssertEqual(new SuperMetroid.Core.Assets.RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
@@ -92,11 +92,11 @@ internal static void VerifyObjRendering()
     // screen coordinate.
     cgram.SetColor(128 + 3 * 16 + 1, RgbColor.FromWord(0x03e0));
     oam.BeginFrame();
-    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
-    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
+    oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
+    oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
     RgbaPixel[] overlap = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
     AssertEqual(
         new SuperMetroid.Core.Assets.RgbaPixel(255, 0, 0),
         overlap[20 * 256 + 10],

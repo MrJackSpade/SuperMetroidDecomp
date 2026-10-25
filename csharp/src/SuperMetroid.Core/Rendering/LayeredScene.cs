@@ -30,11 +30,11 @@ public sealed class LayeredScene
         // cannot rearrange a queued frame's priority ladder after publication.
         foreach (RenderLayer layer in layers)
         {
-            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or TileRenderLayer or TileViewportRenderLayer or Mode7RenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer or ScanlineColorAddRenderLayer or MessageBoxRenderLayer or FxPlaneBlendRenderLayer or Mode7GameplayRenderLayer or TileAddRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
+            if (layer is not (SpritePriorityRenderLayer or SpriteRenderLayer or TileRenderLayer or TileViewportRenderLayer or FloorRenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer or ScanlineColorAddRenderLayer or MessageBoxRenderLayer or FxPlaneBlendRenderLayer or GameplayFloorRenderLayer or TileAddRenderLayer or WindowedSceneRenderLayer or GameplayColorMathRenderLayer))
                 throw new ArgumentException("Unrecognized or null render layer.", nameof(layers));
-            if (layer is Mode7RenderLayer { SubtractObjSubscreen: true, AddBg1Subscreen: true })
+            if (layer is FloorRenderLayer { SubtractSpriteSubscreen: true, AddBg1Subscreen: true })
                 throw new ArgumentException("Mode 7 cannot select two different color-math operations.", nameof(layers));
-            if (layer is ObjRenderLayer { FixedColor: not null, AddToScreen: true })
+            if (layer is SpriteRenderLayer { FixedColor: not null, AddToScreen: true })
                 throw new ArgumentException("OBJ fixed color requires replacing OBJ.", nameof(layers));
             if (layer is TileRenderLayer bg4 &&
                 (bg4.MapSize.X is not (32 or 64) || bg4.MapSize.Y is not (32 or 64)))
@@ -44,7 +44,7 @@ public sealed class LayeredScene
                 throw new ArgumentException("Coverage BGSC geometry must be 32 or 64 tiles on each axis.", nameof(layers));
         }
         for (int i = 1; i < layers.Length; i++)
-            if (layers[i] is OrdinaryGameplayRenderLayer or Mode7GameplayRenderLayer or GameplayColorMathRenderLayer)
+            if (layers[i] is OrdinaryGameplayRenderLayer or GameplayFloorRenderLayer or GameplayColorMathRenderLayer)
                 throw new ArgumentException("The fused gameplay base must be the first operation.", nameof(layers));
         Paint = paint;
         this.layers = layers.ToArray();

@@ -8,7 +8,7 @@ public sealed class MapArrowVisual
     /// <summary>Only edited durations are stored; stock phases use native timing.</summary>
     internal readonly Dictionary<int, byte>? durationOverrides;
     /// <summary>Captures the authored phase count and stores deviations from cartridge timing.</summary>
-    internal MapArrowVisual(Position16<OamPixels> position, int[] durations)
+    internal MapArrowVisual(Position16<SpritePixels> position, int[] durations)
     {
         Position = position;
         PhaseCount = durations.Length;
@@ -17,7 +17,7 @@ public sealed class MapArrowVisual
                 (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
     }
     /// <summary>Screen-pixel anchor used when composing this direction's OAM sprite.</summary>
-    public Position16<OamPixels> Position { get; }
+    public Position16<SpritePixels> Position { get; }
     /// <summary>Bounds the cyclic phase index supplied to <see cref="Duration"/>.</summary>
     public int PhaseCount { get; }
 

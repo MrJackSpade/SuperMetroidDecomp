@@ -136,12 +136,12 @@ internal static class EndingPlanetBoundaryVerification
         while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
         {
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-            var projection = snapshot.LayersOf<Mode7RenderLayer>().Single();
+            var projection = snapshot.LayersOf<FloorRenderLayer>().Single();
             // D837 retains M7SEL=0 from atmospheric setup. Its main is BG1,
             // subscreen is OBJ, and CGADSUB=$21 adds OBJ to BG1/backdrop.
-            RenderLayer[] nativeLayers = [new Mode7RenderLayer(projection.Transform with { Outside = Mode7OverflowMode.Wrap },
+            RenderLayer[] nativeLayers = [new FloorRenderLayer(projection.Transform with { Outside = FloorOverflowMode.Wrap },
                     AffineFloorFixtures.Floor(nativeVram, snapshot.Paint.Colors)),
-                new ObjRenderLayer(AddToScreen: true)];
+                new SpriteRenderLayer(AddToScreen: true)];
             var nativeMemory = new FramePaint(snapshot.Paint.Colors, snapshot.Paint.SpriteDraws);
             var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
@@ -158,7 +158,7 @@ internal static class EndingPlanetBoundaryVerification
             byte[] reconstructed = ending.ShownVram();
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
             // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction.
-            RenderLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is Mode7RenderLayer floor
+            RenderLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is FloorRenderLayer floor
                 ? (floor with { Floor = AffineFloorFixtures.Floor(reconstructed, live.Paint.Colors) }) : layer)];
             var nativePixels = DisplayRendering.Render(new LayeredScene(live.Paint, reconstructedLayers, live.Brightness));
             differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);

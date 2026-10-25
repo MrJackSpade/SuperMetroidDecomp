@@ -243,7 +243,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         PrepareRenderSprites();
         RenderLayer[] layers = [new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1,
             new Extent16<TilemapCells>(GameOverPresentationDefinitions.TilemapWidth, GameOverPresentationDefinitions.TilemapHeight), screen.MenuTiles),
-            new Position16<BgPlanePixels>(0, 0), null), new ObjRenderLayer()];
+            new Position16<BgPlanePixels>(0, 0), null), new SpriteRenderLayer()];
         return new(screen.Paint(), layers, checked((byte)brightness));
     }
 

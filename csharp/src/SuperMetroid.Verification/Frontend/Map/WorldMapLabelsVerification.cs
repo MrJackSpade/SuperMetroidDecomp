@@ -45,7 +45,7 @@ internal static class WorldMapLabelsVerification
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<WorldMapLabelDocument>(File.ReadAllBytes(Path.Combine(stock, WorldMapLabelFormat.FileName)), options);
-        var areas = new Dictionary<string, Position16<OamPixels>>(document.Areas);
+        var areas = new Dictionary<string, Position16<SpritePixels>>(document.Areas);
         areas["Crateria"] = areas["Crateria"] with { X = (ushort)(areas["Crateria"].X + 8) };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, WorldMapLabelFormat.FileName);

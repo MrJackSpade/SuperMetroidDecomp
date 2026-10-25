@@ -9,7 +9,7 @@ internal sealed record EnemySpritemapDraw
     public required EnemyFrameId Frame { get; init; }
 
     /// <summary>Origin.</summary>
-    public required Position16<OamPixels> Origin { get; init; }
+    public required Position16<SpritePixels> Origin { get; init; }
 
     /// <summary>Palette bits.</summary>
     public required int PaletteBits

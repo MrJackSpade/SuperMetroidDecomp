@@ -11,7 +11,8 @@ internal static class PhantoonMotionDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon motion")]
     internal static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {
-        ushort[] definitions = [PhantoonMotionDefinitions.SlowFraction, PhantoonMotionDefinitions.SlowWhole,
+        // Each definition is the signed value the cartridge's word holds; every unsigned one is below $8000.
+        int[] definitions = [PhantoonMotionDefinitions.SlowFraction, PhantoonMotionDefinitions.SlowWhole,
             PhantoonMotionDefinitions.FastFraction, PhantoonMotionDefinitions.FastWhole,
             PhantoonMotionDefinitions.ForwardSlowCap, PhantoonMotionDefinitions.ForwardFastCap,
             PhantoonMotionDefinitions.ForwardMinimum, PhantoonMotionDefinitions.SlowFraction,
@@ -23,7 +24,7 @@ internal static class PhantoonMotionDefinitionsVerification
         {
             int address = 0xa7cd73 + i * 2;
             native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native[i], definitions[i], "Phantoon compiled motion native word");
+            AssertEqual((int)unchecked((short)native[i]), definitions[i], "Phantoon compiled motion value");
         }
         Action<PhantoonPartState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
         Action<PhantoonPartState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;

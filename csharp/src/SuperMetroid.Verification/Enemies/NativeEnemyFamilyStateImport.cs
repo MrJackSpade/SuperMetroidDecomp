@@ -85,6 +85,7 @@ internal static class NativeEnemyFamilyStateImport
             phantoonPartRecord.SwoopVelocity = new(new SnesSignedEightEight(words.C), new SnesSignedEightEight(words.D));
             phantoonPartRecord.FunctionTimer = words.E;
             phantoonPartRecord.WavyPhaseDelta = words.F;
+            PhantoonNativeWords.Import(phantoonPartRecord, slot.Spawn.Population.Parameter2, words.C, words.E, words.F);
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {

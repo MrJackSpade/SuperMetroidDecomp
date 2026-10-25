@@ -1,74 +1,73 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Native bank-$A7 function pointers installed in Phantoon body variable F. Keeping the
-/// actual addresses makes debugger watches line up with WRAM <c>$0FB2</c> and prevents a
-/// host-only state machine from quietly diverging from the cartridge dispatcher.
+/// The phase of Phantoon's encounter the body runs each update. Each member names the bank-$A7 routine it replaced;
+/// the values are arbitrary identities (#1413), and the main AI dispatches on the member.
 /// </summary>
-public enum PhantoonAiFunction : ushort
+public enum PhantoonAiFunction
 {
     /// <summary>$A7:D4A9: allocates the introductory circle of eight flames from the physical projectile pool.</summary>
-    SpawnStartingFlames = 0xd4a9,
+    SpawnStartingFlames = 1,
     /// <summary>$A7:D4EE: waits before activating the introductory flame circle's spin.</summary>
-    WaitBeforeActivatingStartingFlames = 0xd4ee,
+    WaitBeforeActivatingStartingFlames,
     /// <summary>$A7:D508: waits for the introductory flame orbit to finish before wavy materialization.</summary>
-    WaitForStartingFlamesToDisappear = 0xd508,
+    WaitForStartingFlamesToDisappear,
     /// <summary>$A7:D54A: advances the introductory wavy palette fade-in.</summary>
-    WavyFadeIn = 0xd54a,
+    WavyFadeIn,
     /// <summary>$A7:D596: selects the first figure-eight round's movement pattern.</summary>
-    PickFirstRoundPattern = 0xd596,
+    PickFirstRoundPattern,
     /// <summary>$A7:D5E7: advances the selected figure-eight path until the eye-opening window.</summary>
-    MoveInFigureEightThenOpenEye = 0xd5e7,
+    MoveInFigureEightThenOpenEye,
     /// <summary>$A7:D60D: tracks Samus with the eye during the figure-eight vulnerability window.</summary>
-    EyeTracksSamus = 0xd60d,
+    EyeTracksSamus,
     /// <summary>$A7:D65C: makes Phantoon opaque and initializes its triggered swoop.</summary>
-    BecomeSolidAndSwoop = 0xd65c,
+    BecomeSolidAndSwoop,
     /// <summary>$A7:D678: advances the opaque swoop toward Samus.</summary>
-    Swooping = 0xd678,
+    Swooping,
     /// <summary>$A7:D6B9: continues the swoop while fading the body out.</summary>
-    FadeOutWhileSwooping = 0xd6b9,
+    FadeOutWhileSwooping,
     /// <summary>$A7:D6D4: counts the hidden delay before another figure-eight appearance.</summary>
-    WaitAfterFadeOut = 0xd6d4,
+    WaitAfterFadeOut,
     /// <summary>$A7:D6E2: places Phantoon for the next figure-eight round.</summary>
-    PickNextAppearance = 0xd6e2,
+    PickNextAppearance,
     /// <summary>$A7:D72D: materializes the next figure-eight appearance.</summary>
-    FadeInBeforeFigureEight = 0xd72d,
+    FadeInBeforeFigureEight,
     /// <summary>$A7:D73F: the flame-rain show entry, installing the next visible/vulnerable-window setup.</summary>
-    BecomeSolidAfterFlameRain = 0xd73f,
+    BecomeSolidAfterFlameRain,
     /// <summary>$A7:D767: advances the flame-rain materialization before entering its vulnerability window.</summary>
-    FadeInDuringFlameRain = 0xd767,
+    FadeInDuringFlameRain,
     /// <summary>$A7:D788: advances the flame-rain vulnerability window before Phantoon hides again.</summary>
-    TrackSamusDuringFlameRain = 0xd788,
+    TrackSamusDuringFlameRain,
     /// <summary>$A7:D7D5: fades out between successive flame-rain attacks.</summary>
-    FadeOutDuringFlameRain = 0xd7d5,
+    FadeOutDuringFlameRain,
     /// <summary>$A7:D7F7: schedules another flame rain while Phantoon is hidden.</summary>
-    SpawnFlameRain = 0xd7f7,
+    SpawnFlameRain,
     /// <summary>$A7:D82A: initializes the first flame rain while fading away from the preceding round.</summary>
-    FadeOutBeforeFirstFlameRain = 0xd82a,
+    FadeOutBeforeFirstFlameRain,
     /// <summary>$A7:D85C: fades out before the enraged attack sequence.</summary>
-    FadeOutBeforeRage = 0xd85c,
+    FadeOutBeforeRage,
     /// <summary>$A7:D874: positions hidden Phantoon at the rage anchor and waits for its appearance.</summary>
-    MoveToTopCenterForRage = 0xd874,
+    MoveToTopCenterForRage,
     /// <summary>$A7:D891: fades into the enraged attack's top-center appearance.</summary>
-    FadeInForRage = 0xd891,
+    FadeInForRage,
     /// <summary>$A7:D8AC: advances the enraged flame pattern before the post-rage fade.</summary>
-    Enraged = 0xd8ac,
+    Enraged,
     /// <summary>$A7:D916: fades out after the enraged attack.</summary>
-    FadeOutAfterRage = 0xd916,
+    FadeOutAfterRage,
     /// <summary>$A7:D92E: completes the fatal-damage swoop before starting the death choreography.</summary>
-    FinishFatalSwoop = 0xd92e,
+    FinishFatalSwoop,
     /// <summary>$A7:D948: alternates death fade-in/fade-out cycles before the explosion phase.</summary>
-    DyingFadeInOut = 0xd948,
+    DyingFadeInOut,
     /// <summary>$A7:D98B: schedules physical death explosions and prepares the final distortion.</summary>
-    DyingExplosions = 0xd98b,
+    DyingExplosions,
     /// <summary>$A7:DA51: initializes the final wavy HDMA and mosaic death presentation.</summary>
-    BeginFinalWavyDeath = 0xda51,
+    BeginFinalWavyDeath,
     /// <summary>$A7:DA86: advances the final wavy/mosaic palette fade-out.</summary>
-    DyingFadeOut = 0xda86,
+    DyingFadeOut,
     /// <summary>$A7:DAD7: clears Phantoon graphics and releases distortion before Wrecked Ship activation.</summary>
-    AlmostDead = 0xdad7,
+    AlmostDead,
     /// <summary>$A7:DB3D: restores the powered Wrecked Ship palette, publishes drops and boss persistence, restores the door, and deletes all four parts.</summary>
-    Dead = 0xdb3d,
+    Dead,
     /// <summary>$A7:D4A8: an explicit return entry with no encounter-state mutation.</summary>
-    NoOperation = 0xd4a8,
+    NoOperation,
 }

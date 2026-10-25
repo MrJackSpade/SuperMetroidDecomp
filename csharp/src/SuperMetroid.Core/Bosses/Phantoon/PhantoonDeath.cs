@@ -127,8 +127,9 @@ internal sealed class PhantoonDeath
         state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveDefinitions.DeathMode;
         state.Wave.Begin(PhantoonWaveDefinitions.DeathMode);
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeOut;
-        state.Parts[state.Eye.SlotIndex].MosaicRegister = PhantoonDeathDefinitions.InitialMosaic;
-        state.MosaicBlockSize = MosaicBlockSizeOf(PhantoonDeathDefinitions.InitialMosaic);
+        state.Parts[state.Eye.SlotIndex].DeathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
+        state.Parts[state.Eye.SlotIndex].DeathMosaicFinished = false;
+        state.MosaicBlockSize = PhantoonDeathDefinitions.InitialMosaicSize;
 
         // The body remains the BG2 producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as $DA6C does.
@@ -152,23 +153,21 @@ internal sealed class PhantoonDeath
             PhantoonBehavior.PhantoonDeathWaveMaximum);
 
         RoomEnemySlot eye = state.Eye;
-        if (state.Parts[eye.SlotIndex].MosaicRegister != PhantoonDeathDefinitions.MosaicFinished)
+        PhantoonPartState eyeWords = state.Parts[eye.SlotIndex];
+        if (!eyeWords.DeathMosaicFinished)
         {
-            // The mosaic grows one size step every sixteenth frame.
-            if (_frameContext.FrameCounter % 16 != 0)
+            if (_frameContext.FrameCounter % PhantoonDeathDefinitions.MosaicGrowthInterval != 0)
                 return;
 
-            byte mosaic = unchecked((byte)state.Parts[eye.SlotIndex].MosaicRegister);
-            if (mosaic == PhantoonDeathDefinitions.FinalMosaicRegister)
+            if (eyeWords.DeathMosaicSize == PhantoonDeathDefinitions.FinalMosaicSize)
             {
-                state.Parts[eye.SlotIndex].MosaicRegister = PhantoonDeathDefinitions.MosaicFinished;
-                state.Parts[eye.SlotIndex].FadeComplete = false;
+                eyeWords.DeathMosaicFinished = true;
+                eyeWords.FadeComplete = false;
                 return;
             }
 
-            mosaic = unchecked((byte)(mosaic + PhantoonDeathDefinitions.MosaicSizeStep));
-            state.Parts[eye.SlotIndex].MosaicRegister = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(state.Parts[eye.SlotIndex].MosaicRegister)) | mosaic));
-            state.MosaicBlockSize = MosaicBlockSizeOf(mosaic);
+            eyeWords.DeathMosaicSize++;
+            state.MosaicBlockSize = eyeWords.DeathMosaicSize;
             return;
         }
 
@@ -177,11 +176,6 @@ internal sealed class PhantoonDeath
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.AlmostDead;
     }
 
-    /// <summary>
-    /// The BG2 mosaic block size in screen pixels a death-mosaic step on the eye's counter shows: the counter's
-    /// high nibble is the size minus one, and every step also enables BG2, so the size alone carries the display.
-    /// </summary>
-    internal static int MosaicBlockSizeOf(byte mosaic) => (mosaic >> PhantoonDeathDefinitions.MosaicSizeShift) + 1;
 
     /// <summary>Clears the visible enemy BG2 page and starts the 60-frame power delay.</summary>
     internal void ClearPhantoonDeathGraphics(

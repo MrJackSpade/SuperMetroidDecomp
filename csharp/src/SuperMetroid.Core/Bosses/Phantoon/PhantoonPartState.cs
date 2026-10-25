@@ -16,13 +16,13 @@ public sealed class PhantoonPartState
     /// <summary>The word holding the body's starting-flame flag or speed fraction, the eye's shot marker, the tentacles' round damage or the mouth's casual-flame hold.</summary>
     private int _wordB;
 
-    /// <summary>The word holding the body's speed whole pixels, the eye's figure-eight direction, fade-cycle count or mosaic, the tentacles' horizontal swoop velocity or the mouth's casual-flame count.</summary>
+    /// <summary>The word holding the body's speed whole pixels, the eye's figure-eight direction or fade-cycle count, the tentacles' horizontal swoop velocity or the mouth's casual-flame count.</summary>
     private int _wordC;
 
     /// <summary>The word holding the body's speed phase, the eye's fade denominator, the tentacles' vertical swoop velocity or the mouth's wave amplitude.</summary>
     private int _wordD;
 
-    /// <summary>The word holding the body's function timer, the eye's fade numerator, the tentacles' swoop target or the mouth's amplitude direction.</summary>
+    /// <summary>The word holding the body's function timer, the eye's fade numerator or the mouth's amplitude direction.</summary>
     private int _wordE;
 
     /// <summary>The word holding a part's function, the eye's fade-complete flag or rage wave count, the tentacles' explosion index or the mouth's wavy phase delta.</summary>
@@ -30,6 +30,12 @@ public sealed class PhantoonPartState
 
     /// <summary>The first spawn-parameter word: the eye's wave mode or the tentacles' requested wave mode.</summary>
     private int _parameterOne;
+
+    /// <summary>The eye's death-mosaic block size (<see cref="DeathMosaicSize"/>).</summary>
+    private int _deathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
+
+    /// <summary>The tentacles' swoop target X position (<see cref="SwoopTargetX"/>).</summary>
+    private int _swoopTargetX;
 
     /// <summary>The second spawn-parameter word: the body's flame-rain request, the tentacles' hit reaction or the mouth's shot pattern.</summary>
     private int _parameterTwo;
@@ -76,11 +82,33 @@ public sealed class PhantoonPartState
     /// <summary>The eye's completed dying fade cycles.</summary>
     public int DyingFadeCycles { get => _wordC; internal set => _wordC = Word(value); }
 
-    /// <summary>The eye's mosaic register during the wavy death.</summary>
-    public int MosaicRegister { get => _wordC; internal set => _wordC = Word(value); }
+    /// <summary>
+    /// The eye's death-mosaic block size in screen pixels while the mosaic grows. The cartridge keeps the mosaic's
+    /// display setting in the eye's word C (its size less one above a layer bit); the size alone is what it shows, and
+    /// nothing reads the eye's word C through another view once the mosaic starts.
+    /// </summary>
+    public int DeathMosaicSize
+    {
+        get => _deathMosaicSize;
+        internal set => _deathMosaicSize = Ensure.BetweenInclusive(PhantoonDeathDefinitions.InitialMosaicSize, PhantoonDeathDefinitions.FinalMosaicSize, value);
+    }
 
-    /// <summary>The mouth's remaining casual flames, as the cartridge's word; negative when no schedule is active.</summary>
-    public int CasualFlameCount { get => _wordC; internal set => _wordC = Word(value); }
+    /// <summary>
+    /// Whether the eye's death mosaic has finished growing and the fade-out runs. The cartridge marks it by writing
+    /// minus one over the eye's word C.
+    /// </summary>
+    public bool DeathMosaicFinished { get; internal set; }
+
+    /// <summary>
+    /// The mouth's remaining casual flames: <see cref="PhantoonCasualFlameDefinitions.NoActiveSchedule"/> when no schedule
+    /// is active. The record keeps it as the cartridge's signed word, which never leaves this range: schedules hold small
+    /// counts and an exhausted one is set to minus one.
+    /// </summary>
+    public int CasualFlameCount
+    {
+        get => unchecked((short)_wordC);
+        internal set => _wordC = unchecked((ushort)Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, short.MaxValue, value));
+    }
 
     /// <summary>The tentacles' signed 8.8 swoop velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> SwoopVelocity
@@ -109,14 +137,24 @@ public sealed class PhantoonPartState
     /// <summary>The eye's palette fade numerator.</summary>
     public int FadeNumerator { get => _wordE; internal set => _wordE = Word(value); }
 
-    /// <summary>The tentacles' swoop target, with the returning bit set once the swoop turns back.</summary>
-    public int SwoopTarget { get => _wordE; internal set => _wordE = Word(value); }
+    /// <summary>
+    /// The tentacles' swoop target X position, which sweeps out to its turn and back. The cartridge keeps it in the
+    /// tentacles' word E with <see cref="SwoopReturning"/> as its top bit; only the swoop reads that word.
+    /// </summary>
+    public int SwoopTargetX { get => _swoopTargetX; internal set => _swoopTargetX = Ensure.BetweenInclusive(0, short.MaxValue, value); }
+
+    /// <summary>Whether the tentacles' swoop target has reached its turn and is counting back toward zero.</summary>
+    public bool SwoopReturning { get; internal set; }
 
     /// <summary>Whether the mouth's wave amplitude is shrinking rather than growing.</summary>
     public bool WaveAmplitudeShrinking { get => _wordE != 0; internal set => _wordE = value ? 1 : 0; }
 
-    /// <summary>The bank-$A7 function the body dispatches, held as the cartridge's word.</summary>
-    public PhantoonAiFunction Function { get => (PhantoonAiFunction)_wordF; internal set => _wordF = (ushort)value; }
+    /// <summary>
+    /// The encounter phase the body dispatches. It shares word F with the other parts' views, and every phase is
+    /// nonzero, as every cartridge function word is, so a phase reads as a completed fade through
+    /// <see cref="FadeComplete"/>.
+    /// </summary>
+    public PhantoonAiFunction Function { get => (PhantoonAiFunction)_wordF; internal set => _wordF = (int)value; }
 
     /// <summary>Whether the eye's current palette fade has completed.</summary>
     public bool FadeComplete { get => _wordF != 0; internal set => _wordF = value ? 1 : 0; }
@@ -192,6 +230,10 @@ public sealed class PhantoonPartState
         _wordF = 0;
         _parameterOne = 0;
         _parameterTwo = 0;
+        _swoopTargetX = 0;
+        SwoopReturning = false;
+        _deathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
+        DeathMosaicFinished = false;
         LayerControl = PhantoonLayerControl.Hidden;
         HurtFlashShown = false;
     }

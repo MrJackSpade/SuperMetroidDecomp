@@ -438,7 +438,7 @@ internal sealed class PhantoonCombat
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
     internal static void RunPhantoonCasualFlameImpactPause(
         RoomEnemyProjectileSlot flame,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         CountdownStep pauseStep = WrappingCounter.Decrement(checked((ushort)flame.Variable0));
         flame.Variable0 = pauseStep.Value;
@@ -453,7 +453,7 @@ internal sealed class PhantoonCombat
         flame.Velocity = flame.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-768));
         flame.Variable0 = 0;
         // $86:99EB reads the 16-bit NMI_FrameCounter.
-        flame.Velocity = flame.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((nmiFrameCounter & 1) == 0 ? (short)128 : (short)-128));
+        flame.Velocity = flame.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? (short)128 : (short)-128));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>

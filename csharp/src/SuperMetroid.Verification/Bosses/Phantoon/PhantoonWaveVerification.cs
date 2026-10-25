@@ -60,18 +60,17 @@ internal static class PhantoonWaveVerification
     }
 
     /// <summary>
-    /// Checks that each death-mosaic step the eye's counter takes, from the first value to the last, is published as
-    /// the same BG2 block size the PPU decodes from that MOSAIC value.
+    /// Checks that each death-mosaic block size, from the first to the last, is the size the PPU decodes from the MOSAIC
+    /// value the cartridge writes for that step ($02 first, sixteen more each step: the size less one in the high
+    /// nibble, BG2 enabled).
     /// </summary>
     private static void VerifyPhantoonDeathMosaicSizes()
     {
         int steps = 0;
-        for (int mosaic = PhantoonDeathDefinitions.InitialMosaic;
-             mosaic <= PhantoonDeathDefinitions.FinalMosaicRegister;
-             mosaic += PhantoonDeathDefinitions.MosaicSizeStep)
+        for (int size = PhantoonDeathDefinitions.InitialMosaicSize; size <= PhantoonDeathDefinitions.FinalMosaicSize; size++)
         {
-            AssertEqual(BackgroundMosaicSamplingConstants.ForBg2((byte)mosaic).Size, PhantoonDeath.MosaicBlockSizeOf((byte)mosaic),
-                $"death mosaic step {steps} block size");
+            byte mosaic = (byte)PhantoonNativeWords.DeathMosaicWord(size);
+            AssertEqual(BackgroundMosaicSamplingConstants.ForBg2(mosaic).Size, size, $"death mosaic step {steps} block size");
             steps++;
         }
         AssertEqual(16, steps, "the death mosaic grows through all sixteen block sizes");

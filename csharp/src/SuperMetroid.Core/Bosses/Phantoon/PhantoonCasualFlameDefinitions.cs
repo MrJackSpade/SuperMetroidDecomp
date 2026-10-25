@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonCasualFlameDefinitions
 {
     /// <summary>
-    /// The mouth's remaining-flame word when no schedule is active (native -1): the next expiry picks a new pattern.
+    /// The mouth's remaining-flame count when no schedule is active: the next expiry picks a new pattern.
     /// </summary>
-    public const ushort NoActiveSchedule = 0xffff;
+    public const int NoActiveSchedule = -1;
 
     /// <summary>$A7:CD2F's seven irregular reverse-read intervals; independent timing disposition remains required.</summary>
     private static ReadOnlySpan<ushort> IrregularIntervals => [16,64,32,64,32,16,32];

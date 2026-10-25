@@ -1,7 +1,7 @@
-﻿namespace SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>Cartridge values and helpers of <see cref="CeresDoorVisualRomData"/> that only verification reads.</summary>
-internal static class CeresDoorVisualRomDataConstants
+/// <summary>Where verification's native colour oracle finds the Ceres door's colours: the first colour each setup and glow image replaces.</summary>
+internal static class CeresDoorVisualConstants
 {
     /// <summary>First CGRAM color index receiving the normal setup palette.</summary>
     public const int NormalTargetColor = 0x142 / 2;

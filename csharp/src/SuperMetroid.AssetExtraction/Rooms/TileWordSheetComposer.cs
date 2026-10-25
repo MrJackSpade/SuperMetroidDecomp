@@ -202,7 +202,7 @@ internal static class TileWordSheetComposer
         switch (writer)
         {
             case TileWordWriter.ZebesEscapeText:
-                yield return new NamedPart("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase));
+                yield return new NamedPart("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase));
                 break;
             case TileWordWriter.CeresEscapeText:
                 foreach (NamedPart part in CeresWarningParts(inputs))
@@ -265,22 +265,21 @@ internal static class TileWordSheetComposer
         CeresEscapeOverlayTilemapCatalog overlays = inputs.Objects.Areas.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
         CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
-        yield return new NamedPart("Emergency", new BodyPart([.. Runs(emergency.Cell,
-            OverlayWords(overlays, emergency.SourceAddress, emergency.WordCount * sizeof(ushort)))]));
+        yield return new NamedPart("Emergency", new BodyPart([.. Runs(emergency.Cell, OverlayWords(overlays, emergency))]));
         var subtitle = new List<BodyRun>();
         foreach (CeresEscapeOverlayTilemapDefinition row in CeresEscapeOverlayTilemapDefinitions.Japanese)
-            subtitle.AddRange(Runs(row.Cell, OverlayWords(overlays, row.SourceAddress, row.WordCount * sizeof(ushort))));
+            subtitle.AddRange(Runs(row.Cell, OverlayWords(overlays, row)));
         yield return new NamedPart("Subtitle", new BodyPart([.. subtitle]));
         yield return new NamedPart("Typed", Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase));
     }
 
-    /// <summary>The words of the installed Ceres warning tilemap the getaway writes from <paramref name="sourceAddress"/>.</summary>
+    /// <summary>The words of the installed Ceres warning tilemap <paramref name="page"/> the getaway writes.</summary>
     /// <exception cref="InvalidDataException">No installed warning tilemap holds them.</exception>
-    private static ushort[] OverlayWords(CeresEscapeOverlayTilemapCatalog overlays, int sourceAddress, int byteCount)
+    private static ushort[] OverlayWords(CeresEscapeOverlayTilemapCatalog overlays, CeresEscapeOverlayTilemapDefinition page)
     {
-        if (!overlays.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data))
-            throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {byteCount} bytes from ${sourceAddress:X6}.");
-        var words = new ushort[byteCount / sizeof(ushort)];
+        if (!overlays.TryResolve(page, out ReadOnlyMemory<byte> data))
+            throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {page.Name} page.");
+        var words = new ushort[page.WordCount];
         for (int index = 0; index < words.Length; index++)
             words[index] = SnesLittleEndian.Word(data.Span[index * 2], data.Span[index * 2 + 1]);
         return words;

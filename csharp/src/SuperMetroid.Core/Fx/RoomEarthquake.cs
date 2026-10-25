@@ -17,6 +17,15 @@ internal sealed class RoomEarthquake
     internal void AddTimerBits(int bits) =>
         EarthquakeTimer = WrappingCountdown.FromRaw(unchecked((ushort)(EarthquakeTimer.RawValue | Ensure.BetweenInclusive(0, ushort.MaxValue, bits))));
 
+    /// <summary>The shake timer's top bit, which keeps the room shaking for tens of thousands of frames once set.</summary>
+    private const int ContinuousShakeBit = 1 << 15;
+
+    /// <summary>
+    /// Keeps the room shaking without re-arming the timer every frame, by setting its top bit (#1415): the Zebes escape's
+    /// outdoor rooms do this on every update.
+    /// </summary>
+    internal void KeepShaking() => AddTimerBits(ContinuousShakeBit);
+
     /// <summary>
     /// Room-shake type selecting background/projectile offsets and whether actors shake; types 0 through 35 are
     /// consumed by <see cref="Advance"/>, while 36 and above are ignored there. Producers write a type from 0 through

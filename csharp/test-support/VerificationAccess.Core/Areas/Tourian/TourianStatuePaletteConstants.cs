@@ -1,8 +1,7 @@
-﻿
-namespace SuperMetroid.Core.Areas.Tourian;
+﻿namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>Cartridge values and helpers of <see cref="TourianStatuePaletteRomData"/> that only verification reads.</summary>
-internal static class TourianStatuePaletteRomDataConstants
+/// <summary>Where verification's native colour oracle finds the Tourian statue's colours: the first colour each band replaces.</summary>
+internal static class TourianStatuePaletteConstants
 {
     /// <summary>First CGRAM color-entry index of the base-decoration band: 240, OBJ palette 7 color zero; native initialization targets <c>TargetPalettes_SpriteP7</c>.</summary>
     public const int BaseCgramIndex = 240;

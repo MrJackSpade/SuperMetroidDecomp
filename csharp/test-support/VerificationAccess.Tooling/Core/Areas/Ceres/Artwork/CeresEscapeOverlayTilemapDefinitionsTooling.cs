@@ -7,7 +7,7 @@ internal static class CeresEscapeOverlayTilemapDefinitionsTooling
     internal static bool IsSource(int sourceAddress, int byteCount)
     {
         foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.All)
-            if (page.SourceAddress == sourceAddress &&
+            if (CeresEscapeNativeSources.OverlaySource(page) == sourceAddress &&
                 page.WordCount * sizeof(ushort) == byteCount)
                 return true;
         return false;

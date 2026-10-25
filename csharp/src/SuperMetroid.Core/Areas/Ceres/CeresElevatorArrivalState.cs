@@ -122,7 +122,7 @@ public sealed class CeresElevatorArrivalState
         return new CeresElevatorProjectile(
             definition.Program,
             position,
-            CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
+            CeresElevatorArrivalDefinitions.StartingGraphicsIndex);
     }
 
     /// <summary>Runs a projectile's typed program (#641) when its frame expires: a new pose, or the delete.</summary>

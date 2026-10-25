@@ -8,8 +8,8 @@ internal static class EscapeTimerTilePagesConstants
     /// <summary>The page's native long source address.</summary>
     public static int SourceAddressOf(EscapeTimerTilePage page) => page switch
     {
-        EscapeTimerTilePage.First => EscapeTimerTileRomData.FirstSourceAddress,
-        EscapeTimerTilePage.Second => EscapeTimerTileRomDataConstants.SecondSourceAddress,
+        EscapeTimerTilePage.First => EscapeTimerTileSourceConstants.FirstSourceAddress,
+        EscapeTimerTilePage.Second => EscapeTimerTileSourceConstants.SecondSourceAddress,
         _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {(int)page}."),
     };
     /// <summary>Identifies the page a native source/size descriptor uploads.</summary>

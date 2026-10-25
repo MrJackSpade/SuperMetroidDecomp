@@ -10,8 +10,8 @@ internal static class CeresEscapeOverlayTilemapDefinitionsAccess
         internal static bool ContainsByteAddress(int address)
         {
             foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.All)
-                if (address >= page.SourceAddress &&
-                    address < page.SourceAddress + page.WordCount * sizeof(ushort))
+                if (address >= CeresEscapeNativeSources.OverlaySource(page) &&
+                    address < CeresEscapeNativeSources.OverlaySource(page) + page.WordCount * sizeof(ushort))
                     return true;
             return false;
         }

@@ -895,6 +895,8 @@ internal static void VerifyCeresRidleyRoomEntry()
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
             CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
+            CeresRidleyFloorUpdates = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateFiles.Read(new MemoryStream(
+                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateFiles.Extract(bus))),
         },
     };
     using (var escapeText = new MemoryStream(
@@ -1269,7 +1271,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     }
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
     AssertTrue((InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
-            "Verification requires installed Ceres overlay tilemaps.")).TryResolve(0xa6c164, emergency.WordCount * sizeof(ushort),
+            "Verification requires installed Ceres overlay tilemaps.")).TryResolve(emergency,
             out ReadOnlyMemory<byte> emergencyBytes),
         "Ceres EMERGENCY text resolves the cartridge tilemap words");
     for (int word = 0; word < emergency.WordCount; word++)

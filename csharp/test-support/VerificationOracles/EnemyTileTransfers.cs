@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -17,7 +18,7 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas? timer = null)
     : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver, IInstalledSpriteCharacterArtwork,
-        IInstalledBossSpriteCharacterArtwork, IInstalledAreaObjCharacterArtwork
+        IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <inheritdoc/>
     public EnemyTileArtworkCatalog EnemyTiles => installed.Enemies;
@@ -38,9 +39,9 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     /// <summary>Resolves a native Ceres or Torizo transfer, in the runtime artwork's order; enemy tiles are named by identity (#1412).</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        if (installed.Areas.CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out data) == true)
+        if (installed.Areas.CeresEscapeTiles?.TryResolveNative(sourceAddress, byteCount, out data) == true)
             return true;
-        if (installed.Areas.CeresEscapeOverlayTilemaps?.TryResolve(sourceAddress, byteCount, out data) == true)
+        if (installed.Areas.CeresEscapeOverlayTilemaps?.TryResolveNative(sourceAddress, byteCount, out data) == true)
             return true;
         if (installed.Bosses.TorizoSwaps?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;

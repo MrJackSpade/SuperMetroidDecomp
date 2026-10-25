@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
-/// <summary>Native identity and queue geometry for the English and Japanese Ceres overlays.</summary>
+/// <summary>The identity and placement of the English and Japanese Ceres overlays.</summary>
 internal static class CeresEscapeOverlayTilemapDefinitions
 {
     /// <summary>Supported editable warning-overlay schema revision.</summary>
@@ -10,28 +10,25 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     /// <summary>Installed JSON file containing all five Ceres warning tilemap pages.</summary>
     internal const string FileName = "ceres-escape-overlay-tilemaps.json";
 
-    /// <summary>English EMERGENCY title tilemap at $A6:C164, written at BG1 row six, column eleven.</summary>
+    /// <summary>English EMERGENCY title tilemap, written at BG1 row six, column eleven.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition Emergency =
-        new("emergency", 0xa6c164, EmergencyText.Length, 6 * RowCells + 11);
+        new("emergency", EmergencyText.Length, 6 * RowCells + 11);
 
-    /// <summary>First Japanese self-destruct subtitle row at $A6:C3F4, written at BG1 row twenty, column ten.</summary>
+    /// <summary>First Japanese self-destruct subtitle row's upper half, written at BG1 row twenty, column ten.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFirst =
-        new("japanese_0", 0xa6c3f4, JapaneseFirstLine.Length, 20 * RowCells + 10);
+        new("japanese_0", JapaneseFirstLine.Length, 20 * RowCells + 10);
 
-    /// <summary>Second Japanese self-destruct subtitle row at $A6:C40C, the row below the first.</summary>
+    /// <summary>First subtitle row's lower half, the row below.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseSecond =
-        new("japanese_1", JapaneseFirst.SourceAddress + JapaneseFirst.WordCount * sizeof(ushort), JapaneseFirstLine.Length,
-            JapaneseFirst.Cell + RowCells);
+        new("japanese_1", JapaneseFirstLine.Length, JapaneseFirst.Cell + RowCells);
 
-    /// <summary>Third Japanese self-destruct subtitle row at $A6:C424, the row below the second.</summary>
+    /// <summary>Second subtitle row's upper half, the row below that.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseThird =
-        new("japanese_2", JapaneseSecond.SourceAddress + JapaneseSecond.WordCount * sizeof(ushort), JapaneseSecondLine.Length,
-            JapaneseSecond.Cell + RowCells);
+        new("japanese_2", JapaneseSecondLine.Length, JapaneseSecond.Cell + RowCells);
 
-    /// <summary>Fourth Japanese self-destruct subtitle row at $A6:C43A, the row below the third.</summary>
+    /// <summary>Second subtitle row's lower half, the row below that.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFourth =
-        new("japanese_3", JapaneseThird.SourceAddress + JapaneseThird.WordCount * sizeof(ushort), JapaneseSecondLine.Length,
-            JapaneseThird.Cell + RowCells);
+        new("japanese_3", JapaneseSecondLine.Length, JapaneseThird.Cell + RowCells);
 
     /// <summary>English warning title rendered from the Latin tile alphabet.</summary>
     /// <remarks>Authored warning wording and font ordering are categorical typography content. The selected two-half

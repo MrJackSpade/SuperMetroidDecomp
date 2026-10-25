@@ -6,11 +6,11 @@ using System.Text.Json.Serialization;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -27,7 +27,7 @@ public static class CeresDoorVisualFiles
     {
         Ensure.NotNull(bus);
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
+            CeresSourceDefinitions.Door.Characters, CeresDoorVisualDefinitions.CharacterBytes);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var image = new MemoryStream();
@@ -41,24 +41,24 @@ public static class CeresDoorVisualFiles
         byte[] paletteJson = Write(new CeresDoorVisualDocument
         {
             Version = 1,
-            Normal = ReadColors(bus, CeresDoorVisualRomData.NormalColors,
-                CeresDoorVisualRomData.SetupColorCount),
-            Escape = ReadColors(bus, CeresDoorVisualRomData.EscapeColors,
-                CeresDoorVisualRomData.SetupColorCount),
-            Animation = Enumerable.Range(0, CeresDoorVisualRomData.AnimationRowCount)
+            Normal = ReadColors(bus, CeresSourceDefinitions.Door.NormalColors,
+                CeresDoorVisualDefinitions.SetupColorCount),
+            Escape = ReadColors(bus, CeresSourceDefinitions.Door.EscapeColors,
+                CeresDoorVisualDefinitions.SetupColorCount),
+            Animation = Enumerable.Range(0, CeresDoorVisualDefinitions.AnimationRowCount)
                 .Select(row => ReadColors(bus,
-                    CeresDoorVisualRomData.AnimationColors +
-                        row * CeresDoorVisualRomData.AnimationRowByteStride,
-                    CeresDoorVisualRomData.AnimationColorCount)).ToArray(),
+                    CeresSourceDefinitions.Door.AnimationColors +
+                        row * CeresSourceDefinitions.Door.AnimationRowBytes,
+                    CeresDoorVisualDefinitions.AnimationColorCount)).ToArray(),
             Mode7DoorFrames =
             [
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    CeresDoorVisualRomData.Mode7FirstFrameSource,
-                    CeresDoorVisualRomData.Mode7FrameByteCount)
+                    CeresSourceDefinitions.Door.PlatformFrames,
+                    CeresDoorVisualDefinitions.PlatformCellCount)
                     .Select(value => (int)value).ToArray(),
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    CeresDoorVisualRomData.Mode7SecondFrameSource,
-                    CeresDoorVisualRomData.Mode7FrameByteCount)
+                    CeresSourceDefinitions.Door.PlatformFrames + CeresSourceDefinitions.Door.PlatformFrameBytes,
+                    CeresDoorVisualDefinitions.PlatformCellCount)
                     .Select(value => (int)value).ToArray(),
             ],
         });
@@ -96,19 +96,19 @@ public static class CeresDoorVisualFiles
             throw new InvalidDataException("Invalid Ceres-door visual palette JSON.", error);
         }
         if (document.Version != 1 || document.Animation is null ||
-            document.Animation.Length != CeresDoorVisualRomData.AnimationRowCount)
+            document.Animation.Length != CeresDoorVisualDefinitions.AnimationRowCount)
             throw new InvalidDataException("Ceres-door visuals require version 1 and eight animation rows.");
-        Bgr555[] normal = Compile(document.Normal, CeresDoorVisualRomData.SetupColorCount,
+        Bgr555[] normal = Compile(document.Normal, CeresDoorVisualDefinitions.SetupColorCount,
             "normal");
-        Bgr555[] escape = Compile(document.Escape, CeresDoorVisualRomData.SetupColorCount,
+        Bgr555[] escape = Compile(document.Escape, CeresDoorVisualDefinitions.SetupColorCount,
             "escape");
         Bgr555[][] animation = document.Animation.Select((row, index) =>
-            Compile(row, CeresDoorVisualRomData.AnimationColorCount,
+            Compile(row, CeresDoorVisualDefinitions.AnimationColorCount,
                 $"animation row {index}")).ToArray();
-        byte[][] mode7DoorFrames = CompileMode7Frames(document.Mode7DoorFrames);
-        RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng, CeresDoorVisualRomData.TileByteCount);
+        byte[][] platformFrames = CompileMode7Frames(document.Mode7DoorFrames);
+        RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng, CeresDoorVisualDefinitions.CharacterBytes);
         return CeresDoorVisualCatalog.Load(tiles, normal, escape, animation,
-            mode7DoorFrames);
+            platformFrames);
     }
 
     /// <summary>Serializes visual JSON as indented camel-case UTF-8, validating version, palette dimensions, RGB5 bounds, and Mode 7 frame bytes before returning it; PNG admission is a separate boundary.</summary>
@@ -117,12 +117,12 @@ public static class CeresDoorVisualFiles
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
         // The PNG is validated independently; validate color structure here.
         if (document.Version != 1 || document.Animation is null ||
-            document.Animation.Length != CeresDoorVisualRomData.AnimationRowCount)
+            document.Animation.Length != CeresDoorVisualDefinitions.AnimationRowCount)
             throw new InvalidDataException("Ceres-door visuals require version 1 and eight animation rows.");
-        _ = Compile(document.Normal, CeresDoorVisualRomData.SetupColorCount, "normal");
-        _ = Compile(document.Escape, CeresDoorVisualRomData.SetupColorCount, "escape");
+        _ = Compile(document.Normal, CeresDoorVisualDefinitions.SetupColorCount, "normal");
+        _ = Compile(document.Escape, CeresDoorVisualDefinitions.SetupColorCount, "escape");
         for (int row = 0; row < document.Animation.Length; row++)
-            _ = Compile(document.Animation[row], CeresDoorVisualRomData.AnimationColorCount,
+            _ = Compile(document.Animation[row], CeresDoorVisualDefinitions.AnimationColorCount,
                 $"animation row {row}");
         _ = CompileMode7Frames(document.Mode7DoorFrames);
         return json;
@@ -154,13 +154,13 @@ public static class CeresDoorVisualFiles
     /// <summary>Validates exactly two four-cell Mode 7 strips and converts their character selectors to bytes.</summary>
     private static byte[][] CompileMode7Frames(int[][]? source)
     {
-        if (source is null || source.Length != CeresDoorVisualRomData.Mode7FrameCount)
+        if (source is null || source.Length != CeresDoorVisualDefinitions.PlatformFrameCount)
             throw new InvalidDataException("Ceres-door visuals require two Mode-7 tilemap frames.");
         var result = new byte[source.Length][];
         for (int frame = 0; frame < source.Length; frame++)
         {
             int[]? values = source[frame];
-            if (values is null || values.Length != CeresDoorVisualRomData.Mode7FrameByteCount)
+            if (values is null || values.Length != CeresDoorVisualDefinitions.PlatformCellCount)
                 throw new InvalidDataException($"Ceres-door Mode-7 frame {frame} needs four bytes.");
             result[frame] = new byte[values.Length];
             for (int index = 0; index < values.Length; index++)

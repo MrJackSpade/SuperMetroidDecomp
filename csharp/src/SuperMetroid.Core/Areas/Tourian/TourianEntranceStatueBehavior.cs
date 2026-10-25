@@ -126,7 +126,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Registers the shared pre-instruction for base, Ridley, and Phantoon decoration actors.</summary>
-    internal void RegisterTourianEntranceStatueProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddTourianEntranceStatueProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddPreInstruction(context =>
         {

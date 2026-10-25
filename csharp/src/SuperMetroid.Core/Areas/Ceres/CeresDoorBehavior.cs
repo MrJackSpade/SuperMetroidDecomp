@@ -204,7 +204,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunCeresDoorEarthquake(baseEarthquakeType: 29);
                 return;
 
-            case CeresDoorFunction.RidleyEscapeMode7Wall:
+            case CeresDoorFunction.RidleyEscapeFloorWall:
                 // Ridley's room overlay begins hidden. Ridley's escape reveals it and swap
                 // to enemy palette seven; the actor remains present so later Mode-7 drawing
                 // can retain the native priority relationship with Samus and Ridley.
@@ -325,7 +325,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
         // queue made the moving OBJ pad flash correctly, then left the landed tile platform
         // frozen on whichever frame happened to be present at deletion.
-        _room.Services.DrawFloorMap(CeresDoorVisualRomData.Mode7MapCell, SelectedCeresDoorVisual.Mode7DoorFrame((frame & 2) >> 1));
+        _room.Services.DrawFloorMap(CeresDoorVisualDefinitions.PlatformFloorCell, SelectedCeresDoorVisual.PlatformFrame((frame & 2) >> 1));
 
         // Bits 3..5 of the frame counter: a new row of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;

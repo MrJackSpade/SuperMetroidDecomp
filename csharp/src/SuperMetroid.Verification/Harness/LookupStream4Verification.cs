@@ -1312,9 +1312,9 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), (ushort)CeresMode7TransferDefinitions.BabyFrameForPhase(phase), "Baby reflected phase preserves native transfer identity");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimationDefinitions.BabyFrameForPhase(phase)), "Baby reflected phase preserves native transfer identity");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimationDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         // The getaway patches the room's Mode 7 map, which each NMI publishes; it no longer writes VRAM (#1349).
         byte[] untouchedCells = new byte[FloorMap.Cells];
@@ -1322,7 +1322,7 @@ internal static class LookupStream4Verification
         var map = new FloorMap(untouchedCells, default, RoomBackgroundsFixtures.FloorTiles());
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = map })
-            { BossArtworkBinding = { CeresRidleyFloorColors = colors } };
+            { BossArtworkBinding = { CeresRidleyFloorColors = colors, CeresRidleyFloorUpdates = CeresRidleyFloorUpdateFiles.Read(new MemoryStream(CeresRidleyFloorUpdateFiles.Extract(rom))) } };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));

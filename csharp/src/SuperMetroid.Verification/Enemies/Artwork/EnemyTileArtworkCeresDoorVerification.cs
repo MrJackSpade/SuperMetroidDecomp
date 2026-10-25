@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -29,7 +30,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         CeresDoorVisualCatalog visual = stock.Areas.CeresDoorVisual
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
         byte[] nativeTiles = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
+            CeresSourceDefinitions.Door.Characters, CeresDoorVisualDefinitions.CharacterBytes);
         AssertTrue(visual.Characters.Span.SequenceEqual(nativeTiles),
             "installed Ceres-door PNG preserves the complete direct tile DMA");
         // $A6:F739 copies the characters to VRAM byte $E000, word $7000: OBJ character $100.
@@ -39,28 +40,28 @@ internal static class EnemyTileArtworkCeresDoorVerification
 
         var nativeColors = new SnesCgram();
         var compiledColors = new GameplayColours(new SpriteColourSets());
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.NormalColors,
-            CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomDataConstants.NormalTargetColor);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresSourceDefinitions.Door.NormalColors,
+            CeresDoorVisualDefinitions.SetupColorCount, CeresDoorVisualConstants.NormalTargetColor);
         visual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(compiledColors));
         AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
             "installed Ceres-door normal RGB5 palette matches the cartridge");
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.EscapeColors,
-            CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomDataConstants.ActiveTargetColor);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresSourceDefinitions.Door.EscapeColors,
+            CeresDoorVisualDefinitions.SetupColorCount, CeresDoorVisualConstants.ActiveTargetColor);
         visual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(compiledColors));
         AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
             "installed Ceres-door escape RGB5 palette matches the cartridge");
-        for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
+        for (int row = 0; row < CeresDoorVisualDefinitions.AnimationRowCount; row++)
         {
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus,
-                CeresDoorVisualRomData.AnimationColors +
-                    row * CeresDoorVisualRomData.AnimationRowByteStride,
-                CeresDoorVisualRomData.AnimationColorCount,
-                CeresDoorVisualRomDataConstants.AnimationTargetColor);
+                CeresSourceDefinitions.Door.AnimationColors +
+                    row * CeresSourceDefinitions.Door.AnimationRowBytes,
+                CeresDoorVisualDefinitions.AnimationColorCount,
+                CeresDoorVisualConstants.AnimationTargetColor);
             visual.LoadAnimationColors(compiledColors.BackgroundSets, row);
             AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
                 $"installed Ceres-door animated RGB5 row {row} matches the cartridge");
         }
-        for (int frame = 0; frame < CeresDoorVisualRomData.Mode7FrameCount; frame++)
+        for (int frame = 0; frame < CeresDoorVisualDefinitions.PlatformFrameCount; frame++)
         {
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointers.Ceres.DoorTransferPointers + frame * sizeof(ushort));
@@ -68,13 +69,13 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertEqual((byte)0x80, CpuBusRegionRead.Read(bus, record),
                 $"Ceres-door Mode-7 transfer {frame} uses the native low-byte DMA");
             int source = (int)new SnesAddress(CpuBusRegionRead.Read(bus, record + 3), SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, record + 1), CpuBusRegionRead.Read(bus, record + 2)));
-            AssertEqual(frame == 0 ? CeresDoorVisualRomData.Mode7FirstFrameSource :
-                    CeresDoorVisualRomData.Mode7SecondFrameSource,
+            AssertEqual(frame == 0 ? CeresSourceDefinitions.Door.PlatformFrames :
+                    CeresSourceDefinitions.Door.PlatformFrames + CeresSourceDefinitions.Door.PlatformFrameBytes,
                 source, $"Ceres-door Mode-7 transfer {frame} source");
-            AssertEqual(CeresDoorVisualRomData.Mode7FrameByteCount,
+            AssertEqual(CeresDoorVisualDefinitions.PlatformCellCount,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 4),
                 $"Ceres-door Mode-7 transfer {frame} length");
-            AssertEqual(CeresDoorVisualRomData.Mode7MapCell,
+            AssertEqual(CeresDoorVisualDefinitions.PlatformFloorCell,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6),
                 $"Ceres-door Mode-7 transfer {frame} destination");
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 8),
@@ -82,8 +83,8 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 9),
                 $"Ceres-door Mode-7 transfer {frame} terminator");
             byte[] nativeFrame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
-                CeresDoorVisualRomData.Mode7FrameByteCount);
-            AssertTrue(nativeFrame.SequenceEqual(visual.Mode7DoorFrame(frame)),
+                CeresDoorVisualDefinitions.PlatformCellCount);
+            AssertTrue(nativeFrame.SequenceEqual(visual.PlatformFrame(frame)),
                 $"installed Ceres-door Mode-7 frame {frame} matches native transfer");
         }
 
@@ -120,16 +121,16 @@ internal static class EnemyTileArtworkCeresDoorVerification
             "Ceres-door PNG override changes the live first tile pixel");
         var editedCgram = new GameplayColours(new SpriteColourSets());
         edited.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(editedCgram));
-        AssertTrue(editedCgram.Colors[CeresDoorVisualRomDataConstants.NormalTargetColor] !=
-            compiledColors.Colors[CeresDoorVisualRomDataConstants.NormalTargetColor],
+        AssertTrue(editedCgram.Colors[CeresDoorVisualConstants.NormalTargetColor] !=
+            compiledColors.Colors[CeresDoorVisualConstants.NormalTargetColor],
             "Ceres-door palette override changes the live normal color");
         edited.LoadAnimationColors(editedCgram.BackgroundSets, 0);
         var stockAnimationCgram = new GameplayColours(new SpriteColourSets());
         visual.LoadAnimationColors(stockAnimationCgram.BackgroundSets, 0);
-        AssertTrue(editedCgram.Colors[CeresDoorVisualRomDataConstants.AnimationTargetColor] !=
-            stockAnimationCgram.Colors[CeresDoorVisualRomDataConstants.AnimationTargetColor],
+        AssertTrue(editedCgram.Colors[CeresDoorVisualConstants.AnimationTargetColor] !=
+            stockAnimationCgram.Colors[CeresDoorVisualConstants.AnimationTargetColor],
             "Ceres-door animation override changes the live selected frame");
-        AssertTrue(!edited.Mode7DoorFrame(0).SequenceEqual(visual.Mode7DoorFrame(0)),
+        AssertTrue(!edited.PlatformFrame(0).SequenceEqual(visual.PlatformFrame(0)),
             "Ceres-door Mode-7 frame override changes the live tilemap");
     }
 }

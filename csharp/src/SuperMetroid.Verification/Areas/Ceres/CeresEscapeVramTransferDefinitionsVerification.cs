@@ -139,9 +139,9 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
     /// <summary>Imports indexed character pages needed to run the installed Ceres escape transfer path.</summary>
     [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]
     private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
-        CeresEscapeTileArtworkDefinitions.All.Select(page =>
+        CeresEscapeTileArtworkDefinitions.All.Select((page, index) =>
             RoomCharacterAtlasPng.Read(new MemoryStream(
-                IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
+                IndexedTilePageExtractor.Extract(rom, CeresEscapeNativeSources.PageSource(index),
                     page.ByteCount, page.FileName), writable: false),
                 page.ByteCount)).ToArray();
 

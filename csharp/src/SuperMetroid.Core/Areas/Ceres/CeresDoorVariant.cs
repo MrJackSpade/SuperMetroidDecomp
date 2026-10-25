@@ -13,8 +13,8 @@ internal enum CeresDoorVariant : ushort
     RidleyRoomFacingRight = 3,
     /// <summary>Invisible wall associated with the rotating elevator room.</summary>
     RotatingElevatorInvisibleWall = 4,
-    /// <summary>Left wall used in the Ridley escape Mode 7 scene.</summary>
-    RidleyEscapeMode7LeftWall = 5,
-    /// <summary>Right wall used in the Ridley escape Mode 7 scene.</summary>
-    RidleyEscapeMode7RightWall = 6,
+    /// <summary>Left wall beside the rotating floor of Ceres Ridley's escape scene.</summary>
+    RidleyEscapeFloorLeftWall = 5,
+    /// <summary>Right wall beside the rotating floor of Ceres Ridley's escape scene.</summary>
+    RidleyEscapeFloorRightWall = 6,
 }

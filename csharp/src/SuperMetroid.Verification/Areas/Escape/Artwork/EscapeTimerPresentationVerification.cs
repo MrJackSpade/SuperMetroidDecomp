@@ -41,9 +41,9 @@ internal static class EscapeTimerPresentationVerification
 
         var tileAtlas = EscapeTimerCharacters.Read(new MemoryStream(extractedTiles));
         byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
+            EscapeTimerTileSourceConstants.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
         byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            EscapeTimerTileRomDataConstants.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
+            EscapeTimerTileSourceConstants.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
         AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
             "first timer PNG page compiles to exact native characters");
         AssertTrue(nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerSecondTiles).Span),
@@ -51,12 +51,12 @@ internal static class EscapeTimerPresentationVerification
 
         var synchronous = new SpriteCharacters();
         AssertTrue(tileAtlas.TryRecordNativeTransfer(synchronous,
-            EscapeTimerTileRomData.FirstSourceAddress,
+            EscapeTimerTileSourceConstants.FirstSourceAddress,
             EscapeTimerTileAtlasFormat.FirstByteCount,
             EscapeNativePageWords.TimerFirst),
             "Mother Brain synchronous owner recognizes first timer record");
         AssertTrue(tileAtlas.TryRecordNativeTransfer(synchronous,
-            EscapeTimerTileRomDataConstants.SecondSourceAddress,
+            EscapeTimerTileSourceConstants.SecondSourceAddress,
             EscapeTimerTileAtlasFormat.SecondByteCount,
             EscapeNativePageWords.TimerSecond),
             "Mother Brain synchronous owner recognizes second timer record");

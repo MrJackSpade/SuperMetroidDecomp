@@ -1,18 +1,21 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres Baby Metroid's bank-$A6 behavior function, kept in Ridley's extended workspace.</summary>
+/// <summary>
+/// The Ceres Baby Metroid's behaviour while Ridley holds, drops or retrieves it.
+/// Its values are arbitrary; <see cref="None"/> is the default of a workspace that was never initialized (#1415).
+/// </summary>
 public enum CeresBabyFunction : ushort
 {
-    /// <summary>Outside Ceres the Baby workspace is never initialized and holds zero.</summary>
+    /// <summary>Outside Ceres the Baby workspace is never initialized and holds no behaviour.</summary>
     None = 0,
-    /// <summary><c>UpdateBabyMetroidPosition_CarriedInArms</c> at $A6:BE9C.</summary>
-    CarriedInArms = 0xbe9c,
-    /// <summary><c>UpdateBabyMetroidPosition_CarriedInFeet</c> at $A6:BEB3.</summary>
-    CarriedInFeet = 0xbeb3,
-    /// <summary><c>DropBabyMetroid</c> at $A6:BECA.</summary>
-    Drop = 0xbeca,
-    /// <summary><c>BabyMetroidDropped</c> at $A6:BEDC.</summary>
-    Dropped = 0xbedc,
-    /// <summary><c>RTS_A6BF19</c> at $A6:BF19: the idle function after landing.</summary>
-    Idle = 0xbf19,
+    /// <summary><c>$A6:BE9C UpdateBabyMetroidPosition_CarriedInArms</c>: the Baby stays at Ridley's arm anchor.</summary>
+    CarriedInArms = 1,
+    /// <summary><c>$A6:BEB3 UpdateBabyMetroidPosition_CarriedInFeet</c>: the Baby follows Ridley's grasp point.</summary>
+    CarriedInFeet,
+    /// <summary><c>$A6:BECA DropBabyMetroid</c>: clears the fall state and starts falling.</summary>
+    Drop,
+    /// <summary><c>$A6:BEDC BabyMetroidDropped</c>: the Baby falls under gravity until it lands.</summary>
+    Dropped,
+    /// <summary><c>$A6:BF19 RTS_A6BF19</c>: the idle function after landing.</summary>
+    Idle,
 }

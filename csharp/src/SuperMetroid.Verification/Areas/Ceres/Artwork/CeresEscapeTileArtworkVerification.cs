@@ -30,14 +30,14 @@ internal static class CeresEscapeTileArtworkVerification
     {
         AssertTrue(stock.Areas.CeresEscapeTiles is not null,
             "installed Ceres escape warning and door PNGs exist");
-        foreach (TileSheetDefinition page in
-                 CeresEscapeTileArtworkDefinitions.All)
+        for (int pageIndex = 0; pageIndex < CeresEscapeTileArtworkDefinitions.All.Length; pageIndex++)
         {
-            AssertTrue((stock.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.Areas.CeresEscapeTiles.")).TryResolve(page.SourceAddress,
+            TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
+            AssertTrue((stock.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.Areas.CeresEscapeTiles.")).TryResolve(pageIndex, 0,
                     page.ByteCount, out ReadOnlyMemory<byte> nativePage),
                 $"Ceres escape page {page.FileName} resolves completely");
             for (int offset = 0; offset < page.ByteCount; offset++)
-                AssertEqual(rom.ReadCartridgeByte(page.SourceAddress + offset),
+                AssertEqual(rom.ReadCartridgeByte(CeresEscapeNativeSources.PageSource(pageIndex) + offset),
                     nativePage.Span[offset],
                     $"Ceres escape page {page.FileName} byte {offset:X4}");
         }
@@ -108,10 +108,10 @@ internal static class CeresEscapeTileArtworkVerification
             ?? throw new InvalidOperationException("Stock Ceres escape art was not installed.");
         CeresEscapeTileArtwork editedArt = edited.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Edited Ceres escape art was not installed.");
-        AssertTrue(stockArt.TryResolve(warning.SourceAddress,
+        AssertTrue(stockArt.TryResolve(0, 0,
                 0x0200, out ReadOnlyMemory<byte> stockChunk),
             "Ceres warning transfer resolves in stock artwork");
-        AssertTrue(editedArt.TryResolve(warning.SourceAddress,
+        AssertTrue(editedArt.TryResolve(0, 0,
                 0x0200, out ReadOnlyMemory<byte> editedChunk),
             "Ceres warning transfer resolves in edited artwork");
         AssertEqual((byte)(stockChunk.Span[0] ^ 0x80), editedChunk.Span[0],
@@ -141,7 +141,7 @@ internal static class CeresEscapeTileArtworkVerification
             editedPage[SpriteCharacters.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord))],
             "edited Ceres warning PNG changes the page production shows");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(warning.SourceAddress, 0x0200,
+                .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(0, 0, 0x0200,
                     out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedChunk.Span),
             "Ceres warning tile override survives catalog reload");
@@ -181,7 +181,7 @@ internal static class CeresEscapeTileArtworkVerification
             .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
                 CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||
                 CeresEscapeTileArtworkDefinitionsTooling.Contains(address, 1) ||
-                address >= EscapeTimerTileRomData.FirstSourceAddress &&
-                address < EscapeTimerTileRomData.FirstSourceAddress + EscapeTimerTileAtlasFormat.TotalByteCount,
+                address >= EscapeTimerTileSourceConstants.FirstSourceAddress &&
+                address < EscapeTimerTileSourceConstants.FirstSourceAddress + EscapeTimerTileAtlasFormat.TotalByteCount,
                 address => $"Installed Ceres escape reread source ${address:X6}.");
 }

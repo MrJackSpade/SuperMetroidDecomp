@@ -12,7 +12,7 @@ internal sealed record CeresDoorCharacters : ObjCharacterSource
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The installed area artwork holds no Ceres door visuals.</exception>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        (InstalledAreaObjCharacterArtwork.Of(resolver).AreaTiles.CeresDoorVisual ?? throw new InvalidDataException(
+        (InstalledAreaSpriteCharacterArtwork.Of(resolver).AreaTiles.CeresDoorVisual ?? throw new InvalidDataException(
             "Installed area artwork has no Ceres door visuals.")).Characters;
 
     /// <summary>Names the source for diagnostics and pictures.</summary>

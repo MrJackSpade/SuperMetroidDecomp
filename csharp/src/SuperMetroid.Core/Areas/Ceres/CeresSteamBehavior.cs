@@ -114,7 +114,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Ports <c>CeresSteam_Main</c> at <c>$A6:F00D</c>.</summary>
     private static void RunCeresSteamMain(
         RoomEnemySlot slot,
-        SamusMode7Transform? mode7Transform)
+        SamusMode7Transform? floorTransform)
     {
         // Both main AI and touch AI restore this value. Steam is scenery/hazard state and
         // cannot be destroyed by a projectile that happened to overlap an active plume.
@@ -134,10 +134,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             // collision continues to use the untransformed world point; drawing consumes
             // these offsets later in WriteEnemyOAM.
             case CeresSteamFunction.ApplyRotatingElevatorOffset:
-                if (mode7Transform is not SamusMode7Transform transform)
+                if (floorTransform is not SamusMode7Transform transform)
                 {
                     throw new InvalidOperationException(
-                        "Ceres steam elevator variant requires the active Mode-7 transform.");
+                        "Ceres steam elevator variant requires the turning floor's transform.");
                 }
 
                 Position16<RoomPixels> transformed = transform.Transform(slot.Position.Whole);
@@ -157,7 +157,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
-    internal void RegisterCeresSteamTouch(EnemySharedReactions table)
+    internal void AddCeresSteamTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Steam &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CeresSteamTouch,
@@ -183,7 +183,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Routes steam shots to ordinary common shot AI without a species-specific reaction.</summary>
-    internal static void RegisterCeresSteamShotReactions(EnemySharedReactions table)
+    internal static void AddCeresSteamShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Steam &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NoOp));

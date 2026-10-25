@@ -1422,13 +1422,13 @@ internal static class LookupStream3Verification
             catch (InvalidOperationException) { }
         }
         for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
-            AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (EscapeTextArtworkDefinitions.TimerPageCount + page) * 7 + 2),
-                EscapeTextArtworkDefinitions.PageSource(page), "stream 3 escape text page source");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (EscapeTextArtworkDefinitions.TimerPageCount + page) * 7 + 2),
+                (int)EscapeSourceDefinitions.TextCharacters + EscapeTextArtworkDefinitions.PageOffset(page), "stream 3 escape text page source: the page's offset into the installed sheet");
         AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa9902f + 2),
             (uint)MotherBrainSourceDefinitions.SpecialSprites.Sources[MotherBrainSpritePageSheet.ExplodedDoor], "stream 3 exploded door source");
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageOffset(invalid), "stream 3 text page offset bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageFirstCharacter(invalid), "stream 3 text page destination bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
         }

@@ -29,7 +29,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             CeresDoorInitializationDefinition definition =
                 CeresDoorInitializationDefinitions.For(variant);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + variant * 2)),
-                (ushort)definition.MainFunction,
+                CeresNativeWords.DoorFunctions.Word(definition.MainFunction),
                 $"Ceres door function selector {variant}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + variant * 2)),
                 NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Program),

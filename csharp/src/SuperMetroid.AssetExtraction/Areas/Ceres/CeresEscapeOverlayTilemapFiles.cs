@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -18,11 +19,9 @@ internal static class CeresEscapeOverlayTilemapFiles
                  CeresEscapeOverlayTilemapDefinitions.All)
         {
             var source = new ushort[page.WordCount];
+            SnesAddress first = Source(page);
             for (int index = 0; index < source.Length; index++)
-            {
-                int address = page.SourceAddress + index * sizeof(ushort);
-                source[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            }
+                source[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord((int)first.AddWithinBank(index * sizeof(ushort)));
             words.Add(page.Name, source);
         }
         byte[] json = CeresEscapeOverlayTilemapCatalog.Write(
@@ -37,15 +36,34 @@ internal static class CeresEscapeOverlayTilemapFiles
         foreach (CeresEscapeOverlayTilemapDefinition page in
                  CeresEscapeOverlayTilemapDefinitions.All)
         {
-            if (!roundtrip.TryResolve(page.SourceAddress,
-                    page.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> data))
+            if (!roundtrip.TryResolve(page, out ReadOnlyMemory<byte> data))
                 throw new InvalidDataException(
                     $"Ceres escape tilemap {page.Name} did not reload.");
+            SnesAddress first = Source(page);
             for (int offset = 0; offset < data.Length; offset++)
-                if (data.Span[offset] != bus.ReadCartridgeByte(page.SourceAddress + offset))
+                if (data.Span[offset] != bus.ReadCartridgeByte((int)first.AddWithinBank(offset)))
                     throw new InvalidDataException(
                         $"Ceres escape tilemap {page.Name} changed byte {offset:X2} during export.");
         }
         return json;
+    }
+
+    /// <summary>
+    /// Where the cartridge stores <paramref name="page"/>'s words: the title on its own, the Japanese subtitle's row
+    /// halves one after another in their writing order.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="page"/> is not one of the overlays.</exception>
+    internal static SnesAddress Source(CeresEscapeOverlayTilemapDefinition page)
+    {
+        if (page == CeresEscapeOverlayTilemapDefinitions.Emergency)
+            return CeresSourceDefinitions.EscapeOverlay.Emergency;
+        int offset = 0;
+        foreach (CeresEscapeOverlayTilemapDefinition row in CeresEscapeOverlayTilemapDefinitions.Japanese)
+        {
+            if (row == page)
+                return CeresSourceDefinitions.EscapeOverlay.JapaneseRows.AddWithinBank(offset);
+            offset += row.WordCount * sizeof(ushort);
+        }
+        throw new InvalidDataException($"{page.Name} is not a Ceres escape overlay.");
     }
 }

@@ -1308,8 +1308,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         ShaktoolBehavior.AddShaktoolProjectiles(table);
         SporeSpawnBehavior.AddSporeSpawnProjectiles(table);
         StokeBehavior.AddStokeProjectiles(table);
-        TourianEntranceStatueBehavior.RegisterTourianEntranceStatueProjectiles(table);
-        TourianUnlockBehavior.RegisterTourianUnlockProjectiles(table);
+        TourianEntranceStatueBehavior.AddTourianEntranceStatueProjectiles(table);
+        TourianUnlockBehavior.AddTourianUnlockProjectiles(table);
         WalkingSpacePirateBehavior.AddWalkingSpacePirateProjectiles(table);
         WorkRobotBehavior.AddWorkRobotProjectiles(table);
 
@@ -1396,7 +1396,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         ShaktoolBehavior.AddShaktoolShotReactions(table);
 
         // Ordinary common shot AI with no species stage.
-        CeresSteamBehavior.RegisterCeresSteamShotReactions(table);
+        CeresSteamBehavior.AddCeresSteamShotReactions(table);
         MochtroidBehavior.AddMochtroidShotReactions(table);
         // Several retail helper/projectile definitions point their shot callback at a literal RTL in their own enemy
         // bank. Radius collision still dispatches those callbacks after its projectile prelude.
@@ -1425,7 +1425,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         PhantoonBehavior.Combat.AddPhantoonBodyTouch(table);
         DraygonBehavior.Combat.AddDraygonTouch(table);
         SporeSpawnBehavior.AddSporeSpawnTouch(table);
-        CeresSteamBehavior.RegisterCeresSteamTouch(table);
+        CeresSteamBehavior.AddCeresSteamTouch(table);
         CrocomireBehavior.Combat.AddCrocomireTouch(table);
         MaridiaLargeSnailBehavior.AddMaridiaLargeSnailTouch(table);
         PlatformsBehavior.AddPlatformsTouch(table);

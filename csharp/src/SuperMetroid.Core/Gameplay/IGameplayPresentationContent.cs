@@ -54,6 +54,9 @@ public interface IGameplayPresentationContent : IAreaMapSource, IVramAssetProvid
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors.</summary>
     CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
 
+    /// <summary>Where the getaway's floor runs take their tile numbers from, which the floor updates it queues record.</summary>
+    CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; }
+
     /// <summary>Room and cinematic palette-animation colors; instruction timing, CGRAM destinations, and side effects remain compiled.</summary>
     RoomPaletteFxPresentation RoomPaletteFx { get; }
 

@@ -62,8 +62,7 @@ internal static class MaridiaElevatubeVisualsVerification
             AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
                 "production door setup spawns the elevatube PLM");
             var guard = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
-            int blockIndex = level.GetBlockIndex(
-                new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
+            int blockIndex = level.GetBlockIndex(MaridiaElevatubeDefinitions.PlmBlock);
             plms.Step(level);
             AssertEqual((ushort)0x8180,
                 level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,

@@ -57,7 +57,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
                 $"production Tourian unlock X {parameter}/{soul}");
             AssertEqual(expected.Y, projectile.Position.Y.Whole,
                 $"production Tourian unlock Y {parameter}/{soul}");
-            AssertEqual(soul ? TourianStatueRomData.Soul : TourianStatueRomData.EyeGlow,
+            AssertEqual(soul ? TourianStatueNativeWords.Soul : TourianStatueNativeWords.EyeGlow,
                 (ushort)projectile.Kind,
                 $"production Tourian unlock kind {parameter}/{soul}");
             AssertEqual(soul ? 0xfc00 : 0,

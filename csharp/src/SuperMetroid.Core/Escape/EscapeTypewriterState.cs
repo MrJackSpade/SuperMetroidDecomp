@@ -139,7 +139,7 @@ public sealed class EscapeTypewriterState
     {
         if (character == (byte)' ')
             return null;
-        if (character == (byte)'!') character = EscapeTypewriterRomData.ExclamationGlyph;
-        return new SnesBgTilemapWord(unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterRomData.FirstLetter)));
+        if (character == (byte)'!') character = EscapeTypewriterDefinitions.ExclamationGlyph;
+        return new SnesBgTilemapWord(unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterDefinitions.FirstLetter)));
     }
 }

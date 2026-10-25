@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Escape.Artwork;
 /// <summary>Editable OBJ characters copied into VRAM for the Zebes escape typewriter.</summary>
 public static class EscapeTextArtworkDefinitions
 {
-    /// <summary>$B7:DA00, first source page in the five-entry native text-character transfer.</summary>
-    public const int SourceAddress = 0xb7da00;
-
     /// <summary>$0900 contiguous bytes, ending after the half-size fifth source page.</summary>
     public const int ByteCount = 0x0900;
 
@@ -25,9 +22,9 @@ public static class EscapeTextArtworkDefinitions
     /// <summary>The bytes one four-bit OBJ character holds.</summary>
     private const int CharacterBytes = 32;
 
-    /// <summary>Five source pages from the native $A6:C4CB-$C4FC transfer list.</summary>
-    public static uint PageSource(int page) => (uint)page < PageCount
-        ? (uint)(SourceAddress + page * PageBytes) : throw new ArgumentOutOfRangeException(nameof(page));
+    /// <summary>Where text page <paramref name="page"/> starts within the installed sheet, from the native $A6:C4CB-$C4FC transfer list.</summary>
+    public static int PageOffset(int page) => (uint)page < PageCount
+        ? page * PageBytes : throw new ArgumentOutOfRangeException(nameof(page));
 
     /// <summary>Four full $200-byte pages followed by the final $100-byte page.</summary>
     public static ushort PageByteCount(int page) => (uint)page < PageCount

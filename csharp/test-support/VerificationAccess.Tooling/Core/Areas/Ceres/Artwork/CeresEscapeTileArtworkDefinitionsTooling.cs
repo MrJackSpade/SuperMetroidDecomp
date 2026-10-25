@@ -8,9 +8,10 @@ internal static class CeresEscapeTileArtworkDefinitionsTooling
     /// <summary>Accepts only a positive byte range wholly inside one of the two Ceres escape DMA pages.</summary>
     internal static bool Contains(int sourceAddress, int byteCount)
     {
-        foreach (TileSheetDefinition page in CeresEscapeTileArtworkDefinitions.All)
+        for (int index = 0; index < CeresEscapeTileArtworkDefinitions.All.Length; index++)
         {
-            int offset = sourceAddress - page.SourceAddress;
+            TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[index];
+            int offset = sourceAddress - CeresEscapeNativeSources.PageSource(index);
             if (offset >= 0 && byteCount > 0 && offset <= page.ByteCount - byteCount)
                 return true;
         }

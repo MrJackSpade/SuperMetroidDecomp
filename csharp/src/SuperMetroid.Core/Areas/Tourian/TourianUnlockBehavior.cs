@@ -255,7 +255,7 @@ internal sealed class TourianUnlockBehavior
     }
 
     /// <summary>Registers statue-specific pre-instruction and instruction interceptors.</summary>
-    internal void RegisterTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
+    internal void AddTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
     {
         // The Tourian statue effects use words outside the closed bank-$86 sets.
         table.InterceptPreInstructions(TryStepTourianUnlockEffect);
@@ -271,8 +271,8 @@ internal sealed class TourianUnlockBehavior
                     _audio.QueueEnemySound(Library2Sound.TourianStatueParticle, maximumQueued: SoundQueueLimit.Max6);
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake }:
-                    _earthquake.EarthquakeType = TourianStatueRomData.ReleaseEarthquakeType;
-                    _earthquake.AddTimerBits(TourianStatueRomData.ReleaseEarthquakeTimer);
+                    _earthquake.EarthquakeType = TourianStatueSequenceDefinitions.ReleaseEarthquakeType;
+                    _earthquake.AddTimerBits(TourianStatueSequenceDefinitions.ReleaseEarthquakeTimer);
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);

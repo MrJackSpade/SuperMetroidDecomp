@@ -122,7 +122,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
         var overlay = CeresEscapeOverlayTilemapCatalog.Load(TilemapContractStream(overlayJson));
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
         {
-            AssertTrue(overlay.TryResolve(page.SourceAddress, page.WordCount * 2, out var actual), "every Ceres warning page resolves");
+            AssertTrue(overlay.TryResolve(page, out var actual), "every Ceres warning page resolves");
             for (int index = 0; index < page.WordCount; index++) AssertEqual(overlayWords[page.Name][index],
                 BinaryPrimitives.ReadUInt16LittleEndian(actual.Span[(index * 2)..]), "warning words retain exact order");
         }

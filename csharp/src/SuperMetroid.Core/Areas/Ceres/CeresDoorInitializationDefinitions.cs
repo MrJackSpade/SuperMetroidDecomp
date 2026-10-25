@@ -36,12 +36,12 @@ internal static class CeresDoorInitializationDefinitions
             CeresDoorVariant.RotatingElevatorInvisibleWall => new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,
                 CeresDoorProgram.RotatingElevatorInvisibleWall),
-            CeresDoorVariant.RidleyEscapeMode7LeftWall => new(
-                CeresDoorFunction.RidleyEscapeMode7Wall,
-                CeresDoorProgram.RidleyEscapeMode7LeftWall),
-            CeresDoorVariant.RidleyEscapeMode7RightWall => new(
-                CeresDoorFunction.RidleyEscapeMode7Wall,
-                CeresDoorProgram.RidleyEscapeMode7RightWall),
+            CeresDoorVariant.RidleyEscapeFloorLeftWall => new(
+                CeresDoorFunction.RidleyEscapeFloorWall,
+                CeresDoorProgram.RidleyEscapeFloorLeftWall),
+            CeresDoorVariant.RidleyEscapeFloorRightWall => new(
+                CeresDoorFunction.RidleyEscapeFloorWall,
+                CeresDoorProgram.RidleyEscapeFloorRightWall),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(variant), variant, "Ceres door initialization variant must be zero through six."),
         };

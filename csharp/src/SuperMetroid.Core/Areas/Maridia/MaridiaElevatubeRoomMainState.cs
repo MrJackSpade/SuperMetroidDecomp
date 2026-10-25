@@ -43,9 +43,9 @@ public sealed class MaridiaElevatubeRoomMainState
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromSouth);
         Ensure.NotNull(samus);
         // $8F:E272 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
-        TrackedPosition = new(0, MaridiaElevatubeRomData.SouthStartingPosition);
-        Velocity = new(MaridiaElevatubeRomData.SouthStartingVelocity);
-        Acceleration = new(MaridiaElevatubeRomData.SouthAcceleration);
+        TrackedPosition = new(0, MaridiaElevatubeDefinitions.SouthStartingY);
+        Velocity = MaridiaElevatubeDefinitions.SouthStartingVelocity;
+        Acceleration = MaridiaElevatubeDefinitions.SouthAcceleration;
         samus.Control.LockStationary();
     }
 
@@ -55,9 +55,9 @@ public sealed class MaridiaElevatubeRoomMainState
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromNorth);
         Ensure.NotNull(samus);
         // $8F:E297 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
-        TrackedPosition = new(0, MaridiaElevatubeRomData.NorthStartingPosition);
-        Velocity = new(MaridiaElevatubeRomData.NorthStartingVelocity);
-        Acceleration = new(MaridiaElevatubeRomData.NorthAcceleration);
+        TrackedPosition = new(0, MaridiaElevatubeDefinitions.NorthStartingY);
+        Velocity = MaridiaElevatubeDefinitions.NorthStartingVelocity;
+        Acceleration = MaridiaElevatubeDefinitions.NorthAcceleration;
         samus.Control.LockStationary();
     }
 
@@ -81,7 +81,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
         RoomLevelData level,
         SamusState? samus,
-        int nmiFrameCounter,
+        int frameCounter,
         ISamusRoomPlms plms,
         RoomMainScratchState scratch)
     {
@@ -95,7 +95,7 @@ public sealed class MaridiaElevatubeRoomMainState
             "Maridia elevatube room main requires an active Samus state.");
 
         // Native stores the whole and fractional X words separately every frame.
-        activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new SnesFixedPosition(MaridiaElevatubeRomData.SamusCenterX, 0));
+        activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new SnesFixedPosition(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
         int displacement = SnesSixteenSixteen.FromEightEight(Velocity.SignedRawValue);
         uint trackedPosition = SnesSixteenSixteen.Compose(TrackedPosition.Y, scratch.Var1);
@@ -103,14 +103,13 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedPosition = new(0, SnesFixedPosition.WholeOf(unchecked((int)trackedPosition)));
         scratch.Var1 = unchecked((ushort)trackedPosition);
 
-        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false });
+        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false });
 
-        // The assembly performs an unsigned range test after biasing by $0E20. This is
-        // precisely the inclusive signed range -$0E20..+$0E20; a candidate outside it is
-        // rejected rather than clamped, leaving the preceding velocity intact.
+        // The cartridge's biased unsigned range test is exactly the inclusive signed range of the maximum speed either
+        // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum
+        // wraps as the cartridge's word does, so an overflowed candidate is judged by its wrapped sign.
         SnesSignedEightEight candidate = new(unchecked((ushort)(Velocity.RawValue + Acceleration.RawValue)));
-        ushort biased = unchecked((ushort)(candidate.RawValue + MaridiaElevatubeRomData.MaximumSpeed));
-        if (biased < MaridiaElevatubeRomData.SpeedRangeExclusiveEnd)
+        if (Math.Abs((int)candidate.SignedRawValue) <= MaridiaElevatubeDefinitions.MaximumSpeed.SignedRawValue)
             Velocity = candidate;
 
         return movement;
@@ -122,6 +121,6 @@ public sealed class MaridiaElevatubeRoomMainState
         if (IsActive)
             return;
         throw new InvalidDataException(
-            $"Elevatube setup callback $8F:{(int)setupCode:X4} selected a room without main $8F:E2B6.");
+            $"Elevatube setup callback {setupCode} selected a room without the elevatube's room main.");
     }
 }

@@ -44,7 +44,7 @@ internal static class CeresRidleyBodyPublicationVerification
         ridley.GetawayBabyFrame = 0;
         ridley.GetawayWingFrame = 0;
         SnesAngle? previousAngle = null;
-        foreach ((int nmiFrame, CeresMode7TransferList wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresMode7TransferList.WingFrame1), new VerifyCeresRidleyBodyPublicationCase(8, CeresMode7TransferList.WingFrame0) })
+        foreach ((int nmiFrame, CeresFloorAnimationFrame wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorAnimationFrame.WingFrame1), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorAnimationFrame.WingFrame0) })
         {
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(ridley, null, nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -56,8 +56,8 @@ internal static class CeresRidleyBodyPublicationVerification
                 ?? throw new InvalidOperationException("Ridley flies his getaway.")), floor, $"angle {ridley.FloorAngle} publishes Ridley's floor");
             AffineFloor map = runtime.Display.Latched.Rooms?.Mode7
                 ?? throw new InvalidOperationException("The arena publishes its Mode 7 map.");
-            foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(wings))
-                AssertTrue(map.Cells.Slice(transfer.MapCell, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
+            foreach (CeresFloorTileRun transfer in CeresFloorAnimationDefinitions.Get(wings))
+                AssertTrue(map.Cells.Slice(transfer.FloorCell, transfer.TileNumbers.Count).Select(cell => (byte)cell.Tile).SequenceEqual(transfer.TileNumbers),
                     $"angle {ridley.FloorAngle} publishes his {wings} body frame");
             var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Cells.SequenceEqual(map.Cells), $"angle {ridley.FloorAngle} draws his published body");

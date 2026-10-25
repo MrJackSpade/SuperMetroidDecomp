@@ -30,6 +30,9 @@ public sealed class BossArtworkBinding
     /// <summary>Ceres Ridley's installed Mode 7 colors, bound with the map presentation.</summary>
     public CeresRidleyFloorColorCatalog? CeresRidleyFloorColors { get; set; }
 
+    /// <summary>Where Ceres Ridley's getaway floor runs take their tile numbers from, bound with the map presentation.</summary>
+    public CeresRidleyFloorUpdateSources? CeresRidleyFloorUpdates { get; set; }
+
     /// <summary>The escape timer's installed tiles, bound with the map presentation.</summary>
     public EscapeTimerTileAtlas? EscapeTimerArtwork { get; set; }
 

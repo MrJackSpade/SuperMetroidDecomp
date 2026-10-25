@@ -17,8 +17,8 @@ internal static class CeresElevatorArrivalDefinitions
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
         Program: CeresElevatorArrivalProgram.Platform);
 
-    /// <summary>$86:A301 clears the transient enemy graphics word in both projectiles.</summary>
-    internal const ushort NativeGraphicsIndex = 0;
+    /// <summary>The graphics index both arrival projectiles start with: zero, as <c>$86:A301</c> clears it.</summary>
+    internal const ushort StartingGraphicsIndex = 0;
 
     /// <summary>$86:A316 seeds the moving pad's pre-instruction delay to sixty frames.</summary>
     internal const ushort MovingPadWaitFrames = 60;

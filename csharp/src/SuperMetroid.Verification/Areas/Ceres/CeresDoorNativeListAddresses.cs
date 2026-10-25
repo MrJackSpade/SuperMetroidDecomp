@@ -32,10 +32,10 @@ internal static class CeresDoorNativeListAddresses
         new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorPreExplosionOverlayLoop, 0xf612),
         new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorInvisibleWall, 0xf61a),
         new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorInvisibleWallLoop, 0xf622),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7LeftWall, 0xf62a),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7LeftWallLoop, 0xf62c),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7RightWall, 0xf634),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeMode7RightWallLoop, 0xf636),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorLeftWall, 0xf62a),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorLeftWallLoop, 0xf62c),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorRightWall, 0xf634),
+        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorRightWallLoop, 0xf636),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

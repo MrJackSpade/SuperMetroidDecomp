@@ -127,8 +127,8 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             state.EnableUnpauseHook = sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled;
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                ? new(presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase)
-                : new(EscapeTypewriterProgramId.Zebes, EscapeTypewriterRomData.ZebesTileBase);
+                ? new(presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase)
+                : new(EscapeTypewriterProgramId.Zebes, EscapeTypewriterDefinitions.ZebesTileBase);
             _presentation.ColourSet(SpriteColourSetDefinitions.EscapeTypewriterText)
                 .Slice(SpriteColourSetDefinitions.EscapeTypewriterTextFirstColour, 2)
                 .CopyFrom(EscapeTypewriterColourDefinitions.Source.In(_presentation.BackgroundSets).Colors);
@@ -259,7 +259,7 @@ internal sealed class MotherBrainRainbowAndDeath
             typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
             if (glyph is { } typed)
                 WriteZebesTypewriterGlyph(typed);
-            if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterRomData.ZebesClick;
+            if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterDefinitions.ZebesClick;
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });
         _frameResults.MotherBrainDeathStep = step;

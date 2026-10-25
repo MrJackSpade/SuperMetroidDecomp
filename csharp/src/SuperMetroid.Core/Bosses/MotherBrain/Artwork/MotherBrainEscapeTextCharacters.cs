@@ -11,7 +11,7 @@ internal sealed record MotherBrainEscapeTextCharacters(int Page) : ObjCharacterS
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
         (InstalledBossSpriteCharacterArtwork.Of(resolver).BossTiles.MotherBrainEscapeText ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.")).Characters.Slice(
-            checked((int)EscapeTextArtworkDefinitions.PageSource(Page)) - EscapeTextArtworkDefinitions.SourceAddress,
+            EscapeTextArtworkDefinitions.PageOffset(Page),
             EscapeTextArtworkDefinitions.PageByteCount(Page));
 
     /// <summary>Names the source for diagnostics.</summary>

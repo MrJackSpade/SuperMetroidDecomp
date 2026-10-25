@@ -715,7 +715,7 @@ internal static class SamusAnimationDelayDefinitions
             // Invalid pose bytes $FD-$FF start their programs in the Mode 7 transfer queue's residue.
             position = unchecked((ushort)(list.ResidueStart + byteIndex));
         }
-        if (position < SnesBusLayout.RomWindowStart)
+        if (position < SuperMetroid.Core.Compatibility.FloorUpdateResidue.ResidueWindowEnd)
             return (floorUpdateResidue ?? throw new InvalidOperationException(
                 "An invalid pose's delay overread reads the floor update residue; bind the session's to this Samus."))
                 .ByteAt(position - FloorUpdateResidueOffset);

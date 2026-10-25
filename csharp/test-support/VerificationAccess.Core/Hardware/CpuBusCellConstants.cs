@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Cartridge values and helpers of <see cref="CpuBusCell"/> that only verification reads.</summary>
 [CpuBusAccess]

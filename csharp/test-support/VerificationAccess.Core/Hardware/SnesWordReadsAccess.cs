@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="SnesWordReads"/> members production does not use.</summary>
 [CpuBusAccess]

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="SnesAddress"/> members production does not use.</summary>

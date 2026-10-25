@@ -1,7 +1,7 @@
 using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDemoTrajectoryVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Runtime.Attract.AttractInputFixtureVerification;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;

@@ -3,6 +3,7 @@ using SuperMetroid.Tooling;
 using System.Collections;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;

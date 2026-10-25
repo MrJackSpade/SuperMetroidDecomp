@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectileRomDataVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

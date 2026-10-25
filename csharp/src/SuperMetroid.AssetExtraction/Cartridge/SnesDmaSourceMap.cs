@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Classifies each A-bus byte after the DMA channel's 16-bit offset wraps. A transfer

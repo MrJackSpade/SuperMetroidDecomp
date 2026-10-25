@@ -1,6 +1,7 @@
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Enemies;

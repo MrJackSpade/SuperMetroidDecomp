@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the room-effect tables the effect extractors read.</summary>

@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 

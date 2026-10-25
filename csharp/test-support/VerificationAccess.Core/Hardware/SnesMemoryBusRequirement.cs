@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Resolves the live WRAM/SRAM bus that typed domain memory views require.</summary>

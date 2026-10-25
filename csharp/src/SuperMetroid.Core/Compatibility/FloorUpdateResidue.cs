@@ -15,6 +15,12 @@ public sealed class FloorUpdateResidue : IFloorUpdateResidue
     /// <summary>The residue's bytes.</summary>
     public const int ByteCount = 0x60;
 
+    /// <summary>
+    /// Where the half of an animation window that aliases the residue ends: a delay over-read at a window position below
+    /// this reads the residue, and one at or past it reads the installed animation data.
+    /// </summary>
+    public const int ResidueWindowEnd = 0x8000;
+
     /// <summary>The bytes one update's descriptor takes.</summary>
     private const int UpdateBytes = 9;
 

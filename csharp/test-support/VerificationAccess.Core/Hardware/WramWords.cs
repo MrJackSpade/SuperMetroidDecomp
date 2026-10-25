@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// A bounded table of little-endian WRAM words at a fixed CPU address, stepping two bytes per

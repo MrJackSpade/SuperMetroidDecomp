@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>The mutually exclusive mapped sources a PPU DMA transfer can read.</summary>
 internal enum SnesDmaSourceKind

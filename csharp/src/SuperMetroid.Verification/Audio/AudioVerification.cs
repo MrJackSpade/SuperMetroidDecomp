@@ -6,7 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;

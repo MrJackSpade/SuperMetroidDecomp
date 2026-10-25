@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Address geometry of the SNES 65C816 CPU bus.</summary>
 internal static class SnesCpuAddressLayout

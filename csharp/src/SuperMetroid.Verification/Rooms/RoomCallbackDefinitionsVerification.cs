@@ -1,5 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 namespace SuperMetroid.Verification.Rooms;

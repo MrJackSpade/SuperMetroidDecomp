@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Enemies;
 
 using SuperMetroid.Core.Bosses.Botwoon;

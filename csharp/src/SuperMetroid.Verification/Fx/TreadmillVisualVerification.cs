@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using System.Text.Json;

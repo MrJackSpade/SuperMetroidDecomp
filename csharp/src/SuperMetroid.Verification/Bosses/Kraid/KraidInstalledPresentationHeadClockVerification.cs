@@ -139,8 +139,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
         /// <summary>Kraid state holding selected head art and mouth hitbox identities.</summary>
         internal KraidEnemyState State { get; }
         /// <summary>Cartridge-free address space used for the production head clock.</summary>
-        internal SuperMetroid.Core.Hardware.SuperMetroidAddressSpace Memory { get; } =
-            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
+        internal SuperMetroid.AssetExtraction.Cartridge.SuperMetroidAddressSpace Memory { get; } =
+            SuperMetroid.AssetExtraction.Cartridge.SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>Bound production head-instruction dispatcher.</summary>
         private readonly Func<RoomEnemySlot, KraidEnemyState, ushort> step;
         /// <summary>Bound production mouth-versus-projectile overlap check.</summary>

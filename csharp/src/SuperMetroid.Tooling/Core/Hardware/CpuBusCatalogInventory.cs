@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Core.Hardware;
 
@@ -16,11 +17,13 @@ internal static class CpuBusCatalogInventory
     /// <summary>The repository-relative inventory path.</summary>
     internal const string InventoryPath = "docs/cpu-bus-inventory.json";
 
-    /// <summary>The production assemblies whose catalogs make up the CPU-bus inventory.</summary>
+    /// <summary>
+    /// The production assemblies whose catalogs make up the CPU-bus inventory: the import pipeline, which owns
+    /// <see cref="CpuBusCell"/>, and the tooling. Core cannot name a cell, since it cannot reference the import pipeline.
+    /// </summary>
     internal static IReadOnlyList<Assembly> ProductionAssemblies =>
     [
         typeof(CpuBusCell).Assembly,
-        typeof(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace).Assembly,
         typeof(CpuBusCatalogInventory).Assembly,
     ];
 

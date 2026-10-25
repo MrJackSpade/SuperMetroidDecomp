@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification writes into <see cref="SuperMetroidAddressSpace"/>'s WRAM image; production never writes through it.</summary>

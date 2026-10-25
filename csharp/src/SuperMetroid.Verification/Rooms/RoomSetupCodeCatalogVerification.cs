@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;

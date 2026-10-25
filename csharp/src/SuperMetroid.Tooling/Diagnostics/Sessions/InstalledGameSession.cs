@@ -4,7 +4,7 @@ using SuperMetroid.Core.Input;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.Recording;

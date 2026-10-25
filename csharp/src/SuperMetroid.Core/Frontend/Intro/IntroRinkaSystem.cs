@@ -268,7 +268,7 @@ internal sealed class IntroRinkaSystem
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
         SnesFixedPosition x = rinka.Position.X;
-        uint subSum = (uint)x.Fraction + IntroRinkaDefinitions.HalfPixelFraction;
+        uint subSum = (uint)x.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
         int carry = (int)(SnesCarry.OutOfWord(subSum));
         rinka.Position = rinka.Position.WithX(new(
             unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
@@ -278,7 +278,7 @@ internal sealed class IntroRinkaSystem
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
         SnesFixedPosition y = rinka.Position.Y;
-        uint subSum = (uint)y.Fraction + IntroRinkaDefinitions.HalfPixelFraction;
+        uint subSum = (uint)y.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
         rinka.Position = rinka.Position.WithY(new(
             unchecked((ushort)(y.Whole + (SnesCarry.OutOfWord(subSum)))), unchecked((ushort)subSum)));
     }

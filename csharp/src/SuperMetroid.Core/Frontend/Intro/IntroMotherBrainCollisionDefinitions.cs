@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Physical foreground at8C:BEC3. Regular regions are constructed geometrically;
@@ -8,10 +10,10 @@ internal static class IntroMotherBrainCollisionDefinitions
     internal const int Columns = 16;
     /// <summary>Fourteen imported rows; the native copy is448 bytes.</summary>
     internal const int SourceRows = 14;
-    /// <summary>Block type8,$8000, solid foreground with zero tile/flip bits.</summary>
-    private const ushort Solid = 0x8000;
-    /// <summary>Block type1,$1000, top collision cells with native zero BTS.</summary>
-    private const ushort PlatformTop = 0x1000;
+    /// <summary>A solid block with no visual tile.</summary>
+    private static ushort Solid => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw;
+    /// <summary>A slope block of shape zero with no visual tile: the platforms' top collision cells.</summary>
+    private static ushort PlatformTop => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.Slope).Raw;
     /// <summary>First and last nonzero full-width source rows.</summary>
     private const int CeilingRow = 1, FloorRow = 13;
     /// <summary>Upper central formation spans rows2/3,centered on column9.</summary>

@@ -29,7 +29,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
+                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
                 int source = (int)new SnesAddress(
                     IntroCinematicSourceDefinitions.SpritemapBank, CinematicSpritemapSources.Of(frame.Pose));
                 var nativeOam = new OamBuffer();

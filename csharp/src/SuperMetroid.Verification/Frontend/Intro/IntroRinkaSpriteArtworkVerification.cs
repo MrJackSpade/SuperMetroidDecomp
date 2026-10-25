@@ -29,7 +29,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         DrawImportedSpritemap(bus, oam,
             ((int)new SnesAddress(            IntroCinematicSourceDefinitions.SpritemapBank, spritemap)),
             new(actor.WholePosition.X, y), actor.Attributes.Raw,
-            originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
+            originIsOnScreen: y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit);
     }
     /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
@@ -43,7 +43,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
+                    y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
                 int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     CinematicSpritemapSources.Of(definition.Pose));
                 var native = new OamBuffer();

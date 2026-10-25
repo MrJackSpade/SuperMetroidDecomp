@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -13,10 +15,10 @@ internal static class IntroBabyDiscoveryCollisionDefinitions
     internal const int SourceRows = 12;
     /// <summary>Ten zero rows precede the two authored nonzero rows.</summary>
     internal const int ZeroRows = 10;
-    /// <summary>The eleventh source row contains word $1000 in every column.</summary>
-    internal const ushort PenultimateRowWord = 0x1000;
-    /// <summary>The final source row contains word $8000 in every column.</summary>
-    internal const ushort FinalRowWord = 0x8000;
+    /// <summary>The eleventh source row's block in every column: a slope block of shape zero with no visual tile.</summary>
+    internal static ushort PenultimateRowWord => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.Slope).Raw;
+    /// <summary>The final source row's block in every column: a solid block with no visual tile.</summary>
+    internal static ushort FinalRowWord => RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock).Raw;
 
     /// <summary>Native room height, including four zero-initialized rows beyond the imported region.</summary>
     internal const int RoomRows = 16;

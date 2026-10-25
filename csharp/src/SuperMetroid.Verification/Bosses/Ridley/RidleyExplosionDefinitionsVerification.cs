@@ -26,7 +26,7 @@ internal static class RidleyExplosionDefinitionsVerification
             0xc933, 0xc93a, 0xc941, 0xc948, 0xc94f, 0xc956,
             0xc95d, 0xc964, 0xc96b, 0xc972, 0xc979, 0xc980,
         ];
-        var spawnOrder = new List<ushort>();
+        var spawnOrder = new List<int>();
         RidleyExplosionDefinitions.SpawnInBreakupOrder(spawnOrder.Add);
         AssertEqual(spawnPointerOperands.Length, spawnOrder.Count,
             "Ridley breakup spawn count");

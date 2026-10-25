@@ -322,8 +322,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 }
                 else
                 {
-                    ushort releaseX = RidleyMovementTargets.CarryReleaseX(state.FacingDirection);
-                    NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(releaseX, 224), 0);
+                    NorfairRidleyMovement.MoveNorfairRidleyToward(
+                        slot, state, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.FacingDirection), 224), 0);
                 }
                 return;
 

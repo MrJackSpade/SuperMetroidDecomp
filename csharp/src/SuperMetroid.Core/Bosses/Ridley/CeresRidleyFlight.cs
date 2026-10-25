@@ -214,15 +214,14 @@ internal sealed class CeresRidleyFlight
     {
         // $A6:A7F9 reads RandomNumberSeed without generating a number.
         int random = _room.Random.Read();
-        ushort jitter = (ushort)(random & 7);
-        if (unchecked((short)random) < 0)
-            jitter = unchecked((ushort)-jitter);
+        int jitter = unchecked((short)random) < 0 ? -(random & 7) : random & 7;
         // Both targets use ADC without CLC. Carry is clear on entry (the enemy AI dispatcher's
         // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
         bool carry = false;
-        ushort x = SnesCarry.AddWithCarry(checked(state.FireballBasePosition.X), jitter, ref carry);
-        ushort y = SnesCarry.AddWithCarry(checked(state.FireballBasePosition.Y), jitter, ref carry);
-        AccelerateRidleyToward(slot, state, new(x, y), 0);
+        Position16<RoomPixels> target = new(
+            SnesCarry.AddWithCarry(state.FireballBasePosition.X, unchecked((ushort)jitter), ref carry),
+            SnesCarry.AddWithCarry(state.FireballBasePosition.Y, unchecked((ushort)jitter), ref carry));
+        AccelerateRidleyToward(slot, state, target, 0);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (state.FunctionTimer.IsNegative)
         {
@@ -240,11 +239,11 @@ internal sealed class CeresRidleyFlight
         if (samus is null)
             throw new InvalidOperationException("Ceres Ridley lunge requires the active Samus actor.");
 
-        ushort targetY = unchecked((short)(samus.Position.Y.Whole - 132)) < 0
-            ? (ushort)64
-            : unchecked((ushort)(samus.Position.Y.Whole - 68));
-        AccelerateRidleyToward(slot, state, new(samus.Position.X.Whole, targetY), 13);
-        bool reached = IsWithinRidleyRectangle(slot, new(samus.Position.X.Whole, targetY), new(2, 2));
+        Position16<RoomPixels> target = unchecked((short)(samus.Position.Y.Whole - 132)) < 0
+            ? samus.Position.Whole.WithY(64)
+            : samus.Position.Whole - new Offset16<RoomPixels>(0, 68);
+        AccelerateRidleyToward(slot, state, target, 13);
+        bool reached = IsWithinRidleyRectangle(slot, target, new(2, 2));
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (reached || state.FunctionTimer.IsNegative)
         {
@@ -274,7 +273,7 @@ internal sealed class CeresRidleyFlight
         int targetAngle,
         int targetMagnitude,
         RidleyAiFunction nextFunction,
-        ushort nextTimer)
+        int nextTimer)
     {
         UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
@@ -306,9 +305,9 @@ internal sealed class CeresRidleyFlight
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
             angle = SnesAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
-        byte phase = angle.TableIndex;
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, new SnesByteAngle(phase))));
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked(new SnesByteAngle((byte)(phase + 64))))));
+        SnesByteAngle phase = angle.ToByteAngle();
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase)));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
@@ -415,11 +414,11 @@ internal sealed class CeresRidleyFlight
     {
         // Division truncates like the SNES hardware quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
-        ushort divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
+        int divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
 
         state.Velocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(AccelerateAxis(state.Velocity.X.RawValue, slot.Position.X.Whole, target.X, divisor)),
-            new SnesSignedEightEight(AccelerateAxis(state.Velocity.Y.RawValue, slot.Position.Y.Whole, target.Y, divisor)));
+            AccelerateAxis(state.Velocity.X, slot.Position.X.Whole, target.X, divisor),
+            AccelerateAxis(state.Velocity.Y, slot.Position.Y.Whole, target.Y, divisor));
     }
 
     /// <summary>
@@ -427,45 +426,49 @@ internal sealed class CeresRidleyFlight
     /// carry feeds the first ADC/SBC of the velocity chain, and each later ADC/SBC consumes
     /// the previous one's carry, so crossing zero while reversing adds one more unit.
     /// </summary>
-    private static ushort AccelerateAxis(ushort velocity, ushort position, ushort target, ushort divisor)
+    /// <param name="velocity">The axis velocity.</param>
+    /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
+    /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
+    /// <param name="divisor">The inertia divisor, at least one.</param>
+    private static SnesSignedEightEight AccelerateAxis(SnesSignedEightEight velocity, int position, int target, int divisor)
     {
-        ushort difference = unchecked((ushort)(position - target));
+        int difference = unchecked((short)(position - target));
         if (difference == 0)
             return velocity;
-        bool carry = SnesCarry.AfterCompare(position, target);
-        bool targetBelow = unchecked((short)difference) < 0;
-        ushort magnitude = targetBelow ? unchecked((ushort)-difference) : difference;
-        // Hardware quotient; a zero quotient is promoted to one.
-        ushort step = (ushort)Math.Max(1, magnitude / divisor);
+        bool carry = SnesCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
+        bool targetBelow = difference < 0;
+        // Hardware quotient of the distance, at most 32768; a zero quotient is promoted to one.
+        int step = Math.Max(1, Math.Abs(difference) / divisor);
+        int word = velocity.RawValue;
 
         if (targetBelow)
         {
-            if (unchecked((short)velocity) < 0)
+            if (unchecked((short)word) < 0)
             {
                 Add(step);
                 Add(step);
             }
             Add(step);
             // CMP #$0500 : BMI keeps any value whose signed difference is negative.
-            if (unchecked((short)(velocity - CeresRidleyBehavior.CeresRidleyMaximumSpeed)) >= 0)
-                velocity = CeresRidleyBehavior.CeresRidleyMaximumSpeed;
+            if (unchecked((short)(word - CeresRidleyBehavior.CeresRidleyMaximumSpeed)) >= 0)
+                word = CeresRidleyBehavior.CeresRidleyMaximumSpeed;
         }
         else
         {
-            if (unchecked((short)velocity) >= 0)
+            if (unchecked((short)word) >= 0)
             {
                 Subtract(step);
                 Subtract(step);
             }
             Subtract(step);
             // CMP #$FB00 : BPL keeps any value whose signed difference is non-negative.
-            if (unchecked((short)(velocity - CeresRidleyBehavior.CeresRidleyMinimumSpeed)) < 0)
-                velocity = CeresRidleyBehavior.CeresRidleyMinimumSpeed;
+            if (unchecked((short)(word - CeresRidleyBehavior.CeresRidleyMinimumSpeed)) < 0)
+                word = CeresRidleyBehavior.CeresRidleyMinimumSpeed;
         }
-        return velocity;
+        return new SnesSignedEightEight(checked((ushort)word));
 
-        void Add(ushort operand) => velocity = SnesCarry.AddWithCarry(velocity, operand, ref carry);
-        void Subtract(ushort operand) => velocity = SnesCarry.SubtractWithBorrow(velocity, operand, ref carry);
+        void Add(int operand) => word = SnesCarry.AddWithCarry(checked((ushort)word), checked((ushort)operand), ref carry);
+        void Subtract(int operand) => word = SnesCarry.SubtractWithBorrow(checked((ushort)word), checked((ushort)operand), ref carry);
     }
 
     /// <summary>Applies Ridley's 8.8 motion and native arena clamps, invoking impact only at the strict left bound.</summary>
@@ -477,8 +480,8 @@ internal sealed class CeresRidleyFlight
         // $A6:D86B calls the impact routine only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
-        SnesFixedPosition proposedX = IntegrateUnclampedAxis(slot.Position.X, state.Velocity.X.RawValue);
-        SnesFixedPosition proposedY = IntegrateUnclampedAxis(slot.Position.Y, state.Velocity.Y.RawValue);
+        SnesFixedPosition proposedX = IntegrateUnclampedAxis(slot.Position.X, state.Velocity.X);
+        SnesFixedPosition proposedY = IntegrateUnclampedAxis(slot.Position.Y, state.Velocity.Y);
         state.HitRoomBoundary = unchecked((short)(proposedX.Whole - state.MovementMinimum.X)) < 0 ||
             unchecked((short)(proposedX.Whole - state.MovementMaximum.X)) >= 0 ||
             unchecked((short)(proposedY.Whole - state.MovementMinimum.Y)) < 0 ||
@@ -492,14 +495,14 @@ internal sealed class CeresRidleyFlight
         }
         (SnesFixedPosition x, int xVelocity) = IntegrateAxis(
             slot.Position.X,
-            state.Velocity.X.RawValue,
+            state.Velocity.X,
             state.MovementMinimum.X,
             state.MovementMaximum.X);
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(checked((ushort)xVelocity)));
         slot.Position = slot.Position.WithX(x);
         (SnesFixedPosition y, int yVelocity) = IntegrateAxis(
             slot.Position.Y,
-            state.Velocity.Y.RawValue,
+            state.Velocity.Y,
             state.MovementMinimum.Y,
             state.MovementMaximum.Y);
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(checked((ushort)yVelocity)));
@@ -509,26 +512,24 @@ internal sealed class CeresRidleyFlight
     /// <summary>Integrates one 8.8 velocity into the high byte of a 16-bit subposition and clips to an arena bound.</summary>
     private static CeresRidleyAxisMotion IntegrateAxis(
         SnesFixedPosition position,
-        ushort velocityWord,
-        ushort minimum,
-        ushort maximum)
+        SnesSignedEightEight velocity,
+        int minimum,
+        int maximum)
     {
         // Ridley's velocities are signed 8.8 values that the original routine accumulates into the
         // *high* byte of the ordinary 16-bit subposition.
-        SnesFixedPosition moved = position.AddEightEightToHighFraction(velocityWord);
-        ushort subposition = moved.Fraction;
-        ushort next = moved.Whole;
+        SnesFixedPosition moved = position.AddEightEightToHighFraction(velocity.RawValue);
 
-        if (unchecked((short)(next - minimum)) < 0)
-            return new CeresRidleyAxisMotion(new(minimum, subposition), 0);
-        if (unchecked((short)(next - maximum)) >= 0)
-            return new CeresRidleyAxisMotion(new(maximum, subposition), 0);
-        return new CeresRidleyAxisMotion(new(next, subposition), velocityWord);
+        if (unchecked((short)(moved.Whole - minimum)) < 0)
+            return new CeresRidleyAxisMotion(moved.WithWhole(checked((ushort)minimum)), 0);
+        if (unchecked((short)(moved.Whole - maximum)) >= 0)
+            return new CeresRidleyAxisMotion(moved.WithWhole(checked((ushort)maximum)), 0);
+        return new CeresRidleyAxisMotion(moved, velocity.RawValue);
     }
 
     /// <summary>Adds an 8.8 velocity to a native position before boundary checks.</summary>
-    private static SnesFixedPosition IntegrateUnclampedAxis(SnesFixedPosition position, ushort velocityWord) =>
-        position.AddEightEightToHighFraction(velocityWord);
+    private static SnesFixedPosition IntegrateUnclampedAxis(SnesFixedPosition position, SnesSignedEightEight velocity) =>
+        position.AddEightEightToHighFraction(velocity.RawValue);
 
     /// <summary>Tests an inclusive actor rectangle for hover, lunge or retrieval handoffs.</summary>
     internal static bool IsWithinRidleyRectangle(
@@ -575,7 +576,7 @@ internal sealed class CeresRidleyFlight
             // $A6:D9CF isolates bits 8..11 after multiplying the 8.8 velocity by four,
             // converts the resulting word-table byte index, and clamps that index to $E.
             int tableIndex = Math.Min(7, SnesEightEight.WholeOf(largestAxisVelocity << 2) % 16);
-            ushort delta = CeresRidleyBehavior.CeresRidleyWingAnimationDeltas[tableIndex];
+            int delta = CeresRidleyBehavior.CeresRidleyWingAnimationDeltas[tableIndex];
             if (state.Velocity.Y.SignedRawValue >= 0)
                 delta >>= 1;
             state.WingAnimationTimerDelta = delta;
@@ -597,12 +598,12 @@ internal sealed class CeresRidleyFlight
         // population records embedded at $A6:AA2F/$AA3F. Keeping these as real slots makes
         // their layer-two OAM order, off-screen processing, and $F7A5 visibility dispatcher
         // flow through the same scheduler as the cartridge instead of painting host panels.
-        SpawnCeresRidleyGetawayWall(xPosition: 8, parameter1: 5);
-        SpawnCeresRidleyGetawayWall(xPosition: 248, parameter1: 6);
+        SpawnCeresRidleyGetawayWall(new(8, 127), parameter1: 5);
+        SpawnCeresRidleyGetawayWall(new(248, 127), parameter1: 6);
     }
 
-    /// <summary>Initializes one native wall actor at its authored X coordinate and variant parameter.</summary>
-    private void SpawnCeresRidleyGetawayWall(ushort xPosition, ushort parameter1)
+    /// <summary>Initializes one native wall actor at its authored position and variant parameter.</summary>
+    private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, int parameter1)
     {
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
@@ -611,7 +612,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.CeresDoor);
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
-            Position: new(xPosition, 127),
+            Position: position,
             InitializationParameter: 0,
             Properties: new EnemyPropertyWord(
                 EnemyProperties.ProcessInstructions |

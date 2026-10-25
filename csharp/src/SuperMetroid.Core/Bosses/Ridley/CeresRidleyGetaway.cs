@@ -116,7 +116,7 @@ internal sealed class CeresRidleyGetaway
             samus.CeresRidleyEjection.Request(samus);
 
         var frame = CeresRidleyGetawayDefinitions.FromIndex(tableIndex);
-        ushort zoom = checked((ushort)frame.Zoom);
+        int zoom = frame.Zoom;
         if (frame.IsFinished)
         {
             // $A6:AB2E restores fake BGMODE=$09 and clears all Mode 7/scroll registers.
@@ -194,10 +194,9 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
     private static void UpdateCeresRidleyFloorMatrix(RidleyEnemyState state)
     {
-        byte angle = state.FloorAngle.TableIndex;
-        ushort zoom = checked((ushort)state.FloorZoom);
-        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(zoom, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
-        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(zoom, new SnesByteAngle(angle)));
+        SnesByteAngle angle = state.FloorAngle.ToByteAngle();
+        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
+        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle));
         state.FloorMatrixA = diagonal;
         state.FloorMatrixB = offDiagonal;
         state.FloorMatrixC = NegateFloorCoefficient(offDiagonal);
@@ -205,7 +204,8 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
-    internal void UpdateCeresRidleyFloorPalette(ushort zoom)
+    /// <param name="zoom">The floor's zoom, 0 through 65535.</param>
+    internal void UpdateCeresRidleyFloorPalette(int zoom)
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.

@@ -39,6 +39,6 @@ public static class RidleyPogoDefinitions
         int upward = stage == 0 ? 0x0a : 0x10 * stage;
         int downward = stage < 4 ? 0x10 << stage : 0x100 * stage;
         return new(new EightEightVector<RoomPixels>(new SnesSignedEightEight((ushort)horizontal), new SnesSignedEightEight(unchecked((ushort)-verticalMagnitude))),
-            (ushort)upward, (ushort)downward);
+            upward, downward);
     }
 }

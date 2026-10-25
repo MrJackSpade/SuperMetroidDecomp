@@ -26,43 +26,48 @@ internal sealed class NorfairRidleyMovement
         RidleyEnemyState state,
         Position16<RoomPixels> target,
         int divisorIndex,
-        ushort reversalBoost = 0)
+        int reversalBoost = 0)
     {
-        ushort divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
+        int divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
 
         state.Velocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(AccelerateNorfairRidleyAxis(
-                state.Velocity.X.RawValue,
+            AccelerateNorfairRidleyAxis(
+                state.Velocity.X,
                 slot.Position.X.Whole, target.X,
                 divisor,
-                reversalBoost)),
-            new SnesSignedEightEight(AccelerateNorfairRidleyAxis(
-                state.Velocity.Y.RawValue,
+                reversalBoost),
+            AccelerateNorfairRidleyAxis(
+                state.Velocity.Y,
                 slot.Position.Y.Whole, target.Y,
                 divisor,
-                reversalBoost)));
+                reversalBoost));
     }
 
     /// <summary>Preserves ADC/SBC carry across reversal and normal acceleration steps on one axis.</summary>
-    private static ushort AccelerateNorfairRidleyAxis(
-        ushort velocityWord,
-        ushort position,
-        ushort target,
-        ushort divisor,
-        ushort reversalBoost)
+    /// <param name="axisVelocity">The axis velocity.</param>
+    /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
+    /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
+    /// <param name="divisor">The inertia divisor, at least one.</param>
+    /// <param name="reversalBoost">The extra speed a reversal subtracts or adds first, 0 through 65535.</param>
+    private static SnesSignedEightEight AccelerateNorfairRidleyAxis(
+        SnesSignedEightEight axisVelocity,
+        int position,
+        int target,
+        int divisor,
+        int reversalBoost)
     {
-        short distance = unchecked((short)(position - target));
-        if (distance == 0) return velocityWord;
-        ushort step = (ushort)Math.Max(1, Math.Abs((int)distance) / divisor);
-        bool carry = SnesCarry.AfterCompare(position, target);
-        ushort velocity = velocityWord;
+        int distance = unchecked((short)(position - target));
+        if (distance == 0) return axisVelocity;
+        int step = Math.Max(1, Math.Abs(distance) / divisor);
+        bool carry = SnesCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
+        int velocity = axisVelocity.RawValue;
 
         // $A6:D559..D5A5 and D5CF..D61B retain carry/borrow across the chained
         // ADC/SBC instructions. Crossing zero can add one more acceleration unit;
         // combining these operations into integer arithmetic changes the trajectory.
         if (distance > 0)
         {
-            if ((short)velocity >= 0)
+            if (unchecked((short)velocity) >= 0)
             {
                 carry = true;
                 Subtract(reversalBoost);
@@ -75,7 +80,7 @@ internal sealed class NorfairRidleyMovement
         }
         else
         {
-            if ((short)velocity < 0)
+            if (unchecked((short)velocity) < 0)
             {
                 carry = false;
                 Add(reversalBoost);
@@ -86,9 +91,9 @@ internal sealed class NorfairRidleyMovement
             Add(step);
             if (unchecked((short)(velocity - RidleyInertiaDefinitions.MaximumVelocity.RawValue)) >= 0) velocity = RidleyInertiaDefinitions.MaximumVelocity.RawValue;
         }
-        return velocity;
+        return new SnesSignedEightEight(checked((ushort)velocity));
 
-        void Add(ushort operand) => velocity = SnesCarry.AddWithCarry(velocity, operand, ref carry);
-        void Subtract(ushort operand) => velocity = SnesCarry.SubtractWithBorrow(velocity, operand, ref carry);
+        void Add(int operand) => velocity = SnesCarry.AddWithCarry(checked((ushort)velocity), checked((ushort)operand), ref carry);
+        void Subtract(int operand) => velocity = SnesCarry.SubtractWithBorrow(checked((ushort)velocity), checked((ushort)operand), ref carry);
     }
 }

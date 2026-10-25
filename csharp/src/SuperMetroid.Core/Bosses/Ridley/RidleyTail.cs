@@ -70,16 +70,15 @@ internal sealed class RidleyTail
         // $CAF5 always composes positions, but only the selected tail controller
         // updates offsets. Function zero and stagger/stop returns retain them.
         RidleyTailSegment first = state.TailSegments[0];
-        ushort firstY = unchecked((ushort)(slot.Position.Y.Whole + first.Offset.Y + 16));
-        ushort firstX = state.FacingDirection switch
+        Position16<RoomPixels> tailRoot = slot.Position.Whole + new Offset16<RoomPixels>(0, 16);
+        first.Position = state.FacingDirection switch
         {
-            RidleyFacing.Left => unchecked((ushort)(slot.Position.X.Whole + 32 + first.Offset.X)),
-            RidleyFacing.Turning => slot.Position.X.Whole,
-            RidleyFacing.Right => unchecked((ushort)(slot.Position.X.Whole - 32 + first.Offset.X)),
+            RidleyFacing.Left => tailRoot + new Offset16<RoomPixels>(32, 0) + first.Offset,
+            RidleyFacing.Turning => (tailRoot + first.Offset).WithX(slot.Position.X.Whole),
+            RidleyFacing.Right => tailRoot + new Offset16<RoomPixels>(-32, 0) + first.Offset,
             _ => throw new InvalidOperationException(
                 $"Undefined {nameof(RidleyFacing)} {state.FacingDirection}."),
         };
-        first.Position = new Position16<RoomPixels>(firstX, firstY);
 
         for (int index = 1; index < state.TailSegments.Length; index++)
         {
@@ -151,8 +150,7 @@ internal sealed class RidleyTail
             return;
 
         RidleyTailSegment root = state.TailSegments[0];
-        ushort targetX = samus.Position.X.Whole;
-        ushort targetY = unchecked((ushort)(samus.Position.Y.Whole + 24));
+        Position16<RoomPixels> aim = samus.Position.Whole + new Offset16<RoomPixels>(0, 24);
         // $D242 scans only the five ordinary projectile slots, first match wins.
         if (_frameContext.SamusProjectiles is { } projectiles && projectiles.SlotTable.ProjectileCounter > 0)
         {
@@ -162,14 +160,12 @@ internal sealed class RidleyTail
                 if (projectile.PackedType.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
                 if (Math.Abs((short)(projectile.Position.X.Whole - tip.Position.X)) - projectile.Radius.X >= 64 ||
                     Math.Abs((short)(projectile.Position.Y.Whole - tip.Position.Y)) - projectile.Radius.Y >= 64) continue;
-                targetX = projectile.Position.X.Whole;
-                targetY = projectile.Position.Y.Whole;
+                aim = projectile.Position.Whole;
                 break;
             }
         }
-        byte targetByte = EnemyMath.CalculateBearing(
-            new(unchecked((short)(targetX - root.Position.X)), unchecked((short)(targetY - root.Position.Y)))).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
-        ushort additional = additionalAngle.ToAngle().RawValue;
+        int targetByte = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().AddTableUnits(SnesByteAngle.QuarterTurn.RawValue).RawValue;
+        int additional = additionalAngle.ToAngle().RawValue;
 
         if (state.FacingDirection == RidleyFacing.Left)
         {
@@ -177,7 +173,7 @@ internal sealed class RidleyTail
             // forbidden forward interval clamp to $E8 before bank-$3F expansion.
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardEnd;
-            ushort target = unchecked((ushort)(RidleyTailDefinitions.LeftWhipTargetBase + targetByte - additional));
+            int target = unchecked((ushort)(RidleyTailDefinitions.LeftWhipTargetBase + targetByte - additional));
             if (target < root.Angle)
             {
                 state.ClockwiseWhipTarget = target;
@@ -188,7 +184,7 @@ internal sealed class RidleyTail
         {
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardStart;
-            ushort target = unchecked((ushort)(RidleyTailDefinitions.RightWhipTargetBase + targetByte + additional));
+            int target = unchecked((ushort)(RidleyTailDefinitions.RightWhipTargetBase + targetByte + additional));
             if (target >= root.Angle)
             {
                 state.CounterClockwiseWhipTarget = target;
@@ -303,15 +299,15 @@ internal sealed class RidleyTail
     private static void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
-        byte angle = unchecked((byte)segment.Angle);
+        SnesByteAngle angle = new(unchecked((byte)segment.Angle));
         if (index != 0)
-            angle = unchecked((byte)(angle + state.TailSegments[index - 1].Angle));
+            angle = angle.AddTableUnits(state.TailSegments[index - 1].Angle);
         int distanceInPixels = SnesEightEight.WholeOf(segment.Distance);
         // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(
-            unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(new SnesByteAngle(angle))))),
-            unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)(angle + 64))))))));
+            unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(angle)))),
+            unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))))));
     }
 
     /// <summary>Ends a joint's active whip and flips its movement direction for the next activation.</summary>
@@ -409,11 +405,10 @@ internal sealed class RidleyTail
         for (int index = tipIndex; index >= 2; index--)
         {
             RidleyTailSegment segment = state.TailSegments[index];
-            ushort x = segment.Position.X;
-            ushort y = unchecked((ushort)(segment.Position.Y + (index == tipIndex ? 16 : 18)));
-            if ((x >> 4) >= level.Size.X || (y >> 4) >= level.Size.Y)
+            Position16<RoomPixels> probe = segment.Position + new Offset16<RoomPixels>(0, (short)(index == tipIndex ? 16 : 18));
+            if ((probe.X >> 4) >= level.Size.X || (probe.Y >> 4) >= level.Size.Y)
                 continue;
-            if (level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(x, y)).CollisionType != RoomCollisionType.Air)
+            if (level.GetCollisionBlockAtPixel(probe).CollisionType != RoomCollisionType.Air)
                 return true;
         }
         return false;
@@ -469,7 +464,7 @@ internal sealed class RidleyTail
     /// <summary>Consumes the first colliding ordinary beam or missile slot at one armored joint and spawns its impact effect.</summary>
     private bool TryBlockProjectileAtRidleyTailJoint(
         RidleyTailSegment joint,
-        ushort radius,
+        int radius,
         SamusProjectileSystem projectiles)
     {
         // CheckForProjectileCollisionWithRectangle scans the five ordinary native slots in

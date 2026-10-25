@@ -155,7 +155,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // `((palette_index * 16) & $FF00) >> 8`, followed by `(offset >> 1) + 137`,
         // simplifies to OBJ palette N color nine. Keep that PPU meaning explicit so a
         // debugger sees an actual palette row rather than a mysterious WRAM byte offset.
-        _blueBrinstarFaceBlockPaletteRow = (slot.PaletteIndex >> 9) & 7;
+        _blueBrinstarFaceBlockPaletteRow = slot.PaletteRow;
     }
 
     /// <summary>

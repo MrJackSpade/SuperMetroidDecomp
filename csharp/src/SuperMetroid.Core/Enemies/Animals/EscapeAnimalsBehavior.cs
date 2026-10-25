@@ -68,7 +68,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.PaletteIndex = 0;
+        slot.PaletteRow = 0;
 
         EscapeEtecoonInitialization initialization =
             EscapeEtecoonDefinitions.Initialization(checked((ushort)slot.Spawn.Population.Parameter1));

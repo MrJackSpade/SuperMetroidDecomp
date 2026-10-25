@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Lossless view of the five-byte spritemap record's encoded X word. Its low nine bits are

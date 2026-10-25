@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Compiled placement, rotation and bullet-physics definitions.</summary>
 internal static class MotherBrainTurretDefinitions
 {
-    /// <summary>Graphics index installed by both projectile initializers at $86:BE58/$86:BF5F.</summary>
-    internal const ushort GraphicsIndex = 0x0400;
+    /// <summary>Graphics installed by both projectile initializers at $86:BE58/$86:BF5F: character zero in palette row two.</summary>
+    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.InPalette(2);
 
     /// <summary>Minimum random rotation delay applied by $86:BFDF.</summary>
     internal const ushort MinimumRotationDelay = 0x0020;

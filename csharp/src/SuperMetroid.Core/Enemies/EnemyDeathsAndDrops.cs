@@ -115,7 +115,7 @@ internal sealed class EnemyDeathsAndDrops
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 explosion,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
-                graphicsIndex: 0);
+                graphics: default);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.DropDefinitionId = enemy.DefinitionId;
             explosion.KilledEnemy = KilledEnemy.Of(enemy, respawns);
@@ -224,7 +224,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
-            graphicsIndex: 0);
+            graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.DropDefinitionId = definitionId;
         pickup.KilledEnemy = KilledEnemy.None;
@@ -249,7 +249,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
-            graphicsIndex: 0);
+            graphics: default);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.DropChancesOverride = dropChances is { } table ? EnemyDropChanceDefinitions.At(table) : null;
         pickup.KilledEnemy = KilledEnemy.None;

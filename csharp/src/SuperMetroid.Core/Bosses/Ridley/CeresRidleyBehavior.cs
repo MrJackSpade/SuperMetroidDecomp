@@ -334,9 +334,8 @@ internal sealed class CeresRidleyBehavior
             CeresRidleyBabyScene.TickCeresBaby(slot, state);
     }
 
-    /// <summary>OBJ palette zero, which the tail and wings select on hurt-flash updates.</summary>
-    internal static readonly SnesObjAttributeWord HurtFlashSpritemapPalette =
-        SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 0, priority: 0);
+    /// <summary>Palette row zero, which the tail and wings select on hurt-flash updates.</summary>
+    internal const int HurtFlashSpritemapPalette = 0;
 
     /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
     internal const ushort CeresRidleyMaximumSpeed = 1280;

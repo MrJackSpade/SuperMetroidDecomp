@@ -54,10 +54,14 @@ public sealed class BabyMetroidCutsceneState
     public bool HitFlashPaletteShown { get; private set; }
 
     /// <summary>
-    /// Tile base and attribute fragment the enemy drawer applies to every Baby spritemap entry: tile 160, where the
-    /// four transferred Baby tile rows live, plus one priority-field step for the fatal blow.
+    /// The sheet character every Baby frame's parts count from: character 160, where the four transferred Baby tile
+    /// rows live. The cartridge also raised the parts' priority one step for the fatal blow by adding to this offset;
+    /// per-part priority is a presentation quirk the port does not keep (#1422).
     /// </summary>
-    public SnesObjAttributeWord GraphicsOffset { get; private set; }
+    public int TileBase { get; private set; }
+
+    /// <summary>The sheet character the Baby's four transferred tile rows start at.</summary>
+    private const int BabyTileBase = 160;
 
     /// <summary>The Baby's current program.</summary>
     public MotherBrainBabyProgram Program { get; private set; }
@@ -178,7 +182,7 @@ public sealed class BabyMetroidCutsceneState
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.ProcessInstructions);
         HitFlashPaletteShown = false;
-        GraphicsOffset = SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 0);
+        TileBase = BabyTileBase;
         SetProgram(MotherBrainBabyProgram.Initial);
         CrySoundEnabled = true;
         HealthBasedPaletteEnabled = false;
@@ -598,7 +602,7 @@ public sealed class BabyMetroidCutsceneState
                     // `$A9:CBF2-$CC3D` changes graphics/list state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
-                    GraphicsOffset = SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 1);
+                    TileBase = BabyTileBase;
                     SetProgram(MotherBrainBabyProgram.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;

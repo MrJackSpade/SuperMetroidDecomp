@@ -59,7 +59,7 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
             return; // SpawnEprojInner's deliberate finite-pool failure.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
         int blockX = request.PlmBlockIndex % roomWidthInBlocks;
         int blockY = request.PlmBlockIndex / roomWidthInBlocks;
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(

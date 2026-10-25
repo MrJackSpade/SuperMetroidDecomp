@@ -204,8 +204,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
-        slot.PaletteIndex = baby.HitFlashPaletteShown ? (ushort)0 : EnemyPaletteBits.Palette7;
-        slot.TileIndexBase = baby.GraphicsOffset.Raw;
+        slot.PaletteRow = baby.HitFlashPaletteShown ? 0 : 7;
+        slot.TileIndexBase = baby.TileBase;
         slot.Health = baby.Health;
     }
 

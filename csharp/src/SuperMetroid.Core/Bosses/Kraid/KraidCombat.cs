@@ -187,7 +187,7 @@ internal sealed class KraidCombat
                 else
                 {
                     RoomSpriteObjectSlot? dud = _spriteObjects.SpawnRoomSpriteObject(
-                        shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphicsIndex: 0);
+                        shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphics: default);
                     // Create_Sprite_Object returns its native word-array index, twice the slot, in $12 only on success.
                     scratch.Bottom = dud is { } created ? checked((ushort)(created.SlotIndex * sizeof(ushort))) : shot.Position.X;
                     scratch.Top = shot.Position.Y;

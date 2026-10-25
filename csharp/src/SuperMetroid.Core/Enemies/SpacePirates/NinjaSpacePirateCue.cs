@@ -17,8 +17,8 @@ internal abstract record NinjaSpacePirateCue
     internal sealed record SetFunction(NinjaSpacePirateFunction Function) : NinjaSpacePirateCue;
 
     /// <summary>Sets the palette index to the operand (<c>Instruction_PirateNinja_PaletteIndexInY</c>, $B2:F536).</summary>
-    /// <param name="Palette">For a palette cue: the sprite palette the Pirate is drawn with from then on.</param>
-    internal sealed record SetPalette(SnesObjAttributeWord? Palette) : NinjaSpacePirateCue;
+    /// <param name="Palette">For a palette cue: the sprite palette row the Pirate is drawn with from then on.</param>
+    internal sealed record SetPalette(int? Palette) : NinjaSpacePirateCue;
 
     /// <summary>Throws a claw in the operand's direction from the given offset (<c>Instruction_PirateNinja_SpawnClawProjWithThrowDirSpawnOffset</c>, $B2:F564).</summary>
     /// <param name="Throw">For a claw cue: the way the claw flies.</param>

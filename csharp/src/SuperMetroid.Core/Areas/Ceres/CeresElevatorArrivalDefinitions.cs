@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -17,8 +18,8 @@ internal static class CeresElevatorArrivalDefinitions
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
         Program: CeresElevatorArrivalProgram.Platform);
 
-    /// <summary>The graphics index both arrival projectiles start with: zero, as <c>$86:A301</c> clears it.</summary>
-    internal const ushort StartingGraphicsIndex = 0;
+    /// <summary>The graphics both arrival projectiles start with: character zero in palette row zero, as <c>$86:A301</c> clears them.</summary>
+    internal static SpriteGraphics StartingGraphics { get; } = SpriteGraphics.InPalette(0);
 
     /// <summary>$86:A316 seeds the moving pad's pre-instruction delay to sixty frames.</summary>
     internal const ushort MovingPadWaitFrames = 60;

@@ -75,10 +75,10 @@ internal sealed class MotherBrainHead
         head.TileIndexBase = 0;
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
-        head.PaletteIndex = EnemyPaletteBits.Palette1;
+        head.PaletteRow = 1;
         state.Head = head;
-        state.NeckPalette = SnesObjPalettes.Palette(1);
-        state.BrainPalette = SnesObjPalettes.Palette(1);
+        state.NeckPalette = 1;
+        state.BrainPalette = 1;
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
     }
 
@@ -150,8 +150,8 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // The custom draw hook bypasses ordinary enemy palette selection. Retail
                 // still selects the shared white hurt palette on odd flash-timer frames.
-                (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPalette.PaletteBits,
-                checked((ushort)head.TileIndexBase)),
+                (head.FlashTimer.RawValue & 1) != 0 ? 0 : state.BrainPalette,
+                head.TileIndexBase),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -169,7 +169,7 @@ internal sealed class MotherBrainHead
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
-                    state.NeckPalette.PaletteBits, checked((ushort)head.TileIndexBase)),
+                    state.NeckPalette, head.TileIndexBase),
                 camera);
         }
     }
@@ -190,7 +190,7 @@ internal sealed class MotherBrainHead
 
         // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen,
-            frame.PaletteIndex, frame.TileIndexBase));
+            frame.PaletteRow, frame.TileIndexBase));
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
@@ -424,7 +424,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             bomb,
             RoomEnemyProjectileKind.MotherBrainBomb,
-            graphicsIndex: 1024);
+            graphics: SpriteGraphics.InPalette(2));
         RoomEnemySlot head = state.Head;
         bomb.Position = bomb.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 12)), unchecked((ushort)(head.Position.Y.Whole + 16))));
 
@@ -455,7 +455,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             ring,
             RoomEnemyProjectileKind.MotherBrainOnionRing,
-            graphicsIndex: 1024);
+            graphics: SpriteGraphics.InPalette(2));
         ring.Variable0 = 8;
         ring.Variable1 = 0;
         ring.DirectionParameter = angle.RawValue;
@@ -487,7 +487,7 @@ internal sealed class MotherBrainHead
         RoomEnemyProjectileKind kind = state.NeckAngleDelta < 128
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
-        MotherBrainProjectileStarts.Initialize(drool, kind, graphicsIndex: 0);
+        MotherBrainProjectileStarts.Initialize(drool, kind, graphics: default);
         drool.Variable0 = (ushort)parameter;
 
         // SpawnEnemyProjectile runs initializer C843 immediately. It falls through into
@@ -506,7 +506,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathBig,
-            graphicsIndex: 0);
+            graphics: default);
         RoomEnemySlot head = state.Head;
         breath.Position = breath.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 6)), unchecked((ushort)(head.Position.Y.Whole + 16))));
     }
@@ -521,7 +521,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
-            graphicsIndex: 0);
+            graphics: default);
         RoomEnemySlot head = state.Head;
         breath.Position = breath.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 6)), unchecked((ushort)(head.Position.Y.Whole + 16))));
         state.SmallPurpleBreathActive = true;
@@ -537,10 +537,10 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        projectile.GraphicsIndex = 0;
+        projectile.Graphics = default;
         _projectileAttacks.RunMotherBrainRainbowChargingPreInstruction(projectile);
     }
 }

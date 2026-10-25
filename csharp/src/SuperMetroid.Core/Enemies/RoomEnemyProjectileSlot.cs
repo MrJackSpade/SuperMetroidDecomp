@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -34,12 +35,8 @@ public sealed class RoomEnemyProjectileSlot
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>Gets the bank-$86 routine offset dispatched before this slot's instruction-list processing.</summary>
     internal EnemyProjectilePreInstruction PreInstruction { get; set; }
-    /// <summary>Gets the native combined sprite tile-base and palette word used when composing projectile OAM.</summary>
-    public int GraphicsIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>Gets the sheet characters and palette row the projectile draws with, as its spawner supplied them.</summary>
+    public SpriteGraphics Graphics { get; internal set; }
     /// <summary>Gets the collision half-extents in pixels, decoded from the definition's native packed radii.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Gets the contact-damage value decoded from the native properties word, before Samus's suit reduction.</summary>
@@ -161,7 +158,8 @@ public sealed class RoomEnemyProjectileSlot
         InstructionTimer = WrappingCountdown.Start(0);
         Animation = null;
         Radius = Extent16<RoomPixels>.Zero;
-        GraphicsIndex = Damage = InvincibilityFrames = GeneralTimer = 0;
+        Graphics = default;
+        Damage = InvincibilityFrames = GeneralTimer = 0;
         DrawPriority = EnemyProjectileDrawPriority.Low;
         RemainingAfterburns = 0;
         NextAfterburnKind = RoomEnemyProjectileKind.None;

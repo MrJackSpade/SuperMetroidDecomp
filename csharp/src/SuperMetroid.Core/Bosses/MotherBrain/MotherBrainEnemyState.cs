@@ -96,10 +96,10 @@ public sealed class MotherBrainEnemyState
     public bool BackgroundTilemapPrepared { get; internal set; }
 
     /// <summary>OBJ palette selection shared by the five neck joints; converted to palette bits only when drawn.</summary>
-    public SnesObjAttributeWord NeckPalette { get; internal set; }
+    public int NeckPalette { get; internal set; }
 
     /// <summary>OBJ palette selection the custom brain draw applies outside its white hurt-flash frames.</summary>
-    public SnesObjAttributeWord BrainPalette { get; internal set; }
+    public int BrainPalette { get; internal set; }
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame

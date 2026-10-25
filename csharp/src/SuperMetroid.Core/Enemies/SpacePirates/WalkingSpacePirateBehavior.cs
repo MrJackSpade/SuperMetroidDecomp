@@ -389,7 +389,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
-            graphicsIndex: 0);
+            graphics: default);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
         projectile.StartAnimation(new SpacePirateProjectileAnimation(movingRight

@@ -173,7 +173,7 @@ internal sealed class EnemyDrawList
                     if (frame == EnemyFrameId.Empty)
                         continue;
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(frame),
-                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteBits, slot.TileIndexBase,
+                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteRow, slot.TileIndexBase,
                         (slot.Entity as IShowsCorpseRot)?.ShownRot));
                     continue;
                 }
@@ -192,7 +192,7 @@ internal sealed class EnemyDrawList
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId,
                         EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(
                             "An extended enemy draw was prepared without its frame."), index),
-                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteBits, slot.TileIndexBase,
+                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.PaletteRow, slot.TileIndexBase,
                         (slot.Entity as IShowsCorpseRot)?.ShownRot));
                 }
             }
@@ -214,12 +214,12 @@ internal sealed class EnemyDrawList
     /// <param name="Slot">The enemy.</param>
     /// <param name="EnemyIndex">The enemy's index.</param>
     /// <param name="Origin">Its shaken screen origin.</param>
-    /// <param name="PaletteBits">The common draw palette selected for this frame.</param>
+    /// <param name="PaletteRow">The common draw palette row selected for this frame.</param>
     /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
     /// <param name="ExtendedFrame">The extended frame an extended enemy shows, which names its components' sheet frames; null for an ordinary enemy.</param>
     /// <param name="Components">An extended enemy's installed components; null for an ordinary enemy.</param>
     private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int EnemyIndex,
-        Position16<ScreenPixels> Origin, int PaletteBits, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
+        Position16<ScreenPixels> Origin, int PaletteRow, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
         ReadOnlyMemory<EnemyExtendedDrawComponent>? Components);
 
     /// <summary>
@@ -238,19 +238,19 @@ internal sealed class EnemyDrawList
     /// </remarks>
     private int SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
     {
-        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPaletteIndex() is { } owned)
+        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPalette() is { } owned)
             return owned;
 
         // A hit flash shows the common sprite colours on alternate phases.
         if (!slot.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0)
-            return SnesObjPalettes.Palette(SpriteColourSetDefinitions.Common).PaletteBits;
+            return SpriteColourSetDefinitions.Common;
 
         if (!slot.FrozenTimer.IsZero &&
             (slot.FrozenTimer.RawValue >= 90 || (slot.FrozenTimer.RawValue & 2) != 0))
         {
-            return EnemyFrozenPaletteDefinitions.PaletteBits;
+            return SpriteColourSetDefinitions.Frozen;
         }
 
-        return slot.PaletteIndex;
+        return slot.PaletteRow;
     }
 }

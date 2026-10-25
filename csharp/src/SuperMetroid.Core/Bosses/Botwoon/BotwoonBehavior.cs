@@ -11,6 +11,7 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
@@ -128,7 +129,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HalfHealth = head.Health >> 1;
         state.QuarterHealth = head.Health >> 2;
         state.PreviousHealth = head.Health;
-        state.PaletteFirstColour = ((head.PaletteIndex >> 4) + 256) / sizeof(ushort);
+        state.PaletteFirstColour = SpriteImage.SpriteColourCount + head.PaletteRow * GameplayBasePaletteFormat.SpriteColorCount;
         // `$B3:961B` ORs $0400: the head starts hidden in its hole, out of every collision pass.
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
@@ -789,7 +790,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 _spriteObjects.SpawnRoomSpriteObject(
                     new(unchecked((ushort)((_room.Random.Generate() & 31) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8))),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
-                    graphicsIndex: EnemyPaletteBits.Palette5);
+                    graphics: SpriteGraphics.InPalette(5));
                 LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
             }
 
@@ -804,7 +805,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     _spriteObjects.SpawnRoomSpriteObject(
                         new(unchecked((ushort)((_room.Random.Generate() & 63) + 224)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8))),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
-                        graphicsIndex: EnemyPaletteBits.Palette5);
+                        graphics: SpriteGraphics.InPalette(5));
                 }
             }
         }
@@ -937,7 +938,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             segment,
             RoomEnemyProjectileKind.BotwoonBody,
-            unchecked((ushort)(head.TileIndexBase | head.PaletteIndex)));
+            head.Graphics);
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         segment.Velocity = segment.Velocity.WithY(new SignedEightEight(0));
 
@@ -1024,12 +1025,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
-        segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))
-            .WithPaletteBits(SnesObjPalettes.Palette(7).PaletteBits);
+        segment.Graphics = segment.Graphics.InRow(7);
         RoomEnemySlot head = _slotTable.Slots[0];
         if (!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0)
-            segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))
-                .WithPaletteIndex(0);
+            segment.Graphics = segment.Graphics.InRow(0);
     }
 
     /// <summary>Accelerates a dying segment to Y=200 and marks the tail cap's final landing.</summary>
@@ -1055,7 +1054,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
         // The landed segment hands its animation to the shared big-explosion list.
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
-        segment.GraphicsIndex = EnemyPaletteBits.Palette5;
+        segment.Graphics = SpriteGraphics.InPalette(5);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
@@ -1080,7 +1079,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spit,
             RoomEnemyProjectileKind.BotwoonSpit,
-            unchecked((ushort)(head.TileIndexBase | head.PaletteIndex)));
+            head.Graphics);
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(BotwoonProjectileAnimation.Spit());
         spit.DirectionParameter = angle.RawValue;

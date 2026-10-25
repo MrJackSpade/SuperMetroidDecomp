@@ -90,7 +90,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Properties = slot.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
-        slot.PaletteIndex = EnemyPaletteBits.Palette2;
+        slot.PaletteRow = 2;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 

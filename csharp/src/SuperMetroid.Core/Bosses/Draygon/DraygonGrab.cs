@@ -179,7 +179,7 @@ internal sealed class DraygonGrab
             _spriteObjects.SpawnRoomSpriteObject(
                 body.Position.Whole + new Offset16<RoomPixels>((short)(state.FacingRight ? 32 : -32), -16),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
-                graphicsIndex: 0);
+                graphics: default);
         }
 
         state.SpiralXRadius += DraygonBehavior.DraygonSpiralRadiusGrowth;

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -32,9 +33,9 @@ internal static class MotherBrainProjectileStarts
         InitialPrograms.TryGetValue(kind, out Func<EnemyProjectileAnimation>? start) ? start() : null;
 
     /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the typed program its kind names.</summary>
-    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, int graphicsIndex)
+    internal static void Initialize(RoomEnemyProjectileSlot projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, checked((ushort)graphicsIndex));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         if (ForKind(kind) is { } animation)
             projectile.StartAnimation(animation);
     }

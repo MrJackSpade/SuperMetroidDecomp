@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The graphics index and physical origins of Mother Brain's glass shards.</summary>
+/// <summary>The graphics and physical origins of Mother Brain's glass shards.</summary>
 internal static class MotherBrainGlassShardDefinitions
 {
-    /// <summary>Graphics index installed by the shard and sparkle initializers.</summary>
-    internal const ushort GraphicsIndex = 0x0640;
+    /// <summary>Graphics installed by the shard and sparkle initializers: from character $40, in palette row three.</summary>
+    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.Of(0x40, 3);
 
     /// <summary>
     /// One of three horizontal emitter positions on the glass: right (+8), left (-40), or centre (-16), all two blocks

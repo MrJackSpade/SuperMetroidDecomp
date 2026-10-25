@@ -108,7 +108,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.PaletteIndex = EnemyPaletteBits.Palette7;
+        slot.PaletteRow = 7;
         state.Function = DeadTourianCorpseFunction.Waiting;
         Extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(state.RotTable);

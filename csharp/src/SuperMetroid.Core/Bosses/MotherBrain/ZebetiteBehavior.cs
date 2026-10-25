@@ -113,7 +113,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.PaletteIndex = EnemyPaletteBits.Palette2;
+        slot.PaletteRow = 2;
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
         if (slot.SlotIndex == 0)
             SharedPaletteCycle = 0;
@@ -295,7 +295,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             MotherBrainProjectileStarts.Initialize(
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
-                graphicsIndex: 0);
+                graphics: default);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
             projectile.KilledEnemy = KilledEnemy.Of(slot, respawns: false);

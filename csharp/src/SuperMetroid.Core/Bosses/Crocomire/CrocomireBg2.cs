@@ -127,6 +127,6 @@ internal sealed class CrocomireBg2
         _spriteObjects.SpawnRoomSpriteObject(
             new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((SnesLittleEndian.HighByte(random) & 31))))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,
-            graphicsIndex: 0);
+            graphics: default);
     }
 }

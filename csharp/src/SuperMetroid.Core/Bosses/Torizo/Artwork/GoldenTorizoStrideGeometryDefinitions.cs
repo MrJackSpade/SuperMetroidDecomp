@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
@@ -66,15 +67,15 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         var footIndices = new List<int>();
         for (int index = 0; index < supplied.Count; index++)
         {
-            SpritemapPart part = supplied[index];
-            int column = part.Attributes.TileNumber - FirstFootTile;
+            SpritePart part = supplied[index];
+            int column = part.Character - FirstFootTile;
             if ((uint)column >= FootTiles) continue;
-            int palette = part.Attributes.PaletteIndex;
+            int palette = part.Palette;
             if (palette is not (1 or 2) || (!doublePlant && palette != supportPalette)) return supplied;
             bool departing = palette != supportPalette;
             int bit = 1 << (column + (departing ? FootTiles : 0));
             int anchor = departing ? DepartingFootX : SupportFootX(phase);
-            if ((seen & bit) != 0 || part.X.SignedOffset != anchor + column * TilePixels) return supplied;
+            if ((seen & bit) != 0 || part.Offset.X != anchor + column * TilePixels) return supplied;
             seen |= bit;
             footIndices.Add(index);
         }
@@ -83,18 +84,17 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     }
 
     /// <summary>Retains each authored foot tile's non-X appearance while deriving its planted origin.</summary>
-    private readonly record struct FootAppearance(int XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
+    private readonly record struct FootAppearance(SpritePart Part)
     {
-        /// <summary>Separates high X/size flags from the nine-bit authored local coordinate.</summary>
-        internal static FootAppearance From(SpritemapPart part) =>
-            new(part.X.Raw & ~0x1ff, part.Y, part.Attributes);
+        /// <summary>Keeps the foot tile's whole appearance; only its horizontal coordinate is recalculated.</summary>
+        internal static FootAppearance From(SpritePart part) => new(part);
         /// <summary>Repositions a support or departing foot tile for the current stride pose.</summary>
-        internal SpritemapPart At(int phase)
+        internal SpritePart At(int phase)
         {
             int supportPalette = phase < 5 ? 1 : 2;
-            int anchor = Attributes.PaletteIndex == supportPalette ? SupportFootX(phase) : DepartingFootX;
-            int x = anchor + (Attributes.TileNumber - FirstFootTile) * TilePixels;
-            return new(new SnesSpritemapXWord((ushort)(XFlags | (x & 0x1ff))), Y, Attributes);
+            int anchor = Part.Palette == supportPalette ? SupportFootX(phase) : DepartingFootX;
+            int x = anchor + (Part.Character - FirstFootTile) * TilePixels;
+            return Part.At(SpritePart.WrapX(x), Part.Offset.Y);
         }
     }
 
@@ -102,7 +102,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     private sealed class FootParts : EnemySpritemapParts
     {
         /// <summary>Unmodified non-foot pieces retained in their original relative order.</summary>
-        private readonly SpritemapPart[] otherParts;
+        private readonly SpritePart[] otherParts;
         /// <summary>Foot tile palette, flags, and Y retained while X is calculated.</summary>
         private readonly FootAppearance[] footAppearance;
         /// <summary>Original OAM positions of the foot pieces among all body parts.</summary>
@@ -115,7 +115,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
             this.phase = phase;
             this.footIndices = footIndices;
             footAppearance = new FootAppearance[footIndices.Length];
-            otherParts = new SpritemapPart[supplied.Count - footIndices.Length];
+            otherParts = new SpritePart[supplied.Count - footIndices.Length];
             int foot = 0, other = 0;
             for (int index = 0; index < supplied.Count; index++)
             {
@@ -127,7 +127,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         /// <summary>Preserves the supplied OAM part count after replacing foot geometry.</summary>
         public override int Count => otherParts.Length + footIndices.Length;
         /// <summary>Restores original OAM ordering while calculating each foot's X coordinate.</summary>
-        public override SpritemapPart this[int index]
+        public override SpritePart this[int index]
         {
             get
             {

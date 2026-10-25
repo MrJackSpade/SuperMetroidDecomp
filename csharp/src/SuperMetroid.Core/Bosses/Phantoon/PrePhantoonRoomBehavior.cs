@@ -43,7 +43,7 @@ internal sealed class PrePhantoonRoomBehavior
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot projectile = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, graphicsIndex: 0);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, graphics: default);
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
         backgroundScroll.Bg2Offset = backgroundScroll.Bg2Offset.WithY(0);
     }

@@ -126,15 +126,15 @@ internal sealed class CeresRidleyHits
         RidleyEnemyState state,
         int enemyMainExecutionCounter)
     {
-        state.CommonDrawPaletteIndex = new SnesObjAttributeWord(!slot.FlashTimer.IsZero &&
+        state.CommonDrawPalette = !slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
-                ? (ushort)0
-                : checked((ushort)slot.PaletteIndex));
+                ? 0
+                : slot.PaletteRow;
 
-        state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
+        state.SpritemapPalette = slot.FlashTimer.RawValue > 1 &&
             ((enemyMainExecutionCounter + 1) & 2) != 0
                 ? CeresRidleyBehavior.HurtFlashSpritemapPalette
-                : SnesObjPalettes.Palette(7);
+                : 7;
     }
 
     /// <summary>

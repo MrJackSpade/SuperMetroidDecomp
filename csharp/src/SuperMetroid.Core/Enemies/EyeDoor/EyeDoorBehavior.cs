@@ -57,7 +57,7 @@ internal sealed class EyeDoorBehavior
             return; // Native SpawnEproj returns carry set when all eighteen slots are live.
 
         _eyeDoorProjectileSystem = system;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
 
         var block = new Position16<RoomBlocks>(
             checked((ushort)(request.PlmBlockIndex % roomWidthInBlocks)),

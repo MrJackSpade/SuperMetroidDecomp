@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -17,6 +18,6 @@ internal static class EnemyProjectileFrames
         Enum.Parse<EnemyProjectileFrameId>(string.Concat(name.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..])));
 
     /// <summary>The parts <paramref name="frame"/> draws from installed projectile <paramref name="artwork"/>.</summary>
-    internal static ReadOnlyMemory<SpritemapPart> Parts(EnemyProjectileSpritemapCatalog artwork, EnemyProjectileFrameId frame) =>
+    internal static ReadOnlyMemory<SpritePart> Parts(EnemyProjectileSpritemapCatalog artwork, EnemyProjectileFrameId frame) =>
         Compositions.Contains(frame) ? artwork.Get(frame) : artwork.GetProgramFrame(frame);
 }

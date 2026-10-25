@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -424,7 +425,7 @@ internal sealed class CrocomireCombat
         // carry. It also writes the graphics word of physical projectile slot zero rather
         // than the current slot; retain that shipped indexing bug for debugger parity.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-        _projectiles.EnemyProjectiles[0].GraphicsIndex = EnemyPaletteBits.Palette5;
+        _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.InPalette(5);
         projectile.GeneralTimer = unchecked((ushort)(
             projectile.GeneralTimer + projectile.Velocity.X.RawValue));
 

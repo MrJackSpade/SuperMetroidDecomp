@@ -76,7 +76,7 @@ internal sealed class TorizoMovement
         torizo.Radius = definition.Radius;
         torizo.InstructionTimer = WrappingCountdown.Start(1);
         torizo.Timer = WrappingCountdown.Start(0);
-        torizo.PaletteIndex = 0;
+        torizo.PaletteRow = 0;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
         state.Function = TorizoFunction.Falling;

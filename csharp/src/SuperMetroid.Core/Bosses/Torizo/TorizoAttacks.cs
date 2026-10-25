@@ -199,7 +199,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
+            torizo.Graphics);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.DroolNoDelay));
 
         int random;
@@ -279,7 +279,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.SwipeInitial));
 
         // A right-facing Torizo mirrors the left-facing hand placement horizontally.
@@ -301,7 +301,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.ExplosionLowHealthInitial));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
         projectile.Variable0 = projectile.Position.X.Whole;
@@ -317,7 +317,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoDeathExplosion,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.ExplosionDeathInitial));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole);
         projectile.Variable0 = torizo.Position.X.Whole;
@@ -333,7 +333,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoChozoOrb,
-            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
+            torizo.Graphics);
 
         InitializeTorizoRandomizedProjectile(
             projectile,
@@ -368,7 +368,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
+            torizo.Graphics);
 
         projectile.DirectionParameter = checked((ushort)parameter);
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
@@ -397,7 +397,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
-            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
+            torizo.Graphics);
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
@@ -415,7 +415,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoEgg,
-            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
+            torizo.Graphics);
 
         projectile.Variable1 = TorizoMotionDefinitions.EggHatchTimer;
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
@@ -437,7 +437,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
-            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
+            torizo.Graphics);
         bool facingRight = _access.FacesRight(torizo);
         projectile.Variable0 = unchecked((ushort)(torizo.SlotIndex * 2));
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (facingRight ? 30 : -30))), unchecked((ushort)(torizo.Position.Y.Whole - 52))));
@@ -454,7 +454,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-            unchecked((ushort)(torizo.TileIndexBase | torizo.PaletteIndex)));
+            torizo.Graphics);
         projectile.DirectionParameter = checked((ushort)parameter);
         bool facingRight = _access.FacesRight(torizo);
         InitializeTorizoRandomizedProjectile(
@@ -495,7 +495,7 @@ internal sealed class TorizoAttacks
         RoomEnemyProjectileKind kind = foot == HorizontalDirection.Right
             ? RoomEnemyProjectileKind.BombTorizoRightFootDust
             : RoomEnemyProjectileKind.BombTorizoLeftFootDust;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
         projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileProgram.LandingDustRightFoot : TorizoProjectileProgram.LandingDustLeftFoot));
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (foot == HorizontalDirection.Right ? 24 : -24))), unchecked((ushort)(torizo.Position.Y.Whole + 48))));
     }
@@ -807,7 +807,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoStatueBreaking,
-            graphicsIndex: 0);
+            graphics: default);
 
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Program));
         projectile.Position = projectile.Position.WithWhole(request.PlmBlock.ToRoomPixels() + definition.Offset);

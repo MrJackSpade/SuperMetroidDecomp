@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -152,7 +153,7 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
-        body.PaletteIndex = 0;
+        body.PaletteRow = 0;
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
             "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Colours);
 
@@ -197,7 +198,7 @@ internal sealed class CrocomireSkeleton
 
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;
         if (state.Tongue is { } tongue)
-            tongue.PaletteIndex = state.Body.PaletteIndex;
+            tongue.PaletteRow = state.Body.PaletteRow;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
@@ -305,8 +306,7 @@ internal sealed class CrocomireSkeleton
     {
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
-        int graphicsIndex = unchecked((ushort)(
-            state.Body.TileIndexBase | state.Body.PaletteIndex));
+        SpriteGraphics graphics = state.Body.Graphics;
 
         // The initializer indexes Y by native projectile index minus $14. Clearing the pool
         // immediately before this call guarantees slots 17..10 and Y=$38,$48,...,$A8.
@@ -319,7 +319,7 @@ internal sealed class CrocomireSkeleton
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces,
-                (ushort)graphicsIndex);
+                graphics);
             projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.SpikeWallPiece));
             int yTableIndex = projectile.SlotIndex - 10;
             if ((uint)yTableIndex >= 8)

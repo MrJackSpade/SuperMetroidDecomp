@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
@@ -85,16 +86,16 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Metroid_Init</c> at <c>$A3:EA4F</c>.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
-        int graphicsIndex = unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex));
+        SpriteGraphics graphics = slot.Graphics;
         RoomSpriteObjectSlot outerBodyA = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyA,
-            graphicsIndex) ?? throw new InvalidOperationException(
+            graphics) ?? throw new InvalidOperationException(
                 "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
         RoomSpriteObjectSlot outerBodyB = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyB,
-            graphicsIndex) ?? throw new InvalidOperationException(
+            graphics) ?? throw new InvalidOperationException(
                 "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
 
         var state = new MetroidEnemyState(outerBodyA, outerBodyB)
@@ -138,9 +139,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The ordinary body supplies the central map. Both outer bank-$B4 objects are
         // repositioned and re-enabled every non-frozen main call, exactly after movement.
-        int graphicsIndex = unchecked((ushort)(slot.TileIndexBase | slot.PaletteIndex));
-        PositionMetroidOuterBody(state.OuterBodyA, slot, graphicsIndex);
-        PositionMetroidOuterBody(state.OuterBodyB, slot, graphicsIndex);
+        PositionMetroidOuterBody(state.OuterBodyA, slot, slot.Graphics);
+        PositionMetroidOuterBody(state.OuterBodyB, slot, slot.Graphics);
     }
 
     /// <summary>Ports proportional 16.16 attraction in <c>Metroid_Func_1</c>.</summary>
@@ -250,15 +250,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         if ((slot.FlashTimer.RawValue & 2) != 0)
         {
-            state.OuterBodyA.Attributes = state.OuterBodyA.Attributes
-                .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
-            state.OuterBodyB.Attributes = state.OuterBodyB.Attributes
-                .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
+            state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.InRow(slot.PaletteRow);
+            state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.InRow(slot.PaletteRow);
             return;
         }
 
-        state.OuterBodyA.Attributes = state.OuterBodyA.Attributes.WithPaletteIndex(0);
-        state.OuterBodyB.Attributes = state.OuterBodyB.Attributes.WithPaletteIndex(0);
+        state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.InRow(0);
+        state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.InRow(0);
     }
 
     /// <summary>Ports ordinary/contact-damage branches of <c>Metroid_Touch</c>.</summary>
@@ -425,10 +423,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void PositionMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,
         RoomEnemySlot metroid,
-        int graphicsIndex)
+        SpriteGraphics graphics)
     {
         outerBody.Position = outerBody.Position.WithWhole(metroid.Position.Whole);
-        outerBody.Attributes = new SnesObjAttributeWord(checked((ushort)graphicsIndex));
+        outerBody.Graphics = graphics;
         outerBody.UpdatesDisabled = false;
     }
 
@@ -437,7 +435,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomSpriteObjectSlot outerBody,
         RoomSpriteObjectProgram frozenProgram)
     {
-        outerBody.Attributes = new SnesObjAttributeWord(MetroidOuterBodyDefinitions.FrozenSpritePalette);
+        outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
         outerBody.UpdatesDisabled = true;
         // Native drawing reads the selected record even while animation is disabled.
         // Show the frozen program's first frame without resetting the retained timer.

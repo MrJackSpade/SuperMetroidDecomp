@@ -60,7 +60,7 @@ public static class EnemyExtendedFrameDocuments
                     component.Parts is null)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} component {index} is invalid.");
-                SpritemapPart[] parts = EnemySpritemapCatalog.CompileParts(
+                SpritePart[] parts = EnemySpritemapCatalog.CompileParts(
                     component.Parts, $"{definition.Name} component {index}");
                 totalParts += parts.Length;
                 if (totalParts > EnemySpritemapCatalog.MaximumParts)

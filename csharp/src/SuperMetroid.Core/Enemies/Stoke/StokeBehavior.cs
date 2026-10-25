@@ -243,7 +243,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.StokeProjectile,
-            unchecked((ushort)(stoke.PaletteIndex | stoke.TileIndexBase)));
+            stoke.Graphics);
         projectile.DirectionParameter = Directions.Parameter(direction);
         projectile.Variable0 = ProjectileFunctions.Parameter(direction == StokeDirection.Left
             ? StokeProjectileFunction.MoveLeft

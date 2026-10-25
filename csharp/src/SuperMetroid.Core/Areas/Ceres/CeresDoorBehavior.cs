@@ -162,7 +162,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.CeresDoor];
-        slot.PaletteIndex = EnemyPaletteBits.Palette2;
+        slot.PaletteRow = 2;
         var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
@@ -182,7 +182,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.PaletteIndex = EnemyPaletteBits.Palette7;
+        slot.PaletteRow = 7;
         if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             SelectedCeresDoorVisual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(_presentation.Colours));
         else
@@ -211,7 +211,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
                 {
-                    slot.PaletteIndex = EnemyPaletteBits.Palette7;
+                    slot.PaletteRow = 7;
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                 }
                 return;

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -348,13 +349,13 @@ internal sealed class CrocomireBridgeCollapse
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
-            graphicsIndex: 0);
+            graphics: default);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_room.Random.Read() & 63) + 64))));
-        projectile.GraphicsIndex = EnemyPaletteBits.Palette2;
+        projectile.Graphics = SpriteGraphics.InPalette(2);
     }
 }

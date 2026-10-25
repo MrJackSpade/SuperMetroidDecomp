@@ -194,11 +194,11 @@ internal sealed class DoorTransitionState
                 // PLMs, FX, backgrounds, and then yields once per NMI until the IRQ raises
                 // door_transition_flag bit $8000. The host room constructor performs that
                 // setup atomically; its following calls now run the real coordinate path.
-                fadedSource = runtime.Cgram.Capture();
+                fadedSource = runtime.Colours.Capture();
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
                 // The load re-asserted the door's gates ($0795/$0797) over the destination's
                 // enemies: elevator AI stays frozen through the final palette fade.
-                ColourImage destinationTarget = runtime.Cgram.Capture();
+                ColourImage destinationTarget = runtime.Colours.Capture();
                 fadedSource.Restore();
                 // UpdateBeamTilesAndPalette ($90:ACCD) writes the loaded beam colours live during loading,
                 // unlike the destination room, enemy and suit colours, which wait for the fade.
@@ -302,7 +302,7 @@ internal sealed class DoorTransitionState
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.
                 runtime.Room.LoadedScope.Enemies.ConsumeTargetPaletteWrites(staged =>
-                    PaletteTransition.Target.Of(staged.Run.In(runtime.Cgram))[staged.Colour] = staged.Value);
+                    PaletteTransition.Target.Of(staged.Run.In(runtime.Colours))[staged.Colour] = staged.Value);
                 if (PaletteTransition.Step())
                 {
                     // $82:E737 releases $0795 after EnemyMain and the last fade step.
@@ -331,20 +331,20 @@ internal sealed class DoorTransitionState
     /// <summary>Fades room colors while preserving HUD and applicable common CRE or escape-timer colors.</summary>
     private static ColourImage BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
-        ColourImage target = runtime.Cgram.Capture();
+        ColourImage target = runtime.Colours.Capture();
         target.Fill(Bgr555.Black);
 
         // Keep HUD colors legible while the source room palette disappears.
-        Keep(runtime.Cgram, target, DoorTransitionColourDefinitions.Hud);
+        Keep(runtime.Colours, target, DoorTransitionColourDefinitions.Hud);
 
         CartridgeRoomHeader sourceRoom = runtime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Door palette fade started without an active source room header.");
         if (!sourceRoom.UsesIsolatedDoorTransition && !runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition)
         {
-            Keep(runtime.Cgram, target, DoorTransitionColourDefinitions.CommonRoom);
+            Keep(runtime.Colours, target, DoorTransitionColourDefinitions.CommonRoom);
             if (runtime.EscapeTimer.IsActive)
-                Keep(runtime.Cgram, target, DoorTransitionColourDefinitions.EscapeTimer);
+                Keep(runtime.Colours, target, DoorTransitionColourDefinitions.EscapeTimer);
         }
         return target;
     }

@@ -1216,8 +1216,8 @@ internal static class MapPresentationVerification
             stockPaletteFx.Step(stockRuntime.PaletteFxColours, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             editedPaletteFx.Step(editedRuntime.PaletteFxColours, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(
-                stockRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)] !=
-                editedRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)],
+                stockRuntime.Colours.Colors[colorByteIndex / sizeof(ushort)] !=
+                editedRuntime.Colours.Colors[colorByteIndex / sizeof(ushort)],
                 $"runtime catalog binding consumes {description} palette-FX override");
         }
     }

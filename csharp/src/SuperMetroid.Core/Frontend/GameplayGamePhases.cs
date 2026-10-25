@@ -330,7 +330,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         if (session.Runtime is null)
             throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        ColourImage white = session.Runtime.Cgram.Capture();
+        ColourImage white = session.Runtime.Colours.Capture();
         white.Fill(TimeUpDefinitions.WhiteColor);
         session.BeginTimeUpPaletteFade(new GradualPaletteTransition(white, TimeUpDefinitions.WhiteOutDenominator,
             session.Runtime.EnemySession.GradualColorChange));

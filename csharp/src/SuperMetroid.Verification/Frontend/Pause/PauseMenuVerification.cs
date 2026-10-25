@@ -203,9 +203,9 @@ internal static class PauseMenuVerification
         // The newly equipped Wave beam selects the Wave projectile sheet (#1342); no characters are uploaded.
         AssertEqual(SamusBeamFlags.Wave, resumeRuntime.Artwork.LoadedBeams,
             "unpause latches the newly equipped Wave beam whose projectile sheet is drawn");
-        AssertEqual(0x3200, resumeRuntime.Cgram.Colors[0xe0],
+        AssertEqual(0x3200, resumeRuntime.Colours.Colors[0xe0],
             "unpause immediately installs newly equipped Wave palette");
-        AssertEqual(0x320f, resumeRuntime.Cgram.Colors[0xef],
+        AssertEqual(0x320f, resumeRuntime.Colours.Colors[0xef],
             "unpause installs all sixteen Wave palette colors");
 
         // Use a second page with no map acquisition or explored cells so BG1 is blank at

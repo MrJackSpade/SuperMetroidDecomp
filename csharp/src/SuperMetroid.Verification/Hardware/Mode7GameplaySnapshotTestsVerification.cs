@@ -62,7 +62,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.GetawayActive = false; getaway.FloorMatrixA = default;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Cgram.AsPaletteColors().SetColor(i, new Bgr555(0, 0, 0));
+        for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Colours.AsPaletteColors().SetColor(i, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 32,

@@ -40,17 +40,17 @@ internal static class GameplayBasePalettesVerification
             var guarded = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: baseline);
-            AssertTrue(runtime.Cgram.Colors.SequenceEqual(baseline.Initial.ToArray()),
+            AssertTrue(runtime.Colours.Colors.SequenceEqual(baseline.Initial.ToArray()),
                 "runtime construction consumes installed starting colors without cartridge reads");
-            runtime.Cgram.AsPaletteColors().SetColor(128, new Bgr555(0, 0, 0));
-            runtime.Cgram.AsPaletteColors().SetColor(208, new Bgr555(0, 0, 0));
+            runtime.Colours.AsPaletteColors().SetColor(128, new Bgr555(0, 0, 0));
+            runtime.Colours.AsPaletteColors().SetColor(208, new Bgr555(0, 0, 0));
             // Exercise the production room-load restore, not just the catalog helpers.
             runtime.RoomLoader.LoadGameplaySpritePalettes();
             for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
             {
-                AssertEqual(baseline.CommonSprites[color], runtime.Cgram.Colors[128 + color],
+                AssertEqual(baseline.CommonSprites[color], runtime.Colours.Colors[128 + color],
                     $"room-entry shared OBJ color {color}");
-                AssertEqual(baseline.Initial[208 + color], runtime.Cgram.Colors[208 + color],
+                AssertEqual(baseline.Initial[208 + color], runtime.Colours.Colors[208 + color],
                     $"room-entry enemy-projectile OBJ color {color}");
             }
 
@@ -67,12 +67,12 @@ internal static class GameplayBasePalettesVerification
             File.WriteAllBytes(overridePath, GameplayBasePaletteFiles.Write(document));
             GameplayBasePaletteCatalog edited = GameplayBasePaletteFiles.Load(stock, overrides);
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: edited);
-            AssertEqual(edited.Initial[1], editedRuntime.Cgram.Colors[1],
+            AssertEqual(edited.Initial[1], editedRuntime.Colours.Colors[1],
                 "edited starting color reaches live CGRAM");
-            AssertTrue(editedRuntime.Cgram.Colors[1] != runtime.Cgram.Colors[1],
+            AssertTrue(editedRuntime.Colours.Colors[1] != runtime.Colours.Colors[1],
                 "edited starting color differs from stock");
             editedRuntime.RoomLoader.LoadGameplaySpritePalettes();
-            AssertEqual(edited.CommonSprites[1], editedRuntime.Cgram.Colors[129],
+            AssertEqual(edited.CommonSprites[1], editedRuntime.Colours.Colors[129],
                 "edited shared sprite color reaches room-entry CGRAM");
 
             document.Initial[1] = document.Initial[1] with { Red = 32 };

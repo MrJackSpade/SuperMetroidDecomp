@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;

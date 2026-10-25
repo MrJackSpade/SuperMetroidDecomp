@@ -25,10 +25,10 @@ public sealed class MaridiaElevatubeRoomMainState
     public Position16<RoomPixels> TrackedPosition { get; private set; }
 
     /// <summary>The tube's signed 8.8 vertical velocity in room pixels per update.</summary>
-    public SnesSignedEightEight Velocity { get; private set; }
+    public SignedEightEight Velocity { get; private set; }
 
     /// <summary>The tube's signed 8.8 vertical acceleration in room pixels per update per update.</summary>
-    public SnesSignedEightEight Acceleration { get; private set; }
+    public SignedEightEight Acceleration { get; private set; }
 
     /// <summary>
     /// Builds one room's elevatube owner, selecting whether $E2B6 owns the room. The door callbacks initialize the
@@ -95,12 +95,12 @@ public sealed class MaridiaElevatubeRoomMainState
             "Maridia elevatube room main requires an active Samus state.");
 
         // Native stores the whole and fractional X words separately every frame.
-        activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new SnesFixedPosition(MaridiaElevatubeDefinitions.SamusCenterX, 0));
+        activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
-        int displacement = SnesSixteenSixteen.FromEightEight(Velocity.SignedRawValue);
-        uint trackedPosition = SnesSixteenSixteen.Compose(TrackedPosition.Y, scratch.Var1);
+        int displacement = SixteenSixteen.FromEightEight(Velocity.SignedRawValue);
+        uint trackedPosition = SixteenSixteen.Compose(TrackedPosition.Y, scratch.Var1);
         trackedPosition = unchecked(trackedPosition + (uint)displacement);
-        TrackedPosition = new(0, SnesFixedPosition.WholeOf(unchecked((int)trackedPosition)));
+        TrackedPosition = new(0, FixedCoordinate.WholeOf(unchecked((int)trackedPosition)));
         scratch.Var1 = unchecked((ushort)trackedPosition);
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false });
@@ -108,7 +108,7 @@ public sealed class MaridiaElevatubeRoomMainState
         // The cartridge's biased unsigned range test is exactly the inclusive signed range of the maximum speed either
         // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum
         // wraps as the cartridge's word does, so an overflowed candidate is judged by its wrapped sign.
-        SnesSignedEightEight candidate = new(unchecked((ushort)(Velocity.RawValue + Acceleration.RawValue)));
+        SignedEightEight candidate = new(unchecked((ushort)(Velocity.RawValue + Acceleration.RawValue)));
         if (Math.Abs((int)candidate.SignedRawValue) <= MaridiaElevatubeDefinitions.MaximumSpeed.SignedRawValue)
             Velocity = candidate;
 

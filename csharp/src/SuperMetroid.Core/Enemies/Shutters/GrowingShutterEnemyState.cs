@@ -73,7 +73,7 @@ public sealed class GrowingShutterEnemyState
     }
 
     /// <summary>Positive 16.16 growth speed in pixels per update; upward growth applies its exact negation.</summary>
-    public SnesSignedSixteenSixteen GrowthSpeed { get; internal set; }
+    public SignedSixteenSixteen GrowthSpeed { get; internal set; }
 
     /// <summary>The shutter's whole-pixel position immediately before its current upward move, used to derive Samus's carry.</summary>
     public Position16<RoomPixels> PreviousPosition { get; internal set; }

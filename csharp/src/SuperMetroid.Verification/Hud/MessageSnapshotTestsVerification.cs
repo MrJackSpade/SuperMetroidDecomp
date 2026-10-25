@@ -26,7 +26,7 @@ internal static class MessageSnapshotTestsVerification
         vram.LoadBytes(0, graphics);
         MessageBoxSheet messages = RepositoryInstallation.Installation.LoadRoomBlockSheets().MessageBoxes.Values.First();
         var cgram = new SnesCgram();
-        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 101 & 32767)));
+        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, RgbColor.FromWord((ushort)(i * 101 & 32767)));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureFrontend(vram, cgram, oam, 3);
         int samples = 0;
@@ -40,7 +40,7 @@ internal static class MessageSnapshotTestsVerification
             bool previousYes = true;
             bool toggledSave = false, releasedSave = false;
             DisplayPacket? held = null;
-            Rgba32[]? heldPixels = null;
+            RgbaPixel[]? heldPixels = null;
             for (int tick = 0; tick < 600 && state.IsActive; tick++)
             {
                 if (previousRadius != state.RadiusPixels || previousYes != state.ConfirmationSelectionYes)

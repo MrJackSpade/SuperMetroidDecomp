@@ -497,7 +497,7 @@ internal static void VerifySamusGroundedMovement()
     var standing = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
     standing.Kinematics.Position = standing.Kinematics.Position.WithWhole(new(24, 19));
     standing.Kinematics.Radius = new(5, 5);
-    standing.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0xc000);
+    standing.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0xc000);
     GroundedMovementResult idle = SamusGroundedMovement.StepStanding(
 
         level,
@@ -518,7 +518,7 @@ internal static void VerifySamusGroundedMovement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling,
     };
-    forward.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x3456);
+    forward.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
     forward.HorizontalSpeed.ExtraRunSpeed = forward.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     BlockMoveResult? stationaryForward = SamusGroundedMovement.StepFacingForward(
 
@@ -848,7 +848,7 @@ internal static void VerifySamusGroundedReversal()
 
         // `$91:F931` performs a 32-bit fixed-point add. These values force a fractional
         // carry, proving that the extra run component is folded before it is cleared.
-        aimedTurn.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0xd000);
+        aimedTurn.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0xd000);
         aimedTurn.HorizontalSpeed.ExtraRunSpeed = aimedTurn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x5000);
         SamusGroundedPoseTransitions.ApplyGroundedTurn(aimedTurn, testCase.GenericTurn);
         AssertEqual(testCase.SelectedTurn, aimedTurn.Pose, $"aimed turn selector case {caseIndex}");
@@ -944,7 +944,7 @@ internal static void VerifySamusGroundedReversal()
         var crouchedTurn = new SamusState { Pose = testCase.SourcePose };
         crouchedTurn.Kinematics.Position = crouchedTurn.Kinematics.Position.WithWhole(new(64, 32));
         crouchedTurn.Kinematics.Radius = new(5, 16);
-        crouchedTurn.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0xd000);
+        crouchedTurn.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0xd000);
         crouchedTurn.HorizontalSpeed.ExtraRunSpeed = crouchedTurn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x5000);
         SamusGroundedPoseTransitions.ApplyGroundedTurn(crouchedTurn, testCase.GenericTurn);
         AssertEqual(testCase.SelectedTurn, crouchedTurn.Pose, $"crouched turn selector case {caseIndex}");
@@ -1935,7 +1935,7 @@ internal static void VerifySamusRanIntoWall()
     {
         var stopped = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)) };
         stopped.Kinematics.Radius = new(5, 5);
-        stopped.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);
+        stopped.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000);
         GroundedMovementResult movement = SamusGroundedMovement.StepRanIntoWall(
 
             openFloor,

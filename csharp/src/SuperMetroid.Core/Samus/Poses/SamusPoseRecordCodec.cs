@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// movement bytes beyond the retail dispatcher (the adjacent-code poses $FD/$FF, which read the $91:BE11 X-ray HDMA
 /// routine's opcodes); this codec carries those bytes so the records stay exact.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("Samus pose record facing and movement bytes")]
 internal static class SamusPoseRecordCodec
 {
     /// <summary>

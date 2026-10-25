@@ -100,15 +100,15 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int magnitude = checked((ushort)state.Speed);
         int xProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked(new SnesByteAngle(unchecked((byte)((ushort)state.Heading)))),
+            checked(new ByteAngle(unchecked((byte)((ushort)state.Heading)))),
             magnitude,
             MultiviolaCosineOffset);
         int yProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked(new SnesByteAngle(unchecked((byte)((ushort)state.Heading)))),
+            checked(new ByteAngle(unchecked((byte)((ushort)state.Heading)))),
             magnitude,
             MultiviolaSineOffset);
         state.Velocity = new FixedVector<RoomPixels>(
-            SnesSignedSixteenSixteen.FromRaw(xProduct), SnesSignedSixteenSixteen.FromRaw(yProduct));
+            SignedSixteenSixteen.FromRaw(xProduct), SignedSixteenSixteen.FromRaw(yProduct));
     }
 
     /// <summary>
@@ -131,8 +131,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies the native separate-word complement and fractional increment, including its missing carry.</summary>
-    private static SnesSignedSixteenSixteen NegateWithoutFractionCarry(SnesSignedSixteenSixteen axis) =>
-        SnesSignedSixteenSixteen.FromParts(
+    private static SignedSixteenSixteen NegateWithoutFractionCarry(SignedSixteenSixteen axis) =>
+        SignedSixteenSixteen.FromParts(
             unchecked((short)~axis.WholeWord), unchecked((ushort)(~axis.Fraction + 1)));
 
     /// <summary>Advances Multiviola's typed animation.</summary>

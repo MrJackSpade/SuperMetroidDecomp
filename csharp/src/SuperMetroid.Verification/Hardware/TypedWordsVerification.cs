@@ -162,25 +162,25 @@ internal static void VerifyTypedNativeWords()
     // A cartridge turn is a 16-bit wrapping domain whose high byte indexes the shared
     // 256-entry sine tables. Verify named axes, full-turn normalization, fractional
     // preservation, and the signed modular subtraction used near the wrap seam.
-    AssertEqual((ushort)0x4000, SnesAngle.QuarterTurn.RawValue,
+    AssertEqual((ushort)0x4000, RotationAngle.QuarterTurn.RawValue,
         "SNES quarter-turn raw word");
-    AssertEqual((byte)0x40, SnesAngle.QuarterTurn.TableIndex,
+    AssertEqual((byte)0x40, RotationAngle.QuarterTurn.TableIndex,
         "SNES quarter-turn sine index");
-    AssertEqual(0x80, SnesAngle.QuarterTurn.SineTableByteOffset,
+    AssertEqual(0x80, RotationAngle.QuarterTurn.SineTableByteOffset,
         "SNES quarter-turn word-table offset");
-    AssertEqual(SnesAngle.Zero, SnesAngle.NormalizeRaw(0x1_0000),
+    AssertEqual(RotationAngle.Zero, RotationAngle.NormalizeRaw(0x1_0000),
         "SNES raw angle wraps at one turn");
-    AssertEqual(SnesAngle.Zero, SnesAngle.NormalizeTableIndex(0x100),
+    AssertEqual(RotationAngle.Zero, RotationAngle.NormalizeTableIndex(0x100),
         "SNES table angle wraps at 256 units");
-    AssertEqual((ushort)0x41ab, SnesAngle.FromRaw(0x40ab).AddTableUnits(1).RawValue,
+    AssertEqual((ushort)0x41ab, RotationAngle.FromRaw(0x40ab).AddTableUnits(1).RawValue,
         "SNES whole-unit addition retains fractional angle byte");
-    AssertEqual((short)-0x4000, SnesAngle.Zero.SignedDeltaTo(SnesAngle.ThreeQuarterTurn),
+    AssertEqual((short)-0x4000, RotationAngle.Zero.SignedDeltaTo(RotationAngle.ThreeQuarterTurn),
         "SNES signed raw delta crosses wrap seam");
     AssertEqual((sbyte)-0x40,
-        SnesAngle.Zero.SignedTableDeltaTo(SnesAngle.ThreeQuarterTurn),
+        RotationAngle.Zero.SignedTableDeltaTo(RotationAngle.ThreeQuarterTurn),
         "SNES signed table delta crosses wrap seam");
 
-    var positiveEightEight = new SnesSignedEightEight(0x0180);
+    var positiveEightEight = new SignedEightEight(0x0180);
     AssertEqual((sbyte)1, positiveEightEight.WholePixels,
         "signed 8.8 positive whole byte");
     AssertEqual((byte)0x80, positiveEightEight.Fraction,
@@ -188,26 +188,26 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(0x0001_8000,
         positiveEightEight.ToSixteenSixteenDelta().RawValue,
         "signed 8.8 promotes to signed 16.16");
-    var negativeEightEight = new SnesSignedEightEight(0xff80);
+    var negativeEightEight = new SignedEightEight(0xff80);
     AssertEqual(unchecked((int)0xffff_8000),
         negativeEightEight.ToSixteenSixteenDelta().RawValue,
         "negative signed 8.8 promotion sign-extends");
-    SnesFixedPosition halfPixelBack = negativeEightEight
+    FixedCoordinate halfPixelBack = negativeEightEight
         .ToSixteenSixteenDelta()
         .AddTo(10, 0x4000);
-    AssertEqual(new SnesFixedPosition(9, 0xc000), halfPixelBack,
+    AssertEqual(new FixedCoordinate(9, 0xc000), halfPixelBack,
         "signed fixed delta carries and borrows across split position words");
-    AssertEqual(new SnesFixedPosition(0, 0),
-        SnesSignedSixteenSixteen.FromWholePixels(1).AddTo(ushort.MaxValue, 0),
+    AssertEqual(new FixedCoordinate(0, 0),
+        SignedSixteenSixteen.FromWholePixels(1).AddTo(ushort.MaxValue, 0),
         "signed fixed position addition wraps native whole word");
     AssertEqual(unchecked((ushort)0xff00),
-        SnesSignedEightEight.FromWholePixels(127).AddRawWrapping(0x8000).RawValue,
+        SignedEightEight.FromWholePixels(127).AddRawWrapping(0x8000).RawValue,
         "signed 8.8 arithmetic wraps the cartridge word");
     AssertThrows<OverflowException>(
-        () => SnesSignedEightEight.FromWholePixels(128),
+        () => SignedEightEight.FromWholePixels(128),
         "signed 8.8 checked whole conversion rejects positive overflow");
     AssertThrows<OverflowException>(
-        () => SnesSignedSixteenSixteen.FromWholePixels(32768),
+        () => SignedSixteenSixteen.FromWholePixels(32768),
         "signed 16.16 checked whole conversion rejects positive overflow");
 
     CountdownStep fromOne = WrappingCounter.Decrement(0x0001);
@@ -328,8 +328,8 @@ internal static void VerifyTypedNativeWords()
         "enemy deletion and processing flags round trip");
     enemyProperties = enemyProperties.Without(EnemyProperties.Invisible | EnemyProperties.Deleted |
         EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions);
-    AssertEqual(0x945a, enemyProperties.ToNativeWord(), "enemy flag operations preserve the family-specific low byte");
-    AssertEqual(enemyProperties, EnemyPropertyWord.FromNativeWord(0x945a), "enemy property word round trips its native word");
+    AssertEqual(0x945a, enemyProperties.ToWord(), "enemy flag operations preserve the family-specific low byte");
+    AssertEqual(enemyProperties, EnemyPropertyWord.FromWord(0x945a), "enemy property word round trips its native word");
     AssertEqual(EnemyProperties.IgnoreSamusCollision | EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus,
         enemyProperties.Flags, "enemy property word exposes only its typed high-byte flags");
     AssertThrows<ArgumentOutOfRangeException>(
@@ -338,9 +338,9 @@ internal static void VerifyTypedNativeWords()
 
     EnemyExtraPropertyWord enemyExtraProperties = new EnemyExtraPropertyWord(EnemyExtraProperties.UsesExtendedSpritemap)
         .WithUntranslatedBits(EnemyExtraPropertyRawBits.CrocomireInitializerBit0400, "typed-word verification");
-    AssertEqual(0x0404, enemyExtraProperties.ToNativeWord(),
+    AssertEqual(0x0404, enemyExtraProperties.ToWord(),
         "enemy extra-property escape hatch preserves explicitly owned untranslated data");
-    AssertEqual(enemyExtraProperties, EnemyExtraPropertyWord.FromNativeWord(0x0404),
+    AssertEqual(enemyExtraProperties, EnemyExtraPropertyWord.FromWord(0x0404),
         "enemy extra-property word splits its native word into flags and untranslated bits");
     AssertThrows<ArgumentException>(
         () => default(EnemyExtraPropertyWord).WithUntranslatedBits(

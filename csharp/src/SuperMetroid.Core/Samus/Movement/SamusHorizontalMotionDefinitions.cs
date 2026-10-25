@@ -119,23 +119,23 @@ internal static class SamusHorizontalMotionDefinitions
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
         };
         entry = new(
-            SnesSignedSixteenSixteen.FromRaw(unchecked((int)acceleration)),
-            SnesSignedSixteenSixteen.FromRaw(unchecked((int)maximum)),
-            SnesSignedSixteenSixteen.FromParts(0, decelerationFraction));
+            SignedSixteenSixteen.FromRaw(unchecked((int)acceleration)),
+            SignedSixteenSixteen.FromRaw(unchecked((int)maximum)),
+            SignedSixteenSixteen.FromParts(0, decelerationFraction));
         return true;
     }
 
     /// <summary>$90:9F25 XAccelSpeeds_DiagonalBombJump: acceleration, maximum and deceleration whole/fraction pairs.</summary>
     private static readonly SpeedTableEntry DiagonalBombJump = new(
-        Acceleration: SnesSignedSixteenSixteen.FromParts(0, 0x3000),
-        MaximumSpeed: SnesSignedSixteenSixteen.FromParts(3, 0),
-        Deceleration: SnesSignedSixteenSixteen.FromParts(0, 0x0800));
+        Acceleration: SignedSixteenSixteen.FromParts(0, 0x3000),
+        MaximumSpeed: SignedSixteenSixteen.FromParts(3, 0),
+        Deceleration: SignedSixteenSixteen.FromParts(0, 0x0800));
 
     /// <summary>$90:9F31/$9F3D/$9F49 XAccelSpeeds_DisconnectGrappleInAir/InWater/InLavaAcid: three identical authored records.</summary>
     private static readonly SpeedTableEntry GrappleRelease = new(
-        Acceleration: SnesSignedSixteenSixteen.FromParts(0, 0x3000),
-        MaximumSpeed: SnesSignedSixteenSixteen.FromParts(15, 0),
-        Deceleration: SnesSignedSixteenSixteen.FromParts(0, 0x1000));
+        Acceleration: SignedSixteenSixteen.FromParts(0, 0x3000),
+        MaximumSpeed: SignedSixteenSixteen.FromParts(15, 0),
+        Deceleration: SignedSixteenSixteen.FromParts(0, 0x1000));
 
     /// <summary>The authored standalone record <paramref name="record"/> names.</summary>
     internal static SpeedTableEntry Standalone(SamusStandaloneSpeedRecord record) => record switch

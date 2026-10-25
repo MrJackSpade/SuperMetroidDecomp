@@ -136,7 +136,7 @@ public static class SamusBombJumpMovement
         uint oldSpeed = state.VerticalSpeedFixed;
         uint acceleration = state.YAcceleration.RawValue;
         uint nextSpeed = unchecked(oldSpeed - acceleration);
-        state.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(nextSpeed))), unchecked((ushort)nextSpeed));
+        state.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(nextSpeed))), unchecked((ushort)nextSpeed));
         int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             unchecked(-(int)oldSpeed));

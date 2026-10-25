@@ -47,7 +47,7 @@ internal static class KraidNailContourVerification
             for (int delta = -1; delta <= 1; delta++)
             {
                 nail.Position = nail.Position.WithWholeX(unchecked((ushort)(edge - nail.Radius.X + delta)));
-                state.Parts[nail.SlotIndex].NailVelocity = state.Parts[nail.SlotIndex].NailVelocity.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)velocity), state.Parts[nail.SlotIndex].NailVelocity.X.Fraction));
+                state.Parts[nail.SlotIndex].NailVelocity = state.Parts[nail.SlotIndex].NailVelocity.WithX(SignedSixteenSixteen.FromParts(unchecked((short)velocity), state.Parts[nail.SlotIndex].NailVelocity.X.Fraction));
                 bool expected = unchecked((short)(nail.Position.X.Whole + nail.Radius.X - edge)) >= 0 && (short)velocity >= 0;
                 AssertEqual(expected, reflect(nail), "Actual contour reflection retains signed edge and velocity gates");
             }

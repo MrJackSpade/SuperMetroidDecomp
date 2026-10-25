@@ -30,11 +30,11 @@ internal static class SamusOverlaySheetComposer
             for (int frame = SamusOverlaySheetDefinitions.FirstCoverFrame; frame <= SamusOverlaySheetDefinitions.LastCoverFrame; frame++)
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
-                    ObjPartFrames.SmallObject(cover, cover.TileNumber), cannon.CoverTile(direction, frame)));
+                    SpritePartFrames.SmallObject(cover, cover.TileNumber), cannon.CoverTile(direction, frame)));
             }
         }
         frames.Add(new(SamusOverlaySheetDefinitions.ChestCoverFrame,
-            ObjPartFrames.SmallObject(SamusOverlaySheetDefinitions.ChestCoverAppearance, 0), inputs.StandardObjects));
+            SpritePartFrames.SmallObject(SamusOverlaySheetDefinitions.ChestCoverAppearance, 0), inputs.StandardObjects));
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.Sizes(GameplayRenderDefinitions.ObjectSelection));
     }
 }

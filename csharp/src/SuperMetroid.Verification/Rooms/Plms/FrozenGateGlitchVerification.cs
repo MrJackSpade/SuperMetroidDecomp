@@ -124,7 +124,7 @@ internal static class FrozenGateGlitchVerification
                 zero.Properties.HasAny(EnemyProperties.SolidToSamus)),
         ];
 
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SnesSixteenSixteen.FromWhole(expected.Distance) });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SixteenSixteen.FromWhole(expected.Distance) });
         AssertTrue(movement.Collided,
             $"{expected.Distance}-pixel native case collides with enemy or terrain");
         AssertEqual(expected.EnemyCollision, movement.EnemyCollision.HasValue,

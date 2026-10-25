@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// cadence already at zero borrows from the stage (reachable through the queue-selection-five reset, which leaves
 /// stage four with a zero cadence). The four stage tests below disagree for stages above four and are kept apart.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("Speed Booster counter word")]
 public readonly record struct SamusSpeedBoostCounter
 {
     /// <summary>The counter span of one stage: the cadence runs below it.</summary>

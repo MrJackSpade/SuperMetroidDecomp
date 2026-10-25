@@ -20,8 +20,8 @@ internal static class PauseMomentumVerification
         {
             var speed = new SamusHorizontalSpeedState
             {
-                BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000),
-                ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000),
+                BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000),
+                ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000),
                 SpeedBoostCounter = new SamusSpeedBoostCounter(0x0402),
                 SpecialPaletteFrame = 6,
                 SpecialPaletteTimer = WrappingCountdown.Start(3),

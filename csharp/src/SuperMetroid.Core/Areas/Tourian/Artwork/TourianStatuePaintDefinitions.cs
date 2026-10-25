@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>
@@ -10,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 internal static class TourianStatuePaintDefinitions
 {
     /// <summary>Native copied transparent-slot word at $AA:D765/D785 and $87:839C.</summary>
-    private static readonly Bgr555 TransparentSlotPayload = Bgr555.FromWord(0x3800);
+    private static readonly RgbColor TransparentSlotPayload = RgbColor.FromWord(0x3800);
     /// <summary>Maximum value of a five-bit RGB color channel.</summary>
     private const int Max = 31;
     /// <summary>$AA:D787: olive base highlight RGB(25,31,9), fading to black at color8.</summary>
@@ -46,7 +48,7 @@ internal static class TourianStatuePaintDefinitions
         GreyDarkRed = 31, GreyDarkGreen = 32, GreyDarkBlue = 39;
 
     /// <summary>Calculates one native palette word from the selected statue paint domain and color index.</summary>
-    internal static Bgr555 Color(TourianStatuePaintBand band, int index) => band switch
+    internal static RgbColor Color(TourianStatuePaintBand band, int index) => band switch
     {
         TourianStatuePaintBand.Base => Base(index),
         TourianStatuePaintBand.Statue => Statue(index),
@@ -61,7 +63,7 @@ internal static class TourianStatuePaintDefinitions
     /// <summary>Interpolates an eight-bit stone channel and keeps its high five bits for CGRAM.</summary>
     private static int GreyChannel(int first, int last, int step) => (first * (6 - step) + last * step) / (6 * 8);
     /// <summary>Packs selected five-bit channel levels into a CGRAM color.</summary>
-    private static Bgr555 Pack(int r, int g, int b) => new Bgr555(r, g, b);
+    private static RgbColor Pack(int r, int g, int b) => new RgbColor(r, g, b);
     /// <summary>Interpolates a channel with nearest-integer rounding.</summary>
     private static int Nearest(int first, int last, int step, int count) =>
         (first * (count - step) + last * step + count / 2) / count;
@@ -70,7 +72,7 @@ internal static class TourianStatuePaintDefinitions
         step == 0 ? first : step == 2 ? last : (int)Math.Floor((first + last + 2 * Math.Sqrt(first * last)) / 4);
 
     /// <summary>Builds the base palette's olive ramp, shared eye colors, or neutral decorations.</summary>
-    private static Bgr555 Base(int color)
+    private static RgbColor Base(int color)
     {
         if (color == 0) return TransparentSlotPayload;
         if (color <= 8) return Pack(Nearest(BaseHighlightRed, 0, color - 1, 7),
@@ -81,7 +83,7 @@ internal static class TourianStatuePaintDefinitions
     }
 
     /// <summary>Builds the gold statue's glints, facets, whites, and yellow accents.</summary>
-    private static Bgr555 Statue(int color)
+    private static RgbColor Statue(int color)
     {
         if (color == 0) return TransparentSlotPayload;
         if (color is 1 or 2) return Pack(Max, Max, GoldGlintBlue / color);
@@ -94,13 +96,13 @@ internal static class TourianStatuePaintDefinitions
             return Pack(red, Math.Max(GoldGreenFloor, red - GoldGreenDrop), 0);
         }
         if (color <= 11) return Pack(Max, Max, Max);
-        if (color == 15) return Bgr555.Black;
+        if (color == 15) return RgbColor.Black;
         int yellow = color == 12 ? Max : YellowAccent / (color - 12);
         return Pack(yellow, yellow, 0);
     }
 
     /// <summary>Builds one of the four boss-eye glow ramps from its tint and shade index.</summary>
-    private static Bgr555 Eye(int boss, int color)
+    private static RgbColor Eye(int boss, int color)
     {
         if (color == 0) return boss switch
         {

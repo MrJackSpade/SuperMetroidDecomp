@@ -21,7 +21,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Raw native <c>SamusProjectile_BombDirections</c> word at <c>$0C0E + 2*Index</c>; any <c>$F0</c> kill-request bit clears the slot before its pre-instruction, and the <c>$10</c> collision marker also excludes Samus overlap.</summary>
     public int Direction { get; internal set; }
     /// <summary>Packed native projectile family/type word at <c>$0C22 + 2*Index</c>, preserving bomb, Power Bomb, spread, and status bits; use <see cref="PackedType"/> for semantic decoding.</summary>
-    [NativeWord("WRAM $0C22 projectile type word; PackedType decodes its bomb and status fields, and zero marks an empty slot")]
+    [PackedFields("WRAM $0C22 projectile type word; PackedType decodes its bomb and status fields, and zero marks an empty slot")]
     public int Type { get; internal set; }
     /// <summary>Lossless semantic view of the native projectile family/type word.</summary>
     public SamusProjectileTypeWord PackedType => new(checked((ushort)Type));
@@ -49,10 +49,10 @@ public sealed class SamusBombProjectileSlot
     public BombSpreadHorizontalVelocity BombSpreadHorizontal { get; internal set; }
 
     /// <summary>The spread bomb's signed 16.16 vertical velocity; Samus's gravity accelerates it every frame.</summary>
-    public SnesSignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
+    public SignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
 
     /// <summary>The upward launch velocity, signed 16.16, that a floor bounce restores.</summary>
-    public SnesSignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
+    public SignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
 
     /// <summary>
     /// The word called <c>projectile_variables[5+Index]</c> by bank $90 and
@@ -77,7 +77,7 @@ public sealed class SamusBombProjectileSlot
         BombTimer = WrappingCountdown.Start(0);
         IsBombSpread = false;
         BombSpreadHorizontal = default;
-        BombSpreadVerticalVelocity = SnesSignedSixteenSixteen.Zero;
-        BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.Zero;
+        BombSpreadVerticalVelocity = SignedSixteenSixteen.Zero;
+        BombSpreadLaunchVelocity = SignedSixteenSixteen.Zero;
     }
 }

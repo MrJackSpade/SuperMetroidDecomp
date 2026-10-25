@@ -32,14 +32,14 @@ internal static class Mode7GameplaySnapshotTestsVerification
         foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
             // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
-            var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<Mode7Pixels>(128, 96), new Offset16<Mode7Pixels>(-13, unchecked((short)scroll)));
-            var layer = new Mode7GameplayRenderLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, ToColors(palette)), AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), SnesPpuLayout.GameplayHudHeightPixels);
+            var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
+            var layer = new GameplayFloorRenderLayer(m, Layer3CellsFixtures.FromVram(fixtureVram.Bytes, ToColors(palette)), AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), SnesPpuLayout.GameplayHudHeightPixels);
             var packet = new DisplayPacket(new(++samples, 1, 0), new LayeredScene(memory, new RenderLayer[] { layer }, 15));
-            AssertEqual(layer, (Mode7GameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
+            AssertEqual(layer, (GameplayFloorRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                    new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
+                    new RenderLayer[] { new SpriteRenderLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
             }
         }
         // Retail room assets with explicitly constructed getaway registers exercise
@@ -51,21 +51,21 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
         (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).GetawayActive = true;
-        getaway.FloorMatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(33);
-        getaway.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SnesSignedEightEight.FromSignedRaw(240);
-        getaway.FloorCenter = new Position16<Mode7Pixels>(128, 120);
-        getaway.FloorOffset = new Offset16<Mode7Pixels>(7, 19);
+        getaway.FloorMatrixA = SignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SignedEightEight.FromSignedRaw(33);
+        getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
+        getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
+        getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        Rgba32[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
+        RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = new DisplayPacket(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.GetawayActive = false; getaway.FloorMatrixA = default;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Colours.AsPaletteColors().SetColor(i, new Bgr555(0, 0, 0));
+        for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Colours.AsPaletteColors().SetColor(i, new RgbColor(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
-        AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
-        AssertThrows<ArgumentOutOfRangeException>(() => new Mode7GameplayRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 32,
+        AssertThrows<ArgumentOutOfRangeException>(() => new GameplayFloorRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
+        AssertThrows<ArgumentOutOfRangeException>(() => new GameplayFloorRenderLayer(default, RoomBackgroundsFixtures.BlankBg3(), RoomBackgroundsFixtures.BlankMode7Floor(), 32,
             new Mode1FloorBand(31, new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32), RoomBackgroundsFixtures.Blank().Bg1)),
             "floor cannot overlap HUD");
         Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} matrix/scroll layers keep their registers; the Ridley packet is retained.");

@@ -24,6 +24,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -69,18 +70,18 @@ internal static void VerifyObjRendering()
     // One small tile-zero OBJ at (10,20), with caller-selected palette 2. Palette index
     // 128 + 2*16 + 1 is loaded with maximum red in native BGR555.
     SeedSingleSmallObjSpritemap(bus);
-    cgram.SetColor(128 + 2 * 16 + 1, Bgr555.FromWord(0x001f));
+    cgram.SetColor(128 + 2 * 16 + 1, RgbColor.FromWord(0x001f));
     oam.BeginFrame();
     DrawImportedSpritemap(bus, oam, 0x818000, origin: new(10, 20), paletteBits: 0x0400);
     oam.FinalizeFrame();
 
     // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
     // the display renderer then shows that draw over the backdrop.
-    Rgba32[] backdrop = DisplayRendering.Render(new LayeredScene(
-        new FramePaint(cgram.Colors, []), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
-    Rgba32[] pixels = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
-    AssertEqual(new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
+    RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(
+        new FramePaint(cgram.Colors, []), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
+    RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
+    AssertEqual(new SuperMetroid.Core.Assets.RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
     // OBJ priority controls only the winning sprite pixel's position relative to BGs.
@@ -89,15 +90,15 @@ internal static void VerifyObjRendering()
     // the hidden boss is painted over Samus. Distinct palettes make the winner observable
     // without private ROM art; both entries deliberately use the same one-pixel tile and
     // screen coordinate.
-    cgram.SetColor(128 + 3 * 16 + 1, Bgr555.FromWord(0x03e0));
+    cgram.SetColor(128 + 3 * 16 + 1, RgbColor.FromWord(0x03e0));
     oam.BeginFrame();
-    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
-    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
+    oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
+    oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
-    Rgba32[] overlap = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+    RgbaPixel[] overlap = DisplayRendering.Render(new LayeredScene(
+        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new RenderLayer[] { new SpriteRenderLayer() }, FadeLevel.Full));
     AssertEqual(
-        new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0),
+        new SuperMetroid.Core.Assets.RgbaPixel(255, 0, 0),
         overlap[20 * 256 + 10],
         "lower-OAM OBJ2 wins cross-priority overlap");
 
@@ -499,8 +500,8 @@ internal static void VerifyMovedSamusCameraTracking()
     // The complete fixed-point difference matters: 200.8000 -> 201.4000 is +0.C000;
     // adding 1.0 yields a camera delta of 1.C000.
     camera.SetPosition(new Position16<RoomPixels>(100, 0));
-    previous = previous.WithX(new SnesFixedPosition(200, 0x8000));
-    current = current.WithX(new SnesFixedPosition(201, 0x4000));
+    previous = previous.WithX(new FixedCoordinate(200, 0x8000));
+    current = current.WithX(new FixedCoordinate(201, 0x4000));
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
@@ -934,13 +935,13 @@ internal static void VerifyBg2ScreenLayout()
     // Leave character zero transparent because empty BG1 map words select it above BG2.
     gameplayVram.LoadBytes(0x0020, redCharacter);
     gameplayVram.LoadBytes(0x0040, blueCharacter);
-    gameplayCgram.SetColor(2 * 16 + 1, Bgr555.FromWord(0x001f));
-    gameplayCgram.SetColor(3 * 16 + 1, Bgr555.FromWord(0x7c00));
+    gameplayCgram.SetColor(2 * 16 + 1, RgbColor.FromWord(0x001f));
+    gameplayCgram.SetColor(3 * 16 + 1, RgbColor.FromWord(0x7c00));
     gameplayVram.ExecuteWordTransfer([0x0801], destinationWord: 0x4800, wordIncrement: 1);
     gameplayVram.ExecuteWordTransfer([0x0801, 0x0c02], destinationWord: 0x4c00, wordIncrement: 1);
     var horizontalByLine = new ushort[DisplayScreen.Height - DisplayScreen.HudHeight];
     horizontalByLine[0] = 8;
-    Rgba32[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
+    RgbaPixel[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
                 new Extent16<TilemapCells>(32, 64), ScreenLayers.Bg1 | ScreenLayers.Bg2 | ScreenLayers.Sprites),
@@ -950,7 +951,7 @@ internal static void VerifyBg2ScreenLayout()
                 Bg2Image = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
             },
             new Bg2LineScrolls(horizontalByLine, default)));
-    AssertEqual(new Rgba32(0, 0, 255),
+    AssertEqual(new RgbaPixel(0, 0, 255),
         gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
 
@@ -974,14 +975,14 @@ internal static void VerifyBg2ScreenLayout()
                 BossBg2 = RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors, kraidBg2BaseWord,
                     new Extent16<TilemapCells>(64, 64)),
             }));
-    AssertEqual(new Rgba32(255, 0, 0),
+    AssertEqual(new RgbaPixel(255, 0, 0),
         gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");
 
     Console.WriteLine("  BG render: BGSC geometry agrees.");
 
     // The frame the display renderer draws of the gameplay layer alone, with no sprites.
-    static Rgba32[] RenderOrdinaryGameplay(SnesCgram cgram, OrdinaryGameplayRenderLayer layer) =>
+    static RgbaPixel[] RenderOrdinaryGameplay(SnesCgram cgram, OrdinaryGameplayRenderLayer layer) =>
         DisplayRendering.Render(new LayeredScene(new FramePaint(cgram.Colors, []), new RenderLayer[] { layer }, FadeLevel.Full));
 }
 

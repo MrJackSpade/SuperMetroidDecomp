@@ -20,6 +20,6 @@ internal static class SpacetimeBeamGraphicsDefinitions
     internal static void LoadPalette(ColourRun beam)
     {
         for (int color = 0; color < SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount; color++)
-            beam.Write(color, Bgr555.FromCgramPortWord(PaletteWord));
+            beam.Write(color, RgbColor.FromCgramPortWord(PaletteWord));
     }
 }

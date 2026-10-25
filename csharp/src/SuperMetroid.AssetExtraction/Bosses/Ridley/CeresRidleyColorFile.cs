@@ -24,23 +24,23 @@ public static class CeresRidleyColorFile
         if (!Enum.IsDefined(version) ||
             version != CeresRidleyColorVersion.Current && stockForLegacyOverride is null)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
-        Bgr555[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeRowCount,
+        RgbColor[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyPaletteDefinitions.BodyFadeRowCount,
             CeresRidleyPaletteDefinitions.BodyFadeColorCount, "body fade");
-        Bgr555[] start = Compile(document.Start, CeresRidleyPaletteDefinitions.StartColorCount, "start");
-        Bgr555[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeRowCount,
+        RgbColor[] start = Compile(document.Start, CeresRidleyPaletteDefinitions.StartColorCount, "start");
+        RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyPaletteDefinitions.EyeFadeRowCount,
             CeresRidleyPaletteDefinitions.EyeFadeColorCount, "eye fade");
-        Bgr555[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthRowCount,
+        RgbColor[][] health = CompileRows(document.Health, CeresRidleyPaletteDefinitions.HealthRowCount,
             CeresRidleyPaletteDefinitions.HealthColorCount, "health");
         // A legacy override predates the alarm (and, before version two, the Baby) colours; the
         // version check above guarantees stock is supplied for the catalog to inherit them from.
-        Bgr555[][]? alarm = version != CeresRidleyColorVersion.Current
+        RgbColor[][]? alarm = version != CeresRidleyColorVersion.Current
             ? null
             : CompileRows(document.Alarm, CeresRidleyPaletteDefinitions.AlarmRowCount,
                 CeresRidleyPaletteDefinitions.AlarmColorCount, "alarm");
-        Bgr555[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteDefinitions.RetreatBgColorCount, "retreat BG");
-        Bgr555[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
+        RgbColor[] retreatBg = Compile(document.RetreatBg, CeresRidleyPaletteDefinitions.RetreatBgColorCount, "retreat BG");
+        RgbColor[] retreatShared = Compile(document.RetreatShared, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             "retreat shared");
-        Bgr555[][]? baby = version == CeresRidleyColorVersion.PreBaby
+        RgbColor[][]? baby = version == CeresRidleyColorVersion.PreBaby
             ? null
             : CompileRows(document.Baby, CeresRidleyPaletteDefinitions.BabyRowCount,
                 CeresRidleyPaletteDefinitions.BabyColorCount, "Baby");
@@ -56,18 +56,18 @@ public static class CeresRidleyColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
-    private static Bgr555[][] CompileRows(PaletteRgb5[][]? rows, int count,
+    private static RgbColor[][] CompileRows(PaletteRgb5[][]? rows, int count,
         int colorsPerRow, string name)
     {
         if (rows is null || rows.Length != count)
             throw new InvalidDataException($"Ceres Ridley {name} requires {count} rows.");
-        var compiled = new Bgr555[count][];
+        var compiled = new RgbColor[count][];
         for (int row = 0; row < count; row++)
             compiled[row] = Compile(rows[row], colorsPerRow, $"{name} row {row}");
         return compiled;
     }
 
     /// <summary>Converts an exact-width RGB5 row to BGR555 after rejecting missing colors and channels outside five-bit range.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name) =>
+    private static RgbColor[] Compile(PaletteRgb5[]? colors, int count, string name) =>
         Rgb5Rows.Compile(colors, count, $"Ceres Ridley {name}");
 }

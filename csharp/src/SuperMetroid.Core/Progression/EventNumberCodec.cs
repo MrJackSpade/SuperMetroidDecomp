@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The single conversion between a named <see cref="EventNumber"/> and its bit in the persistent event table that save
 /// slots, the shared progression state and room-state selection read. Nothing else turns an event into a bit index.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("save slot event table")]
 public static class EventNumberCodec
 {
     /// <summary>The bit of the event table that records <paramref name="eventNumber"/>.</summary>

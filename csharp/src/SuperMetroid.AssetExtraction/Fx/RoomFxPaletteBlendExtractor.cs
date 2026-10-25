@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
@@ -22,15 +23,15 @@ public static class RoomFxPaletteBlendExtractor
         var blends = new Dictionary<string, PaletteRgb5[]>();
         foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDefinitions.Ids)
         {
-            Bgr555? calculatedThird = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id);
+            RgbColor? calculatedThird = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id);
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 RoomFxLayer3TilemapSources.PaletteBlend(id),
                 (calculatedThird.HasValue ? 2 : RoomFxPaletteBlendDefinitions.ColorCount) * sizeof(ushort));
             var colors = new PaletteRgb5[RoomFxPaletteBlendDefinitions.ColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                Bgr555 stored = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
-                    : Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * Bgr555.ByteCount)));
+                RgbColor stored = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
+                    : RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * RgbColor.ByteCount)));
                 int red = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairRed(id, index == 0) ?? stored.Red : stored.Red;
                 int green = index < 2 ? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(id, red, index == 0) ?? stored.Green : RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(id) ?? stored.Green;
                 colors[index] = new PaletteRgb5

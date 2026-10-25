@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="IPaletteColors"/> reads production does not make.</summary>
@@ -7,6 +9,6 @@ internal static class PaletteColorsAccess
     extension(IPaletteColors self)
     {
         /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
-        public Rgba32 GetRgba(int index) => self.Colors[index].ToRgba32();
+        public RgbaPixel GetRgba(int index) => self.Colors[index].ToRgbaPixel();
     }
 }

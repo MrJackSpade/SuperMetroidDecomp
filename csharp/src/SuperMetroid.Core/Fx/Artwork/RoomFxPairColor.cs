@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
@@ -15,7 +17,7 @@ internal sealed class RoomFxPairColor
     internal readonly int? blueOverride;
 
     /// <summary>Stores only RGB components that depart from a selector's shared tint rules.</summary>
-    public RoomFxPairColor(RoomFxPaletteBlend selection, Bgr555 color, RoomFxPairMember member)
+    public RoomFxPairColor(RoomFxPaletteBlend selection, RgbColor color, RoomFxPairMember member)
     {
         this.selection = selection;
         this.isPrimary = member == RoomFxPairMember.Primary;
@@ -26,7 +28,7 @@ internal sealed class RoomFxPairColor
     }
 
     /// <summary>Rebuilds the ink from retained edits and any still-applicable shared tint rules.</summary>
-    public Bgr555 CreateColor()
+    public RgbColor CreateColor()
     {
         int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary) ??
             throw new InvalidOperationException("A blend color without a red edit has a calculated red.");
@@ -34,6 +36,6 @@ internal sealed class RoomFxPairColor
             throw new InvalidOperationException("A blend color without a green edit has a calculated green.");
         int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary) ??
             throw new InvalidOperationException("A blend color without a blue edit has a calculated blue.");
-        return new Bgr555(red, green, blue);
+        return new RgbColor(red, green, blue);
     }
 }

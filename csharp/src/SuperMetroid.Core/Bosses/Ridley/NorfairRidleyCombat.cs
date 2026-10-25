@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -114,8 +115,8 @@ internal sealed class NorfairRidleyCombat
         (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))
             .ApplyInitial(_presentation.Colours);
-        _presentation.BossColours().NorfairRidleyBody.Fill(Bgr555.Black);
-        _presentation.BossColours().NorfairRidleyTail.Fill(Bgr555.Black);
+        _presentation.BossColours().NorfairRidleyBody.Fill(RgbColor.Black);
+        _presentation.BossColours().NorfairRidleyTail.Fill(RgbColor.Black);
     }
 
     /// <summary>
@@ -183,7 +184,7 @@ internal sealed class NorfairRidleyCombat
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
         state.SwoopPhaseTimer = WrappingCountdown.Start(32);
-        state.SwoopAngleAccumulator = SnesAngle.Zero;
+        state.SwoopAngleAccumulator = RotationAngle.Zero;
     }
 
     /// <summary>Advances the swoop velocity arc and changes phase when its timer expires.</summary>
@@ -302,7 +303,7 @@ internal sealed class NorfairRidleyCombat
         if (samus is not null && SamusMovementUsesRidleyGrab(samus) &&
             RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(4, 4)))
         {
-            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-Math.Max(
+            state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-Math.Max(
                 512,
                 Math.Abs((int)state.Velocity.Y.SignedRawValue)))));
             state.TailFunctionIndex = RidleyTailFunction.Neutral;
@@ -312,7 +313,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoDownwardAcceleration;
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)Math.Min(nextVertical, 1536))));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)Math.Min(nextVertical, 1536))));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state, level))
             return;
@@ -356,12 +357,12 @@ internal sealed class NorfairRidleyCombat
         int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoUpwardAcceleration;
         if (nextVertical >= 0)
         {
-            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0));
+            state.Velocity = state.Velocity.WithY(new SignedEightEight(0));
             state.Function = RidleyAiFunction.NorfairFireballAttack;
         }
         else
         {
-            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)nextVertical)));
+            state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)nextVertical)));
         }
     }
 
@@ -378,9 +379,9 @@ internal sealed class NorfairRidleyCombat
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
         state.Velocity = state.Velocity.WithY(definition.Velocity.Y);
-        SnesSignedEightEight horizontal = definition.Velocity.X;
+        SignedEightEight horizontal = definition.Velocity.X;
         state.Velocity = state.Velocity.WithX(state.Velocity.X.SignedRawValue < 0
-            ? SnesSignedEightEight.FromSignedRaw(unchecked((short)-horizontal.SignedRawValue))
+            ? SignedEightEight.FromSignedRaw(unchecked((short)-horizontal.SignedRawValue))
             : horizontal);
     }
 
@@ -419,7 +420,7 @@ internal sealed class NorfairRidleyCombat
         if (RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(8, 12)))
         {
             // $A6:BB56-$BB5D reverses the lunge before the carry setup accelerates.
-            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.Y.RawValue)));
+            state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-state.Velocity.Y.RawValue)));
             BeginNorfairRidleyGrab(slot, state, samus);
         }
     }
@@ -635,7 +636,7 @@ internal sealed class NorfairRidleyCombat
     internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
         if (state.Velocity.X.RawValue == 0)
-            state.Velocity = state.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(SnesLittleEndian.LowByte(slot.Position.X.Whole) < 128 ? (short)192 : (short)-192));
+            state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(SnesLittleEndian.LowByte(slot.Position.X.Whole) < 128 ? (short)192 : (short)-192));
         bool negative = state.Velocity.X.SignedRawValue < 0;
         bool reverse;
         if ((short)(slot.Position.X.Whole - state.MovementMinimum.X) < 0) reverse = negative;
@@ -645,6 +646,6 @@ internal sealed class NorfairRidleyCombat
             bool oppositeSigns = ((ushort)(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.Velocity.X.RawValue) > short.MaxValue;
             reverse = oppositeSigns ? _room.Random.Read() < 1365 : _room.Random.Read() >= 1365;
         }
-        if (reverse) state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.RawValue)));
+        if (reverse) state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.RawValue)));
     }
 }

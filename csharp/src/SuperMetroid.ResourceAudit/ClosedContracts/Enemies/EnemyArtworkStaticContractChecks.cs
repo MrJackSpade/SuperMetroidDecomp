@@ -20,7 +20,6 @@ internal static class EnemyArtworkStaticContractChecks
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Enemies.Artwork;
-            using SuperMetroid.Core.Hardware;
             class EnemyArtworkConsumer {
                 void Inspect(EnemyTileArtworkCatalog art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer,
                     VramRegion vram, SuperMetroid.Core.Assets.ColourRun cgram) {

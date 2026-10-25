@@ -18,7 +18,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
     internal readonly ColorFade fade;
 
     /// <summary>Copies compiled images into immutable catalog-owned palette views.</summary>
-    internal BabyMetroidCutsceneColorCatalog(Bgr555[] initial, Bgr555[][] fade)
+    internal BabyMetroidCutsceneColorCatalog(RgbColor[] initial, RgbColor[][] fade)
     {
         this.initial = new(initial);
         this.fade = new(fade);
@@ -28,14 +28,14 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// <param name="color">Zero-based image index from zero through 14, corresponding to colors 1..15 of OBJ palette seven; the transparent slot is excluded.</param>
     /// <returns>The image color.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="color"/> is outside the fifteen-color initial image.</exception>
-    public Bgr555 InitialColor(int color) => initial.Resolve(color);
+    public RgbColor InitialColor(int color) => initial.Resolve(color);
 
     /// <summary>Resolves one displayed death fade-to-black color from native <c>BabyMetroidFadingToBlackPalettes_1</c> through <c>_6</c> at <c>$AD:E90C-$E9B3</c>, without advancing the fade timer.</summary>
     /// <param name="paletteIndex">One-based displayed image selector from one through six; the unused native image zero is not installed.</param>
     /// <param name="color">Zero-based image index from zero through 13, corresponding to OBJ palette seven colors 1..14; transparent color zero and black color 15 are excluded.</param>
     /// <returns>The selected image color, retaining independently supplied artwork edits.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Either selector is outside the installed fade images; the exception names <paramref name="paletteIndex"/> for both invalid cases.</exception>
-    public Bgr555 FadeColor(int paletteIndex, int color) =>
+    public RgbColor FadeColor(int paletteIndex, int color) =>
         paletteIndex is >= 1 and <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount &&
         (uint)color < BabyMetroidCutsceneColorDefinitions.FadeColorCount
             ? fade.Resolve(paletteIndex - 1, color)
@@ -48,10 +48,10 @@ public sealed class BabyMetroidCutsceneColorCatalog
     internal sealed class ColorFade
     {
         /// <summary>Stores edited rows only when they differ from the native final-health fade formula.</summary>
-        internal readonly Bgr555[][]? supplied;
+        internal readonly RgbColor[][]? supplied;
 
         /// <summary>Uses the native composition for stock rows and retains any independently authored edits.</summary>
-        internal ColorFade(Bgr555[][] frames)
+        internal ColorFade(RgbColor[][] frames)
         {
             for (int frame = 0; frame < frames.Length; frame++)
             for (int color = 0; color < frames[frame].Length; color++)
@@ -63,13 +63,13 @@ public sealed class BabyMetroidCutsceneColorCatalog
         }
 
         /// <summary>Retrieves one displayed color from edited rows or the native composition.</summary>
-        internal Bgr555 Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        internal RgbColor Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
         /// <summary>Looks up the matching final-health paint before applying fade intensity.</summary>
-        internal static Bgr555 Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
+        internal static RgbColor Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
 
         /// <summary>Scales each RGB5 channel by the native remaining-sevenths intensity.</summary>
-        private static Bgr555 Calculate(int frame, int color)
+        private static RgbColor Calculate(int frame, int color)
         {
             int remaining = BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1 - frame;
             int intervals = BabyMetroidCutsceneColorDefinitions.FadeFrameCount + 1;
@@ -80,7 +80,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
         internal void AppendIdentity(SelectedPresentationHash content)
         {
             content.Append("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount);
-            Span<Bgr555> row = stackalloc Bgr555[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
+            Span<RgbColor> row = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.FadeColorCount];
             for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);

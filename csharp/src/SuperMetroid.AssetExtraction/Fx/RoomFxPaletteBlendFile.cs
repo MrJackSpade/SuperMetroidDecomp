@@ -31,14 +31,14 @@ public static class RoomFxPaletteBlendFile
             if (!document.Blends.TryGetValue(RoomFxPaletteBlendDefinitions.Key(id), out PaletteRgb5[]? colors) ||
                 colors is null || colors.Length != RoomFxPaletteBlendDefinitions.ColorCount)
                 throw new InvalidDataException($"Room-FX blend {id} requires three colors.");
-            var words = new Bgr555[colors.Length];
+            var words = new RgbColor[colors.Length];
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5? color = colors[index];
                 if (color is null || (uint)color.Red > 31 ||
                     (uint)color.Green > 31 || (uint)color.Blue > 31)
                     throw new InvalidDataException($"Room-FX blend {id} color {index} requires RGB components from zero through 31.");
-                words[index] = color.ToBgr555();
+                words[index] = color.ToRgbColor();
             }
             return new(id, words[0], words[1], words[2]);
         }
@@ -51,11 +51,11 @@ public static class RoomFxPaletteBlendFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>The authored Ceres fixed-color tint, or the cartridge tint an older document omits; rejects a component outside RGB5 range.</summary>
-    private static Bgr555 HazeTint(PaletteRgb5? color, Bgr555 stock, string name)
+    private static RgbColor HazeTint(PaletteRgb5? color, RgbColor stock, string name)
     {
         if (color is null) return stock;
         if ((uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
             throw new InvalidDataException($"{name} requires RGB components from zero through 31.");
-        return color.ToBgr555();
+        return color.ToRgbColor();
     }
 }

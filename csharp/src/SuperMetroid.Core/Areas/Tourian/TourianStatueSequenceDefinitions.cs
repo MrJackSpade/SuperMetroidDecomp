@@ -10,7 +10,7 @@ public static class TourianStatueSequenceDefinitions
     public const int DescentDelay = 300;
 
     /// <summary>How far the statue lowers each update: a quarter of a pixel, as a 16.16 distance.</summary>
-    public static readonly int DescentStep = SnesSixteenSixteen.FromWhole(1) / 4;
+    public static readonly int DescentStep = SixteenSixteen.FromWhole(1) / 4;
 
     /// <summary>The pixels the statue lowers before the descent completes.</summary>
     public const int DescentDistance = 240;

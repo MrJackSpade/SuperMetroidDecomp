@@ -44,29 +44,29 @@ internal static class StatueSplashVerification
             AssertEqual(nativeY, particle.Velocity.Y.RawValue, $"native launch gravity for random {random}");
             // Children run later in the same descending pool pass, so seed the
             // subsequent integration from the already-advanced production position.
-            int x = (SnesSixteenSixteen.FromWhole(particle.Position.X.Whole)) | particle.Position.X.Fraction;
-            int y = (SnesSixteenSixteen.FromWhole(particle.Position.Y.Whole)) | particle.Position.Y.Fraction;
+            int x = (SixteenSixteen.FromWhole(particle.Position.X.Whole)) | particle.Position.X.Fraction;
+            int y = (SixteenSixteen.FromWhole(particle.Position.Y.Whole)) | particle.Position.Y.Fraction;
             short vy = unchecked((short)particle.Velocity.Y.RawValue);
             bool crossed = false;
             for (int frame = 0; frame < 200 && particle.IsActive; frame++)
             {
-                int previousY = unchecked((ushort)SnesSixteenSixteen.WholeOf(y));
-                x = unchecked(x + SnesSixteenSixteen.FromEightEight(unchecked((short)nativeX)));
-                y = unchecked(y + SnesSixteenSixteen.FromEightEight(vy));
-                bool crosses = (((216 - previousY) ^ (216 - unchecked((ushort)SnesSixteenSixteen.WholeOf(y)))) & 0x8000) != 0;
+                int previousY = unchecked((ushort)SixteenSixteen.WholeOf(y));
+                x = unchecked(x + SixteenSixteen.FromEightEight(unchecked((short)nativeX)));
+                y = unchecked(y + SixteenSixteen.FromEightEight(vy));
+                bool crosses = (((216 - previousY) ^ (216 - unchecked((ushort)SixteenSixteen.WholeOf(y)))) & 0x8000) != 0;
                 enemies.StepEnemyProjectiles(assets.LevelData, null);
                 if (crosses)
                 {
                     var splash = enemies.Projectiles.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
                     AssertTrue(splash is not null, "surface crossing spawned splash");
-                    AssertEqual(SnesFixedPosition.WholeOf(x), (splash ?? throw new InvalidOperationException("Verification requires splash.")).Position.X.Whole, "splash X follows native particle trajectory");
+                    AssertEqual(FixedCoordinate.WholeOf(x), (splash ?? throw new InvalidOperationException("Verification requires splash.")).Position.X.Whole, "splash X follows native particle trajectory");
                     AssertEqual(212, splash.Position.Y.Whole, "splash is four pixels above water surface");
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
                     foreach (var other in enemies.Projectiles.EnemyProjectiles)
                         if (other != splash) other.Kind = 0;
                     int visibleFrames = 0;
-                    ushort splashX = SnesFixedPosition.WholeOf(x);
+                    ushort splashX = FixedCoordinate.WholeOf(x);
                     for (int age = 0; age < 64 && splash.IsActive; age++)
                     {
                         var expectedOam = new OamBuffer();

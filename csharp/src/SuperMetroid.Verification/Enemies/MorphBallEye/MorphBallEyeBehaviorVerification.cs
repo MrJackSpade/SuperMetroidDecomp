@@ -81,7 +81,7 @@ internal static class MorphBallEyeBehaviorVerification
             AssertEqual(update == widths.Length - 1 ? MorphBallEyeBeamPhase.Full : MorphBallEyeBeamPhase.Widening, beam.Phase,
                 $"eye beam phase after widening update {update + 1}");
         }
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(MorphBallEyeBeamDefinitions.FullAngularWidth, MorphBallEyeBeamDefinitions.WidthGrowthStep.Fraction),
+        AssertEqual(SignedSixteenSixteen.FromParts(MorphBallEyeBeamDefinitions.FullAngularWidth, MorphBallEyeBeamDefinitions.WidthGrowthStep.Fraction),
             beam.AngularHalfWidth, "a full beam keeps the fraction it overshot with");
 
         beam.Phase = MorphBallEyeBeamPhase.Deactivating;

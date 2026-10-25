@@ -28,14 +28,14 @@ internal static class Mode7TileSheetComposer
         var tiles = new byte[BgCharacterSet.Tiles.CharacterCount() * BgCharacterSet.Tiles.CharacterBytes()];
         foreach (BgArtworkBinding binding in content.Bound.Where(binding => binding.Set == BgCharacterSet.Tiles))
             binding.Bytes.Span.CopyTo(tiles.AsSpan(binding.FirstCharacter * BgCharacterSet.Tiles.CharacterBytes()));
-        Bgr555[] background = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
+        RgbColor[] background = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
         var loaded = new ScreenPalette();
         inputs.Objects.Palettes.LoadInitial(loaded);
         inputs.Objects.Palettes.LoadCommonSprites(loaded.SpriteRow(SpriteColourSetDefinitions.Common));
         inputs.Objects.Palettes.LoadEnemyProjectileSprites(loaded.SpriteRow(SpriteColourSetDefinitions.EnemyProjectiles));
-        var colours = new Bgr555[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
+        var colours = new RgbColor[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
         loaded.Colors.CopyTo(colours);
         background.CopyTo(colours, 0);
         SpritePaletteRows coloured = SpritePaletteRows.None;

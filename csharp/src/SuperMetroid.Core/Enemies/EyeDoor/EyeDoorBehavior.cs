@@ -277,9 +277,9 @@ internal sealed class EyeDoorBehavior
         }
 
         int angle = projectile.Variable0 >> 1;
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
             ReadEyeDoorAcceleration(angle)))));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue +
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue +
             ReadEyeDoorAcceleration(angle - 64)))));
 
         SharedGameState system = _eyeDoorProjectileSystem ??
@@ -304,13 +304,13 @@ internal sealed class EyeDoorBehavior
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 12))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 12))));
     }
 
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
     internal static short ReadEyeDoorAcceleration(int tableIndex)
     {
-        int sample = EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)tableIndex)));
+        int sample = EnemyTrigonometryTables.SignedSine(unchecked(new ByteAngle((byte)tableIndex)));
         return unchecked((short)(sample >> 4));
     }
 
@@ -352,8 +352,8 @@ internal sealed class EyeDoorBehavior
         projectile.Variable0 = unchecked((ushort)(2 * EnemyMath.CalculateBearing(
             new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue));
         int angle = projectile.Variable0 >> 1;
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)angle)))));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new SnesByteAngle((byte)(angle - 64))))));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)angle)))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine(new ByteAngle((byte)(angle - 64))))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
@@ -361,7 +361,7 @@ internal sealed class EyeDoorBehavior
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        SnesFixedPosition moved = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta()).X;
+        FixedCoordinate moved = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta()).X;
         int edge = unchecked((short)projectile.Velocity.X.RawValue) < 0
             ? unchecked((ushort)(moved.Whole - projectile.Radius.X))
             : unchecked((ushort)(moved.Whole + projectile.Radius.X - 1));
@@ -405,7 +405,7 @@ internal sealed class EyeDoorBehavior
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        SnesFixedPosition moved = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).Y;
+        FixedCoordinate moved = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).Y;
         int edge = unchecked((short)projectile.Velocity.Y.RawValue) < 0
             ? unchecked((ushort)(moved.Whole - projectile.Radius.Y))
             : unchecked((ushort)(moved.Whole + projectile.Radius.Y - 1));

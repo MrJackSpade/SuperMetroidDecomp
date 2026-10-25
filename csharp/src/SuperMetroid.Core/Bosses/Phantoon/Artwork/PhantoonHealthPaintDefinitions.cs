@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>
@@ -35,10 +37,10 @@ internal static class PhantoonHealthPaintDefinitions
     private const int CoolChannelNumeratorBias = 1;
 
     /// <summary>Blends one material ink toward red using the selected health band and cool-channel quantization bias.</summary>
-    internal static Bgr555 Color(int band, int ink)
+    internal static RgbColor Color(int band, int ink)
     {
         if ((uint)band >= 8) throw new ArgumentOutOfRangeException(nameof(band));
-        Bgr555 healthy = Healthy(ink);
+        RgbColor healthy = Healthy(ink);
         int weight = MinimumWeight + band;
         int red = (31 * WeightDenominator + ((healthy.Red) - 31) * weight) / WeightDenominator;
         int green = ((healthy.Green) * weight + CoolChannelNumeratorBias) / WeightDenominator;
@@ -47,9 +49,9 @@ internal static class PhantoonHealthPaintDefinitions
     }
 
     /// <summary>Chooses the untinted hide, pupil, iris, or eye-surround material shade.</summary>
-    private static Bgr555 Healthy(int ink) => ink switch
+    private static RgbColor Healthy(int ink) => ink switch
     {
-        0 => Bgr555.Black,
+        0 => RgbColor.Black,
         1 => Olive(HideGlint, HideGlintBlue),
         2 => Olive(HideGlint * HideMidNumerator / HideMidDenominator,
             HideGlintBlue * HideMidNumerator / HideMidDenominator),
@@ -63,15 +65,15 @@ internal static class PhantoonHealthPaintDefinitions
     };
 
     /// <summary>Calculates the olive body ramp with a clipped red-green floor and gamma-spaced blue.</summary>
-    private static Bgr555 BodyShade(int shade) => Olive(
+    private static RgbColor BodyShade(int shade) => Olive(
         Math.Max(OliveFloor, OlivePeak - OliveStep * shade),
         GammaShade(OlivePeak - YellowSeparation, OliveFloor - YellowSeparation, shade, 3));
     /// <summary>Calculates iris shades with their own channel step and blue endpoints.</summary>
-    private static Bgr555 IrisShade(int shade) => Olive(
+    private static RgbColor IrisShade(int shade) => Olive(
         Math.Max(IrisFloor, OlivePeak - IrisStep * shade),
         GammaShade(IrisBlueLight, IrisBlueDark, shade, 2));
     /// <summary>Calculates the saturated red eye surround and its clipped blue falloff.</summary>
-    private static Bgr555 SurroundShade(int shade) => Rgb(
+    private static RgbColor SurroundShade(int shade) => Rgb(
         (SurroundLight * (2 - shade) + SurroundDark * shade + 1) / 2,
         0, Math.Max(0, SurroundBlue - SurroundBlueStep * shade));
     /// <summary>Interpolates channel intensity in gamma-two space and rounds the interior shade.</summary>
@@ -83,7 +85,7 @@ internal static class PhantoonHealthPaintDefinitions
         return (int)Math.Floor(intensity * intensity + 0.5);
     }
     /// <summary>Uses equal red and green channels for Phantoon's olive materials.</summary>
-    private static Bgr555 Olive(int intensity, int blue) => Rgb(intensity, intensity, blue);
+    private static RgbColor Olive(int intensity, int blue) => Rgb(intensity, intensity, blue);
     /// <summary>Forms one five-bit material color from its calculated channels.</summary>
-    private static Bgr555 Rgb(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static RgbColor Rgb(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

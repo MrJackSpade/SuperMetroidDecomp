@@ -29,17 +29,17 @@ public static class SamusChargeColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Requires three suits and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>
-    private static Bgr555[][][] CompileCharge(PaletteRgb5[][][]? source, string name)
+    private static RgbColor[][][] CompileCharge(PaletteRgb5[][][]? source, string name)
     {
         if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
             throw new InvalidDataException($"{name} requires three suits.");
-        var result = new Bgr555[source.Length][][];
+        var result = new RgbColor[source.Length][][];
         for (int suit = 0; suit < source.Length; suit++)
         {
             PaletteRgb5[][]? phases = source[suit];
             if (phases is null || phases.Length != SamusChargeColorFormat.PhasesPerSuit)
                 throw new InvalidDataException($"{name} suit {suit} requires six phases.");
-            result[suit] = new Bgr555[phases.Length][];
+            result[suit] = new RgbColor[phases.Length][];
             for (int phase = 0; phase < phases.Length; phase++)
                 result[suit][phase] = CompileColors(phases[phase],
                     $"{name} suit {suit}, phase {phase}");
@@ -63,18 +63,18 @@ public static class SamusChargeColorFile
     }
 
     /// <summary>Requires all sixteen palette slots and five-bit RGB channels before packing a row as BGR555.</summary>
-    private static Bgr555[] CompileColors(PaletteRgb5[]? source, string name)
+    private static RgbColor[] CompileColors(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusChargeColorFormat.ColorsPerPalette)
             throw new InvalidDataException($"{name} requires sixteen colors.");
-        var result = new Bgr555[source.Length];
+        var result = new RgbColor[source.Length];
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? rgb = source[index];
             if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException($"{name} color {index} requires RGB5 channels 0..31.");
-            result[index] = rgb.ToBgr555();
+            result[index] = rgb.ToRgbColor();
         }
         return result;
     }

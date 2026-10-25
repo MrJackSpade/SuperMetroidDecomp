@@ -44,8 +44,8 @@ internal static class CrystalFlashVisualsVerification
         var mutedMemory = new FramePaint(colors, packet.Paint.SpriteDraws);
         var mutedBody = DisplayRendering.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));
-        int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.X;
-        int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.Y;
+        int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.X;
+        int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,
             "visual fixture keeps the entire Crystal Flash sprite in the viewport");
         bool bodyVisible = Enumerable.Range(centerY - 32, 64)

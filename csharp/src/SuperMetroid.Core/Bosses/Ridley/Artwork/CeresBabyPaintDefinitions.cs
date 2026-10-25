@@ -29,10 +29,10 @@ internal sealed class CeresBabyPaintDefinitions
     /// <summary>Independent dome and outline inputs retained from the supplied first row.</summary>
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
     /// <summary>Supplied colors that depart from the calculated material composition.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Matches four Ceres pose rows to shared body paint while preserving independent color edits.</summary>
-    internal CeresBabyPaintDefinitions(Bgr555[][] rows, CeresRidleyFadeColorDefinitions body)
+    internal CeresBabyPaintDefinitions(RgbColor[][] rows, CeresRidleyFadeColorDefinitions body)
         : this(rows[0], 4)
     {
         this.body = body;
@@ -42,7 +42,7 @@ internal sealed class CeresBabyPaintDefinitions
     }
 
     /// <summary>The same material at Norfair Ridley $A6:E1F1-E20E, with its own supplied values.</summary>
-    internal CeresBabyPaintDefinitions(ReadOnlySpan<Bgr555> initial)
+    internal CeresBabyPaintDefinitions(ReadOnlySpan<RgbColor> initial)
         : this(initial, 1)
     {
         standaloneBody = new(initial[4], initial[5], initial[6]);
@@ -51,7 +51,7 @@ internal sealed class CeresBabyPaintDefinitions
     }
 
     /// <summary>Extracts glass, dome, and outline material inputs from a fifteen-color source row.</summary>
-    private CeresBabyPaintDefinitions(ReadOnlySpan<Bgr555> initial, int rowCount)
+    private CeresBabyPaintDefinitions(ReadOnlySpan<RgbColor> initial, int rowCount)
     {
         if (initial.Length != 15) throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
         this.rowCount = rowCount;
@@ -62,17 +62,17 @@ internal sealed class CeresBabyPaintDefinitions
     }
 
     /// <summary>Returns an edited color when supplied, otherwise the calculated row and material color.</summary>
-    internal Bgr555 Resolve(int row, int color)
+    internal RgbColor Resolve(int row, int color)
     {
         if ((uint)row >= rowCount) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Applies clipped pose brightening with delayed red for the tooth pulse.</summary>
-    private Bgr555 Calculate(int row, int color)
+    private RgbColor Calculate(int row, int color)
     {
-        Bgr555 basis = Initial(color);
+        RgbColor basis = Initial(color);
         int phase = Math.Max(0, row - 1);
         int addition = BrightnessStep * phase;
         // The selected tooth pulse delays red by one pose step while G/B brighten.
@@ -84,11 +84,11 @@ internal sealed class CeresBabyPaintDefinitions
             green = Math.Min(Maximum - 1, green);
             blue = Math.Min(Maximum - 1, blue);
         }
-        return Bgr555.Saturating(basis.Red + redAddition, green, blue);
+        return RgbColor.Saturating(basis.Red + redAddition, green, blue);
     }
 
     /// <summary>Constructs a base Baby/container color from glass, dome, body, or fang inputs.</summary>
-    private Bgr555 Initial(int color) => color switch
+    private RgbColor Initial(int color) => color switch
     {
         0 => Pack(glassRed, Maximum, glassBlue),
         >= 1 and <= 3 => Pack(domeTint, domeGreen - domeShadeStep * (color - 1), domeTint),
@@ -105,11 +105,11 @@ internal sealed class CeresBabyPaintDefinitions
     };
 
     /// <summary>Resolves shared body paint from the Ceres fade or standalone Norfair composition.</summary>
-    private Bgr555 BodyColor(int color) =>
+    private RgbColor BodyColor(int color) =>
         body is not null ? body.Resolve(15, color)
         : standaloneBody is not null ? standaloneBody.Color(color)
         : throw new InvalidOperationException("Ceres Baby body paint has neither a fade nor a standalone composition.");
 
     /// <summary>Clips calculated material channel values into RGB5 color space.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) => Bgr555.Saturating(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => RgbColor.Saturating(red, green, blue);
 }

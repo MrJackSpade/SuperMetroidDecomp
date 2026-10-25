@@ -23,11 +23,11 @@ public static class EnemyLinearSpeedDefinitions
     private const int FixedPointStep = 0x1000;
 
     /// <summary>Reads a native byte-indexed whole/fraction pair, preserving unaligned byte assembly.</summary>
-    public static SnesSignedSixteenSixteen Read(int byteOffset)
+    public static SignedSixteenSixteen Read(int byteOffset)
     {
         if (byteOffset is < 0 or > (RecordCount * RecordSize - 4))
             throw new InvalidDataException($"Enemy linear-speed byte offset ${byteOffset:X} is outside the authored NTSC records.");
-        return SnesSignedSixteenSixteen.FromParts(unchecked((short)ReadWord(byteOffset)), ReadWord(byteOffset + 2));
+        return SignedSixteenSixteen.FromParts(unchecked((short)ReadWord(byteOffset)), ReadWord(byteOffset + 2));
     }
 
     /// <summary>Assembles two consecutive native bytes into a little-endian word, including unaligned windows.</summary>

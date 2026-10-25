@@ -518,14 +518,14 @@ internal static class MapPresentationVerification
             var installed = new GameplayColours(new SpriteColourSets());
             // Revival writes thirteen colors and deliberately leaves the last two from
             // the preceding phase. Seed both CGRAM images to catch an overlong copy.
-            native.SetColor(MotherBrainColorDestinations.BodyColor + 13, Bgr555.FromWord(0x1234));
-            native.SetColor(MotherBrainColorDestinations.BodyColor + 14, Bgr555.FromWord(0x1235));
-            native.SetColor(MotherBrainColorDestinations.BrainColor + 13, Bgr555.FromWord(0x2234));
-            native.SetColor(MotherBrainColorDestinations.BrainColor + 14, Bgr555.FromWord(0x2235));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 13, Bgr555.FromWord(0x1234));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 14, Bgr555.FromWord(0x1235));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 13, Bgr555.FromWord(0x2234));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 14, Bgr555.FromWord(0x2235));
+            native.SetColor(MotherBrainColorDestinations.BodyColor + 13, RgbColor.FromWord(0x1234));
+            native.SetColor(MotherBrainColorDestinations.BodyColor + 14, RgbColor.FromWord(0x1235));
+            native.SetColor(MotherBrainColorDestinations.BrainColor + 13, RgbColor.FromWord(0x2234));
+            native.SetColor(MotherBrainColorDestinations.BrainColor + 14, RgbColor.FromWord(0x2235));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 13, RgbColor.FromWord(0x1234));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 14, RgbColor.FromWord(0x1235));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 13, RgbColor.FromWord(0x2234));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 14, RgbColor.FromWord(0x2235));
             int table = draining ? MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable :
                 MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable;
             int count = draining ? MotherBrainDrainedPaletteDefinitions.DrainedColors :
@@ -562,8 +562,8 @@ internal static class MapPresentationVerification
         {
             int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
             ushort nativeBeamColor = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
-            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(frame, out Bgr555 beamColor) &&
-                beamColor == Bgr555.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
+            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(frame, out RgbColor beamColor) &&
+                beamColor == RgbColor.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }
         AssertTrue(!original.MotherBrainRainbowPalette.TryReadBeamColor(
                 MotherBrainRainbowPaletteFormat.BeamCycleColorCount, out _),
@@ -580,9 +580,9 @@ internal static class MapPresentationVerification
         };
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 3; frame++)
         {
-            nativeBeamSequence.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+            nativeBeamSequence.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
             installedBeamSequence.Step(true, new(100, 95),
-                SnesAngle.QuarterTurn, 0x4000);
+                RotationAngle.QuarterTurn, 0x4000);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
                 nativeBeamSequence.ColorIndex == installedBeamSequence.ColorIndex &&
                 nativeBeamSequence.Geometry == installedBeamSequence.Geometry,
@@ -686,13 +686,13 @@ internal static class MapPresentationVerification
         {
             PresentationColors = runtime.BossArtwork.MotherBrainRainbowColors,
         };
-        stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
             stockBeam.Geometry == editedBeam.Geometry,
             "beam initial-color edit changes only color, not HDMA geometry");
-        stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
             stockBeam.ColorIndex == editedBeam.ColorIndex &&
             stockBeam.Geometry == editedBeam.Geometry,

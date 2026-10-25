@@ -12,6 +12,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
@@ -39,7 +40,7 @@ internal static class RoomBackgroundsVerification
         IBgTileSource planeTiles = plane.Tiles(offset);
         // The destination and the door's source room draw block pictures of different characters (#1403).
         var random = new Random(1346);
-        var palette = new Bgr555[SnesPpuLayout.CgramColorCount];
+        var palette = new RgbColor[SnesPpuLayout.CgramColorCount];
         byte[] destinationImage = new byte[SnesPpuLayout.VramByteCount], sourceImage = new byte[SnesPpuLayout.VramByteCount];
         random.NextBytes(destinationImage);
         random.NextBytes(sourceImage);

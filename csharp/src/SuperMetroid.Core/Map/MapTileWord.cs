@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Map;
 /// character, priority, and flip bit supplied by the cartridge.
 /// </remarks>
 /// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
-[SnesEncodingOwner]
+[EncodingOwner("area map cell word")]
 public readonly record struct MapTileWord(ushort Raw)
 {
 

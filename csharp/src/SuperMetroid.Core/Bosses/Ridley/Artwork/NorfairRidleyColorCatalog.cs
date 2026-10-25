@@ -8,13 +8,13 @@ public sealed class NorfairRidleyColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
         {
-            Span<Bgr555> initialWords = stackalloc Bgr555[NorfairRidleyPaletteDefinitions.InitialColorCount];
+            Span<RgbColor> initialWords = stackalloc RgbColor[NorfairRidleyPaletteDefinitions.InitialColorCount];
             for (int color = 0; color < initialWords.Length; color++) initialWords[color] = initial.ColorAt(color);
             content.AppendColors("initial", initialWords);
-            Bgr555[][] revealWords = new Bgr555[NorfairRidleyPaletteDefinitions.RevealRowCount][];
+            RgbColor[][] revealWords = new RgbColor[NorfairRidleyPaletteDefinitions.RevealRowCount][];
             for (int row = 0; row < revealWords.Length; row++)
             {
-                revealWords[row] = new Bgr555[NorfairRidleyPaletteDefinitions.RevealColorCount];
+                revealWords[row] = new RgbColor[NorfairRidleyPaletteDefinitions.RevealColorCount];
                 for (int color = 0; color < revealWords[row].Length; color++) revealWords[row][color] = reveal.ColorAt(row, color);
             }
             content.AppendColorFrames("reveal", revealWords);
@@ -26,7 +26,7 @@ public sealed class NorfairRidleyColorCatalog
     internal readonly NorfairRidleyRevealPaintDefinitions reveal;
 
     /// <summary>Copies validated initial and reveal RGB5 colors into independent paint selectors.</summary>
-    internal NorfairRidleyColorCatalog(Bgr555[] initial, Bgr555[][] reveal)
+    internal NorfairRidleyColorCatalog(RgbColor[] initial, RgbColor[][] reveal)
     {
         this.initial = new(initial);
         this.reveal = new(reveal);

@@ -27,10 +27,10 @@ internal sealed class DraygonHealthPaintDefinitions
     /// <summary>Healthy gold shades step down green by six per shade.</summary>
     private const int HealthyGreenStep = 6;
     /// <summary>Extracted belly colors that differ from the interpolated gold-to-red ramp.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Retains only differences from the four-shade, eight-band paint calculation.</summary>
-    internal DraygonHealthPaintDefinitions(Bgr555[][] rows)
+    internal DraygonHealthPaintDefinitions(RgbColor[][] rows)
     {
         for (int band = 0; band < Bands; band++)
             for (int shade = 0; shade < Shades; shade++)
@@ -38,7 +38,7 @@ internal sealed class DraygonHealthPaintDefinitions
     }
 
     /// <summary>Uses an extracted edit when present, otherwise interpolates the requested belly shade.</summary>
-    internal Bgr555 Color(int band, int shade) => edits.TryGetValue(new ColourCell(band, shade), out Bgr555 edited)
+    internal RgbColor Color(int band, int shade) => edits.TryGetValue(new ColourCell(band, shade), out RgbColor edited)
         ? edited : Calculate(band, shade);
 
     /// <summary>
@@ -47,18 +47,18 @@ internal sealed class DraygonHealthPaintDefinitions
     /// nearest sevenths; there are no retained output samples. The gold-to-red
     /// hue transition and shade assignment are selected health-color composition.
     /// </summary>
-    private static Bgr555 Calculate(int band, int shade)
+    private static RgbColor Calculate(int band, int shade)
     {
         int healthyRed = HealthyRedStep * (Shades + 1 - shade);
         int healthyGreen = HealthyGreenStep * (Shades - shade);
         int criticalRed = (Maximum * (Shades - shade) + Shades / 2) / Shades;
         int red = Interpolate(healthyRed, criticalRed, band);
         int green = Interpolate(healthyGreen, 0, band);
-        return new Bgr555(red, green, 0);
+        return new RgbColor(red, green, 0);
     }
 
     /// <summary>Immutable healthy gold material shared with the primary body palette.</summary>
-    internal static Bgr555 HealthyShade(int shade)
+    internal static RgbColor HealthyShade(int shade)
     {
         if ((uint)shade >= Shades) throw new ArgumentOutOfRangeException(nameof(shade));
         return Calculate(0, shade);

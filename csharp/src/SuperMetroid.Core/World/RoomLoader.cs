@@ -340,7 +340,7 @@ internal sealed class RoomLoader
         // hurt check from it. The $22 branch locks Samus's state handlers.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
-        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new SnesFixedPosition(station.SamusPosition.X, 0)).WithY(new SnesFixedPosition(station.SamusPosition.Y, 0));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.SamusPosition.Y, 0));
         samus.Control.LockHandlers();
 
         // The special loader still executes the normal room-object teardown before it
@@ -1195,7 +1195,7 @@ internal sealed class RoomLoader
         // elevator landing recess appear pre-filled; the cartridge's zero makes it black
         // until the moving pad reaches it and both projectiles delete themselves.
         // The concealer's colour is Samus's grapple flare colour, which the cartridge's zero clears ($82:8190).
-        _player.Colours.GrappleFlare.Fill(Bgr555.Black);
+        _player.Colours.GrappleFlare.Fill(RgbColor.Black);
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);

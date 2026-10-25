@@ -138,7 +138,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             AssertEqual(4, state.JumpAngleDelta, "the fixture Pirate makes fast jumps");
-            SnesAngle start = jumpingRight ? SnesAngle.QuarterTurn : SnesAngle.ThreeQuarterTurn;
+            RotationAngle start = jumpingRight ? RotationAngle.QuarterTurn : RotationAngle.ThreeQuarterTurn;
             WallSpacePirateProgram landing = jumpingRight
                 ? WallSpacePirateProgram.LandedOnRightWall
                 : WallSpacePirateProgram.LandedOnLeftWall;
@@ -153,13 +153,13 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             for (int update = 1; update <= 32; update++)
             {
                 WallSpacePirateBehavior.RunWallSpacePirateMainAi(slot, frame);
-                SnesAngle expected = start.AddTableUnits(jumpingRight ? -4 * update : 4 * update);
+                RotationAngle expected = start.AddTableUnits(jumpingRight ? -4 * update : 4 * update);
                 AssertEqual(expected, state.WallJumpArcAngle,
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");
                 AssertEqual(update == 32, state.Program == AnimationProgramCursor<WallSpacePirateProgram>.Start(landing),
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump lands only at its endpoint, update {update}");
             }
-            AssertEqual(jumpingRight ? SnesAngle.ThreeQuarterTurn : SnesAngle.QuarterTurn, state.WallJumpArcAngle,
+            AssertEqual(jumpingRight ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn, state.WallJumpArcAngle,
                 $"wall Pirate {(jumpingRight ? "right" : "left")} jump ends at its endpoint angle");
         }
 

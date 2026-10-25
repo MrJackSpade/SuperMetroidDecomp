@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// adjacent rows, and a projectile's direction word holds it in its low nibble. This is the one place a direction
 /// becomes its index or an index its direction.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("projectile aim index")]
 internal static class SamusProjectileDirectionCodec
 {
     /// <summary>The number of directions the aim index names.</summary>

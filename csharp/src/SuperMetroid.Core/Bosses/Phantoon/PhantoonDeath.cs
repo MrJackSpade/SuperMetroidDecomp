@@ -253,8 +253,8 @@ internal sealed class PhantoonDeath
         ColourRun room = PhantoonRoomColourDefinitions.PowerOn.In(_presentation.BackgroundSets);
         for (int color = 0; color < room.Count; color++)
         {
-            Bgr555 current = room[color];
-            Bgr555 target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+            RgbColor current = room[color];
+            RgbColor target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(color);
             room.Write(
                 color,

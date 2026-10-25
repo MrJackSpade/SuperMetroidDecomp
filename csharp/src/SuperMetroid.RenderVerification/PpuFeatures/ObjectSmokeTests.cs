@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -19,8 +20,8 @@ internal static class ObjectSmokeTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(vram);
         random.NextBytes(oam);
-        Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
-            .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+        RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+            .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32));
         int cases = 0;
         for (int size = 0; size < 8; size++)
@@ -29,26 +30,26 @@ internal static class ObjectSmokeTests
         {
             byte obsel = (byte)((size << 5) | selection);
             var memory = FramePaint.FromOam(vram, palette, oam, count, obsel);
-            Check(memory, obsel, new RenderLayer[] { new ObjRenderLayer() });
+            Check(memory, obsel, new RenderLayer[] { new SpriteRenderLayer() });
             Check(memory, obsel, new RenderLayer[] {
-                new ObjPriorityRenderLayer(0),
+                new SpritePriorityRenderLayer(0),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
-                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
+                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
-                new ObjPriorityRenderLayer(3) });
+                new SpritePriorityRenderLayer(3) });
         }
         // Earlier OAM wins even when the later entry has greater display priority.
         // A transparent hole in the winner must still expose that later entry.
         Array.Clear(vram); Array.Clear(oam); Array.Clear(palette);
-        palette[129] = new Bgr555(31, 0, 0);
-        palette[145] = new Bgr555(0, 0, 31);
+        palette[129] = new RgbColor(31, 0, 0);
+        palette[145] = new RgbColor(0, 0, 31);
         for (int row = 0; row < 8; row++) vram[row * 2] = 0x7f;
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;
         var overlap = FramePaint.FromOam(vram, palette, oam, 2, 0);
-        Check(overlap, 0, new RenderLayer[] { new ObjRenderLayer() });
+        Check(overlap, 0, new RenderLayer[] { new SpriteRenderLayer() });
         for (byte priority = 0; priority < 4; priority++)
-            Check(overlap, 0, new RenderLayer[] { new ObjPriorityRenderLayer(priority) });
+            Check(overlap, 0, new RenderLayer[] { new SpritePriorityRenderLayer(priority) });
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cases} exact OBJ comparisons passed.");
 
         void Check(FramePaint memory, byte obsel, RenderLayer[] layers)

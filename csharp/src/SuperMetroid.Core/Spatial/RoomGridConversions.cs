@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Named conversions between room pixels and the room's block and screen grids.</summary>
-[SnesEncodingOwner]
+[EncodingOwner("room block and screen grid coordinates")]
 public static class RoomGridConversions
 {
     /// <summary>Blocks per room screen on each axis.</summary>

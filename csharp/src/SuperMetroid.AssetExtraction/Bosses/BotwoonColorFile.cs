@@ -35,13 +35,13 @@ public static class BotwoonColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Checks a health row's sixteen five-bit RGB values before packing its SNES colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int band)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int band)
     {
         if (source is null ||
             source.Length != BotwoonHealthPaletteDefinitions.ColorsPerPalette)
             throw new InvalidDataException(
                 $"Botwoon health band {band} requires sixteen RGB5 colors.");
-        var compiled = new Bgr555[source.Length];
+        var compiled = new RgbColor[source.Length];
         for (int color = 0; color < source.Length; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -49,7 +49,7 @@ public static class BotwoonColorFile
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Botwoon health band {band} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
+            compiled[color] = rgb.ToRgbColor();
         }
         return compiled;
     }

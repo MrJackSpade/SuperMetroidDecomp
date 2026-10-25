@@ -10,6 +10,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -36,7 +37,7 @@ internal static class PauseScreenPublicationVerification
         for (int frame = 0; frame < 4; frame++) pause.Step(0, 0);
         AssertPublished(pause, "equipment page");
 
-        Rgba32[] shown = pause.Render();
+        RgbaPixel[] shown = pause.Render();
         using var state = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(state, pause);
         state.Position = 0;

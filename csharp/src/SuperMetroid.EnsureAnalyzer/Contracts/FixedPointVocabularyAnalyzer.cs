@@ -7,7 +7,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
 /// Keeps fixed-point values, angles and carry flags in their named types (#1326). Outside <c>Hardware/</c> and
-/// <c>[SnesEncodingOwner]</c> codec types, Core carries no whole/fraction pair as primitives (SME6351), no angle as a raw
+/// <c>[EncodingOwner]</c> codec types, Core carries no whole/fraction pair as primitives (SME6351), no angle as a raw
 /// byte or word (SME6352), and no processor-carry protocol (SME6353).
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -23,7 +23,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     public const string CarryProtocolId = "SME6353";
 
     /// <summary>The attribute that marks a type as a codec boundary allowed to hold raw forms.</summary>
-    private const string EncodingOwnerAttribute = "SnesEncodingOwnerAttribute";
+    private const string EncodingOwnerAttribute = "EncodingOwnerAttribute";
 
     /// <summary>Name endings that mark a difference or bit pattern of angles rather than an angle.</summary>
     private static readonly string[] NonAngleSuffixes = ["Step", "Delta", "Mask", "Offset"];
@@ -34,7 +34,7 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor SplitFixedPointRule = new(
         SplitFixedPointId,
         "Fixed-point value split into primitives",
-        "'{0}' and '{1}' carry one fixed-point value as two primitives; use SnesSignedSixteenSixteen, SnesUnsignedSixteenSixteen or SnesFixedPosition",
+        "'{0}' and '{1}' carry one fixed-point value as two primitives; use SignedSixteenSixteen, UnsignedSixteenSixteen or FixedCoordinate",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
@@ -43,20 +43,20 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor RawAngleRule = new(
         RawAngleId,
         "Angle held as a raw byte or word",
-        "'{0}' holds an angle as {1}; use SnesAngle, SnesByteAngle or SnesBearing",
+        "'{0}' holds an angle as {1}; use RotationAngle, ByteAngle or Bearing",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Angles carry their convention in their type: SnesAngle (8.8), SnesByteAngle (table) or SnesBearing (#1326).");
+        description: "Angles carry their convention in their type: RotationAngle (8.8), ByteAngle (table) or Bearing (#1326).");
 
     private static readonly DiagnosticDescriptor CarryProtocolRule = new(
         CarryProtocolId,
         "Processor-flag protocol outside Hardware",
-        "'{0}' carries a processor flag; use SnesCarry's operations or name what the flag means",
+        "'{0}' carries a processor flag; use WordCarry's operations or name what the flag means",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Carry arithmetic lives in SnesCarry; results say what happened rather than which flag was set (#1326).");
+        description: "Carry arithmetic lives in WordCarry; results say what happened rather than which flag was set (#1326).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [SplitFixedPointRule, RawAngleRule, CarryProtocolRule];

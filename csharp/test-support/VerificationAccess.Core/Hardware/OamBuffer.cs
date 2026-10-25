@@ -61,17 +61,17 @@ public sealed class OamBuffer
 
     /// <summary>Draws a compiled visual part with the same $81:879F clipping/packing as cartridge spritemaps.</summary>
     public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, SnesSpritemapYByte yOffset,
-        SnesObjAttributeWord attributes, Position16<OamPixels> origin)
+        SnesObjAttributeWord attributes, Position16<SpritePixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: true);
 
     /// <summary>Draws a compiled visual part with $81:8853's reversed vertical-wrap branch.</summary>
     public void AddOffScreenSpritePart(SnesSpritemapXWord xOffset, SnesSpritemapYByte yOffset,
-        SnesObjAttributeWord attributes, Position16<OamPixels> origin)
+        SnesObjAttributeWord attributes, Position16<SpritePixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: false);
 
     /// <summary>Applies the generic spritemap vertical-wrap clipping and packs one hardware OBJ record.</summary>
     private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, SnesSpritemapYByte encodedYOffset,
-        SnesObjAttributeWord finalAttributes, Position16<OamPixels> origin, bool originIsOnScreen)
+        SnesObjAttributeWord finalAttributes, Position16<SpritePixels> origin, bool originIsOnScreen)
     {
         if (NextByteOffset >= LowTableByteCount) return; // Native stops at the hardware OAM capacity.
 
@@ -108,7 +108,7 @@ public sealed class OamBuffer
     /// and flips are calculated by the native caller. X remains a nine-bit hardware value;
     /// Y wraps to its low byte exactly like a direct store to OAMLow.
     /// </remarks>
-    public void AddRawSmallSprite(Position16<OamPixels> position, SnesObjAttributeWord attributes)
+    public void AddRawSmallSprite(Position16<SpritePixels> position, SnesObjAttributeWord attributes)
     {
         int spriteIndex = NextByteOffset >> 2;
         int lowOffset = NextByteOffset;
@@ -151,7 +151,7 @@ public sealed class OamBuffer
             SnesLittleEndian.Word(LowTableBytes[lowOffset + 2], LowTableBytes[lowOffset + 3]);
 
         return new OamEntry(
-            Position: new Position16<OamPixels>(
+            Position: new Position16<SpritePixels>(
                 checked((ushort)(LowTableBytes[lowOffset] + (highPair.XHigh ? ByteRange : 0))),
                 LowTableBytes[lowOffset + 1]),
             TileNumber: attributes.TileNumber,

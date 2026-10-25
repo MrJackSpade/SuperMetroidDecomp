@@ -19,14 +19,14 @@ public sealed class FloorCharacters
 
     /// <summary>Records <paramref name="count"/> characters of <paramref name="sheet"/>'s artwork from <paramref name="firstCharacter"/>, loaded to Mode 7 tiles from <paramref name="firstTile"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet holds fewer characters, or the load passes the last tile.</exception>
-    public FloorCharacters Show(Mode7CharacterSheet sheet, int firstTile, int firstCharacter, int count)
+    public FloorCharacters Show(FloorCharacterSheet sheet, int firstTile, int firstCharacter, int count)
     {
         Ensure.NotNull(sheet);
         Ensure.BetweenInclusive(0, FloorTilePictures.Tiles - 1, firstTile);
         Ensure.BetweenInclusive(1, FloorTilePictures.Tiles - firstTile, count);
         Ensure.BetweenInclusive(0, sheet.Tiles - count, firstCharacter);
         for (int tile = 0; tile < count; tile++)
-            tiles[firstTile + tile] = new BgTilePicture(sheet.Picture, Mode7CharacterSheet.Corner(firstCharacter + tile));
+            tiles[firstTile + tile] = new BgTilePicture(sheet.Picture, FloorCharacterSheet.Corner(firstCharacter + tile));
         Array.Clear(unpictured, firstTile, count);
         pictures = null;
         return this;

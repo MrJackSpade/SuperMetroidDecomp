@@ -54,7 +54,7 @@ internal static class TitleScreenPublicationVerification
         AssertTrue(shownPages.Count >= 8 && shownPages.Select((page, index) => page == new[] { 0, 1, 2, 1 }[(index + Array.IndexOf(new[] { 0, 1, 2, 1 }, shownPages[0])) % 4]).All(match => match),
             $"the shown Baby Metroid page cycles 0, 1, 2, 1 ({string.Join(",", shownPages)})");
 
-        Rgba32[] shown = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), title.CaptureRenderSnapshot()));
+        RgbaPixel[] shown = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), title.CaptureRenderSnapshot()));
         using var state = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(state, title);
         state.Position = 0;

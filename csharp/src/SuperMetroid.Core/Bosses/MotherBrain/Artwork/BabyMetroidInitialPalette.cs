@@ -20,17 +20,17 @@ internal sealed class BabyMetroidInitialPalette
         BabyMetroidInitialColorSlot.Black);
 
     /// <summary>Complete imported palette retained only when it differs from the reviewed paint calculation.</summary>
-    internal readonly Bgr555[]? supplied;
+    internal readonly RgbColor[]? supplied;
 
     /// <summary>Uses calculated Baby colors when all fifteen supplied entries agree, otherwise keeps this palette's edits.</summary>
-    internal BabyMetroidInitialPalette(Bgr555[] colors)
+    internal BabyMetroidInitialPalette(RgbColor[] colors)
     {
         for (int color = 0; color < colors.Length; color++)
             if (Calculate(color) != colors[color]) { supplied = colors.ToArray(); return; }
     }
 
     /// <summary>Selects an independently supplied color or the reviewed dome, innard, and fang paint.</summary>
-    internal Bgr555 Resolve(int color)
+    internal RgbColor Resolve(int color)
     {
         if ((uint)color >= BabyMetroidCutsceneColorDefinitions.InitialColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
@@ -38,7 +38,7 @@ internal sealed class BabyMetroidInitialPalette
     }
 
     /// <summary>Composes selected material paints, smooth innard shades, and the fang midpoint by palette slot.</summary>
-    private static Bgr555 Calculate(int color)
+    private static RgbColor Calculate(int color)
     {
         BabyMetroidInitialColorSlot slot = ColorOrder.At(color);
         return slot switch
@@ -56,18 +56,18 @@ internal sealed class BabyMetroidInitialPalette
             BabyMetroidInitialColorSlot.FangMiddle => Midpoint(FangLight, FangDark),
             BabyMetroidInitialColorSlot.FangDark => FangDark,
             BabyMetroidInitialColorSlot.FangOutline => FangOutline,
-            BabyMetroidInitialColorSlot.White => Bgr555.White,
-            BabyMetroidInitialColorSlot.Black => Bgr555.Black,
+            BabyMetroidInitialColorSlot.White => RgbColor.White,
+            BabyMetroidInitialColorSlot.Black => RgbColor.Black,
             _ => throw new InvalidOperationException($"Undefined BabyMetroidInitialColorSlot {slot}."),
         };
     }
 
     /// <summary>Raises each innard-light channel to form the clipped glint.</summary>
-    private static Bgr555 Glint(Bgr555 light) =>
-        light.Map((_, channel) => Math.Min(Bgr555.MaxChannel, channel + InnardGlintAddition));
+    private static RgbColor Glint(RgbColor light) =>
+        light.Map((_, channel) => Math.Min(RgbColor.MaxChannel, channel + InnardGlintAddition));
 
     /// <summary>Eases the innard red channel with smoothstep, then interpolates other channels by that red level.</summary>
-    private static Bgr555 InnardShade(Bgr555 light, Bgr555 dark, int shade)
+    private static RgbColor InnardShade(RgbColor light, RgbColor dark, int shade)
     {
         int lightRed = light.Red, darkRed = dark.Red;
         int intervals = lightRed - darkRed;
@@ -81,13 +81,13 @@ internal sealed class BabyMetroidInitialPalette
     }
 
     /// <summary>Averages each RGB5 channel down to the intermediate fang paint.</summary>
-    internal static Bgr555 Midpoint(Bgr555 light, Bgr555 dark) =>
+    internal static RgbColor Midpoint(RgbColor light, RgbColor dark) =>
         light.Zip(dark, (_, lightChannel, darkChannel) => (lightChannel + darkChannel) / 2);
 
     /// <summary>Hashes all resolved initial colors so supplied edits affect presentation identity.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
     {
-        Span<Bgr555> colors = stackalloc Bgr555[BabyMetroidCutsceneColorDefinitions.InitialColorCount];
+        Span<RgbColor> colors = stackalloc RgbColor[BabyMetroidCutsceneColorDefinitions.InitialColorCount];
         for (int color = 0; color < colors.Length; color++) colors[color] = Resolve(color);
         content.AppendColors("initial", colors);
     }

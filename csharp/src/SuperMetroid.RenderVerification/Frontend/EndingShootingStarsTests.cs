@@ -42,8 +42,8 @@ internal static class EndingShootingStarsTests
                 // Closed-form sums: native star 1 accelerates once until frame 38,
                 // then twice. This independently checks fixed-point integration.
                 int sum = frame * (frame + 1) / 2 + Math.Max(0, frame - 38) * Math.Max(0, frame - 37) / 2;
-                Require((new SnesFixedPosition(star.Position.X.Whole, star.Position.X.Fraction).RawValue) == (128u << 16) + (uint)(12 * sum * 256), "Star X trajectory");
-                Require((new SnesFixedPosition(star.Position.Y.Whole, star.Position.Y.Fraction).RawValue) == (128u << 16) - (uint)(sum * 256), "Star Y trajectory");
+                Require((new FixedCoordinate(star.Position.X.Whole, star.Position.X.Fraction).RawValue) == (128u << 16) + (uint)(12 * sum * 256), "Star X trajectory");
+                Require((new FixedCoordinate(star.Position.Y.Whole, star.Position.Y.Fraction).RawValue) == (128u << 16) - (uint)(sum * 256), "Star Y trajectory");
             }
             if (frame == 9)
                 Require(stars.Stars[0].Position.X.Whole == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Timer.RawValue == 31,
@@ -107,7 +107,7 @@ internal static class EndingShootingStarsTests
         logo.PaletteStep = 16;
         logo.CrossfadeStarted = true;
         var final = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-        Require(final.Paint.SpriteDraws.Length > 0 && final.LayersOf<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
+        Require(final.Paint.SpriteDraws.Length > 0 && final.LayersOf<SpriteRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 
         ushort Word(int address) => rom.ReadCartridgeWord(address);

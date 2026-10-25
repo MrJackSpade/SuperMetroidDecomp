@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Calculated appearance geometry, palette channels and visibility timing for Wrecked Ship ghost appearances.</summary>
@@ -26,7 +28,7 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// separately retained as copied/faded target data with no visual generating rule.
     /// Unused sprite slots are still copied and faded as native target data.
     /// </summary>
-    public static Bgr555 PaletteColor(int index)
+    public static RgbColor PaletteColor(int index)
     {
         if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == 0) return new(0, 0, BackdropBlue);

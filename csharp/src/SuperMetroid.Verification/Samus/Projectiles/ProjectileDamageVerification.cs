@@ -164,7 +164,7 @@ internal static class ProjectileDamageVerification
                 bool negative = phase >= 128;
                 int index = negative ? unchecked((byte)(phase + 128)) : phase;
                 int address = BeamComboDefinitions.PositiveSine + index * 2;
-                int magnitude = (SnesEightEight.Multiply(rom.ReadCartridgeByte(address), (byte)amplitude)) +
+                int magnitude = (EightEight.Multiply(rom.ReadCartridgeByte(address), (byte)amplitude)) +
                     rom.ReadCartridgeByte(address + 1) * (byte)amplitude;
                 return unchecked((short)(negative ? -magnitude : magnitude));
             }
@@ -175,7 +175,7 @@ internal static class ProjectileDamageVerification
         for (int amplitude = 0; amplitude < 256; amplitude++)
             AssertEqual(NativeOffset(angle, amplitude),
                 SamusComboMechanicsDefinitions.GetSineOffset(
-                    new SnesByteAngle((byte)angle), (ushort)amplitude),
+                    new ByteAngle((byte)angle), (ushort)amplitude),
                 $"compiled combo sine offset {angle}/{amplitude}");
 
     }
@@ -215,7 +215,7 @@ internal static class ProjectileDamageVerification
             ushort angle = checked((ushort)first.Variable);
             ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
             Offset16<RoomPixels> offset = SamusComboMechanicsDefinitions.GetSineOffset(
-                new SnesByteAngle(unchecked((byte)angle)), amplitude);
+                new ByteAngle(unchecked((byte)angle)), amplitude);
             if (beam == 2)
                 projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)

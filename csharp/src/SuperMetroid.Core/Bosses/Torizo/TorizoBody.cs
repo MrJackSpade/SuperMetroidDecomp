@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -29,8 +30,8 @@ internal sealed class TorizoBody
 
     /// <summary>Copies the supplied body and belly rows into their live boss-palette slots.</summary>
     internal void LoadTorizoBodyPalette(
-        ReadOnlySpan<Bgr555> rowNine,
-        ReadOnlySpan<Bgr555> rowTen)
+        ReadOnlySpan<RgbColor> rowNine,
+        ReadOnlySpan<RgbColor> rowTen)
     {
         for (int color = 0; color < 16; color++)
         {

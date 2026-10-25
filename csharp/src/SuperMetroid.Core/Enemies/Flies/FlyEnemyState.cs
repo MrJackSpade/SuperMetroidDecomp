@@ -23,7 +23,7 @@ public sealed class FlyEnemyState
     public Position16<RoomPixels> TargetHeight { get; internal set; }
 
     /// <summary>The circular flight's phase, advanced sixteen table units per circling update and wrapping after a full turn.</summary>
-    public SnesAngle Angle { get; internal set; }
+    public RotationAngle Angle { get; internal set; }
 
     /// <summary>The current circling, attacking or retreating behaviour; none once a kill has emptied the record.</summary>
     public FlyEnemyFunction? Function { get; internal set; }
@@ -38,7 +38,7 @@ public sealed class FlyEnemyState
         RetreatTimer = WrappingCountdown.Start(0);
         Velocity = new EightEightVector<RoomPixels>(0, 0);
         TargetHeight = Position16<RoomPixels>.Zero;
-        Angle = SnesAngle.Zero;
+        Angle = RotationAngle.Zero;
         Function = null;
     }
 }

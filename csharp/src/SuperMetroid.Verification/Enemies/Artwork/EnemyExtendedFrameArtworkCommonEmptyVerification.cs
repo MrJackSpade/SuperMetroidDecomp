@@ -31,7 +31,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             // initialization. A full-ROM read guard proves this is compiled.
             var ordinaryEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
             var emptyDraw = new OamBuffer();
-            ordinaryEnemies.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = bank, Pointer = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>(0x0080, 0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            ordinaryEnemies.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = bank, Pointer = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap, Origin = new Position16<SpritePixels>(0x0080, 0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame));

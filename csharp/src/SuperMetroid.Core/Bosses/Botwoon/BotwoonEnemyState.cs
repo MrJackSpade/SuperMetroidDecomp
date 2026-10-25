@@ -58,9 +58,9 @@ public sealed class BotwoonEnemyState
     /// <summary>The hole, zero through three, that direct movement targets and the next path choice starts from.</summary>
     public int TargetHoleIndex { get; internal set; }
     /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, consumed by the signed fixed-point vector helper.</summary>
-    public SnesAngle MovementAngle { get; internal set; }
+    public RotationAngle MovementAngle { get; internal set; }
     /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
-    public SnesAngle SpitAngle { get; internal set; }
+    public RotationAngle SpitAngle { get; internal set; }
     /// <summary>
     /// The authored path chosen next, zero through 31: one of four random variants for the target hole, in the visible
     /// half of the table or, from inside a hole, the hidden half.
@@ -69,7 +69,7 @@ public sealed class BotwoonEnemyState
     /// <summary>The next movement sample of the current path, advanced or reversed by one sample per step.</summary>
     public int PathSampleIndex { get; internal set; }
     /// <summary>Signed descriptor direction: negative walks the samples backward and negates accumulated displacements; nonnegative walks forward.</summary>
-    [NativeWord("signed path descriptor word; only its sign is read, choosing backward or forward sample order")]
+    [PackedFields("signed path descriptor word; only its sign is read, choosing backward or forward sample order")]
     public int PathDirection { get; internal set; }
     /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;

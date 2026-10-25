@@ -144,7 +144,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             {
                 int address = 0xa6fd87 + counter * 4 + color * 2;
                 cgram.SetColor(0xac + color,
-                    Bgr555.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
+                    RgbColor.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
             }
         }
 
@@ -152,7 +152,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         {
             var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
+                cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
             return cgram;
         }
 

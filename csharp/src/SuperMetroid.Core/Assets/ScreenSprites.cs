@@ -63,7 +63,7 @@ public sealed class ScreenSprites
     /// Which spritemap loader the cartridge draws the frame with: on screen, the origin's low Y byte lies on or below the
     /// screen; off screen, it lies above it.
     /// </param>
-    public void AddImage(SpriteSheetFrame frame, Position16<OamPixels> origin, int? paletteOverride = null,
+    public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, int? paletteOverride = null,
         SpriteOrigin side = SpriteOrigin.OnScreen)
     {
         Ensure.NotNull(frame);
@@ -87,7 +87,7 @@ public sealed class ScreenSprites
     /// wrapped index.
     /// </summary>
     /// <exception cref="ArgumentException">The frame is not one object at its origin.</exception>
-    public void AddObjectImage(SpriteSheetFrame frame, Position16<OamPixels> position)
+    public void AddObjectImage(SpriteSheetFrame frame, Position16<SpritePixels> position)
     {
         Ensure.NotNull(frame);
         if (frame.Parts is not [{ Offset: var offset }] || offset != default)
@@ -127,6 +127,6 @@ public sealed class ScreenSprites
     /// One placed frame at its position (nine-bit X as stored in sixteen bits, eight-bit Y), standing for the objects of
     /// its parts, with the row its palette-inheriting parts take and the loader that reads its origin.
     /// </summary>
-    private readonly record struct ScreenObject(Position16<OamPixels> Position, SpriteSheetFrame Image, int Objects, int? PaletteOverride,
+    private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, int Objects, int? PaletteOverride,
         SpriteOrigin Side);
 }

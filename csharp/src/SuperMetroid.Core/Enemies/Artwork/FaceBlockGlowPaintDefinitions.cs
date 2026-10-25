@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Reviewed eye/mouth glow composition at $A8:E7CC-E80B, copied to inks9..12 by E893-E8AA.
@@ -20,7 +22,7 @@ internal static class FaceBlockGlowPaintDefinitions
     private const int PeakDepth = 3;
 
     /// <summary>Accepts the supplied eight-frame, four-ink glow only when it matches the reviewed rise-and-fall calculation.</summary>
-    internal static bool Matches(Bgr555[][] frames)
+    internal static bool Matches(RgbColor[][] frames)
     {
         for (int frame = 0; frame < 2 * (PeakDepth + 1); frame++)
         for (int color = 0; color < 4; color++)
@@ -29,18 +31,18 @@ internal static class FaceBlockGlowPaintDefinitions
     }
 
     /// <summary>Calculates one eye/mouth glow ink at its mirrored light depth, including the distinct resting and active accents.</summary>
-    internal static Bgr555 Color(int frame, int color)
+    internal static RgbColor Color(int frame, int color)
     {
         if ((uint)frame >= 2 * (PeakDepth + 1) || (uint)color >= 4) throw new ArgumentOutOfRangeException(nameof(frame));
         int depth = Math.Min(frame, 2 * PeakDepth + 1 - frame);
         int green = Interpolate(0, PeakGreen, depth, PeakDepth);
         return color switch
         {
-            0 => new Bgr555(31, green, depth * BlueDepthStep),
-            1 => new Bgr555(Interpolate(MiddleRestRed, 31, depth, PeakDepth), (green + 1) / 2, 0),
-            2 => new Bgr555(Interpolate(ShadowRestRed, 31, depth, PeakDepth), 0, 0),
-            3 when depth == 0 => new Bgr555(ShadowRestRed + RestWarmAddition, RestWarmAddition, 0),
-            3 => new Bgr555(Interpolate(ActiveAccentRed, MiddleRestRed, depth - 1, PeakDepth - 1), 0, 0),
+            0 => new RgbColor(31, green, depth * BlueDepthStep),
+            1 => new RgbColor(Interpolate(MiddleRestRed, 31, depth, PeakDepth), (green + 1) / 2, 0),
+            2 => new RgbColor(Interpolate(ShadowRestRed, 31, depth, PeakDepth), 0, 0),
+            3 when depth == 0 => new RgbColor(ShadowRestRed + RestWarmAddition, RestWarmAddition, 0),
+            3 => new RgbColor(Interpolate(ActiveAccentRed, MiddleRestRed, depth - 1, PeakDepth - 1), 0, 0),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }

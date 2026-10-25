@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -9,6 +8,6 @@ internal static class GameplayBasePaletteCatalogAccess
     extension(GameplayBasePaletteCatalog self)
     {
         /// <summary>Reads the common-sprite palette without copying or applying overrides.</summary>
-        internal ReadOnlySpan<Bgr555> CommonSprites => self.commonSprites;
+        internal ReadOnlySpan<RgbColor> CommonSprites => self.commonSprites;
     }
 }

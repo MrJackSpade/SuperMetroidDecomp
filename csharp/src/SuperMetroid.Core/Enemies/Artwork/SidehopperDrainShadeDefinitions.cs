@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Exact RGB5 shade relationships in the final Sidehopper drain image at $A9:EC6C.</summary>
@@ -9,12 +11,12 @@ internal static class SidehopperDrainShadeDefinitions
     private const int SelectedDarkRedLift = 4;
 
     /// <summary>Places an upper intermediate red seven steps below its light endpoint.</summary>
-    private static int LightShadeRed(Bgr555 light) => light.Red - SelectedLightRedDrop;
+    private static int LightShadeRed(RgbColor light) => light.Red - SelectedLightRedDrop;
     /// <summary>Places a lower intermediate red four steps above its dark endpoint.</summary>
-    private static int DarkShadeRed(Bgr555 dark) => dark.Red + SelectedDarkRedLift;
+    private static int DarkShadeRed(RgbColor dark) => dark.Red + SelectedDarkRedLift;
 
     /// <summary>Selects the eight body/detail endpoints and intermediate shades in native palette order.</summary>
-    internal static Bgr555 Resolve(int color, Bgr555 bodyLight, Bgr555 detailLight, Bgr555 detailDark, Bgr555 bodyDark) => color switch
+    internal static RgbColor Resolve(int color, RgbColor bodyLight, RgbColor detailLight, RgbColor detailDark, RgbColor bodyDark) => color switch
     {
         1 => bodyLight,
         2 => Shade(bodyLight, bodyDark, LightShadeRed(bodyLight)),
@@ -28,7 +30,7 @@ internal static class SidehopperDrainShadeDefinitions
     };
 
     /// <summary>Interpolates each RGB5 channel between its endpoints at the chosen red-channel fraction.</summary>
-    private static Bgr555 Shade(Bgr555 light, Bgr555 dark, int red)
+    private static RgbColor Shade(RgbColor light, RgbColor dark, int red)
     {
         int lightRed = light.Red, darkRed = dark.Red;
         return light.Zip(dark, (_, a, b) => ((a * (red - darkRed) + b * (lightRed - red)) / (lightRed - darkRed)));

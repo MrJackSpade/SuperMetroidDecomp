@@ -111,8 +111,8 @@ internal static class IntroEggEffectSpriteArtworkVerification
             var particles = (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).eggParticles;
             particles.Add(fragment);
         }
-        Rgba32[] stockPixels = stockState.RenderArtwork();
-        Rgba32[] editedPixels = editedState.RenderArtwork();
+        RgbaPixel[] stockPixels = stockState.RenderArtwork();
+        RgbaPixel[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg-fragment override changes visible production discovery pixels");
         stockState.BindFixtureIntroArtwork(edited);

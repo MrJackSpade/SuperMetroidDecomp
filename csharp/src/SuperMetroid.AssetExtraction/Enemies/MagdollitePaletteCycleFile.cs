@@ -26,13 +26,13 @@ public static class MagdollitePaletteCycleFile
             document.Frames.Length != MagdollitePaletteDefinitions.FrameCount)
             throw new InvalidDataException("Magdollite palette cycle requires four version-one frames.");
 
-        var compiled = new Bgr555[MagdollitePaletteDefinitions.FrameCount][];
+        var compiled = new RgbColor[MagdollitePaletteDefinitions.FrameCount][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
             if (source is null || source.Length != MagdollitePaletteDefinitions.AnimatedColorCount)
                 throw new InvalidDataException($"Magdollite palette frame {frame} requires four RGB5 colors.");
-            compiled[frame] = new Bgr555[source.Length];
+            compiled[frame] = new RgbColor[source.Length];
             for (int color = 0; color < source.Length; color++)
             {
                 PaletteRgb5? rgb = source[color];
@@ -40,7 +40,7 @@ public static class MagdollitePaletteCycleFile
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException(
                         $"Magdollite palette frame {frame} color {color} requires RGB5 channels 0..31.");
-                compiled[frame][color] = rgb.ToBgr555();
+                compiled[frame][color] = rgb.ToRgbColor();
             }
         }
         return new MagdollitePaletteCycle(compiled);

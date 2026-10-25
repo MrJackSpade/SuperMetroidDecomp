@@ -674,20 +674,20 @@ internal static class EnemyTrigonometryVerification
             words[i] = rom.ReadCartridgeWord(address);
         }
 
-        var pixel = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitSineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var fixedProduct = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitSineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var fixedCosine = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitCosineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var fixedNegative = new Func<ushort, ushort, SnesSignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var sbugSigned = new Func<byte, byte, int, SnesSignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new SnesByteAngle(angle), speed, phase));
-        var sbugUnsigned = new Func<byte, byte, int, SnesUnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new SnesByteAngle(angle), speed, phase));
-        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => EnemyMath.ReadUnsignedSineMagnitudeProduct(new SnesByteAngle(unchecked((byte)angle)), magnitude, offset));
+        var pixel = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitSineProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var fixedProduct = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitSineFixedProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitCosineFixedProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new ByteAngle(angle), speed, phase));
+        var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new ByteAngle(angle), speed, phase));
+        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => EnemyMath.ReadUnsignedSineMagnitudeProduct(new ByteAngle(unchecked((byte)angle)), magnitude, offset));
 
         int ExpectedPixel(int angle, int radius)
         {
             angle &= 255;
-            int magnitude = SnesEightEight.Multiply(bytes[angle & 127], unchecked((byte)radius));
+            int magnitude = EightEight.Multiply(bytes[angle & 127], unchecked((byte)radius));
             return angle < 128 ? magnitude : -magnitude;
         }
         for (int angle = 0; angle < 256; angle++)
@@ -697,8 +697,8 @@ internal static class EnemyTrigonometryVerification
             // production helpers. The fractional negation deliberately has no carry.
             ushort a = (ushort)(0xff00 | angle), r = (ushort)(0xab00 | radius);
             int product = bytes[angle & 127] * radius;
-            var expected = SnesSignedSixteenSixteen.FromParts((short)(angle < 128 ? SnesEightEight.WholeOf(product) : -SnesEightEight.WholeOf(product)),
-                unchecked((ushort)(angle < 128 ? SnesSixteenSixteen.FromEightEight(product) : -SnesSixteenSixteen.FromEightEight(product))));
+            var expected = SignedSixteenSixteen.FromParts((short)(angle < 128 ? EightEight.WholeOf(product) : -EightEight.WholeOf(product)),
+                unchecked((ushort)(angle < 128 ? SixteenSixteen.FromEightEight(product) : -SixteenSixteen.FromEightEight(product))));
             if (pixel(a, r) != ExpectedPixel(angle, radius) || fixedProduct(a, r) != expected ||
                 cosine(a, r) != ExpectedPixel(angle + 64, radius) || negative(a, r) != ExpectedPixel(angle + 128, radius))
                 throw new InvalidDataException($"Compiled byte sine result differs at angle={angle}, radius={radius}.");
@@ -706,13 +706,13 @@ internal static class EnemyTrigonometryVerification
             {
                 int shiftedAngle = unchecked((byte)(angle + phase));
                 int shiftedProduct = bytes[shiftedAngle & 127] * radius;
-                short whole = (short)(shiftedAngle < 128 ? SnesEightEight.WholeOf(shiftedProduct) : -SnesEightEight.WholeOf(shiftedProduct));
-                ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SnesSixteenSixteen.FromEightEight(shiftedProduct) : -SnesSixteenSixteen.FromEightEight(shiftedProduct)));
+                short whole = (short)(shiftedAngle < 128 ? EightEight.WholeOf(shiftedProduct) : -EightEight.WholeOf(shiftedProduct));
+                ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SixteenSixteen.FromEightEight(shiftedProduct) : -SixteenSixteen.FromEightEight(shiftedProduct)));
                 var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
                 var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
                 var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
                 uint magnitude = words[shiftedAngle & 127] * (uint)radius;
-                if (fixedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) ||
+                if (fixedActual != SignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SignedSixteenSixteen.FromParts(whole, fraction) ||
                     unsignedActual.RawValue != magnitude)
                     throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");
             }
@@ -738,7 +738,7 @@ internal static class EnemyTrigonometryVerification
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         Func<byte, short>[] cinematicReaders =
-            [sample => FloorRotationMatrix.ReadSine(new SnesByteAngle(sample)), sample => EndingCreditsPresentation.ReadSine(new SnesByteAngle(sample))];
+            [sample => FloorRotationMatrix.ReadSine(new ByteAngle(sample)), sample => EndingCreditsPresentation.ReadSine(new ByteAngle(sample))];
         for (int index = 0; index < 320; index++)
         {
             short expected = Reference(index);
@@ -746,7 +746,7 @@ internal static class EnemyTrigonometryVerification
             if (index >= 64)
             {
                 byte angle = (byte)(index - 64);
-                AssertEqual(expected, EnemyTrigonometryTables.SignedSine(new SnesByteAngle(angle)), "all signed sine quadrants match cartridge");
+                AssertEqual(expected, EnemyTrigonometryTables.SignedSine(new ByteAngle(angle)), "all signed sine quadrants match cartridge");
                 foreach (var reader in cinematicReaders)
                     AssertEqual(expected, reader(angle), "cinematic matrix sample matches cartridge without bus");
             }
@@ -772,12 +772,12 @@ internal static class EnemyTrigonometryVerification
                 tide.TidePhase = (ushort)phase;
                 tide.TideFixedOffset = 12345;
                 step();
-                short sample = Reference(SnesAngle.FromRaw(unchecked((ushort)phase)).TableIndex);
+                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).TableIndex);
                 bool small = (option & RoomLiquidOptions.SmallTide) != 0;
                 bool still = option == RoomLiquidOptions.None;
                 int scale = still ? 0 : small ? 8 : 32;
                 int delta = still ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
-                if (tide.TideFixedOffset != SnesSixteenSixteen.FromEightEight(sample * scale) ||
+                if (tide.TideFixedOffset != SixteenSixteen.FromEightEight(sample * scale) ||
                     tide.TidePhase != unchecked((ushort)(phase + delta)))
                     throw new InvalidDataException($"Native tide differs at options={option}, phase={phase:X4}.");
             }

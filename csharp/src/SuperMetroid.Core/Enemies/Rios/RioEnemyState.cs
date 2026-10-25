@@ -11,7 +11,7 @@ public sealed class RioEnemyState
     internal AnimationProgramCursor<RioProgram> Program { get; set; }
 
     /// <summary>Signed 8.8 horizontal dive velocity retained while the hovering phase temporarily stops X.</summary>
-    public SnesSignedEightEight SavedHorizontalVelocity { get; internal set; }
+    public SignedEightEight SavedHorizontalVelocity { get; internal set; }
 
     /// <summary>The behaviour dispatched after the main AI's RNG advance; none once a kill has emptied the record.</summary>
     public RioEnemyFunction? Function { get; internal set; }

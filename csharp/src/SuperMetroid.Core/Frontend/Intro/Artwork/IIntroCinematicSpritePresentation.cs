@@ -14,6 +14,6 @@ public interface IIntroCinematicSpritePresentation
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits inherited by parts that do not specify their own palette.</param>
     /// <param name="originIsOnScreen">Selects the caller's ordinary origin-clipping path when true, or native off-screen Y-wrap path when false.</param>
-    void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
+    void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin,
         int paletteBits, bool originIsOnScreen);
 }

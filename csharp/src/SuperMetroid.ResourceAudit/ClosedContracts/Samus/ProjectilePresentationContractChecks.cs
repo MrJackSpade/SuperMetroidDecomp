@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
@@ -19,7 +20,6 @@ internal static class ProjectilePresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         string consumer = """
-            using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {
@@ -35,7 +35,7 @@ internal static class ProjectilePresentationContractChecks
                     trails.Resolve((ProjectileTrailFrame)ProjectileTrailVisualDefinitions.FrameCount);
                     grapple.Segment(3);
                     grapple.Segment(4);
-                    swing.Resolve(new SnesByteAngle(byte.MaxValue));
+                    swing.Resolve(new ByteAngle(byte.MaxValue));
                     sprites.Frame(ProjectileSpriteDefinitions.All[0]);
                     sprites.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.Power, 8));
                 }

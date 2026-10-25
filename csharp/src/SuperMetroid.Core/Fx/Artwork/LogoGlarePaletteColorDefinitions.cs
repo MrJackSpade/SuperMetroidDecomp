@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -16,17 +17,17 @@ internal static class LogoGlarePaletteColorDefinitions
 {
     /// <summary>Calculate only intermediate colors from the final supplied row.
     /// The caller resolves explicit per-frame edits first. No generated row is cached.</summary>
-    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if (!PostCreditsIconGlarePaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame == 13 ||
-            !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.Color(13, color), out Bgr555 basis))
+            !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.Color(13, color), out RgbColor basis))
             return false;
         int t = frame < 7 ? frame + 1 : 13 - frame;
         int red = ((basis.Red) * (7 - t) + 31 * t) / 7;
         int green = ((basis.Green) * (7 - t) + 31 * t) / 7;
         int blue = ((basis.Blue) * (7 - t) + 31 * t) / 7;
-        value = new Bgr555(red, green, blue);
+        value = new RgbColor(red, green, blue);
         return true;
     }
 }

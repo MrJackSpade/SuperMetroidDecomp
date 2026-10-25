@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -148,7 +148,7 @@ internal static class SamusPaletteNative
     extension(SamusFullBodyCycleColorCatalog colors)
     {
         /// <summary>One color of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
-        internal Bgr555 Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);
+        internal RgbColor Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);
 
         /// <summary>Copies the cycle palette at bank-$9B <paramref name="pointer"/> to Samus's suit colors.</summary>
         internal void Apply(SamusColours colours, ushort pointer) => colors.Apply(colours, Palette(pointer));

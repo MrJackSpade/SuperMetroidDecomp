@@ -17,7 +17,7 @@ internal static class YardRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new YardEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.CrawlingVelocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(1), default);
+        state.CrawlingVelocity = new EightEightVector<RoomPixels>(new SignedEightEight(1), default);
         state.AirborneFacingDirection = YardAirborneFacing.Right;
         state.ConsecutiveTurnCounter = 1;
         state.MovementFunction = Enum.GetValues<YardMovementFunction>()[^1];

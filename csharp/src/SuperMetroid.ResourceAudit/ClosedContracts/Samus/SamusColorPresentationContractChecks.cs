@@ -20,7 +20,6 @@ internal static class SamusColorPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
             using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Palettes;
             class ColorConsumer {

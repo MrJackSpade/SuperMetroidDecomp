@@ -25,13 +25,13 @@ internal static class SkulteraOwnedStateVerification
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");
 
-        SnesSignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
-        SnesSignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
+        SignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
+        SignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
         AssertEqual(right, state.RightVelocity, "rightward speed");
         AssertEqual(left, state.LeftVelocity, "leftward speed");
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(state.Radius, state.AngleDelta), "radius and angle step come from parameter two");
 
-        state.Angle = SnesAngle.FromTableIndex(250);
+        state.Angle = RotationAngle.FromTableIndex(250);
         state.AdvanceAngle();
         AssertEqual((byte)4, state.Angle.TableIndex, "the phase wraps forward through a full turn");
         state.AngleDelta = -state.AngleDelta;
@@ -40,8 +40,8 @@ internal static class SkulteraOwnedStateVerification
 
         slot.Clear();
         AssertEqual(null, state.Function, "a kill empties the function");
-        AssertEqual(SnesSignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties the rightward speed");
-        AssertEqual(SnesAngle.Zero, state.Angle, "a kill empties the phase");
+        AssertEqual(SignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties the rightward speed");
+        AssertEqual(RotationAngle.Zero, state.Angle, "a kill empties the phase");
         AssertEqual(20, state.Radius, "the radius outlives the kill");
         Console.WriteLine("Skultera owned state: speeds, phase wrap and the cleared record match.");
     }

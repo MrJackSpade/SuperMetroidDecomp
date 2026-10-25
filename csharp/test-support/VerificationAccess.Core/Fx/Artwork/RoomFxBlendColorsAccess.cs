@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -9,6 +9,6 @@ internal static class RoomFxBlendColorsAccess
     extension(RoomFxBlendColors self)
     {
         /// <summary>Creates requested blend colors on demand; no stock-color array is retained.</summary>
-        internal Bgr555[] CreateColors() => [self.primary.CreateColor(), self.secondary.CreateColor(), self.thirdOverride?.CreateColor() ?? Bgr555.Black];
+        internal RgbColor[] CreateColors() => [self.primary.CreateColor(), self.secondary.CreateColor(), self.thirdOverride?.CreateColor() ?? RgbColor.Black];
     }
 }

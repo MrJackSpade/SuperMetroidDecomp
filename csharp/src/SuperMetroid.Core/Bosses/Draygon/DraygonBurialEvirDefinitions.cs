@@ -30,6 +30,6 @@ internal static class DraygonBurialEvirDefinitions
             new Position16<RoomPixels>(
                 unchecked((ushort)(int)Math.Floor(CenterX + Radius * x)),
                 (ushort)Math.Floor(CenterY - Radius * y)),
-            new SnesByteAngle(unchecked((byte)((ushort)angle))));
+            new ByteAngle(unchecked((byte)((ushort)angle))));
     }
 }

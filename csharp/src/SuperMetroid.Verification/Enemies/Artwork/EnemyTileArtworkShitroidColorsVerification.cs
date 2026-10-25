@@ -12,6 +12,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -141,7 +142,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         {
             for (int color = 0; color < ShitroidColorDefinitions.TargetColorCount; color++)
             {
-                Bgr555 expected = colors.TargetColor(target, color);
+                RgbColor expected = colors.TargetColor(target, color);
                 AssertEqual(expected, state.TargetColours(target)[color],
                     $"live Shitroid {target} target buffer color {color}");
                 AssertEqual(expected, cgram.Colors[destination + color],

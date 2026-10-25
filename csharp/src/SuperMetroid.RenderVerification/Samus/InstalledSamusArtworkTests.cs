@@ -181,7 +181,7 @@ internal static class InstalledSamusArtworkTests
                 int character = (start - GameplayVramLayoutConstants.ObjectCharacters.Offset) / 16 + tile;
                 oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
                     SnesObjAttributeWord.Create(character, 4, 3),
-                    new Position16<OamPixels>((ushort)(32 + slot % 8 * 16), (ushort)(32 + slot / 8 * 16)));
+                    new Position16<SpritePixels>((ushort)(32 + slot % 8 * 16), (ushort)(32 + slot / 8 * 16)));
             }
         }
     }

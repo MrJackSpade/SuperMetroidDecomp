@@ -59,15 +59,15 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Y speed for an ordinary Etecoon hop.</summary>
     /// <remarks>These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside their consumers
     /// avoids replacing authored fixed-point values with host-side tuning.</remarks>
-    private static readonly SnesSignedSixteenSixteen EtecoonJumpYVelocity = SnesSignedSixteenSixteen.FromParts(-3, 0);
+    private static readonly SignedSixteenSixteen EtecoonJumpYVelocity = SignedSixteenSixteen.FromParts(-3, 0);
     /// <summary>Y speed for the stronger long jump.</summary>
-    private static readonly SnesSignedSixteenSixteen EtecoonLongJumpYVelocity = SnesSignedSixteenSixteen.FromParts(-4, 0);
+    private static readonly SignedSixteenSixteen EtecoonLongJumpYVelocity = SignedSixteenSixteen.FromParts(-4, 0);
     /// <summary>Y speed of the hop that lands the long route.</summary>
-    private static readonly SnesSignedSixteenSixteen EtecoonLongJumpLandingYVelocity = SnesSignedSixteenSixteen.FromParts(-1, 0);
+    private static readonly SignedSixteenSixteen EtecoonLongJumpLandingYVelocity = SignedSixteenSixteen.FromParts(-1, 0);
     /// <summary>X speed of rightward teaching runs.</summary>
-    private static readonly SnesSignedSixteenSixteen EtecoonRightVelocity = SnesSignedSixteenSixteen.FromParts(2, 0);
+    private static readonly SignedSixteenSixteen EtecoonRightVelocity = SignedSixteenSixteen.FromParts(2, 0);
     /// <summary>X speed of leftward teaching runs.</summary>
-    private static readonly SnesSignedSixteenSixteen EtecoonLeftVelocity = SnesSignedSixteenSixteen.FromParts(-2, 0);
+    private static readonly SignedSixteenSixteen EtecoonLeftVelocity = SignedSixteenSixteen.FromParts(-2, 0);
 
     /// <summary>Library-two sound queued when an Etecoon wakes near Samus.</summary>
     private static readonly SoundEffectId EtecoonWakeSound =
@@ -273,7 +273,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SetEtecoonVerticalVelocity(state, SnesSignedSixteenSixteen.Zero);
+        SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         slot.InstructionTimer = WrappingCountdown.Start(3);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
     }
@@ -544,7 +544,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SetEtecoonVerticalVelocity(state, SnesSignedSixteenSixteen.Zero);
+        SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         slot.InstructionTimer = WrappingCountdown.Start(3);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
     }
@@ -689,17 +689,17 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int wholeIncrement,
         int fractionIncrement)
     {
-        SnesSignedSixteenSixteen increment =
-            SnesSignedSixteenSixteen.FromParts(unchecked((short)wholeIncrement), fractionIncrement);
+        SignedSixteenSixteen increment =
+            SignedSixteenSixteen.FromParts(unchecked((short)wholeIncrement), fractionIncrement);
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 
     /// <summary>Installs a Y speed for the next movement phase.</summary>
-    private static void SetEtecoonVerticalVelocity(EtecoonEnemyState state, SnesSignedSixteenSixteen speed) =>
+    private static void SetEtecoonVerticalVelocity(EtecoonEnemyState state, SignedSixteenSixteen speed) =>
         state.Velocity = state.Velocity.WithY(speed);
 
     /// <summary>Installs an X speed for the next movement phase.</summary>
-    private static void SetEtecoonHorizontalVelocity(EtecoonEnemyState state, SnesSignedSixteenSixteen speed) =>
+    private static void SetEtecoonHorizontalVelocity(EtecoonEnemyState state, SignedSixteenSixteen speed) =>
         state.Velocity = state.Velocity.WithX(speed);
 
     /// <summary>Uses native post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>

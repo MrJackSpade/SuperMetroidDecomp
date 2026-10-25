@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// those pieces typed prevents host integer addition from accidentally carrying into the
 /// bank when a 65C816 routine advances only its sixteen-bit pointer register.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("cartridge bank and offset address")]
 public readonly record struct SnesAddress
 {
     /// <summary>Creates an address from its exact native bank and offset fields.</summary>

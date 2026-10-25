@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -25,7 +26,7 @@ public sealed class SamusPowerBombExplosionState
     public PowerBombFixedColorCatalog? PresentationColors { get; set; }
 
     /// <summary>The HDMA explosion status, 0 through 65535; the top bit set is the normal active state.</summary>
-    [NativeWord("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
+    [PackedFields("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
     public int Status
     {
         get;
@@ -78,7 +79,7 @@ public sealed class SamusPowerBombExplosionState
     public PowerBombRadius RenderedExplosionRadius { get; internal set; }
 
     /// <summary>The colour the explosion adds inside its window.</summary>
-    public Bgr555 FixedColor { get; internal set; }
+    public RgbColor FixedColor { get; internal set; }
 
     /// <summary>True from placement until cleanup releases the one-at-a-time Power Bomb lock.</summary>
     public bool IsArmed { get; private set; }
@@ -133,7 +134,7 @@ public sealed class SamusPowerBombExplosionState
         _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
-        FixedColor = Bgr555.Black;
+        FixedColor = RgbColor.Black;
     }
 
     /// <summary>
@@ -157,7 +158,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        FixedColor = Bgr555.Black;
+        FixedColor = RgbColor.Black;
         _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
@@ -239,7 +240,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        FixedColor = Bgr555.Black;
+        FixedColor = RgbColor.Black;
         _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
@@ -475,7 +476,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = PowerBombRadius.Zero;
         // Replacement colors may be brighter than the stock lifetime operand. Once
         // the HDMA window is released, do not retain their unused display remainder.
-        FixedColor = Bgr555.Black;
+        FixedColor = RgbColor.Black;
         return true;
     }
 
@@ -503,7 +504,7 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Loads the installed fixed-color triplet for a sequence and radius-derived index.</summary>
     private void ReadFixedColor(PowerBombFixedColorSequence sequence, int colorIndex)
     {
-        Bgr555 color = (PresentationColors ?? throw new InvalidOperationException(
+        RgbColor color = (PresentationColors ?? throw new InvalidOperationException(
                 "Power Bomb color requires installed fixed-color definitions."))
             .Resolve(sequence, colorIndex);
         FixedColor = color;

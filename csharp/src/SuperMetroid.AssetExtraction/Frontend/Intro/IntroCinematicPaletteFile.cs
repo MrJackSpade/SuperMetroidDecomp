@@ -23,7 +23,7 @@ public static class IntroCinematicPaletteFile
             document.Colors is not { Length: ScreenPalette.ColorCount })
             throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");
 
-        var image = new Bgr555[ScreenPalette.ColorCount];
+        var image = new RgbColor[ScreenPalette.ColorCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -31,7 +31,7 @@ public static class IntroCinematicPaletteFile
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Opening palette color {index} requires red, green and blue in 0..31.");
-            image[index] = color.ToBgr555();
+            image[index] = color.ToRgbColor();
         }
         return IntroCinematicPalette.FromColours(image);
     }

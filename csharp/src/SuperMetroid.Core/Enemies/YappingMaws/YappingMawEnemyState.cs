@@ -47,10 +47,10 @@ public sealed class YappingMawEnemyState
     public int SegmentRadius { get; internal set; }
 
     /// <summary>The bearing to Samus returned by CalculateAngleFromXY.</summary>
-    public SnesBearing AimAngle { get; internal set; }
+    public Bearing AimAngle { get; internal set; }
 
     /// <summary><see cref="AimAngle"/> in the table convention; rotates the curled link corrections.</summary>
-    public SnesAngle CurlAngle { get; internal set; }
+    public RotationAngle CurlAngle { get; internal set; }
 
     /// <summary>Native variable 2F: whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half.</summary>
     public bool MirroredBend { get; internal set; }
@@ -67,7 +67,7 @@ public sealed class YappingMawEnemyState
     /// one on which the retracting tongue has completed its full curve. Every addition carries the fraction into the
     /// whole part and wraps at 32 bits.
     /// </summary>
-    public SnesSignedSixteenSixteen Extension { get; internal set; }
+    public SignedSixteenSixteen Extension { get; internal set; }
 
     /// <summary>Record index into CommonEnemySpeeds_QuadraticallyIncreasing (native D holds the byte offset).</summary>
     public int QuadraticSpeedRecord { get; internal set; }
@@ -99,7 +99,7 @@ public sealed class YappingMawEnemyState
     public Offset16<RoomPixels> HeldSamusOffset { get; internal set; }
 
     /// <summary>Direction 0-7 selecting one of eight facing lists (native byte offset twice this).</summary>
-    [NativeWord("aim sector 0-7 indexing the eight native facing lists; the held placement applies only to the two horizontal sectors")]
+    [PackedFields("aim sector 0-7 indexing the eight native facing lists; the held placement applies only to the two horizontal sectors")]
     public int DirectionIndex { get; internal set; }
 
     /// <summary>

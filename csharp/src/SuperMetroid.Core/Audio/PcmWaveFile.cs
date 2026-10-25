@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// The single owner of the WAVE file encoding: its two-byte header fields and sixteen-bit samples are read and written
 /// at the widths the file format defines.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("PCM16 RIFF/WAVE file")]
 public static class PcmWaveFile
 {
     /// <summary>RIFF format code one, required to exclude compressed WAVE encodings.</summary>

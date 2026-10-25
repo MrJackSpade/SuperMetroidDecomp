@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <param name="Source">The source.</param>
 /// <param name="Name">The name.</param>
 /// <param name="Catalog">The catalog.</param>
-internal readonly record struct VerifyTorizoPaletteCatalogsAgainstRetailRomCase(int Source, string Name, Bgr555 Catalog);
+internal readonly record struct VerifyTorizoPaletteCatalogsAgainstRetailRomCase(int Source, string Name, RgbColor Catalog);

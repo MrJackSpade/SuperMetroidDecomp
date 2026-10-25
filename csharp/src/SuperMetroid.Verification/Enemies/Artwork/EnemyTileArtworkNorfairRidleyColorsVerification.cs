@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -153,11 +154,11 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
-                Bgr555 expected = controlCgram.Colors[color];
+                RgbColor expected = controlCgram.Colors[color];
                 if (color == NorfairRidleyPaletteDefinitionsConstants.InitialCgramIndex + 1)
-                    expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1)));
+                    expected = RgbColor.FromWord((ushort)(expected.ToWord() ^ (1)));
                 if (revealRowVisible && color == NorfairRidleyPaletteDefinitionsConstants.RevealCgramIndex + 3)
-                    expected = Bgr555.FromWord((ushort)(expected.ToWord() ^ (1 << 10)));
+                    expected = RgbColor.FromWord((ushort)(expected.ToWord() ^ (1 << 10)));
                 AssertEqual(expected, editedCgram.Colors[color], $"{context} CGRAM {color}");
             }
         }
@@ -168,13 +169,13 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
+                cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
             for (int color = 0; color < 32; color++)
-                cgram.SetColor(160 + color, Bgr555.FromWord(checked(ReadReferenceWord(0xa6e1cf + color * 2))));
+                cgram.SetColor(160 + color, RgbColor.FromWord(checked(ReadReferenceWord(0xa6e1cf + color * 2))));
             for (int color = 0; color < 15; color++)
             {
-                cgram.SetColor(113 + color, new Bgr555(0, 0, 0));
-                cgram.SetColor(241 + color, new Bgr555(0, 0, 0));
+                cgram.SetColor(113 + color, new RgbColor(0, 0, 0));
+                cgram.SetColor(241 + color, new RgbColor(0, 0, 0));
             }
             return new CreateReferenceResult(cgram, new RidleyEnemyState { Function = RidleyAiFunction.WaitBeforeLiftoff });
         }
@@ -191,7 +192,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             if (pointer != 0)
             {
                 for (int color = 0; color < 14; color++)
-                    cgram.SetColor(113 + color, Bgr555.FromWord(checked(ReadReferenceWord(0xa60000 + pointer + color * 2))));
+                    cgram.SetColor(113 + color, RgbColor.FromWord(checked(ReadReferenceWord(0xa60000 + pointer + color * 2))));
                 return;
             }
             state.FadePaletteOffset = 0;
@@ -209,7 +210,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
+                cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
             enemy.Presentation.BindColours(cgram.Gameplay);
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];

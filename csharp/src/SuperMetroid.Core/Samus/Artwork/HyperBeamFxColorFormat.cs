@@ -11,18 +11,18 @@ public static class HyperBeamFxColorFormat
     /// minimum as red,with ink1 also sharing the red maximum as green.
     /// Blue inks1/3 share the red minimum as red; inks1/4 share white blue.
     /// Other components remain independent inputs,including zero-valued edits.</remarks>
-    internal static bool TrySharedEndpoint(int frame, int ink, Bgr555 white, Bgr555 red, out Bgr555 basis, out int independentMask)
+    internal static bool TrySharedEndpoint(int frame, int ink, RgbColor white, RgbColor red, out RgbColor basis, out int independentMask)
     {
         int minimum = red.Green, maximum = red.Red;
         HyperBeamMaskedColor selected = new HyperBeamInk(frame, ink) switch
         {
-            (0, 1) => new HyperBeamMaskedColor(new Bgr555(white.Red, 0, 0), 6),
-            (2, 1 or 3) => new HyperBeamMaskedColor(new Bgr555(0, 0, minimum), 3),
-            (4, 1) => new HyperBeamMaskedColor(new Bgr555(minimum, maximum, 0), 4),
-            (4, 3) or (6, 3) => new HyperBeamMaskedColor(new Bgr555(minimum, 0, 0), 6),
-            (6, 1) => new HyperBeamMaskedColor(new Bgr555(minimum, 0, white.Blue), 2),
-            (6, 4) => new HyperBeamMaskedColor(new Bgr555(0, 0, white.Blue), 3),
-            _ => new HyperBeamMaskedColor(Bgr555.Black, 7),
+            (0, 1) => new HyperBeamMaskedColor(new RgbColor(white.Red, 0, 0), 6),
+            (2, 1 or 3) => new HyperBeamMaskedColor(new RgbColor(0, 0, minimum), 3),
+            (4, 1) => new HyperBeamMaskedColor(new RgbColor(minimum, maximum, 0), 4),
+            (4, 3) or (6, 3) => new HyperBeamMaskedColor(new RgbColor(minimum, 0, 0), 6),
+            (6, 1) => new HyperBeamMaskedColor(new RgbColor(minimum, 0, white.Blue), 2),
+            (6, 4) => new HyperBeamMaskedColor(new RgbColor(0, 0, white.Blue), 3),
+            _ => new HyperBeamMaskedColor(RgbColor.Black, 7),
         };
         basis = selected.Value;
         independentMask = selected.Mask;
@@ -32,16 +32,16 @@ public static class HyperBeamFxColorFormat
     /// <remarks>The repeated white at8D:D906 has equal red,green,blue.
     /// Expand one0..31 intensity into all three channels. Edited unequal
     /// channels remain independent overrides; no generated color is stored.</remarks>
-    internal static Bgr555 Neutral(int intensity)
+    internal static RgbColor Neutral(int intensity)
     {
         if ((uint)intensity > 31) throw new ArgumentOutOfRangeException(nameof(intensity));
-        return new Bgr555(intensity, intensity, intensity);
+        return new RgbColor(intensity, intensity, intensity);
     }
     /// <summary>Rotates the red endpoint into green by exchanging red and green channels.</summary>
     /// <remarks>Original projectile frame4 ink7 ($8D:D964) derives from
     /// frame0 ink3 ($D90C). Blue stays fixed; RGB5 channel exchange has no
     /// rounding,saturation or overflow. Differing asset values remain inputs.</remarks>
-    internal static Bgr555 GreenFromRed(Bgr555 red) =>
+    internal static RgbColor GreenFromRed(RgbColor red) =>
         new(red.Green, red.Red, red.Blue);
 
     /// <summary>Selects middle projectile shades calculated from their adjacent inks.</summary>
@@ -59,14 +59,14 @@ public static class HyperBeamFxColorFormat
     /// (red*(5-weight)+white*weight+2)/5. There are no half ties; numerator
     /// is at most157,with no saturation or overflow. Independent source edits
     /// preserve supplied targets through input overrides,not a generated cache.</remarks>
-    internal static Bgr555 RedHighlight(Bgr555 red, Bgr555 white, int ink)
+    internal static RgbColor RedHighlight(RgbColor red, RgbColor white, int ink)
     {
         if (ink is < 4 or > 7) throw new ArgumentOutOfRangeException(nameof(ink));
         int whiteWeight = 8 - ink, redWeight = 5 - whiteWeight;
         int r = ((red.Red) * redWeight + (white.Red) * whiteWeight + 2) / 5;
         int g = ((red.Green) * redWeight + (white.Green) * whiteWeight + 2) / 5;
         int b = ((red.Blue) * redWeight + (white.Blue) * whiteWeight + 2) / 5;
-        return new Bgr555(r, g, b);
+        return new RgbColor(r, g, b);
     }
     /// <summary>Asset filename for the Hyper Beam projectile palette colors, separate from Samus's full-body Hyper Beam cycle.</summary>
     public const string FileName = "hyper-beam-fx-colors.json";

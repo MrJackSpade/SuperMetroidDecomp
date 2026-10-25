@@ -85,9 +85,9 @@ public sealed class PipeBugEnemyState
     /// <summary>Gets the function selected for this Norfair member after rising.</summary>
     public PipeBugEnemyFunction NorfairPostRiseFunction { get; internal set; }
     /// <summary>A yellow Pipe Bug's signed 16.16 rightward flight velocity in room pixels per update.</summary>
-    public SnesSignedSixteenSixteen PositiveVelocity { get; internal set; }
+    public SignedSixteenSixteen PositiveVelocity { get; internal set; }
     /// <summary>A yellow Pipe Bug's leftward flight velocity: the separately authored negative record, not a negation.</summary>
-    public SnesSignedSixteenSixteen NegativeVelocity { get; internal set; }
+    public SignedSixteenSixteen NegativeVelocity { get; internal set; }
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
     public WrappingCountdown EmergenceDelay { get; internal set; }
     /// <summary>

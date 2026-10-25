@@ -38,10 +38,10 @@ public sealed class RoomFxPaletteBlendCatalog
     }
 
     /// <summary>Cosmetic fixed-color tint selected when Ceres Ridley is alive.</summary>
-    public Bgr555 CeresHazeBlue { get; }
+    public RgbColor CeresHazeBlue { get; }
 
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
-    public Bgr555 CeresHazeRed { get; }
+    public RgbColor CeresHazeRed { get; }
 
     /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
     public void Apply(BackgroundColourSets colours, RoomFxPaletteBlend selection)
@@ -49,7 +49,7 @@ public sealed class RoomFxPaletteBlendCatalog
         Ensure.NotNull(colours);
         if (selection == RoomFxPaletteBlend.None)
         {
-            RoomFxColourDefinitions.Layer3Empty.In(colours).Fill(Bgr555.Black);
+            RoomFxColourDefinitions.Layer3Empty.In(colours).Fill(RgbColor.Black);
             return;
         }
         SelectColors(selection).Apply(RoomFxColourDefinitions.Layer3Blend.In(colours));

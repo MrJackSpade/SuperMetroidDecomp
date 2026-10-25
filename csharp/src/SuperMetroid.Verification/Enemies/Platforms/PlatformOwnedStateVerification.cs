@@ -28,8 +28,8 @@ internal static class PlatformOwnedStateVerification
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 
-        SnesSignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
-        SnesSignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
+        SignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
+        SignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
         AssertEqual(right, state.RightSpeed, "rightward speed is the record's positive half");
         AssertEqual(left, state.LeftSpeed, "leftward speed is the record's negative half");
         AssertEqual((ushort)0, state.RestingHeight.Y, "one pixel below the last row wraps to the top row");
@@ -43,8 +43,8 @@ internal static class PlatformOwnedStateVerification
         }
 
         slot.Clear();
-        AssertEqual(SnesSignedSixteenSixteen.Zero, state.RightSpeed, "a kill empties the rightward speed");
-        AssertEqual(SnesSignedSixteenSixteen.Zero, state.LeftSpeed, "a kill empties the leftward speed");
+        AssertEqual(SignedSixteenSixteen.Zero, state.RightSpeed, "a kill empties the rightward speed");
+        AssertEqual(SignedSixteenSixteen.Zero, state.LeftSpeed, "a kill empties the leftward speed");
         AssertEqual(Position16<RoomPixels>.Zero, state.RestingHeight, "a kill empties the resting height");
         AssertEqual(0, state.YSpeedTableIndex, "a kill empties the acceleration index");
         Console.WriteLine("Platform owned state: speeds, wrapped resting height, clamped acceleration and the cleared record match.");

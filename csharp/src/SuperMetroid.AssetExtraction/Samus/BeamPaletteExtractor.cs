@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -26,7 +27,7 @@ public static class BeamPaletteExtractor
             for (int i = 0; i < colors.Length; i++)
             {
                 ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (pointer + i * 2));
-                colors[i] = PaletteRgb5.From(Bgr555.FromWord(word));
+                colors[i] = PaletteRgb5.From(RgbColor.FromWord(word));
             }
             palettes.Add(BeamPaletteDefinitions.Key(selection), colors);
         }

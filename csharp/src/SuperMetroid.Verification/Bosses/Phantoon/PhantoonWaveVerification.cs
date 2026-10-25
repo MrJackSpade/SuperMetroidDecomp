@@ -1,11 +1,11 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
@@ -84,10 +84,10 @@ internal static class PhantoonWaveVerification
         // and the old extra-step denominator without requiring the local CPU trace.
         foreach (var (current, target, expected) in new[] { new VerifyPhantoonFadeColorsCase(14, 0, 12), new VerifyPhantoonFadeColorsCase(9692, 0, 8601), new VerifyPhantoonFadeColorsCase(0, 14, 1), new VerifyPhantoonFadeColorsCase(0, 9692, 34) })
         {
-            Bgr555 actual = PhantoonPresentation.CalculatePhantoonTransitionColor(1, 12, Bgr555.FromWord((ushort)current), Bgr555.FromWord((ushort)target));
+            RgbColor actual = PhantoonPresentation.CalculatePhantoonTransitionColor(1, 12, RgbColor.FromWord((ushort)current), RgbColor.FromWord((ushort)target));
             AssertEqual(expected, actual, "original-CPU Phantoon fixed-point palette component rounding");
         }
-        AssertEqual(0, PhantoonPresentation.CalculatePhantoonTransitionColor(1, 1, Bgr555.FromWord(14), Bgr555.Black),
+        AssertEqual(0, PhantoonPresentation.CalculatePhantoonTransitionColor(1, 1, RgbColor.FromWord(14), RgbColor.Black),
             "fast fade reaches target on first interpolated update");
     }
 

@@ -267,9 +267,9 @@ internal sealed class IntroRinkaSystem
     /// <summary>Advances horizontal whole motion plus a half-pixel fractional carry with native word wrapping.</summary>
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
-        SnesFixedPosition x = rinka.Position.X;
+        FixedCoordinate x = rinka.Position.X;
         uint subSum = (uint)x.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
-        int carry = (int)(SnesCarry.OutOfWord(subSum));
+        int carry = (int)(WordCarry.OutOfWord(subSum));
         rinka.Position = rinka.Position.WithX(new(
             unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
     }
@@ -277,9 +277,9 @@ internal sealed class IntroRinkaSystem
     /// <summary>Advances the Rinka's vertical half-pixel fraction and carries into its whole position.</summary>
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
-        SnesFixedPosition y = rinka.Position.Y;
+        FixedCoordinate y = rinka.Position.Y;
         uint subSum = (uint)y.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
         rinka.Position = rinka.Position.WithY(new(
-            unchecked((ushort)(y.Whole + (SnesCarry.OutOfWord(subSum)))), unchecked((ushort)subSum)));
+            unchecked((ushort)(y.Whole + (WordCarry.OutOfWord(subSum)))), unchecked((ushort)subSum)));
     }
 }

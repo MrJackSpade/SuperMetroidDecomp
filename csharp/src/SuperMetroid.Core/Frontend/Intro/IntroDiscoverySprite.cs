@@ -193,6 +193,6 @@ internal sealed class IntroDiscoverySprite
             y < CinematicSpriteDrawDefinitions.OnScreenOriginYLimit;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(pose, objects, origin.ToOam(), Attributes.Raw, originIsOnScreen);
+            .Draw(pose, objects, origin.ToSpritePosition(), Attributes.Raw, originIsOnScreen);
     }
 }

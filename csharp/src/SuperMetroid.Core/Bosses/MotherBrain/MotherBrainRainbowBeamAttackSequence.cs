@@ -67,16 +67,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Exposing the translated movement owner's word lets the live room adapter publish the
     /// real beam geometry without maintaining a second aim calculation.
     /// </summary>
-    public SnesAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
+    public RotationAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
 
     /// <summary>
     /// Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final
     /// beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.
     /// </summary>
-    public SnesAngle LowerNeckAngle { get; internal set; } = SnesAngle.FromRaw(12288);
+    public RotationAngle LowerNeckAngle { get; internal set; } = RotationAngle.FromRaw(12288);
 
     /// <summary>Upper neck angle, correspondingly lowered to <c>$2000</c>.</summary>
-    public SnesAngle UpperNeckAngle { get; internal set; } = SnesAngle.FromRaw(8192);
+    public RotationAngle UpperNeckAngle { get; internal set; } = RotationAngle.FromRaw(8192);
 
     /// <summary>
     /// Number of live Mother Brain bomb enemy projectiles at body WRAM <c>$7E:802A</c>.

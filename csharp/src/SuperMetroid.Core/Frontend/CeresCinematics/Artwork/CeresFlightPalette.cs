@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 public sealed class CeresFlightPalette
 {
     /// <summary>Independent painted colors; only repeated sections and endpoint-defined ramps are calculated.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> colors = [];
+    internal readonly Dictionary<ColourCell, RgbColor> colors = [];
     /// <summary>Supplied slots that differ from those calculated relationships remain independent.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Separates the supplied CGRAM image into independent colors and edited exceptions.</summary>
-    internal CeresFlightPalette(Bgr555[] supplied)
+    internal CeresFlightPalette(RgbColor[] supplied)
     {
         for (int index = 0; index < supplied.Length; index++)
         {
@@ -25,10 +25,10 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>Selected BGR555 color, including independent resource edits.</summary>
-    public Bgr555 ColorAt(int index)
+    public RgbColor ColorAt(int index)
     {
         if ((uint)index >= ScreenPalette.ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new ColourCell(0, index), out RgbColor edited) ? edited : Calculate(index);
     }
 
     /// <summary>Writes the colours as little-endian words for the content identity, without retaining them.</summary>
@@ -36,7 +36,7 @@ public sealed class CeresFlightPalette
     {
         if (destination.Length < ColorWordBytes) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
         for (int index = 0; index < ScreenPalette.ColorCount; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(destination.Slice(index * Bgr555.ByteCount), ColorAt(index).ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(destination.Slice(index * RgbColor.ByteCount), ColorAt(index).ToWord());
     }
 
     /// <summary>
@@ -64,24 +64,24 @@ public sealed class CeresFlightPalette
     private const int RampEnd = 6 * 16 + 8;
 
     /// <summary>Calculates repeated palette slots or interpolated ramp colors from independent inputs.</summary>
-    private Bgr555 Calculate(int index)
+    private RgbColor Calculate(int index)
     {
         int source = SharedIndex(index);
         if (!IsRampInterior(source)) return colors[new ColourCell(0, source)];
         int step = source - RampStart;
-        Bgr555 first = colors[new ColourCell(0, RampStart)], last = colors[new ColourCell(0, RampEnd)];
+        RgbColor first = colors[new ColourCell(0, RampStart)], last = colors[new ColourCell(0, RampEnd)];
         return first.Zip(last, (_, start, end) => (start * (7 - step) + end * step + 3) / 7);
     }
 
     /// <summary>The bytes of the colours as little-endian words.</summary>
-    public const int ColorWordBytes = ScreenPalette.ColorCount * Bgr555.ByteCount;
+    public const int ColorWordBytes = ScreenPalette.ColorCount * RgbColor.ByteCount;
 
     /// <summary>Replaces every colour of the screen with the selected approach palette; cinematic timing, brightness, and fades remain the caller's responsibility.</summary>
     /// <param name="colours">The screen's colours.</param>
     public void LoadTo(ScreenPalette colours)
     {
         Ensure.NotNull(colours);
-        Span<Bgr555> image = stackalloc Bgr555[ScreenPalette.ColorCount];
+        Span<RgbColor> image = stackalloc RgbColor[ScreenPalette.ColorCount];
         for (int index = 0; index < image.Length; index++)
             image[index] = ColorAt(index);
         colours.Load(image);

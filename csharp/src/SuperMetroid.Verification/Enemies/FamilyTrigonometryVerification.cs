@@ -17,12 +17,12 @@ internal static class FamilyTrigonometryVerification
     /// <summary>Compares all 256 signed sine samples and Bull's production lookup with retail words.</summary>
     internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
-        Func<byte, short> bullSample = angle => BullBehavior.ReadBullSignedSine(new SnesByteAngle(angle));
+        Func<byte, short> bullSample = angle => BullBehavior.ReadBullSignedSine(new ByteAngle(angle));
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
             short original = unchecked((short)(SnesLittleEndian.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
-            AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine(new SnesByteAngle((byte)angle)), "signed 16-bit sample");
+            AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine(new ByteAngle((byte)angle)), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }
@@ -41,8 +41,8 @@ internal static class FamilyTrigonometryVerification
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
         Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
         var bullMove = new Action<RoomEnemySlot, BullEnemyState>(BullBehavior.MoveBull);
-        var mawX = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawX(new SnesByteAngle(unchecked((byte)angle)), length));
-        var mawY = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawY(new SnesByteAngle(unchecked((byte)angle)), length));
+        var mawX = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawX(new ByteAngle(unchecked((byte)angle)), length));
+        var mawY = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawY(new ByteAngle(unchecked((byte)angle)), length));
         Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
 
         ushort MawReference(int angle, int length)
@@ -73,14 +73,14 @@ internal static class FamilyTrigonometryVerification
             int product = (Math.Abs((int)sample) / 256) * speed;
             int displacement = product;
             if (sample < 0 && product != 0)
-                displacement = -product - (SnesSixteenSixteen.FractionOf(product) == 0 ? 1 : 0);
+                displacement = -product - (SixteenSixteen.FractionOf(product) == 0 ? 1 : 0);
             return unchecked(initial + (uint)displacement);
         }
         foreach (uint initial in new uint[] { 0, 0xffffff37 })
         for (int angle = 0; angle < 256; angle++)
         foreach (int speed in WordBoundarySamples())
         {
-            bull.Position = new(new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
+            bull.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
             bullState.Angle = (ushort)(65280 | angle);
             bullState.Speed = (ushort)speed;
             bullMove(bull, bullState);
@@ -102,11 +102,11 @@ internal static class FamilyTrigonometryVerification
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            previous.Position = new(new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
-            segmentState.OrbitAngle = SnesAngle.FromRaw((ushort)angle);
+            previous.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
+            segmentState.OrbitAngle = RotationAngle.FromRaw((ushort)angle);
             place(segment, segmentState);
-            uint expectedX = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
-            uint expectedY = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
+            uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
+            uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
             if ((segment.Position.X.RawValue) != expectedX ||
                 (segment.Position.Y.RawValue) != expectedY ||
                 segmentState.OrbitAngle.RawValue != angle)

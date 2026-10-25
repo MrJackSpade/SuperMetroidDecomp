@@ -20,7 +20,7 @@ public readonly record struct SamusXrayDisplaySnapshot(
     bool FinishedThisFrame,
     XraySetupStage SetupStage,
     XrayBeamPhase BeamPhase,
-    SnesAngle Angle,
+    RotationAngle Angle,
     int AngularWidth,
     Position16<RoomPixels> SamusPosition,
     bool FacingLeft,

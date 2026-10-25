@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -15,10 +15,10 @@ internal static class FrontendScenePixelsAccess
     private static RenderFrameIdentity Identity => new(1, 1, 0);
 
     /// <summary>Rasterizes a layered snapshot.</summary>
-    internal static Rgba32[] Pixels(LayeredScene snapshot) =>
+    internal static RgbaPixel[] Pixels(LayeredScene snapshot) =>
         DisplayRendering.Render(new DisplayPacket(Identity, snapshot));
 
     /// <summary>Rasterizes a published gameplay frame.</summary>
     /// <param name="frame">The published frame.</param>
-    internal static Rgba32[] Pixels(GameplayDisplayFrame frame) => Pixels(GameplayDisplayCapture.Capture(frame));
+    internal static RgbaPixel[] Pixels(GameplayDisplayFrame frame) => Pixels(GameplayDisplayCapture.Capture(frame));
 }

@@ -12,7 +12,7 @@ public sealed class WaverEnemyState
     internal AnimationProgramCursor<WaverProgram> Program { get; set; }
 
     /// <summary>Signed 16.16 horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
-    public SnesSignedSixteenSixteen XVelocity { get; internal set; }
+    public SignedSixteenSixteen XVelocity { get; internal set; }
 
     /// <summary>The animation selection currently installed.</summary>
     public WaverAnimationSelector CurrentInstructionListIndex { get; internal set; }
@@ -21,7 +21,7 @@ public sealed class WaverEnemyState
     /// The vertical wave's phase; only its table index is read, so it wraps after a full turn. It advances two table
     /// units per unobstructed update and a vertical collision reflects it by half a turn.
     /// </summary>
-    public SnesAngle Angle { get; internal set; }
+    public RotationAngle Angle { get; internal set; }
 
     /// <summary>Set by the spin animation's last cue after the four-frame spin completes.</summary>
     public bool SpinFinished { get; internal set; }
@@ -38,9 +38,9 @@ public sealed class WaverEnemyState
     /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        XVelocity = SnesSignedSixteenSixteen.Zero;
+        XVelocity = SignedSixteenSixteen.Zero;
         CurrentInstructionListIndex = WaverAnimationSelector.None;
-        Angle = SnesAngle.Zero;
+        Angle = RotationAngle.Zero;
         SpinFinished = false;
         RequestedInstructionListIndex = WaverAnimationSelector.None;
     }

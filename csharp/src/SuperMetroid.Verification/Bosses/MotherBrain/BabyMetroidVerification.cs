@@ -77,7 +77,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
-    AssertEqual(0x3800, baby.Properties.ToNativeWord(), "Baby population/init property OR");
+    AssertEqual(0x3800, baby.Properties.ToWord(), "Baby population/init property OR");
     AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
     AssertEqual(SuperMetroid.Core.Hardware.SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 0), baby.GraphicsOffset,
         "Baby draws from transferred tile 160 at the base priority");
@@ -104,7 +104,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
-    AssertEqual(SuperMetroid.Core.Hardware.SnesAngle.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
+    AssertEqual(SuperMetroid.Core.Spatial.RotationAngle.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
     AssertEqual(0x0a00, baby.Speed, "Baby first curve speed");
     AssertEqual(0xf772, baby.Velocity.X.RawValue, "Baby first ROM sine X velocity");
     AssertEqual(0x051e, baby.Velocity.Y.RawValue, "Baby first ROM cosine Y velocity");

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -44,7 +45,7 @@ public static class CrocomireColorExtractor
             {
                 int address = source + index * sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!Bgr555.IsColorWord(native))
+                if (!RgbColor.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Crocomire color ${address:X6} has an unrepresentable high bit.");
                 colors[index] = new PaletteRgb5

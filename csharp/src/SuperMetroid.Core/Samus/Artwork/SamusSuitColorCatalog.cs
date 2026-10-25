@@ -18,11 +18,11 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class SamusSuitColorCatalog
 {
     /// <summary>Complete authored Power suit palette, including its transparent-slot payload.</summary>
-    private readonly Bgr555[] power;
+    private readonly RgbColor[] power;
     /// <summary>Only Varia slots differing from the Power palette's shared inks.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> varia;
+    internal readonly Dictionary<ColourCell, RgbColor> varia;
     /// <summary>Only Gravity slots differing from the Power palette's shared inks.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> gravity;
+    internal readonly Dictionary<ColourCell, RgbColor> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
     /// <remarks>Original $9B:9400/9520/9800 share twelve of sixteen slots
@@ -30,7 +30,7 @@ public sealed class SamusSuitColorCatalog
     /// replace the palette roster. Comparing supplied values preserves arbitrary
     /// independent player edits. This removes duplicated words; the remaining
     /// base-ink disposition is documented on the catalog.</remarks>
-    internal SamusSuitColorCatalog(Bgr555[] power, Bgr555[] varia, Bgr555[] gravity)
+    internal SamusSuitColorCatalog(RgbColor[] power, RgbColor[] varia, RgbColor[] gravity)
     {
         this.power = power;
         this.varia = Differences(varia, power);
@@ -38,9 +38,9 @@ public sealed class SamusSuitColorCatalog
     }
 
     /// <summary>Finds independently selected suit inks while omitting slots that reuse the Power palette word.</summary>
-    private static Dictionary<ColourCell, Bgr555> Differences(Bgr555[] supplied, Bgr555[] power)
+    private static Dictionary<ColourCell, RgbColor> Differences(RgbColor[] supplied, RgbColor[] power)
     {
-        var differences = new Dictionary<ColourCell, Bgr555>();
+        var differences = new Dictionary<ColourCell, RgbColor>();
         for (int index = 0; index < supplied.Length; index++)
             if (supplied[index] != power[index]) differences.Add(new ColourCell(0, index), supplied[index]);
         return differences;
@@ -50,9 +50,9 @@ public sealed class SamusSuitColorCatalog
     /// <param name="suitTableOffset">Native categorical table offset: 0 for Power, 2 for Varia, or 4 for Gravity.</param>
     /// <param name="colorIndex">OBJ palette slot from 0 through 15, including the transparent slot.</param>
     /// <returns>The selected packed SNES RGB555 word.</returns>
-    public Bgr555 Resolve(int suitTableOffset, int colorIndex)
+    public RgbColor Resolve(int suitTableOffset, int colorIndex)
     {
-        Dictionary<ColourCell, Bgr555>? differences = suitTableOffset switch
+        Dictionary<ColourCell, RgbColor>? differences = suitTableOffset switch
         {
             0 => null,
             2 => varia,
@@ -61,7 +61,7 @@ public sealed class SamusSuitColorCatalog
         };
         if ((uint)colorIndex >= SamusSuitColorFormat.ColorsPerSuit)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        return differences is not null && differences.TryGetValue(new ColourCell(0, colorIndex), out Bgr555 color)
+        return differences is not null && differences.TryGetValue(new ColourCell(0, colorIndex), out RgbColor color)
             ? color : power[colorIndex];
     }
 

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingPostShot
 {
     /// <summary>Palette captured before the shot and Samus fades begin.</summary>
-    private readonly Bgr555[] sourceColours;
+    private readonly RgbColor[] sourceColours;
     /// <summary>Post-shot update count driving the shooting and Samus fade schedules.</summary>
     private int calls;
     /// <summary>Frames remaining after rotation reaches its minimum scale.</summary>
@@ -14,7 +14,7 @@ internal sealed class EndingPostShot
     /// <summary>Current size of the rotating shot graphic, clamped at the native minimum.</summary>
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
-    public SnesAngle Angle { get; private set; } = SnesAngle.Zero;
+    public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
     /// <summary>Number of the subtitle and logo parts shown so far.</summary>
     public int PartsShown { get; private set; }
     /// <summary>Indicates that the shot graphic has reached its minimum scale.</summary>
@@ -62,7 +62,7 @@ internal sealed class EndingPostShot
     private void ApplyFade(ColourRun row, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
-        ReadOnlySpan<Bgr555> source = row.SamePositionsIn(sourceColours);
+        ReadOnlySpan<RgbColor> source = row.SamePositionsIn(sourceColours);
         for (int colour = 0; colour < row.Count; colour++)
         {
             // The 8.8 accumulator subtracts component<<3 on every call;

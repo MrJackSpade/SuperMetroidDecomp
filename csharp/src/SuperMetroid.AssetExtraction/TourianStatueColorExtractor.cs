@@ -4,6 +4,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -48,7 +49,7 @@ public static class TourianStatueColorExtractor
         {
             int address = source + color * sizeof(ushort);
             ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            if (!Bgr555.IsColorWord(word))
+            if (!RgbColor.IsColorWord(word))
                 throw new InvalidDataException($"Tourian statue palette word ${address:X6} has bit 15 set.");
             result[color] = new PaletteRgb5
             {

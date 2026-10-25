@@ -40,10 +40,10 @@ internal static class ShaktoolInstructionDefinitionsVerification
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
             centerState.MotionFlags = 0;
-            centerState.OrbitAngle = SnesAngle.FromRaw(unchecked((ushort)(midpoint ^ 0x8000)));
+            centerState.OrbitAngle = RotationAngle.FromRaw(unchecked((ushort)(midpoint ^ 0x8000)));
             centerState.AngularVelocity = 0;
             centerState.ResetOrientation();
-            nextState.OrbitAngle = SnesAngle.FromRaw(midpoint);
+            nextState.OrbitAngle = RotationAngle.FromRaw(midpoint);
             orient(center, centerState);
             AssertEqual(bucket, centerState.OrientationBucket,
                 $"Shaktool production orientation bucket {bucket:X2}");

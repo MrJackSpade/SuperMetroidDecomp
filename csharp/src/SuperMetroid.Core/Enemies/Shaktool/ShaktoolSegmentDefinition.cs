@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal readonly record struct ShaktoolSegmentDefinition(
     EnemyProperties PropertyMask,
     int OwnerSlotDistance,
-    SnesAngle InitialOrbitAngle,
+    RotationAngle InitialOrbitAngle,
     ShaktoolProgram InitialProgram,
     int Layer,
     ShaktoolPreInstruction PreInstruction,

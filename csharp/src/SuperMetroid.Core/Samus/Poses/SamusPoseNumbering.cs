@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// tables by number, and the installed Samus artwork holds one entry per numbered pose. This is the one place a pose
 /// becomes its number or a number its pose.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("pose numbers of the installed Samus pose tables")]
 internal static class SamusPoseNumbering
 {
     /// <summary>The number of poses with records in the cartridge's pose tables.</summary>

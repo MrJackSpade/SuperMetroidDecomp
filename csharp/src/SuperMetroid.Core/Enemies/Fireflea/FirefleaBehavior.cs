@@ -59,12 +59,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.UsesCircularMovement)
         {
             state.Center = slot.Position.Whole;
-            state.Angle = SnesAngle.FromRaw(unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Spawn.Population.Parameter1))));
+            state.Angle = RotationAngle.FromRaw(unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Spawn.Population.Parameter1))));
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
             // begins using the high byte on frame one and corrects the position immediately.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(new SnesByteAngle(SnesLittleEndian.LowByte(state.Angle.RawValue)), checked((ushort)state.Radius)));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(new ByteAngle(SnesLittleEndian.LowByte(state.Angle.RawValue)), checked((ushort)state.Radius)));
             return;
         }
 
@@ -84,8 +84,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             // `$A3:8E2D` performs an unaligned word read at var0+1: the speed's middle sixteen
             // bits, the high byte of its fraction under the low byte of its whole part. That
             // reproduces the exact signed 8.8 delta, including negative half-speeds.
-            SnesSignedSixteenSixteen speed = state.AngularSpeed;
-            state.Angle = state.Angle.AddRaw(SnesEightEight.FromSixteenSixteen(speed.WholePixels, speed.Fraction));
+            SignedSixteenSixteen speed = state.AngularSpeed;
+            state.Angle = state.Angle.AddRaw(EightEight.FromSixteenSixteen(speed.WholePixels, speed.Fraction));
             return;
         }
 

@@ -129,7 +129,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private IntroDiscoverySprite? zebesTitleActor;
 
     /// <summary>Signed 16.16 camera offset applied to the Mode-7 Ceres or Zebes scene.</summary>
-    internal FixedPosition<Mode7Pixels> Background { get; private set; } = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
+    internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
     /// <summary>
     /// Mode-7 scene scale in 1/256 units (256 is identity). Every producer keeps it within zero through
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
@@ -137,7 +137,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     internal int Zoom { get; private set; } = CeresDestructionSceneDefinitions.Motion.IdentityScale;
     /// <summary>Mode-7 rotation angle sampled from the compiled signed sine table.</summary>
-    private SnesAngle angle;
+    private RotationAngle angle;
     /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
     [IntegerQuantity("screen brightness level, zero through fifteen")]
     private int brightness;
@@ -511,8 +511,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Upload(CeresDestructionUpload.ZebesReveal);
 
         actors.Clear();
-        Background = FixedPosition<Mode7Pixels>.Zero;
-        angle = SnesAngle.Zero;
+        Background = FixedPosition<FloorPixels>.Zero;
+        angle = RotationAngle.Zero;
         Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
         brightness = 0;
         fadeCounter = 1;
@@ -894,7 +894,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Adds a fractional asteroid X step and wraps its whole coordinate around the world's width.</summary>
     private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
-        SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
@@ -903,10 +903,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.
-        uint fixedPosition = new SnesFixedPosition(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
-        uint fixedVelocity = SnesSixteenSixteen.FromEightEight((uint)velocity);
+        uint fixedPosition = new FixedCoordinate(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
+        uint fixedVelocity = SixteenSixteen.FromEightEight((uint)velocity);
         fixedPosition = unchecked(fixedPosition - fixedVelocity);
-        actor.Position = actor.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
+        actor.Position = actor.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
     }
 
     /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
@@ -916,8 +916,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         RenderLayer[] layers;
         if (usesFloor && (mainScreenLayers & ScreenLayers.Bg1) == ScreenLayers.None)
         {
-            layers = [new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
-                new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+            layers = [new SpritePriorityRenderLayer(0), new SpritePriorityRenderLayer(1),
+                new SpritePriorityRenderLayer(2), new SpritePriorityRenderLayer(3)];
         }
         else if (usesFloor)
         {
@@ -925,9 +925,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 Phase <= CeresDestructionPhase.FadeOutCeres
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
-                Background.Whole.AsSignedRegister());
-            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
-                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+                Background.Whole.AsSignedWord());
+            layers = [new SpritePriorityRenderLayer(0), new FloorRenderLayer(floor, AffineFloor.Of(FloorMap(), UploadedFloorTiles())),
+                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2), new SpritePriorityRenderLayer(3)];
         }
         else
         {

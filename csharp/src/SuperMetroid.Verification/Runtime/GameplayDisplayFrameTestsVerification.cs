@@ -57,7 +57,7 @@ internal static class GameplayDisplayFrameTestsVerification
     private static void VerifyRepaintAndImmutability(SuperMetroidRuntime runtime)
     {
         GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
-        Rgba32[] pixels = DisplayRendering.Render(GameplayDisplayCapture.Capture(frame));
+        RgbaPixel[] pixels = DisplayRendering.Render(GameplayDisplayCapture.Capture(frame));
         AssertTrue(pixels.SequenceEqual(DisplayRendering.Render(GameplayDisplayCapture.Capture(frame))),
             "capturing one published frame twice is identical");
         AssertTrue(pixels.SequenceEqual(DisplayRendering.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()))),
@@ -75,7 +75,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // Wiping VRAM unbinds the room's artwork, so it follows the next frame's latch; the room reloads below.
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new Bgr555(31, 0, 31));
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(31, 0, 31));
         AssertTrue(ReferenceEquals(frameEnd, frame.FrameEnd) && ReferenceEquals(latched, frame.Latched),
             "a published frame keeps its own latch and frame-end inputs");
         AssertEqual(false, frame.FrameEnd.PowerBomb.IsActive, "published power bomb inputs are a value copy");
@@ -159,7 +159,7 @@ internal static class GameplayDisplayFrameTestsVerification
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
         RoomFixedColor fixedColor = runtime.RoomLayer3Fx.FixedColors;
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
-        fixedColor.Color = new Bgr555(9, 9, 9);
+        fixedColor.Color = new RgbColor(9, 9, 9);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -172,7 +172,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
             "the next accepted frame publishes the chosen fixed colour");
         runtime.RoomLayer3Fx.Type = originalFx;
-        fixedColor.Color = Bgr555.Black;
+        fixedColor.Color = RgbColor.Black;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Power bomb: the window table is built during the main loop and read live; the
@@ -199,7 +199,7 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
-        Bgr555 suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
+        RgbColor suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
         AssertEqual(suitBefore.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "suit COLDATA waits for the NMI");
@@ -228,14 +228,14 @@ internal static class GameplayDisplayFrameTestsVerification
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");
         getaway.GetawayActive = true;
-        getaway.FloorMatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(33);
-        getaway.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SnesSignedEightEight.FromSignedRaw(240);
-        getaway.FloorCenter = new Position16<Mode7Pixels>(128, 120);
-        getaway.FloorOffset = new Offset16<Mode7Pixels>(7, 19);
+        getaway.FloorMatrixA = SignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SignedEightEight.FromSignedRaw(33);
+        getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
+        getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
+        getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
             "Ridley's M7A..M7Y and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var mode7 = (Mode7GameplayRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
+        var mode7 = (GameplayFloorRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual((short)240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
         AssertEqual((short)33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");

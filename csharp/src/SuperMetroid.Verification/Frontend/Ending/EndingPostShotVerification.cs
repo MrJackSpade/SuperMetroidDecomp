@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -22,7 +23,7 @@ internal static class EndingPostShotVerification
         var guardedBus = NewPostShotUploadTableReadGuard(bus);
         var nativeCgram = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeCgram, bus, 0x8ce7e9);
-        Bgr555[] initial = nativeCgram.Colors.ToArray();
+        RgbColor[] initial = nativeCgram.Colors.ToArray();
         var screen = new EndingScreen();
         for (int color = 0; color < initial.Length; color++)
             screen.Palette.SetColor(color, initial[color]);
@@ -39,7 +40,7 @@ internal static class EndingPostShotVerification
         {
             shot.Step(screen);
             AssertEqual(Math.Max(24, 2304 - Math.Min(frame, 36) * 64), shot.Scale, "native post-shot scale trajectory");
-            AssertEqual(SnesAngle.FromTableIndex(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
+            AssertEqual(RotationAngle.FromTableIndex(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
             AssertEqual(frame == 216, shot.ReadyForWhiteFlash, "white-flash handoff follows a full 180-frame hold");
             AssertEqual(Math.Clamp(frame - 47, 0, 6), shot.PartsShown, "logo uploads wait for Samus fade, one transfer per frame");
@@ -48,7 +49,7 @@ internal static class EndingPostShotVerification
                 int remaining = 32 - Math.Clamp(frame - (start == 240 ? 16 : 0), 0, 32);
                 for (int i = start; i < start + 16; i++)
                 {
-                    Bgr555 color = initial[i];
+                    RgbColor color = initial[i];
                     ushort faded = (ushort)(((color.ToWord() & 31) * remaining / 32)
                         | ((color.ToWord() >> 5 & 31) * remaining / 32) << 5
                         | ((color.ToWord() >> 10 & 31) * remaining / 32) << 10);

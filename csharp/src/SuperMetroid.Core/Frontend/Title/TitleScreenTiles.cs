@@ -15,10 +15,10 @@ internal static class TitleScreenTiles
     internal static FloorTilePictures Of(InstalledSpriteSheets sheets, int babySourcePage)
     {
         Ensure.NotNull(sheets);
-        int pageTiles = TitleSequenceDefinitions.Graphics.BabyCharacterPageByteCount / Mode7CharacterSheet.TileBytes;
+        int pageTiles = TitleSequenceDefinitions.Graphics.BabyCharacterPageByteCount / FloorCharacterSheet.TileBytes;
         return new FloorCharacters()
-            .Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.TitleMode7Tiles), TitleTileSetDefinitions.FloorFirstTile, 0,
-                TitleSequenceDefinitions.Graphics.FloorCharacterByteCount / Mode7CharacterSheet.TileBytes)
+            .Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.TitleFloorTiles), TitleTileSetDefinitions.FloorFirstTile, 0,
+                TitleSequenceDefinitions.Graphics.FloorCharacterByteCount / FloorCharacterSheet.TileBytes)
             .Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.TitleBabyTiles), TitleTileSetDefinitions.BabyFirstTile,
                 babySourcePage * pageTiles, pageTiles)
             .Pictures();

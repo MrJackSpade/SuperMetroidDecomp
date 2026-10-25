@@ -56,7 +56,7 @@ public sealed class CrawlerEnemyState
     /// Signed 16.16 falling Y velocity per AI update, separate from attached 8.8 motion: gravity adds half a pixel per
     /// update while the whole pixels are below four, and landing clears it.
     /// </summary>
-    public SnesSignedSixteenSixteen FallingYVelocity { get; internal set; }
+    public SignedSixteenSixteen FallingYVelocity { get; internal set; }
 
     /// <summary>
     /// One falling update's gravity: adds half a pixel per update while the whole pixels, compared as a signed word,
@@ -65,7 +65,7 @@ public sealed class CrawlerEnemyState
     internal void ApplyFallingGravity()
     {
         if (unchecked((short)(FallingYVelocity.WholeWord - 4)) < 0)
-            FallingYVelocity += SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 2);
+            FallingYVelocity += SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 2);
     }
     /// <summary>Attached bank-$A3 AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer. Native $7E:7806,x.</summary>
     public CrawlerEnemyFunction? NonFallingFunction { get; internal set; }

@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Hardware;
 /// The two read the same bytes everywhere else.
 /// </remarks>
 [CpuBusAccess]
-[SnesEncodingOwner]
+[EncodingOwner("address-space little-endian word reads")]
 internal static class SnesWordReads
 {
     /// <summary>

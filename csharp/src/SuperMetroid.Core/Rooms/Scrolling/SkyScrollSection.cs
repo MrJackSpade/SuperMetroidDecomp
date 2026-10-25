@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// <param name="DataSlot">The horizontal-scroll accumulator the band adds its velocity to and reads its scroll from.</param>
 public readonly record struct SkyScrollSection(
     int TopPosition,
-    SnesSignedSixteenSixteen Velocity,
+    SignedSixteenSixteen Velocity,
     int DataSlot)
 {
     /// <summary>The band's first room-pixel row, validated to the sixteen-bit row range world rows are compared in.</summary>

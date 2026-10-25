@@ -21,7 +21,6 @@ internal static class PausePresentationContractChecks
         const string consumer = """
             using SuperMetroid.Core.Frontend.Pause;
             using SuperMetroid.Core.Frontend.Pause.Artwork;
-            using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
             class PauseConsumer {

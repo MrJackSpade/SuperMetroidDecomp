@@ -109,7 +109,7 @@ internal static class PauseSelectorCompositionsVerification
                 int sprite = ReadVerificationWord(rom, bases + (int)anchor.Category * 2) + rom.ReadCartridgeByte(program + phase * 3 + 2);
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + sprite * 2);
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); }
+                for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); }
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 SpriteSheet sheet = MenuSheetFixtures.PauseSprites(selector);
                 selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase);

@@ -102,8 +102,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
 
                 state.Velocity = new(
-                    new SnesSignedEightEight(RioLaunchDefinitions.LowerNorfairXVelocity),
-                    new SnesSignedEightEight(RioLaunchDefinitions.LowerNorfairYVelocity));
+                    new SignedEightEight(RioLaunchDefinitions.LowerNorfairXVelocity),
+                    new SignedEightEight(RioLaunchDefinitions.LowerNorfairYVelocity));
                 if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
                     NegateLowerNorfairRioXVelocity(state);
                 InstallLowerNorfairRioInstructionList(
@@ -236,7 +236,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1)));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-1)));
         InstallLowerNorfairRioInstructionList(
             slot,
             state,
@@ -266,7 +266,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Applies the native negative 8.8 vertical acceleration after a flight step.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(
             unchecked((ushort)(state.Velocity.Y.RawValue - LowerNorfairRioGravity))));
 
     /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>

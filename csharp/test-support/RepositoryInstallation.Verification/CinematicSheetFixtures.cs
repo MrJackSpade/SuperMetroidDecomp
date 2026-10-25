@@ -69,7 +69,7 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key);
                 sheets[SpriteSheetId.CeresFlightObjectTiles] = LoadTiles(SpriteSheetId.CeresFlightObjectTiles, ScreenTileSheetComposer.ComposeFlightObjects(key),
                     $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
-                sheets[SpriteSheetId.CeresFlightMode7Tiles] = LoadTiles(SpriteSheetId.CeresFlightMode7Tiles, ScreenTileSheetComposer.ComposeFlightMode7(key),
+                sheets[SpriteSheetId.CeresFlightFloorTiles] = LoadTiles(SpriteSheetId.CeresFlightFloorTiles, ScreenTileSheetComposer.ComposeFlightMode7(key),
                     $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
@@ -101,7 +101,7 @@ internal static class CinematicSheetFixtures
                 foreach (SpriteSheetId id in new[] { SpriteSheetId.IntroSceneTiles, SpriteSheetId.IntroFontTiles, SpriteSheetId.CeresFlightObjectTiles,
                              SpriteSheetId.CeresIntroObjectTiles, SpriteSheetId.ZebesRevealTiles })
                     sheets[id] = LoadTiles(id, ScreenTileSheetComposer.Compose(id, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
-                sheets[SpriteSheetId.CeresFlightMode7Tiles] = LoadTiles(SpriteSheetId.CeresFlightMode7Tiles,
+                sheets[SpriteSheetId.CeresFlightFloorTiles] = LoadTiles(SpriteSheetId.CeresFlightFloorTiles,
                     ScreenTileSheetComposer.ComposeFlightMode7(key.CeresFlight), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });

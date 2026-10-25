@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -213,11 +214,11 @@ internal sealed class PhantoonPatterns
     /// <summary>Adds a native two-word speed value to the body motion accumulator, or subtracts it when slowing.</summary>
     private static void ChangePhantoonSpeed(PhantoonPartState body, int low, int high, PhantoonSpeedChange direction)
     {
-        uint value = SnesSixteenSixteen.Compose(checked((ushort)body.SpeedWhole), checked((ushort)body.SpeedFraction));
-        uint change = SnesSixteenSixteen.Compose(high, low);
+        uint value = SixteenSixteen.Compose(checked((ushort)body.SpeedWhole), checked((ushort)body.SpeedFraction));
+        uint change = SixteenSixteen.Compose(high, low);
         value = direction == PhantoonSpeedChange.Decelerate ? unchecked(value - change) : unchecked(value + change);
         body.SpeedFraction = unchecked((ushort)value);
-        body.SpeedWhole = SnesFixedPosition.WholeOf(unchecked((int)value));
+        body.SpeedWhole = FixedCoordinate.WholeOf(unchecked((int)value));
     }
 
     /// <summary>Advances the mouth's casual flame spawn timer during ordinary movement.</summary>
@@ -572,7 +573,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         RoomEnemySlot tentacles = state.Tentacles;
-        state.Parts[tentacles.SlotIndex].SwoopVelocity = new(new SnesSignedEightEight(1024), new SnesSignedEightEight(1024));
+        state.Parts[tentacles.SlotIndex].SwoopVelocity = new(new SignedEightEight(1024), new SignedEightEight(1024));
         state.Parts[tentacles.SlotIndex].SwoopTargetX = 0;
         state.Parts[tentacles.SlotIndex].SwoopReturning = false;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.Swooping;
@@ -617,7 +618,7 @@ internal sealed class PhantoonPatterns
         {
             swoopX = unchecked((ushort)(swoopX + 32));
         }
-        tentacleWords.SwoopVelocity = tentacleWords.SwoopVelocity.WithX(new SnesSignedEightEight(checked((ushort)swoopX)));
+        tentacleWords.SwoopVelocity = tentacleWords.SwoopVelocity.WithX(new SignedEightEight(checked((ushort)swoopX)));
         body.Position = body.Position.AdvanceX(tentacleWords.SwoopVelocity.X.ToSixteenSixteenDelta());
         if (unchecked((short)(body.Position.X.Whole - PhantoonMotionDefinitions.SwoopMinimumX)) < 0)
             body.Position = body.Position.WithWholeX(unchecked((ushort)PhantoonMotionDefinitions.SwoopMinimumX));
@@ -635,7 +636,7 @@ internal sealed class PhantoonPatterns
         {
             swoopY = unchecked((ushort)(swoopY + 64));
         }
-        tentacleWords.SwoopVelocity = tentacleWords.SwoopVelocity.WithY(new SnesSignedEightEight(checked((ushort)swoopY)));
+        tentacleWords.SwoopVelocity = tentacleWords.SwoopVelocity.WithY(new SignedEightEight(checked((ushort)swoopY)));
         body.Position = body.Position.AdvanceY(tentacleWords.SwoopVelocity.Y.ToSixteenSixteenDelta());
         if (unchecked((short)(body.Position.Y.Whole - 64)) < 0)
             body.Position = body.Position.WithWholeY(64);
@@ -686,8 +687,8 @@ internal sealed class PhantoonPatterns
 
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _presentation.BossColours().PhantoonBody[color];
-            Bgr555 target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+            RgbColor current = _presentation.BossColours().PhantoonBody[color];
+            RgbColor target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
             _presentation.BossColours().PhantoonBody.Write(
                 color,
@@ -765,11 +766,11 @@ internal sealed class PhantoonPatterns
             unchecked((ushort)(body.PaletteIndex | body.TileIndexBase)));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
-        flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(0));
+        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(0));
         switch (type)
         {
             case PhantoonFlameSpawnType.Casual:
-                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(0));
+                flame.Velocity = flame.Velocity.WithX(new SignedEightEight(0));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualFalling0));
                 flame.PreInstruction =
@@ -783,7 +784,7 @@ internal sealed class PhantoonPatterns
                 break;
 
             case PhantoonFlameSpawnType.Enraged:
-                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(index >= 8
+                flame.Velocity = flame.Velocity.WithX(new SignedEightEight(unchecked((ushort)(index >= 8
                     ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep))));
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.RageAngle(index);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
@@ -797,7 +798,7 @@ internal sealed class PhantoonPatterns
                 int column = index % 16;
                 if (column > 8)
                     throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
-                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight((ushort)(index / 16 * 8)));
+                flame.Velocity = flame.Velocity.WithX(new SignedEightEight((ushort)(index / 16 * 8)));
                 flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawnDefinitions.RainX(column));
                 flame.Position = flame.Position.WithWholeY(40);
                 flame.PreInstruction =
@@ -807,7 +808,7 @@ internal sealed class PhantoonPatterns
             case PhantoonFlameSpawnType.Spiral:
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
-                flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight(128));
+                flame.Velocity = flame.Velocity.WithX(new SignedEightEight(128));
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.SpiralAngle(index);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 16))));
                 flame.PreInstruction =

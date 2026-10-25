@@ -20,7 +20,7 @@ internal sealed class ShinesparkEchoProjectile
     /// $90:D40D allocates fixed slots without clearing their unrelated parallel words.
     /// Echo drawing storage remains in Samus independently of this projectile owner.
     /// </summary>
-    internal void InitializeShinesparkEcho(int index, SnesAngle angle)
+    internal void InitializeShinesparkEcho(int index, RotationAngle angle)
     {
         if (index is not (3 or 4)) throw new ArgumentOutOfRangeException(nameof(index));
         var slot = _slotTable.Slots[index];
@@ -29,7 +29,7 @@ internal sealed class ShinesparkEchoProjectile
         BeamCombos.InitializeComboData(slot, BeamComboData.Echo);
         slot.PreInstruction = SamusProjectilePreInstruction.ShinesparkEcho;
         slot.Variable = angle.TableIndex;
-        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0));
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(0));
     }
 
     /// <summary>Runs only the live slot's installed $90:D4D2 handler.</summary>

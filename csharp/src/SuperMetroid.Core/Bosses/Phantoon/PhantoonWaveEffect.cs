@@ -12,7 +12,7 @@ public sealed class PhantoonWaveEffect
     /// <summary>Wave mode captured for the next setup: the introductory or final-death wave, never zero.</summary>
     private int _pendingMode;
     /// <summary>The mode the wave's last setup selected; zero before any setup.</summary>
-    [NativeWord("the eye wave word the wave last set up from: zero before any setup, otherwise its bit zero selects the long cycle")]
+    [PackedFields("the eye wave word the wave last set up from: zero before any setup, otherwise its bit zero selects the long cycle")]
     private int _setupMode;
     /// <summary>
     /// The phase, amplitude and base scroll the wave last held (#1353): its last update, or the death fill as a flat

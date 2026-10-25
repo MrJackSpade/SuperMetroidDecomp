@@ -97,10 +97,10 @@ internal static class ProjectileInheritanceProbeVerification
         foreach (ushort[] snapshot in snapshots)
         {
             var inheritance = new ProjectileInheritanceRecords { CameraYSubspeed = snapshot[0] };
-            inheritance.Record(SamusCollisionDirection.Left, unchecked((int)SnesSixteenSixteen.Compose(snapshot[1], snapshot[2])));
-            inheritance.Record(SamusCollisionDirection.Right, unchecked((int)SnesSixteenSixteen.Compose(snapshot[3], snapshot[4])));
-            inheritance.Record(SamusCollisionDirection.Up, unchecked((int)SnesSixteenSixteen.Compose(snapshot[5], snapshot[6])));
-            inheritance.Record(SamusCollisionDirection.Down, unchecked((int)SnesSixteenSixteen.Compose(snapshot[7], snapshot[8])));
+            inheritance.Record(SamusCollisionDirection.Left, unchecked((int)SixteenSixteen.Compose(snapshot[1], snapshot[2])));
+            inheritance.Record(SamusCollisionDirection.Right, unchecked((int)SixteenSixteen.Compose(snapshot[3], snapshot[4])));
+            inheritance.Record(SamusCollisionDirection.Up, unchecked((int)SixteenSixteen.Compose(snapshot[5], snapshot[6])));
+            inheritance.Record(SamusCollisionDirection.Down, unchecked((int)SixteenSixteen.Compose(snapshot[7], snapshot[8])));
             for (ushort direction = 0; direction < 10; direction++)
             {
                 short speed = (short)(direction is 1 or 3 or 6 or 8 ? DiagonalBaseSpeed : StraightBaseSpeed);
@@ -152,7 +152,7 @@ internal static class ProjectileInheritanceProbeVerification
         level.SetForegroundEntry(4 * 16 + 5, RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw);
         var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 20 << 16 });
         AssertTrue(clipped.Collided, "Inheritance fixture actually reaches its solid wall");
-        AssertEqual(SnesFixedPosition.WholeOf(clipped.AcceptedDisplacement),
+        AssertEqual(FixedCoordinate.WholeOf(clipped.AcceptedDisplacement),
             records.DistanceInteger(SamusCollisionDirection.Right),
             "Collision publishes clipped displacement, not the twenty-pixel request");
         samus.ProjectileInheritance.CameraYSubspeed = 0xabcd;

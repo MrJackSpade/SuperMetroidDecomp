@@ -40,12 +40,12 @@ public static class KraidColorFile
         JsonAssetDocument.WriteValidated(document, JsonOptions, json => _ = Read(json));
 
     /// <summary>Validates one source's native length and RGB5 channels before packing its colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
     {
         int expected = KraidPalettes.ColorCount(kind);
         if (source is null || source.Length != expected)
             throw new InvalidDataException($"Kraid {kind} requires {expected} colors.");
-        var result = new Bgr555[expected];
+        var result = new RgbColor[expected];
         for (int index = 0; index < expected; index++)
         {
             PaletteRgb5? rgb = source[index];
@@ -53,7 +53,7 @@ public static class KraidColorFile
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Kraid {kind} color {index} requires RGB5 channels 0..31.");
-            result[index] = rgb.ToBgr555();
+            result[index] = rgb.ToRgbColor();
         }
         return result;
     }

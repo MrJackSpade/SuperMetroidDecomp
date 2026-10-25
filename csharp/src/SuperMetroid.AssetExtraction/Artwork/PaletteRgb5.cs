@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -13,8 +13,8 @@ public sealed record PaletteRgb5
     public required int Blue { get; init; }
 
     /// <summary>Packs the channels; each must be 0-31.</summary>
-    public Bgr555 ToBgr555() => new(Red, Green, Blue);
+    public RgbColor ToRgbColor() => new(Red, Green, Blue);
 
     /// <summary>The JSON channels of <paramref name="color"/>.</summary>
-    public static PaletteRgb5 From(Bgr555 color) => new() { Red = color.Red, Green = color.Green, Blue = color.Blue };
+    public static PaletteRgb5 From(RgbColor color) => new() { Red = color.Red, Green = color.Green, Blue = color.Blue };
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Reviewed room-flash paint composition at $A9:D082-D141: warm background flood
@@ -5,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainRoomFlashPaintDefinitions
 {
     /// <summary>$A9:D112-D12A: warm flood paint, RGB5(31,31,22), repeated over the selected highlighted slots.</summary>
-    internal static readonly Bgr555 WarmFlood = new(31, 31, 22);
+    internal static readonly RgbColor WarmFlood = new(31, 31, 22);
     /// <summary>$A9:D112-D12A: twelve background colors plus first foreground field brighten;
     /// the remaining eleven foreground colors dim. This split is the selected material composition.</summary>
     internal const int HighlightedColorCount = 13;

@@ -48,7 +48,7 @@ public sealed class NuclearWaffleEnemyState
     /// moves monotonically toward <see cref="SweepEndAngle"/> until the last damaging link reaches it, so its whole
     /// part stays between 140 and 500 and never wraps; the orbit lookup uses only its position within the turn.
     /// </summary>
-    public SnesSignedSixteenSixteen SweepAngle { get; internal set; }
+    public SignedSixteenSixteen SweepAngle { get; internal set; }
 
     /// <summary>The head's current angle in units of 1/256 turn: the whole part of <see cref="SweepAngle"/>.</summary>
     public int CurrentAngle => SweepAngle.WholePixels;
@@ -61,7 +61,7 @@ public sealed class NuclearWaffleEnemyState
     /// Native $7E:8008/$800A signed 16.16 angular speed in 1/256-turn units per AI update, from the common linear speed
     /// table: the positive record for a forward sweep and the separately stored negative record for a backward one.
     /// </summary>
-    public SnesSignedSixteenSixteen AngularSpeed { get; internal set; }
+    public SignedSixteenSixteen AngularSpeed { get; internal set; }
     /// <summary>Native $7E:800C/$800E arcOriginX/YPosition: initial population position in whole room pixels, retained as the fixed orbit center.</summary>
     public Position16<RoomPixels> Origin { get; internal set; }
     /// <summary>Native $7E:8010/$8012 bodyPartSpawnX/YPosition: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>

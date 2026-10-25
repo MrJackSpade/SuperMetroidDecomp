@@ -25,7 +25,7 @@ internal static class SpringBallBounceVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
+            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
 
             SamusMorphBallMovement.StepSpringBallInAir(room, samus, ControllerButton.Right, 0);

@@ -134,8 +134,8 @@ internal static class DoorAlignmentVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
-        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
-        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x4000);
+        samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x4000);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

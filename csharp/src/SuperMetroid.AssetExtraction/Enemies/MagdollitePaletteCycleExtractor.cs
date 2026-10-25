@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -32,7 +33,7 @@ public static class MagdollitePaletteCycleExtractor
                     (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
                      MagdollitePaletteDefinitions.FirstAnimatedColor + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
-                if (!Bgr555.IsColorWord(native))
+                if (!RgbColor.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Magdollite color ${source:X6} has an unrepresentable high bit.");
                 frames[frame][color] = new PaletteRgb5

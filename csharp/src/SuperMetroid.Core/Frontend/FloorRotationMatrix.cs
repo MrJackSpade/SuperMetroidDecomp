@@ -9,18 +9,18 @@ internal static class FloorRotationMatrix
     /// $A0:B443 and keeps product bits 8..23, so reading the retail table makes the rotation agree at every one of 256
     /// angles.
     /// </summary>
-    internal static AffineTransform Transform(SnesAngle angle, int zoom, Offset16<Mode7Pixels> center,
-        Offset16<Mode7Pixels> scroll)
+    internal static AffineTransform Transform(RotationAngle angle, int zoom, Offset16<FloorPixels> center,
+        Offset16<FloorPixels> scroll)
     {
-        int a = Scale(ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle()), zoom);
+        int a = Scale(ReadSine(angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), zoom);
         int b = Scale(ReadSine(angle.ToByteAngle()), zoom);
         return new((short)a, (short)b, unchecked((short)-b), (short)a, center, scroll);
     }
 
     /// <summary>Reads the compiled signed sine sample for a floor angle.</summary>
-    internal static short ReadSine(SnesByteAngle angle) => EnemyTrigonometryTables.SignedSine(angle);
+    internal static short ReadSine(ByteAngle angle) => EnemyTrigonometryTables.SignedSine(angle);
 
     /// <summary>Multiplies a signed trigonometric component by the 8.8 scale, which stays below 32768, keeping signed 16 bits.</summary>
     private static short Scale(int component, int scalar) =>
-        unchecked((short)(SnesEightEight.Multiply(component, checked((short)scalar))));
+        unchecked((short)(EightEight.Multiply(component, checked((short)scalar))));
 }

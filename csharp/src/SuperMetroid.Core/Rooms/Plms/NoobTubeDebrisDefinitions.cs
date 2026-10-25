@@ -35,13 +35,13 @@ public static class NoobTubeDebrisDefinitions
     public const ushort CrackYOffset = 48;
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>
-    public static SnesSignedEightEight BubbleInitialYVelocity { get; } = SnesSignedEightEight.FromSignedRaw(-1280);
+    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromSignedRaw(-1280);
 
     /// <summary>The released crack's downward speed: three quarters of a pixel per update.</summary>
-    public static SnesSignedEightEight CrackFallVelocity { get; } = SnesSignedEightEight.FromSignedRaw(192);
+    public static SignedEightEight CrackFallVelocity { get; } = SignedEightEight.FromSignedRaw(192);
 
     /// <summary>The downward speed a glass shard takes when it enters its falling arc: three quarters of a pixel per update.</summary>
-    public static SnesSignedEightEight ShardFallYVelocity { get; } = SnesSignedEightEight.FromSignedRaw(192);
+    public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromSignedRaw(192);
 
     /// <summary>The whole-pixel X a hidden actor is moved to: 4608 pixels left of the room, far off screen.</summary>
     private const short HiddenX = -4608;

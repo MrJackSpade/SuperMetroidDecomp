@@ -12,13 +12,13 @@ public sealed class SpriteImage
     public const int SpriteColourCount = 128;
 
     /// <summary>The pixels, row by row from the top.</summary>
-    private readonly Rgba32[] pixels;
+    private readonly RgbaPixel[] pixels;
 
     /// <summary>How each pixel was inked: its palette entry, priority and part row.</summary>
     private readonly SpriteImageInk[] inks;
 
     /// <summary>The colours the image was coloured with.</summary>
-    private readonly Bgr555[] standardColours;
+    private readonly RgbColor[] standardColours;
 
     /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
@@ -32,13 +32,13 @@ public sealed class SpriteImage
     /// where the part keeps its own row under a draw's override.
     /// </param>
     /// <exception cref="ArgumentException">The name is empty, a dimension is zero, a length does not match or a priority exceeds 3.</exception>
-    public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels, ReadOnlySpan<byte> paletteIndices,
+    public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels, ReadOnlySpan<byte> paletteIndices,
         SpriteImagePalette palette, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
     {
         Ensure.NotNull(palette);
         if (!Enum.IsDefined(palette.Half))
             throw new ArgumentException($"Sprite image {name} names no half of CGRAM.", nameof(palette));
-        ReadOnlySpan<Bgr555> standardColours = palette.Standard.AsSpan();
+        ReadOnlySpan<RgbColor> standardColours = palette.Standard.AsSpan();
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (size.X == 0 || size.Y == 0)
             throw new ArgumentException($"Sprite image {name} has no pixels.", nameof(size));
@@ -113,13 +113,13 @@ public sealed class SpriteImage
     private const int TwoBppGroupColours = 4;
 
     /// <summary>The pixels, row by row from the top; a pixel with zero alpha is transparent.</summary>
-    public ReadOnlySpan<Rgba32> Pixels => pixels;
+    public ReadOnlySpan<RgbaPixel> Pixels => pixels;
 
     /// <summary>How each pixel was inked, row by row from the top: its palette entry, priority and part row.</summary>
     public ReadOnlySpan<SpriteImageInk> Inks => inks;
 
     /// <summary>The 128 colours of the image's half of CGRAM the pixels were coloured with.</summary>
-    public ReadOnlySpan<Bgr555> StandardColours => standardColours;
+    public ReadOnlySpan<RgbColor> StandardColours => standardColours;
 
     /// <summary>Names the image for debugger watches.</summary>
     public override string ToString() => $"{Name} ({Size.X}x{Size.Y})";

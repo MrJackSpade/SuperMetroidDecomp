@@ -93,8 +93,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // retains retail's independently encoded negative fraction rather than negating a
         // host 32-bit value and accidentally repairing a possible ROM rounding quirk.
         int speedOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
-        SnesSignedSixteenSixteen positive = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedOffset));
-        SnesSignedSixteenSixteen negative = EnemyMath.ReadLinearEnemySpeed(checked((ushort)(speedOffset + 4)));
+        SignedSixteenSixteen positive = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedOffset));
+        SignedSixteenSixteen negative = EnemyMath.ReadLinearEnemySpeed(checked((ushort)(speedOffset + 4)));
         state.DownwardVelocity = positive;
         state.UpwardVelocity = negative;
 
@@ -480,7 +480,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static Offset16<RoomPixels> AddMagdolliteY(
         RoomEnemySlot slot,
-        SnesSignedSixteenSixteen velocity)
+        SignedSixteenSixteen velocity)
     {
         Position16<RoomPixels> before = slot.Position.Whole;
         slot.Position = slot.Position.AdvanceY(velocity);
@@ -791,7 +791,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // stores the one-bit facing parameter exactly as supplied by the enemy bytecode.
         projectile.DirectionParameter = throwsRight ? (ushort)1 : (ushort)0;
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(unchecked((ushort)(source.Position.Y.Whole + 2)), source.Position.Y.Fraction));
-        projectile.Velocity = new(new SnesSignedEightEight(MagdolliteLavaHorizontalSpeed), new SnesSignedEightEight(MagdolliteLavaUpwardSpeed));
+        projectile.Velocity = new(new SignedEightEight(MagdolliteLavaHorizontalSpeed), new SignedEightEight(MagdolliteLavaUpwardSpeed));
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.MagdolliteLava;
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaProgram.Right : MagdolliteLavaProgram.Left));
@@ -808,7 +808,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         int horizontalVelocity = projectile.DirectionParameter == 0
             ? projectile.Velocity.Y.RawValue
             : projectile.Velocity.X.RawValue;
-        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(new SignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
 
         // $86:E049 deletes actors outside the inclusive 256x256 camera square after their
         // horizontal move. No vertical movement occurs despite the field's directional use.

@@ -41,7 +41,7 @@ internal static class CinematicScreenPublicationVerification
         oam.BeginFrame();
         for (int index = 0; index < ScreenSprites.Capacity + 2; index++)
         {
-            var position = new Position16<OamPixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
+            var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
             raw.AddObjectImage(star, position);
             oam.AddRawSmallSprite(position, EndingShootingStarDefinitions.Attribute(EndingShootingStarDefinitions.FullStarFrame));
         }

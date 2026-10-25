@@ -201,7 +201,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         void CopyReferenceColors(SamusColourRig cgram, int source, int destination, int count)
         {
             for (int color = 0; color < count; color++)
-                cgram.SetColor(destination + color, Bgr555.FromWord(checked(ReadReferenceWord(source + color * 2))));
+                cgram.SetColor(destination + color, RgbColor.FromWord(checked(ReadReferenceWord(source + color * 2))));
         }
 
         ushort ReadReferenceWord(int address) =>
@@ -211,7 +211,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
+                cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
             return cgram;
         }
 

@@ -106,7 +106,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
         int yDifference = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole));
-        int yVelocity = unchecked(state.Velocity.Y.RawValue - SnesEightEight.FromWhole(yDifference >> 2));
+        int yVelocity = unchecked(state.Velocity.Y.RawValue - EightEight.FromWhole(yDifference >> 2));
         yVelocity = ClampMochtroidVelocity(yVelocity);
         StoreMochtroidYVelocity(state, yVelocity);
         if (_terrain.MoveEnemyVertically(level, slot, yVelocity))
@@ -115,7 +115,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Y is intentionally resolved first. Horizontal collision therefore sees the
         // vertically adjusted position, matching $A3:A80D followed by $A3:A87C.
         int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
-        int xVelocity = unchecked(state.Velocity.X.RawValue - SnesEightEight.FromWhole(xDifference >> 2));
+        int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMochtroidVelocity(xVelocity);
         StoreMochtroidXVelocity(state, xVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
@@ -172,13 +172,13 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Stores the current raw 16.16 horizontal velocity in the species state.</summary>
     private static void StoreMochtroidXVelocity(MochtroidEnemyState state, int velocity)
     {
-        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromRaw(velocity));
+        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromRaw(velocity));
     }
 
     /// <summary>Stores the current raw 16.16 vertical velocity in the species state.</summary>
     private static void StoreMochtroidYVelocity(MochtroidEnemyState state, int velocity)
     {
-        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
+        state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromRaw(velocity));
     }
 
     /// <summary>Installs a changed flight or attachment animation and restarts its instruction timers.</summary>

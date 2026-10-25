@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>Shared operations for cartridge-owned wrapping and saturating word counters.</summary>
 [CompatibilityService("counters that wrap at their width instead of saturating, so an expired timer keeps counting from the top")]
-[SnesEncodingOwner]
+[EncodingOwner("wrapping and saturating word counters")]
 public static class WrappingCounter
 {
     /// <summary>Executes one wrapping 16-bit DEC of a word, 0 through 65535, and exposes its resulting N/Z flags.</summary>

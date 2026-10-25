@@ -131,7 +131,7 @@ internal sealed class CeresRidleyBehavior
 
             case RidleyAiFunction.CeresLiftoffAccelerating:
                 // $A6:A6AF adds -16 to the 8.8 Y velocity before the common movement pass.
-                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - 16))));
+                state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - 16))));
                 if (unchecked((short)(slot.Position.Y.Whole - 112)) < 0)
                 {
                     state.Function = RidleyAiFunction.CeresLiftoffDecelerating;
@@ -169,7 +169,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.CeresSwoopSetup:
                 state.Function = RidleyAiFunction.CeresSwoopMoveToPosition;
                 state.FunctionTimer = WrappingCountdown.Start(10);
-                state.SwoopAngleAccumulator = SnesAngle.Zero;
+                state.SwoopAngleAccumulator = RotationAngle.Zero;
                 state.IdleTailWhipEnabled = false;
                 CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(slot, state);
                 break;
@@ -352,5 +352,5 @@ internal sealed class CeresRidleyBehavior
         [12, 14, 16, 18, 28, 32, 40, 48];
 
     /// <summary>A signed 8.8 coefficient of one, unit scale, as the getaway's setup installs it.</summary>
-    internal static readonly SnesSignedEightEight FloorUnitCoefficient = SnesSignedEightEight.FromSignedRaw(256);
+    internal static readonly SignedEightEight FloorUnitCoefficient = SignedEightEight.FromSignedRaw(256);
 }

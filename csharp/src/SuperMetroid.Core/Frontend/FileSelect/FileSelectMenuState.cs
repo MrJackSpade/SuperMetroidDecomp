@@ -244,7 +244,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
-                new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
+                new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
         }
         sprites.FinishFrame();
     }
@@ -540,7 +540,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         ColourRun arrow = screen.Palette.SpriteRow(FileCopyArrowDefinitions.SpriteRow)
             .Slice(FileCopyArrowDefinitions.FirstColour, FileCopyArrowDefinitions.ColorCount);
         int last = arrow.Count - 1;
-        Bgr555 color = arrow[0];
+        RgbColor color = arrow[0];
         for (int index = 0; index < last; index++)
             arrow.Write(index, arrow[index + 1]);
         arrow.Write(last, color);
@@ -672,7 +672,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Places the cursor on the active main, slot, or confirmation row at the installed presentation's anchor.</summary>
-    private Position16<OamPixels> GetSelectionMissilePosition(FileSelectPresentation presentation)
+    private Position16<SpritePixels> GetSelectionMissilePosition(FileSelectPresentation presentation)
     {
         FileSelectCursorPage page = IsMainScreenPhase ? FileSelectCursorPage.Main
             : Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm ? FileSelectCursorPage.Confirmation

@@ -116,9 +116,9 @@ internal sealed class PhantoonOpening
             unchecked((ushort)(body.PaletteIndex | body.TileIndexBase)));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.StartingFlame));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
-        flame.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        flame.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         flame.Variable0 = unchecked((byte)(directionIndex * 32));
-        PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, checked(new SnesByteAngle(unchecked((byte)((ushort)flame.Variable0)))), radius: 48);
+        PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, checked(new ByteAngle(unchecked((byte)((ushort)flame.Variable0)))), radius: 48);
         flame.PreInstruction = PhantoonBehavior.PhantoonStartingFlameWaitingPreInstruction;
         return true;
     }

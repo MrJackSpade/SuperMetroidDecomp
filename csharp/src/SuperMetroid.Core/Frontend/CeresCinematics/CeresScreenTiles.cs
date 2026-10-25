@@ -42,8 +42,8 @@ internal static class CeresScreenTiles
 
     /// <summary>The Ceres flight's Mode 7 view: its Mode 7 characters.</summary>
     internal static FloorTilePictures FlightFloor(InstalledSpriteSheets sheets) => new FloorCharacters()
-        .Show(ScreenTileSheets.Floor(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
-            CeresFlightArtworkFormat.FloorByteCount / Mode7CharacterSheet.TileBytes)
+        .Show(ScreenTileSheets.Floor(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightFloorTiles), 0, 0,
+            CeresFlightArtworkFormat.FloorByteCount / FloorCharacterSheet.TileBytes)
         .Pictures();
 
     /// <summary>The Mode 7 characters the destruction's <paramref name="uploads"/> leave: the flight's, once the Ceres scene loads them.</summary>
@@ -52,8 +52,8 @@ internal static class CeresScreenTiles
         Ensure.NotNull(sheets);
         var tiles = new FloorCharacters();
         if (Ensure.NotNull(uploads).Contains(CeresDestructionUpload.CeresScene))
-            tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.CeresFlightMode7Tiles), 0, 0,
-                CeresFlightArtworkFormat.FloorByteCount / Mode7CharacterSheet.TileBytes);
+            tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.CeresFlightFloorTiles), 0, 0,
+                CeresFlightArtworkFormat.FloorByteCount / FloorCharacterSheet.TileBytes);
         return tiles.Pictures();
     }
 

@@ -139,7 +139,7 @@ public static class IntroCinematicArtworkFiles
             {
                 ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
                     native.AsSpan(index * sizeof(ushort)));
-                if (!Bgr555.IsColorWord(word))
+                if (!RgbColor.IsColorWord(word))
                     throw new InvalidDataException($"Opening palette color {index} has an unrepresentable high bit.");
                 colors[index] = new PaletteRgb5
                 {

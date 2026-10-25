@@ -101,7 +101,7 @@ public sealed class FrameCompositionAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Colour words, which hold the hardware's packed colours.</summary>
-    internal static readonly ImmutableHashSet<string> RawColourTypes = ["Bgr555"];
+    internal static readonly ImmutableHashSet<string> RawColourTypes = ["RgbColor"];
 
     /// <summary>Whether <paramref name="type"/> holds raw numbers: an integer, a colour word, or a collection of them.</summary>
     private static bool IsRawData(ITypeSymbol type)

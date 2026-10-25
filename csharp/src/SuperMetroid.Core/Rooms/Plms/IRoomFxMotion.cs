@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public interface IRoomFxMotion
 {
     /// <summary>The liquid's base surface.</summary>
-    SnesFixedPosition BaseY { get; }
+    FixedCoordinate BaseY { get; }
 
     /// <summary>The surface the liquid moves toward.</summary>
     Position16<RoomPixels> TargetSurface { get; }

@@ -86,7 +86,7 @@ internal static class FrontendRomFreeVerification
 
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
-            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
+            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             visited.Add(actual.GameState);
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed startup game state at frame {frame}");
@@ -262,7 +262,7 @@ internal static class FrontendRomFreeVerification
             startSent = true;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
-            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
+            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed intro game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
@@ -279,7 +279,7 @@ internal static class FrontendRomFreeVerification
                 {
                     FrontendFrame expectedGameplay = native.Step(0);
                     FrontendFrame actualGameplay = installed.Step(0);
-                    Rgba32[] expectedGameplayPixels = native.PublishedPixels(), actualGameplayPixels = installed.PublishedPixels();
+                    RgbaPixel[] expectedGameplayPixels = native.PublishedPixels(), actualGameplayPixels = installed.PublishedPixels();
                     AssertEqual(expectedGameplay.GameState, actualGameplay.GameState,
                         $"installed post-intro game state frame {gameplayFrame}");
                     AssertEqual(expectedGameplay.Phase, actualGameplay.Phase,
@@ -453,7 +453,7 @@ internal static class FrontendRomFreeVerification
             "restored Kraid body matches before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);
         FrontendFrame actual = installedRoom.Step(0);
-        Rgba32[] expectedPixels = nativeRoom.PublishedPixels(), actualPixels = installedRoom.PublishedPixels();
+        RgbaPixel[] expectedPixels = nativeRoom.PublishedPixels(), actualPixels = installedRoom.PublishedPixels();
         AssertTrue(Body(nativeRoom).SequenceEqual(Body(installedRoom)),
             "restored Kraid body remains intact after the deferred HUD refresh");
         AssertTrue(actualPixels.SequenceEqual(expectedPixels),
@@ -486,7 +486,7 @@ internal static class FrontendRomFreeVerification
                 frame >= 60 ? (ControllerButton.Right | ControllerButton.X) : 0;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
-            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
+            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed Ceres input state frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
@@ -605,7 +605,7 @@ internal static class FrontendRomFreeVerification
                 throw new InvalidOperationException(
                     $"Installed {room.RoomName} failed at neutral frame {frame}.", error);
             }
-            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
+            RgbaPixel[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(room.Room,
                 installed.GameplayActiveRoom,
                 $"installed {room.RoomName} fixture remains in one room at frame {frame}");
@@ -687,8 +687,8 @@ internal static class FrontendRomFreeVerification
                         if (nativeVram[offset] != installedVram[offset]) changed++;
                     if (changed != 0) changedVramPages.Add($"${page:X4}:{changed}");
                 }
-                ReadOnlySpan<Bgr555> nativeColors = native.GameplayRuntimeForVerification.Colours.Colors;
-                ReadOnlySpan<Bgr555> installedColors = installed.GameplayRuntimeForVerification.Colours.Colors;
+                ReadOnlySpan<RgbColor> nativeColors = native.GameplayRuntimeForVerification.Colours.Colors;
+                ReadOnlySpan<RgbColor> installedColors = installed.GameplayRuntimeForVerification.Colours.Colors;
                 int changedColors = 0;
                 for (int color = 0; color < nativeColors.Length; color++)
                     if (nativeColors[color] != installedColors[color]) changedColors++;

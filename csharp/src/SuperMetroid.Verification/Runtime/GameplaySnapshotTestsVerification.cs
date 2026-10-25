@@ -44,7 +44,7 @@ internal static class GameplaySnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new Bg2LineScrolls(new ushort[1], default),
             "reject partial gameplay HDMA");
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-            new RenderLayer[] { new ObjRenderLayer(), layer }, 15), "base cannot erase prior operations");
+            new RenderLayer[] { new SpriteRenderLayer(), layer }, 15), "base cannot erase prior operations");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
@@ -57,9 +57,9 @@ internal static class GameplaySnapshotTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
-        Rgba32[] retail = RenderForComparison(captured);
+        RgbaPixel[] retail = RenderForComparison(captured);
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new Bgr555(0, 0, 0));
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "gameplay packet survives complete live VRAM/CGRAM replacement");
         Console.WriteLine("  Gameplay snapshots: retained line scrolls, layer rules and retained retail base match.");

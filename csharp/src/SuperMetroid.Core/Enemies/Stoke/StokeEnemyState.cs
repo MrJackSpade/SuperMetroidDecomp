@@ -11,10 +11,10 @@ public sealed class StokeEnemyState
     internal AnimationProgramCursor<StokeProgram> Program { get; set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per walking update to the right, from the positive half of the population's linear-speed record.</summary>
-    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
+    public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per walking update to the left, from the negative half of the population's linear-speed record.</summary>
-    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
+    public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
     /// <summary>Facing latch changed by animation cues, one update after a turn request; initialized from population parameter 1.</summary>
     public StokeDirection Direction { get; internal set; }
@@ -25,8 +25,8 @@ public sealed class StokeEnemyState
     /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        RightVelocity = SnesSignedSixteenSixteen.Zero;
-        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+        RightVelocity = SignedSixteenSixteen.Zero;
+        LeftVelocity = SignedSixteenSixteen.Zero;
         Direction = StokeDirection.Left;
         Function = null;
     }

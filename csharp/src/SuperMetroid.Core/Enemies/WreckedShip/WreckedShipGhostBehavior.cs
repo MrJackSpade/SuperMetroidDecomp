@@ -34,7 +34,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Samus's facing must remain stable for this many tracking calls.</summary>
     private const ushort WreckedShipGhostStableDirectionDuration = 16;
     /// <summary>Initial whole-pixel vertical speed of the visible bobbing cycle.</summary>
-    private static readonly SnesSignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+    private static readonly SignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
     /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
     private const int WreckedShipGhostVerticalAccelerationFraction = 6144;
     /// <summary>The movement class, horizontal or vertical, of Samus holding still on that axis: the middle of three.</summary>
@@ -77,7 +77,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // visible buffer, so clear it alongside the retained target buffer; otherwise the
         // first white ramp would begin from the graphics-set palette and overflow BGR fields.
         state.MutableTargetColours.Clear();
-        WreckedShipGhostPalette(slot).Fill(Bgr555.Black);
+        WreckedShipGhostPalette(slot).Fill(RgbColor.Black);
         slot.SetSpeciesState(state, state.ClearWithRecord);
     }
 
@@ -246,7 +246,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         int colorsChanged = 0;
         for (int color = 0; color < palette.Count; color++)
         {
-            Bgr555 current = palette[color];
+            RgbColor current = palette[color];
             if (current.Red >= 31)
                 continue;
 
@@ -254,7 +254,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             // only on red and does not saturate the others: a full green or blue carries
             // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
             palette.Write(color,
-                Bgr555.FromCgramPortWord(unchecked((ushort)(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel))));
+                RgbColor.FromCgramPortWord(unchecked((ushort)(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel))));
             colorsChanged++;
         }
 
@@ -305,7 +305,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         int acceleration = (slot.Position.Whole - state.BobbingOrigin).Y < 0
             ? WreckedShipGhostVerticalAccelerationFraction
             : -WreckedShipGhostVerticalAccelerationFraction;
-        state.VerticalVelocity += SnesSignedSixteenSixteen.FromRaw(acceleration);
+        state.VerticalVelocity += SignedSixteenSixteen.FromRaw(acceleration);
 
         state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
         if (!state.PhaseTimer.IsZero)
@@ -313,7 +313,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        state.MutableTargetColours.Fill(Bgr555.White);
+        state.MutableTargetColours.Fill(RgbColor.White);
     }
 
     /// <summary>Ports $A8:9C69: finish whitening, hide, and restart the 120-frame delay.</summary>
@@ -378,11 +378,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         ColourRun palette = WreckedShipGhostPalette(slot);
         int componentsChanged = 0;
-        ReadOnlySpan<Bgr555> target = state.TargetColours.Span;
+        ReadOnlySpan<RgbColor> target = state.TargetColours.Span;
         for (int color = 0; color < palette.Count; color++)
         {
-            Bgr555 current = palette[color];
-            Bgr555 next = current;
+            RgbColor current = palette[color];
+            RgbColor next = current;
             next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Red, ref componentsChanged);
             next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Green, ref componentsChanged);
             next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Blue, ref componentsChanged);
@@ -393,9 +393,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Moves one five-bit color component by a single level and counts an actual change.</summary>
-    private static Bgr555 StepWreckedShipGhostPaletteComponent(
-        Bgr555 current,
-        Bgr555 target,
+    private static RgbColor StepWreckedShipGhostPaletteComponent(
+        RgbColor current,
+        RgbColor target,
         ColorChannel channel,
         ref int componentsChanged)
     {

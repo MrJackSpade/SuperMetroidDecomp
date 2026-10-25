@@ -57,7 +57,7 @@ internal static class EscapeRoomEffectsVerification
                                 if (actual[py * 256 + px] != baseline[py * 256 + px]) changed++;
                         visibleExplosion |= changed > 8;
                     }
-                    var displayedShake = runtime.Display.DisplayedGameplayPpu.RoomShake;
+                    var displayedShake = runtime.Display.DisplayedGameplayScrolls.RoomShake;
                     var stationary = new OrdinaryGameplayRenderLayer(noObjects.View with
                     {
                         Bg1Scroll = layer.View.Bg1Scroll - displayedShake.Bg1

@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.TestSupport.FrameRendering;
 
@@ -18,10 +18,10 @@ internal static class DisplayRendering
     [ThreadStatic] private static long sequence;
 
     /// <summary>The pixels <paramref name="packet"/> shows, row by row from the top.</summary>
-    internal static Rgba32[] Render(DisplayPacket packet) => Renderer().RenderForReadback(packet);
+    internal static RgbaPixel[] Render(DisplayPacket packet) => Renderer().RenderForReadback(packet);
 
     /// <summary>The pixels a packet of <paramref name="scene"/> alone shows.</summary>
-    internal static Rgba32[] Render(LayeredScene scene) => Render(new DisplayPacket(NextFrame(), scene));
+    internal static RgbaPixel[] Render(LayeredScene scene) => Render(new DisplayPacket(NextFrame(), scene));
 
     /// <summary>The identity of this thread's next frame.</summary>
     internal static RenderFrameIdentity NextFrame() => new(++sequence, 1, 0);

@@ -28,7 +28,7 @@ public sealed class FirefleaEnemyState
     /// The signed angular speed selected from the linear speed table, in 256ths of a turn per update with a 16-bit
     /// fraction.  The circle advances by its middle sixteen bits, an 8.8 turn delta.
     /// </summary>
-    public SnesSignedSixteenSixteen AngularSpeed { get; internal set; }
+    public SignedSixteenSixteen AngularSpeed { get; internal set; }
 
     /// <summary>The movement radius in pixels, 8 through 64, selected by parameter two's high byte.</summary>
     public int Radius
@@ -40,7 +40,7 @@ public sealed class FirefleaEnemyState
     /// <summary>
     /// The circle angle, wrapping around the turn. Main AI uses its table index as the eight-bit circle angle.
     /// </summary>
-    public SnesAngle Angle { get; internal set; }
+    public RotationAngle Angle { get; internal set; }
 
     /// <summary>
     /// Native Fireflea.XCenter/YCenter: initial whole-pixel room position used as the fixed circular-motion center.
@@ -74,9 +74,9 @@ public sealed class FirefleaEnemyState
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        AngularSpeed = SnesSignedSixteenSixteen.Zero;
+        AngularSpeed = SignedSixteenSixteen.Zero;
         Radius = 0;
-        Angle = SnesAngle.FromTableIndex(0);
+        Angle = RotationAngle.FromTableIndex(0);
         Center = Position16<RoomPixels>.Zero;
     }
 }

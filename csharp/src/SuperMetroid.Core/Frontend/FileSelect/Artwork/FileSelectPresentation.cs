@@ -31,7 +31,7 @@ public sealed class FileSelectPresentation
     /// <summary>The selected slot's helmet sprite by animation frame.</summary>
     internal readonly SpriteComposition[] helmetSprites;
     /// <summary>Each bordered heading's anchor.</summary>
-    private readonly Dictionary<FileSelectBorder, Position16<OamPixels>> borderAnchors;
+    private readonly Dictionary<FileSelectBorder, Position16<SpritePixels>> borderAnchors;
     /// <summary>Each copy or clear page's slot-letter anchor.</summary>
     private readonly Dictionary<FileSelectAnchor, Position16<TilemapCells>> dynamicAnchors;
     /// <summary>Validated anchors and frame durations from the selected JSON presentation.</summary>
@@ -133,7 +133,7 @@ public sealed class FileSelectPresentation
     internal Position16<TilemapCells> DynamicAnchor(FileSelectAnchor anchor) => dynamicAnchors[anchor];
 
     /// <summary>Selects the cursor anchor from main, confirmation, or data-management layouts.</summary>
-    internal Position16<OamPixels> CursorPosition(FileSelectCursorPage page, int selected) =>
+    internal Position16<SpritePixels> CursorPosition(FileSelectCursorPage page, int selected) =>
         Point(page switch
         {
             FileSelectCursorPage.Main => document.MainCursorAnchors,
@@ -150,7 +150,7 @@ public sealed class FileSelectPresentation
         screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.BorderSpriteName(border)), borderAnchors[border]);
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
-    internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<OamPixels> anchor) =>
+    internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<SpritePixels> anchor) =>
         screenSprites.AddImage(sheet.Frame(FileSelectPresentationDefinitions.CursorSpriteName(frame)), anchor);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's OAM anchor.</summary>
@@ -354,16 +354,16 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Requires an exact number of valid OAM pixel anchors for a menu layout.</summary>
-    private static void ValidatePoints(Position16<OamPixels>[]? points, int count, string owner)
+    private static void ValidatePoints(Position16<SpritePixels>[]? points, int count, string owner)
     {
         if (points is null || points.Length != count)
             throw new InvalidDataException($"File-select {owner} requires {count} points.");
-        foreach (Position16<OamPixels> point in points)
+        foreach (Position16<SpritePixels> point in points)
             ValidatePoint(point, owner);
     }
 
     /// <summary>Restricts a sprite anchor to the SNES nine-bit X and eight-bit Y range.</summary>
-    private static void ValidatePoint(Position16<OamPixels> point, string owner)
+    private static void ValidatePoint(Position16<SpritePixels> point, string owner)
     {
         if (point.X < 0 || point.X > SnesSpritemapXWord.OffsetFieldMaximum ||
             (uint)point.Y > byte.MaxValue)
@@ -392,7 +392,7 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Reads an indexed OAM anchor, rejecting selections outside its layout.</summary>
-    private static Position16<OamPixels> Point(Position16<OamPixels>[] points, int index, string owner) =>
+    private static Position16<SpritePixels> Point(Position16<SpritePixels>[] points, int index, string owner) =>
         (uint)index < points.Length ? points[index] :
             throw new ArgumentOutOfRangeException(owner);
 

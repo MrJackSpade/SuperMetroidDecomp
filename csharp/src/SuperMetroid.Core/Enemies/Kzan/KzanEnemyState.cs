@@ -54,7 +54,7 @@ public sealed class KzanEnemyState
     /// The initial downward speed sample selected by population parameter 1's low byte, in pixels per update; this
     /// initialization snapshot is not the accelerating current speed.
     /// </summary>
-    public SnesSignedSixteenSixteen InitialFallingSpeed { get; internal set; }
+    public SignedSixteenSixteen InitialFallingSpeed { get; internal set; }
 
     /// <summary>Reload value for the top wait in actor updates, 0 through 255, copied from population parameter 2's low byte into the owning slot's native <c>$7E:7800,x</c> extension word.</summary>
     public int FallWaitTimerResetValue
@@ -95,6 +95,6 @@ public sealed class KzanEnemyState
         FallWaitTimer = WrappingCountdown.Start(0);
         RisingTarget = Position16<RoomPixels>.Zero;
         FallingTarget = Position16<RoomPixels>.Zero;
-        InitialFallingSpeed = SnesSignedSixteenSixteen.Zero;
+        InitialFallingSpeed = SignedSixteenSixteen.Zero;
     }
 }

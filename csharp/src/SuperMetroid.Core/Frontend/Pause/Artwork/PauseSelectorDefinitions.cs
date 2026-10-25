@@ -46,7 +46,7 @@ public static class PauseSelectorDefinitions
     /// <summary>Projects the $82:C196..C1D5 selector lists from category columns and eight-pixel rows.</summary>
     /// <remarks>Suit/misc leaves two extra rows between Gravity and Morph Ball.
     /// Both native coordinates include the draw routine's one-pixel bias, removed here.</remarks>
-    public static Position16<OamPixels> StockAnchor(PauseEquipmentCategory category, int item)
+    public static Position16<SpritePixels> StockAnchor(PauseEquipmentCategory category, int item)
     {
         _ = Anchor(category, item);
         Position16<ScreenPixels> anchor = category switch

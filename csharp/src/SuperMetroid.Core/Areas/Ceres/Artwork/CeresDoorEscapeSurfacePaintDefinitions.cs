@@ -17,10 +17,10 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
     /// <summary>Selected bevel endpoints and middle blue channel retained from the supplied eight-color surface.</summary>
     private readonly int bevelPeak, bevelShadow, middleBevelBlue;
     /// <summary>Per-color exceptions kept when supplied art differs from the calculated shared material.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Captures the selected color parameters and preserves every independently edited supplied color.</summary>
-    internal CeresDoorEscapeSurfacePaintDefinitions(ReadOnlySpan<Bgr555> colors)
+    internal CeresDoorEscapeSurfacePaintDefinitions(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 8);
         highlightAndEdgeLevels = new int[4];
@@ -33,14 +33,14 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
     }
 
     /// <summary>Returns an authored exception where present or the calculated grey-blue door shade.</summary>
-    internal Bgr555 ColorAt(int index)
+    internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 8) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new ColourCell(0, index), out RgbColor edited) ? edited : Calculate(index);
     }
 
     /// <summary>Builds the clipped five-step bevel ramp and blue tint, preserving the selected middle-bevel blue level.</summary>
-    private Bgr555 Calculate(int index)
+    private RgbColor Calculate(int index)
     {
         int level = index < 4 ? highlightAndEdgeLevels[index] : Math.Max(bevelShadow, bevelPeak - BevelShadeStep * (index - 4));
         int blue = index == 0 ? level : index == 5 ? middleBevelBlue : Math.Min(MaximumChannel, level + BlueTint);

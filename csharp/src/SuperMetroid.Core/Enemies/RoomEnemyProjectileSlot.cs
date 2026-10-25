@@ -84,7 +84,7 @@ public sealed class RoomEnemyProjectileSlot
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
     /// <summary>Native generic enemy-projectile variable E at WRAM <c>$1AFF,x</c>.</summary>
-    [NativeWord("eproj variable word whose meaning each projectile family decodes")]
+    [PackedFields("eproj variable word whose meaning each projectile family decodes")]
     public int Variable0
     {
         get;
@@ -113,7 +113,7 @@ public sealed class RoomEnemyProjectileSlot
     /// reuses the same word as its idle timer before collision, so the typed bug wrapper is
     /// the authority on which meaning is currently active.
     /// </summary>
-    [NativeWord("eproj_G word: the colliding Samus projectile type word, or Kago's idle timer before collision; the typed bug wrapper reads which")]
+    [PackedFields("eproj_G word: the colliding Samus projectile type word, or Kago's idle timer before collision; the typed bug wrapper reads which")]
     public int CollidedProjectileType
     {
         get;

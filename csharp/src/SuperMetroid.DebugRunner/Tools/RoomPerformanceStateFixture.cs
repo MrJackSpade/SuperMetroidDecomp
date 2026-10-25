@@ -44,7 +44,7 @@ internal static class RoomPerformanceStateFixture
         data.Game.GameState = SuperMetroidGameState.MainGameplay;
         double stepMs = 0, renderMs = 0, audioMs = 0;
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
-        Rgba32[]? pixels = null;
+        RgbaPixel[]? pixels = null;
         DisplayPacket? lastSnapshot = null;
         for (long frame = 1; frame <= 720; frame++)
         {

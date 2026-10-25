@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -112,7 +113,7 @@ internal sealed class EndingEscapeScenes
         {
             case CinematicSpriteCueKind.FadeExplosionPalette:
                 _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.FadePlanet, 0);
-                screen.Palette.SpriteRow(EndingColourRowDefinitions.GlowSpriteRow).Write(EndingColourRowDefinitions.GlowColour, new Bgr555(1, 0, 0));
+                screen.Palette.SpriteRow(EndingColourRowDefinitions.GlowSpriteRow).Write(EndingColourRowDefinitions.GlowColour, new RgbColor(1, 0, 0));
                 return;
 
             case CinematicSpriteCueKind.SpawnExplosionSilhouette:

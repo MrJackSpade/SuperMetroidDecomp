@@ -34,6 +34,6 @@ public static class CeresRidleyGetawayDefinitions
             < 108 => 8 + (frame - 104) * 4,
             _ => 0x20,
         };
-        return new((ushort)zoom, new Offset16<Mode7Pixels>((short)x, (short)y));
+        return new((ushort)zoom, new Offset16<FloorPixels>((short)x, (short)y));
     }
 }

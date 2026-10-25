@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Calculated native cinematic shade composition and hurt white blend, with narrowly retained paint policies.</summary>
@@ -48,19 +50,19 @@ internal static class SamusHurtColorDefinitions
     }
 
     /// <summary>$9B:A380: OBJ transparent-slot black, calculated from zero RGB channels.</summary>
-    internal static Bgr555 HurtTransparentWord => Bgr555.Black;
+    internal static RgbColor HurtTransparentWord => RgbColor.Black;
     /// <summary>$9B:A3A0: exact independently editable transparent payload shared with the previously reviewed normal suit palette.</summary>
-    internal static readonly Bgr555 IntroTransparentWord = new(0, 0, 14);
+    internal static readonly RgbColor IntroTransparentWord = new(0, 0, 14);
 
     /// <summary>Equal red/green channels and the bounded blue tint; gray levels calculate from the reviewed selected shade composition.</summary>
-    internal static Bgr555 IntroFromLevel(int red)
+    internal static RgbColor IntroFromLevel(int red)
     {
         int blue = Math.Max(OutlineLevel, red - BlueTintDrop);
-        return new Bgr555(red, red, blue);
+        return new RgbColor(red, red, blue);
     }
 
     /// <summary>Floor-scaled RGB5 blend toward maximum white; applies only to indices 1..15, excluding the independently supplied zero slot.</summary>
-    internal static Bgr555 HurtFromIntro(Bgr555 intro)
+    internal static RgbColor HurtFromIntro(RgbColor intro)
     {
         int Blend(int channel) => (SourceWeight * channel + WhiteWeight * FullIntensity) / (SourceWeight + WhiteWeight);
         return intro.Map((_, channel) => Blend(channel));

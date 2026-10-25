@@ -33,7 +33,7 @@ public sealed class WorkRobotEnemyState
     /// Variables E (fraction) and F (whole pixels): an unpowered robot's signed 16.16 falling speed in pixels per
     /// update, which gravity accumulates with the cartridge's carry and wraparound.
     /// </summary>
-    public SnesSignedSixteenSixteen FallVelocity { get; internal set; }
+    public SignedSixteenSixteen FallVelocity { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
@@ -41,6 +41,6 @@ public sealed class WorkRobotEnemyState
         LaserVelocity = default;
         LaserCooldown = WrappingCountdown.Start(0);
         BackupPosition = Position16<RoomPixels>.Zero;
-        FallVelocity = SnesSignedSixteenSixteen.Zero;
+        FallVelocity = SignedSixteenSixteen.Zero;
     }
 }

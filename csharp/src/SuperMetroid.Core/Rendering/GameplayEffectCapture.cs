@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -158,7 +159,7 @@ public static class GameplayEffectCapture
         // performs that clipping after this method, so only the common profile builder
         // is needed here. Widths increase while vertical boundaries decrease.
         int currentOuterScanline =
-            SnesEightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.TopOffset(0));
+            EightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.TopOffset(0));
         if (scanlineDistance > currentOuterScanline)
             return -1;
 
@@ -168,8 +169,8 @@ public static class GameplayEffectCapture
         {
             // The 65816 routine uses the high byte of an unsigned 8x8 product. An
             // ordinary integer multiply followed by `>> 8` is exactly that operation.
-            int innerScanline = SnesEightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.TopOffset(curveIndex));
-            int halfWidth = SnesEightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.Width(curveIndex));
+            int innerScanline = EightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.TopOffset(curveIndex));
+            int halfWidth = EightEight.Multiply(horizontalRadius, PowerBombShapeDefinitions.Width(curveIndex));
             finalHalfWidth = halfWidth;
 
             // Native code fills both endpoints inclusively, then begins the next band
@@ -191,32 +192,32 @@ public static class GameplayEffectCapture
 
     /// <summary>Replicates low color bits to expand one SNES five-bit channel to host eight-bit color.</summary>
     internal static byte ExpandFiveBit(int value) =>
-        Bgr555.ExpandChannel(value);
+        RgbColor.ExpandChannel(value);
 
     /// <summary>One signed 8.8 screen-space direction vector reconstructed from `$91:C9D4`.</summary>
     internal static Offset16<ScreenPixels> ReadXrayDirection(int angle)
     {
-        int wrappedAngle = SnesAngle.NormalizeTableIndex(angle).TableIndex;
+        int wrappedAngle = RotationAngle.NormalizeTableIndex(angle).TableIndex;
 
         // The four cardinals are mathematically exact. At horizontal entries the ROM table
         // contains `$3C00` as a screen-sized infinity substitute, but using (±1,0) here is
         // the identical limiting ray and also preserves the dedicated zero-width line.
-        if (wrappedAngle == SnesAngle.Zero.TableIndex)
+        if (wrappedAngle == RotationAngle.Zero.TableIndex)
             return Direction(0, -XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle == SnesAngle.QuarterTurn.TableIndex)
+        if (wrappedAngle == RotationAngle.QuarterTurn.TableIndex)
             return Direction(XrayScopeDefinitions.Window.UnitVector, 0);
-        if (wrappedAngle == SnesAngle.HalfTurn.TableIndex)
+        if (wrappedAngle == RotationAngle.HalfTurn.TableIndex)
             return Direction(0, XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle == SnesAngle.ThreeQuarterTurn.TableIndex)
+        if (wrappedAngle == RotationAngle.ThreeQuarterTurn.TableIndex)
             return Direction(-XrayScopeDefinitions.Window.UnitVector, 0);
 
-        int tangentIndex = wrappedAngle & (SnesAngle.HalfTurn.TableIndex - 1);
+        int tangentIndex = wrappedAngle & (RotationAngle.HalfTurn.TableIndex - 1);
         int tangent = AbsoluteTangentDefinitions.Sample(tangentIndex);
-        if (wrappedAngle < SnesAngle.QuarterTurn.TableIndex)
+        if (wrappedAngle < RotationAngle.QuarterTurn.TableIndex)
             return Direction(tangent, -XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle < SnesAngle.HalfTurn.TableIndex)
+        if (wrappedAngle < RotationAngle.HalfTurn.TableIndex)
             return Direction(tangent, XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle < SnesAngle.ThreeQuarterTurn.TableIndex)
+        if (wrappedAngle < RotationAngle.ThreeQuarterTurn.TableIndex)
             return Direction(-tangent, XrayScopeDefinitions.Window.UnitVector);
         return Direction(-tangent, -XrayScopeDefinitions.Window.UnitVector);
 
@@ -275,7 +276,7 @@ public static class GameplayEffectCapture
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
         var windows = new XrayWindowLine[Height];
         Array.Fill(windows, new XrayWindowLine(255, 0));
-        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
+        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
@@ -334,7 +335,7 @@ public static class GameplayEffectCapture
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
         var emptyWindows = new XrayWindowLine[Height];
         Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
+        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
     }
 
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>
@@ -346,7 +347,7 @@ public static class GameplayEffectCapture
         Array.Fill(windows, ColorAddWindow.Empty);
         for (int y = HudHeight; y < Height; y++)
         {
-            Bgr555 haze = CeresHazeRenderDefinitions.ResolveComponents(
+            RgbColor haze = CeresHazeRenderDefinitions.ResolveComponents(
                 y, intensity, ridleyIsDead, colors);
             windows[y] = new(0, Width - 1, ExpandFiveBit(haze.Red),
                 ExpandFiveBit(haze.Green), ExpandFiveBit(haze.Blue));
@@ -401,7 +402,7 @@ public static class GameplayEffectCapture
         int angle = xray.Angle.TableIndex;
         int width = xray.AngularWidth;
         Offset16<ScreenPixels> a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
-        bool horizontal = width == 0 && (angle == SnesAngle.QuarterTurn.TableIndex || angle == SnesAngle.ThreeQuarterTurn.TableIndex);
+        bool horizontal = width == 0 && (angle == RotationAngle.QuarterTurn.TableIndex || angle == RotationAngle.ThreeQuarterTurn.TableIndex);
         var lines = new XrayWindowLine[Height];
         Array.Fill(lines, new XrayWindowLine(1, 0));
         for (int y = HudHeight; y < Height; y++)
@@ -410,7 +411,7 @@ public static class GameplayEffectCapture
             if (horizontal)
             {
                 if (y != originY) continue;
-                if (angle == SnesAngle.QuarterTurn.TableIndex) left = Math.Max(left, originX);
+                if (angle == RotationAngle.QuarterTurn.TableIndex) left = Math.Max(left, originX);
                 else right = Math.Min(right, originX);
             }
             else

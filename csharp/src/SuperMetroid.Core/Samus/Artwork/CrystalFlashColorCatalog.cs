@@ -11,12 +11,12 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class CrystalFlashColorCatalog
 {
     /// <summary>Complete edited body frames, retained only when any supplied color differs from the native calculated pulse.</summary>
-    internal readonly Bgr555[][]? body;
+    internal readonly RgbColor[][]? body;
     /// <summary>Bubble samples that differ from the rotating ramp, including the independently painted stock white.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> bubble = [];
+    internal readonly Dictionary<ColourCell, RgbColor> bubble = [];
 
     /// <summary>Compares all supplied frames with native color rules before retaining only independent edits.</summary>
-    internal CrystalFlashColorCatalog(Bgr555[][] body, Bgr555[][] bubble)
+    internal CrystalFlashColorCatalog(RgbColor[][] body, RgbColor[][] bubble)
     {
         // Discard stock body rows only after checking every supplied color. Edited
         // resources keep their complete, independent palette content.
@@ -39,7 +39,7 @@ public sealed class CrystalFlashColorCatalog
     /// <param name="color">Zero-based color within the ten-color body portion, including transparent color zero.</param>
     /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the body dimensions.</exception>
-    public Bgr555 ResolveBody(int frame, int color)
+    public RgbColor ResolveBody(int frame, int color)
     {
         if ((uint)frame >= CrystalFlashColorFormat.BodyFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
@@ -54,25 +54,25 @@ public sealed class CrystalFlashColorCatalog
     /// return to19. All nine visible body colors share that intensity. The
     /// transparent color is the fixed RGB5 backdrop (0,0,14) in every frame.
     /// </summary>
-    private static Bgr555 CalculateBody(int frame, int color)
+    private static RgbColor CalculateBody(int frame, int color)
     {
         if (color == 0)
-            return new Bgr555(0, 0, 14);
+            return new RgbColor(0, 0, 14);
         int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
-        return new Bgr555(grey, grey, grey);
+        return new RgbColor(grey, grey, grey);
     }
     /// <summary>Returns one editable bubble color from the independently cycling six-frame sequence, preserving supplied edits and the native painted white sample.</summary>
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
     /// <param name="color">Zero-based color within the six-color bubble portion, 0 through 5.</param>
     /// <returns>SNES RGB555 color word, with red in bits 0..4, green in bits 5..9, and blue in bits 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the bubble dimensions.</exception>
-    public Bgr555 ResolveBubble(int frame, int color)
+    public RgbColor ResolveBubble(int frame, int color)
     {
         if ((uint)frame >= CrystalFlashColorFormat.BubbleFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= CrystalFlashColorFormat.BubbleColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return bubble.TryGetValue(new ColourCell(frame, color), out Bgr555 supplied)
+        return bubble.TryGetValue(new ColourCell(frame, color), out RgbColor supplied)
             ? supplied : CalculateBubble(frame, color);
     }
 
@@ -85,12 +85,12 @@ public sealed class CrystalFlashColorCatalog
     /// operation generating that choice. Only that sample remains supplied stock data;
     /// a formula exception would merely reencode its frame/color identity and value.
     /// </summary>
-    private static Bgr555 CalculateBubble(int frame, int color)
+    private static RgbColor CalculateBubble(int frame, int color)
     {
         int phase = (color - frame + CrystalFlashColorFormat.BubbleColorCount)
             % CrystalFlashColorFormat.BubbleColorCount;
         int channel = 31 - (6 * phase + 2) / 5;
-        return new Bgr555(31, channel, channel);
+        return new RgbColor(31, channel, channel);
     }
 
     /// <summary>Copies one body frame to CGRAM colors $E0-$E9 without changing the bubble colors or advancing any gameplay timer.</summary>

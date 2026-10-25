@@ -13,6 +13,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
@@ -60,7 +61,7 @@ internal static class XrayInputVerification
                 {
                     AssertTrue(((GameplayColorMathRenderLayer)startup.Layers[0]).Lines.All(line => line.Left > line.Right),
                         "setup keeps the beam closed while copying tilemaps");
-                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : Bgr555.Black, startup.Paint.Colors[0],
+                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : RgbColor.Black, startup.Paint.Colors[0],
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
@@ -73,8 +74,8 @@ internal static class XrayInputVerification
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = DisplayRendering.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));
         int revealedAirPixel = 120 * 256 + 200;
-        AssertTrue(ordinaryPixels[revealedAirPixel] != new Rgba32(24, 24, 24, 255), "fixture starts with visible decorative wall art");
-        AssertEqual(new Rgba32(24, 24, 24, 255), horizontalPixels[revealedAirPixel],
+        AssertTrue(ordinaryPixels[revealedAirPixel] != new RgbaPixel(24, 24, 24, 255), "fixture starts with visible decorative wall art");
+        AssertEqual(new RgbaPixel(24, 24, 24, 255), horizontalPixels[revealedAirPixel],
             "live X-ray removes decorative air graphics inside its horizontal beam");
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
         {

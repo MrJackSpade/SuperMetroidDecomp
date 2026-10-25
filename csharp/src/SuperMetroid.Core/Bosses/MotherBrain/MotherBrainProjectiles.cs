@@ -217,7 +217,7 @@ internal sealed class MotherBrainProjectiles
             // units, so the reduced speed always fits a signed 8.8 velocity.
             int velocity = bomb.Velocity.X.SignedRawValue;
             int slowed = Math.Max(0, Math.Abs(velocity) - 2);
-            bomb.Velocity = bomb.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((short)(velocity < 0 ? -slowed : slowed)));
+            bomb.Velocity = bomb.Velocity.WithX(SignedEightEight.FromSignedRaw((short)(velocity < 0 ? -slowed : slowed)));
             acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
         }
         else
@@ -281,20 +281,20 @@ internal sealed class MotherBrainProjectiles
         RoomEnemyProjectileSlot bomb,
         int acceleration)
     {
-        bomb.Velocity = bomb.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(bomb.Velocity.Y.RawValue + acceleration))));
+        bomb.Velocity = bomb.Velocity.WithY(new SignedEightEight(unchecked((ushort)(bomb.Velocity.Y.RawValue + acceleration))));
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
         // Both boundaries are signed CMP/BMI tests. X reflects without clamping; the floor
         // clamps Y to $D0 and resets the two authored bounce velocities.
         if (unchecked((short)(bomb.Position.X.Whole - 240)) >= 0)
-            bomb.Velocity = bomb.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-bomb.Velocity.X.RawValue)));
+            bomb.Velocity = bomb.Velocity.WithX(new SignedEightEight(unchecked((ushort)-bomb.Velocity.X.RawValue)));
         if (unchecked((short)(bomb.Position.Y.Whole - 208)) < 0)
             return false;
 
         bomb.Position = bomb.Position.WithWholeY(208);
-        bomb.Velocity = new(new SnesSignedEightEight(unchecked((short)bomb.Velocity.X.RawValue) < 0
+        bomb.Velocity = new(new SignedEightEight(unchecked((short)bomb.Velocity.X.RawValue) < 0
             ? unchecked((ushort)-bomb.Variable0)
-            : checked((ushort)bomb.Variable0)), SnesSignedEightEight.FromSignedRaw(-512));
+            : checked((ushort)bomb.Variable0)), SignedEightEight.FromSignedRaw(-512));
         return true;
     }
 
@@ -324,7 +324,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state)
     {
         state.RecordBombRemoved();
-        bomb.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        bomb.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         bomb.Clear();
     }
 
@@ -353,8 +353,8 @@ internal sealed class MotherBrainProjectiles
         // 32768 units less the drag always fits a signed 8.8 velocity.
         int velocity = fragment.Velocity.X.SignedRawValue;
         int speed = Math.Max(0, Math.Abs(velocity) - MotherBrainDeathDefinitions.DoorFragmentDrag);
-        fragment.Velocity = fragment.Velocity.WithX(SnesSignedEightEight.FromSignedRaw((short)(velocity < 0 ? -speed : speed)));
-        fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathDefinitions.DoorFragmentGravity))));
+        fragment.Velocity = fragment.Velocity.WithX(SignedEightEight.FromSignedRaw((short)(velocity < 0 ? -speed : speed)));
+        fragment.Velocity = fragment.Velocity.WithY(new SignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathDefinitions.DoorFragmentGravity))));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime counts down in variable zero and expires when it passes zero.
         CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
@@ -368,7 +368,7 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(RoomEnemyProjectileSlot subtitle)
     {
-        subtitle.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        subtitle.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
     }
 
@@ -394,7 +394,7 @@ internal sealed class MotherBrainProjectiles
                 $"Mother Brain ceiling tube function {projectile.Variable0} is not translated.");
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 6))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 6))));
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         if (projectile.Position.Y.Whole < 208)
             return;
@@ -439,8 +439,8 @@ internal sealed class MotherBrainProjectiles
         int angleOffset = (_room.Random.Generate() * 2) & 510;
         int angle = angleOffset >> 1;
         shard.Variable0 = angleOffset;
-        shard.Velocity = shard.Velocity.WithX(new SnesSignedEightEight(ReadSignedSineSample(angle + 64)));
-        shard.Velocity = shard.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+        shard.Velocity = shard.Velocity.WithX(new SignedEightEight(ReadSignedSineSample(angle + 64)));
+        shard.Velocity = shard.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
             unchecked((short)ReadSignedSineSample(angle)) * 4))));
         int animationIndex = ((angleOffset >> 4) & 30) >> 1;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
@@ -471,7 +471,7 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        shard.Velocity = shard.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(shard.Velocity.Y.RawValue + 32))));
+        shard.Velocity = shard.Velocity.WithY(new SignedEightEight(unchecked((ushort)(shard.Velocity.Y.RawValue + 32))));
 
         // The masked test succeeds for 1/16 of samples. The condition itself consumes one
         // random value every live shard frame; a successful sparkle consumes two more below.
@@ -527,14 +527,14 @@ internal sealed class MotherBrainProjectiles
         state.HandBeamNextPosition = beam.Position;
 
         int angleRandom = _room.Random.Generate();
-        SnesByteAngle scatterAngle = new SnesByteAngle(unchecked((byte)state.HandBeamNextAngle)).AddTableUnits(unchecked((byte)angleRandom));
+        ByteAngle scatterAngle = new ByteAngle(unchecked((byte)state.HandBeamNextAngle)).AddTableUnits(unchecked((byte)angleRandom));
         int speedRandom = _room.Random.Generate();
         // Bits 8 to 10 of the random word: a whole speed of zero to seven.
         int scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
-        beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplySineSample((ushort)scatterSpeed, scatterAngle)));
-        beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(EnemyMath.MultiplySineSample(
+        beam.Velocity = beam.Velocity.WithX(new SignedEightEight(EnemyMath.MultiplySineSample((ushort)scatterSpeed, scatterAngle)));
+        beam.Velocity = beam.Velocity.WithY(new SignedEightEight(EnemyMath.MultiplySineSample(
             (ushort)scatterSpeed,
-            scatterAngle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
+            scatterAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
         if (IsMotherBrainHandBeamOutsideArena(beam))
@@ -552,7 +552,7 @@ internal sealed class MotherBrainProjectiles
 
         beam.Variable0 = (parentParameter + 1) & 3;
         beam.Variable1 = 0;
-        beam.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }
 
@@ -579,7 +579,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainBehavior.MotherBrainDroolOffsets[parameter]);
-        drool.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        drool.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
     }
 
     /// <summary>
@@ -589,7 +589,7 @@ internal sealed class MotherBrainProjectiles
     internal static void RunMotherBrainFallingDroolPreInstruction(
         RoomEnemyProjectileSlot drool)
     {
-        drool.Velocity = drool.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(drool.Velocity.Y.RawValue + 12))));
+        drool.Velocity = drool.Velocity.WithY(new SignedEightEight(unchecked((ushort)(drool.Velocity.Y.RawValue + 12))));
         drool.Position = drool.Position.AdvanceY(drool.Velocity.Y.ToSixteenSixteenDelta());
         if (drool.Position.Y.Whole < 215)
             return;
@@ -750,7 +750,7 @@ internal sealed class MotherBrainProjectiles
         // The turret keeps its rotation wait in its X velocity word and its firing wait in its Y velocity word; each is a
         // DEC, BEQ countdown that is reloaded when it reaches zero.
         CountdownStep rotationWait = WrappingCountdown.FromRaw(turret.Velocity.X.RawValue).Decrement();
-        turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight(rotationWait.Value));
+        turret.Velocity = turret.Velocity.WithX(new SignedEightEight(rotationWait.Value));
         if (rotationWait.IsZero)
         {
             ResetMotherBrainTurretRotationTimer(turret);
@@ -761,7 +761,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         CountdownStep firingWait = WrappingCountdown.FromRaw(turret.Velocity.Y.RawValue).Decrement();
-        turret.Velocity = turret.Velocity.WithY(new SnesSignedEightEight(firingWait.Value));
+        turret.Velocity = turret.Velocity.WithY(new SignedEightEight(firingWait.Value));
         if (firingWait.IsZero)
         {
             ResetMotherBrainTurretCooldown(turret);
@@ -798,14 +798,14 @@ internal sealed class MotherBrainProjectiles
     internal void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
         int sample = unchecked((byte)_room.Random.Generate());
-        turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay)));
+        turret.Velocity = turret.Velocity.WithX(new SignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay)));
     }
 
     /// <summary>Restarts the turret's pause between fired bullets.</summary>
     internal void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
         int sample = unchecked((byte)_room.Random.Generate());
-        turret.Velocity = turret.Velocity.WithY(new SnesSignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown)));
+        turret.Velocity = turret.Velocity.WithY(new SignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown)));
     }
 
     /// <summary>Ports the asymmetric viewport bounds at $86:C0B4.</summary>

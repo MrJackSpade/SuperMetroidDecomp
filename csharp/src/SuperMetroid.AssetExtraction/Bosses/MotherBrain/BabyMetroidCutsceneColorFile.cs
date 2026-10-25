@@ -40,6 +40,6 @@ public static class BabyMetroidCutsceneColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Validates an RGB5 row's length and channels before copying it to packed colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name) =>
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int required, string name) =>
         Rgb5Rows.Compile(source, required, $"Cutscene Baby {name}");
 }

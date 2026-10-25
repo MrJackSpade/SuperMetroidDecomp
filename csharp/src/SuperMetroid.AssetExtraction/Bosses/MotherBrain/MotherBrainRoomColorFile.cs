@@ -32,11 +32,11 @@ public static class MotherBrainRoomColorFile
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
-        var flash = new Bgr555[document.Flash.Length][];
+        var flash = new RgbColor[document.Flash.Length][];
         for (int index = 0; index < flash.Length; index++)
             flash[index] = Compile(document.Flash[index], MotherBrainRoomColorDefinitions.SliceColors * 2,
                 $"flash row {index}");
-        Bgr555[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorDefinitions.SliceColors * 2, "final room");
+        RgbColor[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorDefinitions.SliceColors * 2, "final room");
         // A legacy override inherits the families it predates from the current stock the
         // version check above required; a null family says so.
         return MotherBrainRoomColorPresentation.Create(new MotherBrainRoomColours
@@ -62,11 +62,11 @@ public static class MotherBrainRoomColorFile
     }
 
     /// <summary>Validates the seven recovery frames and compiles their RGB5 words.</summary>
-    private static Bgr555[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
+    private static RgbColor[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
     {
         if (frames is null || frames.Length != MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
             throw new InvalidDataException("Mother Brain room-light recovery requires seven frames.");
-        var compiled = new Bgr555[frames.Length][];
+        var compiled = new RgbColor[frames.Length][];
         for (int frame = 0; frame < frames.Length; frame++)
             compiled[frame] = Compile(frames[frame],
                 MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors * 2,
@@ -75,18 +75,18 @@ public static class MotherBrainRoomColorFile
     }
 
     /// <summary>Rejects missing or out-of-range RGB5 components before packing an authored palette row.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
     {
         if (colors is null || colors.Length != expectedCount)
             throw new InvalidDataException($"Mother Brain {name} requires {expectedCount} colors.");
-        var compiled = new Bgr555[colors.Length];
+        var compiled = new RgbColor[colors.Length];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = colors[index];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
                 (uint)color.Blue > 31)
                 throw new InvalidDataException($"Mother Brain {name} color {index} requires RGB5 components.");
-            compiled[index] = color.ToBgr555();
+            compiled[index] = color.ToRgbColor();
         }
         return compiled;
     }

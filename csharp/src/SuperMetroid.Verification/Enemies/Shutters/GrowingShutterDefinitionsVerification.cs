@@ -27,7 +27,7 @@ internal static class GrowingShutterDefinitionsVerification
             {
                 for (int speed = 0; speed < 24; speed++)
                 {
-                    slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(selector >> 1));
+                    slot.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)(selector >> 1));
                     slot.CurrentInstruction = (ushort)(selector & 1);
                     slot.SetSpawnParameter2((ushort)((high << 8) | speed));
                     slot.Position = slot.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
@@ -39,7 +39,7 @@ internal static class GrowingShutterDefinitionsVerification
                     int direction = selector < 2 ? 1 : -1;
                     for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
                         AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8 * level)), state.SectionOrigin(level).Y, $"Shutter wrapped origin {level}");
-                    AssertEqual((ushort)0, slot.ExtraProperties.ToNativeWord(), "Shutter consumes initial direction word");
+                    AssertEqual((ushort)0, slot.ExtraProperties.ToWord(), "Shutter consumes initial direction word");
                 }
             }
         }

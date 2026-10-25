@@ -320,6 +320,6 @@ internal static class MotherBrainRoomColorsVerification
     private static void Seed(SamusColourRig cgram)
     {
         for (int index = 0; index < SnesCgram.ColorCount; index++)
-            cgram.SetColor(index, Bgr555.FromWord((ushort)(index * 71 & 0x7fff)));
+            cgram.SetColor(index, RgbColor.FromWord((ushort)(index * 71 & 0x7fff)));
     }
 }

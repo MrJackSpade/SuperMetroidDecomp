@@ -56,10 +56,10 @@ internal sealed class ProjectileTerrainCollision
         // the sole exception: `$90:BDA4/$BDF2` writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the cartridge's counterintuitive right-edge initial horizontal probe.
-        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(slot.PackedDirection.Direction == SamusProjectileDirection.Left
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.PackedDirection.Direction == SamusProjectileDirection.Left
             ? (short)-1
             : (short)0));
-        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(0));
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(0));
 
         SamusProjectileDirection? direction = slot.PackedDirection.Direction;
         bool collided = false;
@@ -472,8 +472,8 @@ internal sealed class ProjectileTerrainCollision
     /// shifting it left eight. Advancing by it as one wrapped 32-bit quantity is exactly
     /// equivalent to its low-word ADC followed by sign-word ADC.
     /// </summary>
-    internal static SnesSignedSixteenSixteen EightEightDelta(int velocity) =>
-        SnesSignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
+    internal static SignedSixteenSixteen EightEightDelta(int velocity) =>
+        SignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
 
     /// <summary>
     /// $90:AE06 Kill_Projectile for a beam, as bank $94's block collision calls it: the
@@ -564,7 +564,7 @@ internal sealed class ProjectileTerrainCollision
         // of its pixel offset. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
         if (remaining >= 16 || unchecked((short)slot.Position.Y.Whole) < 0 ||
-            (SnesEightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
+            (EightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
             (SnesLittleEndian.HighByte(targetX)) >= (level.Size.X + 15) / 16)
             return;
 
@@ -611,7 +611,7 @@ internal sealed class ProjectileTerrainCollision
         int targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole - slot.Radius.Y
             : slot.Position.Y.Whole + slot.Radius.Y - 1));
-        int centerScreenX = SnesEightEight.WholeOf(slot.Position.X.Whole);
+        int centerScreenX = EightEight.WholeOf(slot.Position.X.Whole);
         if (centerScreenX >= (level.Size.X + 15) / 16 ||
             (SnesLittleEndian.HighByte(targetY)) >= (level.Size.Y + 15) / 16)
             return;

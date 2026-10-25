@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -63,7 +64,7 @@ internal static class RuntimeOverlayTests
 
         RenderedFrame Check(string context)
         {
-            Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
+            RgbaPixel[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var packet = new DisplayPacket(new(++sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             PixelComparison.Verify(packet, expected, DisplayRendering.Render(packet), $"WARP: {context}");
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");

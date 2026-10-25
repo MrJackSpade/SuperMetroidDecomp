@@ -22,7 +22,7 @@ using static SuperMetroid.Verification.Rooms.BackgroundMosaicVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamImpactSoundVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
-using static SuperMetroid.Verification.Hardware.Bgr555DomainVerification;
+using static SuperMetroid.Verification.Assets.RgbColorDomainVerification;
 using static SuperMetroid.Verification.Hardware.FixedPointVocabularyVerification;
 using static SuperMetroid.Verification.Rooms.RoomScopeVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BombBlockProgramsVerification;
@@ -802,7 +802,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics()),
         new(nameof(VerifyXraySetupStageDomain), () => VerifyXraySetupStageDomain()),
         new(nameof(VerifyDoorOrientationDomain), () => VerifyDoorOrientationDomain()),
-        new(nameof(VerifyBgr555Domain), () => VerifyBgr555Domain()),
+        new(nameof(VerifyRgbColorDomain), () => VerifyRgbColorDomain()),
         new(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake()),
         new(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset()),
         new(nameof(VerifyMotherBrainWalkCreditShared), () => VerifyMotherBrainWalkCreditShared()),

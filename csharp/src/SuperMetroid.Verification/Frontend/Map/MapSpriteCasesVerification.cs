@@ -110,8 +110,8 @@ internal static class MapSpriteCasesVerification
                 native = new OamBuffer(); native.BeginFrame(); installed.BeginFrame();
                 for (int index = 0; index < occupied; index++)
                 {
-                    native.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56);
-                    installed.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56);
+                    native.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56);
+                    installed.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
                 MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), installed, new(x, y), (ushort)(palette << 9));

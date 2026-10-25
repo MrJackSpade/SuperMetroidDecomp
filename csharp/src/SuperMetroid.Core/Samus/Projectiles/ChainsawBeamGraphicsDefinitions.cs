@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -14,7 +15,7 @@ internal static class ChainsawBeamGraphicsDefinitions
     /// by that routine's instruction bytes; these are those words as CGRAM keeps them, without the bit it discards.
     /// The verification derives every colour from the cartridge bytes.
     /// </summary>
-    internal static readonly IReadOnlyList<Bgr555> Colours = Array.AsReadOnly<Bgr555>(
+    internal static readonly IReadOnlyList<RgbColor> Colours = Array.AsReadOnly<RgbColor>(
     [
         new(16, 4, 2),
         new(2, 6, 12),

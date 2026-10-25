@@ -41,7 +41,7 @@ internal sealed class EndingLogo
                 definition.Program);
             actors[i].InstallPreInstruction(definition.PreInstruction);
         }
-        Ensure.NotNull(colours).BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Fill(Bgr555.Black);
+        Ensure.NotNull(colours).BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Fill(RgbColor.Black);
         (paletteArtwork ?? throw new InvalidOperationException(
             "Ending logo requires installed palette artwork."))
             [EndingPaletteId.LogoInitial].LoadTo(colours.SpriteRow(EndingColourRowDefinitions.LogoSpriteRow), 0);

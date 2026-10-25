@@ -33,9 +33,9 @@ public sealed class DachoraEnemyState
     /// vertical after the launch. It accumulates with the cartridge's carry and 32-bit wraparound, and its whole pixels
     /// are the word <see cref="PhaseTimer"/> counts.
     /// </summary>
-    public SnesSignedSixteenSixteen Speed
+    public SignedSixteenSixteen Speed
     {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_speedWholeOrPhaseTime), checked((ushort)_speedFraction));
+        get => SignedSixteenSixteen.FromParts(unchecked((short)_speedWholeOrPhaseTime), checked((ushort)_speedFraction));
         internal set
         {
             _speedWholeOrPhaseTime = value.WholeWord;
@@ -64,9 +64,9 @@ public sealed class DachoraEnemyState
     /// On the body during the shinespark: the signed 16.16 vertical acceleration per update, which gravity accumulates
     /// into with the cartridge's carry and 32-bit wraparound.
     /// </summary>
-    public SnesSignedSixteenSixteen VerticalAcceleration
+    public SignedSixteenSixteen VerticalAcceleration
     {
-        get => SnesSignedSixteenSixteen.FromParts(
+        get => SignedSixteenSixteen.FromParts(
             unchecked((short)_accelerationWhole), checked((ushort)_accelerationFractionOrEchoLifetime));
         internal set
         {

@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
@@ -26,7 +26,7 @@ internal static class RetailAttractTests
             var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false;
-            Rgba32[]? held = null;
+            RgbaPixel[]? held = null;
             for (int tick = 0; tick < 8000; tick++)
             {
                 ControllerButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? ControllerButton.Start : ControllerButton.None;

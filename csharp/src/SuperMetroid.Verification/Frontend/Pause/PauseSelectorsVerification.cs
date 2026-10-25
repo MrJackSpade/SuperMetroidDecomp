@@ -67,7 +67,7 @@ internal static class PauseSelectorsVerification
                 }
             }
         }
-        var anchors = new Dictionary<string, Position16<OamPixels>>(document.Anchors) { ["Beam.Charge"] = new(100, 90) };
+        var anchors = new Dictionary<string, Position16<SpritePixels>>(document.Anchors) { ["Beam.Charge"] = new(100, 90) };
         var parts = new SpriteVisualPart[]
         {
             new() { OffsetX = 12, OffsetY = -4, TileColumn = 2, TileRow = 3, Size = 16, Priority = 3, Palette = 5, FlipX = true, FlipY = true },

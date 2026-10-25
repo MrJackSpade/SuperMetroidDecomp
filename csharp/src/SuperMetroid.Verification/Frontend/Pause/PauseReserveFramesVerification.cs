@@ -116,7 +116,7 @@ internal static class PauseReserveFramesVerification
         foreach (int occupied in new[] { 0, 127, 128 })
         {
             var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-            for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); }
+            for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); }
             ushort x = ReadVerificationWord(rom, 0x82c1d6 + index * 2);
             ushort y = (ushort)(ReadVerificationWord(rom, 0x82c1e2) - 1);
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);

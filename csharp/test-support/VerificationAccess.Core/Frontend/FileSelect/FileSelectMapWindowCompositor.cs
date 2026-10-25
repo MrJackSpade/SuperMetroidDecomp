@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -6,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 public static class FileSelectMapWindowCompositor
 {
     /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
-    public static Rgba32[] CompositeInitialEntryWindow(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame, Rgba32[] pixels)
+    public static RgbaPixel[] CompositeInitialEntryWindow(ReadOnlySpan<RgbaPixel> area, ReadOnlySpan<RgbaPixel> roomFrame, RgbaPixel[] pixels)
     {
         int length = FrontendFrame.Width * FrontendFrame.Height;
         if (area.Length != length || roomFrame.Length != length || pixels.Length != length)
@@ -22,8 +23,8 @@ public static class FileSelectMapWindowCompositor
     }
 
     /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
-    public static Rgba32[] Composite(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame,
-        FileSelectMapWindow window, Rgba32[] pixels)
+    public static RgbaPixel[] Composite(ReadOnlySpan<RgbaPixel> area, ReadOnlySpan<RgbaPixel> roomFrame,
+        FileSelectMapWindow window, RgbaPixel[] pixels)
     {
         Ensure.NotNull(window);
         Ensure.NotNull(pixels);

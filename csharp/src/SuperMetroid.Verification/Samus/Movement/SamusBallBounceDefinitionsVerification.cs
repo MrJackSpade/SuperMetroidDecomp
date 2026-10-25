@@ -41,9 +41,9 @@ internal static class SamusBallBounceDefinitionsVerification
                     1 => spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound,
                     _ => spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound,
                 };
-                samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen((ushort)raw, ushort.MaxValue);
+                samus.Kinematics.YSpeed = new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue);
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-                samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
+                samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
                 bool grounded = spring
                     ? SamusPosturePoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0)

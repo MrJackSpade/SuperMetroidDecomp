@@ -104,7 +104,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Tracks the retail Boots-to-Plasma label copy overrun across artwork rebinds.</summary>
     private bool plasmaLabelOverrunActive;
     /// <summary>Last selected map marker or equipment selector origin for diagnostics.</summary>
-    internal Position16<OamPixels> LastIndicatorOrigin { get; private set; }
+    internal Position16<SpritePixels> LastIndicatorOrigin { get; private set; }
     /// <summary>Pose of the Samus map marker when it was the last indicator drawn, for diagnostics; null after a selector draw.</summary>
     internal MapSpriteId? LastMapIndicatorSprite { get; private set; }
     /// <summary>Category of the equipment selector when it was the last indicator drawn, for diagnostics; null after a map-marker draw.</summary>
@@ -299,10 +299,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             screen.HudTiles), SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
         RenderLayer[] layers =
         [
-            new ObjPriorityRenderLayer(0), bg3,
-            new ObjPriorityRenderLayer(1), bg2, bg1,
-            new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
-            new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
+            new SpritePriorityRenderLayer(0), bg3,
+            new SpritePriorityRenderLayer(1), bg2, bg1,
+            new SpritePriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
+            new SpritePriorityRenderLayer(3), bg3 with { Priority = true },
         ];
         return new(screen.Paint(), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }
@@ -593,12 +593,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>
     private Position16<MapTiles> SamusMapCell() =>
-        roomMapPosition + new Offset16<MapTiles>(checked((short)(SnesEightEight.WholeOf(samus.Position.X.Whole))), checked((short)((SnesEightEight.WholeOf(samus.Position.Y.Whole)) + 1)));
+        roomMapPosition + new Offset16<MapTiles>(checked((short)(EightEight.WholeOf(samus.Position.X.Whole))), checked((short)((EightEight.WholeOf(samus.Position.Y.Whole)) + 1)));
 
     /// <summary>Draws the animated Samus map marker at the scrolled screen position.</summary>
     private void DrawMapPositionIndicator()
     {
-        Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(MapScrollPosition).ToOam();
+        Position16<SpritePixels> origin = SamusMapCell().ToMapPixels().ToScreen(MapScrollPosition).ToSpritePosition();
         LastIndicatorOrigin = origin;
         MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(MapIndicatorAnimationFrame);
         LastMapIndicatorSprite = indicator;
@@ -732,7 +732,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Draws a map sprite sheet frame with its selected palette bits.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, int paletteBits) =>
+    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, int paletteBits) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, paletteBits);

@@ -39,18 +39,18 @@ internal static class CompiledProjectileMathVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var enemy = new Func<ushort, byte, ushort>((speed, angle) => EnemyMath.MultiplySineSample(speed, new SnesByteAngle(angle)));
-        var baby = new Func<ushort, byte, ushort>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new SnesByteAngle(babyAngle)));
-        var rainbow = new Func<ushort, SnesAngle, ushort>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle));
+        var enemy = new Func<ushort, byte, ushort>((speed, angle) => EnemyMath.MultiplySineSample(speed, new ByteAngle(angle)));
+        var baby = new Func<ushort, byte, ushort>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new ByteAngle(babyAngle)));
+        var rainbow = new Func<ushort, RotationAngle, ushort>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle));
         var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);
         var glass = new Func<int, ushort>(MotherBrainProjectiles.ReadSignedSineSample);
         var eye = new Func<int, short>(EyeDoorBehavior.ReadEyeDoorAcceleration);
-        var rio = new Func<byte, ushort>(angle => RioBehavior.ReadRioSignedSineCosineSample(new SnesByteAngle(angle)));
+        var rio = new Func<byte, ushort>(angle => RioBehavior.ReadRioSignedSineCosineSample(new ByteAngle(angle)));
         var shaktool = new Func<int, ushort>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
-        var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new ByteAngle(unchecked((byte)angle)), radius));
         var arc = new Action<RoomEnemyProjectileSlot, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
-        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new SnesBearing(bearing)));
-        var echo = new Func<SnesAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
+        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));
+        var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader
         // ignores) and every radius byte. The reference uses the cartridge's positive half,
@@ -58,13 +58,13 @@ internal static class CompiledProjectileMathVerification
         foreach (int rawAngle in AngleHighByteSamples())
         for (int radius = 0; radius <= byte.MaxValue; radius++)
         {
-            int xAngle = SnesAngle.FromRaw(unchecked((ushort)rawAngle)).TableIndex;
-            int yAngle = SnesAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).TableIndex;
+            int xAngle = RotationAngle.FromRaw(unchecked((ushort)rawAngle)).TableIndex;
+            int yAngle = RotationAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).TableIndex;
             ushort xMagnitude = (ushort)(native[(xAngle & 127) + 64] * radius / 256);
             ushort yMagnitude = (ushort)(native[(yAngle & 127) + 64] * radius / 256);
             ushort x = xAngle < 128 ? xMagnitude : unchecked((ushort)-xMagnitude);
             ushort y = yAngle < 128 ? yMagnitude : unchecked((ushort)-yMagnitude);
-            if (echo(SnesAngle.FromRaw((ushort)rawAngle), (byte)radius) != new Offset16<RoomPixels>(unchecked((short)x), unchecked((short)y)))
+            if (echo(RotationAngle.FromRaw((ushort)rawAngle), (byte)radius) != new Offset16<RoomPixels>(unchecked((short)x), unchecked((short)y)))
                 throw new InvalidDataException($"Shinespark vector differs: angle={rawAngle:X4}, radius={radius}.");
         }
 
@@ -78,8 +78,8 @@ internal static class CompiledProjectileMathVerification
             ushort expected = sample < 0 ? unchecked((ushort)-magnitude) : magnitude;
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
-            var cosineAngle = SnesAngle.FromTableIndex(unchecked((byte)(angle - 64))).AddRaw(255);
-            if (EnemyTrigonometryTables.MultiplySignedSine((ushort)speed, new SnesByteAngle((byte)angle)) != expected ||
+            var cosineAngle = RotationAngle.FromTableIndex(unchecked((byte)(angle - 64))).AddRaw(255);
+            if (EnemyTrigonometryTables.MultiplySignedSine((ushort)speed, new ByteAngle((byte)angle)) != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");
@@ -120,11 +120,11 @@ internal static class CompiledProjectileMathVerification
             int sampleIndex = (((phase & 510) | 128) / 2) + 64;
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight((ushort)phase));
-            projectile.Variable1 = SnesFixedPosition.WholeOf(unchecked((int)initial));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight((ushort)phase));
+            projectile.Variable1 = FixedCoordinate.WholeOf(unchecked((int)initial));
             projectile.Variable0 = unchecked((ushort)initial);
             arc(projectile, step);
-            if (projectile.Variable1 != SnesSixteenSixteen.WholeOf(expected) || projectile.Variable0 != SnesSixteenSixteen.FractionOf(expected) ||
+            if (projectile.Variable1 != SixteenSixteen.WholeOf(expected) || projectile.Variable0 != SixteenSixteen.FractionOf(expected) ||
                 projectile.Velocity.X.RawValue != unchecked((ushort)(phase + step)))
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
         }

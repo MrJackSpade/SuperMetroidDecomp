@@ -660,7 +660,7 @@ internal static void VerifySamusVisorPalette()
 
     var visorColors = SamusVisorColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
-    cgram.SetColor(196, Bgr555.FromWord(0x7777));
+    cgram.SetColor(196, RgbColor.FromWord(0x7777));
     state.Update(
         cgram.Samus, specialSamusPaletteType: 0,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.NormalGameplay);
@@ -682,7 +682,7 @@ internal static void VerifySamusVisorPalette()
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
     for (ushort expectedTimer = 4; expectedTimer >= 1; expectedTimer--)
     {
-        Bgr555 colorBeforeCountdown = cgram.Colors[196];
+        RgbColor colorBeforeCountdown = cgram.Colors[196];
         int offsetBeforeCountdown = state.PaletteByteOffset;
         state.Update(
             cgram.Samus, 0, LayerBlendingConfiguration.VisorBackdrop2A);
@@ -708,7 +708,7 @@ internal static void VerifySamusVisorPalette()
         "third write wraps only to room-cycle offset six");
 
     VerifySamusVisorPaletteCase beforeXray = new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset);
-    cgram.SetColor(196, Bgr555.FromWord(0x3456));
+    cgram.SetColor(196, RgbColor.FromWord(0x3456));
     state.Update(
         cgram.Samus, SamusSpecialPaletteType.Xray, LayerBlendingConfiguration.VisorBackdrop28);
     AssertTrue(new VerifySamusVisorPaletteCase(state.Timer, state.PaletteByteOffset) == beforeXray && cgram.Colors[196].ToWord() == 0x3456,
@@ -765,7 +765,7 @@ internal static void VerifySamusHurtFlashPalette()
     for (int call = 1; call <= 59; call++)
     {
         int counterBefore = samus.HurtFlashCounter;
-        Bgr555[] paletteBefore = cgram.Colors.Slice(192, 16).ToArray();
+        RgbColor[] paletteBefore = cgram.Colors.Slice(192, 16).ToArray();
         int soundsBefore = samus.LiquidPhysics.SoundRequests.Count;
         SamusHurtFlashPalette.Update(
             cgram.Samus.Suit, samus, controllerInput: 0, presentationColors: hurtColors);

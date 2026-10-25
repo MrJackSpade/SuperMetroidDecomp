@@ -138,7 +138,7 @@ internal static class EnemySheetComposer
     private static IEnumerable<EnemySheetSource> EnemySources(EnemySheetInputs inputs, LoadedGraphicsSet loaded)
     {
         EnemyGraphicsSet graphics = loaded.Graphics;
-        Bgr555[] colours = loaded.Colours;
+        RgbColor[] colours = loaded.Colours;
         foreach (EnemyDefinitionId enemy in loaded.Drawn)
         {
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
@@ -191,7 +191,7 @@ internal static class EnemySheetComposer
     /// <param name="Characters">Its OBJ characters, as its room load and its encounters' uploads leave them.</param>
     /// <param name="Colours">Its sprite colours.</param>
     /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
-    private sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SetCharacters Characters, Bgr555[] Colours, IReadOnlyList<EnemyDefinitionId> Drawn);
+    private sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SetCharacters Characters, RgbColor[] Colours, IReadOnlyList<EnemyDefinitionId> Drawn);
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
     private static byte[] Table(EnemySheetInputs inputs, EnemyGraphicsSet graphics)

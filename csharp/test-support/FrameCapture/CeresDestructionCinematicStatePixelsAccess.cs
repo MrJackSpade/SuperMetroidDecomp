@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -9,6 +9,6 @@ internal static class CeresDestructionCinematicStatePixelsAccess
     extension(CeresDestructionCinematicState scene)
     {
         /// <summary>Captures the scene and draws its snapshot with the game's renderer.</summary>
-        internal Rgba32[] Render() => FrontendScenePixelsAccess.Pixels(scene.CaptureRenderSnapshot());
+        internal RgbaPixel[] Render() => FrontendScenePixelsAccess.Pixels(scene.CaptureRenderSnapshot());
     }
 }

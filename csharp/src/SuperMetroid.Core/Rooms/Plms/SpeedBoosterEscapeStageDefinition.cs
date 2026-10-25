@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal readonly record struct SpeedBoosterEscapeStageDefinition(
     int TargetSamusX,
     int MaximumFxY,
-    SnesSignedEightEight YVelocity);
+    SignedEightEight YVelocity);

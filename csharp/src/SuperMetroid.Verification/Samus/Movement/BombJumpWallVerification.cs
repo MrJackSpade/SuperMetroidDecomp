@@ -75,7 +75,7 @@ internal static class BombJumpWallVerification
         SamusPoseMetadata.PublishBombJumpDirection(hurt, 2);
         AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, level, false, 0, controllerNewInput: 0), "hurt pose admits bomb start");
         SamusBombJumpMovement.Start(hurt);
-        hurt.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
+        hurt.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
         hurt.Kinematics.YAcceleration = hurt.Kinematics.YAcceleration.WithFraction(0x4000);
         SamusBombJumpMovement.Step(level, hurt, 0, PlmFixtures.Unbound());
         AssertTrue(hurt.BombJumpPoseInputLocked, "one-pixel speed keeps input locked despite crossing threshold this frame");

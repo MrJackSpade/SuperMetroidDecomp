@@ -20,11 +20,11 @@ internal sealed class CeresRidleyFadeColorDefinitions
         private const int MaximumRgb5 = (1 << 5) - 1;
 
         /// <summary>Extracts the selected red step and three green levels from the eye endpoint row.</summary>
-        internal static EyePaint From(ReadOnlySpan<Bgr555> colors) => new(MaximumRgb5 - colors[1].Red, colors[0].Green,
+        internal static EyePaint From(ReadOnlySpan<RgbColor> colors) => new(MaximumRgb5 - colors[1].Red, colors[0].Green,
             colors[1].Green, colors[2].Green);
 
         /// <summary>Calculates one of the three warm eye shades from the selected material inputs.</summary>
-        internal Bgr555 Color(int shade)
+        internal RgbColor Color(int shade)
         {
             int red = Math.Clamp(MaximumRgb5 - RedStep * shade, 0, MaximumRgb5);
             int green = shade switch { 0 => HighlightGreen, 1 => MiddleGreen, 2 => ShadowGreen, _ => throw new ArgumentOutOfRangeException(nameof(shade)) };
@@ -32,7 +32,7 @@ internal sealed class CeresRidleyFadeColorDefinitions
         }
     }
     /// <summary>Imported colors that differ from the common quantized fade formula.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> overrides = new();
+    internal readonly Dictionary<ColourCell, RgbColor> overrides = new();
     /// <summary>Number of colors in a row of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
@@ -41,7 +41,7 @@ internal sealed class CeresRidleyFadeColorDefinitions
         ? CeresRidleyPaletteDefinitions.EyeFadeRowCount : CeresRidleyPaletteDefinitions.BodyFadeRowCount;
 
     /// <summary>Retains selected endpoint paints and exceptions to the shared fade formula.</summary>
-    internal CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind kind, Bgr555[][] rows)
+    internal CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind kind, RgbColor[][] rows)
     {
         this.kind = kind;
         if (kind == CeresRidleyFadeKind.Eyes) eyePaint = EyePaint.From(rows[0]);
@@ -53,24 +53,24 @@ internal sealed class CeresRidleyFadeColorDefinitions
     }
 
     /// <summary>Returns a supplied exception color when present, otherwise the calculated fade shade.</summary>
-    internal Bgr555 Resolve(int row, int color)
+    internal RgbColor Resolve(int row, int color)
     {
         Validate(row, color);
         var key = new ColourCell(row, color);
-        return overrides.TryGetValue(key, out Bgr555 edited) ? edited : Calculate(row, color);
+        return overrides.TryGetValue(key, out RgbColor edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Scale each RGB5 channel through fifteen intervals. Both select a one-unit numerator rounding bias; this is a common fade composition rule, not a claim about SNES hardware or the original authoring tool.</summary>
-    private Bgr555 Calculate(int row, int color)
+    private RgbColor Calculate(int row, int color)
     {
-        Bgr555 endpoint = kind == CeresRidleyFadeKind.Eyes ? eyePaint.Color(color)
+        RgbColor endpoint = kind == CeresRidleyFadeKind.Eyes ? eyePaint.Color(color)
             : (bodyPaint ?? throw new InvalidOperationException("A body fade requires its body paint.")).Color(color);
         int phase = kind == CeresRidleyFadeKind.Eyes ? Rows - 1 - row : row;
         return Scale(endpoint, phase);
     }
 
     /// <summary>Shared fifteen-interval channel quantizer used by native eye/body, retreat and zoom colors.</summary>
-    internal static Bgr555 Scale(Bgr555 endpoint, int phase)
+    internal static RgbColor Scale(RgbColor endpoint, int phase)
     {
         const int intervals = 15;
         const int bias = 1;

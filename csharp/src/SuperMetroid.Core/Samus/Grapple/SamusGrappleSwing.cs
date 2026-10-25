@@ -56,10 +56,10 @@ public static class SamusGrappleSwing
         int absoluteVelocity = Math.Abs(grapple.AngularVelocity);
         int doubledVelocity = absoluteVelocity * 2;
         int cosine = ReadSignedSine(
-            grapple.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
+            grapple.Angle.AddRaw(RotationAngle.QuarterTurn.RawValue).TableIndex);
 
         uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
-        samus.Kinematics.YSpeed = SnesUnsignedSixteenSixteen.FromRaw(verticalFixed);
+        samus.Kinematics.YSpeed = UnsignedSixteenSixteen.FromRaw(verticalFixed);
 
         // $9B:CA65 selects Y direction from both angular-velocity sign and cosine sign.
         // Keeping that branch literal avoids deriving a screen-coordinate convention.
@@ -71,7 +71,7 @@ public static class SamusGrappleSwing
         int horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
         int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));
         uint horizontalFixed = unchecked((uint)(horizontalSine * doubledVelocity));
-        samus.HorizontalSpeed.BaseSpeed = SnesUnsignedSixteenSixteen.FromRaw(horizontalFixed);
+        samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.FromRaw(horizontalFixed);
     }
 
 
@@ -80,8 +80,8 @@ public static class SamusGrappleSwing
     {
         -256 => -length,
         256 => length,
-        < 0 => -(SnesEightEight.Multiply(-sine, length)),
-        _ => SnesEightEight.Multiply(sine, length),
+        < 0 => -(EightEight.Multiply(-sine, length)),
+        _ => EightEight.Multiply(sine, length),
     };
 
 
@@ -116,8 +116,8 @@ public static class SamusGrappleSwing
         // The branch accepts pumping only through the lower half of the circle:
         // angle $4000..$BFFF. At exactly $8000 a motionless pendulum gets the cartridge's
         // +/-$0100 kick before the normal +/-12 input acceleration is added.
-        bool inPumpArc = grapple.Angle.RawValue >= SnesAngle.QuarterTurn.RawValue &&
-            grapple.Angle.RawValue < SnesAngle.ThreeQuarterTurn.RawValue;
+        bool inPumpArc = grapple.Angle.RawValue >= RotationAngle.QuarterTurn.RawValue &&
+            grapple.Angle.RawValue < RotationAngle.ThreeQuarterTurn.RawValue;
         if (!inPumpArc)
         {
             grapple.DirectionInputAcceleration = 0;
@@ -216,7 +216,7 @@ public static class SamusGrappleSwing
     /// the release-time drop test ($9B:C7AC) instead requires exactly $8000.
     /// </summary>
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
-        grapple.Angle.TableIndex == SnesAngle.HalfTurn.TableIndex;
+        grapple.Angle.TableIndex == RotationAngle.HalfTurn.TableIndex;
 
 
     /// <summary>Assigns quadrant-based gravity and correction, attenuated underwater and stopped near the downward rest angle.</summary>
@@ -281,7 +281,7 @@ public static class SamusGrappleSwing
         // This looks unusual in decimal, but preserving the 16-bit sign-bit comparison is
         // essential around the $0000/$FFFF angle seam.
         if (((unchecked((ushort)velocity) ^ grapple.Angle.RawValue) &
-             SnesAngle.HalfTurn.RawValue) != 0)
+             RotationAngle.HalfTurn.RawValue) != 0)
             velocity += grapple.VelocityCorrection;
 
         grapple.AngularVelocity = unchecked((short)Math.Clamp(
@@ -328,12 +328,12 @@ public static class SamusGrappleSwing
         // within the same byte has no sweep, exactly as the target-byte equality branch.
         int combined = unchecked((short)(grapple.AngularVelocity + grapple.JumpImpulse));
         int factor = grapple.Submerged ? 160 : 256;
-        int magnitude = SnesEightEight.Multiply(Math.Abs(combined), factor);
+        int magnitude = EightEight.Multiply(Math.Abs(combined), factor);
         if (magnitude == 0)
             return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
-        SnesAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
+        RotationAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
         int targetAngleByte = targetAngle.TableIndex;
         int lastSafeAngleByte = grapple.Angle.TableIndex;
         int byteDirection = combined < 0 ? -1 : 1;
@@ -350,14 +350,14 @@ public static class SamusGrappleSwing
                 level,
                 samus,
                 grapple,
-                new SnesByteAngle((byte)candidateAngleByte));
+                new ByteAngle((byte)candidateAngleByte));
             if (collision.Collided)
             {
                 // $94:ADB4/$AE84 restore the last safe whole angle byte and force the
                 // fractional half-byte `$80`. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
-                grapple.Angle = SnesAngle.FromRaw(
-                    SnesAngle.FromTableIndex((byte)lastSafeAngleByte).AddRaw(128).RawValue);
+                grapple.Angle = RotationAngle.FromRaw(
+                    RotationAngle.FromTableIndex((byte)lastSafeAngleByte).AddRaw(128).RawValue);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&
@@ -411,7 +411,7 @@ public static class SamusGrappleSwing
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
-        SnesByteAngle candidateAngle)
+        ByteAngle candidateAngle)
     {
         // $94:ABE6 checks six points on an eight-pixel cadence. The first point is eight
         // pixels beyond the hand; the last is 48 pixels beyond it. Together with rope length
@@ -440,7 +440,7 @@ public static class SamusGrappleSwing
     /// <summary>Projects a body probe from the block-biased anchor and wraps its room-block coordinates to native bytes.</summary>
     internal static GrappleCollisionPoint CalculateCollisionPoint(
         SamusGrappleState grapple,
-        SnesByteAngle angle,
+        ByteAngle angle,
         int distance)
     {
         int xSine = ReadSignedSine(angle.RawValue + 64);

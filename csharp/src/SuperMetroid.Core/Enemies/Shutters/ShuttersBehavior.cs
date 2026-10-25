@@ -35,10 +35,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer consumes init0 and the low extra-property word as a two-bit table
         // selector before clearing the latter. Keep native dispatch ordering independent
         // of the origin direction encoded below.
-        int initialFunctionIndex = slot.ExtraProperties.ToNativeWord() * 2 + slot.CurrentInstruction;
+        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 + slot.CurrentInstruction;
         state.Function = GrowingShutterDefinitions.InitialFunction(initialFunctionIndex);
 
-        bool growsUp = slot.ExtraProperties.ToNativeWord() != 0;
+        bool growsUp = slot.ExtraProperties.ToWord() != 0;
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
@@ -168,8 +168,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The upward growth step: the exact signed 16.16 negation of the positive growth speed, borrowing one
     /// whole pixel from the negated whole word whenever the fraction is nonzero.
     /// </summary>
-    internal static SnesSignedSixteenSixteen UpwardGrowthVelocity(SnesSignedSixteenSixteen growthSpeed) =>
-        SnesSignedSixteenSixteen.Zero - growthSpeed;
+    internal static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
+        SignedSixteenSixteen.Zero - growthSpeed;
 
     /// <summary>Adds upward displacement only while Samus is riding the growing platform.</summary>
     private static void CarrySamusWithGrowingShutter(
@@ -241,15 +241,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
-        state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
+        state.PrimaryDirection = unchecked((byte)(EightEight.WholeOf(packedSpeedAndDirection)));
         state.ReactionDirection = state.PrimaryDirection ^ 1;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;
         state.RightVelocity = ReadShutterLinearSpeed(speedRecordOffset);
         state.LeftVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
-        state.MovedLeftRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
-        state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
+        state.MovedLeftRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToWord());
+        state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToWord());
         state.MovedLeftRestTime = state.MovedLeftRestParameter * RestUpdatesPerParameterUnit;
         state.MovedRightRestTime = state.MovedRightRestParameter * RestUpdatesPerParameterUnit;
 
@@ -392,7 +392,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool samusLeftOfShutter = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) && samusLeftOfShutter == (direction == HorizontalDirection.Left);
-        SnesSignedSixteenSixteen velocity = direction == HorizontalDirection.Left ? state.LeftVelocity : state.RightVelocity;
+        SignedSixteenSixteen velocity = direction == HorizontalDirection.Left ? state.LeftVelocity : state.RightVelocity;
         slot.Position = slot.Position.AdvanceX(velocity);
         if (state.MovingSamus)
         {
@@ -524,9 +524,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDefinitionId.Kamer;
 
     /// <summary>Reads one signed 16.16 velocity from the common linear-speed table at <paramref name="byteOffset"/>.</summary>
-    private static SnesSignedSixteenSixteen ReadShutterLinearSpeed(int byteOffset)
+    private static SignedSixteenSixteen ReadShutterLinearSpeed(int byteOffset)
     {
-        SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)byteOffset));
+        SignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)byteOffset));
         return speed;
     }
 
@@ -744,15 +744,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
-        state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
+        state.PrimaryDirection = unchecked((byte)(EightEight.WholeOf(packedSpeedAndDirection)));
         state.ReactionDirection = state.PrimaryDirection;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;
         state.DownVelocity = ReadShutterLinearSpeed(speedRecordOffset);
         state.UpVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
-        state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
-        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
+        state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToWord());
+        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToWord());
         state.MovedUpRestTime = state.MovedUpRestParameter * RestUpdatesPerParameterUnit;
         state.MovedDownRestTime = state.MovedDownRestParameter * RestUpdatesPerParameterUnit;
 

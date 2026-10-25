@@ -11,6 +11,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -128,16 +129,16 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindColours(cgram.Gameplay);
-        cgram.SetColor(MotherBrainDeathColorDestinations.BodyColors - 1, Bgr555.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathColorDestinations.BrainColors - 1, Bgr555.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathColorDestinations.LegColors - 1, Bgr555.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathColorDestinations.CorpseColors - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathColorDestinations.BodyColors - 1, RgbColor.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathColorDestinations.BrainColors - 1, RgbColor.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathColorDestinations.LegColors - 1, RgbColor.FromWord(0x1234));
+        cgram.SetColor(MotherBrainDeathColorDestinations.CorpseColors - 1, RgbColor.FromWord(0x1234));
         for (int frame = 0; frame < MotherBrainDeathDefinitions.BodyFadeFrameCount; frame++)
         {
             enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathBodyFade(frame);
             for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
             {
-                Bgr555 shared = colors.BodyColor(frame, color);
+                RgbColor shared = colors.BodyColor(frame, color);
                 AssertEqual(shared, cgram.Colors[MotherBrainDeathColorDestinations.BodyColors + color],
                     $"live Mother Brain body death frame {frame} color {color}");
                 AssertEqual(shared, cgram.Colors[MotherBrainDeathColorDestinations.BrainColors + color],

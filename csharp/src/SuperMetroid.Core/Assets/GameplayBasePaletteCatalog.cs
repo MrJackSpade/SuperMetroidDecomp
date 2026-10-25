@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Editable starting CGRAM image and common sprite colors restored on room entry.</summary>
+/// <summary>Editable starting colour image and common sprite colors restored on room entry.</summary>
 public sealed class GameplayBasePaletteCatalog
 {
-    /// <summary>Owned 256-color CGRAM image loaded at gameplay startup.</summary>
-    internal readonly Bgr555[] initial;
+    /// <summary>Owned 256-color starting image loaded at gameplay startup.</summary>
+    internal readonly RgbColor[] initial;
     /// <summary>Owned sixteen-color palette reused by common room sprites.</summary>
-    internal readonly Bgr555[] commonSprites;
+    internal readonly RgbColor[] commonSprites;
 
     /// <summary>Retains validated RGB5 arrays detached from the editable document.</summary>
-    internal GameplayBasePaletteCatalog(Bgr555[] initial, Bgr555[] commonSprites)
+    internal GameplayBasePaletteCatalog(RgbColor[] initial, RgbColor[] commonSprites)
     {
         this.initial = initial;
         this.commonSprites = commonSprites;
@@ -23,13 +23,13 @@ public sealed class GameplayBasePaletteCatalog
     });
 
     /// <summary>Loads the complete selected 256-colour starting image into gameplay's colours.</summary>
-    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadCartridgeImage(initial);
+    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStartingImage(initial);
 
     /// <summary>Loads the complete selected 256-colour starting image into a screen's colours.</summary>
-    public void LoadInitial(IPaletteColors cgram)
+    public void LoadInitial(IPaletteColors colours)
     {
-        Ensure.NotNull(cgram);
-        new CgramPalettes(cgram).LoadImage(initial);
+        Ensure.NotNull(colours);
+        new CgramPalettes(colours).LoadImage(initial);
     }
 
     /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>

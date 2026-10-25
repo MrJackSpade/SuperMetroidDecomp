@@ -79,7 +79,7 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xe000);
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(5, 0);
+        samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(5, 0);
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseFixed);
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
@@ -107,8 +107,8 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
         samus.Position = samus.Position.WithWholeY(160);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
-        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
+        samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x6000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         runtime.Controller1.Latch(0);
@@ -173,9 +173,9 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x3800);
         samus.Position = samus.Position.WithWholeY(237);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xb800);
-        samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0, 0x9800);
+        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(0, 0x9800);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(0, 0x9000);
+        samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(0, 0x9000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         runtime.Controller1.Latch((ControllerButton.Left | ControllerButton.A));
         runtime.StepFrame((ControllerButton.Left | ControllerButton.A));

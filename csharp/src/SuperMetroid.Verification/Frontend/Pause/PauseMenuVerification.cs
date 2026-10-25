@@ -16,6 +16,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
@@ -115,16 +116,16 @@ internal static class PauseMenuVerification
             "pause equipment reserve-supply tens digit renders current supply");
         AssertEqual(0x080b, pause.ReadReserveSupplyDigit(2).Raw,
             "pause equipment reserve-supply ones digit renders current supply");
-        Rgba32[] firstPauseFrame = pause.Render();
-        AssertEqual(new Rgba32(255, 255, 255, 255), firstPauseFrame[0],
+        RgbaPixel[] firstPauseFrame = pause.Render();
+        AssertEqual(new RgbaPixel(255, 255, 255, 255), firstPauseFrame[0],
             "pause retains and draws gameplay BG3 HUD tilemap");
-        AssertEqual(new Rgba32(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],
+        AssertEqual(new RgbaPixel(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],
             "high-priority pause holder clips the fully revealed low-priority map");
         AssertEqual(124, pause.MapScroll.X,
             "downloaded pause map horizontal centering");
         AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
             "downloaded pause map vertical centering");
-        AssertEqual(new Position16<OamPixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
+        AssertEqual(new Position16<SpritePixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
         AssertEqual(SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorFrame0, pause.LastMapIndicatorSprite, "pause map marker initial frame");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
@@ -142,7 +143,7 @@ internal static class PauseMenuVerification
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
         AssertEqual(PauseEquipmentCategory.Suits, pause.LastSelectorCategory, "pause selector drawn for the suits category");
-        AssertEqual(new Position16<OamPixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
+        AssertEqual(new Position16<SpritePixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
             "pause map label dims on equipment page");
@@ -165,7 +166,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Down);
         AssertEqual(3, pause.SelectedItem, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(new Position16<OamPixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
+        AssertEqual(new Position16<SpritePixels>(0xa0, 0x80), pause.LastIndicatorOrigin, "pause Bombs selector origin");
         pause.Step(0, ControllerButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
             "pause A unequips live Bombs bit");
@@ -213,8 +214,8 @@ internal static class PauseMenuVerification
         // backdrop black, proving that `$80:A211`'s $184E fill prevented visible BG3
         // character zero from leaking below the four-row HUD.
         var blankMapPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram), MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
-        Rgba32[] blankMapFrame = blankMapPause.Render();
-        AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
+        RgbaPixel[] blankMapFrame = blankMapPause.Render();
+        AssertEqual(new RgbaPixel(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");
 
         // The same persistent state is projected through all three host modes. One public

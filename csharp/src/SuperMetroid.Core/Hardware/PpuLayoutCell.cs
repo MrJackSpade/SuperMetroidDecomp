@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Hardware;
 /// <param name="Region">The store and offset unit.</param>
 /// <param name="Offset">The first word, colour or object.</param>
 /// <param name="Count">The number of units (one for a single colour).</param>
-/// <param name="Encoding">How the units encode the domain value, e.g. "BG tilemap words" or "Bgr555 palette".</param>
+/// <param name="Encoding">How the units encode the domain value, e.g. "BG tilemap words" or "RgbColor palette".</param>
 /// <param name="AliasOf">The cell this one intentionally shares storage with under a different meaning, if any.</param>
 [PpuLayoutAccess]
 public sealed record PpuLayoutCell(string Name, PpuLayoutRegion Region, int Offset, int Count, string Encoding,

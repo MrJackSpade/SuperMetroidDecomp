@@ -117,11 +117,11 @@ public static class SpriteSheetFiles
             SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
             SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles =>
             [ScreenTileSheet.FrameName],
-        SpriteSheetId.TitleMode7Tiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightMode7Tiles or
-            SpriteSheetId.EndingEscapeAMode7Tiles or SpriteSheetId.EndingEscapeBMode7Tiles or
-            SpriteSheetId.EndingPlanetExplosionMode7Tiles or SpriteSheetId.EndingFlyawayMode7Tiles or
-            SpriteSheetId.EndingRewardIconMode7Tiles =>
-            [Mode7CharacterSheet.FrameName],
+        SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightFloorTiles or
+            SpriteSheetId.EndingEscapeAFloorTiles or SpriteSheetId.EndingEscapeBFloorTiles or
+            SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or
+            SpriteSheetId.EndingRewardIconFloorTiles =>
+            [FloorCharacterSheet.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerPresentationDefinitions.FrameName),
         SpriteSheetId.Grapple => GrappleSheetDefinitions.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),

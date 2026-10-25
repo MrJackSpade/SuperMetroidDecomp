@@ -126,7 +126,7 @@ internal sealed class AcceptedFrameBoundary
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
-        var displayScroll = new GameplayPpuRenderSnapshot(
+        var displayScroll = new GameplayRenderSnapshot(
             _backgroundScroll.Layer1Position,
             _backgroundScroll.Bg1Scroll,
             _backgroundScroll.Bg2Scroll,
@@ -345,7 +345,7 @@ internal sealed class AcceptedFrameBoundary
     private GameplayLatchedFixedColors CaptureFixedColors()
     {
         // Before the first room exists there is no explosion; its colour is black.
-        Bgr555 powerBomb = _room.BombProjectiles?.PowerBombExplosion.FixedColor ?? Bgr555.Black;
+        RgbColor powerBomb = _room.BombProjectiles?.PowerBombExplosion.FixedColor ?? RgbColor.Black;
         return new(
             _roomFx.FixedColors.Color,
             powerBomb,

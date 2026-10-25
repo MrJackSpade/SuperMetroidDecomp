@@ -73,9 +73,9 @@ internal static class FirefleaFxVerification
                 fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
                 int index = level < 10 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 byte shade = SnesLittleEndian.HighByte((ushort)(darkness[level / 2] + flash[index]));
-                AssertEqual(shade & Bgr555.MaxChannel, fixedColor.Color.Red, $"death offset {level}, frame {frame}: red");
-                AssertEqual(shade & Bgr555.MaxChannel, fixedColor.Color.Green, $"death offset {level}, frame {frame}: blue");
-                AssertEqual(shade & Bgr555.MaxChannel, fixedColor.Color.Blue, $"death offset {level}, frame {frame}: green");
+                AssertEqual(shade & RgbColor.MaxChannel, fixedColor.Color.Red, $"death offset {level}, frame {frame}: red");
+                AssertEqual(shade & RgbColor.MaxChannel, fixedColor.Color.Green, $"death offset {level}, frame {frame}: blue");
+                AssertEqual(shade & RgbColor.MaxChannel, fixedColor.Color.Blue, $"death offset {level}, frame {frame}: green");
                 AssertEqual(level, fx.Fireflea.Darkness, "enemy death offset reaches the Fireflea FX state");
             }
             int retained = fixedColor.Color.Red;
@@ -85,7 +85,7 @@ internal static class FirefleaFxVerification
         // Removing the effect must stop its producer, not let the old flashing timer
         // keep changing a subsequent room's fixed color.
         fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(), null, null, 0);
-        fixedColor.Color = new Bgr555(5, 5, 5);
+        fixedColor.Color = new RgbColor(5, 5, 5);
         fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(5, fixedColor.Color.Red, "non-Fireflea room does not execute the old producer");
         if (includeXrayCapture) VerifyFirefleaXrayCapture();

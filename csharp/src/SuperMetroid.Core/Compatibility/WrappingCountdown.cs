@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </list>
 /// </summary>
 [CompatibilityService("a countdown that keeps the value it wrapped to, so a timer decremented past zero reads as a large or negative count")]
-[SnesEncodingOwner]
+[EncodingOwner("wrapping sixteen-bit countdown")]
 public readonly record struct WrappingCountdown
 {
     /// <summary>Stores <paramref name="rawValue"/> exactly; callers use <see cref="Start"/> or <see cref="FromRaw"/>.</summary>

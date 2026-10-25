@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -31,7 +32,7 @@ internal static class RetailTransitionTests
                 var expected = destruction.Render();
                 var scene = destruction.CaptureRenderSnapshot();
                 mode1 |= scene.Layers.Any(layer => layer is TileRenderLayer);
-                mode7 |= scene.Layers.Any(layer => layer is Mode7RenderLayer);
+                mode7 |= scene.Layers.Any(layer => layer is FloorRenderLayer);
                 var packet = new DisplayPacket(new(++cinematicCount, 1, (ushort)tick), scene);
                 Check(packet, expected, $"Ceres/Zebes {destruction.Phase}, tick {tick}");
                 destruction.Step();
@@ -66,7 +67,7 @@ internal static class RetailTransitionTests
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cinematicCount} Ceres/Zebes samples across {phases.Count} phases and {menuCount} game-over frames match.");
 
-        void Check(DisplayPacket packet, Rgba32[] expected, string context) =>
+        void Check(DisplayPacket packet, RgbaPixel[] expected, string context) =>
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");
     }
 }

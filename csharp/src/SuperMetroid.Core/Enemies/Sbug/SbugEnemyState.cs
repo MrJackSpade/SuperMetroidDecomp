@@ -27,10 +27,10 @@ public sealed class SbugEnemyState
     /// adds random turns to a whole word whose high byte nothing steers by; the heading is its low byte. It changes
     /// only through <see cref="FaceCustomHeading"/> and <see cref="TurnCustomHeading"/>.
     /// </summary>
-    public SnesAngle CustomHeading { get; private set; }
+    public RotationAngle CustomHeading { get; private set; }
 
     /// <summary>Sets the custom heading outright, as the toward- and away-from-Samus activations do.</summary>
-    internal void FaceCustomHeading(SnesAngle heading) => CustomHeading = heading;
+    internal void FaceCustomHeading(RotationAngle heading) => CustomHeading = heading;
 
     /// <summary>
     /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn (0 through 255), wrapping around the
@@ -48,7 +48,7 @@ public sealed class SbugEnemyState
     /// <summary>
     /// Parameter one's high byte as a heading: a table index of zero points right, 64 up, 128 left and 192 down.
     /// </summary>
-    public SnesAngle InitialAngle => SnesAngle.FromTableIndex(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter1));
+    public RotationAngle InitialAngle => RotationAngle.FromTableIndex(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter1));
 
     /// <summary>Parameter two's low byte, 0 through 255: the pixel distance Samus must be within on both axes for activation.</summary>
     public int ActivationRadius => SnesLittleEndian.LowByte(_slot.Spawn.Population.Parameter2);
@@ -58,21 +58,21 @@ public sealed class SbugEnemyState
         SbugMovementDefinitions.ActivationBehaviors.At(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter2));
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
-    public SnesUnsignedSixteenSixteen ForwardXVelocity { get; internal set; }
+    public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }
     /// <summary>Spawn-computed unsigned 16.16 vertical magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
-    public SnesUnsignedSixteenSixteen ForwardYVelocity { get; internal set; }
+    public UnsignedSixteenSixteen ForwardYVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle - $20</c>, used by the native left zigzag leg.</summary>
-    public SnesSignedSixteenSixteen LeftXVelocity { get; internal set; }
+    public SignedSixteenSixteen LeftXVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle - $20</c>, used by the native left zigzag leg.</summary>
-    public SnesSignedSixteenSixteen LeftYVelocity { get; internal set; }
+    public SignedSixteenSixteen LeftYVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle + $20</c>, used by the native right zigzag leg.</summary>
-    public SnesSignedSixteenSixteen RightXVelocity { get; internal set; }
+    public SignedSixteenSixteen RightXVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + $20</c>, used by the native right zigzag leg.</summary>
-    public SnesSignedSixteenSixteen RightYVelocity { get; internal set; }
+    public SignedSixteenSixteen RightYVelocity { get; internal set; }
     /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
-    public SnesSignedSixteenSixteen CustomXVelocity { get; internal set; }
+    public SignedSixteenSixteen CustomXVelocity { get; internal set; }
     /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
-    public SnesSignedSixteenSixteen CustomYVelocity { get; internal set; }
+    public SignedSixteenSixteen CustomYVelocity { get; internal set; }
 
     /// <summary>Spawn-computed facing, 0 through 7 counter-clockwise from right, for the spawn heading; selects the forward loop.</summary>
     public int ForwardFacing { get; internal set; }
@@ -97,7 +97,7 @@ public sealed class SbugEnemyState
     {
         StraightMovementTimer = WrappingCountdown.Start(0);
         Function = null;
-        CustomHeading = SnesAngle.FromTableIndex(0);
+        CustomHeading = RotationAngle.FromTableIndex(0);
         MovementTimer = WrappingCountdown.Start(0);
     }
 }

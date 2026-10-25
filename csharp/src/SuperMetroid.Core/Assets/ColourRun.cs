@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Assets;
 public readonly struct ColourRun
 {
     /// <summary>The owner's colours, which the run reads and writes.</summary>
-    private readonly Bgr555[] colours;
+    private readonly RgbColor[] colours;
 
     /// <summary>Takes <paramref name="count"/> of <paramref name="colours"/> from <paramref name="first"/>.</summary>
-    internal ColourRun(Bgr555[] colours, int first, int count)
+    internal ColourRun(RgbColor[] colours, int first, int count)
     {
         this.colours = Ensure.NotNull(colours);
         First = Ensure.BetweenInclusive(0, colours.Length, first);
@@ -24,19 +24,19 @@ public readonly struct ColourRun
     public int Count { get; }
 
     /// <summary>The run's colours.</summary>
-    public ReadOnlySpan<Bgr555> Colors => colours.AsSpan(First, Count);
+    public ReadOnlySpan<RgbColor> Colors => colours.AsSpan(First, Count);
 
     /// <summary>The run's colour <paramref name="colour"/>.</summary>
-    public Bgr555 this[int colour] => colours[First + Check(colour)];
+    public RgbColor this[int colour] => colours[First + Check(colour)];
 
     /// <summary>Changes the run's colour <paramref name="colour"/>.</summary>
-    public void Write(int colour, Bgr555 value) => colours[First + Check(colour)] = value;
+    public void Write(int colour, RgbColor value) => colours[First + Check(colour)] = value;
 
     /// <summary>Changes every colour of the run to <paramref name="value"/>.</summary>
-    public void Fill(Bgr555 value) => colours.AsSpan(First, Count).Fill(value);
+    public void Fill(RgbColor value) => colours.AsSpan(First, Count).Fill(value);
 
     /// <summary>Changes the run's colours to <paramref name="source"/>, which holds exactly as many.</summary>
-    public void CopyFrom(ReadOnlySpan<Bgr555> source)
+    public void CopyFrom(ReadOnlySpan<RgbColor> source)
     {
         Ensure.LengthEqual(source, Count);
         source.CopyTo(colours.AsSpan(First, Count));
@@ -51,7 +51,7 @@ public readonly struct ColourRun
     }
 
     /// <summary>The colours at the run's positions in <paramref name="ownerColours"/>, colours laid out as its owner's.</summary>
-    public ReadOnlySpan<Bgr555> SamePositionsIn(ReadOnlySpan<Bgr555> ownerColours)
+    public ReadOnlySpan<RgbColor> SamePositionsIn(ReadOnlySpan<RgbColor> ownerColours)
     {
         Ensure.LengthEqual(ownerColours, colours.Length);
         return ownerColours.Slice(First, Count);

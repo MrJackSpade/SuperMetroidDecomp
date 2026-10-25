@@ -71,7 +71,7 @@ internal static class GameOptionsHeadingsVerification
             AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
             AssertEqual(x, GameOptionsLayout.HeadingX((GameOptionsPage)page), "native heading X case");
-            Position16<OamPixels> actual = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(OriginalHeadingPage(page))];
+            Position16<SpritePixels> actual = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(OriginalHeadingPage(page))];
             AssertEqual((int)x, actual.X, "imported heading X");
             AssertEqual((int)y, actual.Y, "imported heading Y");
         }

@@ -562,7 +562,7 @@ internal static class LookupStream5Verification
         {
             var document = new CrocomireColorDocument { Version = 1, FightBody = bands[0], InitialWall = bands[1], InitialProjectile = bands[2], SkeletonArm = bands[3], WallSpikes = bands[4] };
             var result = CrocomireColorFile.Read(new MemoryStream(CrocomireColorFile.Write(document)));
-            Func<int, Bgr555>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
+            Func<int, RgbColor>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
             var cgram = new GameplayColours(new SpriteColourSets()); result.ApplyInitial(cgram);
             for (int band = 1; band <= 2; band++)
                 for (int ink = 0; ink < counts[band]; ink++)
@@ -1052,7 +1052,7 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
         Console.WriteLine("Tourian statue ramps: all56 native palette colors,168 independent full-range channel edits, zero stock overrides, actual CGRAM and canonical identities pass; selected material paint scope complete.");
 
-        void CheckResidualCount(Dictionary<ColourCell, Bgr555> edits, int expected) =>
+        void CheckResidualCount(Dictionary<ColourCell, RgbColor> edits, int expected) =>
             AssertEqual(expected, edits.Count, "Exact stock ramp residual count");
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -1248,7 +1248,7 @@ internal static class LookupStream5Verification
         }
         for (ushort angle = 0; angle < 256; angle++)
         {
-            state.AimAngle = new SnesBearing(checked((byte)angle));
+            state.AimAngle = new Bearing(checked((byte)angle));
             begin(slot, state);
             int direction = unchecked((byte)(angle + 16)) >> 5;
             AssertEqual(direction, state.DirectionIndex,
@@ -1307,9 +1307,9 @@ internal static class LookupStream5Verification
         for (int phase = 0; phase < 16; phase++)
         {
             // The cartridge's colour bytes carry each channel's intensity in their low five bits.
-            var expected = new Bgr555(rom.ReadCartridgeByte(0x88ea8b + phase * 4) & Bgr555.MaxChannel,
-                rom.ReadCartridgeByte(0x88ea8c + phase * 4) & Bgr555.MaxChannel,
-                rom.ReadCartridgeByte(0x88ea8d + phase * 4) & Bgr555.MaxChannel);
+            var expected = new RgbColor(rom.ReadCartridgeByte(0x88ea8b + phase * 4) & RgbColor.MaxChannel,
+                rom.ReadCartridgeByte(0x88ea8c + phase * 4) & RgbColor.MaxChannel,
+                rom.ReadCartridgeByte(0x88ea8d + phase * 4) & RgbColor.MaxChannel);
             AssertEqual(expected, MorphBallEyeGeometryDefinitions.BeamColor(phase), "Native two-channel triangle intensities");
             step();
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
@@ -2133,7 +2133,7 @@ internal static class LookupStream5Verification
         CeresDoorAnimationPaintDefinitions stock = Check(-1);
         AssertEqual(17, stock.firstSeedBlue, "Selected beacon blue");
         AssertEqual(14, stock.dimMiddleAmberRed, "Selected dim amber red");
-        foreach (Dictionary<ColourCell, Bgr555> overrides in new[] { stock.seedEdits, stock.edits })
+        foreach (Dictionary<ColourCell, RgbColor> overrides in new[] { stock.seedEdits, stock.edits })
             AssertEqual(0, overrides.Count, "All native beacon dependencies calculate without overrides");
         for (int row = 0; row < 8; row++)
         for (int color = 0; color < 6; color++)

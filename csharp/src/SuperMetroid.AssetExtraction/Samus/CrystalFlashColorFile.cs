@@ -35,19 +35,19 @@ public static class CrystalFlashColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Validates an authored palette grid's dimensions and RGB5 channels before packing its colors.</summary>
-    private static Bgr555[][] Compile(PaletteRgb5[][]? source, int frameCount,
+    private static RgbColor[][] Compile(PaletteRgb5[][]? source, int frameCount,
         int colorCount, string name)
     {
         if (source is null || source.Length != frameCount)
             throw new InvalidDataException($"Crystal Flash {name} requires {frameCount} frames.");
-        var result = new Bgr555[frameCount][];
+        var result = new RgbColor[frameCount][];
         for (int frame = 0; frame < frameCount; frame++)
         {
             PaletteRgb5[]? colors = source[frame];
             if (colors is null || colors.Length != colorCount)
                 throw new InvalidDataException(
                     $"Crystal Flash {name} frame {frame} requires {colorCount} colors.");
-            result[frame] = new Bgr555[colorCount];
+            result[frame] = new RgbColor[colorCount];
             for (int index = 0; index < colorCount; index++)
             {
                 PaletteRgb5? rgb = colors[index];
@@ -55,7 +55,7 @@ public static class CrystalFlashColorFile
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException(
                         $"Crystal Flash {name} frame {frame}, color {index} requires RGB5 channels 0..31.");
-                result[frame][index] = rgb.ToBgr555();
+                result[frame][index] = rgb.ToRgbColor();
             }
         }
         return result;

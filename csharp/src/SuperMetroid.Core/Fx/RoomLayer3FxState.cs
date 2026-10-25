@@ -126,7 +126,7 @@ public sealed class RoomLayer3FxState
     /// The liquid surface before tide displacement, a room Y with subpixels: the FX record's base whole pixels (a room
     /// load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by <see cref="YVelocity"/>.
     /// </summary>
-    public SnesFixedPosition BaseY { get; internal set; }
+    public FixedCoordinate BaseY { get; internal set; }
 
     /// <summary>
     /// Where a rising or falling liquid stops, at X zero. A Y from 32768 up disables the motion, as the cartridge's
@@ -135,7 +135,7 @@ public sealed class RoomLayer3FxState
     public Position16<RoomPixels> TargetSurface { get; private set; }
 
     /// <summary>The liquid's signed 8.8 vertical velocity in room pixels per update while it moves toward its target.</summary>
-    public SnesSignedEightEight YVelocity { get; private set; }
+    public SignedEightEight YVelocity { get; private set; }
 
     /// <summary>Native zero-extended FX timer byte loaded from record offset eight.</summary>
     public WrappingCountdown Timer { get; private set; }
@@ -676,10 +676,10 @@ public sealed class RoomLayer3FxState
             return true;
 
         int velocity = YVelocity.SignedRawValue;
-        int delta = SnesSixteenSixteen.FromEightEight(velocity);
+        int delta = SixteenSixteen.FromEightEight(velocity);
         uint fixedPosition = unchecked(BaseY.RawValue + (uint)delta);
-        int candidate = SnesFixedPosition.WholeOf(unchecked((int)fixedPosition));
-        BaseY = SnesFixedPosition.FromRaw(fixedPosition);
+        int candidate = FixedCoordinate.WholeOf(unchecked((int)fixedPosition));
+        BaseY = FixedCoordinate.FromRaw(fixedPosition);
 
         if (velocity >= 0)
         {
@@ -698,7 +698,7 @@ public sealed class RoomLayer3FxState
                 return false;
         }
 
-        BaseY = new SnesFixedPosition(TargetSurface.Y, 0);
+        BaseY = new FixedCoordinate(TargetSurface.Y, 0);
         return true;
     }
 
@@ -731,8 +731,8 @@ public sealed class RoomLayer3FxState
         }
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
-        int sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)SnesEightEight.WholeOf(TidePhase)));
-        TideFixedOffset = SnesSixteenSixteen.FromEightEight(sample * scale);
+        int sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)EightEight.WholeOf(TidePhase)));
+        TideFixedOffset = SixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }
 
@@ -743,7 +743,7 @@ public sealed class RoomLayer3FxState
     private ushort ComputeTidalYPosition()
     {
         uint baseFixed = BaseY.RawValue;
-        return SnesFixedPosition.WholeOf(unchecked((int)(baseFixed + (uint)TideFixedOffset)));
+        return FixedCoordinate.WholeOf(unchecked((int)(baseFixed + (uint)TideFixedOffset)));
     }
 
     /// <summary>Whether the FX options select vertical BG2 displacement for lava or acid.</summary>
@@ -782,7 +782,7 @@ public sealed class RoomLayer3FxState
         rainWindVelocity = Offset16<Bg3Subpixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
         // Half a pixel: the liquid starts centred on its whole position.
-        BaseY = new SnesFixedPosition(0, 1 << 15);
+        BaseY = new FixedCoordinate(0, 1 << 15);
         TidePhase = 0;
         TideFixedOffset = 0;
         Surface = NoSurface;

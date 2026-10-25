@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Assets;
 
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -24,11 +25,11 @@ public static class SamusChargeColorFormat
     /// different base1/12 RG inputs both saturate here,so its normal-row RGB
     /// produces the identical final color. Power/Varia ink2 blue differs and
     /// remains independently supplied; all matching channels are calculated.</remarks>
-    internal static Bgr555 PseudoScrewBrightColor(int suit, int color, Bgr555 basis)
+    internal static RgbColor PseudoScrewBrightColor(int suit, int color, RgbColor basis)
     {
         if ((uint)suit >= SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
         if (color is < 1 or >= ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
-        return SamusFullBodyCycleColorFormat.TryActiveGoldRamp(suit * 16 + 11, color, basis, out Bgr555 gold)
+        return SamusFullBodyCycleColorFormat.TryActiveGoldRamp(suit * 16 + 11, color, basis, out RgbColor gold)
             ? gold : SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 3);
     }
     /// <summary>Installed editable JSON filename for charged-beam, pseudo-Screw, and Hyper-shot palette rows.</summary>

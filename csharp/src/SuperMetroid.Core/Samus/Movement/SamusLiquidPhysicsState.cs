@@ -424,7 +424,7 @@ public sealed class SamusLiquidPhysicsState
         SamusState samus,
         SamusMovementType previousMovementType,
         SamusPoseId previousPose,
-        SnesUnsignedSixteenSixteen impactYSpeed)
+        UnsignedSixteenSixteen impactYSpeed)
     {
         Ensure.NotNull(samus);
 
@@ -661,7 +661,7 @@ public sealed class SamusLiquidPhysicsState
         uint fractional = (uint)PeriodicSubDamage + (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, subDamage);
         PeriodicSubDamage = unchecked((ushort)fractional);
         PeriodicDamage = unchecked((ushort)(
-            PeriodicDamage + Ensure.BetweenInclusive(0, ushort.MaxValue, wholeDamage) + SnesCarry.OutOfWord(fractional)));
+            PeriodicDamage + Ensure.BetweenInclusive(0, ushort.MaxValue, wholeDamage) + WordCarry.OutOfWord(fractional)));
     }
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>

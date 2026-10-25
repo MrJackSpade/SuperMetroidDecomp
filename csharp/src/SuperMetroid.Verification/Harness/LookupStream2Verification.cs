@@ -180,7 +180,7 @@ internal static class LookupStream2Verification
             AssertEqual(native[color], WreckedShipGhostAppearanceDefinitions.PaletteColor(color), "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
-            cgram.SetColor(128 + color, Bgr555.FromWord(0x7fff));
+            cgram.SetColor(128 + color, RgbColor.FromWord(0x7fff));
         }
         brightening(slot, state);
         AssertEqual(WreckedShipGhostAiFunction.FadingToGhostPalette, state.Function, "White flash installs native target palette phase");
@@ -1017,7 +1017,7 @@ internal static class LookupStream2Verification
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
         var editedOam = new OamBuffer();
-        editedOam.AddEnemySpritemap(selectedDisplay, new Position16<OamPixels>(128, 128), 0, 0);
+        editedOam.AddEnemySpritemap(selectedDisplay, new Position16<SpritePixels>(128, 128), 0, 0);
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlasPng.Read(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
@@ -1097,7 +1097,7 @@ internal static class LookupStream2Verification
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0xa000 | property));
+                slot.Properties = EnemyPropertyWord.FromWord((ushort)(0xa000 | property));
                 EightEightVector<RoomPixels> velocity = reset(slot, speedParameter, default);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
@@ -1478,7 +1478,7 @@ internal static class LookupStream2Verification
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
-            oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y), nativeWords.GetValueOrDefault(side));
+            oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y), nativeWords.GetValueOrDefault(side));
         }
     }
 
@@ -1847,7 +1847,7 @@ internal static class LookupStream2Verification
             AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
             AssertEqual(original < 0 ? 0 : offset + 2, state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
-            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties.ToNativeWord(), "Ghost actual visibility preserves unrelated flags");
+            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties.ToWord(), "Ghost actual visibility preserves unrelated flags");
         }
         state.PhaseTimer = WrappingCountdown.Start(2);
         state.FlickerTableOffset = 2;
@@ -1855,10 +1855,10 @@ internal static class LookupStream2Verification
         flicker(slot, state);
         AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
         AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
-        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties.ToNativeWord(), "Ghost no early visibility change");
+        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties.ToWord(), "Ghost no early visibility change");
         state.PhaseTimer = WrappingCountdown.Start(0);
         flicker(slot, state);
-        AssertEqual((ushort)0, slot.Properties.ToNativeWord(), "Ghost terminal next call clears invisibility");
+        AssertEqual((ushort)0, slot.Properties.ToWord(), "Ghost terminal next call clears invisibility");
         state.PhaseTimer = WrappingCountdown.Start(1);
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
@@ -2220,8 +2220,8 @@ internal static class LookupStream2Verification
                     AssertEqual((short)wanted.OffsetY, found.Offset.Y, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
                     ushort x = unchecked((ushort)(128 + wanted.OffsetX)), y = unchecked((ushort)(96 + wanted.OffsetY));
-                    expectedOam.AddEnemySpritemap(parts.AsSpan(), new Position16<OamPixels>(x, y), 0, 0);
-                    actualOam.AddEnemySpritemap(found.Parts, new Position16<OamPixels>(x, y), 0, 0);
+                    expectedOam.AddEnemySpritemap(parts.AsSpan(), new Position16<SpritePixels>(x, y), 0, 0);
+                    actualOam.AddEnemySpritemap(found.Parts, new Position16<SpritePixels>(x, y), 0, 0);
                 }
                 AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Golden Torizo packed OBJ count");
                 AssertTrue(expectedOam.ImageEquals(actualOam),

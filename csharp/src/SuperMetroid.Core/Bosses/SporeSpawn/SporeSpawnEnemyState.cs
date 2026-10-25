@@ -37,7 +37,7 @@ public sealed class SporeSpawnEnemyState
     /// Sway phase in 256ths of a turn, starting at three quarters; X samples cosine and Y samples the doubled,
     /// shifted phase. The phase wraps around the turn as it advances, which the sway depends on.
     /// </summary>
-    public SnesAngle Angle { get; internal set; }
+    public RotationAngle Angle { get; internal set; }
     /// <summary>
     /// Horizontal sway amplitude in room pixels; vertical amplitude is this value minus sixteen. Set to 48 by the
     /// descent and 64 by the fight-start cue, and widened by eight while below forty, so it stays within 0..64.
@@ -55,7 +55,7 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Health value last recorded by the guarded damaging-hit palette update, native $7E:8800; used to avoid reloading an unchanged health palette.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Fixed death-drift direction toward (128,624) in 256ths of a turn: zero is right, a quarter turn up, a half turn left and three quarters down.</summary>
-    public SnesAngle DeathAngle { get; internal set; }
+    public RotationAngle DeathAngle { get; internal set; }
     /// <summary>
     /// Unsigned 16.16 pixels-per-update death-drift magnitude per axis, combining native death
     /// speed/subspeed words $7E:8010/$8012 (X) and $7E:8014/$8016 (Y); <see cref="DeathAngle"/>
@@ -72,7 +72,7 @@ public sealed class SporeSpawnEnemyState
     public bool LoadedAsDefeated { get; internal set; }
 
     /// <summary>Stages <paramref name="value"/> as the fade target of <paramref name="run"/>'s colour <paramref name="colour"/>.</summary>
-    internal void WriteTargetColor(IColourSetRun run, int colour, Bgr555 value) => stagedTargetColours.Add(new(run, colour, value));
+    internal void WriteTargetColor(IColourSetRun run, int colour, RgbColor value) => stagedTargetColours.Add(new(run, colour, value));
 
     /// <summary>Hands every staged colour to <paramref name="write"/> in staging order, then forgets them.</summary>
     internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write)

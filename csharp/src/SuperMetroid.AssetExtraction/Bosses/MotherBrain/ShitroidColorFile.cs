@@ -37,6 +37,6 @@ public static class ShitroidColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name) =>
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int required, string name) =>
         Rgb5Rows.Compile(source, required, $"Shitroid {name}");
 }

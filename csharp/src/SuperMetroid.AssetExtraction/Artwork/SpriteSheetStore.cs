@@ -90,7 +90,7 @@ internal sealed class SpriteSheetStore
         byte[] image = Selected(ImageFile(name));
         byte[] frames = Selected(FrameFile(name));
         byte[] palette = Selected(PaletteFile(name));
-        Rgba32[] pixels, indices;
+        RgbaPixel[] pixels, indices;
         Extent16<ImagePixels> size, indexSize;
         try
         {
@@ -123,11 +123,11 @@ internal sealed class SpriteSheetStore
     /// The palette-index image: each index in red, priority in green and part palette row in blue, opaque where a colour
     /// is shown.
     /// </summary>
-    private static Rgba32[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
+    private static RgbaPixel[] PaletteImage(ReadOnlySpan<byte> indices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
     {
-        var pixels = new Rgba32[indices.Length];
+        var pixels = new RgbaPixel[indices.Length];
         for (int pixel = 0; pixel < indices.Length; pixel++)
-            pixels[pixel] = new Rgba32(indices[pixel], priorities[pixel], partRows[pixel], indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
+            pixels[pixel] = new RgbaPixel(indices[pixel], priorities[pixel], partRows[pixel], indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
         return pixels;
     }
 

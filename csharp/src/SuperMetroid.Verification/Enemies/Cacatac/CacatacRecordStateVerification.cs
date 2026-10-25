@@ -17,14 +17,14 @@ internal static class CacatacRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new CacatacEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.RightVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
-        state.LeftVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+        state.RightVelocity = SignedSixteenSixteen.FromParts(1, 0);
+        state.LeftVelocity = SignedSixteenSixteen.FromParts(1, 0);
         state.Direction = Enum.GetValues<CacatacDirection>()[^1];
         state.Function = Enum.GetValues<CacatacEnemyFunction>()[^1];
 
         slot.Clear();
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties RightVelocity");
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.LeftVelocity, "a kill empties LeftVelocity");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties RightVelocity");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.LeftVelocity, "a kill empties LeftVelocity");
         AssertEqual<CacatacDirection>(default(CacatacDirection), state.Direction, "a kill empties Direction");
         AssertEqual<CacatacEnemyFunction?>(null, state.Function, "a kill empties Function");
         Console.WriteLine("Cacatac record state: a kill empties every value the record holds.");

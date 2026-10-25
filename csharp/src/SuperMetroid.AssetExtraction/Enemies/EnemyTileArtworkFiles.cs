@@ -104,7 +104,7 @@ public static class EnemyTileArtworkFiles
                 for (int color = 0; color < colors.Length; color++)
                 {
                     ushort word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
-                    if (!Bgr555.IsColorWord(word))
+                    if (!RgbColor.IsColorWord(word))
                         throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
                     colors[color] = new PaletteRgb5
                     {
@@ -1327,7 +1327,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < count; index++)
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * 2));
-            if (!Bgr555.IsColorWord(word))
+            if (!RgbColor.IsColorWord(word))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5

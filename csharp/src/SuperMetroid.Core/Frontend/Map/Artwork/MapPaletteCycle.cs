@@ -8,9 +8,9 @@ public sealed class MapPaletteCycle
     /// <summary>Frame holds that differ from the native fifteen/three-tick schedule.</summary>
     internal readonly Dictionary<int, byte> durationEdits = [];
     /// <summary>Independent forward color phases or the complete supplied sequence for other lengths.</summary>
-    internal readonly Bgr555[][] colors;
+    internal readonly RgbColor[][] colors;
     /// <summary>Reverse-traversal colors that differ from their mirrored forward phase.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> reverseColorEdits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> reverseColorEdits = [];
 
     /// <summary>
     /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other
@@ -19,7 +19,7 @@ public sealed class MapPaletteCycle
     private static byte StockDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
 
     /// <summary>Retains independent holds and paint edits while deriving the stock fourteen-frame mirror.</summary>
-    internal MapPaletteCycle(byte[] durations, Bgr555[][] suppliedColors)
+    internal MapPaletteCycle(byte[] durations, RgbColor[][] suppliedColors)
     {
         FrameCount = durations.Length;
         for (int frame = 0; frame < FrameCount; frame++)
@@ -69,7 +69,7 @@ public sealed class MapPaletteCycle
             throw new ArgumentException($"A highlight cycle colours {MapPaletteCycleFormat.ColorCount} colours.", nameof(row));
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
             row.Write(color,
-                reverseColorEdits.TryGetValue(new ColourCell(frame, color), out Bgr555 edited)
+                reverseColorEdits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
                     ? edited : colors[Phase(frame)][color]);
     }
 }

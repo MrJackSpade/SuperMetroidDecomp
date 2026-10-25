@@ -12,7 +12,7 @@ internal static class SamusIndexedSpeedsVerification
     {
         SpeedTableEntry Read(int a)
         {
-            SnesSignedSixteenSixteen Pair(int offset) => SnesSignedSixteenSixteen.FromParts(
+            SignedSixteenSixteen Pair(int offset) => SignedSixteenSixteen.FromParts(
                 unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset + 2));
             return new(Pair(0), Pair(4), Pair(8));

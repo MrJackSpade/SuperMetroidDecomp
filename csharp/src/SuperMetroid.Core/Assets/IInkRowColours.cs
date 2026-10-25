@@ -7,5 +7,5 @@ public interface IInkRowColours
     /// Lays the owner's colours for ink row <paramref name="inkRow"/> over <paramref name="colours"/>, which start as the
     /// image's own; the owner leaves alone the colours it does not hold.
     /// </summary>
-    void Overlay(int inkRow, Span<Bgr555> colours);
+    void Overlay(int inkRow, Span<RgbColor> colours);
 }

@@ -50,7 +50,7 @@ internal sealed class GameplayDisplayState
         Latched = Latched with
         {
             PerspectiveFloor = Latched.PerspectiveFloor is { Below: BelowPerspectiveFloor.Layer2 } getaway ? getaway
-                : transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, Latched.Ppu.Bg1Scroll)
+                : transform is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, Latched.Scrolls.Bg1Scroll)
                 : null,
         };
 

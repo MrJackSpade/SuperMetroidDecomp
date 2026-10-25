@@ -12,7 +12,7 @@
 /// <param name="FlipY">Whether the sprite is mirrored vertically.</param>
 /// <param name="IsLarge">Whether the sprite uses the larger configured OBJ size.</param>
 public readonly record struct OamEntry(
-    Position16<OamPixels> Position,
+    Position16<SpritePixels> Position,
     int TileNumber,
     int Palette,
     int Priority,

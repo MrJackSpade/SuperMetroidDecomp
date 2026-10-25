@@ -27,7 +27,7 @@ internal static class PauseMapArrowsVerification
         pause.CurrentMapScrollBounds = new PauseMapScroll(new(0, 0), new(512, 256));
         pause.CurrentMapArrows = null;
         pause.BindFixtureArtwork(RetailPresentationFixture());
-        var nativeArrowColors = new Bgr555[16];
+        var nativeArrowColors = new RgbColor[16];
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
         int allArrowParts = 0;
         var arrowAttributes = new HashSet<ushort>();
@@ -42,7 +42,7 @@ internal static class PauseMapArrowsVerification
                 if (bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3) == 255) nativePaletteFrame = 0;
                 nativePaletteTimer = bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3);
                 for (int color = 0; color < 16; color++)
-                    nativeArrowColors[color] = Bgr555.FromWord(checked(Read(0x82a987 + nativePaletteFrame * 32 + color * 2)));
+                    nativeArrowColors[color] = RgbColor.FromWord(checked(Read(0x82a987 + nativePaletteFrame * 32 + color * 2)));
             }
             var expected = new OamBuffer();
             expected.BeginFrame();

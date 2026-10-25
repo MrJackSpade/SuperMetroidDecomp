@@ -102,7 +102,7 @@ internal static class CrystalFlashCleanupVerification
                 runtime.ReplaceRoomEnemiesForVerification(contactBus, new StandaloneRoomEnemyServices(() => 1), new RoomEnemyLoadRequest(contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), CrystalFlashContactPopulation.ReadEnemyGraphicsSet(CrystalFlashContactDefinitions.Pointer), BgArtworkFixtures.For(runtime.Vram), runtime.Colours));
                 contactEnemy = runtime.Enemies.SlotTable.Slots[0];
                 (contactEnemy.SpeciesState<RipperEnemyState>()
-                    ?? throw new InvalidOperationException("The contact Ripper has no state.")).XVelocity = SnesSignedSixteenSixteen.Zero;
+                    ?? throw new InvalidOperationException("The contact Ripper has no state.")).XVelocity = SignedSixteenSixteen.Zero;
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
                 contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(

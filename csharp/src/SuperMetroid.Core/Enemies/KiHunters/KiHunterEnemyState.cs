@@ -92,7 +92,7 @@ public sealed class KiHunterEnemyState
     /// A detached wing's arc angle, which wraps over the whole turn: seeded below zero for each arc and advanced by an
     /// unaligned quadratic-table read. The arc changes when the angle crosses a quarter turn.
     /// </summary>
-    public SnesAngle WingArcAngle { get; internal set; }
+    public RotationAngle WingArcAngle { get; internal set; }
 
     /// <summary>A body's whole-angle velocity cap: minus two for a leftward swoop or two for a rightward one.</summary>
     public int MaximumAngularVelocity { get; internal set; }
@@ -103,9 +103,9 @@ public sealed class KiHunterEnemyState
     /// update with the fraction carrying into the whole part, and capped on its whole part. Its whole part steps the
     /// swoop angle.
     /// </summary>
-    public SnesSignedSixteenSixteen AngularVelocity { get; internal set; }
+    public SignedSixteenSixteen AngularVelocity { get; internal set; }
     /// <summary>A body's signed 16.16 angular acceleration: plus one eighth of a table unit per update squared for a rightward swoop, minus one eighth for a leftward one.</summary>
-    public SnesSignedSixteenSixteen AngularAcceleration { get; internal set; }
+    public SignedSixteenSixteen AngularAcceleration { get; internal set; }
     /// <summary>A body's upper patrol boundary, sixteen pixels above its spawn Y. Only the Y axis is stored and meaningful.</summary>
     public Position16<RoomPixels> UpperPatrol { get; internal set; }
     /// <summary>
@@ -152,6 +152,6 @@ public sealed class KiHunterEnemyState
         DetachedSpeedAccumulator = 0;
         AnimationChangeAngle = 0;
         SwoopAngle = 0;
-        WingArcAngle = SnesAngle.FromTableIndex(0);
+        WingArcAngle = RotationAngle.FromTableIndex(0);
     }
 }

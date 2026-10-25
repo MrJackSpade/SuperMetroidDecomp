@@ -19,7 +19,7 @@ internal static class Layer3CellsFixtures
 {
     /// <summary>The plane of a blank memory image: every cell character zero's transparent tile.</summary>
     private static readonly Lazy<Layer3Cells> blank = new(() =>
-        FromVram(new byte[SnesPpuLayout.VramByteCount], new Bgr555[SnesPpuLayout.CgramColorCount]));
+        FromVram(new byte[SnesPpuLayout.VramByteCount], new RgbColor[SnesPpuLayout.CgramColorCount]));
 
     /// <summary>The plane of a blank memory image: every cell character zero's transparent tile.</summary>
     internal static Layer3Cells Blank => blank.Value;
@@ -29,7 +29,7 @@ internal static class Layer3CellsFixtures
     /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: reads a fixture's BG3 tilemap")]
-    internal static Layer3Cells FromVram(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette, int characterWord = GameplayVramLayout.HudCharacterWord)
+    internal static Layer3Cells FromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord)
     {
         var words = new ushort[Layer3Plane.Columns * Layer3Plane.Rows];
         for (int cell = 0; cell < words.Length; cell++)
@@ -45,7 +45,7 @@ internal static class Layer3CellsFixtures
     /// <paramref name="image"/> and coloured from <paramref name="palette"/>.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: decodes a BG3 plane's two-bit characters into the cells a frame shows")]
-    internal static Layer3Cells FromWords(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette,
+    internal static Layer3Cells FromWords(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = GameplayVramLayout.HudCharacterWord)
     {
         const int columns = 32, tile = 8, characterWords = 8;
@@ -56,7 +56,7 @@ internal static class Layer3CellsFixtures
             places.Add(distinct[place], place);
         int rows = (distinct.Length + columns - 1) / columns;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * tile, checked((ushort)(rows * tile))));
-        Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         for (int place = 0; place < distinct.Length; place++)
         {

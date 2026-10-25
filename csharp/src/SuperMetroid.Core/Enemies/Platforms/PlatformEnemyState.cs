@@ -20,10 +20,10 @@ public sealed class PlatformEnemyState
     public Position16<RoomPixels> RestingHeight { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling right, from the positive half of the platform's linear-speed record.</summary>
-    public SnesSignedSixteenSixteen RightSpeed { get; internal set; }
+    public SignedSixteenSixteen RightSpeed { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update while patrolling left, from the negative half of the platform's linear-speed record.</summary>
-    public SnesSignedSixteenSixteen LeftSpeed { get; internal set; }
+    public SignedSixteenSixteen LeftSpeed { get; internal set; }
 
     /// <summary>
     /// Record index into the shared quadratically increasing enemy speeds, from zero to
@@ -60,8 +60,8 @@ public sealed class PlatformEnemyState
     internal void ClearWithRecord()
     {
         RestingHeight = Position16<RoomPixels>.Zero;
-        RightSpeed = SnesSignedSixteenSixteen.Zero;
-        LeftSpeed = SnesSignedSixteenSixteen.Zero;
+        RightSpeed = SignedSixteenSixteen.Zero;
+        LeftSpeed = SignedSixteenSixteen.Zero;
         YSpeedTableIndex = 0;
     }
 }

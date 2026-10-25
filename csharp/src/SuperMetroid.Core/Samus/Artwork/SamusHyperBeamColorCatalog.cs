@@ -38,7 +38,7 @@ public sealed class SamusHyperBeamColorCatalog
 {
 
     /// <summary>Independent RGB5 inputs that cannot be reconstructed from shared hue and shade rules.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> colors = new();
+    internal readonly Dictionary<ColourCell, RgbColor> colors = new();
     /// <summary>Per-channel deviations from derived temporal midpoint colors.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
     /// <summary>Independent red, green, or blue channels at authored hue endpoints.</summary>
@@ -47,7 +47,7 @@ public sealed class SamusHyperBeamColorCatalog
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     /// <summary>Separates supplied palette rows into independent artwork inputs and calculated relationships.</summary>
-    internal SamusHyperBeamColorCatalog(Bgr555[][] frames)
+    internal SamusHyperBeamColorCatalog(RgbColor[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
         for (int color = 0; color < frames[frame].Length; color++)
@@ -57,10 +57,10 @@ public sealed class SamusHyperBeamColorCatalog
             var shade = SamusHyperBeamColorFormat.ShadeSource(color);
             if (source == index && shade.Ink != color)
             {
-                if (SamusHyperBeamColorFormat.TryBrighten(frames[frame][shade.Ink], shade.Brightness, out Bgr555 brighter))
+                if (SamusHyperBeamColorFormat.TryBrighten(frames[frame][shade.Ink], shade.Brightness, out RgbColor brighter))
                 {
                     // Magenta blue follows the supplied red channel, including a red override.
-                    Bgr555 expected = frame == 1 ? brighter.WithBlue(frames[frame][color].Red) : brighter;
+                    RgbColor expected = frame == 1 ? brighter.WithBlue(frames[frame][color].Red) : brighter;
                     if (frames[frame][color] != expected) shadeInputs.Add(index, new(frames[frame][color], expected));
                     continue;
                 }
@@ -71,7 +71,7 @@ public sealed class SamusHyperBeamColorCatalog
                 frames[frame][color] == SamusHyperBeamColorFormat.YellowFromGreen(frames[5][color])) continue;
             if (frame == 6 && color == 11)
             {
-                if (SamusHyperBeamColorFormat.TryGreenYellowHighShadow(frames[6][3], frames[6][13], frames[5][11], out Bgr555 expected))
+                if (SamusHyperBeamColorFormat.TryGreenYellowHighShadow(frames[6][3], frames[6][13], frames[5][11], out RgbColor expected))
                 {
                     if (frames[frame][color] != expected) intermediateInputs.Add(index, new(frames[frame][color], expected));
                 }
@@ -80,7 +80,7 @@ public sealed class SamusHyperBeamColorCatalog
             }
             if (frame == 2 && color is 3 or 11 or 13)
             {
-                Bgr555 expected;
+                RgbColor expected;
                 if (color == 13) expected = SamusHyperBeamColorFormat.CyanTransitionMiddle(frames[1][13], frames[3][13]);
                 else if (!SamusHyperBeamColorFormat.TryCyanTransitionShadow(frames[2][13], color, out expected))
                 {
@@ -92,7 +92,7 @@ public sealed class SamusHyperBeamColorCatalog
             }
             if (source == index && color != 0 && (frame & 1) == 0)
             {
-                Bgr555 expected = frame == 6 ?
+                RgbColor expected = frame == 6 ?
                     SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color]) :
                     SamusHyperBeamColorFormat.HueMidpoint(frames[(frame + 9) % 10][color], frames[frame + 1][color]);
                 if (SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color) is ColorChannel shared)
@@ -111,7 +111,7 @@ public sealed class SamusHyperBeamColorCatalog
             }
             if (frame == 3 && color == 13)
             {
-                Bgr555 expected = SamusHyperBeamColorFormat.HueMidpoint(frames[3][3], frames[3][11]);
+                RgbColor expected = SamusHyperBeamColorFormat.HueMidpoint(frames[3][3], frames[3][11]);
                 if (frames[frame][color] != expected)
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
                 continue;
@@ -128,18 +128,18 @@ public sealed class SamusHyperBeamColorCatalog
     /// Magenta-cyan frame2 instead builds its three shadows around the cyan-biased
     /// midpoint of the neighboring middle shadows; see CyanTransitionMiddle.
     /// This converts that shade relationship without retaining a generated word.</remarks>
-    public Bgr555 Resolve(int frame, int color)
+    public RgbColor Resolve(int frame, int color)
     {
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
-        if (colors.TryGetValue(new ColourCell(frame, color), out Bgr555 value)) return value;
+        if (colors.TryGetValue(new ColourCell(frame, color), out RgbColor value)) return value;
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
         var shade = SamusHyperBeamColorFormat.ShadeSource(color);
         if (shade.Ink != color)
         {
-            if (SamusHyperBeamColorFormat.TryBrighten(Resolve(frame, shade.Ink), shade.Brightness, out Bgr555 brighter))
+            if (SamusHyperBeamColorFormat.TryBrighten(Resolve(frame, shade.Ink), shade.Brightness, out RgbColor brighter))
             {
                 shadeInputs.TryGetValue(frame * 16 + color, out var shadeInput);
-                Bgr555 result = shadeInput.Apply(brighter);
+                RgbColor result = shadeInput.Apply(brighter);
                 return frame == 1 ? shadeInput.Apply(SamusHyperBeamColorFormat.MagentaFromRed(result)) : result;
             }
             throw new InvalidOperationException("Validated Hyper Beam shade exceeds RGB5.");
@@ -147,14 +147,14 @@ public sealed class SamusHyperBeamColorCatalog
         if (endpointInputs.TryGetValue(frame * 16 + color, out var endpoint))
         {
             var basis = SamusHyperBeamColorFormat.EndpointSourceChannels(frame, color,
-                frame == 5 ? Bgr555.Black : Resolve(5, color),
-                color == 13 ? Resolve(frame, 3) : Bgr555.Black,
-                color == 13 ? Resolve(frame, 11) : Bgr555.Black);
+                frame == 5 ? RgbColor.Black : Resolve(5, color),
+                color == 13 ? Resolve(frame, 3) : RgbColor.Black,
+                color == 13 ? Resolve(frame, 11) : RgbColor.Black);
             return endpoint.Resolve(frame == 9, basis.Red ?? 0, basis.Green ?? 0);
         }
         if (frame == 2 && color is 3 or 11 or 13)
         {
-            Bgr555 transition;
+            RgbColor transition;
             if (color == 13) transition = SamusHyperBeamColorFormat.CyanTransitionMiddle(Resolve(1, 13), Resolve(3, 13));
             else if (!SamusHyperBeamColorFormat.TryCyanTransitionShadow(Resolve(2, 13), color, out transition))
                 throw new InvalidOperationException("Validated Hyper Beam transition shadow exceeds RGB5.");
@@ -162,17 +162,17 @@ public sealed class SamusHyperBeamColorCatalog
         }
         if (frame == 3 && color == 13)
         {
-            Bgr555 middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, 3), Resolve(3, 11));
+            RgbColor middle = SamusHyperBeamColorFormat.HueMidpoint(Resolve(3, 3), Resolve(3, 11));
             return intermediateInputs.TryGetValue(frame * 16 + color, out var middleInput) ? middleInput.Apply(middle) : middle;
         }
         if (frame == 6 && color == 11)
         {
-            if (!SamusHyperBeamColorFormat.TryGreenYellowHighShadow(Resolve(6, 3), Resolve(6, 13), Resolve(5, 11), out Bgr555 high))
+            if (!SamusHyperBeamColorFormat.TryGreenYellowHighShadow(Resolve(6, 3), Resolve(6, 13), Resolve(5, 11), out RgbColor high))
                 throw new InvalidOperationException("Validated Hyper Beam shadow exceeds RGB5.");
             return intermediateInputs.TryGetValue(frame * 16 + color, out var highInput) ? highInput.Apply(high) : high;
         }
         if (frame == 7) return SamusHyperBeamColorFormat.YellowFromGreen(Resolve(5, color));
-        Bgr555 expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
+        RgbColor expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             SamusHyperBeamColorFormat.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
         if (SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color) is ColorChannel shared)
             expected = expected.With(shared, Resolve(frame, 13)[shared]);
@@ -197,7 +197,7 @@ public sealed class SamusHyperBeamColorCatalog
         internal readonly int? blue;
 
         /// <summary>Retains only independently chosen endpoint channels from a supplied RGB5 word.</summary>
-        internal EndpointChannels(Bgr555 supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
+        internal EndpointChannels(RgbColor supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
         {
             int suppliedRed = supplied.Red;
             int suppliedGreen = supplied.Green;
@@ -208,7 +208,7 @@ public sealed class SamusHyperBeamColorCatalog
         }
 
         /// <summary>Rebuilds an endpoint by combining supplied channels with shared hue relationships.</summary>
-        internal Bgr555 Resolve(bool redHue, int expectedRed, int expectedGreen = 0)
+        internal RgbColor Resolve(bool redHue, int expectedRed, int expectedGreen = 0)
         {
             int resolvedRed = red ?? expectedRed;
             int resolvedGreen = green ?? expectedGreen;

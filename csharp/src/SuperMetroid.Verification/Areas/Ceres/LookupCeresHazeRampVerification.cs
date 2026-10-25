@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Fx.LookupFxBlendSelectorsVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -57,7 +58,7 @@ internal static class LookupCeresHazeRampVerification
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
                 var captured = GameplayEffectCapture.CaptureCeresHaze(dead, counter);
                 // The haze over a black screen, as the display renderer draws it.
-                Rgba32[] drawn = DisplayRendering.Render(new LayeredScene(new FramePaint(new Bgr555[SnesPpuLayout.CgramColorCount], []),
+                RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesPpuLayout.CgramColorCount], []),
                     new RenderLayer[] { captured }, FadeLevel.Full));
                 for (int y = 0; y < original.Length; y++)
                 {
@@ -65,7 +66,7 @@ internal static class LookupCeresHazeRampVerification
                     byte red = (byte)((flags & 0x20) != 0 ? original[y] : 0);
                     byte green = (byte)((flags & 0x40) != 0 ? original[y] : 0);
                     byte blue = (byte)((flags & 0x80) != 0 ? original[y] : 0);
-                    AssertEqual(new Bgr555(red, green, blue), actual, "Every native fade counter and physical scanline");
+                    AssertEqual(new RgbColor(red, green, blue), actual, "Every native fade counter and physical scanline");
                     byte Expand(byte component) => y < 32 ? (byte)0 : (byte)((component << 3) | (component >> 2));
                     AssertEqual(Expand(red), captured.Windows[y].Red, "Captured red preserves native ramp/HUD mask");
                     AssertEqual(Expand(green), captured.Windows[y].Green, "Captured green preserves native ramp/HUD mask");
@@ -104,7 +105,7 @@ internal static class LookupCeresHazeRampVerification
                 // Independent nearest-integer definition of the pre-existing RGB5 scaling contract.
                 byte expected = (byte)Math.Min(31, Math.Round((double)original * selected / (lastCounter - 1), MidpointRounding.AwayFromZero));
                 var actual = CeresHazeRenderDefinitions.ResolveComponents(200, counter, dead, colors);
-                AssertEqual(new Bgr555(expected, expected, expected), actual, "All reachable amplitudes and RGB5 channel values scale exactly");
+                AssertEqual(new RgbColor(expected, expected, expected), actual, "All reachable amplitudes and RGB5 channel values scale exactly");
             }
         }
     }

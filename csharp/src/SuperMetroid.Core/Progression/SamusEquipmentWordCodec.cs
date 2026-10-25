@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// Samus's animation item masks and the projectile type record store. The item flags' values are arbitrary; this type
 /// is the one place that knows each item's bit in the word, and the one place either flag set becomes that word.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("save slot equipment words")]
 public static class SamusEquipmentWordCodec
 {
     /// <summary>An item and the word bit that records it.</summary>

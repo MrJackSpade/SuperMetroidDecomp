@@ -18,14 +18,14 @@ public sealed class DachoraColorCatalog
         });
 
     /// <summary>The sixteen supplied normal colors used as the basis of both animated phases.</summary>
-    private readonly Bgr555[] normal;
+    private readonly RgbColor[] normal;
     /// <summary>Speed-frame colors that differ from the normal palette's calculated blue ramp.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> speedEdits = new();
+    internal readonly Dictionary<ColourCell, RgbColor> speedEdits = new();
     /// <summary>Shine-frame colors that differ from the calculated fade toward white.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> shineEdits = new();
+    internal readonly Dictionary<ColourCell, RgbColor> shineEdits = new();
 
     /// <summary>Retains the normal palette and only deviations from calculated speed and shine frames.</summary>
-    internal DachoraColorCatalog(Bgr555[] normal, Bgr555[][] speed, Bgr555[][] shine)
+    internal DachoraColorCatalog(RgbColor[] normal, RgbColor[][] speed, RgbColor[][] shine)
     {
         this.normal = normal;
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
@@ -38,16 +38,16 @@ public sealed class DachoraColorCatalog
     }
 
     /// <summary>$A7:F245 speed-boost sequence's flash backdrop in its first frame, authored paint.</summary>
-    private static readonly Bgr555 SpeedFlashBackdrop = new(0, 12, 5);
+    private static readonly RgbColor SpeedFlashBackdrop = new(0, 12, 5);
 
     /// <summary>
     /// $A7:F245..F2C4: frame k raises each color's blue channel toward min(blue + 16, 31),
     /// rounding to nearest over three steps; red and green keep the normal color. The first
     /// frame's transparent slot is the authored flash backdrop, later frames keep the normal one.
     /// </summary>
-    private Bgr555 SpeedColor(int frame, int color)
+    private RgbColor SpeedColor(int frame, int color)
     {
-        Bgr555 basis = normal[color];
+        RgbColor basis = normal[color];
         if (color == 0) return frame == 0 ? SpeedFlashBackdrop : basis;
         int blue = basis.Blue;
         int target = Math.Min(blue + 16, 31);
@@ -60,15 +60,15 @@ public sealed class DachoraColorCatalog
     /// $A7:F2C5..F344: frame k fades every channel toward white by k/5, as
     /// channel + floor(k * (31 - channel) / 5); the transparent slot keeps the normal color.
     /// </summary>
-    private Bgr555 ShineColor(int frame, int color)
+    private RgbColor ShineColor(int frame, int color)
     {
-        Bgr555 basis = normal[color];
+        RgbColor basis = normal[color];
         if (color == 0) return basis;
         return basis.Map((_, channel) => channel + frame * (31 - channel) / 5);
     }
 
     /// <summary>Materializes four selected animated frames for stable content hashing.</summary>
-    private Bgr555[][] Frames(DachoraPalettePhase phase) =>
+    private RgbColor[][] Frames(DachoraPalettePhase phase) =>
         Enumerable.Range(0, DachoraColorDefinitions.AnimatedFrameCount)
             .Select(frame => Enumerable.Range(0, DachoraColorDefinitions.ColorsPerFrame)
                 .Select(color => Resolve(phase, frame, color)).ToArray()).ToArray();
@@ -79,7 +79,7 @@ public sealed class DachoraColorCatalog
     /// <param name="color">Palette color index 0 through 15, including the transparent slot at zero.</param>
     /// <returns>SNES RGB555 word with red in bits 0..4, green in bits 5..9, and blue in bits 10..14; the caller chooses the actor's OBJ palette destination.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The phase/frame combination is unsupported or the color index is outside the palette.</exception>
-    public Bgr555 Resolve(DachoraPalettePhase phase, int frame, int color)
+    public RgbColor Resolve(DachoraPalettePhase phase, int frame, int color)
     {
         bool animated = phase is DachoraPalettePhase.Speed or DachoraPalettePhase.Shine;
         if (!(phase == DachoraPalettePhase.Default && frame == 0) &&
@@ -90,8 +90,8 @@ public sealed class DachoraColorCatalog
         var key = new ColourCell(frame, color);
         return phase switch
         {
-            DachoraPalettePhase.Speed => speedEdits.TryGetValue(key, out Bgr555 speed) ? speed : SpeedColor(frame, color),
-            DachoraPalettePhase.Shine => shineEdits.TryGetValue(key, out Bgr555 shine) ? shine : ShineColor(frame, color),
+            DachoraPalettePhase.Speed => speedEdits.TryGetValue(key, out RgbColor speed) ? speed : SpeedColor(frame, color),
+            DachoraPalettePhase.Shine => shineEdits.TryGetValue(key, out RgbColor shine) ? shine : ShineColor(frame, color),
             DachoraPalettePhase.Default => normal[color],
             _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined Dachora palette phase."),
         };

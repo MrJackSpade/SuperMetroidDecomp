@@ -26,6 +26,6 @@ public static class ScrollingSkyBands
         };
         int sixteenths = index < 17 ? 8 + (index & 1) * 4 :
             index == 17 ? 7 : index < 20 ? 12 - (index - 18) * 4 : 0;
-        return new(top, SnesSignedSixteenSixteen.FromSixteenthsOfPixel(sixteenths), index == 11 ? 8 : index);
+        return new(top, SignedSixteenSixteen.FromSixteenthsOfPixel(sixteenths), index == 11 ? 8 : index);
     }
 }

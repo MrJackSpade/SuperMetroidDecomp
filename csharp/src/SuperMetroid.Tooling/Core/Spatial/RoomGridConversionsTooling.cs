@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Development-tool members of <see cref="RoomGridConversions"/>; never linked by player hosts.</summary>
-[SnesEncodingOwner]
+[EncodingOwner("room block and screen grid coordinates")]
 internal static class RoomGridConversionsTooling
 {
     /// <summary>

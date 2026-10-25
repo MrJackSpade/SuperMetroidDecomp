@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Android.Diagnostics;
 
@@ -12,14 +13,14 @@ internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTra
     /// <summary>Serializes publication and UI upload of the borrowed pixel buffer.</summary>
     private readonly Lock gate = new();
     /// <summary>Owned copy of the latest frame awaiting presentation.</summary>
-    private readonly Rgba32[] pending = new Rgba32[pixelCount];
+    private readonly RgbaPixel[] pending = new RgbaPixel[pixelCount];
     /// <summary>Whether the pending buffer currently contains a frame to consume.</summary>
     private bool available;
     /// <summary>Publication ordinal included in handoff trace events.</summary>
     private long sequence;
 
     /// <summary>Copies a frame into the single pending slot and reports whether it replaced an older unconsumed frame.</summary>
-    public bool Publish(ReadOnlySpan<Rgba32> frame)
+    public bool Publish(ReadOnlySpan<RgbaPixel> frame)
     {
         if (frame.Length != pending.Length) throw new InvalidDataException("Unexpected Android framebuffer dimensions.");
         lock (gate)
@@ -33,7 +34,7 @@ internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTra
     }
 
     /// <summary>The consumer must not retain or mutate the borrowed array.</summary>
-    public bool Consume(Action<Rgba32[]> upload)
+    public bool Consume(Action<RgbaPixel[]> upload)
     {
         lock (gate)
         {

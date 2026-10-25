@@ -266,7 +266,7 @@ internal static class CeresRidleyColorsVerification
                 {
                     AssertEqual(nativeCgram.Colors[color], stockCgram.Colors[color],
                         $"stock Ceres alarm frame {frame} CGRAM {color}");
-                    Bgr555 expected = editedState.CeresEscapePaletteFrame == 7 &&
+                    RgbColor expected = editedState.CeresEscapePaletteFrame == 7 &&
                         color >= CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex &&
                         color < CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex +
                             CeresRidleyPaletteDefinitions.AlarmColorCount
@@ -316,7 +316,7 @@ internal static class CeresRidleyColorsVerification
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799, 0 })
             {
                 nativeSlot.Health = stockSlot.Health = editedSlot.Health = health;
-                Bgr555[] before = editedCgram.Colors.ToArray();
+                RgbColor[] before = editedCgram.Colors.ToArray();
                 nativeTick(nativeSlot, nativeState);
                 stockTick(stockSlot, stockState);
                 editedTick(editedSlot, editedState);
@@ -337,7 +337,7 @@ internal static class CeresRidleyColorsVerification
                 {
                     AssertEqual(nativeCgram.Colors[color], stockCgram.Colors[color],
                         $"stock Norfair Ridley health {health} CGRAM {color}");
-                    Bgr555 expected = stage != 0 &&
+                    RgbColor expected = stage != 0 &&
                         color >= CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex &&
                         color < CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex +
                             CeresRidleyPaletteDefinitions.HealthColorCount
@@ -352,7 +352,7 @@ internal static class CeresRidleyColorsVerification
                 "Norfair Ridley installed health colors avoid their original ROM rows");
         }
 
-        void Check(int source, int count, Func<int, Bgr555> resolve)
+        void Check(int source, int count, Func<int, RgbColor> resolve)
         {
             for (int color = 0; color < count; color++)
             {
@@ -363,7 +363,7 @@ internal static class CeresRidleyColorsVerification
                     $"Ceres Ridley source ${source:X6} color {color}");
             }
         }
-        void CheckCgram(int count, int destination, Func<int, Bgr555> resolve, string context)
+        void CheckCgram(int count, int destination, Func<int, RgbColor> resolve, string context)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), cgram.Colors[destination + color],

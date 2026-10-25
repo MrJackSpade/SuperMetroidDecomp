@@ -92,8 +92,8 @@ internal static class CartridgeEncodingAnalyzerTests
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M(int value) => value & byte.MaxValue; }")],
             new ExpectedDiagnostic(CartridgeEncodingAnalyzer.RawWidthId, "keeps a byte, word or bank lane"));
         ExpectEncoding([new AnalyzerTestSource(functional,
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
-            "[SnesEncodingOwner] readonly struct Word(ushort raw) { public byte High => (byte)(raw >> 8); }")]);
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } " +
+            "[EncodingOwner(\"fixture format\")] readonly struct Word(ushort raw) { public byte High => (byte)(raw >> 8); }")]);
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { int M(int value) => value >> 8; // cartridge-encoding: allow(ByteLane) - DSP register high byte\n }")]);
 
         // SME6348 (#1324): a hand-written sign-bit test on a countdown-named member or local.
@@ -142,8 +142,8 @@ internal static class CartridgeEncodingAnalyzerTests
             "void M(ushort count) { count--; Wide--; Next = unchecked((ushort)(FunctionTimer - 1)); } }")]);
         // An encoding owner documents the idiom itself.
         ExpectEncoding([new AnalyzerTestSource(functional,
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
-            "[SnesEncodingOwner] struct Countdown { ushort timer; bool M() { timer--; return (timer & 32768) != 0; } }")]);
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } " +
+            "[EncodingOwner(\"fixture format\")] struct Countdown { ushort timer; bool M() { timer--; return (timer & 32768) != 0; } }")]);
 
         // SME6346 (#1323): a [Flags] value cast to an integral primitive leaves its type before the encoding boundary.
         const string items = "[System.Flags] enum Items : ushort { Morph = 4, Bombs = 4096 } enum Mode : ushort { Auto = 1 } ";
@@ -154,8 +154,8 @@ internal static class CartridgeEncodingAnalyzerTests
         // A plain enum, a primitive-to-flags conversion, an owner and a reviewed allowance are not reported.
         ExpectEncoding([new AnalyzerTestSource(functional, items + "class C { ushort M(ushort word) => (ushort)Mode.Auto; Items N(ushort word) => (Items)word; }")]);
         ExpectEncoding([new AnalyzerTestSource(functional,
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " + items +
-            "[SnesEncodingOwner] static class ItemWords { public static ushort Native(Items items) => (ushort)items; }")]);
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } " + items +
+            "[EncodingOwner(\"fixture format\")] static class ItemWords { public static ushort Native(Items items) => (ushort)items; }")]);
         ExpectEncoding([new AnalyzerTestSource(functional, items + "class C { ushort M(Items held) => (ushort)held; // cartridge-encoding: allow(Codec) - SRAM word\n }")]);
 
         // SME6347 (#1323): byte and ushort instance fields, properties and positional record parameters.
@@ -190,8 +190,8 @@ internal static class CartridgeEncodingAnalyzerTests
         ExpectEncoding([new AnalyzerTestSource(functional, "class C { const ushort Limit = 99; static ushort shared; int wide; ushort[] words = new ushort[2]; " +
             "int M() => Limit + shared + wide + words.Length; }")]);
         ExpectEncoding([new AnalyzerTestSource(functional,
-            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
-            "[SnesEncodingOwner] readonly struct Word(ushort raw) { readonly ushort value = raw; ushort Next(byte step) { ushort sum = (ushort)(value + step); return sum; } }")]);
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; } " +
+            "[EncodingOwner(\"fixture format\")] readonly struct Word(ushort raw) { readonly ushort value = raw; ushort Next(byte step) { ushort sum = (ushort)(value + step); return sum; } }")]);
         ExpectEncoding([new AnalyzerTestSource(functional,
             "namespace SuperMetroid.Core.Compatibility { sealed class FrameCounter { byte value; void Step(byte by) { byte next = (byte)(value + by); value = next; } } }")]);
     }

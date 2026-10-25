@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -119,10 +120,10 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>The artwork file stores CGRAM words; each must be a fifteen-bit color.</summary>
-    private static Bgr555[] Colors(ushort[]? words) => words is null
+    private static RgbColor[] Colors(ushort[]? words) => words is null
         ? throw new InvalidDataException("Samus death-palette artwork is missing a palette.")
         : Array.ConvertAll(words, word =>
-        Bgr555.IsColorWord(word) ? Bgr555.FromWord(word)
+        RgbColor.IsColorWord(word) ? RgbColor.FromWord(word)
             : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 
     /// <summary>Imports all colors in one native sixteen-entry death palette row.</summary>

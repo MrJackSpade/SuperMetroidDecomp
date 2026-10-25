@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
@@ -83,14 +82,14 @@ internal sealed class D3D11FloorImage : IDisposable
         SpriteImage sheet = picture.Picture.Sheet;
         uint sheetIndex = (uint)tiles.Sheets.IndexOf(picture.Picture) << SheetShift;
         int cornerX = picture.Picture.Corner.X + picture.Corner.X, cornerY = picture.Picture.Corner.Y + picture.Corner.Y;
-        ReadOnlySpan<Rgba32> pixels = sheet.Pixels;
+        ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
         ReadOnlySpan<SpriteImageInk> inks = sheet.Inks;
         for (int y = 0; y < TilePixels; y++)
         {
             int source = (cornerY + y) * sheet.Size.X + cornerX;
             for (int x = 0; x < TilePixels; x++)
             {
-                Rgba32 pixel = pixels[source + x];
+                RgbaPixel pixel = pixels[source + x];
                 SpriteImageInk ink = inks[source + x];
                 bool colourZero = sheet.IsColourZero(ink);
                 int target = TexelWords * ((top + y) * Width + left + x);

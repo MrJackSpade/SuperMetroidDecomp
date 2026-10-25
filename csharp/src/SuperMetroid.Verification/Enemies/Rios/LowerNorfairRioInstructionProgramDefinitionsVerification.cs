@@ -112,7 +112,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         AssertTrue(!parentState.IsFollower && followerState.IsFollower, "parameter one's sign bit selects the follower");
 
         followerState.FollowerVisible = true;
-        followerState.Velocity = new(new SnesSignedEightEight(0x0180), new SnesSignedEightEight(0xff00));
+        followerState.Velocity = new(new SignedEightEight(0x0180), new SignedEightEight(0xff00));
         follower.Clear();
         AssertEqual<LowerNorfairRioEnemyFunction?>(null, followerState.Function, "a kill empties the behaviour");
         AssertEqual(default(EightEightVector<RoomPixels>), followerState.Velocity, "a kill empties the velocity");

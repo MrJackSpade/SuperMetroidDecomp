@@ -16,7 +16,7 @@ public sealed record GameOverPresentationDocument
     /// <summary>Four named palette phases, each holding sixteen packed SNES BGR555 words in the range $0000-$7FFF.</summary>
     public required Dictionary<string, ushort[]> BabyPalettes { get; init; }
     /// <summary>Shared Baby and egg drawing origin in screen pixels, X=0-255 and Y=0-255.</summary>
-    public required Position16<OamPixels> BabyAnchor { get; init; }
+    public required Position16<SpritePixels> BabyAnchor { get; init; }
     /// <summary>Common horizontal missile-cursor position in screen pixels, 0-255.</summary>
     public required int CursorX { get; init; }
     /// <summary>Vertical missile-cursor position for the Yes answer in screen pixels, 0-255.</summary>

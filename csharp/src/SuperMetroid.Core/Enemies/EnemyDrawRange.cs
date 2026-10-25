@@ -13,7 +13,7 @@ internal static class EnemyDrawRange
     /// Whether a component at <paramref name="origin"/> is drawn: both coordinates, read as signed screen positions,
     /// lie within -128 through 383; a component outside that range is skipped.
     /// </summary>
-    internal static bool Contains(Position16<OamPixels> origin) => Axis(origin.X) && Axis(origin.Y);
+    internal static bool Contains(Position16<SpritePixels> origin) => Axis(origin.X) && Axis(origin.Y);
 
     /// <summary>Whether one coordinate, read as a signed screen position, lies within the drawn range.</summary>
     private static bool Axis(int coordinate) => unchecked((short)coordinate) is >= First and <= Last;

@@ -16,10 +16,10 @@ internal static class CeresDestructionSceneDefinitions
     /// The floor point, in floor pixels, the Ceres explosion's floor turns about before its fade-out; the station's
     /// explosions are also placed relative to it.
     /// </summary>
-    internal static Offset16<Mode7Pixels> CeresFloorCenter => new(52, 48);
+    internal static Offset16<FloorPixels> CeresFloorCenter => new(52, 48);
 
     /// <summary>The floor point, in floor pixels, the following Zebes approach's floor turns about.</summary>
-    internal static Offset16<Mode7Pixels> ZebesFloorCenter => new(56, 24);
+    internal static Offset16<FloorPixels> ZebesFloorCenter => new(56, 24);
 
     /// <summary>The width, in pixels, of the world the approach's actors wrap around horizontally.</summary>
     internal const int WorldWidth = 512;
@@ -103,11 +103,11 @@ internal static class CeresDestructionSceneDefinitions
         /// <summary>The fleeing gunship's horizontal speed: a quarter pixel per update, in 1/65536 pixels.</summary>
         internal const ushort GunshipXSubvelocity = 16384;
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>
-        internal static SnesSignedSixteenSixteen GunshipYVelocity { get; } = SnesSignedSixteenSixteen.FromSixteenthsOfPixel(-1);
+        internal static SignedSixteenSixteen GunshipYVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
         /// <summary>The floor position, in pixels, that completes the gunship's exit.</summary>
         internal const ushort FloorExitX = 62;
         /// <summary>The floor's rotation during the Zebes approach: an eighth of a turn.</summary>
-        internal static SnesAngle ApproachAngle => SnesAngle.FromTableIndex(32);
+        internal static RotationAngle ApproachAngle => RotationAngle.FromTableIndex(32);
     }
 
     /// <summary>The scene's reserved actor slots, the explosions' palette and the approach's starting scroll.</summary>

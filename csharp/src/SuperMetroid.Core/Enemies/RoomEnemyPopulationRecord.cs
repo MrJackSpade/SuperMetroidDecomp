@@ -21,7 +21,7 @@ public readonly record struct RoomEnemyPopulationRecord(
     public int InitializationParameter { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, InitializationParameter);
 
     /// <summary>First actor-specific spawn parameter, 0 through 65535.</summary>
-    [NativeWord("population parameter word whose meaning each species decodes at spawn")]
+    [PackedFields("population parameter word whose meaning each species decodes at spawn")]
     public int Parameter1 { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Parameter1);
 
     /// <summary>Second actor-specific spawn parameter, 0 through 65535.</summary>

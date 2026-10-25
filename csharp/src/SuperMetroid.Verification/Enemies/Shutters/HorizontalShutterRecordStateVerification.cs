@@ -19,14 +19,14 @@ internal static class HorizontalShutterRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<HorizontalShutterFunction>()[^1];
         state.FunctionTimer = WrappingCountdown.Start(1);
-        state.RightVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
-        state.LeftVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+        state.RightVelocity = SignedSixteenSixteen.FromParts(1, 0);
+        state.LeftVelocity = SignedSixteenSixteen.FromParts(1, 0);
 
         slot.Clear();
         AssertEqual<HorizontalShutterFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties RightVelocity");
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.LeftVelocity, "a kill empties LeftVelocity");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties RightVelocity");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.LeftVelocity, "a kill empties LeftVelocity");
         Console.WriteLine("HorizontalShutter record state: a kill empties every value the record holds.");
     }
 

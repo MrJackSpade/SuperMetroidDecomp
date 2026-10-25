@@ -160,7 +160,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = PowampEnemyFunction.InflatedRiseToTargetHeight;
             // Exactly half a pixel per frame upward on the NTSC cartridge.
-            state.YVelocity = SnesSignedSixteenSixteen.FromRaw(-SnesSixteenSixteen.FromWhole(1) / 2);
+            state.YVelocity = SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromWhole(1) / 2);
             SetPowampProgram(body, state, PowampProgram.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
@@ -274,7 +274,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = PowampEnemyFunction.DeflatedSinking;
             // Exactly +1 pixel/frame.
-            state.YVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+            state.YVelocity = SignedSixteenSixteen.FromParts(1, 0);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -603,7 +603,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.PowampSpike,
                 unchecked((ushort)(body.TileIndexBase | body.PaletteIndex)));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
-            spike.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+            spike.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
             spike.DirectionParameter = unchecked((ushort)direction);
             accumulator = unchecked((ushort)(spike.SlotIndex * 2));
         }
@@ -622,7 +622,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Powamp spike direction {direction} exceeds the eight-entry ROM table.");
         }
 
-        spike.Velocity = spike.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(
+        spike.Velocity = spike.Velocity.WithX(new SignedEightEight(unchecked((ushort)(
             unchecked((short)spike.Velocity.X.RawValue) + PowampMotionDefinitions.SpikeXAcceleration(direction)))));
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Horizontal))
         {
@@ -630,7 +630,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        spike.Velocity = spike.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+        spike.Velocity = spike.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
             unchecked((short)spike.Velocity.Y.RawValue) + PowampMotionDefinitions.SpikeYAcceleration(direction)))));
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Vertical))
             BeginPowampSpikeDeletion(spike);

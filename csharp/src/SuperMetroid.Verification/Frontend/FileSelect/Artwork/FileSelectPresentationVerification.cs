@@ -112,7 +112,7 @@ internal static class FileSelectPresentationVerification
             "file-select page, field and actor edits reach the real renderer");
         FileSelectPhase phaseBeforeRebind = stockMenu.Phase;
         FileSelectItem selectionBeforeRebind = stockMenu.SelectedItem;
-        Rgba32[] pixelsBeforeRebind = stockMenu.Render().ToArray();
+        RgbaPixel[] pixelsBeforeRebind = stockMenu.Render().ToArray();
         stockMenu.BindFixtureArtwork(edited);
         AssertEqual(phaseBeforeRebind, stockMenu.Phase,
             "file-select content rebind preserves phase");

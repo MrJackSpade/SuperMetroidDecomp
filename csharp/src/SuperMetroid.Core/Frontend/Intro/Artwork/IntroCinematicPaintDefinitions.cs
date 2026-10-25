@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -27,7 +28,7 @@ internal static class IntroCinematicPaintDefinitions
     /// <summary>$8C:E3F1/E3F9/E401: zero-ink tint endpoints; green gamma2 and blue hue scaling derive the middle.</summary>
     private const int FontZeroGreenDark = 12, FontZeroBlue = 14;
     /// <summary>$8C:E4E9 and every object-row zero: copied transparent compatibility word.</summary>
-    private static readonly Bgr555 ObjectZero = Bgr555.FromWord(0x3800);
+    private static readonly RgbColor ObjectZero = RgbColor.FromWord(0x3800);
     /// <summary>$8C:E4EB-E508: repeating four-level neutral cycle, with one-level brightness steps.</summary>
     internal const int WhiteCycleLength = 4, WhiteCycleStep = 1;
     /// <summary>$8C:E51B: selected dark red object accent.</summary>
@@ -45,11 +46,11 @@ internal static class IntroCinematicPaintDefinitions
     /// <summary>$8C:E451: bright visor's green/blue, with zero red.</summary>
     private const int VisorGlintGreen = 28, VisorGlintBlue = 22;
     /// <summary>$8C:E44D: shoulder/edge paint.</summary>
-    private static readonly Bgr555 Shoulder = Bgr555.FromWord(0x15aa);
+    private static readonly RgbColor Shoulder = RgbColor.FromWord(0x15aa);
     /// <summary>$8C:E455: dark cyan contour.</summary>
-    private static readonly Bgr555 PortraitContour = Bgr555.FromWord(0x14a2);
+    private static readonly RgbColor PortraitContour = RgbColor.FromWord(0x14a2);
     /// <summary>$8C:E461: deep cool silhouette paint.</summary>
-    private static readonly Bgr555 PortraitDeep = Bgr555.FromWord(0x1c42);
+    private static readonly RgbColor PortraitDeep = RgbColor.FromWord(0x1c42);
     /// <summary>$8C:E44B: blue-only outline intensity.</summary>
     private const int PortraitOutlineBlue = 5;
 
@@ -57,20 +58,20 @@ internal static class IntroCinematicPaintDefinitions
     internal static bool Matches(ReadOnlySpan<byte> bytes)
     {
         for (int index = 0; index < 256; index++)
-            if (Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * 2, 2))) != Color(index / 16, index % 16)) return false;
+            if (RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * 2, 2))) != Color(index / 16, index % 16)) return false;
         return true;
     }
 
     /// <summary>Selects a font, portrait, sepia scene, object, or crossfade color for one intro palette cell.</summary>
-    internal static Bgr555 Color(int row, int ink)
+    internal static RgbColor Color(int row, int ink)
     {
         if ((uint)row >= 16 || (uint)ink >= 16) throw new ArgumentOutOfRangeException(nameof(row));
         if (row == 0) return Font(ink);
-        if (ink == 0) return row >= 8 ? ObjectZero : Bgr555.Black;
+        if (ink == 0) return row >= 8 ? ObjectZero : RgbColor.Black;
         return row switch
         {
-            1 => ink switch { 1 or 4 => Neutral(31), 2 or 14 => Bgr555.Black, 3 or 6 => Neutral(TextGray), _ => Neutral(Fill) },
-            2 => ink <= 8 ? Sepia(ink) : ink == 15 ? Bgr555.Black : Neutral(Fill),
+            1 => ink switch { 1 or 4 => Neutral(31), 2 or 14 => RgbColor.Black, 3 or 6 => Neutral(TextGray), _ => Neutral(Fill) },
+            2 => ink <= 8 ? Sepia(ink) : ink == 15 ? RgbColor.Black : Neutral(Fill),
             3 => Portrait(ink),
             4 or 5 or 6 or 10 or 11 => Neutral(Fill),
             7 => Scene(ink),
@@ -85,12 +86,12 @@ internal static class IntroCinematicPaintDefinitions
     }
 
     /// <summary>Builds the four-step font ink groups from green highlights, neutral fill, and depth-varying shadows.</summary>
-    private static Bgr555 Font(int ink)
+    private static RgbColor Font(int ink)
     {
         int group = ink / 4;
         return (ink % 4) switch
         {
-            0 when group == 0 => Bgr555.Black,
+            0 when group == 0 => RgbColor.Black,
             0 => FontZero(group - 1),
             1 => Pack(0, 31, 0),
             2 => Neutral(Fill),
@@ -105,73 +106,73 @@ internal static class IntroCinematicPaintDefinitions
         return (int)Math.Ceiling(intensity * intensity);
     }
     /// <summary>Calculates the hue of a font group's zero-ink entry from green gamma shading and proportional blue.</summary>
-    private static Bgr555 FontZero(int shade)
+    private static RgbColor FontZero(int shade)
     {
         int green = Gamma(31, FontZeroGreenDark, shade, 2);
         return Pack(0, green, FontZeroBlue * green / 31);
     }
     /// <summary>Derives six sepia levels and two darker outlines with a fixed blue deficit.</summary>
-    private static Bgr555 Sepia(int ink)
+    private static RgbColor Sepia(int ink)
     {
         int level = ink <= 6 ? (31 * (6 - ink) + SepiaDark * (ink - 1) + SepiaIntervals - 1) / SepiaIntervals
             : SepiaDark - (ink - 6) * SepiaOutlineStep;
         return Pack(level, level, Math.Max(0, level - SepiaBlueDeficit));
     }
     /// <summary>Raises red and green on a sepia ink while preserving its blue channel.</summary>
-    private static Bgr555 Warm(int ink, int tint)
+    private static RgbColor Warm(int ink, int tint)
     {
-        Bgr555 color = Sepia(ink);
+        RgbColor color = Sepia(ink);
         return Pack(Math.Min(31, (color.Red) + tint), Math.Min(31, (color.Green) + tint), color.Blue);
     }
     /// <summary>Darkens the shared Mother Brain plate highlight by one RGB5 level for intro scene objects.</summary>
-    private static Bgr555 Plate()
+    private static RgbColor Plate()
     {
-        Bgr555 color = MotherBrainHealthPaintDefinitions.PlateHighlight;
+        RgbColor color = MotherBrainHealthPaintDefinitions.PlateHighlight;
         return Pack((color.Red) - PlateShade, (color.Green) - PlateShade, (color.Blue) - PlateShade);
     }
     /// <summary>Selects authored neutral, sepia, plate, and warm materials for the intro scene row.</summary>
-    private static Bgr555 Scene(int ink) => ink switch
+    private static RgbColor Scene(int ink) => ink switch
     {
         1 => Neutral(SceneHighlight), 2 => Sepia(4), 3 => Pack(SceneDark, SceneDark, SceneDarkBlue),
         4 => Neutral(Contour), 5 or 9 => Plate(), 6 => Warm(5, WarmTint), 7 => Neutral(MiddleNeutral),
         8 => Neutral(LowNeutral), 10 => Warm(5, StrongWarmTint), 11 => Warm(6, StrongWarmTint),
-        12 => Sepia(7), 13 or 14 => Sepia(1), _ => Bgr555.Black,
+        12 => Sepia(7), 13 or 14 => Sepia(1), _ => RgbColor.Black,
     };
     /// <summary>Maps the first object palette's repeated plate and warm materials plus its dark accent.</summary>
-    private static Bgr555 ObjectOne(int ink) => ink switch
+    private static RgbColor ObjectOne(int ink) => ink switch
     {
         1 or 5 or 10 or 13 or 15 => Plate(), 2 or 6 or 11 => Warm(5, WarmTint),
         3 or 7 or 12 => Warm(6, WarmTint), 4 or 8 => Sepia(7),
         9 => Pack(ObjectAccentRed, 0, ObjectAccentBlue), 14 => Sepia(1), _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
     /// <summary>Maps the fourth object palette to repeated sepia steps and contour ink.</summary>
-    private static Bgr555 ObjectFour(int ink) => ink switch
+    private static RgbColor ObjectFour(int ink) => ink switch
     {
         1 or 5 or 14 => Sepia(5), 2 or 7 => Sepia(3), 3 => Neutral(Contour), 4 => Sepia(1), 6 => Sepia(2),
         8 or 9 or 10 or 12 => Sepia(4), 11 or 13 or 15 => Sepia(6), _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
     /// <summary>Repeats a three-material warm and sepia cycle across the fifth object palette.</summary>
-    private static Bgr555 ObjectFive(int ink) => ink switch
+    private static RgbColor ObjectFive(int ink) => ink switch
     {
         1 or 15 => Sepia(1), 14 => Neutral(Contour),
         _ => ((ink - 2) % 3) switch { 0 => Warm(4, StrongWarmTint), 1 => Warm(5, WarmTint), _ => Sepia(6) },
     };
     /// <summary>Combines sepia scene inks with the four-step blue fade and two color accents.</summary>
-    private static Bgr555 Crossfade(int ink) => ink switch
+    private static RgbColor Crossfade(int ink) => ink switch
     {
         <= 8 => Sepia(ink), <= 12 => Pack(0, 0, (31 * (12 - ink) + CrossfadeBlueDark * (ink - 9)) / 3),
-        13 => Pack(0, 31, 0), 14 => Pack(0, CrossfadeAccentGreen, CrossfadeAccentBlue), _ => Bgr555.Black,
+        13 => Pack(0, 31, 0), 14 => Pack(0, CrossfadeAccentGreen, CrossfadeAccentBlue), _ => RgbColor.Black,
     };
     /// <summary>Reuses scene sepia and plate materials for the Mother Brain intro object row.</summary>
-    private static Bgr555 MotherBrain(int ink) => ink switch
+    private static RgbColor MotherBrain(int ink) => ink switch
     {
         1 or 13 or 14 => Sepia(1), 2 => Sepia(4), 3 => Neutral(Contour), 4 => Neutral(DeepContour),
         5 => MotherBrainHealthPaintDefinitions.PlateHighlight, 6 => Warm(5, WarmTint), 7 => Neutral(PlateNeutral),
         8 => Neutral(PlateDarkNeutral), 9 => Plate(), 10 => Warm(5, StrongWarmTint), 11 => Warm(6, StrongWarmTint),
-        12 => Sepia(7), _ => Bgr555.Black,
+        12 => Sepia(7), _ => RgbColor.Black,
     };
     /// <summary>Paints Samus's helmet, cheek, and visor shade groups with authored contour and glint colors.</summary>
-    private static Bgr555 Portrait(int ink)
+    private static RgbColor Portrait(int ink)
     {
         if (ink is 9 or 14 or 15)
         {
@@ -189,7 +190,7 @@ internal static class IntroCinematicPaintDefinitions
             int shade = ink == 11 ? 0 : ink == 13 ? 1 : 2;
             return Pack(0, Gamma(VisorGreenLight, VisorGreenDark, shade, 2), (VisorBlueLight * (2 - shade) + VisorBlueDark * shade) / 2);
         }
-        return ink switch { 1 => Pack(0, 0, PortraitOutlineBlue), 2 => Shoulder, 3 => Bgr555.Black,
+        return ink switch { 1 => Pack(0, 0, PortraitOutlineBlue), 2 => Shoulder, 3 => RgbColor.Black,
             4 => Pack(0, VisorGlintGreen, VisorGlintBlue), 6 => PortraitContour, 12 => PortraitDeep,
             _ => throw new ArgumentOutOfRangeException(nameof(ink)) };
     }
@@ -200,7 +201,7 @@ internal static class IntroCinematicPaintDefinitions
         return (int)Math.Floor(intensity * intensity + 0.5);
     }
     /// <summary>Uses one RGB5 intensity across all three channels for neutral paint.</summary>
-    private static Bgr555 Neutral(int value) => Pack(value, value, value);
+    private static RgbColor Neutral(int value) => Pack(value, value, value);
     /// <summary>Converts three calculated five-bit channels into a CGRAM color.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Hardware;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,6 +12,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
@@ -59,11 +59,11 @@ internal static class SamusBodyTransferContractChecks
         var atmosphere = new SamusAtmosphericArtworkCatalog(
             new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount],
             new ushort[SamusMovementDefinitions.Environment.DirectAtmosphericFrameCount]);
-        Bgr555[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
-            .Select(_ => new Bgr555[SamusDeathPaletteArtworkCatalog.ColorCount]).ToArray();
+        RgbColor[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
+            .Select(_ => new RgbColor[SamusDeathPaletteArtworkCatalog.ColorCount]).ToArray();
         var deathColors = new SamusDeathPaletteArtworkCatalog(
             Enumerable.Range(0, SamusDeathPaletteArtworkCatalog.SuitCount).Select(_ => Rows()).ToArray(), Rows(),
-            new Bgr555[SamusPaletteDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.RecordCount]);
+            new RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.RecordCount]);
         using var deathPng = Png(new(SamusDeathTileAtlasFormat.Width, SamusDeathTileAtlasFormat.Height));
         SamusDeathTileAtlas deathTiles = SamusDeathTileAtlas.Load(deathPng);
         var cannonDocument = new SamusArmCannonArtworkDocument {
@@ -132,7 +132,7 @@ internal static class SamusBodyTransferContractChecks
     private static MemoryStream Png(Extent16<ImagePixels> size)
     {
         var stream = new MemoryStream();
-        IndexedPng.Write(stream, size, new byte[size.Area], [new Rgba32(0, 0, 0)]);
+        IndexedPng.Write(stream, size, new byte[size.Area], [new RgbaPixel(0, 0, 0)]);
         stream.Position = 0;
         return stream;
     }

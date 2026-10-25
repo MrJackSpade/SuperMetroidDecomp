@@ -53,8 +53,8 @@ internal static class ProjectileCompositionsVerification
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             {
-                native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
-                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
+                native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
+                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
             }
             DrawImportedProjectileSpritemap(rom, native, id, new(origin, origin));
             content.Draw(id, authored, new(origin, origin));
@@ -109,7 +109,7 @@ internal static class ProjectileCompositionsVerification
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
     [CpuBusBoundary("exact bus test: reference bank-$93 projectile spritemap decoder over a retail or synthetic cartridge")]
     internal static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
-        OamBuffer oam, ushort pointer, Position16<OamPixels> origin)
+        OamBuffer oam, ushort pointer, Position16<SpritePixels> origin)
     {
         int record = 0x930000 | pointer;
         ushort partCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(record);
@@ -495,7 +495,7 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(swingOverride, swing.ToJsonString());
         var swingEdited = installation.LoadProjectiles();
         AssertTrue(swingEdited.SelectedSha256 != grappleFlareEdited.SelectedSha256, "Swing-only edit changes content identity");
-        AssertEqual((byte)17, (swingEdited.GrappleTiles.SwingFrames ?? throw new InvalidOperationException("Verification requires swingEdited.GrappleTiles.SwingFrames.")).Resolve(new SnesByteAngle(0)), "Installer selects edited swing frame");
+        AssertEqual((byte)17, (swingEdited.GrappleTiles.SwingFrames ?? throw new InvalidOperationException("Verification requires swingEdited.GrappleTiles.SwingFrames.")).Resolve(new ByteAngle(0)), "Installer selects edited swing frame");
         File.WriteAllText(swingStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Swing override cannot hide corrupt stock");
         File.Move(swingStock, swingStock + ".invalid");

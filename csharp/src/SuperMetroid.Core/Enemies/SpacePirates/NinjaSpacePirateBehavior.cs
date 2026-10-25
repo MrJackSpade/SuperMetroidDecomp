@@ -102,7 +102,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         // `$B2:F632` truncates the half-span to one byte before moving it to the high byte.
         // The do/while always executes once, including a zero-span debug population.
-        int distanceInSubpixels = unchecked((ushort)SnesEightEight.FromWhole((byte)requestedHalfSpan));
+        int distanceInSubpixels = unchecked((ushort)EightEight.FromWhole((byte)requestedHalfSpan));
         int speed = 0;
         int accumulatedDistance = 0;
         do
@@ -383,7 +383,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction,
         VerticalDirection vertical)
     {
-        int xPixels = SnesEightEight.WholeOf(state.Speed.RawValue);
+        int xPixels = EightEight.WholeOf(state.Speed.RawValue);
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole +
             (vertical == VerticalDirection.Up ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels))));
@@ -423,7 +423,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// patrol centre, which nothing reads; it is not kept.
     /// </summary>
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
-        state.Speed = new SnesSignedEightEight(NinjaPirateInitialDiveSpeed);
+        state.Speed = new SignedEightEight(NinjaPirateInitialDiveSpeed);
 
     /// <summary>Rises until signed speed turns negative, then switches to the descent list.</summary>
     private static void StepNinjaPirateDiveJump(
@@ -431,7 +431,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed.RawValue)))));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed.RawValue)))));
         state.ChangeSpeed(-64);
         if (state.Speed.SignedRawValue >= 0)
             return;
@@ -445,7 +445,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateProgram.DivekickRightDive
                 : NinjaSpacePirateProgram.DivekickLeftDive);
-        state.Speed = new SnesSignedEightEight(NinjaPirateInitialDiveSpeed);
+        state.Speed = new SignedEightEight(NinjaPirateInitialDiveSpeed);
     }
 
     /// <summary>Moves horizontally and descends with native packed speed until floor or speed ends the dive.</summary>
@@ -468,12 +468,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // the low byte as only the low eight bits of the fractional word. This odd packing is
         // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
         // different from the 65816 register setup at $B2:F9CB/$FA9F.
-        int displacement = (SnesSixteenSixteen.FromWhole(SnesEightEight.WholeOf(state.Speed.RawValue))) | (SnesEightEight.FractionOf(state.Speed.RawValue));
+        int displacement = (SixteenSixteen.FromWhole(EightEight.WholeOf(state.Speed.RawValue))) | (EightEight.FractionOf(state.Speed.RawValue));
         bool landed = _terrain.MoveEnemyVertically(level, slot, displacement);
         if (!landed)
         {
             state.ChangeSpeed(-64);
-            landed = state.Speed.SignedRawValue < 0 || SnesUnsignedEightEight.Whole(state.Speed.RawValue) == 0;
+            landed = state.Speed.SignedRawValue < 0 || UnsignedEightEight.Whole(state.Speed.RawValue) == 0;
         }
         if (!landed)
             return;

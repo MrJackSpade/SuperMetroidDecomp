@@ -58,7 +58,7 @@ internal static class SamusAtmosphereSheetComposer
     {
         if (!atmosphere.TryResolve(type, frame, out int attributes))
             throw new InvalidDataException($"Atmospheric type {type} frame {frame} has no installed sprite.");
-        return new(name, ObjPartFrames.SmallObject(new SnesObjAttributeWord(checked((ushort)attributes)), 0), inputs.StandardObjects);
+        return new(name, SpritePartFrames.SmallObject(new SnesObjAttributeWord(checked((ushort)attributes)), 0), inputs.StandardObjects);
     }
 
     /// <summary>

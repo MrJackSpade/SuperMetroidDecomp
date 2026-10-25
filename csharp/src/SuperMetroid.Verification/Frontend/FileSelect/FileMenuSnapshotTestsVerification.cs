@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -80,9 +81,9 @@ internal static class FileMenuSnapshotTestsVerification
         OptionTick();
         Console.WriteLine($"  File/options snapshots: {comparisons} retail frames match through COPY/CLEAR, controller scrolling, special settings and fades.");
 
-        void Check(Func<Rgba32[]> legacy, Func<LayeredScene> capture, Action step)
+        void Check(Func<RgbaPixel[]> legacy, Func<LayeredScene> capture, Action step)
         {
-            Rgba32[] expected = legacy();
+            RgbaPixel[] expected = legacy();
             LayeredScene snapshot = capture();
             Match(expected, DisplayRendering.Render(
                 new DisplayPacket(new(comparisons + 1, 1, (ushort)comparisons), snapshot)));
@@ -93,7 +94,7 @@ internal static class FileMenuSnapshotTestsVerification
             comparisons++;
         }
 
-        void Match(Rgba32[] expected, Rgba32[] actual)
+        void Match(RgbaPixel[] expected, RgbaPixel[] actual)
         {
             AssertEqual(expected.Length, actual.Length, "menu snapshot geometry");
             for (int i = 0; i < expected.Length; i++)

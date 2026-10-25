@@ -21,7 +21,7 @@ internal enum CartridgeEncodingRule
     /// or a byte/word/bank mask. Ratcheted by SME6345.
     /// </summary>
     RawWidthOperation,
-    /// <summary>A width operation inside a catalog or a <c>[SnesEncodingOwner]</c> type that documents it. Inventoried.</summary>
+    /// <summary>A width operation inside a catalog or a <c>[EncodingOwner]</c> type that documents it. Inventoried.</summary>
     OwnedWidthOperation,
     /// <summary>A functional width operation carrying a reviewed same-line allowance. Inventoried, not ratcheted.</summary>
     JustifiedWidthOperation,
@@ -42,13 +42,13 @@ internal enum CartridgeEncodingRule
     /// leave their type before the encoding boundary. Ratcheted by SME6346.
     /// </summary>
     FlagsPrimitiveCast,
-    /// <summary>A <c>[Flags]</c> cast inside a catalog or <c>[SnesEncodingOwner]</c> type, or under a reviewed allowance. Inventoried.</summary>
+    /// <summary>A <c>[Flags]</c> cast inside a catalog or <c>[EncodingOwner]</c> type, or under a reviewed allowance. Inventoried.</summary>
     OwnedFlagsPrimitiveCast,
     /// <summary>
     /// A <c>byte</c> or <c>ushort</c> instance field, property or positional record parameter in functional code
     /// (#1323): gameplay state stored as a CPU word. Ratcheted by SME6347.
     /// </summary>
     NarrowStorageMember,
-    /// <summary>A narrow member inside a catalog or <c>[SnesEncodingOwner]</c> type, or under a reviewed allowance. Inventoried.</summary>
+    /// <summary>A narrow member inside a catalog or <c>[EncodingOwner]</c> type, or under a reviewed allowance. Inventoried.</summary>
     OwnedNarrowStorageMember,
 }

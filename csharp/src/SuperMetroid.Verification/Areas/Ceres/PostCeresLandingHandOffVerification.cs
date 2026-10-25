@@ -30,8 +30,8 @@ internal static class PostCeresLandingHandOffVerification
         // The escape ends with Samus running: the 13% capture enters the load carrying
         // base speed $1.8000 and extra run speed $0.8000, plus inventory from Ceres.
         SamusState escaped = runtime.Player.IntroducedSamus;
-        escaped.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
-        escaped.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(0, 0x8000);
+        escaped.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
+        escaped.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(0, 0x8000);
         escaped.Missiles = 7;
         escaped.MaxMissiles = 10;
         runtime.RoomLoader.InitializePostCeresZebesRoom();

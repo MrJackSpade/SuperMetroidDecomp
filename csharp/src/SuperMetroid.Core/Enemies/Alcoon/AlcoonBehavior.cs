@@ -256,7 +256,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyMath.WrappedMagnitude(spawnDistance) >= AlcoonHideXDistance)
         {
             state.Function = AlcoonEnemyFunction.HidingRising;
-            state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(-4, 0));
+            state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-4, 0));
             InstallAlcoonInstruction(
                 slot,
                 state,
@@ -312,9 +312,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
         state.Velocity = new FixedVector<RoomPixels>(
-            SnesSignedSixteenSixteen.Zero, SnesSignedSixteenSixteen.FromParts(-12, 0));
+            SignedSixteenSixteen.Zero, SignedSixteenSixteen.FromParts(-12, 0));
         // The cartridge also clears a record word here that nothing reads.
-        state.YAcceleration = SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 2);
+        state.YAcceleration = SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 2);
     }
 
     /// <summary>Adds the per-slot 16.16 acceleration to Alcoon's vertical velocity.</summary>
@@ -447,10 +447,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.AlcoonFireball,
             unchecked((ushort)(alcoon.TileIndexBase | alcoon.PaletteIndex)));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(alcoon.Position.X.Whole + (movingLeft ? -16 : 16))), unchecked((ushort)(alcoon.Position.Y.Whole - 12))));
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(movingLeft
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingLeft
             ? unchecked((ushort)-AlcoonFireballGraphicsHorizontalSpeed)
             : AlcoonFireballGraphicsHorizontalSpeed));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(EnemyFireballLaunchDefinitions.AlcoonYVelocity(yVelocityTableByteOffset)));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(EnemyFireballLaunchDefinitions.AlcoonYVelocity(yVelocityTableByteOffset)));
     }
 
     /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>
@@ -481,7 +481,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (velocity < AlcoonFireballTerminalHorizontalSpeed)
                 velocity = unchecked((short)AlcoonFireballTerminalHorizontalSpeed);
         }
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)velocity)));
     }
 
     /// <summary>Last library-two Alcoon emerge or volley sound this enemy pass, using the Max6 queue entry; null means no current-pass request.</summary>

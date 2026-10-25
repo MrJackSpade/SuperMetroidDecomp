@@ -17,7 +17,7 @@ public static class EnemyTrigonometryTables
     /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
     /// input angle before sampling. Individual investigation: #625 / #909.
     /// </remarks>
-    public static short SignedSixteenBitSine(SnesByteAngle angle)
+    public static short SignedSixteenBitSine(ByteAngle angle)
     {
         int magnitude = UnsignedHalfWave(angle.RawValue & 127) >> 1;
         return (short)(angle.RawValue < 128 ? magnitude : -magnitude);
@@ -26,10 +26,10 @@ public static class EnemyTrigonometryTables
     /// <summary>$86:C26C/$C27A, CalculateSine/Cosine: multiply unsigned speed by
     /// the $A0:B443 signed sample, keep product bits 8..23, then restore the sign.
     /// Callers add a quarter-turn themselves when selecting cosine.</summary>
-    public static ushort MultiplySignedSine(int speed, SnesByteAngle angle)
+    public static ushort MultiplySignedSine(int speed, ByteAngle angle)
     {
         int sample = SignedSine(angle);
-        int magnitude = SnesEightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, speed) * Math.Abs(sample));
+        int magnitude = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, speed) * Math.Abs(sample));
         return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
     }
 
@@ -43,7 +43,7 @@ public static class EnemyTrigonometryTables
     /// separate odd-byte composition and final $8B instruction-byte overread;
     /// these are byte-addressing behavior, not additional sine samples.
     /// Individual investigation: #625 / #910.</remarks>
-    public static short SignedSine(SnesByteAngle angle)
+    public static short SignedSine(ByteAngle angle)
     {
         int halfWaveIndex = angle.RawValue & 127;
         int magnitude = halfWaveIndex == 64 ? 256 : EightBitHalfWave(halfWaveIndex);
@@ -62,7 +62,7 @@ public static class EnemyTrigonometryTables
     public static short SignedNegativeCosineWord(int index)
     {
         if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));
-        return SignedSine(unchecked(new SnesByteAngle((byte)(index - 64))));
+        return SignedSine(unchecked(new ByteAngle((byte)(index - 64))));
     }
 
     /// <summary>$A0:B143 SineCosineTables_8bitSine and cosine continuation:

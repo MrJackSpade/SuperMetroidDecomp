@@ -15,7 +15,7 @@ internal static class EnumValueReadAnalyzerTests
     private const string Types = """
         enum Draw { Idle, Wave }
         [System.Flags] enum Items { None = 0, Varia = 1, Gravity = 2 }
-        sealed class SnesEncodingOwnerAttribute : System.Attribute { }
+        sealed class EncodingOwnerAttribute(string format) : System.Attribute { public string Format { get; } = format; }
 
         """;
 
@@ -48,8 +48,8 @@ internal static class EnumValueReadAnalyzerTests
         Expect(Types + "class Suits { bool Run(Items items) => items.HasFlag(Items.Gravity) && (items & Items.Varia) == Items.Varia; }", count: 0);
         Expect(Types + "class Dispatch { bool Run(Draw draw) => draw == Draw.Wave; }", count: 0);
         // The type that owns an encoding converts, including from a nested type.
-        Expect(Types + "[SnesEncodingOwner] class Codec { int Run(Draw draw) => (int)draw; }", count: 0);
-        Expect(Types + "[SnesEncodingOwner] class Codec { static class Bits { static ushort Run(Items items) => (ushort)items; } }", count: 0);
+        Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { int Run(Draw draw) => (int)draw; }", count: 0);
+        Expect(Types + "[EncodingOwner(\"fixture format\")] class Codec { static class Bits { static ushort Run(Items items) => (ushort)items; } }", count: 0);
         // Outside Core the import pipeline translates.
         Expect(Types + "class Importer { Draw Run(int word) => (Draw)word; }", count: 0, assemblyName: "SuperMetroid.AssetExtraction");
     }

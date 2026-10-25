@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 /// <summary>Checks file-select map render packets against the legacy raster path.</summary>
@@ -34,7 +35,7 @@ internal static class FileMapSnapshotTestsVerification
             var capture = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             LayeredScene? previous = null;
-            Rgba32[]? previousPixels = null;
+            RgbaPixel[]? previousPixels = null;
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {
                 ControllerButton input = tick == 48 ? ControllerButton.Start
@@ -45,7 +46,7 @@ internal static class FileMapSnapshotTestsVerification
                 if (previous is not null)
                     AssertTrue(previousPixels.SequenceEqual(RenderForComparison(previous)), "map packet survives window/palette/marker update");
                 phases.Add(legacy.Phase);
-                Rgba32[] expected = legacy.Render();
+                RgbaPixel[] expected = legacy.Render();
                 LayeredScene packet = capture.CaptureRenderSnapshot();
                 Compare(expected, packet, $"map navigation {legacy.Phase}, tick {tick}, cancel {cancel}");
                 AssertEqual(legacy.Phase, capture.Phase, "map capture preserves navigation");
@@ -89,7 +90,7 @@ internal static class FileMapSnapshotTestsVerification
         AssertTrue(sawMap && game.GameState == SuperMetroidGameState.MainGameplay, "saved-file frontend completes map and load");
         Console.WriteLine($"  File map snapshots: {samples} area/room/entry/window/load/cancel comparisons match.");
 
-        void Compare(Rgba32[] expected, LayeredScene captured, string name)
+        void Compare(RgbaPixel[] expected, LayeredScene captured, string name)
         {
             var packet = new DisplayPacket(new(++samples, 1, 0), captured);
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), name);
@@ -104,14 +105,14 @@ internal static class FileMapSnapshotTestsVerification
         var red = new FramePaint(ToColors(palette), []);
         palette[0] = 31 << 10;
         var blue = new FramePaint(ToColors(palette), []);
-        var child = new LayeredScene(blue, new RenderLayer[] { new ObjRenderLayer() }, 15);
+        var child = new LayeredScene(blue, new RenderLayer[] { new SpriteRenderLayer() }, 15);
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
         var parent = new LayeredScene(red, new RenderLayer[] { window }, 15);
         var packet = new DisplayPacket(new(1, 1, 0), parent);
-        Rgba32[] pixels = DisplayRendering.Render(packet);
+        RgbaPixel[] pixels = DisplayRendering.Render(packet);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
-            AssertEqual(x >= 127 && x < 130 && y >= 111 && y < 113 ? new Rgba32(0, 0, 255) : new Rgba32(255, 0, 0),
+            AssertEqual(x >= 127 && x < 130 && y >= 111 && y < 113 ? new RgbaPixel(0, 0, 255) : new RgbaPixel(255, 0, 0),
                 pixels[y * 256 + x], "window replacement includes child backdrop and excludes outside pixels");
         AssertThrows<ArgumentException>(() => new WindowedSceneRenderLayer(parent, 0, 0, 1, 1), "nested scene rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => new WindowedSceneRenderLayer(child, 0, 0, 257, 224), "invalid window rejected");

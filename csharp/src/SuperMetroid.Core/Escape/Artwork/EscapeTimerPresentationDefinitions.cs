@@ -76,7 +76,7 @@ public static class EscapeTimerPresentationDefinitions
     private const int GlyphWidth = 8;
 
     /// <summary>$80:9F7B/9F84/9F8D: three two-digit groups separated by one cell, centered across eight cells.</summary>
-    internal static Offset16<OamPixels> DefaultAnchor(EscapeTimerAnchor anchor) => anchor switch
+    internal static Offset16<SpritePixels> DefaultAnchor(EscapeTimerAnchor anchor) => anchor switch
     {
         EscapeTimerAnchor.Label => new(0, 0),
         EscapeTimerAnchor.Minutes => GroupAnchor(0),
@@ -86,5 +86,5 @@ public static class EscapeTimerPresentationDefinitions
     };
 
     /// <summary>The tens-digit origin of the <paramref name="group"/>th two-digit group.</summary>
-    private static Offset16<OamPixels> GroupAnchor(int group) => new(checked((short)((3 * group * 2 - 7) * GlyphWidth / 2)), 0);
+    private static Offset16<SpritePixels> GroupAnchor(int group) => new(checked((short)((3 * group * 2 - 7) * GlyphWidth / 2)), 0);
 }

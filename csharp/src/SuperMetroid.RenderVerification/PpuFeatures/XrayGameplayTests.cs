@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -28,8 +29,8 @@ internal static class XrayGameplayTests
             var vram = new SnesVram();
             var cgram = new SnesCgram();
             cgram.SetColor(0, XrayRoomDisplayRules.ActiveBackdrop);
-            cgram.SetColor(1, new Bgr555(31, 0, 0)); cgram.SetColor(2, new Bgr555(0, 20, 0)); cgram.SetColor(3, new Bgr555(0, 0, 10));
-            cgram.SetColor(128 + palette * 16 + 1, new Bgr555(31, 0, 0));
+            cgram.SetColor(1, new RgbColor(31, 0, 0)); cgram.SetColor(2, new RgbColor(0, 20, 0)); cgram.SetColor(3, new RgbColor(0, 0, 10));
+            cgram.SetColor(128 + palette * 16 + 1, new RgbColor(31, 0, 0));
             for (int y = 0; y < 8; y++)
             {
                 vram.LoadBytes(y * 2, new byte[] { 255, 0 }); // OBJ character zero, red.
@@ -53,12 +54,12 @@ internal static class XrayGameplayTests
                 | (half ? ColorBlend.Half : 0) | (subtract ? ColorBlend.Subtract : 0);
             var bg3 = sub ? new FxPlaneBlendRenderLayer(plane, Layer3Plane.Rows / 2, 32, 32,
                 ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[224]) : null;
-            var layer = new GameplayColorMathRenderLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithSubscreen = true, FixedColor = new Bgr555(7, 7, 7) }, bg3);
+            var layer = new GameplayColorMathRenderLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithSubscreen = true, FixedColor = new RgbColor(7, 7, 7) }, bg3);
             var scene = new LayeredScene(memory, new RenderLayer[] { layer }, 15);
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
             var pixels = DisplayRendering.Render(scene);
             // Independent scalar expectations, not just parity between two implementations.
-            Rgba32 MathPixel(bool exempt)
+            RgbaPixel MathPixel(bool exempt)
             {
                 if (exempt) return new(255, 0, 0, 255);
                 byte Channel(int main, int operand)
@@ -89,12 +90,12 @@ internal static class XrayGameplayTests
                     var additive = new GameplayColorMathRenderLayer(new(registers with
                     {
                         MainScreenLayers = ScreenLayers.Bg1 | ScreenLayers.Sprites,
-                    }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, subscreenUsesBg2: true);
+                    }, bodyRooms), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
                     var bodyColors = cgram.Colors.ToArray();
-                    if (blackBody) bodyColors[2] = Bgr555.Black;
+                    if (blackBody) bodyColors[2] = RgbColor.Black;
                     var addScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
                     var addPixels = DisplayRendering.Render(addScene);
-                    var yellow = new Rgba32(255, blackBody ? (byte)0 : (byte)165, 0);
+                    var yellow = new RgbaPixel(255, blackBody ? (byte)0 : (byte)165, 0);
                     Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
                     Check(addPixels[64 * 256 + 16], palette < 4 ? new(255, 0, 0) : yellow, "BG2 subscreen OBJ palette eligibility");
                     Check(addPixels[0], pixels[0], "BG2 subscreen preserves HUD");
@@ -108,7 +109,7 @@ internal static class XrayGameplayTests
                 // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = new Bgr555(18, 18, 18) });
+                var dark = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithSubscreen = false, FixedColor = new RgbColor(18, 18, 18) });
                 var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new RenderLayer[] { dark }, 15);
                 var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
@@ -124,7 +125,7 @@ internal static class XrayGameplayTests
         {
             var bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
-            var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+            var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
@@ -142,7 +143,7 @@ internal static class XrayGameplayTests
             var bg3 = new FxPlaneBlendRenderLayer(gameplay.Rooms.ShownBg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), bg3Rows, 32,
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
-            var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithSubscreen = bg2Subscreen || frame % 3 != 0, FixedColor = new Bgr555((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, bg2Subscreen ? null : bg3, bg2Subscreen);
+            var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithSubscreen = bg2Subscreen || frame % 3 != 0, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, bg2Subscreen ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, obsel);
             var scene = new LayeredScene(memory, new RenderLayer[] { layer }, (byte)(frame % 16));
@@ -155,7 +156,7 @@ internal static class XrayGameplayTests
         {
             var bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
-            var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+            var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             ushort Fine() => (ushort)random.Next(16);
             var registers = new OrdinaryGameplayView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
                 new Position16<Bg2Pixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
@@ -163,7 +164,7 @@ internal static class XrayGameplayTests
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.Bg1Scroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new OrdinaryGameplayRenderLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
-            var layer = new GameplayColorMathRenderLayer(gameplay, lines, true, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithSubscreen = false, FixedColor = new Bgr555((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, null);
+            var layer = new GameplayColorMathRenderLayer(gameplay, lines, true, new SceneBlend { Layers = (ColorBlend)random.Next(256), BlendsWithSubscreen = false, FixedColor = new RgbColor((byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32)) }, null);
             var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
             var scene = new LayeredScene(memory, new RenderLayer[] { layer }, 15);
             var packet = new DisplayPacket(new(++count, 1, 0), scene);
@@ -172,7 +173,7 @@ internal static class XrayGameplayTests
         }
         Console.WriteLine($"{device.Kind}: {count} source-aware X-ray cases pass BG masking, OBJ palette exemptions, subscreen fallback, arithmetic, and priority/scroll/flip patterns.");
 
-        static void Check(Rgba32 actual, Rgba32 expected, string context)
+        static void Check(RgbaPixel actual, RgbaPixel expected, string context)
         {
             if (actual != expected) throw new InvalidOperationException($"{context}: expected {expected}, got {actual}.");
         }

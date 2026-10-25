@@ -91,9 +91,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // one. The high byte is the steady-state number of frames between direction changes.
             int speedRecord = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
             int speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
-            SnesSignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedOffset);
+            SignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedOffset);
             state.DownVelocity = down;
-            SnesSignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(
+            SignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(
                 checked((ushort)(speedOffset + EnemyLinearSpeedDefinitions.RecordSize / 2)));
             state.UpVelocity = up;
             state.MovementTimer = ReadFirstHalfCycle(speedRecord);
@@ -316,12 +316,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two native angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
-        SnesByteAngle transformedAngle = EnemyMath.CalculateBearing(
+        ByteAngle transformedAngle = EnemyMath.CalculateBearing(
             new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole)))).ToTableAngle();
-        SnesSignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(
+        SignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);
-        SnesSignedSixteenSixteen y = EnemyMath.ReadEightBitNegativeSineFixedProduct(
+        SignedSixteenSixteen y = EnemyMath.ReadEightBitNegativeSineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);
         state.ProjectileVelocity = new FixedVector<RoomPixels>(

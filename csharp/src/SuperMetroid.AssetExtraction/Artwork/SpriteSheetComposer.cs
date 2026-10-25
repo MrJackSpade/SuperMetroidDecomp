@@ -30,7 +30,7 @@ internal static class SpriteSheetComposer
     {
         Ensure.NotNull(sources);
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
-        ReadOnlySpan<Bgr555> spriteColours = sources.SpriteColours;
+        ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
         // Each distinct part, alone at its frame's origin, coloured as its frame colours it.
         var partNames = new Dictionary<PartKey, string>();
@@ -155,10 +155,10 @@ internal static class SpriteSheetComposer
     /// <summary>The sheet's pixel planes, painted one frame at a time.</summary>
     /// <param name="size">The sheet's size.</param>
     /// <param name="spriteColours">The eight sprite palette rows the frames are coloured with.</param>
-    private sealed class Canvas(Extent16<ImagePixels> size, Bgr555[] spriteColours)
+    private sealed class Canvas(Extent16<ImagePixels> size, RgbColor[] spriteColours)
     {
         /// <summary>Each pixel's colour.</summary>
-        internal Rgba32[] Pixels { get; } = new Rgba32[size.X * size.Y];
+        internal RgbaPixel[] Pixels { get; } = new RgbaPixel[size.X * size.Y];
 
         /// <summary>Each pixel's palette row times sixteen plus its colour.</summary>
         internal byte[] PaletteIndices { get; } = new byte[size.X * size.Y];
@@ -194,7 +194,7 @@ internal static class SpriteSheetComposer
                         if (colour == 0)
                             continue;
                         int at = (corner.Y + part.Offset.Y - bound.TopLeft.Y + row) * size.X + corner.X + part.Offset.X - bound.TopLeft.X + column;
-                        Pixels[at] = spriteColours[paletteRow * RowColours + colour].ToRgba32();
+                        Pixels[at] = spriteColours[paletteRow * RowColours + colour].ToRgbaPixel();
                         PaletteIndices[at] = (byte)(paletteRow * RowColours + colour);
                         // Parts are laid back to front, so each pixel ends with the priority of the part in front.
                         Priorities[at] = (byte)(part.Priority ?? priority);

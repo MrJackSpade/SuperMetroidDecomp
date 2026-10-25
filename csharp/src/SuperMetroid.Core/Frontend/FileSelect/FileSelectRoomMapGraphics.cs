@@ -130,7 +130,7 @@ public sealed class FileSelectRoomMapGraphics
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);
-            layers.Add(new ObjRenderLayer());
+            layers.Add(new SpriteRenderLayer());
         }
         else
         {

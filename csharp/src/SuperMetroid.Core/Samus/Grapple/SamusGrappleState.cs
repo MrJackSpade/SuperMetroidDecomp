@@ -66,9 +66,9 @@ public sealed class SamusGrappleState
     /// <summary>Gets or sets the endpoint's signed 16.16 offset from the rope origin.</summary>
     public FixedVector<RoomPixels> EndpointOffset { get; set; }
     /// <summary>Gets or sets the native grapple angle.</summary>
-    public SnesAngle Angle { get; set; }
+    public RotationAngle Angle { get; set; }
     /// <summary>Gets or sets the angle mirrored for the connected-swing calculations.</summary>
-    public SnesAngle MirroredAngle { get; set; }
+    public RotationAngle MirroredAngle { get; set; }
     /// <summary>
     /// Gets or sets the signed angular velocity, -32768 through 32767: the swing clamps every update's sum to that range
     /// before storing it, and the bounce halves it.

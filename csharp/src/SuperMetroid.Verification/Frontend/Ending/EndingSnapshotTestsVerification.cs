@@ -37,12 +37,12 @@ internal static class EndingSnapshotTestsVerification
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
-            Bgr555[]? explosionBackgroundSource = null;
+            RgbColor[]? explosionBackgroundSource = null;
             int finaleDisplayFrames = 0;
             int burstDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;
             DisplayPacket? previousPacket = null;
-            Rgba32[]? previousPixels = null;
+            RgbaPixel[]? previousPixels = null;
             for (int tick = 0; tick < 60000; tick++)
             {
                 legacy.Step(); captured.Step();
@@ -60,7 +60,7 @@ internal static class EndingSnapshotTestsVerification
                     for (int i = 0; i < 16; i++)
                     {
                         int remaining = 32 - elapsed / 2;
-                        Bgr555 expectedColor = (explosionBackgroundSource ?? throw new InvalidOperationException("Verification requires explosionBackgroundSource."))[i].Map((_, channel) => channel * remaining / 32);
+                        RgbColor expectedColor = (explosionBackgroundSource ?? throw new InvalidOperationException("Verification requires explosionBackgroundSource."))[i].Map((_, channel) => channel * remaining / 32);
                         AssertEqual(expectedColor, explosion.Paint.Colors[112 + i], "native explosion BG palette fades out on the same cadence");
                     }
 
@@ -74,7 +74,7 @@ internal static class EndingSnapshotTestsVerification
                             | (((source >> 10 & 31) * step / 32) << 10));
                         AssertEqual(expectedColor, explosion.Paint.Colors[i], "native explosion OBJ palette fades in over both fade-in and crossfade phases");
                     }
-                    AssertTrue(explosion.LayersOf<ObjRenderLayer>().Single().AddToScreen,
+                    AssertTrue(explosion.LayersOf<SpriteRenderLayer>().Single().AddToScreen,
                         "explosion transition adds OBJ subscreen to BG1 and backdrop");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
@@ -117,7 +117,7 @@ internal static class EndingSnapshotTestsVerification
                         "native explosion finale selects both background maps in main-screen priority order");
                     AssertTrue(backgrounds.All(bg => ShowsCharacters(bg.Cells, legacy.LayerTiles(EndingTileLayer.Explosion, BgBitDepth.FourBpp))),
                         "explosion finale uses Mode1 character base, not stale Mode7 decoding");
-                    AssertTrue(!finale.Layers.Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),
+                    AssertTrue(!finale.Layers.Any(layer => layer is SpriteRenderLayer or SpritePriorityRenderLayer),
                         "F2FA moves OBJ exclusively to the subscreen");
                     if (hours == 2 && finaleDisplayFrames == 10)
                     {
@@ -131,7 +131,7 @@ internal static class EndingSnapshotTestsVerification
                         - phaseEntryFrames[EndingCreditsPhase.PostCreditsReward],
                         "gesture starts after two 64-frame reveals and the 180-frame copyright hold");
                     var gestureFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    AssertTrue(gestureFrame.Layers.All(layer => layer is ObjRenderLayer),
+                    AssertTrue(gestureFrame.Layers.All(layer => layer is SpriteRenderLayer),
                         "E342 gesture renders OBJ without the stale waiting or copyright backgrounds");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
@@ -156,7 +156,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(mismatches.Length == 0,
                         "live reward preserves native actor positions, sizes, tile indices and palettes on every jump frame" +
                         string.Concat(mismatches.Select(index => $" [part {index}: live {(index < liveParts.Length ? liveParts[index].Part.ToString() : "missing")}, native {jumpParts[index].Part}]")));
-                    AssertTrue(jumpFrame.Layers.All(layer => layer is ObjRenderLayer),
+                    AssertTrue(jumpFrame.Layers.All(layer => layer is SpriteRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShot)
@@ -185,7 +185,7 @@ internal static class EndingSnapshotTestsVerification
                         "final text uses native upper screen" + TilemapDifference(legacy.ShownVram(), textPlane.Cells, 0x4c00));
                     AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
-                        AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
+                        AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)), "post-shot flash begins fully white");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                     AssertEqual(32, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash], "native white flash lasts 32 calls");
@@ -195,8 +195,8 @@ internal static class EndingSnapshotTestsVerification
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];
                     var shotFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    var mode = shotFrame.LayersOf<Mode7RenderLayer>().Single();
-                    AssertTrue(mode.SubtractObjSubscreen, "live shot enables native BG1 minus OBJ blending");
+                    var mode = shotFrame.LayersOf<FloorRenderLayer>().Single();
+                    AssertTrue(mode.SubtractSpriteSubscreen, "live shot enables native BG1 minus OBJ blending");
                     AssertEqual((short)104, mode.Transform.Center.X, "post-shot matrix horizontal origin");
                     AssertEqual((short)112, mode.Transform.Center.Y, "post-shot matrix vertical origin");
                     AssertEqual((short)-4, mode.Transform.Scroll.X, "post-shot horizontal scroll");
@@ -234,7 +234,7 @@ internal static class EndingSnapshotTestsVerification
                     && tick - revealStart == 64)
                 {
                     var copyright = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
-                    AssertTrue(!copyright.Layers.Any(layer => layer is ObjRenderLayer),
+                    AssertTrue(!copyright.Layers.Any(layer => layer is SpriteRenderLayer),
                         "native E293 hides reward actors during copyright panel");
                     AssertTrue(ShowsTilemap(legacy.ShownVram(), copyright.LayersOf<TileRenderLayer>().Single().Cells, 0x4800),
                         "native E293 selects copyright BG1 after first 64 reveal frames");
@@ -245,7 +245,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
                     AssertEqual(0x7fff, flash.Paint.Colors[0], "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
-                        AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)),
+                        AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsReward)
@@ -271,9 +271,9 @@ internal static class EndingSnapshotTestsVerification
                     if (expectedWhite > 0)
                     {
                         AssertEqual((byte)expectedWhite, fixedColors[0].Red, "native flyaway holds 192 calls then fades every eight");
-                        AssertTrue(flight.LayersOf<ObjPriorityRenderLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
-                        AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is ObjPriorityRenderLayer { Priority: 0 }
-                            && flight.Layers[2] is Mode7RenderLayer,
+                        AssertTrue(flight.LayersOf<SpritePriorityRenderLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
+                        AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is SpritePriorityRenderLayer { Priority: 0 }
+                            && flight.Layers[2] is FloorRenderLayer,
                             "fixed backdrop is composed before unaffected Mode7 BG1");
                     }
 
@@ -324,7 +324,7 @@ internal static class EndingSnapshotTestsVerification
                         "reward branch uses native contiguous OBJ characters");
                 }
                 DisplayPacket? packet = null;
-                Rgba32[]? expected = null;
+                RgbaPixel[]? expected = null;
                 if (sample)
                 {
                     // IntroDiscoverySprite.Draw only writes OAM; it does not advance
@@ -355,7 +355,7 @@ internal static class EndingSnapshotTestsVerification
             AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
-            Rgba32[] final = legacy.Render();
+            RgbaPixel[] final = legacy.Render();
             LayeredScene retained = EndingCreditsPresentation.CaptureRenderSnapshot(captured);
             for (int i = 0; i < 600; i++) captured.Step();
 

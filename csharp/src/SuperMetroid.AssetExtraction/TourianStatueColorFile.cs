@@ -28,7 +28,7 @@ public static class TourianStatueColorFile
         if (document.Version != TourianStatueColorFormat.Version ||
             document.Eye is null || document.Eye.Length != TourianStatueColorDefinitions.EyeRowCount)
             throw new InvalidDataException("Tourian statue colors require four eye rows at the supported version.");
-        var eye = new Bgr555[document.Eye.Length][];
+        var eye = new RgbColor[document.Eye.Length][];
         for (int row = 0; row < eye.Length; row++)
             eye[row] = Compile(document.Eye[row], TourianStatueColorDefinitions.EyeColorCount,
                 $"eye row {row}");
@@ -44,18 +44,18 @@ public static class TourianStatueColorFile
         JsonAssetDocument.WriteValidated(document, Options, json => _ = Read(json));
 
     /// <summary>Checks a band's required length and five-bit channels before converting to hardware color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string label)
+    private static RgbColor[] Compile(PaletteRgb5[]? colors, int count, string label)
     {
         if (colors is null || colors.Length != count)
             throw new InvalidDataException($"Tourian statue {label} requires {count} colors.");
-        var compiled = new Bgr555[count];
+        var compiled = new RgbColor[count];
         for (int color = 0; color < compiled.Length; color++)
         {
             PaletteRgb5? rgb = colors[color];
             if (rgb is null || (uint)rgb.Red > 31 ||
                 (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                 throw new InvalidDataException($"Tourian statue {label} color {color} requires RGB5 channels.");
-            compiled[color] = rgb.ToBgr555();
+            compiled[color] = rgb.ToRgbColor();
         }
         return compiled;
     }

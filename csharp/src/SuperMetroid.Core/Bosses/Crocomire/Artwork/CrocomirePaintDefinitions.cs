@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
@@ -42,13 +44,13 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B8C1-B8C9: repeated neutral masonry paint.</summary>
     private const int WallNeutral = 24;
     /// <summary>$A4:B8CB-B8D3: independently chosen masonry face, recess and edge paints.</summary>
-    private static readonly Bgr555 WallFace = Bgr555.FromWord(0x4a7b), WallRecess = Bgr555.FromWord(0x1c90), WallEdge = Bgr555.FromWord(0x1469), WallDeepEdge = Bgr555.FromWord(0x1424);
+    private static readonly RgbColor WallFace = RgbColor.FromWord(0x4a7b), WallRecess = RgbColor.FromWord(0x1c90), WallEdge = RgbColor.FromWord(0x1469), WallDeepEdge = RgbColor.FromWord(0x1424);
     /// <summary>$A4:B8D3: selected red-only deepest masonry mark.</summary>
     private const int WallRedMark = 8;
     /// <summary>$A4:B8D5-B8D9: masonry shares hide red/green contour shading but selects violet-blue tint levels.</summary>
     private const int WallTintLight = 9, WallTintDeep = 7;
     /// <summary>$A4:B8DB: independent darkest wall paint, including its selected red-channel endpoint.</summary>
-    private static readonly Bgr555 WallDark = Bgr555.FromWord(0x1045);
+    private static readonly RgbColor WallDark = RgbColor.FromWord(0x1045);
     /// <summary>$A4:B8DF: full-blue projectile glint with equal selected red and green.</summary>
     private const int ProjectileGlint = 26;
     /// <summary>$A4:B8E1-B8E5: yellow/orange projectile core endpoints; red uses floor gamma-two interpolation and green floor linear interpolation. Blue is absent.</summary>
@@ -67,12 +69,12 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B925-B92B: four cool steel shades interpolate downward with floor rounding and a shared blue excess.</summary>
     private const int SteelLight = 19, SteelDark = 3, SteelBlueTint = 3;
     /// <summary>$A4:B92D/B92F/B937: three additional copied spike-palette accent paints; no visible-role claim is made for this fragment fixture.</summary>
-    private static readonly Bgr555 SpikeAccent = Bgr555.FromWord(0x0bb1), SpikeWarmAccent = Bgr555.FromWord(0x48fb), SpikeCoolAccent = Bgr555.FromWord(0x44e5);
+    private static readonly RgbColor SpikeAccent = RgbColor.FromWord(0x0bb1), SpikeWarmAccent = RgbColor.FromWord(0x48fb), SpikeCoolAccent = RgbColor.FromWord(0x44e5);
 
     /// <summary>Builds the eight-word combat body field from red hide shades, bone highlight, and neutral endpoints.</summary>
-    internal static Bgr555 FightBody(int ink) => ink switch
+    internal static RgbColor FightBody(int ink) => ink switch
     {
-        0 => Bgr555.Black,
+        0 => RgbColor.Black,
         1 => White,
         2 => Rgb(31, HideHighlightGreen, HideHighlightBlue),
         >= 3 and <= 6 => HideShade(ink - 3),
@@ -81,7 +83,7 @@ internal static class CrocomirePaintDefinitions
     };
 
     /// <summary>Combines bone, masonry, hide, and violet-tinted edge inks in the initial wall palette.</summary>
-    internal static Bgr555 InitialWall(int ink) => ink switch
+    internal static RgbColor InitialWall(int ink) => ink switch
     {
         0 or 16 => Transparent,
         1 => BoneShade(0),
@@ -94,7 +96,7 @@ internal static class CrocomirePaintDefinitions
     };
 
     /// <summary>Builds projectile glint, flame, violet, green, and neutral ramps for Crocomire's initial palette.</summary>
-    internal static Bgr555 InitialProjectile(int ink) => ink switch
+    internal static RgbColor InitialProjectile(int ink) => ink switch
     {
         0 or 16 => Transparent,
         1 => Rgb(ProjectileGlint, ProjectileGlint, 31),
@@ -112,7 +114,7 @@ internal static class CrocomirePaintDefinitions
     };
 
     /// <summary>Combines repeated bone shades with the original body palette's copied gold accents.</summary>
-    internal static Bgr555 SkeletonArm(int ink) => ink switch
+    internal static RgbColor SkeletonArm(int ink) => ink switch
     {
         0 => Transparent, 1 => White, 2 or 7 => BoneHighlight,
         >= 3 and <= 6 => BoneShade(ink - 3),
@@ -122,56 +124,56 @@ internal static class CrocomirePaintDefinitions
         12 => Rgb(31, BoneGoldLightGreen, 0),
         13 => Rgb((31 + BoneGoldDarkRed) / 2, BoneGoldMiddleGreen, 0),
         14 => Rgb(BoneGoldDarkRed, BoneGoldDarkGreen, 0),
-        15 => Bgr555.Black,
+        15 => RgbColor.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
     /// <summary>Builds gold mounts, cool steel, and copied accent inks for the wall spikes.</summary>
-    internal static Bgr555 WallSpikes(int ink) => ink switch
+    internal static RgbColor WallSpikes(int ink) => ink switch
     {
         0 => Transparent,
         >= 1 and <= 3 => GoldShade(ink - 1),
         >= 4 and <= 7 => SteelShade(ink - 4),
         8 => SpikeAccent, 9 => SpikeWarmAccent, 13 => SpikeCoolAccent,
         10 or 12 or 14 => White,
-        11 or 15 => Bgr555.Black,
+        11 or 15 => RgbColor.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
     /// <summary>Red hide contours darken by selected red levels while green and blue follow shared rules.</summary>
-    private static Bgr555 HideShade(int shade)
+    private static RgbColor HideShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => HideMiddleRed, 2 => HideDeepRed, _ => HideOutlineRed };
         int green = HideGreenPeak - shade;
         return Rgb(red, green, Math.Min(HideBlueCap, (green + 1) / 2));
     }
     /// <summary>Interpolates bone red, applies a clipped warm green tint, and selects each facet's blue.</summary>
-    private static Bgr555 BoneShade(int shade)
+    private static RgbColor BoneShade(int shade)
     {
         int red = Nearest(BoneLightRed, BoneDarkRed, shade, 3);
         int blue = shade switch { 0 => BoneBlueLight, 1 => BoneBlueMiddle, 2 => BoneBlueDeep, _ => BoneBlueDark };
         return Rgb(red, Math.Max(BoneGreenFloor, red - BoneGreenTint), blue);
     }
     /// <summary>Interpolates the projectile rim's red while keeping blue two levels brighter.</summary>
-    private static Bgr555 VioletShade(int shade)
+    private static RgbColor VioletShade(int shade)
     {
         int red = Nearest(31 - VioletBlueTint, VioletDarkRed, shade, 2);
         return Rgb(red, 0, red + VioletBlueTint);
     }
     /// <summary>Uses a gamma-two middle green and scales the projectile blue channel from green.</summary>
-    private static Bgr555 GreenShade(int shade)
+    private static RgbColor GreenShade(int shade)
     {
         int green = shade switch { 0 => 31, 1 => FloorGammaMidpoint(31, GreenDark), _ => GreenDark };
         return Rgb(0, green, green * GreenBluePeak / 31);
     }
     /// <summary>Interpolates a three-step neutral projectile ramp with equal RGB channels.</summary>
-    private static Bgr555 NeutralShade(int shade)
+    private static RgbColor NeutralShade(int shade)
     {
         int value = Nearest(ProjectileNeutralLight, ProjectileNeutralDark, shade, 2);
         return Rgb(value, value, value);
     }
     /// <summary>Chooses the spike mount's red and derives green between its selected endpoints.</summary>
-    private static Bgr555 GoldShade(int shade)
+    private static RgbColor GoldShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => SpikeGoldMiddleRed, _ => SpikeGoldDarkRed };
         int green = SpikeGoldDarkGreen + (red - SpikeGoldDarkRed) *
@@ -179,7 +181,7 @@ internal static class CrocomirePaintDefinitions
         return Rgb(red, green, 0);
     }
     /// <summary>Interpolates cool steel intensity while maintaining a three-level blue excess.</summary>
-    private static Bgr555 SteelShade(int shade)
+    private static RgbColor SteelShade(int shade)
     {
         int level = (SteelLight * (3 - shade) + SteelDark * shade) / 3;
         return Rgb(level, level, level + SteelBlueTint);
@@ -191,11 +193,11 @@ internal static class CrocomirePaintDefinitions
     private static int FloorGammaMidpoint(int from, int to) =>
         (int)Math.Floor((from + to + 2 * Math.Sqrt(from * to)) / 4);
     /// <summary>Constructs a hardware BGR555 word from its separate five-bit paint channels.</summary>
-    private static Bgr555 Rgb(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static RgbColor Rgb(int red, int green, int blue) => new RgbColor(red, green, blue);
     /// <summary>Transparent OBJ ink zero retains the cartridge's unused blue metadata channel.</summary>
-    private static Bgr555 Transparent => Rgb(0, 0, TransparentBlue);
+    private static RgbColor Transparent => Rgb(0, 0, TransparentBlue);
     /// <summary>Full-intensity neutral paint reused by the body, skeleton, and spike palettes.</summary>
-    private static Bgr555 White => Rgb(31, 31, 31);
+    private static RgbColor White => Rgb(31, 31, 31);
     /// <summary>Lightest selected bone red, green, and blue shared by body and skeleton palettes.</summary>
-    private static Bgr555 BoneHighlight => Rgb(BoneLightRed, BoneLightGreen, BoneLightBlue);
+    private static RgbColor BoneHighlight => Rgb(BoneLightRed, BoneLightGreen, BoneLightBlue);
 }

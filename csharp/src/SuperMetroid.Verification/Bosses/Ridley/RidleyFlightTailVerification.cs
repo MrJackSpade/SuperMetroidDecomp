@@ -31,23 +31,23 @@ internal static class RidleyFlightTailVerification
         var state = new RidleyEnemyState { SwoopSpeedMagnitude = 0x500 };
         update(state, 0, 0, 0x500);
         AssertEqual((ushort)0x500, state.Velocity.Y.RawValue, "native downward swoop uses full speed");
-        state.SwoopAngleAccumulator = SnesAngle.FromTableIndex(120);
+        state.SwoopAngleAccumulator = RotationAngle.FromTableIndex(120);
         update(state, 0, short.MinValue, 0x500);
-        AssertEqual(SnesAngle.FromTableIndex(120), state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
+        AssertEqual(RotationAngle.FromTableIndex(120), state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
         // A rightward step from just short of a full turn wraps the heading past zero; the half-turn target's
         // sign-of-difference test then keeps the wrapped heading instead of snapping to the target.
-        state.SwoopAngleAccumulator = SnesAngle.FromTableIndex(254);
-        update(state, SnesAngle.FromTableIndex(4).RawValue, short.MinValue, 0x500);
-        AssertEqual(SnesAngle.FromTableIndex(2), state.SwoopAngleAccumulator, "swoop heading wraps past a full turn");
+        state.SwoopAngleAccumulator = RotationAngle.FromTableIndex(254);
+        update(state, RotationAngle.FromTableIndex(4).RawValue, short.MinValue, 0x500);
+        AssertEqual(RotationAngle.FromTableIndex(2), state.SwoopAngleAccumulator, "swoop heading wraps past a full turn");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int phase = 0; phase < 256; phase++)
         {
-            state.SwoopAngleAccumulator = SnesAngle.FromTableIndex((byte)phase);
-            update(state, 0, SnesEightEight.FromWhole(phase), 0x500);
+            state.SwoopAngleAccumulator = RotationAngle.FromTableIndex((byte)phase);
+            update(state, 0, EightEight.FromWhole(phase), 0x500);
             ushort NativeComponent(int angle)
             {
                 short sample = ReadRetailSwoopSine(rom, angle);
-                return unchecked((ushort)(Math.Sign(sample) * (SnesEightEight.Multiply(0x500, Math.Abs((int)sample)))));
+                return unchecked((ushort)(Math.Sign(sample) * (EightEight.Multiply(0x500, Math.Abs((int)sample)))));
             }
             AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");
             AssertEqual(NativeComponent(phase + 64), state.Velocity.Y.RawValue, "native swoop Y table multiplication");
@@ -77,7 +77,7 @@ internal static class RidleyFlightTailVerification
         // previous $F8-angle Mode 7 products (-1,+1), not the new angle's (0,2).
         AssertEqual((ushort)159, state.TailSegments[0].Position.X, "pointed root retains pre-stop native hip X");
         AssertEqual((ushort)145, state.TailSegments[0].Position.Y, "pointed root retains pre-stop native hip Y");
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(0));
         tail(slot, state, null);
         AssertEqual(RidleyTailFunction.StabSetup, state.TailFunctionIndex, "descending normal pogo starts stab setup");
         tail(slot, state, null);
@@ -87,7 +87,7 @@ internal static class RidleyFlightTailVerification
         run(slot, state, null, 0, null);
         AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");
-        Action<RidleyEnemyState, SamusState?, byte> aim = (state, samus, angle) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, new SnesByteAngle(angle));
+        Action<RidleyEnemyState, SamusState?, byte> aim = (state, samus, angle) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, new ByteAngle(angle));
         state.FightMode = RidleyFightMode.Fighting;
         state.FacingDirection = RidleyFacing.Left;
         state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);
@@ -123,7 +123,7 @@ internal static class RidleyFlightTailVerification
         state.MovementMinimum = state.MovementMinimum.WithX(64);
         state.MovementMaximum = state.MovementMaximum.WithX(192);
         slot.Position = slot.Position.WithWholeX(128);
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x100));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(0x100));
         seed = 0x1000;
         direction(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
         AssertEqual(unchecked((ushort)-0x100), state.Velocity.X.RawValue, "pogo bounce turns toward Samus for ordinary seed");

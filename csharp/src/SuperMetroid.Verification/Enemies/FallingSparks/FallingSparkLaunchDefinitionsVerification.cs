@@ -31,7 +31,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual(whole, compiled.WholeWord, "Every RNG word preserves native spark whole velocity");
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");
             projectile.Clear();
-            projectile.Velocity = new(new SnesSignedEightEight(0xffff), new SnesSignedEightEight(0xffff));
+            projectile.Velocity = new(new SignedEightEight(0xffff), new SignedEightEight(0xffff));
             source.Position = new(new((ushort)raw, (ushort)raw), new((ushort)(ushort.MaxValue - raw), (ushort)(ushort.MaxValue - raw)));
             advances = 0;
             spawn(source);
@@ -45,9 +45,9 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
             AssertEqual(whole, projectile.Variable1, "Actual spark whole launch field");
             AssertEqual(fraction, projectile.Variable0, "Actual spark fractional launch field");
-            uint expected = unchecked((new SnesFixedPosition(source.Position.X.Whole, source.Position.X.Fraction).RawValue) + (SnesSixteenSixteen.FromWhole((uint)whole) | fraction));
+            uint expected = unchecked((new FixedCoordinate(source.Position.X.Whole, source.Position.X.Fraction).RawValue) + (SixteenSixteen.FromWhole((uint)whole) | fraction));
             move(projectile);
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
         foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;

@@ -14,9 +14,9 @@ public sealed class EnemyPaletteSheet
     /// <summary>Sixteen RGB5 colors in a complete four-bit OBJ palette, including its color-zero entry.</summary>
     public const int ColorCount = 16;
     /// <summary>Owned RGB5 palette entries in OBJ color-index order.</summary>
-    private readonly Bgr555[] colors;
+    private readonly RgbColor[] colors;
     /// <summary>Retains the validated sixteen-color array after JSON decoding.</summary>
-    internal EnemyPaletteSheet(Bgr555[] colors) => this.colors = colors;
+    internal EnemyPaletteSheet(RgbColor[] colors) => this.colors = colors;
 
     /// <summary>Copies all sixteen selected colors, including color zero, into consecutive current CGRAM entries; the room graphics-set owner selects the destination and controls palette animation.</summary>
     /// <param name="destination">The sixteen-colour OBJ palette row the room graphics-set record selects.</param>

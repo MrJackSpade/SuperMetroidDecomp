@@ -34,8 +34,8 @@ public static class NorfairRidleyColorFile
             document.Reveal.Length != NorfairRidleyPaletteDefinitions.RevealRowCount)
             throw new InvalidDataException("Norfair Ridley colors require the initial palette and all reveal rows.");
 
-        Bgr555[] initial = Compile(document.Initial, "initial");
-        var reveal = new Bgr555[document.Reveal.Length][];
+        RgbColor[] initial = Compile(document.Initial, "initial");
+        var reveal = new RgbColor[document.Reveal.Length][];
         for (int row = 0; row < reveal.Length; row++)
         {
             if (document.Reveal[row] is null ||
@@ -53,16 +53,16 @@ public static class NorfairRidleyColorFile
         JsonAssetDocument.WriteValidated(document, Options, json => _ = Read(json));
 
     /// <summary>Validates each RGB5 channel and packs one authored row into SNES color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[] colors, string label)
+    private static RgbColor[] Compile(PaletteRgb5[] colors, string label)
     {
-        var words = new Bgr555[colors.Length];
+        var words = new RgbColor[colors.Length];
         for (int color = 0; color < words.Length; color++)
         {
             PaletteRgb5? rgb = colors[color];
             if (rgb is null || (uint)rgb.Red > 31 ||
                 (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                 throw new InvalidDataException($"Norfair Ridley {label} color {color} requires RGB5 channels.");
-            words[color] = rgb.ToBgr555();
+            words[color] = rgb.ToRgbColor();
         }
         return words;
     }

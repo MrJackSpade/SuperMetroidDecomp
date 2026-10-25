@@ -50,7 +50,7 @@ internal static class SamusGroundedPoseTransitions
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         uint combinedSpeed = unchecked(speed.BaseFixed +
             speed.ExtraRunSpeed.RawValue);
-        speed.BaseSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
+        speed.BaseSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
         speed.ExtraRunSpeed = default;
         speed.AccelerationMode = SamusAccelerationMode.Turning;
     }
@@ -579,7 +579,7 @@ internal static class SamusGroundedPoseTransitions
         // preserve exactly that pair of operations, including overflow at the high word.
         uint combinedSpeed = unchecked(speed.BaseFixed +
             speed.ExtraRunSpeed.RawValue);
-        speed.BaseSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
+        speed.BaseSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
 
         // The native handler consumes the extra component and selects acceleration mode
         // one. $90:8EA9 interprets that mode as “move opposite the NEW facing direction”

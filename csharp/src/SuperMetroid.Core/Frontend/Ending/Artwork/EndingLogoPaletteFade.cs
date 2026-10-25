@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -17,14 +18,14 @@ internal sealed class EndingLogoPaletteFade
     /// the original $99:E089 tiles and final OAM compositions. These selected hues are
     /// retained artwork; numerical cases would merely recite the drawing's palette.
     /// Temporal samples are calculated separately, not covered by this disposition.</summary>
-    private readonly Bgr555[] spriteEndpoint;
+    private readonly RgbColor[] spriteEndpoint;
     /// <summary>Supplied BG colors when they do not match the calculated background gradient.</summary>
-    private readonly Bgr555[]? backgroundEndpoint;
+    private readonly RgbColor[]? backgroundEndpoint;
     /// <summary>Calculated BG endpoint when the supplied colors follow the stock gradient.</summary>
     private readonly EndingLogoBackgroundPalette? backgroundGradient;
 
     /// <summary>Separates the supplied OBJ endpoint from the BG gradient or independent BG endpoint.</summary>
-    private EndingLogoPaletteFade(ReadOnlySpan<Bgr555> endpoints)
+    private EndingLogoPaletteFade(ReadOnlySpan<RgbColor> endpoints)
     {
         backgroundGradient = EndingLogoBackgroundPalette.TryCreate(endpoints[..16]);
         if (backgroundGradient is null) backgroundEndpoint = endpoints[..16].ToArray();
@@ -36,29 +37,29 @@ internal sealed class EndingLogoPaletteFade
     /// caller-owned palette content. Neither path substitutes stock colors for edits.</summary>
     internal static EndingLogoPaletteFade? TryCreate(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != ColorCount * Bgr555.ByteCount) return null;
-        Span<Bgr555> endpoints = stackalloc Bgr555[32];
+        if (bytes.Length != ColorCount * RgbColor.ByteCount) return null;
+        Span<RgbColor> endpoints = stackalloc RgbColor[32];
         for (int color = 0; color < 16; color++)
         {
-            endpoints[color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice((15 * 32 + color) * 2)));
-            endpoints[16 + color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice((16 + color) * 2)));
+            endpoints[color] = RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice((15 * 32 + color) * 2)));
+            endpoints[16 + color] = RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice((16 + color) * 2)));
         }
         var fade = new EndingLogoPaletteFade(endpoints);
         for (int index = 0; index < ColorCount; index++)
-            if (fade.Color(index) != Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * 2))))
+            if (fade.Color(index) != RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * 2))))
                 return null;
         return fade;
     }
 
     /// <summary>Flattened [step0..15][BG,OBJ][color0..15]. BG gains brightness while
     /// OBJ loses brightness. Each channel is evaluated directly; no sample cache exists.</summary>
-    internal Bgr555 Color(int index)
+    internal RgbColor Color(int index)
     {
         if ((uint)index >= ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
         int step = index / 32;
         int palette = index / 16 % 2;
         int color = index % 16;
-        Bgr555 endpoint = palette == 1 ? spriteEndpoint[color] :
+        RgbColor endpoint = palette == 1 ? spriteEndpoint[color] :
             backgroundGradient is not null ? backgroundGradient.Color(color)
             : backgroundEndpoint is not null ? backgroundEndpoint[color]
             : throw new InvalidOperationException("The ending logo fade has neither a background gradient nor endpoint colors.");
@@ -66,6 +67,6 @@ internal sealed class EndingLogoPaletteFade
         int red = ((endpoint.Red) * remaining + 1) / 15;
         int green = ((endpoint.Green) * remaining + 1) / 15;
         int blue = ((endpoint.Blue) * remaining + 1) / 15;
-        return new Bgr555(red, green, blue);
+        return new RgbColor(red, green, blue);
     }
 }

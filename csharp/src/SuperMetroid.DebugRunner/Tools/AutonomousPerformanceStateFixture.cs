@@ -27,7 +27,7 @@ internal static class AutonomousPerformanceStateFixture
             var packet = result.Snapshot;
             for (int warm = 0; warm < 10; warm++) DisplayRendering.Render(packet);
             long start = Stopwatch.GetTimestamp();
-            Rgba32[] pixels = [];
+            RgbaPixel[] pixels = [];
             for (int sample = 0; sample < 100; sample++) pixels = DisplayRendering.Render(packet);
             Console.WriteLine($"Frame {frame}: {result.Frame.GameState}, room {data.Game.GameplayActiveRoomIdentity}, render={Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
             if (packet.Layers is { } layers)

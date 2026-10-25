@@ -30,7 +30,7 @@ public static class TitlePaletteFile
                 $"{ScreenPalette.ColorCount} RGB5 colors.");
         }
 
-        var colors = new Bgr555[ScreenPalette.ColorCount];
+        var colors = new RgbColor[ScreenPalette.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -40,9 +40,9 @@ public static class TitlePaletteFile
                 throw new InvalidDataException(
                     $"Title palette color {index} requires RGB components from 0 to 31.");
             }
-            colors[index] = color.ToBgr555();
+            colors[index] = color.ToRgbColor();
         }
-        var animatedColors = new Dictionary<PaletteFxColorKey, Bgr555>();
+        var animatedColors = new Dictionary<PaletteFxColorKey, RgbColor>();
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
@@ -85,7 +85,7 @@ public static class TitlePaletteFile
 
                     animatedColors.Add(
                         definition.Color(frame, index),
-                        color.ToBgr555());
+                        color.ToRgbColor());
                 }
             }
         }
@@ -96,12 +96,12 @@ public static class TitlePaletteFile
     }
 
     /// <summary>Validates one skip-only RGB5 color before packing its CGRAM word.</summary>
-    private static Bgr555 PackColor(PaletteRgb5? color, string name)
+    private static RgbColor PackColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
             (uint)color.Blue > 31)
             throw new InvalidDataException($"Title {name} requires RGB components from 0 to 31.");
-        return color.ToBgr555();
+        return color.ToRgbColor();
     }
 
     /// <summary>Serializes and validates the complete title palette document before writing any UTF-8 JSON bytes.</summary>

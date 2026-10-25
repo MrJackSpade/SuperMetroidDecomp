@@ -58,8 +58,8 @@ internal static class BossDisplayBindingsStockVerification
                     AssertTrue(original.Parts.SequenceEqual(imported.Parts), frame.Name + " exact native sprite records");
                     parts += original.Parts.Length;
                     expectedOam.AddEnemySpritemap(original.Parts,
-                        new Position16<OamPixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))), 0, 0,
-                        clipVerticalWrap: true, originYIsOnScreen: (SnesEightEight.WholeOf(fixture.Actor.Position.Y.Whole + original.Offset.Y)) == 0);
+                        new Position16<SpritePixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))), 0, 0,
+                        clipVerticalWrap: true, originYIsOnScreen: (EightEight.WholeOf(fixture.Actor.Position.Y.Whole + original.Offset.Y)) == 0);
                 }
                 ReadOnlyMemory<EnemyBg2TilemapWrite> writes = StockBossWrites(installed, frame);
                 AssertEqual(native.Bg2.Length, writes.Length, frame.Name + " exact BG2 run count");

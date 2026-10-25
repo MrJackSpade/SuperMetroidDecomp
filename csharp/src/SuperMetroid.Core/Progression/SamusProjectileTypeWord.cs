@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>A lossless view over one native projectile type/family word.</summary>
-[SnesEncodingOwner]
+[EncodingOwner("projectile type word")]
 public readonly record struct SamusProjectileTypeWord(ushort Raw)
 {
     /// <summary>Beam equipment combination carried by the projectile's four low bits.</summary>

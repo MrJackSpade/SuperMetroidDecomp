@@ -26,7 +26,7 @@ internal static class PhantoonWaveMathVerification
             int magnitude = Math.Abs((int)sample);
             int low = unchecked((byte)magnitude), high = SnesLittleEndian.HighByte(unchecked((ushort)magnitude));
             int amplitudeLow = SnesLittleEndian.LowByte(amplitude), amplitudeHigh = SnesLittleEndian.HighByte(amplitude);
-            ushort temp16 = (ushort)((SnesEightEight.Multiply(low, amplitudeLow)) + high * amplitudeLow);
+            ushort temp16 = (ushort)((EightEight.Multiply(low, amplitudeLow)) + high * amplitudeLow);
             ushort temp18 = (ushort)(low * amplitudeHigh);
             temp16 = unchecked((ushort)(temp16 + temp18));
             int result = SnesLittleEndian.HighByte(unchecked((ushort)(temp16 + SnesLittleEndian.Word(0, unchecked((byte)(high * amplitudeHigh))))));

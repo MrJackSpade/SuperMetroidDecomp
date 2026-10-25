@@ -121,7 +121,7 @@ internal static class EnemyDefinitionsVerification
                 .Select(wordIndex => ReadVerificationWord(rom, address + wordIndex * 2))
                 .ToArray();
             // The native record's instruction list is unused: the piece runs its typed program (#641).
-            var native = new RoomEnemyPopulationRecord(EnemyDefinitionIds.FromHeaderPointer(words[0]), new(words[1], words[2]), 0, EnemyPropertyWord.FromNativeWord(words[4]), EnemyExtraPropertyWord.FromNativeWord(words[5]), words[6], words[7]);
+            var native = new RoomEnemyPopulationRecord(EnemyDefinitionIds.FromHeaderPointer(words[0]), new(words[1], words[2]), 0, EnemyPropertyWord.FromWord(words[4]), EnemyExtraPropertyWord.FromWord(words[5]), words[6], words[7]);
             AssertEqual(native, MotherBrainFallingTubePopulationDefinitions.Get(piece),
                 $"Mother Brain falling-tube record {piece} matches the native placement words");
 

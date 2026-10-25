@@ -14,28 +14,28 @@ public sealed class BackgroundColours
     public const int Inks = ScreenPalette.ColorCount;
 
     /// <summary>The colour each ink shows.</summary>
-    private readonly Bgr555[] colours;
+    private readonly RgbColor[] colours;
 
     /// <summary>Copies the colour each ink shows.</summary>
     /// <param name="colours">The colour of each of the <see cref="Inks"/> inks; ink zero is the backdrop.</param>
     /// <exception cref="ArgumentException">There is not one colour per ink.</exception>
-    public BackgroundColours(ReadOnlySpan<Bgr555> colours)
+    public BackgroundColours(ReadOnlySpan<RgbColor> colours)
     {
         Ensure.LengthEqual(colours, Inks);
         this.colours = colours.ToArray();
     }
 
     /// <summary>Every ink's colour, for the resolution of sprite draws no owner coloured and the software rasterizer.</summary>
-    internal ReadOnlySpan<Bgr555> AllColours => colours;
+    internal ReadOnlySpan<RgbColor> AllColours => colours;
 
     /// <summary>The colour shown where nothing is drawn.</summary>
-    public Bgr555 Backdrop => colours[0];
+    public RgbColor Backdrop => colours[0];
 
     /// <summary>These colours with the backdrop shown in <paramref name="backdrop"/>.</summary>
-    public BackgroundColours WithBackdrop(Bgr555 backdrop) => With(0, backdrop);
+    public BackgroundColours WithBackdrop(RgbColor backdrop) => With(0, backdrop);
 
     /// <summary>These colours with ink <paramref name="ink"/> shown in <paramref name="colour"/>.</summary>
-    public BackgroundColours With(int ink, Bgr555 colour)
+    public BackgroundColours With(int ink, RgbColor colour)
     {
         var shown = new BackgroundColours(colours);
         shown.colours[Ensure.BetweenInclusive(0, Inks - 1, ink)] = colour;
@@ -61,6 +61,6 @@ public sealed class BackgroundColours
     }
 
     /// <summary>The colour <paramref name="sheet"/>'s ink <paramref name="ink"/> shows.</summary>
-    public Bgr555 Colour(SpriteImage sheet, int ink) =>
+    public RgbColor Colour(SpriteImage sheet, int ink) =>
         colours[Ensure.NotNull(sheet).FirstColour + Ensure.BetweenInclusive(0, sheet.StandardColours.Length - 1, ink)];
 }

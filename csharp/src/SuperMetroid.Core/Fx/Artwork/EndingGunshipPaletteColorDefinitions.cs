@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -21,25 +22,25 @@ internal static class EndingGunshipPaletteColorDefinitions
     /// <summary>Defaults are calculated only after explicit supplied edits have been
     /// checked. Endpoint resolution has one bounded level: white/dim depend at most on
     /// the supplied bright row. No generated palette row is stored.</summary>
-    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if (!ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame == 15 || (frame == 7 && color == 15))
             return false;
         if (frame == 0)
         {
-            value = color == 0 ? Bgr555.Black : Bgr555.FromWord(0x7fff);
+            value = color == 0 ? RgbColor.Black : RgbColor.FromWord(0x7fff);
             return true;
         }
         if (frame is 7 or 8)
         {
-            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxColorDefinitions.Color(15, color), out Bgr555 bright))
+            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxColorDefinitions.Color(15, color), out RgbColor bright))
                 return false;
             value = Pack((bright.Red) * 2 / 7, (bright.Green) * 2 / 7, (bright.Blue) * 2 / 7);
             return true;
         }
         int first = frame < 8 ? 0 : 8, last = frame < 8 ? 7 : 15;
-        if (!Endpoint(first, color, colors, out Bgr555 a) || !Endpoint(last, color, colors, out Bgr555 b)) return false;
+        if (!Endpoint(first, color, colors, out RgbColor a) || !Endpoint(last, color, colors, out RgbColor b)) return false;
         int t = frame - first, bias = frame < 8 ? 0 : 3;
         value = Pack(((a.Red) * (7 - t) + (b.Red) * t + bias) / 7,
             ((a.Green) * (7 - t) + (b.Green) * t + bias) / 7,
@@ -48,11 +49,11 @@ internal static class EndingGunshipPaletteColorDefinitions
     }
 
     /// <summary>Uses an explicit edited endpoint when present, otherwise calculates the frame's shared color rule.</summary>
-    private static bool Endpoint(int frame, int color, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+    private static bool Endpoint(int frame, int color, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         PaletteFxColorKey key = ZebesExplosionGunshipPaletteFxColorDefinitions.Color(frame, color);
         return colors.TryGetValue(key, out value) || TryCalculatedColor(key, colors, out value);
     }
     /// <summary>Forms one RGB5 value from independently interpolated gunship color channels.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

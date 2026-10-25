@@ -24,11 +24,11 @@ internal static class ShaktoolOwnedStateVerification
         foreach ((bool reversed, int expectedBucket) in new[] { new VerifyShaktoolOwnedStateCase(false, 0x80), new VerifyShaktoolOwnedStateCase(true, 0x00) })
         {
             centerState.MotionFlags = 0;
-            centerState.OrbitAngle = SnesAngle.FromRaw(0xff80);
+            centerState.OrbitAngle = RotationAngle.FromRaw(0xff80);
             centerState.AngularVelocity = 0x0100;
             centerState.ResetOrientation();
             centerState.OrientationReversed = reversed;
-            states[4].OrbitAngle = SnesAngle.FromRaw(0x8080);
+            states[4].OrbitAngle = RotationAngle.FromRaw(0x8080);
             enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter(center, centerState);
             AssertEqual((ushort)0x0080, centerState.OrbitAngle.RawValue, "the centre's orbit wraps through zero");
             AssertEqual(expectedBucket, centerState.OrientationBucket, $"reversed={reversed} selects the expected heading bucket");
@@ -50,7 +50,7 @@ internal static class ShaktoolOwnedStateVerification
         }
 
         tail.Clear();
-        AssertEqual(new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(SnesAngle.Zero, SnesAngle.Zero, 0, 0), new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(states[6].TargetAngle, states[6].OrbitAngle, states[6].AngularVelocity, states[6].OwnerSlotIndex),
+        AssertEqual(new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(RotationAngle.Zero, RotationAngle.Zero, 0, 0), new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(states[6].TargetAngle, states[6].OrbitAngle, states[6].AngularVelocity, states[6].OwnerSlotIndex),
             "a kill empties the segment's angles, rate and owner");
         AssertEqual(null, states[6].PreInstruction, "a kill empties the segment's motion");
         Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal and the cleared record match.");

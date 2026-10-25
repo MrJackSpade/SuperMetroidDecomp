@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -72,7 +73,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         {
             PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour,
         };
-        cgram.SetColor(BotwoonHealthPaletteDefinitions.FirstColour - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(BotwoonHealthPaletteDefinitions.FirstColour - 1, RgbColor.FromWord(0x1234));
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         {
             ushort threshold = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),

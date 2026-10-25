@@ -69,7 +69,7 @@ public static class SamusAerialMovement
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             return;
 
-        samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(
+        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(
             samus.Kinematics.YSpeed.Whole + (samus.HorizontalSpeed.ExtraRunSpeed.Whole >> 1))), unchecked((ushort)(
             samus.Kinematics.YSpeed.Fraction + samus.HorizontalSpeed.ExtraRunSpeed.Fraction)));
     }
@@ -639,14 +639,14 @@ public static class SamusAerialMovement
             // clamped; preserving that oddity matters for externally scripted velocities.
             if (state.YSpeed.Whole != 5)
             {
-                SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed + SnesSixteenSixteen.Compose(
+                SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed + SixteenSixteen.Compose(
                     state.YAcceleration.Whole,
                     state.YAcceleration.Fraction)));
             }
         }
         else
         {
-            SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed - SnesSixteenSixteen.Compose(
+            SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed - SixteenSixteen.Compose(
                 state.YAcceleration.Whole,
                 state.YAcceleration.Fraction)));
         }
@@ -749,7 +749,7 @@ public static class SamusAerialMovement
 
         // The accepted whole travel is a signed word, so its magnitude is at most 32768 and the
         // distance holds the exact value the native unsigned word would.
-        int distance = Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement));
+        int distance = Math.Abs(SixteenSixteen.WholeOf(probe.AcceptedDisplacement));
         int firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? 27
             : 11;
@@ -798,7 +798,7 @@ public static class SamusAerialMovement
         // The 65816 reads a deliberately unaligned word beginning at `$0B2D`: the high
         // byte of Y subspeed followed by the low byte of whole Y speed. In host terms that
         // is the magnitude converted from 16.16 to 8.8 without rounding.
-        int fallingVelocity8_8 = unchecked((ushort)SnesEightEight.FromSixteenSixteen(
+        int fallingVelocity8_8 = unchecked((ushort)EightEight.FromSixteenSixteen(
             samus.Kinematics.YSpeed.Whole, samus.Kinematics.YSpeed.Fraction));
         // `$0AD2` is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
@@ -840,7 +840,7 @@ public static class SamusAerialMovement
     /// <summary>Splits a 16.16 vertical magnitude back into Samus's independent native words.</summary>
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
     {
-        state.YSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed))), unchecked((ushort)speed));
+        state.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(speed))), unchecked((ushort)speed));
     }
 
 }

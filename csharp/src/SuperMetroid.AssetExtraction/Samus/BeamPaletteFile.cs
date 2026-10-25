@@ -35,19 +35,19 @@ public static class BeamPaletteFile
         if (document.Version != BeamPaletteDefinitions.Version || document.Palettes is null ||
             document.Palettes.Count != BeamTileAtlasDefinitions.SelectionCount)
             throw new InvalidDataException("Beam palettes require version 1 and all twelve selections.");
-        var compiled = new Bgr555[BeamTileAtlasDefinitions.SelectionCount][];
+        var compiled = new RgbColor[BeamTileAtlasDefinitions.SelectionCount][];
         for (int selection = 0; selection < compiled.Length; selection++)
         {
             if (!document.Palettes.TryGetValue(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
-            compiled[selection] = new Bgr555[colors.Length];
+            compiled[selection] = new RgbColor[colors.Length];
             for (int i = 0; i < colors.Length; i++)
             {
                 var color = colors[i];
                 if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
                     throw new InvalidDataException("Beam colors require RGB components from zero through 31.");
-                compiled[selection][i] = color.ToBgr555();
+                compiled[selection][i] = color.ToRgbColor();
             }
         }
         return new(compiled);

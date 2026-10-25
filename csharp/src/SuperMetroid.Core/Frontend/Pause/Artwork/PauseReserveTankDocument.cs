@@ -12,7 +12,7 @@ public sealed record PauseReserveTankDocument
     public required int Palette { get; init; }
 
     /// <summary>Gets the six screen-pixel anchors for five tank positions and the trailing cap.</summary>
-    public required Position16<OamPixels>[] Anchors { get; init; }
+    public required Position16<SpritePixels>[] Anchors { get; init; }
 
     /// <summary>Gets the ten named full, end-cap, empty, and partial-fill sprite compositions.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }

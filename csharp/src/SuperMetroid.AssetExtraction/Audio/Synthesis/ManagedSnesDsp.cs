@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -408,12 +409,12 @@ public sealed class ManagedSnesDsp
                     voice.Gain = SnesDspRegisterLayout.EnvelopeMaximum;
                 break;
             case EnvelopeState.Decay:
-                voice.Gain = unchecked((ushort)(voice.Gain - (SnesEightEight.WholeOf(voice.Gain - 1) + 1)));
+                voice.Gain = unchecked((ushort)(voice.Gain - (EightEight.WholeOf(voice.Gain - 1) + 1)));
                 if (voice.Gain < voice.SustainLevel)
                     voice.AdsrState = EnvelopeState.Sustain;
                 break;
             case EnvelopeState.Sustain:
-                voice.Gain = unchecked((ushort)(voice.Gain - (SnesEightEight.WholeOf(voice.Gain - 1) + 1)));
+                voice.Gain = unchecked((ushort)(voice.Gain - (EightEight.WholeOf(voice.Gain - 1) + 1)));
                 break;
             case EnvelopeState.Gain:
                 switch (voice.GainMode)
@@ -424,7 +425,7 @@ public sealed class ManagedSnesDsp
                             voice.Gain = 0;
                         break;
                     case 1:
-                        voice.Gain = unchecked((ushort)(voice.Gain - (SnesEightEight.WholeOf(voice.Gain - 1) + 1)));
+                        voice.Gain = unchecked((ushort)(voice.Gain - (EightEight.WholeOf(voice.Gain - 1) + 1)));
                         break;
                     case 2:
                         voice.Gain = unchecked((ushort)(voice.Gain + 32));

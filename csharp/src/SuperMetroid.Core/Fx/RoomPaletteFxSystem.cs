@@ -420,7 +420,7 @@ public sealed class RoomPaletteFxSystem
             }
             for (int index = 0; index < part.Count; index++)
             {
-                if (!colors.TryReadColor(new PaletteFxColorKey(frame, written), out Bgr555 color))
+                if (!colors.TryReadColor(new PaletteFxColorKey(frame, written), out RgbColor color))
                     throw new InvalidDataException($"Palette-FX colour {written} of record {frame.Record} of object {slot.Object} has no installed definition.");
                 if (colorIndex >= target.Count)
                 {

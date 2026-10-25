@@ -320,7 +320,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             bool slopeAdjusted = EnemyTerrain.AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
             HandleYardTurnTransitionDisabling(state, slopeAdjusted);
-            int tangent = SnesSixteenSixteen.FromEightEight(state.CrawlingVelocity.Y.SignedRawValue);
+            int tangent = SixteenSixteen.FromEightEight(state.CrawlingVelocity.Y.SignedRawValue);
             if (_terrain.MoveEnemyVertically(level, slot, tangent))
             {
                 state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
@@ -416,8 +416,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Horizontal velocity decays by 0.1000 toward zero. Native stores the low
                 // word unconditionally but declines to replace the high word when ADC makes
                 // it exactly zero; preserve that observable arithmetic quirk.
-                SnesSignedSixteenSixteen velocity = state.AirborneVelocity.X;
-                SnesSignedSixteenSixteen decelerated = velocity + SnesSignedSixteenSixteen.FromRaw(
+                SignedSixteenSixteen velocity = state.AirborneVelocity.X;
+                SignedSixteenSixteen decelerated = velocity + SignedSixteenSixteen.FromRaw(
                     velocity.WholePixels < 0 ? 4096 : -4096);
                 state.AirborneVelocity = state.AirborneVelocity.WithX(decelerated.WholePixels != 0
                     ? decelerated
@@ -440,8 +440,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Gravity always stores the fraction word but stores the whole word only below four.
-        SnesSignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
-        SnesSignedSixteenSixteen accelerated = fallingVelocity + SnesSignedSixteenSixteen.FromParts(0, 8192);
+        SignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
+        SignedSixteenSixteen accelerated = fallingVelocity + SignedSixteenSixteen.FromParts(0, 8192);
         state.AirborneVelocity = state.AirborneVelocity.WithY(unchecked((short)(accelerated.WholeWord - 4)) < 0
             ? accelerated
             : fallingVelocity.WithFraction(accelerated.Fraction));
@@ -540,8 +540,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
 
-        var horizontal = SnesSignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
-        SnesSignedSixteenSixteen kick = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
+        var horizontal = SignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
+        SignedSixteenSixteen kick = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
         if ((SamusPoseMetadata.ReadPoseXDirection(samus) & 4) != 0)
             horizontal = NegateWordsSeparately(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(
@@ -565,13 +565,13 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Negates the whole and fraction words independently, as Yard's collision handlers do.</summary>
-    private static SnesSignedSixteenSixteen NegateWordsSeparately(SnesSignedSixteenSixteen velocity) =>
-        SnesSignedSixteenSixteen.FromParts(
+    private static SignedSixteenSixteen NegateWordsSeparately(SignedSixteenSixteen velocity) =>
+        SignedSixteenSixteen.FromParts(
             unchecked((short)CrawlersBehavior.Negate16(velocity.WholeWord)),
             CrawlersBehavior.Negate16(velocity.Fraction));
 
     /// <summary>Negates one raw 8.8 crawl word, wrapping at sixteen bits.</summary>
-    private static SnesSignedEightEight NegateEightEight(SnesSignedEightEight velocity) =>
+    private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>
         new(CrawlersBehavior.Negate16(velocity.RawValue));
 
     /// <summary>Ports Yard's custom touch entry at $A3:D3B0.</summary>

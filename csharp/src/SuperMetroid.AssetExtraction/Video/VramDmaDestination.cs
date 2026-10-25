@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// This type is the codec of that word: <c>At(PpuLayoutCell, int, VramIncrement)</c> encodes it, and
 /// <see cref="Word"/> and <see cref="WordIncrement"/> are the only decoders, so the word it stores is the encoding.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("queued video transfer destination word")]
 [PpuLayoutBoundary("codec: queued VRAM DMA destination word")]
 public readonly record struct VramDmaDestination
 {

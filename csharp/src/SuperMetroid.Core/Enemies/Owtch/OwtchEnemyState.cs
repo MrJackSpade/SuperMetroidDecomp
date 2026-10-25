@@ -14,13 +14,13 @@ public sealed class OwtchEnemyState
     /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table; the
     /// record keeps its fraction in variable 0 and its whole pixels in variable 1.
     /// </summary>
-    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
+    public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
     /// The signed 16.16 leftward patrol speed in pixels per update, the negative half of the same linear-speed record;
     /// the record keeps its fraction in variable 2 and its whole pixels in variable 3.
     /// </summary>
-    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
+    public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
     /// <summary>The patrol state, which also indexes the state table.</summary>
     public OwtchBehaviorState Behavior { get; internal set; }
@@ -68,8 +68,8 @@ public sealed class OwtchEnemyState
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        RightVelocity = SnesSignedSixteenSixteen.Zero;
-        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+        RightVelocity = SignedSixteenSixteen.Zero;
+        LeftVelocity = SignedSixteenSixteen.Zero;
         Behavior = default;
         BurialDepth = 0;
     }

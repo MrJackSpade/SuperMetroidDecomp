@@ -178,7 +178,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
         projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Rising);
-        projectile.Velocity = new(new SnesSignedEightEight(checked((ushort)xVelocity)), new SnesSignedEightEight(checked((ushort)initialYSpeed)));
+        projectile.Velocity = new(new SignedEightEight(checked((ushort)xVelocity)), new SignedEightEight(checked((ushort)initialYSpeed)));
         projectile.Position = source.Position;
     }
 
@@ -206,13 +206,13 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>
     private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
             projectile.Velocity.Y.RawValue - PolypRockGravityStep))));
         if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
         {
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
             projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Falling);
             return;
         }
@@ -231,10 +231,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Clamps downward speed and integrates two positive quadratic samples per frame.</summary>
     private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
             projectile.Velocity.Y.RawValue + PolypRockGravityStep))));
         if (unchecked((short)(projectile.Velocity.Y.RawValue - PolypRockTerminalSpeedIndex)) >= 0)
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(PolypRockTerminalSpeedIndex));
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(PolypRockTerminalSpeedIndex));
 
         AddPolypRockQuadraticStep(
             projectile,

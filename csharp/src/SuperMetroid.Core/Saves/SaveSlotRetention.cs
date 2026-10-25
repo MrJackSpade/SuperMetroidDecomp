@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Saves;
 /// snapshot's fields as their saved words, so every value is checked as the save stores it and the explored map keeps
 /// only the bytes a stock map tile occupies.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("save slot words")]
 internal static class SaveSlotRetention
 {
     /// <summary>The slot <paramref name="snapshot"/> saves as in <paramref name="slot"/>.</summary>

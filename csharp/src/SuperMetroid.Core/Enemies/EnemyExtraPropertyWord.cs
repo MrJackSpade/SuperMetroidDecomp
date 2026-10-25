@@ -25,16 +25,16 @@ public readonly record struct EnemyExtraPropertyWord
 
     /// <summary>
     /// Every other bit, verbatim, 0 through 65535. Every producer supplies a word (the constructor rejects anything
-    /// else, and decoding masks the native word), only bitwise operations combine them, and the native word places them
+    /// else, and decoding masks the stored word), only bitwise operations combine them, and the stored word places them
     /// unchanged beside the flags.
     /// </summary>
     public int UntranslatedBits { get; }
 
-    /// <summary>A native word split into translated flags and untranslated bits.</summary>
-    public static EnemyExtraPropertyWord FromNativeWord(int word) => EnemyPropertyWordCodec.DecodeExtra(checked((ushort)word));
+    /// <summary>A stored word split into translated flags and untranslated bits.</summary>
+    public static EnemyExtraPropertyWord FromWord(int word) => EnemyPropertyWordCodec.DecodeExtra(checked((ushort)word));
 
-    /// <summary>The native word.</summary>
-    public ushort ToNativeWord() => EnemyPropertyWordCodec.Encode(this);
+    /// <summary>The stored word.</summary>
+    public ushort ToWord() => EnemyPropertyWordCodec.Encode(this);
 
     /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
     public bool HasAny(EnemyExtraProperties flags) => (Flags & flags) != EnemyExtraProperties.None;

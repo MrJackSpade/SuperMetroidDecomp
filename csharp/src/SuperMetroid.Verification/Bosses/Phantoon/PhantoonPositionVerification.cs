@@ -26,7 +26,7 @@ internal static class PhantoonPositionVerification
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
         capEnemies.PhantoonBehavior.Combat.Phantoon = capState;
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
-        capState.Parts[capTentacles.SlotIndex].SwoopVelocity = new(new SnesSignedEightEight(0xf800), new SnesSignedEightEight(0xfa00));
+        capState.Parts[capTentacles.SlotIndex].SwoopVelocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
         PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
         AssertEqual((ushort)0xf800, capState.Parts[capTentacles.SlotIndex].SwoopVelocity.X.RawValue, "Native NTSC negative swoop X cap");
         AssertEqual((ushort)0xfa00, capState.Parts[capTentacles.SlotIndex].SwoopVelocity.Y.RawValue, "Native NTSC negative swoop Y cap");

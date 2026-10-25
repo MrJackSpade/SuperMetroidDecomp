@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Crawlers;
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
@@ -16,15 +15,15 @@ internal static class CrawlerFallingGravityVerification
         for (int update = 1; update <= 8; update++)
         {
             state.ApplyFallingGravity();
-            AssertEqual(SnesSignedSixteenSixteen.FromRaw(update * SnesSixteenSixteen.FromWhole(1) / 2), state.FallingYVelocity,
+            AssertEqual(SignedSixteenSixteen.FromRaw(update * SixteenSixteen.FromWhole(1) / 2), state.FallingYVelocity,
                 $"gravity update {update} adds half a pixel");
         }
         state.ApplyFallingGravity();
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(4, 0), state.FallingYVelocity, "gravity stops at four whole pixels");
+        AssertEqual(SignedSixteenSixteen.FromParts(4, 0), state.FallingYVelocity, "gravity stops at four whole pixels");
 
-        state.FallingYVelocity = SnesSignedSixteenSixteen.FromParts(-2, 0);
+        state.FallingYVelocity = SignedSixteenSixteen.FromParts(-2, 0);
         state.ApplyFallingGravity();
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(-2, 0x8000), state.FallingYVelocity, "an upward velocity gains gravity");
+        AssertEqual(SignedSixteenSixteen.FromParts(-2, 0x8000), state.FallingYVelocity, "an upward velocity gains gravity");
         Console.WriteLine("Crawler falling gravity: half-pixel steps, the four-pixel cap and the signed comparison match.");
     }
 

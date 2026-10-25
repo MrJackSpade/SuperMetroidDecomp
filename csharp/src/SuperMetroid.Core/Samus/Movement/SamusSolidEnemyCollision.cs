@@ -51,7 +51,7 @@ public static class SamusSolidEnemyCollision
         // or CLC/ADC plus DEC/INC sequence in the ROM, whose BEQ reads the flags of the last
         // instruction that ran.
         Position16<RoomPixels> target = BuildRoundedTarget(
-            state, direction, SnesFixedPosition.Of(distance, distanceSubposition));
+            state, direction, FixedCoordinate.Of(distance, distanceSubposition));
 
         foreach (SolidEnemyCollisionBody enemy in interactiveEnemies)
         {
@@ -123,7 +123,7 @@ public static class SamusSolidEnemyCollision
     private static Position16<RoomPixels> BuildRoundedTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
-        SnesFixedPosition reach)
+        FixedCoordinate reach)
     {
         Position16<RoomPixels> target = state.Position.Whole;
         return direction switch
@@ -143,7 +143,7 @@ public static class SamusSolidEnemyCollision
     /// zero flag. The whole target is a room coordinate word: each decrement wraps at sixteen bits through the
     /// compatibility counter, so a target at zero continues from $FFFF exactly as the cartridge's DEC does.
     /// </summary>
-    private static int RoundNegative(SnesFixedPosition target, SnesFixedPosition reach)
+    private static int RoundNegative(FixedCoordinate target, FixedCoordinate reach)
     {
         int whole = unchecked((ushort)(target.Whole - reach.Whole));
 
@@ -172,7 +172,7 @@ public static class SamusSolidEnemyCollision
     /// zero flag. Each increment wraps the whole coordinate word at sixteen bits through the compatibility counter, so
     /// $FFFF continues at zero exactly as the cartridge's INC does.
     /// </summary>
-    private static int RoundPositive(SnesFixedPosition target, SnesFixedPosition reach)
+    private static int RoundPositive(FixedCoordinate target, FixedCoordinate reach)
     {
         int whole = unchecked((ushort)(target.Whole + reach.Whole));
 

@@ -16,12 +16,12 @@ internal static class EnemyLinearSpeedsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
     internal static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        Func<int, SnesSignedSixteenSixteen> shared = EnemyMath.ReadLinearEnemySpeed;
+        Func<int, SignedSixteenSixteen> shared = EnemyMath.ReadLinearEnemySpeed;
         // Every possible four-byte window, including odd offsets and windows
         // crossing record boundaries, matches independent cartridge bytes.
         for (int offset = 0; offset <= 516; offset++)
         {
-            var expected = SnesSignedSixteenSixteen.FromParts(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + offset))), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + offset)));
+            var expected = SignedSixteenSixteen.FromParts(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + offset))), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + offset)));
             AssertEqual(expected, shared((ushort)offset), "compiled linear native byte window");
             AssertEqual(expected, EnemyLinearSpeedDefinitions.Read(offset), "linear catalog window");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + offset)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa28187 + offset)), "Ripper bank mirror whole");

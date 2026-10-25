@@ -62,14 +62,14 @@ internal sealed class CeresRidleyGetaway
         state.GetawayActive = true;
         state.GetawayFinished = false;
         state.GetawayFrameIndex = 0;
-        state.FloorAngle = SnesAngle.FromRaw(1);
-        state.FloorOffset = new Offset16<Mode7Pixels>(-128, 32);
+        state.FloorAngle = RotationAngle.FromRaw(1);
+        state.FloorOffset = new Offset16<FloorPixels>(-128, 32);
         state.FloorZoom = 2048;
         state.FloorMatrixA = CeresRidleyBehavior.FloorUnitCoefficient;
         state.FloorMatrixB = CeresRidleyBehavior.FloorUnitCoefficient;
         state.FloorMatrixC = CeresRidleyBehavior.FloorUnitCoefficient;
         state.FloorMatrixD = CeresRidleyBehavior.FloorUnitCoefficient;
-        state.FloorCenter = new Position16<Mode7Pixels>(64, 64);
+        state.FloorCenter = new Position16<FloorPixels>(64, 64);
         state.GetawayBabyFrame = 0;
         state.GetawayWingFrame = 0;
     }
@@ -124,12 +124,12 @@ internal sealed class CeresRidleyGetaway
             // keep sampling Mode 7 VRAM for the self-destruct text scene.
             state.GetawayFinished = true;
             state.GetawayActive = false;
-            state.FloorOffset = Offset16<Mode7Pixels>.Zero;
+            state.FloorOffset = Offset16<FloorPixels>.Zero;
             state.FloorMatrixA = default;
             state.FloorMatrixB = default;
             state.FloorMatrixC = default;
             state.FloorMatrixD = default;
-            state.FloorCenter = Position16<Mode7Pixels>.Zero;
+            state.FloorCenter = Position16<FloorPixels>.Zero;
             // $A6:AB55 hands the same extended actor workspace to $A6:C04E. Samus's
             // special push/fall handler remains responsible for restoring normal input;
             // ending Mode 7 itself does not unlock her in the cartridge.
@@ -141,7 +141,7 @@ internal sealed class CeresRidleyGetaway
         state.FloorZoom = zoom;
         // The getaway frame's velocity is added to the vertical word and subtracted from the
         // horizontal word.
-        state.FloorOffset = new Offset16<Mode7Pixels>(
+        state.FloorOffset = new Offset16<FloorPixels>(
             unchecked((short)(state.FloorOffset.X - frame.Velocity.X)),
             unchecked((short)(state.FloorOffset.Y + frame.Velocity.Y)));
 
@@ -177,8 +177,8 @@ internal sealed class CeresRidleyGetaway
     /// Negates a signed 8.8 coefficient the way the getaway's two's-complement negate does: the most negative value,
     /// which has no positive counterpart, negates to itself.
     /// </summary>
-    internal static SnesSignedEightEight NegateFloorCoefficient(SnesSignedEightEight coefficient) =>
-        SnesSignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
+    internal static SignedEightEight NegateFloorCoefficient(SignedEightEight coefficient) =>
+        SignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
 
     /// <summary>
     /// The perspective floor's transform as the getaway last turned and moved it, before room shake, or null while the
@@ -188,15 +188,15 @@ internal sealed class CeresRidleyGetaway
     internal static AffineTransform? FloorTransform(RidleyEnemyState? ridley) => ridley is { GetawayActive: true } getaway
         ? new AffineTransform(getaway.FloorMatrixA.SignedRawValue, getaway.FloorMatrixB.SignedRawValue,
             getaway.FloorMatrixC.SignedRawValue, getaway.FloorMatrixD.SignedRawValue,
-            getaway.FloorCenter.AsSignedRegister(), getaway.FloorOffset)
+            getaway.FloorCenter.AsSignedWord(), getaway.FloorOffset)
         : null;
 
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
     private static void UpdateCeresRidleyFloorMatrix(RidleyEnemyState state)
     {
-        SnesByteAngle angle = state.FloorAngle.ToByteAngle();
-        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(SnesByteAngle.QuarterTurn.RawValue)));
-        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle));
+        ByteAngle angle = state.FloorAngle.ToByteAngle();
+        var diagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+        var offDiagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle));
         state.FloorMatrixA = diagonal;
         state.FloorMatrixB = offDiagonal;
         state.FloorMatrixC = NegateFloorCoefficient(offDiagonal);

@@ -20,8 +20,8 @@ allowlist. Each finding is fixed, or carries its own reviewed justification at i
 | SME6345 | A shift by a byte, word or bank width, or a byte/word/bank mask, in functional code (#223). |
 | SME6348 | A hand-written sign-bit test on a countdown-named primitive (#1324): `& 0x8000`, `& 0x80`, a comparison with `0x8000` or `0x80`, or `(short)t < 0`/`(sbyte)t >= 0` where the operand is one member or local whose name ends in a timer, counter, delay, cooldown, countdown, ticks or frames word (`FunctionTimer`, not `TargetCounterClockwiseAngle`). The constant must be the operand's own sign bit: `0x80` for a byte, `0x8000` for a word (a word compared with `0x80` is a threshold). Signed comparisons of differences, velocities and packed flags are not timer idioms. |
 | SME6349 | A wrapping self-decrement of narrow storage: `x = unchecked((ushort)(x - 1))`, its `byte` form, or `--`/`-= 1` on a `ushort` or `byte` field, property or element. |
-| SME6346 | A value of a `[Flags]` enum cast to an integral primitive in functional code: the flags leave their type before the encoding boundary. Codecs convert with the type's `ToNativeWord`; a catalog, `[SnesEncodingOwner]` type or reviewed allowance is exempt. |
-| SME6347 | A `byte`, `sbyte`, `short` or `ushort` (or nullable) instance field, property, parameter or local (written or inferred; `foreach`, `out` and pattern variables included) in Core: gameplay state held at a cartridge register width (#1419). Constants, statics and arrays are not counted. Only `[SnesEncodingOwner]` codecs and the wrapping stubs of the `SuperMetroid.Core.Compatibility` namespace may hold a narrow width; a catalog name or a same-line comment does not excuse one. See "Narrow storage". |
+| SME6346 | A value of a `[Flags]` enum cast to an integral primitive in functional code: the flags leave their type before the encoding boundary. Codecs convert with the type's `ToNativeWord`; a catalog, `[EncodingOwner]` type or reviewed allowance is exempt. |
+| SME6347 | A `byte`, `sbyte`, `short` or `ushort` (or nullable) instance field, property, parameter or local (written or inferred; `foreach`, `out` and pattern variables included) in Core: gameplay state held at a cartridge register width (#1419). Constants, statics and arrays are not counted. Only `[EncodingOwner]` codecs and the wrapping stubs of the `SuperMetroid.Core.Compatibility` namespace may hold a narrow width; a catalog name or a same-line comment does not excuse one. See "Narrow storage". |
 
 An intrinsic encoded value in functional code (an exact hardware mask, a hash, a wire-format constant) carries a
 reviewed same-line allowance naming its class and a reason:
@@ -31,7 +31,8 @@ int nibble = value & 0x0f; // cartridge-encoding: allow(Mask) - BCD digit extrac
 ```
 
 The `// magic-number-audit: allow(Category) - reason` marker is accepted as the same review. A type that owns and
-documents an encoding carries `[SnesEncodingOwner]`: its literals and width operations are definitions.
+documents an encoding carries `[EncodingOwner("format")]`, naming the file or stored form it owns (#1420): its
+literals and width operations are definitions.
 
 ## Narrow storage
 
@@ -41,7 +42,7 @@ what the value means, and the change records the decision at the site:
 | The value is | It becomes |
 | --- | --- |
 | A wrap or borrow the game observes (a timer decremented through zero, a counter that wraps, a low byte stepped beside independent state, health and ammo borrow, level-data allocation tails, over-read windows) | A named wrapping stub in `Core/Compatibility` (`WrappingCountdown`, `WrappingCounter`, `CountdownStep`, `LowByteCountdownStep`, `TickAccumulator`) or a new one whose summary states the gameplay behaviour the width produces, with a focused check that exercises the wrap. |
-| A width an encoding needs (a save word, a cartridge record byte, a packed tile or level word, a file-format field, a host pixel) | The encoding's single `[SnesEncodingOwner]` codec (`RoomLevelWord`, `PcmWaveFile`, `Rgba32`); gameplay holds the decoded domain value or the codec's value type. |
+| A width an encoding needs (a save word, a cartridge record byte, a packed tile or level word, a file-format field, a host pixel) | The encoding's single `[EncodingOwner]` codec (`RoomLevelWord`, `PcmWaveFile`, `RgbaPixel`); gameplay holds the decoded domain value or the codec's value type. |
 | Spatial | The branded spatial types (`docs/spatial-types.md`); a value passing through one axis is an `int`. |
 | An index or count | `int`, with `[IntegerQuantity]` where the analyzer needs it. |
 | A flag word | A typed `[Flags]` enum, converted at its codec. |
@@ -96,17 +97,17 @@ of the behavior stays explicit: `WrappingCounter` for counters, or a named opera
 
 ## Fixed-point values, angles and carries
 
-A whole value and its fraction are one quantity. Speeds and accelerations are `SnesSignedSixteenSixteen` or
-`SnesUnsignedSixteenSixteen`; a position with its subpixel is a `SnesFixedPosition`. Code never carries the two words
+A whole value and its fraction are one quantity. Speeds and accelerations are `SignedSixteenSixteen` or
+`UnsignedSixteenSixteen`; a position with its subpixel is a `FixedCoordinate`. Code never carries the two words
 side by side, in a tuple or as two parameters (SME6351).
 
-An angle's type states its convention (SME6352). `SnesAngle` is the 8.8 turn word whose high byte indexes the tables;
-`SnesByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `AddTableUnits` wrapping in one byte; and
-`SnesBearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTableAngle()`. Where a routine
+An angle's type states its convention (SME6352). `RotationAngle` is the 8.8 turn word whose high byte indexes the tables;
+`ByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `AddTableUnits` wrapping in one byte; and
+`Bearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTableAngle()`. Where a routine
 reads a bearing directly from the table, the conversion is written out at that call. Steps, deltas, masks and offsets
 in table units stay integers.
 
-Processor flags do not cross routine boundaries (SME6353). `SnesCarry.AddWithCarry`, `SubtractWithBorrow` and
+Processor flags do not cross routine boundaries (SME6353). `WordCarry.AddWithCarry`, `SubtractWithBorrow` and
 `AfterCompare` model the arithmetic where a carry is load-bearing, and a result names what the flag meant
 (`ReachedVerticalBoundary`, `GrappleBlockReaction`).
 

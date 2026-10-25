@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -13,11 +14,11 @@ public sealed class RoomStaticPalette
 
     /// <summary>Packs the room's selected background colours in the order the room load transfers them.</summary>
     /// <param name="colours">The selected background colours.</param>
-    internal static RoomStaticPalette FromColours(ReadOnlySpan<Bgr555> colours)
+    internal static RoomStaticPalette FromColours(ReadOnlySpan<RgbColor> colours)
     {
         var packed = new byte[RoomStaticPaletteFormat.ByteCount];
         for (int index = 0; index < colours.Length; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(packed.AsSpan(index * Bgr555.ByteCount), colours[index].ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(packed.AsSpan(index * RgbColor.ByteCount), colours[index].ToWord());
         return new RoomStaticPalette(packed);
     }
 

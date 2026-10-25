@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -109,7 +110,7 @@ internal static class MotherBrainRainbowPaletteExtractor
             {
                 ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
                     index * MotherBrainSourceDefinitions.Beam.ColorEntryBytes));
-                if (!Bgr555.IsColorWord(word))
+                if (!RgbColor.IsColorWord(word))
                     throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
                 colors[index] = ToColor(word);
             }

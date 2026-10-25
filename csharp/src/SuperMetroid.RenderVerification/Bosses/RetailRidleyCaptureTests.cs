@@ -35,16 +35,16 @@ internal static class RetailRidleyCaptureTests
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
             (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = true;
-            ridley.FloorMatrixA = new SnesSignedEightEight(scale); ridley.FloorMatrixD = new SnesSignedEightEight(scale);
-            ridley.FloorMatrixB = SnesSignedEightEight.FromSignedRaw(tilt);
-            ridley.FloorMatrixC = SnesSignedEightEight.FromSignedRaw(unchecked((short)-tilt));
-            ridley.FloorCenter = new Position16<Mode7Pixels>(128, 120);
-            ridley.FloorOffset = new Offset16<Mode7Pixels>(7, unchecked(scroll));
+            ridley.FloorMatrixA = new SignedEightEight(scale); ridley.FloorMatrixD = new SignedEightEight(scale);
+            ridley.FloorMatrixB = SignedEightEight.FromSignedRaw(tilt);
+            ridley.FloorMatrixC = SignedEightEight.FromSignedRaw(unchecked((short)-tilt));
+            ridley.FloorCenter = new Position16<FloorPixels>(128, 120);
+            ridley.FloorOffset = new Offset16<FloorPixels>(7, unchecked(scroll));
             // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-            if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||
+            if (scene.Layers[0] is not GameplayFloorRenderLayer { Floor: not null } mixed ||
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");
             var packet = new DisplayPacket(new(retained.Count + 1, 1, 0), scene);
@@ -54,7 +54,7 @@ internal static class RetailRidleyCaptureTests
         }
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = false;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new Bgr555(0, 0, 0));
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),
                 $"{device.Kind}: retained Ridley {sample.Packet.Identity.Sequence}");

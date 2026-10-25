@@ -51,7 +51,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!actor.IsActive || actor.Pose is not { } pose || pose == CinematicSpritePose.Blank)
                 continue;
 
-            installedArt.Draw(pose, objects, actor.Position.ToOam(), IntroCinematicDefinitions.Objects.ExplosionPalette.Raw);
+            installedArt.Draw(pose, objects, actor.Position.ToSpritePosition(), IntroCinematicDefinitions.Objects.ExplosionPalette.Raw);
         }
     }
 

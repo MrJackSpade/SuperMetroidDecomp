@@ -146,7 +146,7 @@ internal sealed class CrocomireSkeleton
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
         death.RumbleCooldown = WrappingCountdown.Start(80);
-        state.SkeletonVelocity = SnesSignedSixteenSixteen.Zero;
+        state.SkeletonVelocity = SignedSixteenSixteen.Zero;
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.CreateCrocomireInvisibleWall);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
@@ -280,13 +280,13 @@ internal sealed class CrocomireSkeleton
     /// skeleton's 16.16 speed and clamps its whole pixels at <paramref name="maximumWhole"/>, keeping the fraction.
     /// The speed starts at rest and only grows, so its whole pixels never leave the clamp's range.
     /// </summary>
-    private static SnesSignedSixteenSixteen AccelerateCrocomireSkeleton(
-        SnesSignedSixteenSixteen velocity,
+    private static SignedSixteenSixteen AccelerateCrocomireSkeleton(
+        SignedSixteenSixteen velocity,
         int accelerationEightEight,
         int maximumWhole)
     {
-        SnesSignedSixteenSixteen accelerated =
-            velocity + SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(accelerationEightEight));
+        SignedSixteenSixteen accelerated =
+            velocity + SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(accelerationEightEight));
         return accelerated.WholePixels >= maximumWhole
             ? accelerated.WithWholePixels(checked((short)maximumWhole))
             : accelerated;
@@ -329,7 +329,7 @@ internal sealed class CrocomireSkeleton
             }
 
             projectile.Position = projectile.Position.WithWhole(new(528, unchecked((ushort)(56 + yTableIndex * 16))));
-            projectile.Velocity = new(new SnesSignedEightEight(0), SnesSignedEightEight.FromSignedRaw(-5));
+            projectile.Velocity = new(new SignedEightEight(0), SignedEightEight.FromSignedRaw(-5));
             projectile.Variable0 = 0;
             projectile.Variable1 = 34816;
             projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);

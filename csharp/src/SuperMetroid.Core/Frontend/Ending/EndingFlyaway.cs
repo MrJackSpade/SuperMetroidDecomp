@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -39,20 +40,20 @@ internal sealed class EndingFlyaway
     internal int PlanetMotionIndex { get; set; }
 
     /// <summary>Planet-escape velocity: a signed 16.16 displacement that grows more negative every accelerating update.</summary>
-    internal SnesSignedSixteenSixteen PlanetVelocity { get; private set; }
+    internal SignedSixteenSixteen PlanetVelocity { get; private set; }
 
     /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored palette effects.</summary>
     internal void SetupPlanetEscape()
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
-        screen.Palette.Backdrop = Bgr555.Black;
-        screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Write(0, Bgr555.Black);
-        screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, Bgr555.Black);
+        screen.Palette.Backdrop = RgbColor.Black;
+        screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Write(0, RgbColor.Black);
+        screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, RgbColor.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialScale;
-        _stage.FloorAngle = SnesAngle.NormalizeTableIndex(-112);
+        _stage.FloorAngle = RotationAngle.NormalizeTableIndex(-112);
         _stage.PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
@@ -133,8 +134,8 @@ internal sealed class EndingFlyaway
     }
 
     /// <summary>Adds a signed 16.16 motion delta to a Mode-7 coordinate with native word wrapping.</summary>
-    private static SnesFixedPosition AddSignedFixed(SnesFixedPosition position, int delta) =>
-        SnesSignedSixteenSixteen
+    private static FixedCoordinate AddSignedFixed(FixedCoordinate position, int delta) =>
+        SignedSixteenSixteen
             .FromRaw(delta)
             .AddTo(position.Whole, position.Fraction);
 

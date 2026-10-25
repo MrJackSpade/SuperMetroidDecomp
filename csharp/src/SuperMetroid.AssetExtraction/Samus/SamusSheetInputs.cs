@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -59,7 +58,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     /// The sprite colours Samus is drawn with in the Power Suit with the power beam; the other suits and palette effects
     /// recolour her sheets through their palette maps.
     /// </summary>
-    internal Bgr555[] SuitedColours()
+    internal RgbColor[] SuitedColours()
     {
         ScreenPalette cgram = RoomLoadColours();
         SuitColors.Apply(cgram.SpriteRow(SamusColourDefinitions.SuitInkRow), PowerSuit);

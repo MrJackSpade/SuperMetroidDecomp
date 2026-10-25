@@ -37,7 +37,7 @@ public static class FileCopyArrowDefinitions
     /// <summary>Exposes the selected native OAM part order for the four file-copy arrow shapes.</summary>
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
     /// <summary>Builds one 16-pixel OBJ part in palette three, optionally flipping it vertically for an upward arrow.</summary>
-    private static CompiledSpritePart Part(Offset16<OamPixels> offset, int tile, SnesTileFlipFlags flip) => new(
+    private static CompiledSpritePart Part(Offset16<SpritePixels> offset, int tile, SnesTileFlipFlags flip) => new(
         SnesSpritemapXWord.Create(offset.X, false), SnesSpritemapYByte.Create(offset.Y),
         SnesObjAttributeWord.Create(tile, 1, 3, flip), true);
 

@@ -54,7 +54,7 @@ internal static class EndingContentIdentityVerification
         {
             var png = new MemoryStream();
             IndexedPng.Write(png, new(128, 128), Enumerable.Repeat((byte)seed, 128 * 128).ToArray(),
-                Enumerable.Range(0, 256).Select(i => new Rgba32((byte)i, 0, 0)).ToArray());
+                Enumerable.Range(0, 256).Select(i => new RgbaPixel((byte)i, 0, 0)).ToArray());
             png.Position = 0;
             return png;
         }
@@ -173,7 +173,7 @@ internal static class EndingContentIdentityVerification
             if (edit == name) pixels[^1] = 1;
             using var png = new MemoryStream();
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), pixels, Enumerable.Range(0, 16)
-                .Select(index => new Rgba32((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
+                .Select(index => new RgbaPixel((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
             return RoomCharacterAtlasPng.Read(png, bytes);
         }
@@ -254,7 +254,7 @@ internal static class EndingContentIdentityVerification
             if (edit == name + "-pixels") pixels[^1] = 1;
             var png = new MemoryStream();
             IndexedPng.Write(png, new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight),
-                pixels, Enumerable.Range(0, 256).Select(index => new Rgba32(
+                pixels, Enumerable.Range(0, 256).Select(index => new RgbaPixel(
                     (byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
             return png;

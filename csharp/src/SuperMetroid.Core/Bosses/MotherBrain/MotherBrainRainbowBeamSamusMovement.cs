@@ -27,7 +27,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// The low-byte beam angle stored by <c>$A9:BBA8-$BBAB</c>; zero points down and the
     /// positive direction is anti-clockwise, matching the shared bank-$86 trig routines.
     /// </summary>
-    public SnesAngle RainbowBeamAngle { get; set; }
+    public RotationAngle RainbowBeamAngle { get; set; }
 
     /// <summary>
     /// Ports <c>$A9:BBB5</c>: move right at <c>$10.00</c> pixels per call and, until the
@@ -39,13 +39,13 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         Ensure.NotNull(samus);
 
         FixedPosition<RoomPixels> before = Capture(samus);
-        bool reachedWall = MoveHorizontallyTowardWall(samus, SnesSignedEightEight.FromSignedRaw(4096));
+        bool reachedWall = MoveHorizontallyTowardWall(samus, SignedEightEight.FromSignedRaw(4096));
 
         if (!reachedWall)
         {
             // `$86:C272` adds $40 before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
-            MoveVerticallyTowardCeilingOrFloor(samus, new SnesSignedEightEight(CalculateYVelocity(speed: 4096, RainbowBeamAngle)));
+            MoveVerticallyTowardCeilingOrFloor(samus, new SignedEightEight(CalculateYVelocity(speed: 4096, RainbowBeamAngle)));
 
             // `$A9:BBCD` unconditionally clears carry after the vertical helper. The caller
             // can therefore observe only the wall result; keep the clamp witness separately
@@ -72,7 +72,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // semantics instead of introducing a host integer comparison with different wraps.
         int difference = unchecked((short)(124 - samus.Position.Y.Whole));
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
-            samus, SnesSignedEightEight.FromSignedRaw((short)(difference >= 0 ? 64 : -64)));
+            samus, SignedEightEight.FromSignedRaw((short)(difference >= 0 ? 64 : -64)));
 
         return CreateResult(
             before,
@@ -101,7 +101,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // Native ADC wraps to 16 bits and BMI examines the resulting sign bit. As soon as
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
         int acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 2));
-        CustomVelocity = CustomVelocity.WithX(SnesSignedEightEight.FromSignedRaw((short)Math.Min(acceleratedX, 0)));
+        CustomVelocity = CustomVelocity.WithX(SignedEightEight.FromSignedRaw((short)Math.Min(acceleratedX, 0)));
         MoveHorizontallyTowardWall(samus, CustomVelocity.X);
 
         CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
@@ -120,21 +120,21 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <param name="angle">The live beam angle.</param>
     internal static ushort CalculateYVelocity(
         int speed,
-        SnesAngle angle)
+        RotationAngle angle)
     {
         // `$86:C27A` multiplies unsigned speed by the magnitude, selects product bits 8..23,
         // then reapplies the table entry's sign with 16-bit two's-complement negation.
         return EnemyTrigonometryTables.MultiplySignedSine(
-            checked((ushort)speed), angle.AddRaw(SnesAngle.QuarterTurn.RawValue).ToByteAngle());
+            checked((ushort)speed), angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle());
     }
 
     /// <summary>Applies native 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=$30..$C0.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
-        SnesSignedEightEight velocity)
+        SignedEightEight velocity)
     {
-        SnesFixedPosition moved = AddVelocityToHighSubpixel(
-            new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction),
+        FixedCoordinate moved = AddVelocityToHighSubpixel(
+            new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction),
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.Fraction);
         // `$A9:BC06` stores the same fraction byte into SamusPreviousYSubPosition+1, and every
@@ -159,10 +159,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Applies native 8.8 X movement, mirrors previous-position words, and clamps at the right wall X=$EB.</summary>
-    private static bool MoveHorizontallyTowardWall(SamusState samus, SnesSignedEightEight velocity)
+    private static bool MoveHorizontallyTowardWall(SamusState samus, SignedEightEight velocity)
     {
-        SnesFixedPosition moved = AddVelocityToHighSubpixel(
-            new SnesFixedPosition(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction),
+        FixedCoordinate moved = AddVelocityToHighSubpixel(
+            new FixedCoordinate(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction),
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(moved.Fraction);
         // `$A9:BC48/$BC61/$BC6B/$BC71` mirror every store into the previous-X words.
@@ -183,7 +183,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Adds velocity to only the high subposition byte and carries into the whole pixel word, retaining the low byte.</summary>
-    private static SnesFixedPosition AddVelocityToHighSubpixel(SnesFixedPosition position, SnesSignedEightEight velocity) =>
+    private static FixedCoordinate AddVelocityToHighSubpixel(FixedCoordinate position, SignedEightEight velocity) =>
         // `$A9:BBFD/BC3F` add only to WRAM subposition byte +1; byte +0 is never read or written.
         position.AddEightEightToHighFraction(velocity.RawValue);
 

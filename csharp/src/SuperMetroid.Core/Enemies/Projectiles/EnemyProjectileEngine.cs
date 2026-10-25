@@ -483,9 +483,9 @@ internal sealed class EnemyProjectileEngine
         int position = axis == Axis.Horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
         int subposition = axis == Axis.Horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
         int velocity = axis == Axis.Horizontal ? projectile.Velocity.X.SignedRawValue : projectile.Velocity.Y.SignedRawValue;
-        int fixedPosition = unchecked((int)SnesSixteenSixteen.Compose(position, subposition));
-        fixedPosition = unchecked(fixedPosition + (SnesSixteenSixteen.FromEightEight(velocity)));
-        SnesFixedPosition next = SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition));
+        int fixedPosition = unchecked((int)SixteenSixteen.Compose(position, subposition));
+        fixedPosition = unchecked(fixedPosition + (SixteenSixteen.FromEightEight(velocity)));
+        FixedCoordinate next = FixedCoordinate.FromRaw(unchecked((uint)fixedPosition));
         int nextPosition = next.Whole;
 
         int movementRadius = axis == Axis.Horizontal ? projectile.Radius.X : projectile.Radius.Y;
@@ -851,7 +851,7 @@ internal sealed class EnemyProjectileEngine
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
         projectile.Position = projectile.Position.WithWhole(new(checked((ushort)xPosition), 42));
-        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(16));
+        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(16));
         projectile.Variable0 = 0;
         projectile.Variable1 = 0;
         projectile.StartAnimation(animation);
@@ -918,7 +918,7 @@ internal sealed class EnemyProjectileEngine
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
             graphicsIndex: 0);
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + definition.XOffset)), unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset))));
-        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Variable0 = parameter;
         projectile.StartAnimation(new GunshipDustAnimation(definition.Program));
     }
@@ -1018,7 +1018,7 @@ internal sealed class EnemyProjectileEngine
         table.AddPreInstruction(context =>
         {
             context.Projectile.Position = context.Projectile.Position.Advance(context.Projectile.Velocity.ToSixteenSixteen());
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 80))));
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 80))));
             if (unchecked((ushort)(context.Projectile.Position.X.Whole - context.Camera.X)) >= 256 ||
                 unchecked((ushort)(context.Projectile.Position.Y.Whole - context.Camera.Y)) >= 256)
             {
@@ -1032,7 +1032,7 @@ internal sealed class EnemyProjectileEngine
     {
         table.AddPreInstruction(context =>
         {
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 16))));
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 16))));
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;

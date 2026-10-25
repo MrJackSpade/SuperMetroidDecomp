@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// bank-$94 collision dispatcher. That makes the type useful at debugger boundaries while
 /// preserving unknown collision-nibble values exactly.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("room level data entry word")]
 public readonly record struct RoomLevelWord(ushort Raw)
 {
     /// <summary>Low ten bits selecting a room metatile definition.</summary>

@@ -26,7 +26,7 @@ internal static class WorkRobotVisualsVerification
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = WorkRobotVisualDefinitions.Bank, Pointer = pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-            installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, new Position16<SpritePixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"Work Robot pose $A8:{pointer:X4} installed OAM matches cartridge");

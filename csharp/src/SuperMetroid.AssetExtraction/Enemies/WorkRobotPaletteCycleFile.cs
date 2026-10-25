@@ -24,13 +24,13 @@ public static class WorkRobotPaletteCycleFile
             document.Frames.Length != WorkRobotPaletteTimingDefinitions.RecordCount)
             throw new InvalidDataException("Work Robot palette cycle requires six version-one frames.");
 
-        var compiled = new Bgr555[WorkRobotPaletteTimingDefinitions.RecordCount][];
+        var compiled = new RgbColor[WorkRobotPaletteTimingDefinitions.RecordCount][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
             if (source is null || source.Length != WorkRobotPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Work Robot palette frame {frame} requires four RGB5 colors.");
-            compiled[frame] = new Bgr555[source.Length];
+            compiled[frame] = new RgbColor[source.Length];
             for (int color = 0; color < source.Length; color++)
             {
                 PaletteRgb5? rgb = source[color];
@@ -38,7 +38,7 @@ public static class WorkRobotPaletteCycleFile
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException(
                         $"Work Robot palette frame {frame} color {color} requires RGB5 channels 0..31.");
-                compiled[frame][color] = rgb.ToBgr555();
+                compiled[frame][color] = rgb.ToRgbColor();
             }
         }
         return new WorkRobotPaletteCycle(compiled);

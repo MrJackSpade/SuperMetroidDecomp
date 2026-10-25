@@ -130,7 +130,7 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
     {
         // Palette previews use real BGR555 colors. Enlarging each one-pixel swatch to 8x8
         // makes all eight 16-color sub-palettes readable without modifying their order.
-        IReadOnlyList<Rgba32> colors = SnesGraphicsTooling.DecodeBgr555Palette(decoded);
+        IReadOnlyList<RgbaPixel> colors = SnesGraphicsTooling.DecodeRgbColorPalette(decoded);
         byte[] indexes = Enumerable.Range(0, colors.Count).Select(i => (byte)i).ToArray();
         int width = Math.Min(16, colors.Count);
         int height = (colors.Count + width - 1) / width;

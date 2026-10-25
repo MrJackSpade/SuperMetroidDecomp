@@ -36,7 +36,7 @@ public readonly record struct SharedRandomState
 
         // After PLA restores 16-bit A, ADC #$0011 consumes the carry left by the 8-bit
         // addition. That extra carry is the reason this is only *roughly* r*5+$0111.
-        int result = savedProduct + 17 + SnesCarry.OutOfByte(highByteSum);
+        int result = savedProduct + 17 + WordCarry.OutOfByte(highByteSum);
 
         // A 65C816 accumulator wraps at 16 bits.
         return new SharedRandomState(SnesLittleEndian.LowWord(result));

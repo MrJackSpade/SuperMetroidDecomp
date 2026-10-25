@@ -95,7 +95,7 @@ internal static class ProjectileTrailArtworkVerification
             // The OAM capacity stop is a dropped presentation quirk (#1308); culling and every byte remain.
             var native = new OamBuffer();
             if (coordinate < 256)
-                native.AddProjectileTrailSprite(new Position16<OamPixels>((byte)coordinate, (byte)coordinate), attributes);
+                native.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)coordinate, (byte)coordinate), attributes);
             OamBuffer authored = SpriteFrameBuffer.DrawnOam(sprites =>
             {
                 system.AdvanceTrails(true);
@@ -172,7 +172,7 @@ internal static class ProjectileTrailArtworkVerification
                 if (side.InstructionTimer.IsZero) continue;
             }
             if (side.Position.X < 256 && side.Position.Y < 256)
-                oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y),
+                oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y),
                     words.GetValueOrDefault(side));
         }
     }

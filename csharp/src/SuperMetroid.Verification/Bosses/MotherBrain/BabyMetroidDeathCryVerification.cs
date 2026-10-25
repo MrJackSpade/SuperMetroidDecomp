@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -24,7 +25,7 @@ internal static class BabyMetroidDeathCryVerification
         var installation = RepositoryInstallation.Installation;
         enemies.BossArtworkBinding.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
         var cgram = new SamusColourRig();
-        for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord((ushort)(index + 1)));
+        for (int index = 0; index < 256; index++) cgram.SetColor(index, RgbColor.FromWord((ushort)(index + 1)));
         enemies.Presentation.BindColours(cgram.Gameplay);
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         var baby = new BabyMetroidCutsceneState();

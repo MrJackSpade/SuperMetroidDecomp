@@ -335,10 +335,10 @@ level, samus, ControllerButton.A, unchecked((ushort)index));
     };
     SamusPoseMetadata.RefreshCollisionRadii(compactFall);
     SamusPresentation.InitializeAnimation(compactFall);
-    compactFall.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);
+    compactFall.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0x4000);
     compactFall.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusAerialMovement.ConfigureDryAirGravity(bus, compactFall);
-    compactFall.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
+    compactFall.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     AerialMovementResult compactFallFrame = default;
     for (ushort index = 0; index < 40 && !compactFallFrame.Landed; index++)
         compactFallFrame = SamusAerialMovement.StepFalling(level, compactFall, 0, index);
@@ -420,7 +420,7 @@ level, SamusPoseId.NormalJumpAimDiagonalDownLeftPose, nmiFrameCounter: 1),
     };
     SamusPoseMetadata.RefreshCollisionRadii(compactLeftLanding);
     SamusPresentation.InitializeAnimation(compactLeftLanding);
-    compactLeftLanding.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);
+    compactLeftLanding.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0x4000);
     compactLeftLanding.Kinematics.YDirection = SamusVerticalDirection.Down;
     SamusAerialMovement.ConfigureDryAirGravity(bus, compactLeftLanding);
     AerialMovementResult compactLeftFallFrame = default;
@@ -646,9 +646,9 @@ internal static void VerifySamusGunExtendedMovement()
         var releasedForwardJump = new SamusState { Pose = source };
         SamusPoseMetadata.RefreshCollisionRadii(releasedForwardJump);
         SamusPresentation.InitializeAnimation(releasedForwardJump, initialFrame: 1);
-        releasedForwardJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0x4567);
+        releasedForwardJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x4567);
         releasedForwardJump.Kinematics.YDirection = SamusVerticalDirection.Up;
-        releasedForwardJump.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x89ab);
+        releasedForwardJump.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x89ab);
 
         SamusAerialPoseTransitions.ApplyAerialAimTransition(releasedForwardJump, target);
 
@@ -685,7 +685,7 @@ internal static void VerifySamusGunExtendedMovement()
     var jumping = new SamusState { Pose = SamusPoseId.NeutralJumpRightPose };
     SamusPoseMetadata.RefreshCollisionRadii(jumping);
     SamusPresentation.InitializeAnimation(jumping);
-    jumping.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0x4567);
+    jumping.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x4567);
     jumping.Kinematics.YDirection = SamusVerticalDirection.Up;
     SamusAerialPoseTransitions.ApplyAerialAimTransition(jumping, SamusPoseId.NormalJumpGunExtendedRightPose);
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, jumping.Pose, "neutral jump installs gun extension $13");
@@ -695,7 +695,7 @@ internal static void VerifySamusGunExtendedMovement()
     var falling = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
     SamusPoseMetadata.RefreshCollisionRadii(falling);
     SamusPresentation.InitializeAnimation(falling);
-    falling.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(2, 0xabcd);
+    falling.Kinematics.YSpeed = new UnsignedSixteenSixteen(2, 0xabcd);
     falling.Kinematics.YDirection = SamusVerticalDirection.Down;
     falling.HorizontalSpeed.BaseSpeed = falling.HorizontalSpeed.BaseSpeed.WithWhole(1);
     SamusAerialPoseTransitions.ApplyAerialAimTransition(falling, SamusPoseId.FallingGunExtendedRightPose);

@@ -84,8 +84,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
     internal const int SinkStartingAccelerationWhole = 8;
     /// <summary>The skeleton's fixed fall through its arc: 224/256 pixel per frame.</summary>
-    internal static readonly SnesSignedSixteenSixteen SkeletonArcFallSpeed =
-        SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(224));
+    internal static readonly SignedSixteenSixteen SkeletonArcFallSpeed =
+        SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(224));
 
     /// <summary>Runs the live-fight phase of <c>MainAI_Crocomire</c> at $A4:8C04.</summary>
     internal void RunCrocomireMain(

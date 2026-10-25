@@ -159,7 +159,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="movingRight">Whether the record's positive half is loaded rather than its negative half.</param>
     internal static void LoadRipperVelocity(RipperEnemyState state, bool movingRight)
     {
-        SnesSignedSixteenSixteen speed = EnemyLinearSpeedDefinitions.Read(state.SpeedTableByteOffset + (movingRight ? 0 : 4));
+        SignedSixteenSixteen speed = EnemyLinearSpeedDefinitions.Read(state.SpeedTableByteOffset + (movingRight ? 0 : 4));
         state.XVelocity = speed;
     }
 

@@ -94,7 +94,7 @@ internal static class SuitPickupSharedScratchVerification
     /// <summary>Checks that the spark acceleration and Crystal Flash ammunition timer hold the expected scratch words.</summary>
     private static void AssertScratch(SamusState samus, ushort stageNumber, ushort lightBeamWord, string context)
     {
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(unchecked((short)stageNumber), lightBeamWord),
+        AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)stageNumber), lightBeamWord),
             samus.Shinespark.VerticalAcceleration, $"{context}: spark acceleration holds the stage number and light-beam word");
         AssertEqual(stageNumber, samus.CrystalFlash.AmmoDecrementTimer.RawValue,
             $"{context}: Crystal Flash ammunition timer holds the stage number");

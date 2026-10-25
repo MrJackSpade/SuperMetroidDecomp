@@ -11,8 +11,8 @@ internal static class ShaktoolSegmentDefinitions
 
     /// <summary>$AA:DEB1 initialNeighborAngle: -2048 times the integrated joint
     /// step, wrapped to a 16-bit turn. All seven words match the original NTSC data.</summary>
-    private static SnesAngle InitialAngleForSegment(int index) =>
-        SnesAngle.FromRaw(unchecked((ushort)(-2048 * IntegratedJointStep(index))));
+    private static RotationAngle InitialAngleForSegment(int index) =>
+        RotationAngle.FromRaw(unchecked((ushort)(-2048 * IntegratedJointStep(index))));
 
     /// <summary>$AA:DEE9 initialCurlingNeighborAngleDelta: 32 times the integrated
     /// joint step. This is the same curvature at 1/64 of the initial angle magnitude;

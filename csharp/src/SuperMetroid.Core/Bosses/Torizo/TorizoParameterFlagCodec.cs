@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// behaviour latches in the top four bits of the authored parameter 2, and the launching posture an egg keeps in its
 /// projectile variable 0. It is the one place that knows where each latch sits.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("Torizo spawn parameter and egg latch words")]
 internal static class TorizoParameterFlagCodec
 {
     /// <summary>The bits of parameter 1 below the posture bits.</summary>

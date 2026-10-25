@@ -63,7 +63,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.Kinematics.YSpeed = default;
             runtime.StepFrame(0);
             palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            runtime.Colours.AsPaletteColors().SetColor(223, Bgr555.FromWord(0x1234));
+            runtime.Colours.AsPaletteColors().SetColor(223, RgbColor.FromWord(0x1234));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
@@ -72,7 +72,7 @@ internal static class GameplayGrapplePaletteVerification
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
             palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            runtime.Colours.AsPaletteColors().SetColor(223, Bgr555.FromWord(0x1234));
+            runtime.Colours.AsPaletteColors().SetColor(223, RgbColor.FromWord(0x1234));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
             AssertPalette("pose-change refiring");

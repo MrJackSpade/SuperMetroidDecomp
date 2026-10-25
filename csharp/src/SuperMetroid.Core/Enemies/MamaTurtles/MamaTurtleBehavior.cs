@@ -340,9 +340,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The two adjacent acceleration records at $8D56 accelerate toward Samus's side by a sixteenth of a pixel per update.
         state.XAcceleration = unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) < 0
-            ? SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 16)
-            : SnesSignedSixteenSixteen.FromRaw(-SnesSixteenSixteen.FromWhole(1) / 16);
-        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.Zero);
+            ? SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 16)
+            : SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromWhole(1) / 16);
+        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
         state.Function = MamaTurtleAiFunction.Hovering;
     }
 
@@ -377,7 +377,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = MamaTurtleAiFunction.RisingToPeak;
-        SnesSignedSixteenSixteen result = samus.Kinematics.ExtraDisplacement.X - state.Velocity.X;
+        SignedSixteenSixteen result = samus.Kinematics.ExtraDisplacement.X - state.Velocity.X;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WholePixels < -16 ? result.WithWholePixels(-16) : result);
     }
 
@@ -385,9 +385,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
-        SnesSignedSixteenSixteen velocity = state.Velocity.X;
+        SignedSixteenSixteen velocity = state.Velocity.X;
         // One 16.16 add: the fraction's carry reaches the whole pixels.
-        SnesSignedSixteenSixteen sum = velocity + state.XAcceleration;
+        SignedSixteenSixteen sum = velocity + state.XAcceleration;
         int oldWhole = velocity.WholeWord;
         int newWhole = sum.WholeWord;
 
@@ -400,7 +400,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? unchecked((ushort)-MamaTurtleMaximumHoveringSpeed)
                 : MamaTurtleMaximumHoveringSpeed;
         state.Velocity = state.Velocity.WithX(
-            SnesSignedSixteenSixteen.FromParts(unchecked((short)cappedWhole), sum.Fraction));
+            SignedSixteenSixteen.FromParts(unchecked((short)cappedWhole), sum.Fraction));
     }
 
     /// <summary>
@@ -409,19 +409,19 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
-        SnesSignedSixteenSixteen velocity = state.Velocity.X;
+        SignedSixteenSixteen velocity = state.Velocity.X;
         int negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
 
         bool carry = true; // BCS supplied carry-in one.
-        int xVelocityWhole = SnesCarry.AddWithCarry(velocity.WholeWord, 0, ref carry);
+        int xVelocityWhole = WordCarry.AddWithCarry(velocity.WholeWord, 0, ref carry);
         int negatedWhole = unchecked((ushort)(~xVelocityWhole + 1));
         state.Velocity = state.Velocity.WithX(
-            SnesSignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
+            SignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
 
         int negatedAccelerationFraction = unchecked((ushort)(~state.XAcceleration.Fraction + 1));
-        int accelerationWhole = SnesCarry.AddWithCarry(state.XAcceleration.WholeWord, 0, ref carry);
+        int accelerationWhole = WordCarry.AddWithCarry(state.XAcceleration.WholeWord, 0, ref carry);
         int invertedAccelerationWhole = unchecked((ushort)~accelerationWhole); // No INC in ROM.
-        state.XAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)invertedAccelerationWhole), negatedAccelerationFraction);
+        state.XAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)invertedAccelerationWhole), negatedAccelerationFraction);
     }
 
     /// <summary>Ports the rider-powered seven-pixel ascent at <c>$A2:9083</c>.</summary>
@@ -435,7 +435,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.FunctionTimer = WrappingCountdown.Start(MamaTurtlePeakPauseFrames);
             state.Function = MamaTurtleAiFunction.HoveringAtPeak;
-            state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.Zero);
+            state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
             return;
         }
 
@@ -447,7 +447,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Function = MamaTurtleAiFunction.Falling;
-        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.Zero);
+        state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
     }
 
     /// <summary>Ports the 30-frame peak delay at <c>$A2:90CC</c>.</summary>
@@ -479,12 +479,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The $2000 fraction step carries into the whole word; both are one 16.16 add.
             state.Velocity = state.Velocity.WithY(
-                state.Velocity.Y + SnesSignedSixteenSixteen.FromParts(0, 8192));
+                state.Velocity.Y + SignedSixteenSixteen.FromParts(0, 8192));
         }
 
         // Only the whole word is passed to MoveEnemyDown; the fraction influences later
         // whole-speed carries but is not itself part of this frame's displacement.
-        if (!_terrain.MoveEnemyVertically(level, mama, SnesSixteenSixteen.FromWhole(state.Velocity.Y.WholePixels)))
+        if (!_terrain.MoveEnemyVertically(level, mama, SixteenSixteen.FromWhole(state.Velocity.Y.WholePixels)))
             return;
 
         InstallTurtleInstruction(
@@ -593,12 +593,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X)))
+                level, baby, SixteenSixteen.FromWhole(state.Velocity.X)))
         {
             state.Velocity = state.Velocity.WithX(unchecked((short)-state.Velocity.X));
             return;
         }
-        _terrain.MoveEnemyVertically(level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.Y));
+        _terrain.MoveEnemyVertically(level, baby, SixteenSixteen.FromWhole(state.Velocity.Y));
     }
 
     /// <summary>Instruction <c>$A2:9381</c>: crawl across the sleeping parent contour.</summary>
@@ -623,7 +623,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int previousY = baby.Position.Y.Whole;
         baby.Position = baby.Position.WithWholeY(state.SpawnTopCenter.Y);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
+            level, baby, SixteenSixteen.FromWhole(state.Velocity.X));
 
         RoomEnemySlot parentSlot = _slotTable.Slots[state.ParentSlotIndex];
         MamaTurtleEnemyState parent = parentSlot.RequireSpeciesState<MamaTurtleEnemyState>();
@@ -635,7 +635,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? (short)1
             : MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
-        _terrain.MoveEnemyVertically(level, baby, SnesSixteenSixteen.FromWhole(contourOffset));
+        _terrain.MoveEnemyVertically(level, baby, SixteenSixteen.FromWhole(contourOffset));
 
         if (carryingSamus)
         {
@@ -752,7 +752,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : unchecked((ushort)(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X)));
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
+            level, baby, SixteenSixteen.FromWhole(state.Velocity.X));
         WakeMamaTurtle(state);
     }
 

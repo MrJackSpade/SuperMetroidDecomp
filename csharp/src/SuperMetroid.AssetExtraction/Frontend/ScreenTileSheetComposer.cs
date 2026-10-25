@@ -94,10 +94,10 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.ProjectilesPlasma or SpriteSheetId.ProjectilesPlasmaWave or
                 SpriteSheetId.ProjectilesPlasmaIce or SpriteSheetId.ProjectilesPlasmaIceWave or
                 SpriteSheetId.ProjectilesSpazerPlasmaWave or SpriteSheetId.ProjectilesSpazerPlasmaIce or
-                SpriteSheetId.TitleMode7Tiles or SpriteSheetId.TitleBabyTiles or
-                SpriteSheetId.CeresFlightMode7Tiles or SpriteSheetId.EndingEscapeAMode7Tiles or
-                SpriteSheetId.EndingEscapeBMode7Tiles or SpriteSheetId.EndingPlanetExplosionMode7Tiles or
-                SpriteSheetId.EndingFlyawayMode7Tiles or SpriteSheetId.EndingRewardIconMode7Tiles =>
+                SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or
+                SpriteSheetId.CeresFlightFloorTiles or SpriteSheetId.EndingEscapeAFloorTiles or
+                SpriteSheetId.EndingEscapeBFloorTiles or SpriteSheetId.EndingPlanetExplosionFloorTiles or
+                SpriteSheetId.EndingFlyawayFloorTiles or SpriteSheetId.EndingRewardIconFloorTiles =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };
@@ -108,7 +108,7 @@ internal static class ScreenTileSheetComposer
     /// coloured from <paramref name="palette"/>'s background half.
     /// </summary>
     /// <exception cref="InvalidDataException">The characters are not whole characters of the depth.</exception>
-    internal static ComposedSpriteSheet Compose(ReadOnlySpan<byte> characters, BgBitDepth depth, ReadOnlySpan<Bgr555> palette)
+    internal static ComposedSpriteSheet Compose(ReadOnlySpan<byte> characters, BgBitDepth depth, ReadOnlySpan<RgbColor> palette)
     {
         int bytes = ScreenTileSheet.CharacterWordsOf(depth) * sizeof(ushort);
         if (characters.IsEmpty || characters.Length % bytes != 0)
@@ -116,7 +116,7 @@ internal static class ScreenTileSheetComposer
         int count = characters.Length / bytes;
         int blockRows = ScreenTileSheet.BlockRowsOf(count);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenTileSheet.Columns * ScreenTileSheet.TilePixels, checked((ushort)(ScreenTileSheet.ColourVariants * blockRows * ScreenTileSheet.TilePixels))));
-        Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         for (int row = 0; row < ScreenTileSheet.ColourVariants; row++)
         {
             for (int character = 0; character < count; character++)
@@ -145,18 +145,18 @@ internal static class ScreenTileSheetComposer
         Ensure.NotNull(sources);
         return sheet switch
         {
-            SpriteSheetId.TitleMode7Tiles => ComposeTitleMode7(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
+            SpriteSheetId.TitleFloorTiles => ComposeTitleMode7(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
             SpriteSheetId.TitleBabyTiles => ComposeTitleBaby(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
-            SpriteSheetId.CeresFlightMode7Tiles => ComposeFlightMode7(sources.Intro.CeresFlight),
-            SpriteSheetId.EndingEscapeAMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeA]).Characters.Span,
+            SpriteSheetId.CeresFlightFloorTiles => ComposeFlightMode7(sources.Intro.CeresFlight),
+            SpriteSheetId.EndingEscapeAFloorTiles => ComposeFloorPixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeA]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
-            SpriteSheetId.EndingEscapeBMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeB]).Characters.Span,
+            SpriteSheetId.EndingEscapeBFloorTiles => ComposeFloorPixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.EscapeB]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
-            SpriteSheetId.EndingPlanetExplosionMode7Tiles => ComposeMode7Pixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.PlanetExplosion]).Characters.Span,
+            SpriteSheetId.EndingPlanetExplosionFloorTiles => ComposeFloorPixels(EndingFloorSceneCharacters.Of(sources.EndingMode7[EndingFloorSceneId.PlanetExplosion]).Characters.Span,
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Explosion)),
-            SpriteSheetId.EndingFlyawayMode7Tiles => ComposeMode7Pixels(CeresFlightCharacters.Of(sources.Intro.CeresFlight).FloorCharacters.Span[..EndingArtworkExtentDefinitions.FloorBytes],
+            SpriteSheetId.EndingFlyawayFloorTiles => ComposeFloorPixels(CeresFlightCharacters.Of(sources.Intro.CeresFlight).FloorCharacters.Span[..EndingArtworkExtentDefinitions.FloorBytes],
                 EndingColours(sources.EndingPalettes, EndingPaletteId.Escape)),
-            SpriteSheetId.EndingRewardIconMode7Tiles => ComposeRewardIcon(sources.EndingMode7, sources.EndingPalettes),
+            SpriteSheetId.EndingRewardIconFloorTiles => ComposeRewardIcon(sources.EndingMode7, sources.EndingPalettes),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
                 SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
                 SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
@@ -196,44 +196,44 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The title's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleMode7(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>
-        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).FloorCharacters[..TitleSequenceDefinitions.Graphics.FloorCharacterByteCount], TitleColours(palette));
+        ComposeFloorPixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).FloorCharacters[..TitleSequenceDefinitions.Graphics.FloorCharacterByteCount], TitleColours(palette));
 
     /// <summary>The title's Baby Metroid animation pages under its palette.</summary>
     internal static ComposedSpriteSheet ComposeTitleBaby(TitleGraphicsPresentation graphics, TitlePalettePresentation palette) =>
-        ComposeMode7Pixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).BabyCharacters, TitleColours(palette));
+        ComposeFloorPixels(TitleGraphicsCharacters.Of(Ensure.NotNull(graphics)).BabyCharacters, TitleColours(palette));
 
     /// <summary>The Ceres flight's Mode 7 characters under its palette.</summary>
     internal static ComposedSpriteSheet ComposeFlightMode7(CeresFlightArtworkCatalog flight) =>
-        ComposeMode7Pixels(CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount], FlightColours(flight));
+        ComposeFloorPixels(CeresFlightCharacters.Of(Ensure.NotNull(flight)).FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount], FlightColours(flight));
 
     /// <summary>The ending's reward icon's Mode 7 characters under the post-credits palette.</summary>
     private static ComposedSpriteSheet ComposeRewardIcon(EndingFloorArtworkCatalog mode7, EndingPaletteCatalog palettes) =>
-        ComposeMode7Pixels(HighBytes(EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
+        ComposeFloorPixels(HighBytes(EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span), EndingColours(palettes, EndingPaletteId.PostCredits));
 
     /// <summary>The sheet of Mode 7 characters whose pixels <paramref name="pixels"/> holds, one colour index each, coloured from <paramref name="palette"/>.</summary>
     /// <exception cref="InvalidDataException">The pixels are not whole characters.</exception>
-    internal static ComposedSpriteSheet ComposeMode7Pixels(ReadOnlySpan<byte> pixels, ReadOnlySpan<Bgr555> palette)
+    internal static ComposedSpriteSheet ComposeFloorPixels(ReadOnlySpan<byte> pixels, ReadOnlySpan<RgbColor> palette)
     {
-        if (pixels.IsEmpty || pixels.Length % Mode7CharacterSheet.TileBytes != 0)
+        if (pixels.IsEmpty || pixels.Length % FloorCharacterSheet.TileBytes != 0)
             throw new InvalidDataException($"{pixels.Length} pixels are not whole Mode 7 characters.");
-        int tiles = pixels.Length / Mode7CharacterSheet.TileBytes;
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(Mode7CharacterSheet.TilesPerRow * Mode7CharacterSheet.TilePixels, checked((ushort)(Mode7CharacterSheet.RowsOf(tiles) * Mode7CharacterSheet.TilePixels))));
-        Bgr555[] colours = palette[..SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
+        int tiles = pixels.Length / FloorCharacterSheet.TileBytes;
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(FloorCharacterSheet.TilesPerRow * FloorCharacterSheet.TilePixels, checked((ushort)(FloorCharacterSheet.RowsOf(tiles) * FloorCharacterSheet.TilePixels))));
+        RgbColor[] colours = palette[..SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
         SpritePaletteRows coloured = SpritePaletteRows.None;
         for (int tile = 0; tile < tiles; tile++)
         {
-            Position16<ImagePixels> corner = Mode7CharacterSheet.Corner(tile);
-            for (int pixel = 0; pixel < Mode7CharacterSheet.TileBytes; pixel++)
+            Position16<ImagePixels> corner = FloorCharacterSheet.Corner(tile);
+            for (int pixel = 0; pixel < FloorCharacterSheet.TileBytes; pixel++)
             {
-                byte index = pixels[tile * Mode7CharacterSheet.TileBytes + pixel];
+                byte index = pixels[tile * FloorCharacterSheet.TileBytes + pixel];
                 if (index % 16 != 0 && index < SpriteImage.SpriteColourCount)
                     coloured |= SpritePaletteRowSet.Rows[index / 16];
-                canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % Mode7CharacterSheet.TilePixels)), checked((ushort)(corner.Y + pixel / Mode7CharacterSheet.TilePixels))), index, colours);
+                canvas.PaintIndex(new(checked((ushort)(corner.X + pixel % FloorCharacterSheet.TilePixels)), checked((ushort)(corner.Y + pixel / FloorCharacterSheet.TilePixels))), index, colours);
             }
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [Mode7CharacterSheet.FrameName] = new SpriteSheetFrameDocument
+            [FloorCharacterSheet.FrameName] = new SpriteSheetFrameDocument
             {
                 Corner = default,
                 Size = canvas.Size,
@@ -255,7 +255,7 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The title's palette.</summary>
-    private static ReadOnlySpan<Bgr555> TitleColours(TitlePalettePresentation palette)
+    private static ReadOnlySpan<RgbColor> TitleColours(TitlePalettePresentation palette)
     {
         var colours = new ScreenPalette();
         Ensure.NotNull(palette).Apply(colours);
@@ -267,7 +267,7 @@ internal static class ScreenTileSheetComposer
         Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], BgBitDepth.FourBpp, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
-    private static ReadOnlySpan<Bgr555> IntroColours(IntroCinematicArtworkCatalog intro)
+    private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtworkCatalog intro)
     {
         var colours = new ScreenPalette();
         intro.Palette.LoadTo(colours);
@@ -275,10 +275,10 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The ending's palette <paramref name="palette"/>, whose colours its scenes load where they lie.</summary>
-    private static ReadOnlySpan<Bgr555> EndingColours(ScreenTileSources sources, EndingPaletteId palette) => EndingColours(sources.EndingPalettes, palette);
+    private static ReadOnlySpan<RgbColor> EndingColours(ScreenTileSources sources, EndingPaletteId palette) => EndingColours(sources.EndingPalettes, palette);
 
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>
-    private static ReadOnlySpan<Bgr555> EndingColours(EndingPaletteCatalog palettes, EndingPaletteId palette)
+    private static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteCatalog palettes, EndingPaletteId palette)
     {
         var colours = new ScreenPalette();
         palettes[palette].LoadTo(colours.All, 0);
@@ -286,7 +286,7 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The Ceres flight's palette.</summary>
-    private static ReadOnlySpan<Bgr555> FlightColours(CeresFlightArtworkCatalog flight)
+    private static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtworkCatalog flight)
     {
         var colours = new ScreenPalette();
         flight.Palette.LoadTo(colours);

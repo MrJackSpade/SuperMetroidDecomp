@@ -23,7 +23,7 @@ internal static class AerialSpreadTransitionVerification
             var samus = scenario.Samus;
             for (int frame = 0; frame < scenario.FrameCount; frame++)
             {
-                uint previousY = new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
+                uint previousY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
                 runtime.StepFrame(scenario.Input(frame));
                 AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.Charge.FlareCounter, "aerial charge mirror");
                 if (wallRoute)
@@ -80,7 +80,7 @@ internal static class AerialSpreadTransitionVerification
             if (frame >= releaseFrame)
                 AssertEqual(0, samus.ProjectileFlareCounter, "walljump spread consumes charge");
             if (delay == 41 && frame == 134)
-                AssertTrue((new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue) > previousY,
+                AssertTrue((new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue) > previousY,
                     "late success starts morph after descent has already begun, as native permits");
         }
         else

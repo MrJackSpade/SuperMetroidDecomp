@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -17,7 +18,7 @@ internal static class BackgroundMosaicTests
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        for (int color = 1; color <= 15; color++) cgram.SetColor(color, new Bgr555(color, 15 - color, 0));
+        for (int color = 1; color <= 15; color++) cgram.SetColor(color, new RgbColor(color, 15 - color, 0));
         // A repeating asymmetric pixel pattern makes both sampling axes observable.
         byte[] character = new byte[32];
         for (int y = 0; y < 8; y++)
@@ -29,7 +30,7 @@ internal static class BackgroundMosaicTests
         }
         vram.LoadBytes(0, character);
         for (int row = 0; row < 8; row++) vram.LoadBytes(32 + row * 2, new byte[] { 255, 0 });
-        cgram.SetColor(241, new Bgr555(0, 0, 31));
+        cgram.SetColor(241, new RgbColor(0, 0, 31));
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 96; oam[1] = 64; oam[2] = 1; oam[3] = 0x3e;
         var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
@@ -46,7 +47,7 @@ internal static class BackgroundMosaicTests
                     (mode == 3 ? ScreenLayers.Bg1 : ScreenLayers.None),
                 Bg2Mosaic: new(size));
             var ordinary = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2LineScrolls(horizontal, vertical));
-            RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithSubscreen = mode == 2, FixedColor = Bgr555.Black }, subscreenUsesBg2: mode == 2);
+            RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = mode == 2 ? ColorBlend.Backdrop : ColorBlend.None, BlendsWithSubscreen = mode == 2, FixedColor = RgbColor.Black }, subscreenUsesBg2: mode == 2);
             var scene = new LayeredScene(memory, [layer], 15);
             var packet = new DisplayPacket(new(++cases, 1, 0), scene);
             var actual = DisplayRendering.Render(scene);

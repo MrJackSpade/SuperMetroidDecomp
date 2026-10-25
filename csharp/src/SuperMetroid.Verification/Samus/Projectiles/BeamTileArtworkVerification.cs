@@ -75,11 +75,11 @@ internal static class BeamTileArtworkVerification
                 "The bound page shows the edited PNG");
         }
         using var wrongSize = new MemoryStream();
-        IndexedPng.Write(wrongSize, new(8, 8), new byte[64], new[] { new Rgba32(0, 0, 0, 255) });
+        IndexedPng.Write(wrongSize, new(8, 8), new byte[64], new[] { new RgbaPixel(0, 0, 0, 255) });
         wrongSize.Position = 0;
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(wrongSize, 0), "Wrong beam atlas dimensions rejected");
         using var invalidIndex = new MemoryStream();
-        var colors = Enumerable.Range(0, 17).Select(i => new Rgba32((byte)i, 0, 0, 255)).ToArray();
+        var colors = Enumerable.Range(0, 17).Select(i => new RgbaPixel((byte)i, 0, 0, 255)).ToArray();
         var pixels = new byte[512]; pixels[0] = 16;
         IndexedPng.Write(invalidIndex, new(64, 8), pixels, colors);
         invalidIndex.Position = 0;
@@ -106,7 +106,7 @@ internal static class BeamTileArtworkVerification
         int colors = SamusSourceDefinitions.MovementBank.Value |
             CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PalettePointers.Value + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            cgram.SetColor(SamusColourDefinitions.BeamFirstColour + i, Bgr555.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
+            cgram.SetColor(SamusColourDefinitions.BeamFirstColour + i, RgbColor.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
     }
 
     /// <summary>Runs beam artwork and runtime transfer checks with the retail cartridge oracle.</summary>

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -20,7 +21,7 @@ public sealed class CinematicPaletteFader
     private readonly CinematicFadeColor[] step = new CinematicFadeColor[ScreenPalette.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
-    public CinematicPaletteFader(ReadOnlySpan<Bgr555> targetPalette)
+    public CinematicPaletteFader(ReadOnlySpan<RgbColor> targetPalette)
     {
         Ensure.LengthEqual(targetPalette, ScreenPalette.ColorCount);
 
@@ -63,7 +64,7 @@ public sealed class CinematicPaletteFader
     public void ComposeInto(ScreenPalette colours)
     {
         Ensure.NotNull(colours);
-        Span<Bgr555> image = stackalloc Bgr555[ScreenPalette.ColorCount];
+        Span<RgbColor> image = stackalloc RgbColor[ScreenPalette.ColorCount];
         for (int color = 0; color < image.Length; color++)
             image[color] = current[color].Visible;
         colours.Load(image);

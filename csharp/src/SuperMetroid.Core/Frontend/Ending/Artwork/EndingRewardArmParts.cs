@@ -12,15 +12,15 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Independent authored offsets when the pieces do not match the calculated split grid.</summary>
-    private readonly Offset16<OamPixels>[]? arm;
+    private readonly Offset16<SpritePixels>[]? arm;
     /// <summary>Anchor for the three-piece split pose's two-column arrangement.</summary>
-    private readonly Offset16<OamPixels> splitOrigin;
+    private readonly Offset16<SpritePixels> splitOrigin;
     /// <summary>Tile choices that differ from stock arm pieces.</summary>
     private readonly int[]? editedTiles;
     /// <summary>Reward pose selecting the stock arm tile variant.</summary>
     private readonly Pose pose;
     /// <summary>Authored shoulder anchor shared by its large body and two caps.</summary>
-    private readonly Offset16<OamPixels> shoulder;
+    private readonly Offset16<SpritePixels> shoulder;
     /// <summary>Whether the second reward frame uses three arm pieces instead of two.</summary>
     private readonly bool splitArm;
     /// <summary>Separates authored part placement from calculable split-grid and stock-tile relationships.</summary>
@@ -29,7 +29,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         this.pose = pose;
         splitArm = pose == Pose.SamusArmFromEndingFrame2;
         int count = splitArm ? 3 : 2;
-        var positions = new Offset16<OamPixels>[count];
+        var positions = new Offset16<SpritePixels>[count];
         var tiles = new int[count];
         bool stock = true;
         for (int index = 0; index < count; index++)
@@ -55,7 +55,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
     }
 
     /// <summary>Places the split pose's two small column pieces and adjacent large piece.</summary>
-    internal static Offset16<OamPixels> SplitOffset(int index)
+    internal static Offset16<SpritePixels> SplitOffset(int index)
     {
         if ((uint)index >= 3) throw new ArgumentOutOfRangeException(nameof(index));
         // Small column bottom-to-top, then the adjacent large piece.
@@ -102,7 +102,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int tile;
-            Offset16<OamPixels> position;
+            Offset16<SpritePixels> position;
             bool large;
             if (index < ArmCount)
             {
@@ -116,7 +116,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 large = piece == 0;
                 int column = piece == 1 ? 1 : 0;
                 tile = EndingRewardArmCellDefinitions.ShoulderCap + (large ? 16 : column);
-                position = shoulder + new Offset16<OamPixels>(checked((short)(8 * column)), checked((short)(large ? 0 : -8)));
+                position = shoulder + new Offset16<SpritePixels>(checked((short)(8 * column)), checked((short)(large ? 0 : -8)));
             }
             return new(SnesSpritemapXWord.Create(position.X, large), SnesSpritemapYByte.Create(position.Y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);

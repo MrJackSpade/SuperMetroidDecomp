@@ -236,7 +236,7 @@ internal sealed class NorfairRidleyDeath
         var fragmentState = new RidleyExplosionFragmentState
         {
             Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(fragment.Spawn.Population.Parameter1).Lifetime),
-            Velocity = new(SnesSignedEightEight.FromSignedRaw((short)(unchecked((short)random) < 0
+            Velocity = new(SignedEightEight.FromSignedRaw((short)(unchecked((short)random) < 0
                 ? -horizontalMagnitude
                 : horizontalMagnitude)), default),
         };
@@ -282,8 +282,8 @@ internal sealed class NorfairRidleyDeath
         int horizontal = fragmentState.Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(horizontal) - 4);
         var velocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(unchecked((ushort)(horizontal < 0 ? -magnitude : magnitude))),
-            new SnesSignedEightEight(unchecked((ushort)(fragmentState.Velocity.Y.RawValue + 4))));
+            new SignedEightEight(unchecked((ushort)(horizontal < 0 ? -magnitude : magnitude))),
+            new SignedEightEight(unchecked((ushort)(fragmentState.Velocity.Y.RawValue + 4))));
         fragmentState.Velocity = velocity;
         fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 

@@ -93,7 +93,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Object attributes (the OBJ palette) applied to every part of the active composition.</summary>
     internal SnesObjAttributeWord ActiveObjectPalette { get; set; }
     /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
-    private FixedPosition<Mode7Pixels> panPosition;
+    private FixedPosition<FloorPixels> panPosition;
     /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
     internal int Zoom { get; private set; }
     /// <summary>Current SNES screen brightness applied after composing title layers.</summary>
@@ -383,7 +383,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return new(new FramePaint(palette.Colors, objects.Draws),
             floorBackgroundEnabled
                 ? new AffineTransform(unchecked((short)Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
-                    0, unchecked((short)Zoom), new Offset16<Mode7Pixels>(128, 128), panPosition.Whole.AsSignedRegister())
+                    0, unchecked((short)Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())
                 : null,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
             floorBackgroundEnabled ? AffineFloor.Of(FloorMap(), FloorTiles(TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame])) : null);
@@ -428,13 +428,13 @@ public sealed class TitleSequenceState : IFrontendScreen
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             TitleGraphicsPresentation.DrawSprite(sheet, sprite, objects,
-                ActiveOrigin.ToOam(), ActiveObjectPalette.Raw);
+                ActiveOrigin.ToSpritePosition(), ActiveObjectPalette.Raw);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
             TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
-                TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToOam(),
+                TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),
                 TitleSequenceDefinitions.Sprites.CopyrightPalette.Raw);
         }
 
@@ -515,7 +515,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>Writes the copyright glyph's white and red colours.</summary>
-    private void WriteCopyright(Bgr555 white, Bgr555 red)
+    private void WriteCopyright(RgbColor white, RgbColor red)
     {
         ColourRun row = palette.SpriteRow(TitleCopyrightColourDefinitions.SpriteRow);
         row.Write(TitleCopyrightColourDefinitions.WhiteColour, white);

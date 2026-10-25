@@ -267,7 +267,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int horizontalDisplacement = SnesSixteenSixteen.FromWhole(state.XVelocity);
+        int horizontalDisplacement = SixteenSixteen.FromWhole(state.XVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             state.XVelocity = unchecked((short)-state.XVelocity);

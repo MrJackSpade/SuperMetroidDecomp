@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 
 using SuperMetroid.Verification.Harness;
@@ -19,7 +20,7 @@ using SuperMetroid.Core.Frontend.Menus;
 internal static class FileSelectMapWindowVerification
 {
     /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
-    private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
+    private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<SpritePixels> label)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Progression.AreaId)area).ToString(),
             _ => label);
@@ -85,14 +86,14 @@ internal static class FileSelectMapWindowVerification
     {
         TestAddressSpace fake = CreateComposedMapWindowCartridge();
         var window = new FileSelectMapWindow(0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
-        Rgba32 areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
-        Rgba32[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
-        Rgba32[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();
-        Rgba32[] start = FileSelectMapWindowCompositor.Composite(area, frame, window);
+        RgbaPixel areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
+        RgbaPixel[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
+        RgbaPixel[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();
+        RgbaPixel[] start = FileSelectMapWindowCompositor.Composite(area, frame, window);
         AssertEqual(1, start.Count(pixel => pixel == frameColor), "zero-size HDMA window still covers one pixel on one row");
         AssertEqual(frameColor, start[30 * 256 + 40], "initial window is anchored at area label");
         window.Step();
-        Rgba32[] next = FileSelectMapWindowCompositor.Composite(area, frame, window);
+        RgbaPixel[] next = FileSelectMapWindowCompositor.Composite(area, frame, window);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
             AssertEqual(y >= 29 && y < 31 && x >= 39 && x <= 41 ? frameColor : areaColor,
@@ -111,15 +112,15 @@ internal static class FileSelectMapWindowVerification
         {
             AssertEqual(tick == 40, returning.Step(), "Maridia return is twelve updates shorter than expansion");
             AssertEqual(8 + 4 * tick, returning.TopLeft.X, "return subtracts native negative left velocity");
-            AssertEqual(SnesSixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.BottomRight.X, "return retains right fraction");
-            AssertEqual(SnesSixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.TopLeft.Y, "return retains top fraction");
-            AssertEqual(SnesSixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.BottomRight.Y, "return retains bottom fraction");
+            AssertEqual(SixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.BottomRight.X, "return retains right fraction");
+            AssertEqual(SixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.TopLeft.Y, "return retains top fraction");
+            AssertEqual(SixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.BottomRight.Y, "return retains bottom fraction");
         }
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.SharedGameState(),
             SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-        Rgba32[] frameOnly = graphics.RenderFrameOnly().ToArray();
+        RgbaPixel[] frameOnly = graphics.RenderFrameOnly().ToArray();
         graphics.screen.Tilemaps.AreaMap[0] = 0x1234;
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
@@ -143,13 +144,13 @@ internal static class FileSelectMapWindowVerification
             for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)
                 AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, MapSourceDefinitions.FileSelectMap.AreaBackgrounds + area * MapSourceDefinitions.Menu.TilemapBytes + offset),
                     MenuScreenFixtures.Vram(graphics.screen).ReadByte(FileSelectMapNativeSources.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
-            Rgba32[] frame = graphics.RenderBackgrounds();
+            RgbaPixel[] frame = graphics.RenderBackgrounds();
             AssertEqual(256 * 224, frame.Length, "area map physical viewport size");
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");
             AssertTrue(frame.Distinct().Count() > 16, "area map renders tile graphics, not a flat background");
 
             ushort[] used = [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
-            Rgba32[] labelled = graphics.Render(used).ToArray();
+            RgbaPixel[] labelled = graphics.Render(used).ToArray();
             AssertTrue(!labelled.SequenceEqual(graphics.Render(new ushort[6])), "visited-station masks control map labels");
 
         }

@@ -153,7 +153,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
         int width = image.Size.X, height = image.Size.Y;
         if (texels.Length < TexelWords * width * height)
             texels = new uint[TexelWords * width * height];
-        ReadOnlySpan<Rgba32> pixels = sheet.Pixels;
+        ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
         ReadOnlySpan<SpriteImageInk> inks = sheet.Inks;
         int target = 0;
         for (int row = 0; row < height; row++)
@@ -161,7 +161,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
             int source = (image.Corner.Y + row) * sheet.Size.X + image.Corner.X;
             for (int column = 0; column < width; column++, target += TexelWords)
             {
-                Rgba32 pixel = pixels[source + column];
+                RgbaPixel pixel = pixels[source + column];
                 SpriteImageInk ink = inks[source + column];
                 bool colourZero = sheet.IsColourZero(ink);
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;

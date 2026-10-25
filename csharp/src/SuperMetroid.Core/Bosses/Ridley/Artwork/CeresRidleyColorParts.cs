@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>The Ceres Ridley colour tables a Ceres Ridley colour catalog is built from (#633).</summary>
 internal sealed record CeresRidleyColorParts
 {
     /// <summary>Start.</summary>
-    public required Bgr555[] Start { get; init; }
+    public required RgbColor[] Start { get; init; }
 
     /// <summary>Eye fade.</summary>
     public required CeresRidleyFadeColorDefinitions EyeFade { get; init; }
@@ -13,16 +15,16 @@ internal sealed record CeresRidleyColorParts
     public required CeresRidleyFadeColorDefinitions BodyFade { get; init; }
 
     /// <summary>Health.</summary>
-    public required Bgr555[][] Health { get; init; }
+    public required RgbColor[][] Health { get; init; }
 
     /// <summary>Alarm.</summary>
     public required CeresRidleyAlarmColorDefinitions Alarm { get; init; }
 
     /// <summary>Retreat bg.</summary>
-    public required Bgr555[] RetreatBg { get; init; }
+    public required RgbColor[] RetreatBg { get; init; }
 
     /// <summary>Retreat shared.</summary>
-    public required Bgr555[] RetreatShared { get; init; }
+    public required RgbColor[] RetreatShared { get; init; }
 
     /// <summary>Baby.</summary>
     public required CeresBabyPaintDefinitions Baby { get; init; }

@@ -38,6 +38,6 @@ public static class PhantoonColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Checks a palette row's length and five-bit channels before converting it to hardware color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Phantoon {name}");
 }

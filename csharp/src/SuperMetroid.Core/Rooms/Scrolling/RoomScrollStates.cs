@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// to the following bank-$8F definition. Camera code distinguishes zero, one, and nonzero;
 /// it does not validate every copied byte as one of these named values.
 /// </remarks>
-[SnesEncodingOwner]
+[EncodingOwner("room scroll grid byte")]
 public static class RoomScrollStates
 {
     /// <summary>The byte a scroll-grid cell stores for <paramref name="state"/>.</summary>

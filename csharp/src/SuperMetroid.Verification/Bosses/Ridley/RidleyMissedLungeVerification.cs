@@ -46,7 +46,7 @@ internal static class RidleyMissedLungeVerification
             slot.Health = 1000;
             state.Function = RidleyAiFunction.NorfairGrabApproach;
             state.FacingDirection = facing;
-            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
             state.FightMode = RidleyFightMode.Fighting;
@@ -71,12 +71,12 @@ internal static class RidleyMissedLungeVerification
         }
         // Exercise real integration, not a manually supplied boundary flag.
         ResetLunge(223, 300);
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x100));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(0x100));
         move(slot, state, RidleyWallImpact.None);
         AssertTrue(state.HitRoomBoundary, "exact maximum X counts as a native boundary hit");
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairHoverSetup, state.Function, "movement boundary result exits the next lunge call");
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-0x100)));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-0x100)));
         move(slot, state, RidleyWallImpact.None);
         AssertTrue(!state.HitRoomBoundary, "moving back inside clears the boundary result");
 

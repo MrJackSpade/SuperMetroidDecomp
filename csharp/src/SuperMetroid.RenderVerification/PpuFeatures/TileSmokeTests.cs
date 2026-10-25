@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -17,7 +18,7 @@ internal static class TileSmokeTests
         VerifyFourthPlaneByteSelection(device, renderer);
         var random = new Random(32111);
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
-        Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+        RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new FramePaint(palette, []);
         ScreenLayerPictures upper = VramTileFixtures.Tiles(bytes, palette, 0x6000, BgBitDepth.FourBpp);
         ScreenTileMap Cells(int tilemapWord, ushort width, ushort height, ScreenLayerPictures tiles) =>
@@ -70,14 +71,14 @@ internal static class TileSmokeTests
         vram[(0x6000 + 4 * 16) * 2 + 29] = 233;
         for (int i = 0; i < 1024; i++)
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(vram.AsSpan(0x4000 * 2 + i * 2), 0xec04);
-        var palette = new Bgr555[SnesPpuLayout.CgramColorCount];
-        palette[3 * 16 + 2] = new Bgr555(31, 0, 0); palette[3 * 16 + 10] = new Bgr555(0, 0, 31);
+        var palette = new RgbColor[SnesPpuLayout.CgramColorCount];
+        palette[3 * 16 + 2] = new RgbColor(31, 0, 0); palette[3 * 16 + 10] = new RgbColor(0, 0, 31);
         var memory = new FramePaint(palette, []);
         var frame = new DisplayPacket(new(1, 1, 0), new LayeredScene(memory,
             new RenderLayer[] { new TileRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
                 new Position16<BgPlanePixels>(0, 0), null) }, 15));
         var expected = DisplayRendering.Render(frame);
-        if (expected[0] != new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0))
+        if (expected[0] != new SuperMetroid.Core.Assets.RgbaPixel(255, 0, 0))
             throw new InvalidOperationException("Fourth-plane fixture no longer selects color two.");
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: fourth-plane byte selection");
     }

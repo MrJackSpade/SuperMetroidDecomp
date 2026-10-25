@@ -22,10 +22,10 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
     /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>
     private readonly int clearBlue;
     /// <summary>Supplied clear-slot colors that differ from the copied native metadata.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Splits 32 supplied targets into two materials and preserves independent clear-slot edits.</summary>
-    internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
+    internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 32);
         clearBlue = colors[0].Blue;
@@ -36,13 +36,13 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
     }
 
     /// <summary>Reconstructs the native clear-slot value from the source's copied blue channel.</summary>
-    private Bgr555 ClearSlot => new(0, 0, clearBlue);
+    private RgbColor ClearSlot => new(0, 0, clearBlue);
 
     /// <summary>Uses an edited clear slot when supplied; otherwise resolves the matching armor or organ material.</summary>
-    internal Bgr555 ColorAt(int index)
+    internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
-        if (edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited)) return edited;
+        if (edits.TryGetValue(new ColourCell(0, index), out RgbColor edited)) return edited;
         if (index is 0 or 16) return ClearSlot;
         return index < 16 ? armor.ColorAt(index - 1) : organ.Resolve(0, index - 17);
     }

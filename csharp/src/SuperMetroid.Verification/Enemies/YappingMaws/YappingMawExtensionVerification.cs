@@ -30,44 +30,44 @@ internal static class YappingMawExtensionVerification
     {
         int record = Enumerable.Range(0, EnemyQuadraticSpeedDefinitions.RecordCount).First(candidate =>
             EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)candidate), negative: false) is int extending &&
-            extending > 0 && SnesSignedSixteenSixteen.FromRaw(extending).Fraction != 0 &&
+            extending > 0 && SignedSixteenSixteen.FromRaw(extending).Fraction != 0 &&
             EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)candidate), negative: true) < 0);
         int extend = EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)record), negative: false);
         int retract = EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)record), negative: true);
-        short extendWhole = SnesSignedSixteenSixteen.FromRaw(extend).WholePixels;
-        ushort extendFraction = SnesSignedSixteenSixteen.FromRaw(extend).Fraction;
-        var maximum = SnesSignedSixteenSixteen.FromParts(128, 0);
+        short extendWhole = SignedSixteenSixteen.FromRaw(extend).WholePixels;
+        ushort extendFraction = SignedSixteenSixteen.FromRaw(extend).Fraction;
+        var maximum = SignedSixteenSixteen.FromParts(128, 0);
         AssertTrue(extendWhole + 1 < maximum.WholePixels && -retract < maximum.RawValue,
             "fixture speeds stay inside the curl's extending range");
 
         // The starting fraction complements the speed's, so the fraction sum is exactly one whole unit: the result's
         // fraction is zero and its whole part is the speed's whole part plus the carried one.
         YappingMawEnemyState carried = Advance(
-            SnesSignedSixteenSixteen.FromParts(0, checked((ushort)(ushort.MaxValue + 1 - extendFraction))), record, negative: false);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(checked((short)(extendWhole + 1)), 0), carried.Extension,
+            SignedSixteenSixteen.FromParts(0, checked((ushort)(ushort.MaxValue + 1 - extendFraction))), record, negative: false);
+        AssertEqual(SignedSixteenSixteen.FromParts(checked((short)(extendWhole + 1)), 0), carried.Extension,
             "the fraction's carry reaches the whole part");
         AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, carried.Function, "a positive curl keeps extending");
         AssertEqual(new VerifyYappingMawExtensionCase(record + 1, false), new VerifyYappingMawExtensionCase(carried.QuadraticSpeedRecord, carried.QuadraticSpeedNegative),
             "below the clamp the record advances once and the speed stays extending");
 
-        YappingMawEnemyState clamped = Advance(maximum - SnesSignedSixteenSixteen.FromRaw(extend), record, negative: false);
+        YappingMawEnemyState clamped = Advance(maximum - SignedSixteenSixteen.FromRaw(extend), record, negative: false);
         AssertEqual(maximum, clamped.Extension, "reaching +128 clamps the curl there with a cleared fraction");
         AssertEqual(new VerifyYappingMawExtensionCase(record + 1, true), new VerifyYappingMawExtensionCase(clamped.QuadraticSpeedRecord, clamped.QuadraticSpeedNegative),
             "the clamp turns the speed around to the same record's retracting half");
 
         YappingMawEnemyState belowClamp = Advance(
-            maximum - SnesSignedSixteenSixteen.FromRaw(extend) - SnesSignedSixteenSixteen.FromRaw(1), record, negative: false);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(127, ushort.MaxValue), belowClamp.Extension,
+            maximum - SignedSixteenSixteen.FromRaw(extend) - SignedSixteenSixteen.FromRaw(1), record, negative: false);
+        AssertEqual(SignedSixteenSixteen.FromParts(127, ushort.MaxValue), belowClamp.Extension,
             "one fraction unit short of +128 is not clamped");
         AssertEqual(new VerifyYappingMawExtensionCase(record + 1, false), new VerifyYappingMawExtensionCase(belowClamp.QuadraticSpeedRecord, belowClamp.QuadraticSpeedNegative),
             "one fraction unit short of +128 keeps extending");
 
-        YappingMawEnemyState atZero = Advance(SnesSignedSixteenSixteen.FromRaw(-retract), record, negative: true);
-        AssertEqual(SnesSignedSixteenSixteen.Zero, atZero.Extension, "retraction can return the curl exactly to zero");
+        YappingMawEnemyState atZero = Advance(SignedSixteenSixteen.FromRaw(-retract), record, negative: true);
+        AssertEqual(SignedSixteenSixteen.Zero, atZero.Extension, "retraction can return the curl exactly to zero");
         AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, atZero.Function, "a zero curl is not negative and keeps retracting");
 
-        YappingMawEnemyState pastZero = Advance(SnesSignedSixteenSixteen.FromRaw(-retract - 1), record, negative: true);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(-1, ushort.MaxValue), pastZero.Extension,
+        YappingMawEnemyState pastZero = Advance(SignedSixteenSixteen.FromRaw(-retract - 1), record, negative: true);
+        AssertEqual(SignedSixteenSixteen.FromParts(-1, ushort.MaxValue), pastZero.Extension,
             "one fraction unit past zero borrows the whole part to -1");
         AssertEqual(YappingMawAiFunction.RetractedDelay, pastZero.Function, "a negative whole part ends the retraction");
         Console.WriteLine($"Yapping Maw extension: record {record} carry, +128 clamp and miss, and zero/negative retraction sign test pass through production.");
@@ -77,7 +77,7 @@ internal static class YappingMawExtensionVerification
     /// Brings a production-initialized Maw through its targeting and setup updates, then runs one extension update
     /// from the given curl and speed record.
     /// </summary>
-    private static YappingMawEnemyState Advance(SnesSignedSixteenSixteen start, int record, bool negative)
+    private static YappingMawEnemyState Advance(SignedSixteenSixteen start, int record, bool negative)
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
             YappingMawInstructionProgramDefinitionsVerification.NewInitializedYappingMaw(301);
@@ -89,7 +89,7 @@ internal static class YappingMawExtensionVerification
         enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
         enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
         AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, state.Function, "setup begins the extension");
-        AssertEqual(SnesSignedSixteenSixteen.Zero, state.Extension, "setup starts the curl at zero");
+        AssertEqual(SignedSixteenSixteen.Zero, state.Extension, "setup starts the curl at zero");
 
         state.Extension = start;
         state.QuadraticSpeedRecord = record;

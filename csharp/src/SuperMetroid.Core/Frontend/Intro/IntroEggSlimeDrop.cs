@@ -75,7 +75,7 @@ internal sealed class IntroEggSlimeDrop
         sprite.Draw(objects, installedArt: installedArt);
 
     /// <summary>Adds native 16.16 motion to one screen coordinate while preserving its fractional part.</summary>
-    private void AddVelocity(Axis axis, SnesSignedSixteenSixteen velocity)
+    private void AddVelocity(Axis axis, SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal
             ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))

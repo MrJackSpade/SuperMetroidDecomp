@@ -31,7 +31,7 @@ internal static class WorkRobotFallVerification
             slot.Bind(EnemyDefinitionId.RobotNoPower, slot.Definition);
             slot.Radius = new(8, 8);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 32));
-            var state = new WorkRobotEnemyState() { FallVelocity = SnesSignedSixteenSixteen.FromParts(whole, fraction) };
+            var state = new WorkRobotEnemyState() { FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction) };
             slot.SetSpeciesState(state);
 
             enemies.WorkRobotBehavior.RunWorkRobotMainAi(slot, frame);
@@ -39,7 +39,7 @@ internal static class WorkRobotFallVerification
             string context = $"Work Robot falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, state.FallVelocity.WholeWord, $"{context}: whole speed word");
             AssertEqual(expectedFraction, state.FallVelocity.Fraction, $"{context}: speed fraction word");
-            AssertEqual(SnesSignedSixteenSixteen.FromParts(unchecked((short)expectedWhole), expectedFraction), state.FallVelocity, context);
+            AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)expectedWhole), expectedFraction), state.FallVelocity, context);
         }
         Console.WriteLine("  Work Robot fall: gravity carries the fraction into the whole word and wraps it.");
     }

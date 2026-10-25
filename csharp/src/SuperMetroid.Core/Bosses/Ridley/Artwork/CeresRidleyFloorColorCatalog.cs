@@ -9,10 +9,10 @@ public sealed class CeresRidleyFloorColorCatalog
     internal readonly CeresRidleyFloorPaintDefinitions rows;
 
     /// <summary>Copies validated RGB5 rows into the fixed zoom-shade selector.</summary>
-    internal CeresRidleyFloorColorCatalog(Bgr555[][] rows) => this.rows = new(rows);
+    internal CeresRidleyFloorColorCatalog(RgbColor[][] rows) => this.rows = new(rows);
 
     /// <summary>Reads an authored color by the high byte of the native zoom word.</summary>
-    public Bgr555 Resolve(int zoomHighByte, int color)
+    public RgbColor Resolve(int zoomHighByte, int color)
     {
         if ((uint)zoomHighByte >= CeresRidleyPaletteDefinitions.GetawayZoomRowCount)
             throw new ArgumentOutOfRangeException(nameof(zoomHighByte));

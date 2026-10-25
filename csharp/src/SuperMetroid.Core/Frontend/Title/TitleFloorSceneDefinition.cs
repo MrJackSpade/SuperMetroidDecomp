@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Frontend.Title;
 public readonly record struct TitleFloorSceneDefinition(
     TitleSequencePhase Phase,
     int Scale,
-    Offset16<Mode7Pixels> Position);
+    Offset16<FloorPixels> Position);

@@ -190,7 +190,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        (int distance, SnesBearing bearing) = CalculateYappingMawTarget(
+        (int distance, Bearing bearing) = CalculateYappingMawTarget(
             state.Origin,
             samus.Position.Whole);
         state.DistanceToSamus = distance;
@@ -218,17 +218,17 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the one-frame setup function at $A8:A28C.</summary>
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
-        state.Extension = SnesSignedSixteenSixteen.Zero;
+        state.Extension = SignedSixteenSixteen.Zero;
         state.QuadraticSpeedRecord = 0;
         state.QuadraticSpeedNegative = false;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTableAngle().ToAngle();
-        state.MirroredBend = state.CurlAngle.TableIndex >= SnesAngle.HalfTurn.TableIndex;
+        state.MirroredBend = state.CurlAngle.TableIndex >= RotationAngle.HalfTurn.TableIndex;
 
         state.Baseline = new Offset16<RoomPixels>(
-            unchecked((short)CalculateYappingMawX(SnesByteAngle.HalfTurn, checked((ushort)state.SegmentRadius))),
+            unchecked((short)CalculateYappingMawX(ByteAngle.HalfTurn, checked((ushort)state.SegmentRadius))),
             unchecked((short)CalculateYappingMawY(
-                SnesByteAngle.HalfTurn,
+                ByteAngle.HalfTurn,
                 checked((ushort)(state.SegmentRadius / 2)))));
 
         // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
@@ -264,10 +264,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 : unchecked((ushort)(128 - multiple));
 
             int rawX = unchecked((ushort)(
-                CalculateYappingMawX(new SnesByteAngle(unchecked((byte)(linkAngle))), checked((ushort)state.SegmentRadius)) - state.Baseline.X));
+                CalculateYappingMawX(new ByteAngle(unchecked((byte)(linkAngle))), checked((ushort)state.SegmentRadius)) - state.Baseline.X));
             int rawY = unchecked((ushort)(
                 CalculateYappingMawY(
-                    new SnesByteAngle(unchecked((byte)(linkAngle))),
+                    new ByteAngle(unchecked((byte)(linkAngle))),
                     checked((ushort)(state.SegmentRadius / 2))) - state.Baseline.Y));
 
             // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
@@ -275,15 +275,15 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // lopsided curve is a direct consequence of reusing raw X for both components.
             int correctionX = unchecked((ushort)(
                 CalculateYappingMawX(state.CurlAngle.ToByteAngle(), rawX) -
-                CalculateYappingMawX(new SnesByteAngle(0), rawX)));
+                CalculateYappingMawX(new ByteAngle(0), rawX)));
             int correctionY = unchecked((ushort)(
                 CalculateYappingMawY(state.CurlAngle.ToByteAngle(), rawX) -
-                CalculateYappingMawY(new SnesByteAngle(0), rawX)));
+                CalculateYappingMawY(new ByteAngle(0), rawX)));
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 unchecked((short)correctionX), unchecked((short)correctionY));
             // X is added before Y so its carry feeds the Y addition.
-            int segmentX = SnesCarry.AddWithCarry(checked((ushort)rawX), checked((ushort)correctionX), ref carry);
-            int segmentY = SnesCarry.AddWithCarry(checked((ushort)rawY), checked((ushort)correctionY), ref carry);
+            int segmentX = WordCarry.AddWithCarry(checked((ushort)rawX), checked((ushort)correctionX), ref carry);
+            int segmentY = WordCarry.AddWithCarry(checked((ushort)rawY), checked((ushort)correctionY), ref carry);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
                 unchecked((short)segmentX), unchecked((short)segmentY));
         }
@@ -297,7 +297,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // ordinary comparison.
             if (state.Extension.WholePixels >= YappingMawMaximumCurl)
             {
-                state.Extension = SnesSignedSixteenSixteen.FromParts(checked(YappingMawMaximumCurl), 0);
+                state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawMaximumCurl), 0);
                 // $A8:A4F2 adds four bytes after the ordinary eight-byte record advance: the same record's
                 // negative half, or the next record's positive half from a negative one.
                 if (state.QuadraticSpeedNegative)
@@ -347,7 +347,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports $A8:A63E: adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadQuadraticEnemySpeed(
+        state.Extension += SignedSixteenSixteen.FromRaw(EnemyMath.ReadQuadraticEnemySpeed(
             checked((ushort)state.QuadraticSpeedRecord), state.QuadraticSpeedNegative));
         state.QuadraticSpeedRecord++;
     }
@@ -548,7 +548,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(absoluteY - 255)) >= 0)
             return new YappingMawTarget(absoluteY, default);
 
-        SnesByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(
+        ByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(
             new(unchecked((short)absoluteX), unchecked((short)absoluteY))).ReinterpretAsTableAngle();
         int distance = unchecked((ushort)(
             EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitNegativeSineProduct(
@@ -561,17 +561,17 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>$A8:A73E: X is the Y helper with a minus-64 angle adjustment.</summary>
-    internal static ushort CalculateYappingMawX(SnesByteAngle angle, int length) =>
-        CalculateYappingMawY(angle.AddTableUnits(-SnesByteAngle.QuarterTurn.RawValue), length);
+    internal static ushort CalculateYappingMawX(ByteAngle angle, int length) =>
+        CalculateYappingMawY(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue), length);
 
     /// <summary>
     /// Ports $A8:A742 exactly, including the high-byte sine approximation and the unusual
     /// negative-product construction. Only length's low byte reaches WRMPYB.
     /// </summary>
-    internal static ushort CalculateYappingMawY(SnesByteAngle angle, int length)
+    internal static ushort CalculateYappingMawY(ByteAngle angle, int length)
     {
         int signedSample = EnemyTrigonometryTables.SignedSixteenBitSine(
-            new SnesByteAngle(unchecked((byte)-angle.RawValue)));
+            new ByteAngle(unchecked((byte)-angle.RawValue)));
         bool negative = signedSample < 0;
         int magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));
         int product = unchecked((ushort)((SnesLittleEndian.HighByte(magnitude)) * unchecked((byte)length)));

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// The flags describe the decremented low byte only, as the processor sets them in 8-bit mode.
 /// </summary>
 [CompatibilityService("a countdown kept in the low half of a value whose high half is independent state, wrapping without disturbing it")]
-[SnesEncodingOwner]
+[EncodingOwner("low-byte countdown decrement result")]
 public readonly record struct LowByteCountdownStep(ushort Remaining)
 {
     /// <summary>The decremented low byte.</summary>

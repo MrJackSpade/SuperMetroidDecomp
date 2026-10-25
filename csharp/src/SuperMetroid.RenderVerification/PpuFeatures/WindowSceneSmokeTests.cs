@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -20,7 +21,7 @@ internal static class WindowSceneSmokeTests
         {
             var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
-            Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+            RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             return (vram, FramePaint.FromOam(vram, palette, oam, 128, obsel));
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
@@ -28,8 +29,8 @@ internal static class WindowSceneSmokeTests
             new Extent16<TilemapCells>(32, 32)), new Position16<BgPlanePixels>(3, 11), true);
         AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Paint.Colors);
         LayeredScene Child(byte brightness) => new(childMemory.Paint, new RenderLayer[] {
-            new Mode7RenderLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), Mode7OverflowMode.CharacterZero), childFloor),
-            new ObjRenderLayer() }, brightness);
+            new FloorRenderLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), FloorOverflowMode.CharacterZero), childFloor),
+            new SpriteRenderLayer() }, brightness);
         // The parent's tile layer and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.
         int count = 0;
@@ -45,9 +46,9 @@ internal static class WindowSceneSmokeTests
             LayeredScene child = Child(brightness);
             var window = new WindowedSceneRenderLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
             var frame = new DisplayPacket(new(++count, 1, 0), new LayeredScene(parentMemory.Paint,
-                new RenderLayer[] { new ObjPriorityRenderLayer(0), window,
+                new RenderLayer[] { new SpritePriorityRenderLayer(0), window,
                     background,
-                    new ObjPriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 13), [new FadeLevel(11)]);
+                    new SpritePriorityRenderLayer(3), window, new FixedColorAddRenderLayer(1,2,3) }, 13), [new FadeLevel(11)]);
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");

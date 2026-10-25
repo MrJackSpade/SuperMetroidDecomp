@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class BeamPaletteCatalog
 {
     /// <summary>Only selected RGB5 words that differ from calculated stock beam paint.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> palettes = new();
+    internal readonly Dictionary<ColourCell, RgbColor> palettes = new();
     /// <summary>Stores independently edited colors while deriving unchanged words from stock paint.</summary>
-    internal BeamPaletteCatalog(Bgr555[][] rows)
+    internal BeamPaletteCatalog(RgbColor[][] rows)
     {
         for (int index = 0; index < rows.Length; index++)
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
@@ -19,8 +19,8 @@ public sealed class BeamPaletteCatalog
     }
 
     /// <summary>Gets an edited beam color when supplied, otherwise its calculated stock value.</summary>
-    private Bgr555 Color(SamusBeamCombination selection, int color) =>
-        palettes.TryGetValue(new ColourCell(selection.TableIndex, color), out Bgr555 supplied)
+    private RgbColor Color(SamusBeamCombination selection, int color) =>
+        palettes.TryGetValue(new ColourCell(selection.TableIndex, color), out RgbColor supplied)
             ? supplied : BeamPaintDefinitions.Color(selection, color);
 
     /// <summary>Copies all sixteen colors of an ordinary beam selection to CGRAM entries 224..239 (OBJ palette 6), matching native <c>Load_Beam_Palette_withStackPrepped</c> at <c>$90:ACCD</c>; does not run charge or Hyper Beam color animation.</summary>

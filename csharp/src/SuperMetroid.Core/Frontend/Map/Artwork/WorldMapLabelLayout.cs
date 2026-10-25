@@ -8,21 +8,21 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 public sealed class WorldMapLabelLayout
 {
     /// <summary>Drawing anchor for Crateria's world-map name.</summary>
-    private readonly Position16<OamPixels> crateria;
+    private readonly Position16<SpritePixels> crateria;
     /// <summary>Drawing anchor for Brinstar's world-map name.</summary>
-    private readonly Position16<OamPixels> brinstar;
+    private readonly Position16<SpritePixels> brinstar;
     /// <summary>Drawing anchor for Norfair's world-map name.</summary>
-    private readonly Position16<OamPixels> norfair;
+    private readonly Position16<SpritePixels> norfair;
     /// <summary>Drawing anchor for the Wrecked Ship's world-map name.</summary>
-    private readonly Position16<OamPixels> wreckedShip;
+    private readonly Position16<SpritePixels> wreckedShip;
     /// <summary>Drawing anchor for Maridia's world-map name.</summary>
-    private readonly Position16<OamPixels> maridia;
+    private readonly Position16<SpritePixels> maridia;
     /// <summary>Drawing anchor for Tourian's world-map name.</summary>
-    private readonly Position16<OamPixels> tourian;
+    private readonly Position16<SpritePixels> tourian;
 
     /// <summary>Retains six independently supplied label positions without deriving one area from another.</summary>
-    private WorldMapLabelLayout(Position16<OamPixels> crateria, Position16<OamPixels> brinstar, Position16<OamPixels> norfair,
-        Position16<OamPixels> wreckedShip, Position16<OamPixels> maridia, Position16<OamPixels> tourian)
+    private WorldMapLabelLayout(Position16<SpritePixels> crateria, Position16<SpritePixels> brinstar, Position16<SpritePixels> norfair,
+        Position16<SpritePixels> wreckedShip, Position16<SpritePixels> maridia, Position16<SpritePixels> tourian)
     {
         this.crateria = crateria;
         this.brinstar = brinstar;
@@ -36,7 +36,7 @@ public sealed class WorldMapLabelLayout
     /// <remarks>Reviewed for #1165: the six native area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
     /// from another area or storing a positional lookup. Only area IDs0..5 are valid.</remarks>
-    public Position16<OamPixels> Get(int area) => ((uint)area < AreaIds.Zebes.Count ? AreaIds.Zebes[area] : AreaId.Ceres) switch
+    public Position16<SpritePixels> Get(int area) => ((uint)area < AreaIds.Zebes.Count ? AreaIds.Zebes[area] : AreaId.Ceres) switch
     {
         AreaId.Crateria => crateria,
         AreaId.Brinstar => brinstar,
@@ -59,7 +59,7 @@ public sealed class WorldMapLabelLayout
         catch (JsonException error) { throw new InvalidDataException("Invalid world-map label layout JSON.", error); }
         if (document.Version != WorldMapLabelFormat.Version || document.Areas is null || document.Areas.Count != 6)
             throw new InvalidDataException("World-map labels require version 1 and exactly the six Zebes areas.");
-        Position16<OamPixels> RequireArea(AreaId area)
+        Position16<SpritePixels> RequireArea(AreaId area)
         {
             string name = area.ToString();
             if (!document.Areas.TryGetValue(name, out var point) ||

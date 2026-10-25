@@ -23,8 +23,8 @@ internal static class StokeOwnedStateVerification
             slot.SetSpawnParameter2((ushort)record);
             StokeBehavior.InitializeStoke(slot);
             state = enemies.StokeStates[0] ?? throw new InvalidOperationException("The initialized Stoke has no state.");
-            SnesSignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize);
-            SnesSignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize + 4);
+            SignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize);
+            SignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize + 4);
             AssertEqual(right, state.RightVelocity, $"record {record} rightward speed");
             AssertEqual(left, state.LeftVelocity, $"record {record} leftward speed");
             AssertEqual(StokeAiFunction.Moving, state.Function, $"record {record} walks");
@@ -33,8 +33,8 @@ internal static class StokeOwnedStateVerification
 
         slot.Clear();
         StokeEnemyState cleared = state ?? throw new InvalidOperationException("No Stoke was initialized.");
-        AssertEqual(SnesSignedSixteenSixteen.Zero, cleared.RightVelocity, "a kill empties the rightward speed");
-        AssertEqual(SnesSignedSixteenSixteen.Zero, cleared.LeftVelocity, "a kill empties the leftward speed");
+        AssertEqual(SignedSixteenSixteen.Zero, cleared.RightVelocity, "a kill empties the rightward speed");
+        AssertEqual(SignedSixteenSixteen.Zero, cleared.LeftVelocity, "a kill empties the leftward speed");
         AssertEqual(StokeDirection.Left, cleared.Direction, "a kill empties the facing");
         AssertEqual(null, cleared.Function, "a kill empties the behaviour");
         Console.WriteLine("Stoke owned state: all linear-speed records and the cleared record match.");

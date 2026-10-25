@@ -119,7 +119,7 @@ public sealed class PhantoonPartState
     /// <summary>The tentacles' signed 8.8 swoop velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> SwoopVelocity
     {
-        get => new(new SnesSignedEightEight(checked((ushort)_wordC)), new SnesSignedEightEight(checked((ushort)_wordD)));
+        get => new(new SignedEightEight(checked((ushort)_wordC)), new SignedEightEight(checked((ushort)_wordD)));
         internal set
         {
             _wordC = value.X.RawValue;
@@ -198,7 +198,7 @@ public sealed class PhantoonPartState
     /// The eye's wavy-distortion mode, which the wave owner reads every pass: zero ends the channel and lets the body
     /// synchronize BG2 scrolling; bit zero of a nonzero mode selects the long cycle.
     /// </summary>
-    [NativeWord("eye parameter word: zero ends the wave channel and bit zero of a nonzero word selects the long cycle")]
+    [PackedFields("eye parameter word: zero ends the wave channel and bit zero of a nonzero word selects the long cycle")]
     public int WaveMode { get => _parameterOne; internal set => _parameterOne = Word(value); }
 
     /// <summary>The tentacles' record of the wave mode last requested for the intro or the death fade; nothing reads it back.</summary>

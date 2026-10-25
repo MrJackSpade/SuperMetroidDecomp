@@ -248,7 +248,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
         var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(checked((ushort)source.Spawn.Population.Parameter2));
-        projectile.Velocity = new(new SnesSignedEightEight(checked((ushort)velocities.Right)), new SnesSignedEightEight(checked((ushort)velocities.Left)));
+        projectile.Velocity = new(new SignedEightEight(checked((ushort)velocities.Right)), new SignedEightEight(checked((ushort)velocities.Left)));
     }
 
     /// <summary>Ports pre-instruction $86:DF39 and both directional movers.</summary>

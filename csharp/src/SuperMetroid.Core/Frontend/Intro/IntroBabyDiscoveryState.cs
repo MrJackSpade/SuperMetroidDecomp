@@ -425,7 +425,7 @@ internal sealed class IntroBabyDiscoveryState
             positiveLimit: 640,
             negativeLimit: -640));
         // $8B:BB79-$BB9E: a baby moving left draws over Samus; otherwise Samus draws first.
-        SamusDisplay = unchecked((sbyte)(SnesEightEight.WholeOf(BabyVelocity.X.RawValue))) < 0
+        SamusDisplay = unchecked((sbyte)(EightEight.WholeOf(BabyVelocity.X.RawValue))) < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
@@ -441,10 +441,10 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Adjusts an 8.8 velocity toward a target by one $20 step without exceeding its limits.</summary>
-    private static SnesSignedEightEight AccelerateToward(
+    private static SignedEightEight AccelerateToward(
         int position,
         int target,
-        SnesSignedEightEight current,
+        SignedEightEight current,
         int positiveLimit,
         int negativeLimit)
     {
@@ -460,7 +460,7 @@ internal sealed class IntroBabyDiscoveryState
     private static void AddEightEightVelocity(
         IntroDiscoverySprite sprite,
         Axis axis,
-        SnesSignedEightEight velocity)
+        SignedEightEight velocity)
     {
         sprite.Position = axis == Axis.Horizontal
             ? sprite.Position.WithX(IntroCinematicMotion.AddEightEight(sprite.Position.X, velocity))

@@ -125,7 +125,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
             // this project targets the user's Japan/USA retail ROM and reads NTSC data.
-            slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(-ZoaRisingSubpixelSpeed));
+            slot.Position = slot.Position.AdvanceY(SignedSixteenSixteen.FromRaw(-ZoaRisingSubpixelSpeed));
             return;
         }
 
@@ -147,7 +147,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         int xDisplacement = state.InstructionListTableIndex == ZoaAnimationSelector.None
             ? -unsignedDisplacement
             : unsignedDisplacement;
-        slot.Position = slot.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
+        slot.Position = slot.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
         {
             SetZoaProgram(slot, state);

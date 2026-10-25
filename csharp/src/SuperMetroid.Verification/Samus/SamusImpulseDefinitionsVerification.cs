@@ -29,13 +29,13 @@ internal static class SamusImpulseDefinitionsVerification
         for (int direction = 1; direction <= 3; direction++)
         {
             bomb.EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster | (gravity == 1 ? SamusEquipmentFlags.GravitySuit : 0));
-            bomb.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
+            bomb.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             bomb.LiquidPhysics.FxYPosition = liquid == 1 ? (ushort)raw : ushort.MaxValue;
             bomb.LiquidPhysics.LavaAcidYPosition = liquid == 2 ? (ushort)raw : ushort.MaxValue;
             bomb.BombJumpDirection = (ushort)(0x0800 | direction);
             bomb.BombJumpStarting = true;
             bomb.BombJumpActive = false;
-            bomb.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(7, 123);
+            bomb.Kinematics.YAcceleration = new UnsignedSixteenSixteen(7, 123);
             SamusBombJumpMovement.Start(bomb);
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ef5 + medium * 2)), bomb.Kinematics.YSpeed.Whole, "Bomb native whole launch");
@@ -66,7 +66,7 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.BombJumpDirection = 0x0801;
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;
-            hurt.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
+            hurt.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             hurt.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
             AssertTrue(SamusKnockbackMovement.Start(hurt, input, new KnockbackLaunch { KnockbackXDirection = side == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right, KnockbackTimer = WrappingCountdown.Start(11) }), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;

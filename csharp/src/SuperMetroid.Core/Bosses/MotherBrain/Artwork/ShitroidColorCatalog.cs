@@ -9,19 +9,19 @@ public sealed class ShitroidColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
         {
-            Span<Bgr555> selectedSidehopper = stackalloc Bgr555[ShitroidColorDefinitions.TargetColorCount];
+            Span<RgbColor> selectedSidehopper = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
             for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = sidehopper.Resolve(color);
             content.AppendColors("sidehopper", selectedSidehopper);
-            Span<Bgr555> selectedShitroid = stackalloc Bgr555[ShitroidColorDefinitions.TargetColorCount];
+            Span<RgbColor> selectedShitroid = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
             for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = TargetColor(ShitroidColorTarget.Shitroid, color);
             content.AppendColors("shitroid", selectedShitroid);
-            Span<Bgr555> selectedCorpse = stackalloc Bgr555[ShitroidColorDefinitions.TargetColorCount];
+            Span<RgbColor> selectedCorpse = stackalloc RgbColor[ShitroidColorDefinitions.TargetColorCount];
             for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = deadSidehopper.Resolve(color);
             content.AppendColors("deadSidehopper", selectedCorpse);
             content.Append("normal", ShitroidColorDefinitions.NormalFrameCount);
             for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
             {
-                var row = new Bgr555[ShitroidColorDefinitions.NormalColorsPerFrame];
+                var row = new RgbColor[ShitroidColorDefinitions.NormalColorsPerFrame];
                 for (int color = 0; color < row.Length; color++) row[color] = NormalColor(frame, color);
                 content.AppendColors("row", row);
             }
@@ -36,13 +36,13 @@ public sealed class ShitroidColorCatalog
     /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
     /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
     /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
-    private readonly Bgr555 shitroidTransparentSlot;
+    private readonly RgbColor shitroidTransparentSlot;
     /// <summary>Victim colors selected after the giant Baby Metroid drains the Sidehopper.</summary>
     internal readonly SidehopperCorpsePalette deadSidehopper;
 
     /// <summary>Separates the transparent Shitroid palette word before constructing the visible-ink resolver.</summary>
-    internal ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
-        Bgr555[] shitroid, Bgr555[] deadSidehopper)
+    internal ShitroidColorCatalog(RgbColor[][] normal, RgbColor[] sidehopper,
+        RgbColor[] shitroid, RgbColor[] deadSidehopper)
     {
         this.shitroid = new BabyMetroidInitialPalette(shitroid.AsSpan(1).ToArray());
         this.normal = new ColorPulse(normal, this.shitroid);
@@ -52,14 +52,14 @@ public sealed class ShitroidColorCatalog
     }
 
     /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, corresponding to $A9:F6D1 and written to CGRAM colors 165–168; phase cadence and cries remain actor behavior.</summary>
-    public Bgr555 NormalColor(int frame, int color) =>
+    public RgbColor NormalColor(int frame, int color) =>
         (uint)frame < ShitroidColorDefinitions.NormalFrameCount && (uint)color < ShitroidColorDefinitions.NormalColorsPerFrame
             ? normal.Resolve(frame, color)
             : throw new ArgumentOutOfRangeException(nameof(frame),
                 $"Shitroid normal frame {frame}, color {color} is outside the authored image.");
 
     /// <summary>Gets packed RGB5 color 0–15 from a selected initialization target, including its retained transparent-slot word; the actor copies targets to its palette image and current CGRAM during setup.</summary>
-    public Bgr555 TargetColor(ShitroidColorTarget target, int color)
+    public RgbColor TargetColor(ShitroidColorTarget target, int color)
     {
         if (target == ShitroidColorTarget.Shitroid)
         {
@@ -77,10 +77,10 @@ public sealed class ShitroidColorCatalog
         /// <summary>Visible target inks used to calculate the native pulse when the editable rows agree.</summary>
         private readonly BabyMetroidInitialPalette target;
         /// <summary>Independent pulse rows retained when an edited frame differs from the calculated curve.</summary>
-        internal readonly Bgr555[][]? supplied;
+        internal readonly RgbColor[][]? supplied;
 
         /// <summary>Compares each supplied ink with the target-derived pulse before deciding whether rows can be shared.</summary>
-        public ColorPulse(Bgr555[][] frames, BabyMetroidInitialPalette target)
+        public ColorPulse(RgbColor[][] frames, BabyMetroidInitialPalette target)
         {
             this.target = target;
             // Sharing the target's innard colors is valid only when every supplied
@@ -92,11 +92,11 @@ public sealed class ShitroidColorCatalog
         }
 
         /// <summary>Uses the supplied ink or mirrors the eight-phase dimming curve around its two darkest phases, retaining the organ's red floor.</summary>
-        public Bgr555 Resolve(int frame, int color)
+        public RgbColor Resolve(int frame, int color)
         {
             if (supplied is not null) return supplied[frame][color];
             int phase = Math.Min(frame, ShitroidColorDefinitions.NormalFrameCount - 1 - frame);
-            Bgr555 paint = target.Resolve(ShitroidColorDefinitions.NormalFirstInitialColor + color);
+            RgbColor paint = target.Resolve(ShitroidColorDefinitions.NormalFirstInitialColor + color);
             return paint.Map((channel, origin) =>
             {
                 int floor = 0;

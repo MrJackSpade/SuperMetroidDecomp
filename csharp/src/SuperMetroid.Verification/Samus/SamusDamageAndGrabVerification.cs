@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies;
@@ -111,8 +112,8 @@ internal static void VerifySamusDrainedController()
     };
     SamusPoseMetadata.RefreshCollisionRadii(right);
     SamusPresentation.InitializeAnimation(right);
-    right.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(3, 0x4444);
-    right.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(2, 0x2222);
+    right.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(3, 0x4444);
+    right.Kinematics.YSpeed = new UnsignedSixteenSixteen(2, 0x2222);
 
     right.Drained.LetFall(right);
     AssertEqual(SamusPoseId.DrainedCrouchingRightPose, right.Pose,
@@ -136,7 +137,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(5, right.AnimationFrame, "F7 performs its second frame increment");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "F7 selects following literal delay");
 
-    right.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x4000);
+    right.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     ushort firstHandlerY = right.Position.Y.Whole;
     ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
     right.Drained.StepFalling(level, right, 0);
@@ -216,8 +217,8 @@ level, right, unchecked((ushort)(frame + 1))),
     // Seed both neighboring colors so the test can distinguish the exact eight-color
     // write from a convenient whole-palette copy. Calls 1/2 show frame zero, calls 3/4
     // show frame one, and call 21 executes `$C61E,$D904` and reloads frame zero.
-    drainedCgram.SetColor(0xe0, Bgr555.FromWord(0x4567));
-    drainedCgram.SetColor(0xe9, Bgr555.FromWord(0x2345));
+    drainedCgram.SetColor(0xe0, RgbColor.FromWord(0x4567));
+    drainedCgram.SetColor(0xe9, RgbColor.FromWord(0x2345));
     var hyperBeamGuard = NewHyperBeamPaletteFxControlGuard(bus);
     for (int call = 0; call < 21; call++)
     {
@@ -781,10 +782,10 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "repeated D-pad pattern is rejected and leaves escape counter unchanged");
 
-    samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
-    samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
+    samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(3, 0x4000);
+    samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
-    samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 0xc000);
+    samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 0xc000);
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
 

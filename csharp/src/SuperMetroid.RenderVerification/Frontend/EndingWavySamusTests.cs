@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Frontend;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -34,7 +35,7 @@ internal static class EndingWavySamusTests
         scene.Stage.Brightness = 15;
         Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<TileAddRenderLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
-        Rgba32[]? previous = null;
+        RgbaPixel[]? previous = null;
         for (int age = 0; age < 180; age++)
         {
             Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
@@ -49,8 +50,8 @@ internal static class EndingWavySamusTests
             {
                 // The same frame without the wave's addition shows what the addition changes.
                 RenderLayer[] unwaved = [.. snapshot.Layers.ToArray().Where(layer => layer is not TileAddRenderLayer)];
-                Rgba32[] withoutWave = DisplayRendering.Render(new LayeredScene(snapshot.Paint, unwaved, snapshot.Brightness));
-                Rgba32[] expected = DisplayRendering.Render(snapshot);
+                RgbaPixel[] withoutWave = DisplayRendering.Render(new LayeredScene(snapshot.Paint, unwaved, snapshot.Brightness));
+                RgbaPixel[] expected = DisplayRendering.Render(snapshot);
                 Require(!expected.SequenceEqual(withoutWave), "Native artwork must visibly add the blue transformation effect");
                 var packet = new DisplayPacket(new(age + 1, 1, (ushort)age), snapshot);
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Ending wave frame on this device matches the WARP reference device");
@@ -76,7 +77,7 @@ internal static class EndingWavySamusTests
             if (age < 2) return 0;
             int offset = (-2 + (age - 1) * 16 + (line % 64) * 4) & 0x1ff;
             short sample = NativeWaveSample(rom, offset);
-            int displacement = SnesSixteenSixteen.Multiply(Math.Abs((int)sample), 0x4000);
+            int displacement = SixteenSixteen.Multiply(Math.Abs((int)sample), 0x4000);
             if (sample < 0) displacement = -displacement;
             if ((line / 64 & 1) != 0) displacement = -displacement;
             return unchecked((ushort)displacement);

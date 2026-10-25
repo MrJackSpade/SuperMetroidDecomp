@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -9,18 +9,18 @@ internal static class CrocomireColorCatalogAccess
     extension(CrocomireColorCatalog self)
     {
         /// <summary>Reads body colors used during the active fight.</summary>
-        internal Bgr555 ResolveFightBody(int color) => self.Get(CrocomireColorCatalog.Band.FightBody, color);
+        internal RgbColor ResolveFightBody(int color) => self.Get(CrocomireColorCatalog.Band.FightBody, color);
 
         /// <summary>Reads the initial wall's Crocomire color band.</summary>
-        internal Bgr555 ResolveInitialWall(int color) => self.Get(CrocomireColorCatalog.Band.InitialWall, color);
+        internal RgbColor ResolveInitialWall(int color) => self.Get(CrocomireColorCatalog.Band.InitialWall, color);
 
         /// <summary>Reads the initial projectile's Crocomire color band.</summary>
-        internal Bgr555 ResolveInitialProjectile(int color) => self.Get(CrocomireColorCatalog.Band.InitialProjectile, color);
+        internal RgbColor ResolveInitialProjectile(int color) => self.Get(CrocomireColorCatalog.Band.InitialProjectile, color);
 
         /// <summary>Reads the exposed skeleton-arm color band.</summary>
-        internal Bgr555 ResolveSkeletonArm(int color) => self.Get(CrocomireColorCatalog.Band.SkeletonArm, color);
+        internal RgbColor ResolveSkeletonArm(int color) => self.Get(CrocomireColorCatalog.Band.SkeletonArm, color);
 
         /// <summary>Reads the wall-spike color band for the Crocomire room.</summary>
-        internal Bgr555 ResolveWallSpikes(int color) => self.Get(CrocomireColorCatalog.Band.WallSpikes, color);
+        internal RgbColor ResolveWallSpikes(int color) => self.Get(CrocomireColorCatalog.Band.WallSpikes, color);
     }
 }

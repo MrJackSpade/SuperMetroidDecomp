@@ -69,7 +69,7 @@ internal sealed class IntroEggParticle
     private static void AddSixteenSixteenVelocity(
         IntroDiscoverySprite sprite,
         Axis axis,
-        SnesSignedSixteenSixteen velocity)
+        SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal
             ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))

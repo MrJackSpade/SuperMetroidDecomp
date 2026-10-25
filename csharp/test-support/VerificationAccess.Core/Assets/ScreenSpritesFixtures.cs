@@ -34,7 +34,7 @@ internal static class ScreenSpritesFixtures
         {
             CharacterSpriteDraw character = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(draw);
             ScreenObjectSizes sizes = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.ObjectSizes(draw);
-            var origin = new Position16<OamPixels>(unchecked((ushort)(character.Origin.X & 0x1ff)), unchecked((ushort)(character.Origin.Y & 0xff)));
+            var origin = new Position16<SpritePixels>(unchecked((ushort)(character.Origin.X & 0x1ff)), unchecked((ushort)(character.Origin.Y & 0xff)));
             foreach (SpriteFramePart part in character.Frame.Parts)
             {
                 var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? character.Palette, part.Priority ?? character.Priority, part.Flip);
@@ -65,7 +65,7 @@ internal static class ScreenSpritesFixtures
                 new SnesObjAttributeWord(key.Attributes), InheritPalette: false)]).ToFrame(name, 0);
             var page = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects), new byte[2 * 256 * SpriteArtwork.CharacterByteCount]);
             var sources = new SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources(
-                [new SuperMetroid.AssetExtraction.Artwork.SheetFrameSource(name, frame, page, 0)], new Bgr555[8 * 16], ObjPartFrames.StandardSizes,
+                [new SuperMetroid.AssetExtraction.Artwork.SheetFrameSource(name, frame, page, 0)], new RgbColor[8 * 16], SpritePartFrames.StandardSizes,
                 PartsKeepOwnRows: true);
             return SuperMetroid.TestSupport.RepositoryInstallation.Verification.CinematicSheetFixtures.Load(sources, name).Frame(name);
         });
@@ -108,7 +108,7 @@ internal static class ScreenSpritesFixtures
         /// Occupies one object with a frame of one small object at its origin, through the spritemap loader, as capacity
         /// checks fill the frame.
         /// </summary>
-        internal void AddOccupyingPart(Position16<OamPixels> position, SnesObjAttributeWord attributes) =>
+        internal void AddOccupyingPart(Position16<SpritePixels> position, SnesObjAttributeWord attributes) =>
             self.AddImage(PartFrame(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes), position);
 
     }
@@ -123,7 +123,7 @@ internal static class ScreenSpritesFixtures
         /// Occupies one object with a small on-screen spritemap part, as capacity checks fill the frame: unlike a raw
         /// store, the spritemap loader stops when OAM is full.
         /// </summary>
-        internal void AddOccupyingPart(Position16<OamPixels> position, SnesObjAttributeWord attributes) =>
+        internal void AddOccupyingPart(Position16<SpritePixels> position, SnesObjAttributeWord attributes) =>
             self.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes, position);
     }
 }

@@ -7,16 +7,16 @@ namespace SuperMetroid.Core.Frontend.Ending;
 public static class EndingMotionDefinitions
 {
     /// <summary>The floor point, in floor pixels, the flyaway's perspective floor turns about.</summary>
-    public static Offset16<Mode7Pixels> FloorCenter => new(56, 24);
+    public static Offset16<FloorPixels> FloorCenter => new(56, 24);
 
     /// <summary>The floor point, in floor pixels, the atmospheric and explosion scenes' floor turns about.</summary>
-    public static Offset16<Mode7Pixels> AtmosphericFloorCenter => new(128, 128);
+    public static Offset16<FloorPixels> AtmosphericFloorCenter => new(128, 128);
 
     /// <summary>The unity zoom.</summary>
     public const ushort IdentityScale = 0x0100;
 
     /// <summary>The escape scenes' initial floor angle.</summary>
-    public static SnesByteAngle EscapeInitialAngle { get; } = new(0x20);
+    public static ByteAngle EscapeInitialAngle { get; } = new(0x20);
 
     /// <summary>The escape and explosion scenes' initial zoom.</summary>
     public const ushort EscapeInitialScale = 0x0040;
@@ -46,19 +46,19 @@ public static class EndingMotionDefinitions
     public const ushort PlanetExitScale = 0x0020;
 
     /// <summary>The fly-to-camera phase's initial horizontal velocity: half a pixel per update.</summary>
-    public static SnesSignedSixteenSixteen PlanetInitialVelocity => SnesSignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 
     /// <summary>The fly-to-camera phase's velocity decrease per update: 1/256 pixel per update squared.</summary>
-    public static SnesSignedSixteenSixteen PlanetAcceleration => SnesSignedSixteenSixteen.FromRaw(0x0100);
+    public static SignedSixteenSixteen PlanetAcceleration => SignedSixteenSixteen.FromRaw(0x0100);
 
     /// <summary>The credits' vertical scroll per update: half a pixel.</summary>
-    public static SnesSignedSixteenSixteen CreditsScrollVelocity => SnesSignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    public static SignedSixteenSixteen CreditsScrollVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 
     /// <summary>The angle the slow-spinning gunship approaches one unit per update.</summary>
-    public static SnesAngle PlanetSlowTargetAngle => SnesAngle.FromTableIndex(0xe0);
+    public static RotationAngle PlanetSlowTargetAngle => RotationAngle.FromTableIndex(0xe0);
 
     /// <summary>The angle the final fly-to-camera turn approaches, separate from the slow-spin target.</summary>
-    public static SnesAngle PlanetExitTargetAngle => SnesAngle.FromTableIndex(0x10);
+    public static RotationAngle PlanetExitTargetAngle => RotationAngle.FromTableIndex(0x10);
 
     /// <summary>The steps of the fast ship-shake pattern.</summary>
     public const int PlanetFastPatternLength = 16;

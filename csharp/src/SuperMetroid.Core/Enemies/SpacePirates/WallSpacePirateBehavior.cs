@@ -79,8 +79,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // The USA/Japan build uses byte angles. Bit fifteen selects 63 two-step frames;
         // clearing it selects 32 four-step frames with adjusted endpoints. These values are
         // not approximations: they are the literal $BE/$42/$02 and $C0/$40/$04 branches.
-        state.RightJumpTargetAngle = SnesAngle.FromTableIndex(slowJump ? (byte)190 : (byte)192);
-        state.LeftJumpTargetAngle = SnesAngle.FromTableIndex(slowJump ? (byte)66 : (byte)64);
+        state.RightJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? (byte)190 : (byte)192);
+        state.LeftJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? (byte)66 : (byte)64);
         state.JumpAngleDelta = slowJump ? 2 : 4;
 
         SnapWallSpacePirateXToTile(slot);
@@ -215,7 +215,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 "Wall Space Pirate climbing requires room collision data.");
         }
 
-        int displacement = SnesSixteenSixteen.FromWhole(downwardPixels);
+        int displacement = SixteenSixteen.FromWhole(downwardPixels);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return null;
 
@@ -269,7 +269,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),
             slot.Position.Y.Whole);
-        state.WallJumpArcAngle = direction == HorizontalDirection.Right ? SnesAngle.QuarterTurn : SnesAngle.ThreeQuarterTurn;
+        state.WallJumpArcAngle = direction == HorizontalDirection.Right ? RotationAngle.QuarterTurn : RotationAngle.ThreeQuarterTurn;
     }
 
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>

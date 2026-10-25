@@ -40,7 +40,7 @@ internal static class ScrollingSkyLayerVerification
             AssertEqual(!frozen, layer.BandsShown, $"frame {frame} shows its bands only when time runs");
             AssertEqual(expected.Length, layer.BandOffsets.Length, $"frame {frame} publishes all 23 band offsets");
             for (int slot = 0; slot < expected.Length; slot++)
-                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected[slot])), layer.BandOffsets[slot],
+                AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected[slot])), layer.BandOffsets[slot],
                     $"frame {frame} band slot {slot} offset");
             AssertEqual(0, layer.BandOffsets[^1], $"frame {frame} keeps the bottom band stationary");
         }

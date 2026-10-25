@@ -14,14 +14,14 @@ wrapping coordinate family and its fixed-point axes:
 - `Offset16`: the signed difference of two wrapping coordinates; the game tests the sign of wrapped differences.
 - `Extent16`: radii are added to and subtracted from wrapping coordinates, and some actors store a negated contour as
   their radius, which is then compared as a large unsigned extent.
-- `SnesFixedPosition`, `SnesSignedSixteenSixteen`, `SnesSignedEightEight`: the per-axis fixed-point words, whose
+- `FixedCoordinate`, `SignedSixteenSixteen`, `SignedEightEight`: the per-axis fixed-point words, whose
   carries and 32-bit wraps the movement routines reproduce.
 
-These types are each the single owner of their representation (`[SnesEncodingOwner]`), and SME6347 allows a narrow
+These types are each the single owner of their representation (`[EncodingOwner]`), and SME6347 allows a narrow
 width nowhere else in gameplay (`docs/cartridge-encoding.md`). A value that only passes through a coordinate (a
 local holding one axis, a parameter carrying a whole word, a Mode 7 matrix coefficient) is an `int`: the owner's
-operations take `int` and check that the value is already a word (`Position16.WithX`, `SnesFixedPosition.WithWhole`,
-`FixedPosition.WithWholeX`, `SnesSignedSixteenSixteen.FromParts`), so the wrap stays in the arithmetic that produces
+operations take `int` and check that the value is already a word (`Position16.WithX`, `FixedCoordinate.WithWhole`,
+`FixedPosition.WithWholeX`, `SignedSixteenSixteen.FromParts`), so the wrap stays in the arithmetic that produces
 the word, written where it happens, and never in the width of a variable. This is a statement about the game's
 geometry, not about the processor.
 
@@ -35,7 +35,7 @@ different types; moving between spaces is always a named conversion.
 | `RoomPixels` | Room-relative pixels: Samus, enemies, projectiles, PLM blocks, the camera's top-left corner (BG1 scroll). |
 | `ScreenPixels` | Viewport-relative pixels: a room position minus the camera position, and the on-screen positions of cinematic and menu objects. |
 | `ScreenSubpixels` | Viewport positions in 1/256 pixels: unsigned 8.8 words whose high byte is the screen pixel (the escape timer). |
-| `OamPixels` | OAM sprite coordinates (nine-bit signed X, eight-bit Y): every spritemap draw origin and every authored sprite anchor. |
+| `SpritePixels` | Sprite placement coordinates relative to the screen: every spritemap draw origin and every authored sprite anchor. |
 | `Bg2Pixels`, `Bg3Pixels` | BG2/BG3 scroll-register pixels, which follow their own parallax/FX rules. |
 | `Bg3Subpixels` | BG3 room-FX texture drift in 1/256 pixels (the 8.8 rain, fog and spores accumulators). |
 | `BgPlanePixels` | The scroll words of whichever background plane a generic render layer samples. |
@@ -45,7 +45,7 @@ different types; moving between spaces is always a named conversion.
 | `TilemapCells` | VRAM tilemap cells. |
 | `MapTiles` | Area-map tiles (pause, file select, minimap). |
 | `MapPixels` | Area-map plane pixels (eight per tile): map scroll offsets, scroll bounds and map marker/arrow positions. |
-| `Mode7Pixels` | Mode 7 plane coordinates and matrix centre. |
+| `FloorPixels` | Coordinates on a turning, scaling floor image, and the centre it turns about. |
 | `CharacterPixels` | Pixels inside one eight-by-eight character cell. |
 | `ImagePixels` | Host raster pixels: decoded images, artwork atlases and other host images. |
 | `DisplayPixels` | Host window/swapchain pixels after presentation scaling. |
@@ -56,9 +56,9 @@ stick is `SuperMetroid.Desktop.Input.GamepadStick`.
 Add a space only when values in it must not mix with an existing space; document it here and give it its own
 `csharp/src/SuperMetroid.Core/Spatial/<Space>.cs` file beside the others.
 
-Sprite drawing: asset compositions draw at a `Position16<OamPixels>` origin and authored sprite
-anchors are OAM coordinates. Game and cinematic state keeps on-screen object positions in
-`ScreenPixels` and converts at the draw call with `ScreenConversions.ToOam`.
+Sprite drawing: asset compositions draw at a `Position16<SpritePixels>` origin and authored sprite
+anchors are sprite placement coordinates. Game and cinematic state keeps on-screen object positions in
+`ScreenPixels` and converts at the draw call with `ScreenConversions.ToSpritePosition`.
 
 ## Shapes
 
@@ -71,11 +71,11 @@ coordinates (`AffineTransform`'s signed 8.8 matrix coefficients) store `int`.
 | `Position16<TSpace>` | `ushort X, Y`, wrapping at 16 bits | Whole-pixel positions, camera and scroll positions, block/screen/tile/cell coordinates, image pixels. |
 | `Offset16<TSpace>` | `short X, Y`, wrapping at 16 bits | Signed displacements and relative offsets (draw-list steps, part offsets, anchors relative to an origin). |
 | `Extent16<TSpace>` | `ushort X, Y` | Sizes and half-extents (radii); the owning member name says which. Grid sizes own `Area`, `Contains`, `RowMajorIndex` and `CellAtRowMajorIndex`. |
-| `FixedPosition<TSpace>` | `SnesFixedPosition X, Y` (whole + subpixel word per axis) | Native 16.16 positions such as Samus, enemy, camera and cinematic positions with subpixels. |
-| `FixedVector<TSpace>` | `SnesSignedSixteenSixteen X, Y` | Native signed 16.16 displacements and per-frame velocities. |
-| `EightEightVector<TSpace>` | `SnesSignedEightEight X, Y` | Native signed 8.8 velocities and accelerations; `ToSixteenSixteen()` promotes them for `FixedPosition.Advance`. |
+| `FixedPosition<TSpace>` | `FixedCoordinate X, Y` (whole + subpixel word per axis) | Native 16.16 positions such as Samus, enemy, camera and cinematic positions with subpixels. |
+| `FixedVector<TSpace>` | `SignedSixteenSixteen X, Y` | Native signed 16.16 displacements and per-frame velocities. |
+| `EightEightVector<TSpace>` | `SignedEightEight X, Y` | Native signed 8.8 velocities and accelerations; `ToSixteenSixteen()` promotes them for `FixedPosition.Advance`. |
 
-The native per-axis arithmetic lives once in `SnesSignedSixteenSixteen` and `SnesFixedPosition`
+The native per-axis arithmetic lives once in `SignedSixteenSixteen` and `FixedCoordinate`
 (whole/fraction assembly, carry/borrow, 32-bit wrap, half-word replacement). The two-dimensional
 types delegate to it and never re-derive it.
 
@@ -86,7 +86,7 @@ Integer arithmetic that builds a coordinate wraps explicitly where the game wrap
 native code works in 16-bit words and a later bounds check rejects the wrapped value (collision and PLM grid probes),
 or a stepped coordinate decremented or incremented through the compatibility counter (`WrappingCounter`). The result
 is held as an `int` until it reaches its owner, whose `int` operations (`Position16.Of`, `Offset16.Of`,
-`Extent16.Of`, `SnesFixedPosition.Of`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
+`Extent16.Of`, `FixedCoordinate.Of`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
 left unwrapped fails where it is stored instead of being truncated there.
 
 ## Operations
@@ -98,13 +98,13 @@ left unwrapped fails where it is stored instead of being truncated there.
   `FixedVector ± FixedVector` (fraction carry/borrow, 32-bit wrap per axis), and
   `FixedPosition ± Offset16` / `FixedVector ± Offset16` (whole words only, wrapping at sixteen
   bits, fractions unchanged — the platform pushes into Samus's external displacement).
-- Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SnesSignedSixteenSixteen)`.
+- Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SignedSixteenSixteen)`.
 - Exact native construction: `FixedPosition.FromWords/FromWhole`, `FixedVector.FromWords`,
-  `FixedVector.FromWholePixels(Offset16)`, `SnesFixedPosition.FromRaw/RawValue` for one unsigned
-  16.16 axis; `SnesSignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
-  `Position16.Of`, `Offset16.Of`, `Extent16.Of` and `SnesFixedPosition.Of`, each checked against its word.
+  `FixedVector.FromWholePixels(Offset16)`, `FixedCoordinate.FromRaw/RawValue` for one unsigned
+  16.16 axis; `SignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
+  `Position16.Of`, `Offset16.Of`, `Extent16.Of` and `FixedCoordinate.Of`, each checked against its word.
 - Axis replacement: `WithX` / `WithY`. Half-word replacement where a cartridge routine stores only
-  one word: `SnesFixedPosition.WithWhole/WithFraction`, `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
+  one word: `FixedCoordinate.WithWhole/WithFraction`, `SignedSixteenSixteen.WithWholePixels/WithFraction`,
   `FixedPosition.WithWhole/WithFractionsOf/WithWholeX/WithWholeY/WithFractionX/WithFractionY` and
   `FixedVector.WithWhole/WithWholeX/WithWholeY/WithFractionY`.
 - Reflection and reversal: `Offset16.MirroredX` (X negated, wrapping; Y kept) for facing-mirrored
@@ -115,7 +115,7 @@ left unwrapped fails where it is stored instead of being truncated there.
   - `ScreenConversions.RelativeToCamera`: room position minus camera, as a signed screen offset;
     `ScreenConversions.ToScreen`: the same subtraction kept as the wrapped screen position words
     native code stores (Samus's death-sequence screen position);
-    `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin;
+    `ScreenConversions.ToSpritePosition`: an on-screen position as the sprite draw origin;
     `ScreenConversions.WholePixels`: an unsigned 8.8 screen position's high bytes as screen pixels.
   - `RoomGridConversions.ToRoomBlock`: a room pixel to its block (`LSR ×4`);
     `ToRoomPixels`: a scroll-zone screen, or a block (`ASL ×4`), to its top-left room pixel;
@@ -125,8 +125,8 @@ left unwrapped fails where it is stored instead of being truncated there.
   - `BgPlaneConversions.AsBgPlaneScroll`: a BG1, BG2 or area-map scroll as the generic plane's scroll words.
   - `Bg3FxConversions.AsBg3Scroll` / `WholePixels`: the layer-one anchor of a BG3 effect plane and
     the signed high bytes of its 8.8 drift.
-  - `Mode7Conversions.AsMode7Register`: a layer-one room point as signed Mode 7 register words;
-    `AsSignedRegister`: a Mode 7 plane position as its signed register words.
+  - `FloorConversions.AsFloorWord`: a layer-one room point as a signed floor offset;
+    `AsSignedWord`: a floor position as its signed floor offset.
   - `MapScreenConversions`: map tile → map pixel, map pixel → screen under the map scroll.
 - Never floating-point vectors in cartridge logic: preserve native width, signedness, wrap order,
   origin and truncation exactly.

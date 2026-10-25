@@ -95,7 +95,7 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>Reads one authored palette target without replacing the current fade state.</summary>
-    private Bgr555 StaticPaletteColor(EndingPaletteId id, ColourRun positions, int colour)
+    private RgbColor StaticPaletteColor(EndingPaletteId id, ColourRun positions, int colour)
         => (_stage.PaletteArtwork ?? throw new InvalidOperationException(
             "Ending palettes require installed artwork."))[id].Color(positions, colour);
 
@@ -124,8 +124,8 @@ internal sealed class EndingCreditsRoll
         // in 8.8 precision; composing takes only its high byte, preserving truncation.
         for (int colour = 0; colour < row.Count; colour++)
         {
-            Bgr555 target = StaticPaletteColor(EndingPaletteId.PostCredits, row, colour);
-            row.Write(colour, target.Map((_, channel) => SnesEightEight.Multiply(channel << 3, step)));
+            RgbColor target = StaticPaletteColor(EndingPaletteId.PostCredits, row, colour);
+            row.Write(colour, target.Map((_, channel) => EightEight.Multiply(channel << 3, step)));
         }
     }
 

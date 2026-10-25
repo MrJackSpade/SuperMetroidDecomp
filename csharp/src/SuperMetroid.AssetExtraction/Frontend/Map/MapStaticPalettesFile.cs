@@ -20,7 +20,7 @@ public static class MapStaticPalettesFile
             json, ArtworkJson.Options, "map palettes");
         if (document.Version != MapStaticPalettesFormat.Version || document.World is null || document.World.Count != AreaIds.RetailCount - 1)
             throw new InvalidDataException("Map palettes require version 1 and the six Zebes world-map selections.");
-        var world = new Dictionary<AreaId, Bgr555[]>();
+        var world = new Dictionary<AreaId, RgbColor[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             if (area == AreaId.Ceres) continue;
@@ -32,17 +32,17 @@ public static class MapStaticPalettesFile
     }
 
     /// <summary>Requires exactly 256 RGB5 entries and converts each validated channel triplet to a SNES color word.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? colors, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? colors, string name)
     {
         if (colors is null || colors.Length != ScreenPalette.ColorCount)
             throw new InvalidDataException($"Map palette {name} requires 256 RGB colors.");
-        var result = new Bgr555[colors.Length];
+        var result = new RgbColor[colors.Length];
         for (int i = 0; i < colors.Length; i++)
         {
             var color = colors[i];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Map palette {name}, color {i} requires RGB components from 0 to 31.");
-            result[i] = color.ToBgr555();
+            result[i] = color.ToRgbColor();
         }
         return result;
     }

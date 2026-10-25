@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -51,7 +52,7 @@ internal sealed class CrocomireCombat
                 "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation.Colours);
             return;
         }
-        _presentation.BossColours().CrocomireFightBody.Fill(Bgr555.White);
+        _presentation.BossColours().CrocomireFightBody.Fill(RgbColor.White);
     }
 
     /// <summary>Registers component-specific bomb hit routines, including the native no-op gates.</summary>
@@ -451,7 +452,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Projects a projectile angle into signed 8.8 X/Y speed using native word shifts.</summary>
-    internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(SnesBearing bearing)
+    internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
         // Preserve the two native word shifts, including negative two's-complement bits. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
@@ -480,31 +481,31 @@ internal sealed class CrocomireCombat
         // The 65816 switches to 8-bit A here. The high acceleration byte is added to the
         // fractional velocity byte; carry advances the signed integral velocity byte, which
         // is then capped by this physical slot's maximum.
-        int velocityFractionSum = (SnesEightEight.FractionOf(projectile.Velocity.X.RawValue)) + (SnesLittleEndian.HighByte(acceleration));
+        int velocityFractionSum = (EightEight.FractionOf(projectile.Velocity.X.RawValue)) + (SnesLittleEndian.HighByte(acceleration));
         // Each byte keeps its eight-bit wrap: the fraction drops its carry into the whole byte,
         // and the whole byte is capped by a signed eight-bit comparison.
         int velocityFraction = unchecked((byte)velocityFractionSum);
         int velocityWhole = unchecked((byte)(
-            (SnesEightEight.WholeOf(projectile.Velocity.X.RawValue)) + (SnesCarry.OutOfByte(velocityFractionSum))));
+            (EightEight.WholeOf(projectile.Velocity.X.RawValue)) + (WordCarry.OutOfByte(velocityFractionSum))));
         int maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesLittleEndian.Word((byte)velocityFraction, (byte)velocityWhole)));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(SnesLittleEndian.Word((byte)velocityFraction, (byte)velocityWhole)));
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
-        SnesFixedPosition x = new SnesFixedPosition(projectile.Position.X.Whole, projectile.Position.X.Fraction)
+        FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
             .AddEightEightToHighFraction(SnesLittleEndian.Word((byte)velocityFraction, (byte)velocityWhole));
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
-        uint velocity = unchecked(SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1)));
+        uint velocity = unchecked(SixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1)));
         velocity = unchecked(velocity + 12288u);
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(SixteenSixteen.WholeOf(velocity)))));
         projectile.Variable1 = unchecked((ushort)velocity);
         uint position = unchecked(projectile.Position.Y.RawValue);
         position = unchecked(position + velocity);
-        projectile.Position = projectile.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
+        projectile.Position = projectile.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
 
         if (projectile.Position.Y.Whole < 168)
             return;
@@ -529,7 +530,7 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
             (projectile.Velocity.Y.RawValue + 24) & 16383))));
     }
 

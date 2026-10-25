@@ -28,15 +28,15 @@ internal static class DachoraMotionStateVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
 
         (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: 1);
-        state.Speed = SnesSignedSixteenSixteen.FromParts(8, 0);
+        state.Speed = SignedSixteenSixteen.FromParts(8, 0);
         state.SetPaletteCycle(frame: 0, ticks: 0);
         enemies.DachoraBehavior.AccelerateDachora(slot, state, level);
         AssertEqual(255, state.PaletteFrame, "a cleared palette cycle's tick borrows from its frame");
         AssertEqual(255, state.PaletteTicks, "a cleared palette cycle's ticks wrap");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(8, 0), state.Speed, "the run speed stays at its cap");
+        AssertEqual(SignedSixteenSixteen.FromParts(8, 0), state.Speed, "the run speed stays at its cap");
 
         var samus = new SamusState();
-        samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, AirGravityFraction);
+        samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, AirGravityFraction);
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
             new FrameCounters(0));
@@ -49,7 +49,7 @@ internal static class DachoraMotionStateVerification
         {
             (RoomEnemySystem fallEnemies, RoomEnemySlot fallSlot, DachoraEnemyState fall) = NewDachora(parameter: 1);
             fall.Function = DachoraAiFunction.Falling;
-            fall.Speed = SnesSignedSixteenSixteen.FromParts(whole, fraction);
+            fall.Speed = SignedSixteenSixteen.FromParts(whole, fraction);
             fallSlot.Position = fallSlot.Position.WithWhole(new(64, 32));
 
             fallEnemies.DachoraBehavior.RunDachoraMainAi(fallSlot, frame);
@@ -57,7 +57,7 @@ internal static class DachoraMotionStateVerification
             string context = $"Dachora falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, fall.Speed.WholeWord, $"{context}: whole speed word");
             AssertEqual(expectedFraction, fall.Speed.Fraction, $"{context}: speed fraction word");
-            AssertEqual(SnesSignedSixteenSixteen.FromParts(unchecked((short)expectedWhole), expectedFraction), fall.Speed, context);
+            AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)expectedWhole), expectedFraction), fall.Speed, context);
         }
 
         Console.WriteLine("  Dachora motion state: the palette cycle borrows as one word; gravity carries and the fall cap replaces the speed.");

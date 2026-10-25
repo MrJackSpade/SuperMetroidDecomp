@@ -111,7 +111,7 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
-        var labelPoints = new Dictionary<string, Position16<OamPixels>>();
+        var labelPoints = new Dictionary<string, Position16<SpritePixels>>();
         for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapDefinitions.AreaCount; area++)
         {
             int address = MapSourceDefinitions.FileSelectMap.LabelPositions + area * 4;

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -47,8 +48,8 @@ internal sealed class PhantoonPresentation
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _presentation.BossColours().PhantoonBody[color];
-            Bgr555 target = ReadPhantoonHealthColor(healthBand, color);
+            RgbColor current = _presentation.BossColours().PhantoonBody[color];
+            RgbColor target = ReadPhantoonHealthColor(healthBand, color);
             _presentation.BossColours().PhantoonBody.Write(
                 color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));
@@ -61,11 +62,11 @@ internal sealed class PhantoonPresentation
     /// <param name="denominator">The fade's step count, 0 through 65535.</param>
     /// <param name="current">The colour now shown.</param>
     /// <param name="target">The colour the fade reaches.</param>
-    internal static Bgr555 CalculatePhantoonTransitionColor(
+    internal static RgbColor CalculatePhantoonTransitionColor(
         int numerator,
         int denominator,
-        Bgr555 current,
-        Bgr555 target)
+        RgbColor current,
+        RgbColor target)
     {
         return current.Zip(target, (_, from, to) =>
             CalculatePhantoonTransitionComponent(numerator, denominator, from, to));
@@ -88,9 +89,9 @@ internal sealed class PhantoonPresentation
         // in the wrong direction. The native divisor is an eight-bit register; the steps left are 1 through the
         // denominator (at most 12), because the first and last steps return above, so it never wraps or reaches zero.
         int remainingSteps = denominator - numerator + 1;
-        int quotient = SnesEightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
+        int quotient = EightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
-        return SnesLittleEndian.HighByte((ushort)(SnesEightEight.FromWhole(current) + signedStep));
+        return SnesLittleEndian.HighByte((ushort)(EightEight.FromWhole(current) + signedStep));
     }
 
     /// <summary>Changes BG2 wave amplitude toward its current phase target.</summary>
@@ -126,7 +127,7 @@ internal sealed class PhantoonPresentation
     }
 
     /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>
-    internal Bgr555 ReadPhantoonHealthColor(int healthBand, int color) =>
+    internal RgbColor ReadPhantoonHealthColor(int healthBand, int color) =>
         (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
             "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);
 

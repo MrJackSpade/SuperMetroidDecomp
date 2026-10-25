@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 
 using SuperMetroid.Verification.Harness;
@@ -76,7 +77,7 @@ internal static class EscapeTimerPresentationVerification
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(bus);
         var timer = new EscapeTimer();
         timer.Clear();
-        timer.SetTime(PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(23), PackedBcd.FromDecimal(45));
+        timer.SetTime(PackedDecimal.FromDecimal(1), PackedDecimal.FromDecimal(23), PackedDecimal.FromDecimal(45));
         var native = new OamBuffer();
         native.BeginFrame();
         DrawImportedEscapeTimer(bus, timer, native);

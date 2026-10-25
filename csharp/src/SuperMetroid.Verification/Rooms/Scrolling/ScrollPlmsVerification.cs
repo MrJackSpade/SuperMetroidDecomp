@@ -123,7 +123,7 @@ internal static class ScrollPlmsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
         };
         SamusPoseMetadata.RefreshCollisionRadii(ball);
-        ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(1, 0));
+        ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
         SamusMorphBallMovement.StepGrounded(
 
@@ -155,7 +155,7 @@ internal static class ScrollPlmsVerification
         bombJump.Kinematics.YAcceleration = default;
         bombJump.RequestMorphedBombJump(2);
         SamusBombJumpMovement.Start(bombJump);
-        bombJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
+        bombJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
         SamusBombJumpMovement.Step(
 
             level,

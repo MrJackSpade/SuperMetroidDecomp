@@ -35,8 +35,8 @@ internal static class BeamPaletteArtworkVerification
             var expected = new SnesCgram(); var actual = new SamusColourRig();
             for (int i = 0; i < SnesCgram.ColorCount; i++)
             {
-                expected.SetColor(i, Bgr555.FromWord((ushort)(i * 31)));
-                actual.SetColor(i, Bgr555.FromWord((ushort)(i * 31)));
+                expected.SetColor(i, RgbColor.FromWord((ushort)(i * 31)));
+                actual.SetColor(i, RgbColor.FromWord((ushort)(i * 31)));
             }
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
@@ -84,14 +84,14 @@ internal static class BeamPaletteArtworkVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var expected = new SamusColourRig();
         palettes.LoadTo(expected.Samus.Beam, 0);
-        runtime.Colours.AsPaletteColors().SetColor(SamusColourDefinitions.BeamFirstColour, new Bgr555(27, 3, 0));
+        runtime.Colours.AsPaletteColors().SetColor(SamusColourDefinitions.BeamFirstColour, new RgbColor(27, 3, 0));
         runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
         flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
-        runtime.Colours.AsPaletteColors().SetColor(224, new Bgr555(27, 3, 0));
+        runtime.Colours.AsPaletteColors().SetColor(224, new RgbColor(27, 3, 0));
         runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(123, runtime.Colours.Colors[224], "Rebind cannot erase active Crystal Flash palette");
@@ -100,7 +100,7 @@ internal static class BeamPaletteArtworkVerification
         AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
         runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
-        runtime.Colours.AsPaletteColors().SetColor(224, new Bgr555(8, 14, 0));
+        runtime.Colours.AsPaletteColors().SetColor(224, new RgbColor(8, 14, 0));
         runtime.Artwork.BeamPalettes = palettes;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(456, runtime.Colours.Colors[224], "Rebind cannot erase active Hyper palette");

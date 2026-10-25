@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Bosses.Torizo.TorizoLandingLifetimeVerifi
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -20,7 +21,7 @@ internal static class TorizoPaletteShakeVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var cgram = new SamusColourRig();
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
+        for (int i = 0; i < 256; i++) cgram.SetColor(i, RgbColor.FromWord(0x7fff));
         enemies.Presentation.BindColours(cgram.Gameplay);
         var actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
@@ -59,7 +60,7 @@ internal static class TorizoPaletteShakeVerification
             AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
         AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue, "Completed fade does not create an earthquake");
         state.PaletteTransition = null;
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
+        for (int i = 0; i < 256; i++) cgram.SetColor(i, RgbColor.FromWord(0x7fff));
         Execute(TorizoCueKind.FadeToNormalColors);
         AssertEqual(0x7fff, cgram.Colors[145], "Normal target setup preserves current colors");
         Execute(TorizoCueKind.AdvancePaletteFade);
@@ -99,7 +100,7 @@ internal static class TorizoPaletteShakeVerification
             address = 0xaa8787 + i * 2;
             native = rom.ReadCartridgeWord(address);
             AssertEqual(native, TorizoPaletteDefinitions.Golden[i], "Shared Golden fade target matches cartridge");
-            foreach ((int source, string name, Bgr555 catalog) in new[]
+            foreach ((int source, string name, RgbColor catalog) in new[]
             {
                 new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa8687, "shared rows eleven/fifteen", TorizoPaletteDefinitions.SharedRows[i]),
                 new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa86c7, "Bomb Torizo initial body", TorizoPaletteDefinitions.BombInitial[i]),

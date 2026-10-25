@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -26,11 +27,11 @@ internal sealed class CeresRidleyBodyPaintDefinitions
     private readonly int darkBlue;
 
     /// <summary>Extracts the three membrane endpoints from an eleven-color body palette.</summary>
-    internal CeresRidleyBodyPaintDefinitions(ReadOnlySpan<Bgr555> endpoint)
+    internal CeresRidleyBodyPaintDefinitions(ReadOnlySpan<RgbColor> endpoint)
         : this(EndpointColor(endpoint, 8), EndpointColor(endpoint, 9), EndpointColor(endpoint, 10)) { }
 
     /// <summary>Shared membrane material, also present at $A6:E1F9-E1FE in the Baby palette.</summary>
-    internal CeresRidleyBodyPaintDefinitions(Bgr555 highlight, Bgr555 middle, Bgr555 dark)
+    internal CeresRidleyBodyPaintDefinitions(RgbColor highlight, RgbColor middle, RgbColor dark)
     {
         highlightGreen = highlight.Green;
         middleGreen = middle.Green;
@@ -40,13 +41,13 @@ internal sealed class CeresRidleyBodyPaintDefinitions
     }
 
     /// <summary>Rejects incomplete body palettes before selecting a membrane endpoint.</summary>
-    private static Bgr555 EndpointColor(ReadOnlySpan<Bgr555> endpoint, int index)
+    private static RgbColor EndpointColor(ReadOnlySpan<RgbColor> endpoint, int index)
     {
         if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
         return endpoint[index];
     }
     /// <summary>Uses Golden Torizo armor for inks zero through seven and the derived wing paints for eight through ten.</summary>
-    internal Bgr555 Color(int color)
+    internal RgbColor Color(int color)
     {
         if ((uint)color >= 11) throw new ArgumentOutOfRangeException(nameof(color));
         if (color < 8) return GoldenTorizoHealthPaintDefinitions.Color(0, color + 1, rear: false);

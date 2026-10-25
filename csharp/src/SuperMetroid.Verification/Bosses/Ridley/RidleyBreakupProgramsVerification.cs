@@ -89,7 +89,7 @@ internal static class RidleyBreakupProgramsVerification
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(1, state.BreakupPrograms[fragment.SlotIndex].Position, "breakup sleeps after its one frame");
             var actual = new OamBuffer();
-            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<OamPixels>(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<SpritePixels>(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0 });
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "breakup OAM count");

@@ -110,7 +110,7 @@ public sealed class SamusKinematicsState
     public Extent16<RoomPixels> Radius { get; set; } = new(5, 0);
 
     /// <summary>Vertical speed magnitude; its direction is <see cref="YDirection"/>.</summary>
-    public SnesUnsignedSixteenSixteen YSpeed { get; set; }
+    public UnsignedSixteenSixteen YSpeed { get; set; }
 
     /// <summary>
     /// Vertical direction at WRAM <c>$0B36</c>: zero is none, one is upward, and two is
@@ -124,7 +124,7 @@ public sealed class SamusKinematicsState
     public AreaId SandCollisionArea { get; set; }
 
     /// <summary>The gravity applied to vertical speed at WRAM <c>$0B34</c>/<c>$0B32</c>.</summary>
-    public SnesUnsignedSixteenSixteen YAcceleration { get; set; }
+    public UnsignedSixteenSixteen YAcceleration { get; set; }
 
     /// <summary>Native <c>enable_horiz_slope_coll</c>; bit 1 enables post-X Y alignment.</summary>
     public int HorizontalSlopeCollisionEnable

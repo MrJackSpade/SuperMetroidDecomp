@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -31,7 +30,7 @@ internal static class QuicksandVerification
             body.Radius = body.Radius.WithY(8);
             body.YDirection = direction;
             body.YSpeed = body.YSpeed.WithWhole(5);
-            samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(4, 0xffff);
+            samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(4, 0xffff);
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
             AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
@@ -110,7 +109,7 @@ internal static class QuicksandVerification
             {
                 // A whole upward speed of five pixels exceeds both caps, so the speed becomes the limit exactly.
                 AssertEqual(physics.UpwardSpeedLimit,
-                    SnesSignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
+                    SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
                     $"production quicksand suit {suit} clamps upward speed to its limit");
             }
         }
@@ -122,8 +121,8 @@ internal static class QuicksandVerification
             {
                 SandCollisionArea = AreaId.Maridia,
                 YDirection = SamusVerticalDirection.Down,
-                YSpeed = new SnesUnsignedSixteenSixteen(4, 0),
-                YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x1c00),
+                YSpeed = new UnsignedSixteenSixteen(4, 0),
+                YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00),
             };
             int displacement = 0x28000;
             bool collided = SamusInsideBlockReactions.ReactCollision(
@@ -200,10 +199,10 @@ internal static class QuicksandVerification
     /// an unsigned 8.8 word; the oracle widens it to 16.16 exactly as the surface reaction consumes it.
     /// </summary>
     private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
-        Func<QuicksandSurfacePhysics, SnesSignedSixteenSixteen> field)
+        Func<QuicksandSurfacePhysics, SignedSixteenSixteen> field)
     {
         for (int suit = 0; suit < 2; suit++)
-            AssertEqual(SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(ReadRomWord(rom, address + suit * 2))),
+            AssertEqual(SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(ReadRomWord(rom, address + suit * 2))),
                 field(QuicksandDefinitions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
     }
@@ -219,12 +218,12 @@ internal static class QuicksandVerification
         body.Position = body.Position.WithWhole(new(24, 24));
         body.Radius = body.Radius.WithY(8);
         body.YDirection = SamusVerticalDirection.Up;
-        SnesSignedSixteenSixteen limit = QuicksandDefinitions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
+        SignedSixteenSixteen limit = QuicksandDefinitions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
-        SnesSignedSixteenSixteen justAbove = limit + SnesSignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
-        body.YSpeed = new SnesUnsignedSixteenSixteen(justAbove.WholeWord, justAbove.Fraction);
+        SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
+        body.YSpeed = new UnsignedSixteenSixteen(justAbove.WholeWord, justAbove.Fraction);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
-        AssertEqual(justAbove, SnesSignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
+        AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
             "quicksand upward cap ignores the speed's lowest fraction byte");
     }
 

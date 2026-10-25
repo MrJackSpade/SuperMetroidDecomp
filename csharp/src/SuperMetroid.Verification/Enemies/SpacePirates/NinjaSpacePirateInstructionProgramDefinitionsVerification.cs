@@ -121,7 +121,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             const ushort diveFraction = 1920;
             slot.Position = slot.Position.WithFractionY(diveFraction);
             // One speed step left: the dive ends after this movement, wherever it is.
-            state.Speed = new SnesSignedEightEight(64);
+            state.Speed = new SignedEightEight(64);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
                 new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
@@ -146,7 +146,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             NinjaSpacePirateFunction rising = movingRight ? NinjaSpacePirateFunction.DivekickRightJump : NinjaSpacePirateFunction.DivekickLeftJump;
             NinjaSpacePirateFunction diving = movingRight ? NinjaSpacePirateFunction.DivekickRightDive : NinjaSpacePirateFunction.DivekickLeftDive;
             state.Function = rising;
-            state.Speed = new SnesSignedEightEight(initialDiveSpeed);
+            state.Speed = new SignedEightEight(initialDiveSpeed);
             var frame = new ClockedEnemyAiFrame(
                 new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(0));
@@ -161,7 +161,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 AssertEqual(expectedY, slot.Position.Y.Whole, $"ninja divekick rise update {update} climbs by the speed's whole pixels");
                 if (!riseEnds)
                 {
-                    AssertEqual(new SnesSignedEightEight(nativeSpeed), state.Speed, $"ninja divekick rise update {update} lowers the speed by 64");
+                    AssertEqual(new SignedEightEight(nativeSpeed), state.Speed, $"ninja divekick rise update {update} lowers the speed by 64");
                     AssertEqual(rising, state.Function, $"ninja divekick rise update {update} keeps rising while the speed is not negative");
                     risingUpdates++;
                     continue;
@@ -169,7 +169,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
 
                 AssertEqual(ushort.MaxValue + 1 - speedStep, (int)nativeSpeed, "the native speed word wraps below zero on the last rising update");
                 AssertEqual(diving, state.Function, $"ninja divekick rise ends on update {update}, when the speed turns negative");
-                AssertEqual(new SnesSignedEightEight(initialDiveSpeed), state.Speed, "the dive starts again from the initial speed");
+                AssertEqual(new SignedEightEight(initialDiveSpeed), state.Speed, "the dive starts again from the initial speed");
                 break;
             }
             AssertEqual(initialDiveSpeed / speedStep, risingUpdates, "the rise lasts until the speed passes zero");
@@ -182,7 +182,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState _) = CreateSystem();
             NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
-            state.Speed = new SnesSignedEightEight(0);
+            state.Speed = new SignedEightEight(0);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
                 new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
             ushort nativeSpeed = unchecked((ushort)(0 - 64));

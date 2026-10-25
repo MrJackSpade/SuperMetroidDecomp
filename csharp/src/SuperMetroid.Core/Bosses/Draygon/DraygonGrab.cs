@@ -95,7 +95,7 @@ internal sealed class DraygonGrab
         // `$A5:8EDB-$8EE5` set the whole spiral center only; the Y fraction (`$7E:7814`) carries over from
         // the previous spiral of this fight, so the first lift after a re-grab borrows on the native frame.
         state.SpiralCenter = state.SpiralCenter.WithWhole(DraygonBehavior.DraygonSpiralTarget);
-        state.SpiralXRadius = SnesSignedSixteenSixteen.Zero;
+        state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonBehavior.DraygonInitialSpiralAngle;
         state.SpiralAngleDelta = DraygonBehavior.DraygonInitialSpiralAngleDelta;
         state.Function = DraygonAiFunction.CarrySamus;
@@ -294,16 +294,16 @@ internal sealed class DraygonGrab
         Position16<RoomPixels> target,
         int speed)
     {
-        SnesByteAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTableAngle();
+        ByteAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTableAngle();
 
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
             checked((ushort)speed),
-            angleOffset: SnesAngle.QuarterTurn.TableIndex));
+            angleOffset: RotationAngle.QuarterTurn.TableIndex));
         uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
             checked((ushort)speed),
-            angleOffset: SnesAngle.HalfTurn.TableIndex));
+            angleOffset: RotationAngle.HalfTurn.TableIndex));
 
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
             body.Position.X,

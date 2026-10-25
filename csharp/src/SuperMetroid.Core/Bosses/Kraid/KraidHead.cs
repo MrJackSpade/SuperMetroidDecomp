@@ -253,7 +253,7 @@ internal sealed class KraidHead
         ColourRun eyeColors = _presentation.BossColours().KraidEye;
         for (int colorIndex = 0; colorIndex < eyeColors.Count; colorIndex++)
         {
-            Bgr555 color = eyeColors[colorIndex];
+            RgbColor color = eyeColors[colorIndex];
             int red = color.Red;
             int green = color.Green;
             if (red >= 30)
@@ -274,7 +274,7 @@ internal sealed class KraidHead
             {
                 green++;
             }
-            eyeColors.Write(colorIndex, new Bgr555(red, green, color.Blue));
+            eyeColors.Write(colorIndex, new RgbColor(red, green, color.Blue));
         }
         if (completedChannels >= 6)
             state.Parts[body.SlotIndex].Function = KraidAiFunction.UnglowEye;
@@ -295,23 +295,23 @@ internal sealed class KraidHead
         ColourRun eyeColors = _presentation.BossColours().KraidEye;
         for (int eye = 0; eye < eyeColors.Count; eye++)
         {
-            Bgr555 current = eyeColors[eye];
-            Bgr555 target = _background.ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
+            RgbColor current = eyeColors[eye];
+            RgbColor target = _background.ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
             int red = current.Red;
             int green = current.Green;
             // Native decrements toward any differing target and masks each field, so a
             // channel below its target wraps within its five bits without borrowing.
             if (red != target.Red)
             {
-                red = (red - 1) & Bgr555.MaxChannel;
+                red = (red - 1) & RgbColor.MaxChannel;
                 changedChannels++;
             }
             if (green != target.Green)
             {
-                green = (green - 1) & Bgr555.MaxChannel;
+                green = (green - 1) & RgbColor.MaxChannel;
                 changedChannels++;
             }
-            eyeColors.Write(eye, new Bgr555(red, green, current.Blue));
+            eyeColors.Write(eye, new RgbColor(red, green, current.Blue));
         }
         if (changedChannels == 0)
         {
@@ -336,7 +336,7 @@ internal sealed class KraidHead
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + 16)), unchecked((ushort)(body.Position.Y.Whole - 96))));
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
-        rock.Velocity = rock.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-1024));
+        rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromSignedRaw(-1024));
         rock.GraphicsIndex = EnemyPaletteBits.Palette3;
         return true;
     }

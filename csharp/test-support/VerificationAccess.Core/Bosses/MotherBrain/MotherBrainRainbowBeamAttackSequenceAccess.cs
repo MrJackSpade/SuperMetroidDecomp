@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
@@ -50,8 +49,8 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
             Ensure.NotNull(samus);
             if (self.State.NeckMovementEnabled)
             {
-                SnesAngle lowerAngle = self.LowerNeckAngle;
-                SnesAngle upperAngle = self.UpperNeckAngle;
+                RotationAngle lowerAngle = self.LowerNeckAngle;
+                RotationAngle upperAngle = self.UpperNeckAngle;
                 MotherBrainNeckMovement lowerIndex = self.State.LowerNeckMovementIndex;
                 MotherBrainNeckMovement upperIndex = self.State.UpperNeckMovementIndex;
                 MotherBrainNeckKinematics.StepAngles(

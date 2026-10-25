@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -33,11 +32,11 @@ internal static class TreadmillPhysicsVerification
             samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(24, 40)) };
             var body = samus.Kinematics;
             body.Radius = body.Radius.WithY(8);
-            body.YSpeed = new SnesUnsignedSixteenSixteen(verticalSpeed, 0xffff); // Native admission does not inspect the fractional word.
-            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SuperMetroid.Core.Spatial.SnesSignedSixteenSixteen.FromParts(7, 0x1234));
+            body.YSpeed = new UnsignedSixteenSixteen(verticalSpeed, 0xffff); // Native admission does not inspect the fractional word.
+            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SuperMetroid.Core.Spatial.SignedSixteenSixteen.FromParts(7, 0x1234));
             samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
             bool admitted = behavior >= 10 || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));
-            int expected = admitted ? SnesSixteenSixteen.FromWhole((behavior & 1) == 0 ? 2 : -2) : 0x71234;
+            int expected = admitted ? SixteenSixteen.FromWhole((behavior & 1) == 0 ? 2 : -2) : 0x71234;
             SamusInsideBlockReactions.PrepareFrame(level, samus, area, powered);
             AssertEqual(expected, body.ExtraDisplacement.X.RawValue, $"conveyor BTS {behavior}, area {area}, power {powered}, Y {verticalSpeed}");
             AssertEqual(SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,
@@ -45,7 +44,7 @@ internal static class TreadmillPhysicsVerification
             if (admitted)
             {
                 SamusGroundedMovement.StepStanding(level, samus, 0, controllerInput: 0);
-                AssertEqual((ushort)(24 + SnesSixteenSixteen.WholeOf(expected)), samus.Position.X.Whole, "conveyor actual horizontal motion");
+                AssertEqual((ushort)(24 + SixteenSixteen.WholeOf(expected)), samus.Position.X.Whole, "conveyor actual horizontal motion");
             }
             cases++;
         }

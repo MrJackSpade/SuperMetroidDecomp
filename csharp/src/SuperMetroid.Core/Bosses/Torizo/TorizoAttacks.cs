@@ -219,17 +219,17 @@ internal sealed class TorizoAttacks
             int jitteredY = (random & 3) + torizo.Position.Y.Whole;
             int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(jitteredY - TorizoMotionDefinitions.InitialDroolLift)));
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((random & TorizoRandomDefinitions.DroolFallJitterMask) + 48 + liftCarry))));
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((random & TorizoRandomDefinitions.DroolFallJitterMask) + 48 + liftCarry))));
             // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
             // stores a zero X velocity.
             int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
-            int carry = SnesCarry.OutOfWord(jitteredX);
+            int carry = WordCarry.OutOfWord(jitteredX);
             projectile.Position = projectile.Position.WithWholeX(_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
                 ? unchecked((ushort)jitteredX)
                 : _access.FacesRight(torizo)
                     ? unchecked((ushort)(jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset + carry))
                     : unchecked((ushort)(jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset + carry)));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
             return;
         }
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(torizo.Position.Y.Whole - 5)));
@@ -247,9 +247,9 @@ internal sealed class TorizoAttacks
             int baseAngle = _access.FacesRight(torizo) ? 32 : 224;
             angle = unchecked((byte)(baseAngle + (random & TorizoRandomDefinitions.DroolFacingAngleMask) - 8));
         }
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)
-            EnemyTrigonometryTables.SignedSine(unchecked(new SnesByteAngle((byte)angle))))));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)
+            EnemyTrigonometryTables.SignedSine(unchecked(new ByteAngle((byte)angle))))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)
             EnemyTrigonometryTables.SignedNegativeCosineWord(angle))));
         projectile.Position = projectile.Position.WithWholeX(_access.FacesRight(torizo)
             ? unchecked((ushort)(torizo.Position.X.Whole + 8))
@@ -376,13 +376,13 @@ internal sealed class TorizoAttacks
         if (_access.FacesRight(torizo))
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole + 32)));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(624));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(624));
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.SonicBoomFiredRight));
         }
         else
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole - 32)));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-624)));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)-624)));
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.SonicBoomFiredLeft));
         }
     }
@@ -466,9 +466,9 @@ internal sealed class TorizoAttacks
         int sineIndex = angle >> 1;
         // The native combined table starts at negative cosine, not sine. Its
         // quarter-turn offset selects sine for X; the unshifted sample gives Y.
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(8 *
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(8 *
             EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex + 64)))));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(8 *
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(8 *
             EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)))));
     }
 
@@ -522,7 +522,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 18))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 18))));
         if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
@@ -541,7 +541,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
             (unchecked((short)projectile.Velocity.X.RawValue) < 0 ? -16 : 16)))));
         if (IsRunaway(projectile.Velocity.X))
             projectile.Clear();
@@ -566,12 +566,12 @@ internal sealed class TorizoAttacks
         if (xVelocity < 0)
         {
             int dragged = xVelocity + 4;
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(short)(dragged < 0 ? dragged : 3))));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(short)(dragged < 0 ? dragged : 3))));
         }
         else
         {
             int dragged = xVelocity - 4;
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(short)(dragged >= 0 ? dragged : 3))));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(short)(dragged >= 0 ? dragged : 3))));
         }
 
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
@@ -582,7 +582,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
         if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
@@ -593,16 +593,16 @@ internal sealed class TorizoAttacks
         RoomLevelData level)
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
 
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (verticalCollision && unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
             int xVelocity = projectile.Velocity.X.SignedRawValue;
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xVelocity >= 0
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(xVelocity >= 0
                 ? xVelocity - 64
                 : xVelocity + 64))));
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-(projectile.Velocity.Y.RawValue >> 1))));
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)-(projectile.Velocity.Y.RawValue >> 1))));
             if (HasSettled(projectile.Velocity.Y))
             {
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
@@ -613,7 +613,7 @@ internal sealed class TorizoAttacks
             }
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 24))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 24))));
     }
 
     /// <summary>Counts down the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity.</summary>
@@ -627,7 +627,7 @@ internal sealed class TorizoAttacks
         {
             // The hatch timer steps the sleeping list past its sleep.
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileProgram(projectile))));
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(TorizoParameterFlagCodec.PostureOf(projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight)
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(TorizoParameterFlagCodec.PostureOf(projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight)
                 ? (ushort)256
                 : unchecked((ushort)-256)));
             return;
@@ -635,7 +635,7 @@ internal sealed class TorizoAttacks
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
             projectile.Variable0 = TorizoParameterFlagCodec.ToParameterWord(
                 TorizoParameterFlagCodec.PostureOf(projectile.Variable0) ^ TorizoPostureFlags.FacingRight,
                 TorizoParameterFlagCodec.PostureLowBitsOf(projectile.Variable0));
@@ -645,11 +645,11 @@ internal sealed class TorizoAttacks
             unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
             int xVelocity = projectile.Velocity.X.SignedRawValue;
-            projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xVelocity + (xVelocity < 0 ? 32 : -32)))));
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.Y.RawValue))));
+            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(xVelocity + (xVelocity < 0 ? 32 : -32)))));
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.Y.RawValue))));
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
         if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
@@ -663,11 +663,11 @@ internal sealed class TorizoAttacks
         {
             projectile.PreInstruction =
                 EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
             (TorizoParameterFlagCodec.PostureOf(projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight) ? 48 : -48)))));
     }
 
@@ -682,7 +682,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
     }
 
     /// <summary>Keeps the held super missile beside Golden Torizo's hand, clearing it if its owner is gone.</summary>
@@ -718,7 +718,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 16))));
         if (IsRunaway(projectile.Velocity.Y))
             projectile.Clear();
     }
@@ -737,9 +737,9 @@ internal sealed class TorizoAttacks
 
         // Preserve the native up-zero angle convention: X is sine, Y is
         // negative cosine. Starting both reads at sine rotates the shot.
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(4 *
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(4 *
             EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64)))));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(4 *
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(4 *
             EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
     }
 
@@ -811,7 +811,7 @@ internal sealed class TorizoAttacks
 
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Program));
         projectile.Position = projectile.Position.WithWhole(request.PlmBlock.ToRoomPixels() + definition.Offset);
-        projectile.Velocity = projectile.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(definition.YVelocity));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(definition.YVelocity));
         projectile.Variable1 = definition.Acceleration;
         return projectile;
     }
@@ -831,10 +831,10 @@ internal sealed class TorizoAttacks
             // instruction omits X and reads `$1B23` (physical slot zero) literally. The
             // retail quirk normally leaves these first eight actors at constant speed;
             // retaining it matters if another projectile already occupies slot zero.
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
+            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
                 projectile.Velocity.Y.RawValue + _projectiles.EnemyProjectiles[0].Variable1))));
             if (IsRunaway(projectile.Velocity.Y))
-                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(TorizoMotionDefinitions.RunawaySpeed));
+                projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(TorizoMotionDefinitions.RunawaySpeed));
             return;
         }
 
@@ -845,14 +845,14 @@ internal sealed class TorizoAttacks
     /// Whether a falling projectile has run away: its raw 8.8 speed is at least sixteen pixels per frame and below
     /// thirty-two, the range whose top four bits the cartridge compares with one.
     /// </summary>
-    private static bool IsRunaway(SnesSignedEightEight speed) =>
+    private static bool IsRunaway(SignedEightEight speed) =>
         speed.RawValue is >= TorizoMotionDefinitions.RunawaySpeed and < 2 * TorizoMotionDefinitions.RunawaySpeed;
 
     /// <summary>
     /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame, the range whose
     /// top nine bits the cartridge tests all set.
     /// </summary>
-    private static bool HasSettled(SnesSignedEightEight speed) =>
+    private static bool HasSettled(SignedEightEight speed) =>
         speed.SignedRawValue is < 0 and >= -TorizoMotionDefinitions.SettledBounceSpeed;
 
     /// <summary>The top of the room block a whole pixel coordinate lies in.</summary>

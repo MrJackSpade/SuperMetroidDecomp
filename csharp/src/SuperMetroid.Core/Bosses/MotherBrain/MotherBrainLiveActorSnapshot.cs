@@ -31,10 +31,10 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required SuperMetroid.Core.Enemies.EnemyExtraPropertyWord BrainExtraProperties { get; init; }
 
     /// <summary>Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.</summary>
-    public required SnesAngle LowerNeckAngle { get; init; }
+    public required RotationAngle LowerNeckAngle { get; init; }
 
     /// <summary>Upper neck angle, correspondingly lowered to <c>$2000</c>.</summary>
-    public required SnesAngle UpperNeckAngle { get; init; }
+    public required RotationAngle UpperNeckAngle { get; init; }
 
     /// <summary>Neck movement enabled.</summary>
     public required bool NeckMovementEnabled { get; init; }

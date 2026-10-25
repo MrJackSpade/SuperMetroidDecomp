@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Hardware;
 /// leftmost pixel in each byte's most significant bit, plane <c>n</c> contributing <c>2^n</c>.
 /// </summary>
 [PpuLayoutAccess]
-[SnesEncodingOwner]
+[EncodingOwner("planar background character format")]
 public sealed class BgCharacterFormat
 {
     /// <summary>The color index every background treats as transparent.</summary>

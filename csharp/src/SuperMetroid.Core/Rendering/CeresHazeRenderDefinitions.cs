@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -21,7 +22,7 @@ internal static class CeresHazeRenderDefinitions
     /// Resolves only the cosmetic RGB amplitude. The native scanline bands and fade
     /// counter remain compiled and are shared by software and captured-PPU rendering.
     /// </summary>
-    internal static Bgr555 ResolveComponents(
+    internal static RgbColor ResolveComponents(
         int screenY, int intensity, bool ridleyIsDead, RoomFxPaletteBlendCatalog? colors)
     {
         int component = screenY < RampFirstLine
@@ -29,11 +30,11 @@ internal static class CeresHazeRenderDefinitions
             : Math.Min(MaximumComponent,
                 RampFirstComponent + (screenY - RampFirstLine) / BandHeight);
         component = Math.Max(0, component + intensity - MaximumComponent);
-        Bgr555 tint = colors is null
+        RgbColor tint = colors is null
             ? RoomFxPaletteBlendDefinitions.StockCeresHazeTint(ridleyIsDead)
             : ridleyIsDead ? colors.CeresHazeRed : colors.CeresHazeBlue;
         static int Scale(int component, int channel) =>
-            Math.Min(Bgr555.MaxChannel, (component * channel + MaximumComponent / 2) / MaximumComponent);
-        return new Bgr555(Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));
+            Math.Min(RgbColor.MaxChannel, (component * channel + MaximumComponent / 2) / MaximumComponent);
+        return new RgbColor(Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));
     }
 }

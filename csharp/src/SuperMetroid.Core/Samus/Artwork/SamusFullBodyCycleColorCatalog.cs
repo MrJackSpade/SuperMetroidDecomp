@@ -32,7 +32,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class SamusFullBodyCycleColorCatalog
 {
     /// <summary>Authored colors remaining after canonical shade relationships and independent endpoint channels are removed.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> colors;
+    internal readonly Dictionary<ColourCell, RgbColor> colors;
     /// <summary>Independent red and green input for Power's first dim Speed Booster ink.</summary>
     internal readonly LoadingPaletteInputView.Channels powerDim1;
     /// <summary>Independent blue input for Power's second dim Speed Booster ink.</summary>
@@ -61,36 +61,36 @@ public sealed class SamusFullBodyCycleColorCatalog
     internal readonly LoadingPaletteInputView.Channels screwVariaBright2;
 
     /// <summary>Separates supplied colors into categorical ink overrides and endpoint channels with computable shade bases.</summary>
-    internal SamusFullBodyCycleColorCatalog(Bgr555[][] palettes)
+    internal SamusFullBodyCycleColorCatalog(RgbColor[][] palettes)
     {
-        colors = new Dictionary<ColourCell, Bgr555>();
+        colors = new Dictionary<ColourCell, RgbColor>();
         for (int palette = 0; palette < palettes.Length; palette++)
         for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
         {
             int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + color;
             var indexCell = new ColourCell(palette, color);
             int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
-            Bgr555 value = palettes[palette][color];
+            RgbColor value = palettes[palette][color];
             if (source != index && value == palettes[source / 16][source % 16]) continue;
             if (source == index && SamusFullBodyCycleColorFormat.IsStoredShineShade(palette, color) &&
                 value == SamusFullBodyCycleColorFormat.StoredShineColor(palettes[palette / 16 * 16 + 4][color], palette % 4)) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(palette, color,
-                palettes[palette / 16 * 16][color], out Bgr555 tinted) && value == tinted) continue;
+                palettes[palette / 16 * 16][color], out RgbColor tinted) && value == tinted) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(palette, color,
-                palettes[palette / 16 * 16 + 1][color], out Bgr555 brightened) && value == brightened) continue;
+                palettes[palette / 16 * 16 + 1][color], out RgbColor brightened) && value == brightened) continue;
             int channelSource = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(palette, color);
             if (source == index && channelSource >= 0 && value == SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(
                 palette, color, palettes[palette / 16 * 16][color], palettes[channelSource / 16][channelSource % 16])) continue;
             if (source == index && SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color) &&
                 value == SamusFullBodyCycleColorFormat.ActiveShineTint(palettes[palette / 16 * 16 + 8][color], palette % 4)) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color,
-                palettes[palette / 16 * 16 + 8][color], out Bgr555 gold) && value == gold) continue;
+                palettes[palette / 16 * 16 + 8][color], out RgbColor gold) && value == gold) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color,
-                palettes[palette / 16 * 16 + 12][color], out Bgr555 screw) && value == screw) continue;
+                palettes[palette / 16 * 16 + 12][color], out RgbColor screw) && value == screw) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryScrewPowerInk(palette, color,
-                palettes[12][color], palettes[1][12], out Bgr555 ink) && value == ink) continue;
+                palettes[12][color], palettes[1][12], out RgbColor ink) && value == ink) continue;
             if (source == index && SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color,
-                palettes[28][color], palettes[31][color], out Bgr555 variaInk) && value == variaInk) continue;
+                palettes[28][color], palettes[31][color], out RgbColor variaInk) && value == variaInk) continue;
             if (palette == 32 && color is 1 or 12 && value ==
                 SamusFullBodyCycleColorFormat.GravitySharedBase(palettes[0][color], palettes[1][color])) continue;
             colors.Add(indexCell, value);
@@ -111,8 +111,8 @@ public sealed class SamusFullBodyCycleColorCatalog
 
         LoadingPaletteInputView.Channels CaptureScrew(int palette, int color)
         {
-            Bgr555 basis = palettes[palette / 16 * 16 + 12][color];
-            Bgr555 expected;
+            RgbColor basis = palettes[palette / 16 * 16 + 12][color];
+            RgbColor expected;
             if (palette == 31) _ = SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color, basis, basis, out expected);
             else _ = SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color, basis, out expected);
             colors.Remove(new ColourCell(palette, color));
@@ -121,25 +121,25 @@ public sealed class SamusFullBodyCycleColorCatalog
 
         LoadingPaletteInputView.Channels CaptureActive(int palette, int color)
         {
-            Bgr555 basis = palettes[palette / 16 * 16 + 8][color];
-            Bgr555 expected;
+            RgbColor basis = palettes[palette / 16 * 16 + 8][color];
+            RgbColor expected;
             if (color == 8) expected = SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 1);
             else _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color, basis, out expected);
             colors.Remove(new ColourCell(palette, color));
             return new(palettes[palette][color], expected);
         }
 
-        LoadingPaletteInputView.Channels Capture(int palette, int color, Func<Bgr555, int, Bgr555> tint, int shade)
+        LoadingPaletteInputView.Channels Capture(int palette, int color, Func<RgbColor, int, RgbColor> tint, int shade)
         {
-            Bgr555 basis = palettes[palette / 16 * 16][color];
-            Bgr555 expected = tint(basis, shade);
+            RgbColor basis = palettes[palette / 16 * 16][color];
+            RgbColor expected = tint(basis, shade);
             colors.Remove(new ColourCell(palette, color));
             return new(palettes[palette][color], expected);
         }
     }
 
     /// <summary>Returns one BGR555 color of a cycle palette.</summary>
-    public Bgr555 Resolve(SamusFullBodyCyclePalette palette, int colorIndex)
+    public RgbColor Resolve(SamusFullBodyCyclePalette palette, int colorIndex)
     {
         int row = SamusFullBodyCycleColorFormat.PaletteIndex(palette);
         if ((uint)colorIndex >= SamusFullBodyCycleColorFormat.ColorsPerPalette)
@@ -149,7 +149,7 @@ public sealed class SamusFullBodyCycleColorCatalog
     }
 
     /// <summary>Resolves an indexed ink through endpoint channels, categorical overrides, and shared shade formulas.</summary>
-    private Bgr555 ResolveIndex(int index)
+    private RgbColor ResolveIndex(int index)
     {
         switch (index)
         {
@@ -169,46 +169,46 @@ public sealed class SamusFullBodyCycleColorCatalog
             default:
                 break;
         }
-        if (colors.TryGetValue(new ColourCell(index / SamusFullBodyCycleColorFormat.ColorsPerPalette, index % SamusFullBodyCycleColorFormat.ColorsPerPalette), out Bgr555 value)) return value;
+        if (colors.TryGetValue(new ColourCell(index / SamusFullBodyCycleColorFormat.ColorsPerPalette, index % SamusFullBodyCycleColorFormat.ColorsPerPalette), out RgbColor value)) return value;
         if (index is 513 or 524)
             return SamusFullBodyCycleColorFormat.GravitySharedBase(ResolveIndex(index % 16), ResolveIndex(16 + index % 16));
         int palette = index / 16, color = index % 16;
         int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
         if (source != index) return ResolveIndex(source);
         if (palette is 29 or 30 && SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color,
-            ResolveIndex(28 * 16 + color), ResolveIndex(498), out Bgr555 variaInk)) return variaInk;
+            ResolveIndex(28 * 16 + color), ResolveIndex(498), out RgbColor variaInk)) return variaInk;
         if (palette is >= 13 and <= 15 && SamusFullBodyCycleColorFormat.TryScrewPowerInk(palette, color,
-            ResolveIndex(12 * 16 + color), ResolveIndex(16 + 12), out Bgr555 ink)) return ink;
+            ResolveIndex(12 * 16 + color), ResolveIndex(16 + 12), out RgbColor ink)) return ink;
         if (palette % 16 >= 13 && SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color,
-            ResolveIndex((palette / 16 * 16 + 12) * 16 + color), out Bgr555 screw)) return screw;
+            ResolveIndex((palette / 16 * 16 + 12) * 16 + color), out RgbColor screw)) return screw;
         if (SamusFullBodyCycleColorFormat.IsActiveShineTint(palette, color))
             return SamusFullBodyCycleColorFormat.ActiveShineTint(ResolveIndex((palette / 16 * 16 + 8) * 16 + color), palette % 4);
         if (palette % 16 is >= 9 and <= 11 && SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color,
-            ResolveIndex((palette / 16 * 16 + 8) * 16 + color), out Bgr555 gold)) return gold;
+            ResolveIndex((palette / 16 * 16 + 8) * 16 + color), out RgbColor gold)) return gold;
         int channelSource = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(palette, color);
         if (channelSource >= 0) return SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(
             palette, color, ResolveIndex(palette / 16 * 256 + color), ResolveIndex(channelSource));
         if (palette % 16 is 2 or 3 && SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(palette, color,
-            ResolveIndex((palette / 16 * 16 + 1) * 16 + color), out Bgr555 brightened)) return brightened;
+            ResolveIndex((palette / 16 * 16 + 1) * 16 + color), out RgbColor brightened)) return brightened;
         if (SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(palette, color,
-            ResolveIndex(palette / 16 * 256 + color), out Bgr555 tinted)) return tinted;
+            ResolveIndex(palette / 16 * 256 + color), out RgbColor tinted)) return tinted;
         return SamusFullBodyCycleColorFormat.StoredShineColor(
             ResolveIndex((palette / 16 * 16 + 4) * 16 + color), palette % 4);
     }
 
     /// <summary>Computes an active-shinespark gold-ramp basis for a palette's second ink.</summary>
-    private Bgr555 ActiveGoldExpected(int palette)
+    private RgbColor ActiveGoldExpected(int palette)
     {
         _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, 2,
-            ResolveIndex((palette / 16 * 16 + 8) * 16 + 2), out Bgr555 value);
+            ResolveIndex((palette / 16 * 16 + 8) * 16 + 2), out RgbColor value);
         return value;
     }
 
     /// <summary>Computes a Screw Attack tint basis, including Varia's separate second-ink formula.</summary>
-    private Bgr555 ScrewExpected(int palette, int color)
+    private RgbColor ScrewExpected(int palette, int color)
     {
-        Bgr555 basis = ResolveIndex((palette / 16 * 16 + 12) * 16 + color);
-        Bgr555 value;
+        RgbColor basis = ResolveIndex((palette / 16 * 16 + 12) * 16 + color);
+        RgbColor value;
         if (palette == 31) _ = SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color, basis, basis, out value);
         else _ = SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color, basis, out value);
         return value;

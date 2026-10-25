@@ -36,18 +36,18 @@ public static class PowerBombFixedColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Checks a sequence's length and RGB5 channels before packing its colours.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Power Bomb {name} requires {count} RGB5 colors.");
-        var colors = new Bgr555[source.Length];
+        var colors = new RgbColor[source.Length];
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Power Bomb {name} color {index} requires components from zero through 31.");
-            colors[index] = new Bgr555(color.Red, color.Green, color.Blue);
+            colors[index] = new RgbColor(color.Red, color.Green, color.Blue);
         }
         return colors;
     }

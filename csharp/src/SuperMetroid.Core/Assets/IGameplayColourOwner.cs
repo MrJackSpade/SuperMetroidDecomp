@@ -13,8 +13,8 @@ public interface IGameplayColourOwner
     bool Holds(int position);
 
     /// <summary>The owner's colour at <paramref name="position"/>, which it holds.</summary>
-    Bgr555 At(int position);
+    RgbColor At(int position);
 
     /// <summary>Changes the owner's colour at <paramref name="position"/>, which it holds.</summary>
-    void Set(int position, Bgr555 colour);
+    void Set(int position, RgbColor colour);
 }

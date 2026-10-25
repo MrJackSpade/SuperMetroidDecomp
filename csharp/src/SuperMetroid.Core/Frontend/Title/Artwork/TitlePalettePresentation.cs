@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -11,16 +12,16 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
     /// <summary>Compiled initial CGRAM image in native slot order.</summary>
-    internal readonly Bgr555[] colors;
+    internal readonly RgbColor[] colors;
     /// <summary>Ambient samples retained only when they differ from the calculated paint.</summary>
-    internal readonly Dictionary<PaletteFxColorKey, Bgr555> animatedColors;
+    internal readonly Dictionary<PaletteFxColorKey, RgbColor> animatedColors;
 
     /// <summary>Retains the selected initial image, ambient edits, and independent skip-only inks.</summary>
     private TitlePalettePresentation(
-        Bgr555[] colors,
-        Dictionary<PaletteFxColorKey, Bgr555> animatedColors,
-        Bgr555 skipCopyrightWhite,
-        Bgr555 skipCopyrightRed)
+        RgbColor[] colors,
+        Dictionary<PaletteFxColorKey, RgbColor> animatedColors,
+        RgbColor skipCopyrightWhite,
+        RgbColor skipCopyrightRed)
     {
         this.colors = colors;
         this.animatedColors = animatedColors;
@@ -33,30 +34,30 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <param name="animatedColors">Every selected ambient-program colour.</param>
     /// <param name="skipCopyrightWhite">The selected skip-only white.</param>
     /// <param name="skipCopyrightRed">The selected skip-only red.</param>
-    internal static TitlePalettePresentation Create(Bgr555[] colors,
-        Dictionary<PaletteFxColorKey, Bgr555> animatedColors, Bgr555 skipCopyrightWhite, Bgr555 skipCopyrightRed)
+    internal static TitlePalettePresentation Create(RgbColor[] colors,
+        Dictionary<PaletteFxColorKey, RgbColor> animatedColors, RgbColor skipCopyrightWhite, RgbColor skipCopyrightRed)
     {
         foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
             PaletteFxColorKey key = program.Color(frame, index);
-            if (TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out Bgr555 calculated) &&
+            if (TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out RgbColor calculated) &&
                 animatedColors[key] == calculated) animatedColors.Remove(key);
         }
         return new TitlePalettePresentation(colors, animatedColors, skipCopyrightWhite, skipCopyrightRed);
     }
 
     /// <summary>Selected BGR555 copyright highlight restored at CGRAM color 201 by the title fast-skip route and title-screen presentation rebinding.</summary>
-    public Bgr555 SkipCopyrightWhite { get; }
+    public RgbColor SkipCopyrightWhite { get; }
     /// <summary>Selected BGR555 copyright tint restored at CGRAM color 202 on fast skip; the legacy Red name does not restrict its channels, and the stock word is $7D80.</summary>
-    public Bgr555 SkipCopyrightRed { get; }
+    public RgbColor SkipCopyrightRed { get; }
 
     /// <inheritdoc />
     /// <param name="key">A color the tube-light or display program writes.</param>
     /// <param name="color">Selected native BGR555 word when found, otherwise zero.</param>
     /// <returns>True when the key identifies an authored or matching calculated ambient color; false for other records.</returns>
-    public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color) =>
+    public bool TryReadColor(PaletteFxColorKey key, out RgbColor color) =>
         animatedColors.TryGetValue(key, out color) ||
         TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out color);
 

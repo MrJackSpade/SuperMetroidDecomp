@@ -507,7 +507,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
     chargeSamus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
     var chargedGlowCgram = new SamusColourRig();
-    chargedGlowCgram.SetColor(192, Bgr555.FromWord(0x4321));
+    chargedGlowCgram.SetColor(192, RgbColor.FromWord(0x4321));
     for (int call = 0; call < 4; call++)
     {
         SamusBeamChargePaletteStepResult paletteStep =
@@ -671,7 +671,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var hyperGlowCgram = new SamusColourRig();
     for (int call = 0; call < 21; call++)
     {
-        Bgr555[] beforeColors = hyperGlowCgram.Colors.ToArray();
+        RgbColor[] beforeColors = hyperGlowCgram.Colors.ToArray();
         ushort hyperTimerBefore = hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue;
         SamusBeamChargePaletteStepResult paletteStep =
             hyperProjectiles.UpdateBeamChargePalette(hyperGlowCgram.Samus, hyperSamus);
@@ -1581,7 +1581,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var pillarLink = pillarProjectiles.Slots[1];
     pillarLink.Position = pillarLink.Position.WithWholeY(0xd1);
     pillarOwner.Position = pillarOwner.Position.WithWhole(new(0x12f, 0xd1));
-    pillarOwner.Velocity = pillarOwner.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0x1100));
+    pillarOwner.Velocity = pillarOwner.Velocity.WithX(SignedEightEight.FromSignedRaw(0x1100));
     pillarOwner.Position = pillarOwner.Position.WithFractionX(0);
     pillarLink.Position = pillarLink.Position.WithWholeX(0x128);
     pillarLink.Radius = pillarLink.Radius.WithX(8);
@@ -1677,7 +1677,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "the Super Missile and its link are in flight");
     skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
     skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
-    skippedOwner.Velocity = skippedOwner.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0x1400));
+    skippedOwner.Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromSignedRaw(0x1400));
     skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
     skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.PackedType.Family,

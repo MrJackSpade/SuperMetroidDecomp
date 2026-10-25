@@ -267,7 +267,7 @@ public sealed class SamusDeathSequenceState
         if (AnimationIndex == 0)
             return false;
 
-        Bgr555 shade = (artwork ?? throw new InvalidOperationException(
+        RgbColor shade = (artwork ?? throw new InvalidOperationException(
             "Samus death whiteout requires installed palette artwork.")).WhiteoutColor(AnimationCounter);
         // Everything but Samus's suit and her suitless sprite set whitens: the room, the sprite sets below her
         // suit's and between her two, and her flare and beam colours among them.

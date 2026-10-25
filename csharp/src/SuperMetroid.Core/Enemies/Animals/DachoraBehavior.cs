@@ -49,13 +49,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accepted-frame lifetime of each Dachora shine echo.</summary>
     private const ushort DachoraEchoLifetime = 8;
     /// <summary>The bird's run speed cap: eight pixels per update.</summary>
-    private static readonly SnesSignedSixteenSixteen DachoraMaximumSpeed = SnesSignedSixteenSixteen.FromParts(8, 0);
+    private static readonly SignedSixteenSixteen DachoraMaximumSpeed = SignedSixteenSixteen.FromParts(8, 0);
     /// <summary>Dachora's running acceleration: a sixteenth of a pixel per update, every update.</summary>
-    private static readonly SnesSignedSixteenSixteen DachoraAcceleration = SnesSignedSixteenSixteen.FromParts(0, 4096);
+    private static readonly SignedSixteenSixteen DachoraAcceleration = SignedSixteenSixteen.FromParts(0, 4096);
     /// <summary>The shinespark's upward speed cap in whole pixels per update; the fraction is kept.</summary>
     private const short DachoraShinesparkMaximumWholeSpeed = 15;
     /// <summary>The fall's speed cap: ten pixels per update.</summary>
-    private static readonly SnesSignedSixteenSixteen DachoraMaximumFallSpeed = SnesSignedSixteenSixteen.FromParts(10, 0);
+    private static readonly SignedSixteenSixteen DachoraMaximumFallSpeed = SignedSixteenSixteen.FromParts(10, 0);
     /// <summary>Scripted room X where Dachora reverses its leftward run.</summary>
     private const ushort DachoraLeftTurnX = 96;
     /// <summary>Scripted room X where Dachora begins its stored-shine demonstration.</summary>
@@ -233,7 +233,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DachoraAiFunction.RunningRight;
         state.SetPaletteCycle(frame: 0, ticks: 1);
         state.FacingRight = true;
-        state.Speed = SnesSignedSixteenSixteen.Zero;
+        state.Speed = SignedSixteenSixteen.Zero;
         LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
     }
 
@@ -250,7 +250,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallDachoraInstruction(slot, state, DachoraProgram.RunningLeft);
             state.Function = DachoraAiFunction.RunningLeft;
             state.FacingRight = false;
-            state.Speed = SnesSignedSixteenSixteen.Zero;
+            state.Speed = SignedSixteenSixteen.Zero;
             state.SetPaletteCycle(frame: 0, ticks: 0);
             LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
             return;
@@ -304,7 +304,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The cartridge compares the whole and fraction words separately, each by the sign of its difference
         // from the cap's; a fraction with its top bit set therefore also counts as below the cap.
-        SnesSignedSixteenSixteen speed = state.Speed;
+        SignedSixteenSixteen speed = state.Speed;
         bool belowMaximum = unchecked((short)(speed.WholePixels - DachoraMaximumSpeed.WholePixels)) < 0 ||
             unchecked((short)(speed.Fraction - DachoraMaximumSpeed.Fraction)) < 0;
         if (belowMaximum)
@@ -343,7 +343,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = WrappingCountdown.Start(0);
         foreach (RoomEnemySlot echo in echoes)
             echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = WrappingCountdown.Start(0);
-        state.VerticalAcceleration = SnesSignedSixteenSixteen.Zero;
+        state.VerticalAcceleration = SignedSixteenSixteen.Zero;
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
         LastDachoraSoundEffect = DachoraLaunchSound;
 
@@ -368,8 +368,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speed += state.VerticalAcceleration;
 
         // The cap replaces only the whole word, compared by the sign of its word difference; the fraction is kept.
-        SnesSignedSixteenSixteen speed = state.Speed;
-        SnesSignedSixteenSixteen capped = unchecked((short)(speed.WholePixels - DachoraShinesparkMaximumWholeSpeed)) >= 0
+        SignedSixteenSixteen speed = state.Speed;
+        SignedSixteenSixteen capped = unchecked((short)(speed.WholePixels - DachoraShinesparkMaximumWholeSpeed)) >= 0
             ? speed.WithWholePixels(DachoraShinesparkMaximumWholeSpeed)
             : speed;
         int upwardDisplacement = unchecked(-capped.RawValue);
@@ -388,7 +388,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight = false;
         }
         state.Function = DachoraAiFunction.Falling;
-        state.Speed = SnesSignedSixteenSixteen.Zero;
+        state.Speed = SignedSixteenSixteen.Zero;
         state.SetPaletteCycle(frame: 0, ticks: 0);
         LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
         LastDachoraSoundEffect = DachoraCeilingImpactSound;
@@ -422,7 +422,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = state.FacingRight
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
-        state.Speed = SnesSignedSixteenSixteen.Zero;
+        state.Speed = SignedSixteenSixteen.Zero;
     }
 
     /// <summary>Ports the four-slot, first-free echo pipeline at $A7:F89A.</summary>
@@ -551,8 +551,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         Math.Abs(unchecked((short)(actor - samus))) < distance;
 
     /// <summary>Samus's current gravity per update, which the shinespark and fall accumulate.</summary>
-    private static SnesSignedSixteenSixteen SamusGravity(SamusState samus) =>
-        SnesSignedSixteenSixteen.FromParts(
+    private static SignedSixteenSixteen SamusGravity(SamusState samus) =>
+        SignedSixteenSixteen.FromParts(
             unchecked((short)samus.Kinematics.YAcceleration.Whole),
             samus.Kinematics.YAcceleration.Fraction);
 

@@ -36,6 +36,6 @@ public static class DraygonColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Checks a named RGB5 array's required length and channel bounds before packing its colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Draygon {name}");
 }

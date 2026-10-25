@@ -47,11 +47,11 @@ public static class MotherBrainRainbowPaletteFile
     }
 
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>
-    private static Bgr555[][] CompileFakeDeathFrames(PaletteRgb5[][]? source)
+    private static RgbColor[][] CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != MotherBrainFakeDeathPaletteDefinitions.FrameCount)
             throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
-        var frames = new Bgr555[source.Length][];
+        var frames = new RgbColor[source.Length][];
         for (int frame = 0; frame < source.Length; frame++)
             frames[frame] = CompileColors(source[frame],
                 MotherBrainFakeDeathPaletteDefinitions.ColorCount, $"fake-death frame {frame}");
@@ -80,22 +80,22 @@ public static class MotherBrainRainbowPaletteFile
     }
 
     /// <summary>Checks an authored row's exact length before converting its RGB5 colors.</summary>
-    private static Bgr555[] CompileColors(PaletteRgb5[]? source, int count, string name)
+    private static RgbColor[] CompileColors(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Mother Brain {name} requires {count} colors.");
-        var colors = new Bgr555[count];
+        var colors = new RgbColor[count];
         for (int color = 0; color < count; color++)
             colors[color] = CompileColor(source[color], $"{name} color {color}");
         return colors;
     }
 
     /// <summary>Rejects absent colors and channels outside the five-bit hardware range.</summary>
-    private static Bgr555 CompileColor(PaletteRgb5? color, string name)
+    private static RgbColor CompileColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
             throw new InvalidDataException($"Mother Brain {name} requires RGB5 components.");
-        return color.ToBgr555();
+        return color.ToRgbColor();
     }
 
     /// <summary>Serializes UTF-8 palette JSON and validates it without a legacy fallback before writing any bytes; consequently the document must satisfy the complete version-3 schema.</summary>

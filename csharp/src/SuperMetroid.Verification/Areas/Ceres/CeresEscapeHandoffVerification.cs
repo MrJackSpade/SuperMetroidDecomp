@@ -85,7 +85,7 @@ internal static class CeresEscapeHandoffVerification
         SeedCeresEjectionAirSpeedRecord(bus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(samus.Kinematics.Radius.X);
         // Leftover extra-run speed from before the shove (retail 100% movie: `.4000`).
-        samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(samus.HorizontalSpeed.ExtraRunSpeed.Whole, 0x4000);
+        samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(samus.HorizontalSpeed.ExtraRunSpeed.Whole, 0x4000);
         samus.CeresRidleyEjection.Step(
 
             emptyRoom,

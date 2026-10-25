@@ -349,7 +349,7 @@ internal sealed class KraidRise
         if ((random & 1) == 0)
             randomOffset = unchecked((short)~randomOffset);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + randomOffset)), 432));
-        rock.Velocity = new(new SnesSignedEightEight(unchecked((ushort)(random & 1008))), SnesSignedEightEight.FromSignedRaw(-1280));
+        rock.Velocity = new(new SignedEightEight(unchecked((ushort)(random & 1008))), SignedEightEight.FromSignedRaw(-1280));
         rock.GraphicsIndex = EnemyPaletteBits.Palette3;
         state.SpawnedRiseRockCount++;
         _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.RockSpit);
@@ -516,6 +516,6 @@ internal sealed class KraidRise
     {
         uint position = body.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
-        body.Position = body.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
+        body.Position = body.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
     }
 }

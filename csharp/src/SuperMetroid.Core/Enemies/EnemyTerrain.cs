@@ -53,7 +53,7 @@ internal sealed class EnemyTerrain
 
         uint oldPosition = slot.Position.X.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
-        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
+        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)newPosition));
         bool movingLeft = displacement < 0;
         int targetEdge = movingLeft
             ? unchecked((ushort)(targetCenter - slot.Radius.X))
@@ -85,7 +85,7 @@ internal sealed class EnemyTerrain
 
         if (!collided)
         {
-            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(newPosition));
+            slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(newPosition));
             return false;
         }
 
@@ -119,7 +119,7 @@ internal sealed class EnemyTerrain
 
         uint oldPosition = slot.Position.Y.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
-        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
+        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)newPosition));
         bool movingUp = displacement < 0;
         int targetEdge = movingUp
             ? unchecked((ushort)(targetCenter - slot.Radius.Y))
@@ -144,7 +144,7 @@ internal sealed class EnemyTerrain
 
         if (!collided)
         {
-            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(newPosition));
+            slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(newPosition));
             return false;
         }
 
@@ -177,7 +177,7 @@ internal sealed class EnemyTerrain
         int unsignedDistance)
     {
         uint target = unchecked(slot.Position.Y.RawValue + (uint)unsignedDistance);
-        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)target));
+        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)target));
         int targetEdge = unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
         int row = targetEdge >> 4;
         int firstColumn = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
@@ -205,7 +205,7 @@ internal sealed class EnemyTerrain
         int displacement)
     {
         uint position = slot.Position.X.RawValue;
-        int targetCenter = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
+        int targetCenter = FixedCoordinate.WholeOf(unchecked((int)(position + (uint)displacement)));
         bool movingLeft = displacement < 0;
         int targetEdge = movingLeft
             ? unchecked((ushort)(targetCenter - slot.Radius.X))
@@ -236,7 +236,7 @@ internal sealed class EnemyTerrain
     internal static bool EnemyHasSolidHighBitVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
     {
         uint position = slot.Position.Y.RawValue;
-        int center = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
+        int center = FixedCoordinate.WholeOf(unchecked((int)(position + (uint)displacement)));
         int edge = displacement < 0
             ? unchecked((ushort)(center - slot.Radius.Y))
             : unchecked((ushort)(center + slot.Radius.Y - 1));

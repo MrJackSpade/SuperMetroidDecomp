@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -17,7 +18,7 @@ internal static class ColorWindowSmokeTests
     {
         var random = new Random(32114);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
-        Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+        RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new FramePaint(palette, []);
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
         ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, palette, 0x6000, BgBitDepth.FourBpp);

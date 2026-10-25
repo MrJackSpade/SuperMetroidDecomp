@@ -36,10 +36,10 @@ internal static class PowampOwnedStateVerification
         bodyState.FunctionTimer = WrappingCountdown.Start(1);
         enemies.PowampBehavior.RunPowampMain(body, bodyState, null);
         AssertEqual(PowampEnemyFunction.InflatedRiseToTargetHeight, bodyState.Function, "inflation finishes");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");
+        AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");
 
         body.Clear();
-        AssertEqual(SnesSignedSixteenSixteen.Zero, bodyState.YVelocity, "a kill empties the body's velocity");
+        AssertEqual(SignedSixteenSixteen.Zero, bodyState.YVelocity, "a kill empties the body's velocity");
         AssertEqual(null, bodyState.Function, "a kill empties the body's function");
         Console.WriteLine("Powamp owned state: both halves' values and the cleared record match.");
     }

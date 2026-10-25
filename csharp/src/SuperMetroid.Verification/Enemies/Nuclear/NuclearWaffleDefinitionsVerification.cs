@@ -108,18 +108,18 @@ internal static class NuclearWaffleDefinitionsVerification
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertTrue(state.SweepsForward, "Nuclear Waffle direction one sweeps forward");
-        AssertEqual(SnesSignedSixteenSixteen.FromRaw(oneUnit + oneUnit / 2), state.AngularSpeed, "Nuclear Waffle speed record 24 is 1.5 units per update");
+        AssertEqual(SignedSixteenSixteen.FromRaw(oneUnit + oneUnit / 2), state.AngularSpeed, "Nuclear Waffle speed record 24 is 1.5 units per update");
 
         enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
         AssertEqual(NuclearWaffleEnemyFunction.Sweeping, state.Function, "Nuclear Waffle zero wait expires on the first update");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(startAngle, 0), state.SweepAngle, "Nuclear Waffle sweep restarts at its start angle");
+        AssertEqual(SignedSixteenSixteen.FromParts(startAngle, 0), state.SweepAngle, "Nuclear Waffle sweep restarts at its start angle");
 
         for (int update = 0; update <= finishingUpdate; update++)
         {
             if (update == 96)
                 enemies.NuclearWaffleBehavior.BeginEnemyFrame(new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState() });
             enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
-            AssertEqual(SnesSignedSixteenSixteen.FromRaw(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), state.SweepAngle,
+            AssertEqual(SignedSixteenSixteen.FromRaw(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), state.SweepAngle,
                 $"Nuclear Waffle sweep angle after sweep update {update}");
             AssertEqual(update == finishingUpdate ? NuclearWaffleEnemyFunction.Waiting : NuclearWaffleEnemyFunction.Sweeping, state.Function,
                 $"Nuclear Waffle sweep finishes only on update {finishingUpdate} (update {update})");
@@ -142,7 +142,7 @@ internal static class NuclearWaffleDefinitionsVerification
         }
 
         AssertEqual(486, state.CurrentAngle, "Nuclear Waffle angle advances once more on the finishing update");
-        AssertEqual(state.Origin + EnemyMath.CircleOffset(new SnesByteAngle(unchecked((byte)endAngle)), radius), slot.Position.Whole, "Nuclear Waffle head is clamped to the end angle");
+        AssertEqual(state.Origin + EnemyMath.CircleOffset(new ByteAngle(unchecked((byte)endAngle)), radius), slot.Position.Whole, "Nuclear Waffle head is clamped to the end angle");
         Console.WriteLine("  Nuclear Waffle sweep: the 16.16 angle carries, both turns latch with the rising sound only, and the last link ends the sweep.");
 
         static ClockedEnemyAiFrame Frame() => new(

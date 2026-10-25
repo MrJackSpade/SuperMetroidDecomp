@@ -57,7 +57,7 @@ internal static class AbsoluteTangentDefinitionsVerification
         };
         foreach (byte angle in new byte[] { 0, 32, 64, 96, 128, 160, 192, 224 })
         {
-            beam.Step(true, new(100, 95), SnesAngle.FromTableIndex(angle), 512);
+            beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(angle), 512);
             _ = RainbowBeamWindowBuilder.Build(beam.Geometry);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(129), "Tangent beyond native endpoint rejected");

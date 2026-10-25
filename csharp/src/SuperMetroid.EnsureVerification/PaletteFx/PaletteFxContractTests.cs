@@ -7,6 +7,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.EnsureVerification.PaletteFx;
 
@@ -54,7 +55,7 @@ internal static class PaletteFxContractTests
         fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
         int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
         fx.Step(new SuperMetroid.Core.Runtime.GameplayPaletteFxColours(cgram, samus), new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)
+        if (cgram.Colors[colorIndex] != new RgbColor(31, 0, 0) || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
         Console.WriteLine("#1152: eight compiler dependency contracts and the supplied-colors step pass; no gameplay search.");
     }
@@ -92,9 +93,9 @@ internal static class PaletteFxContractTests
     internal sealed class ContractPaletteColors : IPaletteFxColorSource
     {
         /// <summary>Accepts only the first engine color to expose timer advancement.</summary>
-        public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color)
+        public bool TryReadColor(PaletteFxColorKey key, out RgbColor color)
         {
-            color = new Bgr555(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
+            color = new RgbColor(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
             return key == CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows.Color(0, 0);
         }
     }

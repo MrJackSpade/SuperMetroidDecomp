@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.RenderVerification.Device;
 
@@ -19,23 +19,23 @@ internal static class PresentationHandoffTests
     /// <summary>Checks immutable ownership transfer, replacement accounting, generation invalidation, and publication while a consumer holds a frame.</summary>
     private static void VerifyLatestFrameMailbox()
     {
-        var first = new DisplayPacket(new(1, 1, ushort.MaxValue), new Rgba32(198, 127, 63, 255));
+        var first = new DisplayPacket(new(1, 1, ushort.MaxValue), new RgbaPixel(198, 127, 63, 255));
         var mailbox = new LatestRenderFrameMailbox(1);
         mailbox.Publish(first);
         AssertTrue(ReferenceEquals(first, mailbox.TakeLatest()), "mailbox transfers immutable ownership");
         AssertTrue(mailbox.TakeLatest() is null, "consumption does not repeat a frame");
         // The cartridge counter wraps here, but host sequence remains monotonic.
-        mailbox.Publish(new(new(2, 1, 0), default(Rgba32)));
-        mailbox.Publish(new(new(3, 1, 1), default(Rgba32)));
+        mailbox.Publish(new(new(2, 1, 0), default(RgbaPixel)));
+        mailbox.Publish(new(new(3, 1, 1), default(RgbaPixel)));
         AssertEqual(1L, mailbox.Metrics.Replaced, "superseded visuals counted");
         mailbox.AdvanceGeneration(2);
         AssertEqual(1L, mailbox.VerificationCounters.Invalidated, "queued old generation discarded");
         AssertTrue(!mailbox.IsCurrent(first), "consumer-held old packet invalidated");
         AssertTrue(mailbox.TakeLatest() is null, "old generation cannot be acquired after reset");
         AssertThrows<InvalidOperationException>(() => mailbox.Publish(first), "old publication generation rejected");
-        AssertThrows<InvalidOperationException>(() => mailbox.Publish(new(new(3, 2, 0), default(Rgba32))),
+        AssertThrows<InvalidOperationException>(() => mailbox.Publish(new(new(3, 2, 0), default(RgbaPixel))),
             "sequence cannot rewind across load");
-        mailbox.Publish(new(new(4, 2, 0), default(Rgba32)));
+        mailbox.Publish(new(new(4, 2, 0), default(RgbaPixel)));
         AssertEqual(4L, (mailbox.TakeLatest() ?? throw new InvalidOperationException("Verification requires mailbox.TakeLatest().")).Identity.Sequence, "new generation published");
 
         // Deliberately park the consumer after it has acquired a packet. Publication
@@ -43,7 +43,7 @@ internal static class PresentationHandoffTests
         // This is a mailbox component test, not a gameplay/audio throughput claim.
         using var acquired = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();
-        mailbox.Publish(new(new(5, 2, 1), default(Rgba32)));
+        mailbox.Publish(new(new(5, 2, 1), default(RgbaPixel)));
         Task consumer = Task.Run(() =>
         {
             DisplayPacket held = mailbox.TakeLatest()
@@ -57,7 +57,7 @@ internal static class PresentationHandoffTests
         {
             AssertTrue(acquired.Wait(TimeSpan.FromSeconds(10)), "consumer acquired first packet");
             for (long sequence = 6; sequence <= 1005; sequence++)
-                mailbox.Publish(new(new(sequence, 2, unchecked((ushort)sequence)), default(Rgba32)));
+                mailbox.Publish(new(new(sequence, 2, unchecked((ushort)sequence)), default(RgbaPixel)));
             // Keep the consumer blocked for at least the required 250 ms. Publication
             // above already completed while it was blocked; no scheduling-speed ratio
             // is used as a flaky pass criterion.
@@ -110,7 +110,7 @@ internal static class PresentationHandoffTests
             AssertTrue(!reset.IsCompleted, "reset cannot finish while presentation owns boundary");
             // Mailbox operations deliberately use a different lock and remain available.
             var mailbox = new LatestRenderFrameMailbox(2);
-            mailbox.Publish(new(current, default(Rgba32)));
+            mailbox.Publish(new(current, default(RgbaPixel)));
             AssertTrue(mailbox.TakeLatest() is not null, "publication independent of presentation gate");
         }
         finally

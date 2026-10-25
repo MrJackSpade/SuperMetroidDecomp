@@ -171,7 +171,7 @@ public sealed class LoadedRoomAssets
         }
         ColourRun room = colours.All;
         for (int colour = 0; colour < room.Count; colour++)
-            room.Write(colour, Bgr555.FromCgramPortWord(BinaryPrimitives.ReadUInt16LittleEndian(PaletteBytes.AsSpan(colour * sizeof(ushort)))));
+            room.Write(colour, RgbColor.FromCgramPortWord(BinaryPrimitives.ReadUInt16LittleEndian(PaletteBytes.AsSpan(colour * sizeof(ushort)))));
     }
 
     /// <summary>Parses BG1, BTS, and BG2 while retaining native allocation tails beyond visible room screens.</summary>

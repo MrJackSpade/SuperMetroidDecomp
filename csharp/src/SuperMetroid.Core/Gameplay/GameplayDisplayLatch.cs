@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// shows from the next accepted frame. A lag frame leaves the previous latch in place. Arrays are owned copies;
 /// simulation cannot change them.
 /// </summary>
-/// <param name="Ppu">The camera's layer-1 and layer-2 scrolls and the room shake.</param>
+/// <param name="Scrolls">The camera's layer-1 and layer-2 scrolls and the room shake.</param>
 /// <param name="MainScreen">The layers gameplay shows on the main screen.</param>
 /// <param name="PerspectiveFloor">The Ceres perspective floor the frame shows in place of the ordinary layers, or null.</param>
 /// <param name="RoomLayer3Fx">Room-FX BG3 state.</param>
@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
 /// <param name="Layer3">The BG3 plane's words this NMI latched, which its pictures are resolved from and the pause screen keeps; null before the first room.</param>
 public sealed record GameplayDisplayLatch(
-    GameplayPpuRenderSnapshot Ppu,
+    GameplayRenderSnapshot Scrolls,
     ScreenLayers MainScreen,
     PerspectiveFloor? PerspectiveFloor,
     RoomLayer3FxRenderSnapshot? RoomLayer3Fx,

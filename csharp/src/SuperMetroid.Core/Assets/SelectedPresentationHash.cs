@@ -80,7 +80,7 @@ internal sealed class SelectedPresentationHash
     }
 
     /// <summary>Colors hash as their 15-bit CGRAM words, identical to <see cref="AppendWords"/> of the encoded words.</summary>
-    public void AppendColors(string label, ReadOnlySpan<SuperMetroid.Core.Hardware.Bgr555> colors)
+    public void AppendColors(string label, ReadOnlySpan<SuperMetroid.Core.Assets.RgbColor> colors)
     {
         var bytes = new byte[checked(colors.Length * sizeof(ushort))];
         for (int index = 0; index < colors.Length; index++)
@@ -89,10 +89,10 @@ internal sealed class SelectedPresentationHash
     }
 
     /// <summary>Ordered color rows retain their boundaries, including empty rows; each row hashes its encoded words.</summary>
-    public void AppendColorFrames(string label, IReadOnlyList<SuperMetroid.Core.Hardware.Bgr555[]> frames)
+    public void AppendColorFrames(string label, IReadOnlyList<SuperMetroid.Core.Assets.RgbColor[]> frames)
     {
         Append(label, frames.Count);
-        foreach (SuperMetroid.Core.Hardware.Bgr555[] frame in frames)
+        foreach (SuperMetroid.Core.Assets.RgbColor[] frame in frames)
             AppendColors("row", frame);
     }
 

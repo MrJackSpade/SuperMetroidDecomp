@@ -220,9 +220,9 @@ firingLevel, firingSamus, ControllerButton.X);
     // reaches its block. Keep that accepted direction in sync so the firing-pose-change
     // pre-handler does not legitimately restart the beam before collision dispatch.
     deferredConnectionSamus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left;
-    deferredConnectionSamus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);
-    deferredConnectionSamus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(0, 0xb000);
-    deferredConnectionSamus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0x6070);
+    deferredConnectionSamus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000);
+    deferredConnectionSamus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(0, 0xb000);
+    deferredConnectionSamus.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x6070);
 
     GrappleMovementResult deferredConnection = SamusGrappleMovement.StepFiring(
 
@@ -510,8 +510,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
                 connectionSamus.Kinematics.YSpeed = connectionSamus.Kinematics.YSpeed.WithFraction(1);
             }
             connectionSamus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-            connectionSamus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 2);
-            connectionSamus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 4);
+            connectionSamus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 2);
+            connectionSamus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 4);
 
             SamusGrappleMovement.BeginFiring(connectionSamus);
             GrappleMovementResult tableConnection = SamusGrappleMovement.StepFiring(
@@ -610,7 +610,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         samus,
         anchor: new Position16<RoomPixels>(200, 100),
         ropeLength: 50,
-        angle: SnesAngle.HalfTurn,
+        angle: RotationAngle.HalfTurn,
         angularVelocity: 0,
         faceRight: true);
 
@@ -714,7 +714,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         OamEntry entry = grappleOam.GetEntry(segment);
         AssertOamEntry(
             new OamEntry(
-                new Position16<OamPixels>(94, (ushort)(99 - segment * 8)),
+                new Position16<SpritePixels>(94, (ushort)(99 - segment * 8)),
                 expectedTiles[segment],
                 5,
                 3,
@@ -796,7 +796,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         angularCollisionSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
-        angle: SnesAngle.QuarterTurn,
+        angle: RotationAngle.QuarterTurn,
         angularVelocity: 0x0100,
         faceRight: true);
     GrappleMovementResult angularCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = angularCollisionLevel }, angularCollisionSamus, ControllerButton.X, newlyPressedInput: 0);
@@ -834,7 +834,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
             spikeBlockSamus,
             anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
-            angle: SnesAngle.QuarterTurn,
+            angle: RotationAngle.QuarterTurn,
             angularVelocity: 0x0100,
             faceRight: true);
         GrappleMovementResult spikeBlockContact = SamusGrappleMovement.Step(new SamusTerrain { Level = spikeBlockLevel }, spikeBlockSamus, ControllerButton.X, newlyPressedInput: 0);
@@ -873,7 +873,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
             spikeAirSamus,
             anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
-            angle: SnesAngle.QuarterTurn,
+            angle: RotationAngle.QuarterTurn,
             angularVelocity: 0x0100,
             faceRight: true);
         GrappleMovementResult spikeAirContact = SamusGrappleMovement.Step(new SamusTerrain { Level = spikeAirLevel }, spikeAirSamus, ControllerButton.X, newlyPressedInput: 0);
@@ -932,7 +932,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         ropeCollisionSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
-        angle: SnesAngle.QuarterTurn,
+        angle: RotationAngle.QuarterTurn,
         angularVelocity: 0,
         faceRight: true);
     GrappleMovementResult ropeCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = ropeCollisionLevel }, ropeCollisionSamus, (ControllerButton.X | ControllerButton.Down), newlyPressedInput: ControllerButton.Down);
@@ -954,7 +954,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         disconnectedAnchorSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
-        angle: SnesAngle.QuarterTurn,
+        angle: RotationAngle.QuarterTurn,
         angularVelocity: 0,
         faceRight: true);
     disconnectedAnchorSamus.Grapple.ValidateAnchorBlock = true;
@@ -982,7 +982,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         wallGrabSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
-        angle: SnesAngle.FromRaw(0x6a00),
+        angle: RotationAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
     GrappleMovementResult wallGrab = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, ControllerButton.X, newlyPressedInput: 0);
@@ -1024,7 +1024,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // `$9B:C9CE` mirrors the ordinary route's selective cleanup: it zeros base speed but
     // preserves the Dash pair and `$0B3C`. Seed the state after the queueing call so this
     // assertion isolates the launch function itself from earlier grapple-swing behavior.
-    wallGrabSamus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x7000);
+    wallGrabSamus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x7000);
     wallGrabSamus.HorizontalSpeed.HasRunningMomentum = true;
     wallGrabSamus.ProjectileFlareCounter = 0x003c;
     wallGrabSamus.LiquidPhysics.BeginFrameSoundRequests();
@@ -1065,7 +1065,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         expiredWallGrabSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
-        angle: SnesAngle.FromRaw(0x6a00),
+        angle: RotationAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
     SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, expiredWallGrabSamus, ControllerButton.X, newlyPressedInput: 0);
@@ -1104,7 +1104,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         lockedSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
-        angle: SnesAngle.FromRaw(0xd600),
+        angle: RotationAngle.FromRaw(0xd600),
         angularVelocity: 0x0200,
         faceRight: true);
     GrappleMovementResult locked = SamusGrappleMovement.Step(new SamusTerrain { Level = lockedLevel }, lockedSamus, ControllerButton.X, newlyPressedInput: 0);
@@ -1136,7 +1136,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusGrappleMovement.ConnectUnobstructedSwing(
-            bus, new SamusState(), Position16<RoomPixels>.Zero, ropeLength: 7, angle: SnesAngle.Zero, angularVelocity: 0, faceRight: true),
+            bus, new SamusState(), Position16<RoomPixels>.Zero, ropeLength: 7, angle: RotationAngle.Zero, angularVelocity: 0, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
     Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");

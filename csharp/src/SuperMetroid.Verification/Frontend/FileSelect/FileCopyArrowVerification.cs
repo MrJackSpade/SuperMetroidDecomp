@@ -66,12 +66,12 @@ internal static class FileCopyArrowVerification
             {
                 int address = spritemap + 2 + part * 5;
                 expected.AddOnScreenSpritePart(new SnesSpritemapXWord(ReadVerificationWord(rom, address)),
-                    new SnesSpritemapYByte(FileCopyArrowRomByte(rom, address + 2)), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
+                    new SnesSpritemapYByte(FileCopyArrowRomByte(rom, address + 2)), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<SpritePixels>(originX, originY));
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
                     $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }
             expected.FinalizeFrame();
-            Bgr555[] initial = menu.screen.Palette.Colors.ToArray();
+            RgbColor[] initial = menu.screen.Palette.Colors.ToArray();
             for (int frame = 1; frame <= 12; frame++)
             {
                 menu.Step(0);
@@ -83,7 +83,7 @@ internal static class FileCopyArrowVerification
                 }
             }
             // Rendering must not advance animation.
-            Bgr555[] beforeRender = menu.screen.Palette.Colors.ToArray();
+            RgbColor[] beforeRender = menu.screen.Palette.Colors.ToArray();
             menu.Render(); menu.CaptureRenderSnapshot();
             AssertTrue(beforeRender.SequenceEqual(menu.screen.Palette.Colors), "render leaves palette timing alone");
             Press(ControllerButton.A);

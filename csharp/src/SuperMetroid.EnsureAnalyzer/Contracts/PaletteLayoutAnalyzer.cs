@@ -19,7 +19,7 @@ public sealed class PaletteLayoutAnalyzer : DiagnosticAnalyzer
     public const string PaletteLayoutId = "SME6444";
 
     /// <summary>The colour types: a hardware colour word, a display colour and an asset document's colour.</summary>
-    internal static readonly ImmutableHashSet<string> ColourTypes = ["Bgr555", "Rgba32", "PaletteRgb5"];
+    internal static readonly ImmutableHashSet<string> ColourTypes = ["RgbColor", "RgbaPixel", "PaletteRgb5"];
 
     /// <summary>Camel-case words naming a palette.</summary>
     internal static readonly ImmutableHashSet<string> PaletteWords = ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase,

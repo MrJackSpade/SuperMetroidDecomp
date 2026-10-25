@@ -16,5 +16,5 @@ namespace SuperMetroid.Core.Spatial;
 /// <param name="Outside">What shows beyond the floor's edges.</param>
 public readonly record struct AffineTransform(
     int MatrixA, int MatrixB, int MatrixC, int MatrixD,
-    Offset16<Mode7Pixels> Center, Offset16<Mode7Pixels> Scroll,
-    Mode7OverflowMode Outside = Mode7OverflowMode.Transparent);
+    Offset16<FloorPixels> Center, Offset16<FloorPixels> Scroll,
+    FloorOverflowMode Outside = FloorOverflowMode.Transparent);

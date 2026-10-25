@@ -24,7 +24,7 @@ internal static class LookupFxWeatherBlueVerification
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> 5) & 31, "Installed weather third green");
             var cgram = new GameplayColours(new SpriteColourSets()); stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> 5) & 31, "Applied weather third green");
-            var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), Bgr555.FromWord(checked(native)));
+            var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked(native)));
             AssertTrue(owner.greenOverride is null, "Stock weather third green is not stored");
             _ = owner.CreateColor();
             AssertTrue(owner.greenOverride is null, "Weather output does not cache green");
@@ -51,7 +51,7 @@ internal static class LookupFxWeatherBlueVerification
             var cgram = new GameplayColours(new SpriteColourSets());
             stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> 10) & 31, "Applied weather third blue");
-            var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), Bgr555.FromWord(checked(native)));
+            var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked(native)));
             AssertTrue(owner.blueOverride is null, "Stock weather third blue is not stored");
             _ = owner.CreateColor();
             AssertTrue(owner.blueOverride is null, "Weather output does not create a blue cache");
@@ -59,7 +59,7 @@ internal static class LookupFxWeatherBlueVerification
         foreach (byte id in OriginalFxBlendIds())
         {
             for (int color = 0; color < 0x8000; color++)
-                AssertEqual((ushort)color, new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), Bgr555.FromWord(checked((ushort)color))).CreateColor(), "Every RGB5 third-color edit round-trips");
+                AssertEqual((ushort)color, new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked((ushort)color))).CreateColor(), "Every RGB5 third-color edit round-trips");
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(FxNativeWords.PaletteBlend(id), invalid), "Third blue RGB5 input bounds");
         }

@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
-/// The SNES PPU's 256-entry Color Generator RAM (CGRAM), retained as native <see cref="Bgr555"/> colors.
+/// The SNES PPU's 256-entry Color Generator RAM (CGRAM), retained as native <see cref="RgbColor"/> colors.
 /// </summary>
 /// <remarks>
 /// Keeping the hardware words instead of prematurely converting them is useful while
@@ -15,10 +17,10 @@ public sealed class SnesCgram : IPaletteColors
     public const int ColorCount = SnesPpuLayout.CgramColorCount;
 
     /// <summary>Native 15-bit palette words retained until rendering or inspection converts them.</summary>
-    private readonly Bgr555[] _colors = new Bgr555[ColorCount];
+    private readonly RgbColor[] _colors = new RgbColor[ColorCount];
 
     /// <summary>Read-only palette colors for watches and verification.</summary>
-    public ReadOnlySpan<Bgr555> Colors => _colors;
+    public ReadOnlySpan<RgbColor> Colors => _colors;
 
     /// <summary>Loads consecutive little-endian palette bytes already decoded in host memory.</summary>
     public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0)
@@ -31,12 +33,12 @@ public sealed class SnesCgram : IPaletteColors
 
         for (int color = 0; color < colorCount; color++)
         {
-            _colors[destinationIndex + color] = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
+            _colors[destinationIndex + color] = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
         }
     }
 
     /// <summary>Writes one color.</summary>
-    public void SetColor(int index, Bgr555 color)
+    public void SetColor(int index, RgbColor color)
     {
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));

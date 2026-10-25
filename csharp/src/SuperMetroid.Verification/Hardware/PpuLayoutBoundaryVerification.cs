@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Video;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 
@@ -130,8 +131,8 @@ internal static class PpuLayoutBoundaryVerification
         for (int slot = first; slot < end; slot++)
             AssertEqual(Probe(slot, seed), read.Colors[slot - reader.Offset], $"{context} colour ${slot:X2}");
 
-        static Bgr555 Probe(int slot, int seed) =>
-            new((slot + seed) & Bgr555.MaxChannel, (slot * 3 + seed) & Bgr555.MaxChannel, (slot * 7 + seed) & Bgr555.MaxChannel);
+        static RgbColor Probe(int slot, int seed) =>
+            new((slot + seed) & RgbColor.MaxChannel, (slot * 3 + seed) & RgbColor.MaxChannel, (slot * 7 + seed) & RgbColor.MaxChannel);
     }
 
 
@@ -164,18 +165,18 @@ internal static class PpuLayoutBoundaryVerification
 
         var cgram = new SnesCgram();
         CgramPalette row = new CgramPalettes(cgram).ObjectRow(7);
-        var color = new Bgr555(31, 7, 19);
+        var color = new RgbColor(31, 7, 19);
         row.Write(9, color);
-        AssertEqual(color, row.Colors[9], "a Bgr555 colour round-trips through an OBJ palette row");
+        AssertEqual(color, row.Colors[9], "a RgbColor colour round-trips through an OBJ palette row");
         AssertEqual(color, cgram.Colors[PpuMemoryLayoutConstants.ObjectPaletteRows[7].Offset + 9], "OBJ row 7 colour 9 is CGRAM slot $F9");
-        AssertEqual(color.ToRgba32(), row.Rgba(9), "the view's RGBA matches the colour's expansion");
+        AssertEqual(color.ToRgbaPixel(), row.Rgba(9), "the view's RGBA matches the colour's expansion");
 
         var oam = new OamBuffer();
         oam.BeginFrame();
         SnesObjAttributeWord attributes = SnesObjAttributeWord.Create(0x1c3, paletteIndex: 6, priority: 2, SnesTileFlipFlags.Horizontal);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x01f0, 0x0080), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x01f0, 0x0080), attributes);
         OamEntry entry = oam.GetEntry(0);
-        AssertEqual(new OamEntry(new Position16<OamPixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
+        AssertEqual(new OamEntry(new Position16<SpritePixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
             "an object's position and attributes round-trip through OAM");
 
     }
@@ -198,8 +199,8 @@ internal static class PpuLayoutBoundaryVerification
 
         var cgram = new SnesCgram();
         CgramPalette row = new CgramPalettes(cgram).BackgroundRow(2);
-        AssertThrows<ArgumentOutOfRangeException>(() => row.Write(16, Bgr555.White), "a palette row holds sixteen colours");
-        AssertThrows<ArgumentOutOfRangeException>(() => row.CopyFrom(new Bgr555[4], start: 13), "a palette copy cannot leave its row");
+        AssertThrows<ArgumentOutOfRangeException>(() => row.Write(16, RgbColor.White), "a palette row holds sixteen colours");
+        AssertThrows<ArgumentOutOfRangeException>(() => row.CopyFrom(new RgbColor[4], start: 13), "a palette copy cannot leave its row");
         AssertThrows<ArgumentOutOfRangeException>(() => new CgramPalettes(cgram).ObjectRow(8), "a bank has eight rows");
 
         AssertThrows<ArgumentOutOfRangeException>(() => new PpuLayoutCell("Past", PpuLayoutRegion.Vram, 0x7ff0, 0x20, "words"),
@@ -262,11 +263,11 @@ internal static class PpuLayoutBoundaryVerification
         var oam = new OamBuffer();
         oam.BeginFrame();
         var attributes = SnesObjAttributeWord.Create(0x0a0, paletteIndex: 1, priority: 3);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x0010, 0x0020), attributes);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x0180, 0x0021), attributes);
-        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), new SnesSpritemapYByte(0), attributes, new Position16<OamPixels>(0x0030, 0x0040));
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x01ff, 0x0022), attributes);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(0x0100, 0x0023), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x0010, 0x0020), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x0180, 0x0021), attributes);
+        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), new SnesSpritemapYByte(0), attributes, new Position16<SpritePixels>(0x0030, 0x0040));
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x01ff, 0x0022), attributes);
+        oam.AddRawSmallSprite(new Position16<SpritePixels>(0x0100, 0x0023), attributes);
 
         ReadOnlySpan<byte> low = oam.LowTable;
         AssertEqual((byte)0x10, low[0], "OBJ 0 X low byte");
@@ -283,17 +284,17 @@ internal static class PpuLayoutBoundaryVerification
         AssertTrue(oam.GetEntry(2).IsLarge, "the size bit decodes from the high table");
     }
 
-    /// <summary>CGRAM stores fifteen colour bits: the port drops bit 15, and a Bgr555 cannot carry it.</summary>
+    /// <summary>CGRAM stores fifteen colour bits: the port drops bit 15, and a RgbColor cannot carry it.</summary>
     [PpuLayoutBoundary("exact hardware test: CGRAM bit-15 masking")]
     private static void VerifyCgramBit15Masking()
     {
         var cgram = new SnesCgram();
         CgramPalette row = new CgramPalettes(cgram).BackgroundRow(0);
         row.LoadPortBytes([0xff, 0xff, 0x1f, 0x80], start: 1);
-        AssertEqual(Bgr555.White, row.Colors[1], "port word $FFFF stores $7FFF");
-        AssertEqual(new Bgr555(31, 0, 0), row.Colors[2], "port word $801F stores $001F");
+        AssertEqual(RgbColor.White, row.Colors[1], "port word $FFFF stores $7FFF");
+        AssertEqual(new RgbColor(31, 0, 0), row.Colors[2], "port word $801F stores $001F");
         AssertEqual((ushort)0x7fff, row.Colors[1].ToWord(), "the stored raw word has bit 15 clear");
-        AssertThrows<ArgumentOutOfRangeException>(() => Bgr555.FromWord(0x8000), "a Bgr555 rejects bit 15");
+        AssertThrows<ArgumentOutOfRangeException>(() => RgbColor.FromWord(0x8000), "a RgbColor rejects bit 15");
         AssertThrows<ArgumentException>(() => row.LoadPortBytes([0x00]), "a port stream carries whole colour words");
     }
 
@@ -317,7 +318,7 @@ internal static class PpuLayoutBoundaryVerification
             {
                 CgramPalette objects = new CgramPalettes(cgram).Objects;
                 for (int index = 0; index < objects.Count; index++)
-                    objects.Write(index, Bgr555.Saturating(objects.Colors[index].Red + 1, frame & 31, index & 31));
+                    objects.Write(index, RgbColor.Saturating(objects.Colors[index].Red + 1, frame & 31, index & 31));
                 VramRegion bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
                 for (int line = 0; line < 32; line++)
                 {

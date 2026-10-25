@@ -47,7 +47,7 @@ public sealed class BoulderEnemyState
     /// Parameter one's high byte (0 through 255): zero rolls right, any other value rolls left, and two also breaks the
     /// boulder on its first impact.
     /// </summary>
-    [NativeWord("population parameter high byte: zero rolls right, any other value rolls left, and two also breaks on first impact")]
+    [PackedFields("population parameter high byte: zero rolls right, any other value rolls left, and two also breaks on first impact")]
     public int DirectionSelector
     {
         get;
@@ -65,7 +65,7 @@ public sealed class BoulderEnemyState
     /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two or five pixels from parameter one's low byte, then zero once the full Y position stops changing. Native <c>minimumDistanceFromGround</c> at $7E:7802,x.</summary>
     public Offset16<RoomPixels> VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update. Native <c>previousEnemyYSubPosition</c> and <c>previousEnemyYPosition</c> at $7E:7804,x and $7E:7806,x.</summary>
-    public SnesFixedPosition PreviousY { get; internal set; }
+    public FixedCoordinate PreviousY { get; internal set; }
     /// <summary>
     /// Original population position in room pixels: X retained as native <c>spawnXPosition</c>
     /// at $7E:7808,x (the translated movement does not subsequently consume it), and Y before

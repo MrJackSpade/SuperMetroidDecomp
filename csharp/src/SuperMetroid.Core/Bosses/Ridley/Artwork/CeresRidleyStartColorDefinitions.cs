@@ -21,10 +21,10 @@ internal sealed class CeresRidleyStartColorDefinitions
     /// <summary>Previously validated Baby material reused by the second palette.</summary>
     private readonly CeresBabyPaintDefinitions baby;
     /// <summary>Independent supplied changes to either palette, including transparent entries.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Separates the two palettes, preserving colors that differ from calculated source materials.</summary>
-    internal CeresRidleyStartColorDefinitions(ReadOnlySpan<Bgr555> colors, CeresBabyPaintDefinitions initialBaby)
+    internal CeresRidleyStartColorDefinitions(ReadOnlySpan<RgbColor> colors, CeresBabyPaintDefinitions initialBaby)
     {
         if (colors.Length != 2 * PaletteSize)
             throw new ArgumentException("Ceres additional palettes require 32 colors and fifteen Baby colors.");
@@ -35,16 +35,16 @@ internal sealed class CeresRidleyStartColorDefinitions
     }
 
     /// <summary>Uses a supplied edit when present, otherwise reconstructing the selected source color.</summary>
-    internal Bgr555 Resolve(int color)
+    internal RgbColor Resolve(int color)
     {
         if ((uint)color >= 2 * PaletteSize) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : Calculate(color);
+        return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : Calculate(color);
     }
 
     /// <summary>Calculates copied clear-black entries, door paint, or Baby paint for an unedited index.</summary>
-    private Bgr555 Calculate(int color) => color switch
+    private RgbColor Calculate(int color) => color switch
     {
-        0 or PaletteSize => Bgr555.Black,
+        0 or PaletteSize => RgbColor.Black,
         < PaletteSize => door.ColorAt(color - 1),
         _ => baby.Resolve(0, color - PaletteSize - 1),
     };

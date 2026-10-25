@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using System.Security.Cryptography;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Provides streamed debugger-graph hashes and temporary render rasters for focused state comparisons.</summary>
@@ -82,10 +83,10 @@ internal static class GraphDigestVerification
         return true;
     }
     /// <summary>The pixels a packet shows, for a comparison.</summary>
-    internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
+    internal static SuperMetroid.Core.Assets.RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
         DisplayRendering.Render(frame);
 
     /// <summary>The pixels a layered scene shows, for a comparison.</summary>
-    internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
+    internal static SuperMetroid.Core.Assets.RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
         DisplayRendering.Render(frame);
 }

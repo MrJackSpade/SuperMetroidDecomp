@@ -148,7 +148,7 @@ internal static class TitleGradientVerification
                 int record = address + 2 + part * 5;
                 nativeOam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(record)),
                     new SnesSpritemapYByte(CpuBusRegionRead.Read(bus, record + 2)), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
-                    new Position16<OamPixels>(128, 112));
+                    new Position16<SpritePixels>(128, 112));
             }
             TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), 0);
             nativeOam.FinalizeFrame(); installedOam.FinishFrame();
@@ -299,7 +299,7 @@ internal static class TitleGradientVerification
                     ushort expected = RomDataReader.ReadWordFixedBank(
                         CartridgeImportSource.Require(bus),
                         RoomFxBankSourceDefinitions.PaletteFx | pointer);
-                    if (!presentation.TryReadColor(pointer, out Bgr555 actual) ||
+                    if (!presentation.TryReadColor(pointer, out RgbColor actual) ||
                         actual.ToWord() != expected)
                     {
                         throw new InvalidDataException(

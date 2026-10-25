@@ -18,7 +18,7 @@ internal static class RinkaRecordStateVerification
         var state = new RinkaEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<RinkaEnemyFunction>()[^1];
-        state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(1), default);
+        state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(1), default);
         state.SpawnResourceToken = 1;
         state.DelayTimer = WrappingCountdown.Start(1);
 

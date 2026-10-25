@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
@@ -7,5 +9,5 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomFixedColor
 {
     /// <summary>The colour.</summary>
-    public Bgr555 Color { get; internal set; }
+    public RgbColor Color { get; internal set; }
 }

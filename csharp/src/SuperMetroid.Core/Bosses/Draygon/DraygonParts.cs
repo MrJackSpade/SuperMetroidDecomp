@@ -378,7 +378,7 @@ internal sealed class DraygonParts
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 
         int random = _room.Random.Generate();
-        SnesByteAngle angle = new(unchecked((byte)((random & 63) + (movingRight ? 192 : 128))));
+        ByteAngle angle = new(unchecked((byte)((random & 63) + (movingRight ? 192 : 128))));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }
@@ -386,15 +386,15 @@ internal sealed class DraygonParts
     /// <summary>Splits sine-derived projectile velocity into native 8.8 and fraction words.</summary>
     internal static void SetDraygonProjectileVelocity(
         RoomEnemyProjectileSlot projectile,
-        SnesByteAngle angle,
+        ByteAngle angle,
         int speed)
     {
         projectile.DirectionParameter = angle.RawValue;
         int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)speed));
         int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)speed));
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(FixedCoordinate.WholeOf(xMagnitude)));
         projectile.Variable0 = unchecked((ushort)xMagnitude);
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(FixedCoordinate.WholeOf(yMagnitude)));
         projectile.Variable1 = unchecked((ushort)yMagnitude);
     }
 }

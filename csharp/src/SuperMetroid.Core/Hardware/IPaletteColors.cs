@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -7,10 +9,10 @@ namespace SuperMetroid.Core.Hardware;
 public interface IPaletteColors
 {
     /// <summary>The colours, in palette order.</summary>
-    ReadOnlySpan<Bgr555> Colors { get; }
+    ReadOnlySpan<RgbColor> Colors { get; }
 
     /// <summary>Writes the colour at <paramref name="index"/>.</summary>
-    void SetColor(int index, Bgr555 color);
+    void SetColor(int index, RgbColor color);
 
     /// <summary>Loads consecutive little-endian colour words from <paramref name="destinationIndex"/> onward.</summary>
     void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0);

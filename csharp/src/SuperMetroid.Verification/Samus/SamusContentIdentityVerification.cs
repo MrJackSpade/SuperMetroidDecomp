@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 
@@ -132,7 +133,7 @@ internal static class SamusContentIdentityVerification
             var stream = new MemoryStream();
             var pixels = new byte[width * height];
             if (changed) pixels[^1] = 1;
-            IndexedPng.Write(stream, new(checked((ushort)width), checked((ushort)height)), pixels, [new Rgba32(0, 0, 0), new Rgba32(255, 255, 255)]);
+            IndexedPng.Write(stream, new(checked((ushort)width), checked((ushort)height)), pixels, [new RgbaPixel(0, 0, 0), new RgbaPixel(255, 255, 255)]);
             stream.Position = 0;
             return stream;
         }

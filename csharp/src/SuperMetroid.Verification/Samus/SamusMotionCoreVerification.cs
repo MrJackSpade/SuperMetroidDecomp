@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -119,11 +120,11 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: SamusMovementType.Running), "running speed entry pointer chain");
 
     SpeedTableEntry entry = speed.ReadEntry(movementType: SamusMovementType.Running);
-    AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0x3000), entry.Acceleration,
+    AssertEqual(SignedSixteenSixteen.FromParts(0, 0x3000), entry.Acceleration,
         "running accelerates by three sixteenths of a pixel per frame");
-    AssertEqual(SnesSignedSixteenSixteen.FromParts(2, 0xc000), entry.MaximumSpeed,
+    AssertEqual(SignedSixteenSixteen.FromParts(2, 0xc000), entry.MaximumSpeed,
         "running caps at two and three quarter pixels per frame");
-    AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0x8000), entry.Deceleration,
+    AssertEqual(SignedSixteenSixteen.FromParts(0, 0x8000), entry.Deceleration,
         "running decelerates by half a pixel per frame");
 
     // Four acceleration calls produce 0.C000 exactly. Fifteen calls would reach 2.D000,
@@ -242,7 +243,7 @@ internal static void VerifySamusHorizontalSpeed()
         var retainedBoost = new SamusHorizontalSpeedState
         {
             HasRunningMomentum = true,
-            ExtraRunSpeed = new SnesUnsignedSixteenSixteen(7, 0),
+            ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0),
             SpeedBoostCounter = new SamusSpeedBoostCounter(activeStage ? (ushort)0x0401 : (ushort)0x0301),
             ContactDamageIndex = SamusContactDamageIndex.None,
         };
@@ -287,7 +288,7 @@ internal static void VerifySamusHorizontalSpeed()
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityBoostFirst, 0x6a5a);
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401) };
     var submergedBoostCgram = new SamusColourRig();
-    submergedBoostCgram.SetColor(192, Bgr555.FromWord(0x7777));
+    submergedBoostCgram.SetColor(192, RgbColor.FromWord(0x7777));
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Speed Booster palette copy");
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }),
@@ -310,7 +311,7 @@ internal static void VerifySamusHorizontalSpeed()
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityScrewFirst, 0x5b4b);
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SamusColourRig();
-    submergedScrewCgram.SetColor(192, Bgr555.FromWord(0x2222));
+    submergedScrewCgram.SetColor(192, RgbColor.FromWord(0x2222));
     AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Screw Attack palette copy");
     AssertEqual(0x2222, submergedScrewCgram.Colors[192],
@@ -425,8 +426,8 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
 
     var boostedJump = new SamusState { EquippedItems = SamusEquipmentFlags.SpeedBooster };
-    boostedJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 0xe000);
-    boostedJump.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
+    boostedJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 0xe000);
+    boostedJump.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);
     AssertEqual(5, boostedJump.Kinematics.YSpeed.Whole, "boosted jump adds half whole extra speed");
     AssertEqual(0x2000, boostedJump.Kinematics.YSpeed.Fraction,
@@ -434,7 +435,7 @@ internal static void VerifySamusHorizontalSpeed()
 
     // $90:E4E6 caps a nonsensically large divisor at four. Extra run speed is added before
     // that shift; 2.0 + 2.0 therefore becomes 0.4000 when divisor $1234 is stored.
-    speed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
+    speed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0);
     speed.SpeedDivisor = 0x1234;
     AssertEqual(0x00004000u, speed.CalculateTotalSpeed(0x00020000), "total speed divisor caps at four");
     AssertEqual(0x4000, speed.TotalSpeed.Fraction, "total subspeed publication");
@@ -548,7 +549,7 @@ internal static void VerifySamusExtraDisplacement()
     };
     rising.Kinematics.Radius = new(5, 19);
     rising.Kinematics.YDirection = SamusVerticalDirection.Up;
-    rising.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);
+    rising.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     uint risingYBefore = rising.Kinematics.Position.Y.RawValue;
     SamusAerialMovement.StepNormalJump(
@@ -571,7 +572,7 @@ internal static void VerifySamusExtraDisplacement()
     };
     bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.YDirection = SamusVerticalDirection.Up;
-    bouncingBall.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
+    bouncingBall.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
     MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
 

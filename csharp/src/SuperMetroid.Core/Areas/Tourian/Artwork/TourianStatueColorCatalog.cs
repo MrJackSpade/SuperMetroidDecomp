@@ -9,7 +9,7 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", content =>
         {
-            Span<Bgr555> row = stackalloc Bgr555[TourianStatueColorDefinitions.BaseColorCount];
+            Span<RgbColor> row = stackalloc RgbColor[TourianStatueColorDefinitions.BaseColorCount];
             for (int color = 0; color < row.Length; color++) row[color] = ResolveBase(color);
             content.AppendColors("baseColors", row);
             content.AppendColors("statueColors", statueColors.Words());
@@ -29,8 +29,8 @@ public sealed class TourianStatueColorCatalog
     internal readonly PaletteBand greyColors;
 
     /// <summary>Separates the supplied base, statue, eye, and grey colors into independent paint bands.</summary>
-    internal TourianStatueColorCatalog(Bgr555[] baseColors, Bgr555[] statueColors,
-        Bgr555[][] eyeColors, Bgr555[] greyColors)
+    internal TourianStatueColorCatalog(RgbColor[] baseColors, RgbColor[] statueColors,
+        RgbColor[][] eyeColors, RgbColor[] greyColors)
     {
         this.baseColors = new(TourianStatuePaintBand.Base, baseColors);
         this.statueColors = new(TourianStatuePaintBand.Statue, statueColors);
@@ -39,9 +39,9 @@ public sealed class TourianStatueColorCatalog
     }
 
     /// <summary>Gets packed RGB5 base-decoration ink 0–15 corresponding to $AA:D785, including its retained transparent-slot word.</summary>
-    public Bgr555 ResolveBase(int color) => baseColors.Read(color);
+    public RgbColor ResolveBase(int color) => baseColors.Read(color);
     /// <summary>Gets packed RGB5 eye ink 0–3 from row 0–3 of $86:B91E, in Phantoon, Ridley, Draygon, Kraid order.</summary>
-    public Bgr555 ResolveEye(int row, int color)
+    public RgbColor ResolveEye(int row, int color)
     {
         if ((uint)row >= TourianStatueColorDefinitions.EyeRowCount)
             throw new ArgumentOutOfRangeException(nameof(row));
@@ -50,7 +50,7 @@ public sealed class TourianStatueColorCatalog
         return eyeColors.Read(row * TourianStatueColorDefinitions.EyeColorCount + color);
     }
     /// <summary>Gets packed RGB5 ink 0–7 from the statue's grey-transition band corresponding to $87:839C; destination and transition ordering remain animation-owned.</summary>
-    public Bgr555 ResolveGrey(int color) => greyColors.Read(color);
+    public RgbColor ResolveGrey(int color) => greyColors.Read(color);
 
     /// <summary>Installs all sixteen base-decoration inks at CGRAM 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two OBJ palette bands.</summary>
     public void ApplyEntrance(GameplayColours colours)
@@ -83,9 +83,9 @@ public sealed class TourianStatueColorCatalog
         /// <summary>Number of indexed colors in this band's native palette geometry.</summary>
         private readonly int count;
         /// <summary>Only supplied colors that differ from the calculated stock band.</summary>
-        internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+        internal readonly Dictionary<ColourCell, RgbColor> edits = [];
         /// <summary>Compares supplied colors with stock paint and retains independent edits.</summary>
-        internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<Bgr555> supplied)
+        internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<RgbColor> supplied)
         {
             this.band = band;
             count = supplied.Length;
@@ -93,15 +93,15 @@ public sealed class TourianStatueColorCatalog
                 if (supplied[color] != TourianStatuePaintDefinitions.Color(band, color)) edits.Add(new ColourCell(0, color), supplied[color]);
         }
         /// <summary>Resolves an edited color or calculates its stock paint after validating the index.</summary>
-        internal Bgr555 Read(int color)
+        internal RgbColor Read(int color)
         {
             if ((uint)color >= count) throw new ArgumentOutOfRangeException(nameof(color));
-            return edits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
+            return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
         }
         /// <summary>Materializes the selected band for content hashing in indexed color order.</summary>
-        internal Bgr555[] Words()
+        internal RgbColor[] Words()
         {
-            var result = new Bgr555[count];
+            var result = new RgbColor[count];
             for (int color = 0; color < count; color++) result[color] = Read(color);
             return result;
         }

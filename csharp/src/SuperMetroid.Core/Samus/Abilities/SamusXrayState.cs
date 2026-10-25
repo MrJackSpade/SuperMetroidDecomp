@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -81,14 +82,14 @@ public sealed class SamusXrayState
     public XrayBeamPhase BeamPhase { get; private set; }
 
     /// <summary>WRAM `$0A7E`; right-facing angles occupy `$00-$7F`, left `$80-$FF`.</summary>
-    public SnesAngle Angle { get; private set; }
+    public RotationAngle Angle { get; private set; }
 
     /// <summary>
     /// The beam's half-width as a 16.16 value in 256-per-turn angle units: zero at admission, grown by
     /// <see cref="AngularWideningSpeed"/> on each widening call, and clamped to exactly ten when its whole part
     /// would reach eleven. The widening adds carry the fraction into the whole part exactly as the cartridge does.
     /// </summary>
-    public SnesSignedSixteenSixteen AngularHalfWidth { get; private set; }
+    public SignedSixteenSixteen AngularHalfWidth { get; private set; }
 
     /// <summary>The whole angle units of <see cref="AngularHalfWidth"/>, 0 through 10, which aim clamps and the window read.</summary>
     public int AngularWidth => AngularHalfWidth.WholePixels;
@@ -97,7 +98,7 @@ public sealed class SamusXrayState
     /// The 16.16 widening speed in angle units per call: zero at admission and raised by the fixed widening step
     /// before each widening call adds it to <see cref="AngularHalfWidth"/>.
     /// </summary>
-    public SnesSignedSixteenSixteen AngularWideningSpeed { get; private set; }
+    public SignedSixteenSixteen AngularWideningSpeed { get; private set; }
 
     /// <summary>
     /// The visor-colour sequence the palette handler runs: widening at admission, full beam once the palette
@@ -228,9 +229,9 @@ public sealed class SamusXrayState
         // arbitrates the special command that installs X-Ray's Samus handlers. If a
         // same-frame hurt expiry wins that later arbitration, the beam HDMA lifecycle,
         // frozen-time word, and four subsystem disables still remain live: X-Mode.
-        Angle = facingLeft ? SnesAngle.ThreeQuarterTurn : SnesAngle.QuarterTurn;
-        AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
-        AngularWideningSpeed = SnesSignedSixteenSixteen.Zero;
+        Angle = facingLeft ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
+        AngularHalfWidth = SignedSixteenSixteen.Zero;
+        AngularWideningSpeed = SignedSixteenSixteen.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         SetupStage = XraySetupStage.FreezeTimeBackupBg2Registers;
         BeamPhase = XrayBeamPhase.NoBeam;
@@ -318,9 +319,9 @@ public sealed class SamusXrayState
         OwnsSamusControl = false;
         SetupStage = XraySetupStage.Complete;
         BeamPhase = XrayBeamPhase.NoBeam;
-        Angle = SnesAngle.Zero;
-        AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
-        AngularWideningSpeed = SnesSignedSixteenSixteen.Zero;
+        Angle = RotationAngle.Zero;
+        AngularHalfWidth = SignedSixteenSixteen.Zero;
+        AngularWideningSpeed = SignedSixteenSixteen.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         SpecialPaletteKind = SamusSpecialPaletteType.None;
         SpecialPaletteFrame = 0;
@@ -359,7 +360,7 @@ public sealed class SamusXrayState
 
             // Mirroring through `$0100 - angle` turns right-space `$00-$7F` into its exact
             // left-space counterpart and vice versa. This happens before selecting turn art.
-            Angle = SnesAngle.NormalizeRaw(-Angle.RawValue);
+            Angle = RotationAngle.NormalizeRaw(-Angle.RawValue);
             bool crouching = movementType == SamusMovementType.Crouching;
             SamusPoseId targetPose = facingLeft
                 ? crouching ? SamusPoseId.TurningLeftToRightCrouchingPose : SamusPoseId.TurningLeftToRightPose
@@ -452,12 +453,12 @@ public sealed class SamusXrayState
                 // The 16.16 adds reproduce the cartridge's carry propagation exactly: the widening
                 // speed gains the fixed fractional step per call, and both speed and width can
                 // carry into their whole parts before the ten-unit clamp.
-                AngularWideningSpeed += SnesSignedSixteenSixteen.FromRaw(
+                AngularWideningSpeed += SignedSixteenSixteen.FromRaw(
                     checked((int)XrayScopeDefinitions.Window.WideningStep));
                 AngularHalfWidth += AngularWideningSpeed;
                 if (AngularHalfWidth.WholePixels >= 11)
                 {
-                    AngularHalfWidth = SnesSignedSixteenSixteen.FromParts(10, 0);
+                    AngularHalfWidth = SignedSixteenSixteen.FromParts(10, 0);
                     BeamPhase = XrayBeamPhase.Full;
                 }
                 break;
@@ -543,7 +544,7 @@ public sealed class SamusXrayState
         // Keep the cartridge read for non-catalog offsets reachable through externally
         // edited debugger state; ordinary widening/cycling uses installed artwork.
         if (PresentationColors is null ||
-            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out Bgr555 visorColor))
+            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out RgbColor visorColor))
             throw new InvalidDataException(
                 $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
         colours.Visor.Write(0, visorColor);
@@ -569,7 +570,7 @@ public sealed class SamusXrayState
     /// <summary>Rotates the beam upward one angle unit while keeping its edge within the facing-dependent limit.</summary>
     private void MoveAngleUp()
     {
-        if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
+        if (Angle.RawValue < RotationAngle.HalfTurn.RawValue)
         {
             // Right-facing upper limit is `angle - width >= 0`. Equality returns without
             // movement; crossing clamps the center to exactly the current half-width.
@@ -578,69 +579,69 @@ public sealed class SamusXrayState
                 return;
             if (candidate < 0)
             {
-                Angle = SnesAngle.FromTableIndex(checked((byte)AngularWidth));
+                Angle = RotationAngle.FromTableIndex(checked((byte)AngularWidth));
                 return;
             }
 
             Angle = Angle.AddTableUnits(-1);
             if (Angle.TableIndex - AngularWidth < 0)
-                Angle = SnesAngle.FromTableIndex(checked((byte)AngularWidth));
+                Angle = RotationAngle.FromTableIndex(checked((byte)AngularWidth));
             return;
         }
 
         // Left-facing up rotates toward `$100`; clamp the upper beam edge at exactly 256.
         int leftEdge = Angle.TableIndex + AngularWidth;
-        if (leftEdge == SnesAngle.TableUnitsPerTurn)
+        if (leftEdge == RotationAngle.TableUnitsPerTurn)
             return;
-        if (leftEdge > SnesAngle.TableUnitsPerTurn)
+        if (leftEdge > RotationAngle.TableUnitsPerTurn)
         {
-            Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
+            Angle = RotationAngle.NormalizeTableIndex(RotationAngle.TableUnitsPerTurn - AngularWidth);
             return;
         }
 
         Angle = Angle.AddTableUnits(1);
-        if (Angle.TableIndex + AngularWidth > SnesAngle.TableUnitsPerTurn)
-            Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
+        if (Angle.TableIndex + AngularWidth > RotationAngle.TableUnitsPerTurn)
+            Angle = RotationAngle.NormalizeTableIndex(RotationAngle.TableUnitsPerTurn - AngularWidth);
     }
 
     /// <summary>Rotates the beam downward one angle unit while keeping its edge on the correct side of $80.</summary>
     private void MoveAngleDown()
     {
-        if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
+        if (Angle.RawValue < RotationAngle.HalfTurn.RawValue)
         {
             // Right-facing down rotates toward `$80`; keep the lower edge at or below it.
             int lowerEdge = Angle.TableIndex + AngularWidth;
-            if (lowerEdge == SnesAngle.HalfTurn.TableIndex)
+            if (lowerEdge == RotationAngle.HalfTurn.TableIndex)
                 return;
-            if (lowerEdge > SnesAngle.HalfTurn.TableIndex)
+            if (lowerEdge > RotationAngle.HalfTurn.TableIndex)
             {
-                Angle = SnesAngle.NormalizeTableIndex(
-                    SnesAngle.HalfTurn.TableIndex - AngularWidth);
+                Angle = RotationAngle.NormalizeTableIndex(
+                    RotationAngle.HalfTurn.TableIndex - AngularWidth);
                 return;
             }
 
             Angle = Angle.AddTableUnits(1);
-            if (Angle.TableIndex + AngularWidth > SnesAngle.HalfTurn.TableIndex)
-                Angle = SnesAngle.NormalizeTableIndex(
-                    SnesAngle.HalfTurn.TableIndex - AngularWidth);
+            if (Angle.TableIndex + AngularWidth > RotationAngle.HalfTurn.TableIndex)
+                Angle = RotationAngle.NormalizeTableIndex(
+                    RotationAngle.HalfTurn.TableIndex - AngularWidth);
             return;
         }
 
         // Left-facing down rotates toward `$80` from above and clamps its upper edge.
         int upperEdge = Angle.TableIndex - AngularWidth;
-        if (upperEdge == SnesAngle.HalfTurn.TableIndex)
+        if (upperEdge == RotationAngle.HalfTurn.TableIndex)
             return;
-        if (upperEdge < SnesAngle.HalfTurn.TableIndex)
+        if (upperEdge < RotationAngle.HalfTurn.TableIndex)
         {
-            Angle = SnesAngle.NormalizeTableIndex(
-                SnesAngle.HalfTurn.TableIndex + AngularWidth);
+            Angle = RotationAngle.NormalizeTableIndex(
+                RotationAngle.HalfTurn.TableIndex + AngularWidth);
             return;
         }
 
         Angle = Angle.AddTableUnits(-1);
-        if (Angle.TableIndex - AngularWidth < SnesAngle.HalfTurn.TableIndex)
-            Angle = SnesAngle.NormalizeTableIndex(
-                SnesAngle.HalfTurn.TableIndex + AngularWidth);
+        if (Angle.TableIndex - AngularWidth < RotationAngle.HalfTurn.TableIndex)
+            Angle = RotationAngle.NormalizeTableIndex(
+                RotationAngle.HalfTurn.TableIndex + AngularWidth);
     }
 
     /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
@@ -678,9 +679,9 @@ public sealed class SamusXrayState
         OwnsSamusControl = false;
         SetupStage = XraySetupStage.Complete;
         BeamPhase = XrayBeamPhase.NoBeam;
-        Angle = SnesAngle.Zero;
-        AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
-        AngularWideningSpeed = SnesSignedSixteenSixteen.Zero;
+        Angle = RotationAngle.Zero;
+        AngularHalfWidth = SignedSixteenSixteen.Zero;
+        AngularWideningSpeed = SignedSixteenSixteen.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.RestoreSuitPalette;
         DeactivationSoundRequested = true;
     }

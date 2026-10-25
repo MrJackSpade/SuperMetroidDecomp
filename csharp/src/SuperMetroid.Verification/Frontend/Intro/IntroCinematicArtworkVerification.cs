@@ -178,8 +178,8 @@ internal static class IntroCinematicArtworkVerification
             IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
             var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
             var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
-            Bgr555[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
-            Bgr555[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
+            RgbColor[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
+            RgbColor[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
             AssertTrue(!editedCgram.SequenceEqual(originalCgram) &&
                 editedCgram.AsSpan(0, 1).SequenceEqual(originalCgram.AsSpan(0, 1)) &&
                 editedCgram.AsSpan(2).SequenceEqual(originalCgram.AsSpan(2)),
@@ -819,7 +819,7 @@ internal static class IntroCinematicArtworkVerification
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(definition.Pose, installed,
-                IntroMotherBrainSpriteState.Position.ToOam(),
+                IntroMotherBrainSpriteState.Position.ToSpritePosition(),
                 IntroMotherBrainSpriteState.PaletteBits);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -841,13 +841,13 @@ internal static class IntroCinematicArtworkVerification
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         CinematicSheetFixtures.Drawer(stock.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
-            IntroMotherBrainSpriteState.Position.ToOam(),
+            IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.PaletteBits);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         CinematicSheetFixtures.Drawer(edited.MotherBrainSprites).Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), editedOam,
-            IntroMotherBrainSpriteState.Position.ToOam(),
+            IntroMotherBrainSpriteState.Position.ToSpritePosition(),
             IntroMotherBrainSpriteState.PaletteBits);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),
@@ -866,8 +866,8 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             (state.CurrentFlashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
         }
-        Rgba32[] stockPixels = stockState.RenderArtwork();
-        Rgba32[] editedPixels = editedState.RenderArtwork();
+        RgbaPixel[] stockPixels = stockState.RenderArtwork();
+        RgbaPixel[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!editedPixels.SequenceEqual(stockPixels),
             "intro Mother Brain palette override changes visible production scene pixels");
         stockState.BindFixtureIntroArtwork(edited);
@@ -948,8 +948,8 @@ internal static class IntroCinematicArtworkVerification
             state.SetupMotherBrainFlashback();
             state.FlashbackMotherBrainExplosions = explosions;
         }
-        Rgba32[] stockPixels = stockState.RenderArtwork();
-        Rgba32[] editedPixels = editedState.RenderArtwork();
+        RgbaPixel[] stockPixels = stockState.RenderArtwork();
+        RgbaPixel[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro explosion art override changes visible production flashback pixels");
         stockState.BindFixtureIntroArtwork(edited);

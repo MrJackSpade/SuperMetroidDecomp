@@ -49,12 +49,12 @@ internal static class XrayNoFxDarkeningVerification
         runtime.Vram.LoadBytes(0x3fe * 32, tile);
         runtime.Vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x3fe, 2048).ToArray(),
             GameplayVramLayout.Bg1TilemapWord, 1);
-        runtime.Colours.AsPaletteColors().SetColor(1, new Bgr555(24, 20, 16));
+        runtime.Colours.AsPaletteColors().SetColor(1, new RgbColor(24, 20, 16));
         // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
-        runtime.Colours.AsPaletteColors().SetColor(6 * 4 + 3, new Bgr555(0, 0, 0));
+        runtime.Colours.AsPaletteColors().SetColor(6 * 4 + 3, new RgbColor(0, 0, 0));
         var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var pixels = DisplayRendering.Render(snapshot);
-        var expected = new Rgba32(99, 82, 66, 255); // RGB5(12,10,8)
+        var expected = new RgbaPixel(99, 82, 66, 255); // RGB5(12,10,8)
         foreach (int index in new[] { 80 * 256 + 64, 120 * 256 + 128, 180 * 256 + 192 })
             AssertEqual(expected, pixels[index], "opaque black BG3 halves outside-beam foreground instead of brightening");
         var math = (GameplayColorMathRenderLayer)snapshot.Layers[0];
@@ -64,7 +64,7 @@ internal static class XrayNoFxDarkeningVerification
         runtime.Vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x006f, 0x780).ToArray(), 0x5880, 1);
         runtime.Vram.LoadBytes(runtime.Display.GameplayHudCharacterBaseWord * 2 + 0x6f * 16, new byte[16]);
         var transparent = DisplayRendering.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-        AssertEqual(new Rgba32(255, 222, 189, 255), transparent[80 * 256 + 64],
+        AssertEqual(new RgbaPixel(255, 222, 189, 255), transparent[80 * 256 + 64],
             "transparent BG3 preserves native fixed-color fallback without halving");
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
         // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
@@ -74,7 +74,7 @@ internal static class XrayNoFxDarkeningVerification
         AssertTrue(!firefleaMath.Blend.BlendsWithSubscreen && firefleaMath.Subscreen is null,
             "Fireflea retains fixed-color subtraction without a BG3 operand");
         var darkPixels = DisplayRendering.Render(fireflea);
-        AssertEqual(new Rgba32(140, 107, 74, 255), darkPixels[80 * 256 + 64],
+        AssertEqual(new RgbaPixel(140, 107, 74, 255), darkPixels[80 * 256 + 64],
             "Fireflea subtracts seven without halving");
         Console.WriteLine("X-ray no-FX capture: opaque BG3 darkening, transparent fallback and Fireflea exception verified.");
     }

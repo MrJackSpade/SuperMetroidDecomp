@@ -225,7 +225,7 @@ converted once at the import or snapshot codec. Samus's acceleration mode, the p
 Yes/No prompts, the file-select rows, Ridley's grab, shutter trigger modes, Yard's airborne facing, door-cap
 orientations and the enemy-projectile collision option were converted that way. A genuine count, index, coordinate or
 size says so at its declaration with `[IntegerQuantity(reason)]`; a packed native word whose bit fields a typed view
-decodes, and whose zero test asks whether it holds anything, says so with `[NativeWord(reason)]`.
+decodes, and whose zero test asks whether it holds anything, says so with `[PackedFields(reason)]`.
 
 ## Choices are named, not flagged
 
@@ -353,13 +353,13 @@ commands species only through `RoomEnemySystem`'s capability interfaces (`Elevat
 `*Behavior` or `*Encounter` property.
 
 **SME6351**, **SME6352** and **SME6353** keep Core's numeric vocabulary in its named types (#1326). Outside
-`Hardware/` and `[SnesEncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
-or a tuple (`Speed`/`Subspeed`, `Whole`/`Fraction`): they are one `SnesSignedSixteenSixteen`,
-`SnesUnsignedSixteenSixteen` or `SnesFixedPosition` (SME6351). An angle, heading or bearing is never a raw byte or
-word: it is a `SnesAngle` (8.8 turn), `SnesByteAngle` (trigonometry-table index) or `SnesBearing` (the
+`Hardware/` and `[EncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
+or a tuple (`Speed`/`Subspeed`, `Whole`/`Fraction`): they are one `SignedSixteenSixteen`,
+`UnsignedSixteenSixteen` or `FixedCoordinate` (SME6351). An angle, heading or bearing is never a raw byte or
+word: it is a `RotationAngle` (8.8 turn), `ByteAngle` (trigonometry-table index) or `Bearing` (the
 up-is-zero result of the cartridge angle routine); a name ending in Step, Delta, Mask or Offset is a difference in
 table units and is not an angle (SME6352). No member, tuple element or by-reference parameter carries a processor
-carry or overflow flag: carry arithmetic is `SnesCarry`'s operations, and results name what happened (SME6353).
+carry or overflow flag: carry arithmetic is `WordCarry`'s operations, and results name what happened (SME6353).
 
 **SME6354** keeps underscore-prefixed fields and properties private (#1328). An underscore names a type's own
 implementation state; another type changes it through a named operation on the owner (`BeginRoomLoad`,

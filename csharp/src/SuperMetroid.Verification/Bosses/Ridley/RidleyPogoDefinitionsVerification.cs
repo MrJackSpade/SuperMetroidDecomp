@@ -49,7 +49,7 @@ internal static class RidleyPogoDefinitionsVerification
             seed = (ushort)raw;
             reads = advances = 0;
             state.HealthStage = health;
-            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(previous));
+            state.Velocity = state.Velocity.WithX(new SignedEightEight(previous));
             state.FunctionTimer = WrappingCountdown.Start(0x1234);
             initialize(state);
             var expected = reference[raw & 3, Math.Min(health, (ushort)3) + 2];

@@ -208,7 +208,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
     /// <summary>Target palette restored by transitions back from gameplay flashbacks.</summary>
-    private readonly Bgr555[] introColours = new Bgr555[ScreenPalette.ColorCount];
+    private readonly RgbColor[] introColours = new RgbColor[ScreenPalette.ColorCount];
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
     internal IntroCinematicObjectSystem? CurrentObjects { get; private set; }
     /// <summary>The intro's sprite objects, which exist from the first text page onward.</summary>
@@ -1225,7 +1225,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
                 motherBrainPose, objectSprites,
-                IntroMotherBrainSpriteState.Position.ToOam(),
+                IntroMotherBrainSpriteState.Position.ToSpritePosition(),
                 IntroMotherBrainSpriteState.PaletteBits);
         }
         objectSprites.FinishFrame();
@@ -1295,7 +1295,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // OBSEL=$03 selects word $6000 as the OBJ character base, matching the
             // initial $9A:D200 -> VMADD $6000 DMA.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
-                caretPose, objectSprites, Objects.Caret.ToOam(),
+                caretPose, objectSprites, Objects.Caret.ToSpritePosition(),
                 IntroCinematicDefinitions.Objects.ScientistPalette.Raw);
         }
         objectSprites.FinishFrame();
@@ -1458,9 +1458,9 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // insertion points of text/room priority planes during palette crossfades.
         return new(new FramePaint(palette.Colors, sprites.Draws), new RenderLayer[]
         {
-            new ObjPriorityRenderLayer(0), text, new ObjPriorityRenderLayer(1), room,
-            new ObjPriorityRenderLayer(2), room with { Priority = true },
-            new ObjPriorityRenderLayer(3), text with { Priority = true },
+            new SpritePriorityRenderLayer(0), text, new SpritePriorityRenderLayer(1), room,
+            new SpritePriorityRenderLayer(2), room with { Priority = true },
+            new SpritePriorityRenderLayer(3), text with { Priority = true },
         }, Brightness.Level);
     }
 

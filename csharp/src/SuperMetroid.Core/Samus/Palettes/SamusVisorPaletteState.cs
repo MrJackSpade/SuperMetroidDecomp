@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -74,7 +75,7 @@ public sealed class SamusVisorPaletteState
         Timer = SamusPaletteDefinitions.Visor.FrameDelay;
         int sourceOffset = PaletteByteOffset;
         if (PresentationColors is null ||
-            !PresentationColors.TryResolveByteOffset(sourceOffset, out Bgr555 color))
+            !PresentationColors.TryResolveByteOffset(sourceOffset, out RgbColor color))
             throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
         colours.Visor.Write(0, color);
 

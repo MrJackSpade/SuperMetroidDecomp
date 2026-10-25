@@ -13,13 +13,13 @@ internal static class SpeedBoosterEscapeStageDefinitions
     internal const ushort TerminatorOffset = 18;
 
     /// <summary>$84:B876: eastern checkpoint action, reached first while escaping left.</summary>
-    private static readonly SpeedBoosterEscapeStageDefinition EasternCheckpoint = new(0x072b, 0x01bf, SnesSignedEightEight.FromSignedRaw(-176));
+    private static readonly SpeedBoosterEscapeStageDefinition EasternCheckpoint = new(0x072b, 0x01bf, SignedEightEight.FromSignedRaw(-176));
 
     /// <summary>$84:B87C: central checkpoint action, reached after the eastern rise.</summary>
-    private static readonly SpeedBoosterEscapeStageDefinition CentralCheckpoint = new(0x050a, 0x0167, SnesSignedEightEight.FromSignedRaw(-224));
+    private static readonly SpeedBoosterEscapeStageDefinition CentralCheckpoint = new(0x050a, 0x0167, SignedEightEight.FromSignedRaw(-224));
 
     /// <summary>$84:B882: western checkpoint action, the final rise before completion.</summary>
-    private static readonly SpeedBoosterEscapeStageDefinition WesternCheckpoint = new(0x0244, 0x0100, SnesSignedEightEight.FromSignedRaw(-224));
+    private static readonly SpeedBoosterEscapeStageDefinition WesternCheckpoint = new(0x0244, 0x0100, SignedEightEight.FromSignedRaw(-224));
 
     /// <summary>
     /// The stage each record of $84:B876 selects, in table order; the last record ($84:B888, the terminal $8000

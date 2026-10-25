@@ -967,7 +967,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     else
                     {
                         slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
-                        slot.FrozenTimer = WrappingCountdown.FromRaw(slot.AiStates.NativeWord);
+                        slot.FrozenTimer = WrappingCountdown.FromRaw(slot.AiStates.Word);
                     }
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);

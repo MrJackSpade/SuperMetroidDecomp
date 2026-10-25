@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.TestSupport.FrameCapture;
 
@@ -7,12 +8,12 @@ namespace SuperMetroid.TestSupport.FrameCapture;
 internal static class PixelComparison
 {
     /// <summary>Checks exact RGBA pixels and reports mismatch count, first sample, and inclusive bounds with fixture identity.</summary>
-    internal static void Verify(DisplayPacket packet, Rgba32[] expected, Rgba32[] actual, string context)
+    internal static void Verify(DisplayPacket packet, RgbaPixel[] expected, RgbaPixel[] actual, string context)
     {
         if (expected.Length != packet.Size.X * packet.Size.Y || actual.Length != expected.Length)
             throw new InvalidDataException($"{context}: unexpected frame dimensions.");
         int count = 0, first = -1, left = packet.Size.X, top = packet.Size.Y, right = -1, bottom = -1;
-        var difference = new Rgba32[expected.Length];
+        var difference = new RgbaPixel[expected.Length];
         for (int i = 0; i < expected.Length; i++)
         {
             bool mismatch = expected[i] != actual[i];
@@ -33,13 +34,13 @@ internal static class PixelComparison
     /// Writes the expected, actual and difference frames at their native size beside the test's binaries, in a folder
     /// named for the failure, and returns its full path.
     /// </summary>
-    private static string Save(DisplayPacket packet, string context, Rgba32[] expected, Rgba32[] actual, Rgba32[] difference)
+    private static string Save(DisplayPacket packet, string context, RgbaPixel[] expected, RgbaPixel[] actual, RgbaPixel[] difference)
     {
         string name = string.Concat($"{context} {packet.Identity.Sequence}".Select(character => char.IsLetterOrDigit(character) ? character : '-'));
         string directory = Path.Combine(AppContext.BaseDirectory, "pixel-failures", name);
         Directory.CreateDirectory(directory);
         var size = new Extent16<ImagePixels>(packet.Size.X, packet.Size.Y);
-        foreach ((string file, Rgba32[] pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
+        foreach ((string file, RgbaPixel[] pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
         {
             using FileStream output = File.Create(Path.Combine(directory, file));
             SuperMetroid.AssetExtraction.Artwork.RgbaPng.Write(output, size, pixels);

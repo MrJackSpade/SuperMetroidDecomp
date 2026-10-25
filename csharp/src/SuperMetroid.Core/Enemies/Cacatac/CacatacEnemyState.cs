@@ -15,13 +15,13 @@ public sealed class CacatacEnemyState
     /// Signed 16.16 room-pixel displacement added to X on every rightward patrol update. A kill empties its whole
     /// pixels with the common record; its fraction lives outside the record and outlives the kill.
     /// </summary>
-    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
+    public SignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
     /// Signed 16.16 room-pixel displacement added to X on every leftward patrol update (negative for the authored
     /// speeds).
     /// </summary>
-    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
+    public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
     /// <summary>Native; zero is left, one is right, two initially stops.</summary>
     public CacatacDirection Direction { get; internal set; }
@@ -52,7 +52,7 @@ public sealed class CacatacEnemyState
     internal void ClearWithRecord()
     {
         RightVelocity = RightVelocity.WithWholePixels(0);
-        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+        LeftVelocity = SignedSixteenSixteen.Zero;
         Direction = default;
         Function = null;
     }

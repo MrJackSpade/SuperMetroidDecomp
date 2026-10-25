@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Exact $84:8032-8231 Golden Torizo health paint composition. Reviewed categorical endpoint
@@ -12,8 +14,8 @@ internal static class GoldenTorizoHealthPaintDefinitions
     /// <summary>$84:8034-8042: low armor green and blue deficits; highlight shares green, middle blue selects13.</summary>
     private const int LowGreenDrop = 5, LowBlueDrop = 2, LowMiddleBlue = 13;
     /// <summary>$84:8044-8048: chosen purple core paints.</summary>
-    private static readonly Bgr555 LowCoreLight = Bgr555.FromWord(0x6f7f), LowCoreMiddle = Bgr555.FromWord(0x51f8),
-        LowCoreDark = Bgr555.FromWord(0x410e);
+    private static readonly RgbColor LowCoreLight = RgbColor.FromWord(0x6f7f), LowCoreMiddle = RgbColor.FromWord(0x51f8),
+        LowCoreDark = RgbColor.FromWord(0x410e);
     /// <summary>$84:804A-804E: warm eye red shade step and two selected green levels; dark green halves middle.</summary>
     private const int LowEyeRedStep = 5, LowEyeGreenLight = 24, LowEyeGreenMiddle = 14;
     /// <summary>$84:8050: neutral low-health contour intensity.</summary>
@@ -23,7 +25,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
         GoldPlateLightRed = 26, GoldPlateLightBlue = 5, GoldPlateMiddleRed = 22, GoldPlateDarkRed = 13,
         GoldLightGreenDrop = 1, GoldShadeGreenDrop = 3;
     /// <summary>$84:8116: independent golden edge paint.</summary>
-    private static readonly Bgr555 GoldEdge = Bgr555.FromWord(0x06b9);
+    private static readonly RgbColor GoldEdge = RgbColor.FromWord(0x06b9);
     /// <summary>$84:8124-812E: clipped cyan core/eye shade policies, not a historical generator claim.</summary>
     private const int CyanGreenHeadroom = 2, CoreGreenStep = 8, CoreBlueLight = 28,
         CoreBlueStep = 9, EyeGreenStep = 12, EyeBlueShade = 22;
@@ -32,12 +34,12 @@ internal static class GoldenTorizoHealthPaintDefinitions
     /// <summary>$84:8134-8150/8214-8230: rear material lighting reductions and the selected low rear dark-facet blue channel.</summary>
     private const int RearShade = 5, RearCoreShade = 10, LowRearPlateBlue = 3;
     /// <summary>$84:8032/8112/8132/8212: copied transparent word1000, except final front band0000.</summary>
-    private static readonly Bgr555 TransparentPayload = Bgr555.FromWord(0x1000);
+    private static readonly RgbColor TransparentPayload = RgbColor.FromWord(0x1000);
     /// <summary>$84:8005-8016: eight native health-selected palette bands; interpolation spans seven intervals.</summary>
     private const int Intervals = 7;
 
     /// <summary>Checks all eight palette bands and sixteen colors against this front or rear paint composition.</summary>
-    internal static bool Matches(Bgr555[][] rows, bool rear)
+    internal static bool Matches(RgbColor[][] rows, bool rear)
     {
         for (int frame = 0; frame <= Intervals; frame++)
         for (int color = 0; color < 16; color++)
@@ -46,23 +48,23 @@ internal static class GoldenTorizoHealthPaintDefinitions
     }
 
     /// <summary>Interpolates a color between low-health and golden endpoints for one palette band.</summary>
-    internal static Bgr555 Color(int frame, int color, bool rear)
+    internal static RgbColor Color(int frame, int color, bool rear)
     {
         if ((uint)frame > Intervals || (uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
-        if (color == 0) return !rear && frame == Intervals ? Bgr555.Black : TransparentPayload;
-        Bgr555 first = Endpoint(GoldenTorizoHealthEndpoint.Low, color, rear), last = Endpoint(GoldenTorizoHealthEndpoint.Gold, color, rear);
+        if (color == 0) return !rear && frame == Intervals ? RgbColor.Black : TransparentPayload;
+        RgbColor first = Endpoint(GoldenTorizoHealthEndpoint.Low, color, rear), last = Endpoint(GoldenTorizoHealthEndpoint.Gold, color, rear);
         return first.Zip(last, (_, from, to) => (from * (Intervals - frame) + to * frame + Intervals / 2) / Intervals);
     }
 
     /// <summary>Selects endpoint paint and applies the rear-facing shade rules where requested.</summary>
-    private static Bgr555 Endpoint(GoldenTorizoHealthEndpoint endpoint, int color, bool rear)
+    private static RgbColor Endpoint(GoldenTorizoHealthEndpoint endpoint, int color, bool rear)
     {
-        Bgr555 front = endpoint == GoldenTorizoHealthEndpoint.Gold ? Gold(color) : Low(color);
+        RgbColor front = endpoint == GoldenTorizoHealthEndpoint.Gold ? Gold(color) : Low(color);
         if (!rear) return front;
         if (endpoint != GoldenTorizoHealthEndpoint.Gold && color == 15) return front;
         if (endpoint != GoldenTorizoHealthEndpoint.Gold && color is >= 12 and <= 14)
             return Adjust(Low(color - 3), RearShade, 0, 0);
-        Bgr555 result = color is >= 9 and <= 11
+        RgbColor result = color is >= 9 and <= 11
             ? Adjust(front, -RearShade, -RearCoreShade, -RearCoreShade)
             : Adjust(front, -RearShade, -RearShade, -RearShade);
         if (endpoint != GoldenTorizoHealthEndpoint.Gold && color == 7) result = new(result.Red, result.Green, LowRearPlateBlue);
@@ -71,7 +73,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
     }
 
     /// <summary>Builds one low-health red armor, purple core, eye, or contour color.</summary>
-    private static Bgr555 Low(int color)
+    private static RgbColor Low(int color)
     {
         if (color <= 8)
         {
@@ -96,7 +98,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
     }
 
     /// <summary>Builds one golden armor, cyan core, eye, or contour color.</summary>
-    private static Bgr555 Gold(int color)
+    private static RgbColor Gold(int color)
     {
         if (color is >= 9 and <= 11)
         {
@@ -110,7 +112,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
             1 => Pack(GoldHighlightRed, GoldHighlightRed - GoldLightGreenDrop, GoldHighlightBlue),
             2 => GoldEdge,
             3 => Pack(GoldRecessRed, GoldRecessRed - GoldShadeGreenDrop, 0),
-            4 => Bgr555.Black,
+            4 => RgbColor.Black,
             5 => Pack(GoldPlateLightRed, GoldPlateLightRed - GoldLightGreenDrop, GoldPlateLightBlue),
             6 => Pack(GoldPlateMiddleRed, GoldPlateMiddleRed - GoldShadeGreenDrop, 0),
             7 => Pack((GoldPlateMiddleRed + GoldPlateDarkRed + 1) / 2,
@@ -122,8 +124,8 @@ internal static class GoldenTorizoHealthPaintDefinitions
     }
 
     /// <summary>Applies per-channel lighting offsets with RGB5 saturation.</summary>
-    private static Bgr555 Adjust(Bgr555 color, int red, int green, int blue) =>
-        Bgr555.Saturating(color.Red + red, color.Green + green, color.Blue + blue);
+    private static RgbColor Adjust(RgbColor color, int red, int green, int blue) =>
+        RgbColor.Saturating(color.Red + red, color.Green + green, color.Blue + blue);
     /// <summary>Packs the selected red, green, and blue levels into a palette color.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) => new(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new(red, green, blue);
 }

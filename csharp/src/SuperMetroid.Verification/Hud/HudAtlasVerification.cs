@@ -53,7 +53,7 @@ internal static class HudAtlasVerification
         native.FrameBoundary.BeginAcceptedFrame(0);
         installed.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(native.ComposedVram().AsSpan().SequenceEqual(installed.ComposedVram()), "accepted NMI shows the same characters with HUD artwork ROM blocked");
-        Rgba32[] baseline = Render(native);
+        RgbaPixel[] baseline = Render(native);
         AssertTrue(baseline.SequenceEqual(Render(installed)), "stock installed HUD/minimap renders identical pixels");
 
         Directory.CreateDirectory(overrides);
@@ -98,8 +98,8 @@ internal static class HudAtlasVerification
         AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span.SequenceEqual(
             restored.ComposedVram().AsSpan(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.ByteCount)),
             "a HUD set up before its first accepted NMI shows the newly bound PNG, not captured old pixels");
-        Rgba32[] modified = Render(restored);
-        Rgba32[] rebound = Render(displayed);
+        RgbaPixel[] modified = Render(restored);
+        RgbaPixel[] rebound = Render(displayed);
         int[] differing = [.. Enumerable.Range(0, modified.Length).Where(pixel => rebound[pixel] != modified[pixel])];
         AssertTrue(differing.Length == 0,
             "already displayed HUD rebind renders the same edited pixels as a HUD set up before its first NMI" + (differing.Length == 0 ? ""
@@ -122,19 +122,19 @@ internal static class HudAtlasVerification
             // No room palette has been installed in this focused runtime fixture.
             // Give every BG3 color a distinct grayscale value so a changed index is
             // observable, rather than accepting parity between two black HUDs.
-            for (int i = 0; i < 32; i++) runtime.Colours.AsPaletteColors().SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
+            for (int i = 0; i < 32; i++) runtime.Colours.AsPaletteColors().SetColor(i, RgbColor.FromWord((ushort)(i * 0x421)));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
         }
         // The HUD band the display renderer draws: the BG3 plane the frame latches, its characters as their bound artwork
         // composes them.
-        static Rgba32[] Render(SuperMetroidRuntime runtime)
+        static RgbaPixel[] Render(SuperMetroidRuntime runtime)
         {
             Layer3Cells hud = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().Words, runtime.ComposedVram(),
                 runtime.Colours.Colors);
             var layer = new OrdinaryGameplayRenderLayer(new OrdinaryGameplayView(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
                 new Extent16<TilemapCells>(32, 32), ScreenLayers.Bg3), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });
-            Rgba32[] frame = DisplayRendering.Render(new LayeredScene(new FramePaint(runtime.Colours.Colors, []),
+            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(new FramePaint(runtime.Colours.Colors, []),
                 new RenderLayer[] { layer }, FadeLevel.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];
         }

@@ -70,7 +70,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount))
         {
             Function = DeadTorizoFunction.Wait,
-            Velocity = new(default, new SnesSignedEightEight(8)),
+            Velocity = new(default, new SignedEightEight(8)),
         };
         slot.SetSpeciesState(DeadTorizo, DeadTorizo.ClearWithRecord);
 
@@ -126,7 +126,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances sand rows, corpse motion, and one step of the native rotting table.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 1))));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 1))));
         MoveWithEightEightVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
@@ -231,11 +231,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void MoveWithEightEightVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
     {
-        SnesFixedPosition x = new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction)
+        FixedCoordinate x = new FixedCoordinate(slot.Position.X.Whole, slot.Position.X.Fraction)
             .AddEightEightToHighFraction(velocity.X.RawValue);
         slot.Position = slot.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
-        SnesFixedPosition y = new SnesFixedPosition(slot.Position.Y.Whole, slot.Position.Y.Fraction)
+        FixedCoordinate y = new FixedCoordinate(slot.Position.Y.Whole, slot.Position.Y.Fraction)
             .AddEightEightToHighFraction(velocity.Y.RawValue);
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }

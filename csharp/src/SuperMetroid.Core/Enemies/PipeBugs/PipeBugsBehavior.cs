@@ -240,7 +240,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // $B3:88E3 decrements the subposition as a separate word, then subtracts either one
         // or two pixels according to the old word. This is deliberately not normal 16.16
         // subtraction; preserving the oddity prevents a one-pixel/frame timing drift.
-        SnesFixedPosition y = slot.Position.Y;
+        FixedCoordinate y = slot.Position.Y;
         bool oldSubpositionWasNonzero = y.Fraction != 0;
         slot.Position = slot.Position.WithY(new(
             unchecked((ushort)(y.Whole + (oldSubpositionWasNonzero ? -1 : -2))),
@@ -612,14 +612,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         Axis axis,
         int byteOffset)
     {
-        SnesSignedSixteenSixteen velocity = ReadPipeBugLinearVelocity(unchecked((ushort)byteOffset));
+        SignedSixteenSixteen velocity = ReadPipeBugLinearVelocity(unchecked((ushort)byteOffset));
         slot.Position = axis == Axis.Horizontal ? slot.Position.AdvanceX(velocity) : slot.Position.AdvanceY(velocity);
     }
 
     /// <summary>The signed 16.16 entry of the common linear speed table at <paramref name="byteOffset"/>.</summary>
-    private static SnesSignedSixteenSixteen ReadPipeBugLinearVelocity(int byteOffset)
+    private static SignedSixteenSixteen ReadPipeBugLinearVelocity(int byteOffset)
     {
-        SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
+        SignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
         return speed;
     }
 
@@ -635,11 +635,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         position = unchecked(position + (uint)displacement);
         if (axis == Axis.Horizontal)
         {
-            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
+            slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
         }
         else
         {
-            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
+            slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));
         }
     }
 

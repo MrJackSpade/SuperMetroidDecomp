@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -9,7 +10,7 @@ public static class XrayRoomDisplayRules
     /// <summary>True only for the excluded room whose preserved display also drops BG2 ($88:81A4).</summary>
     public static bool RemovesBg2(RoomHeaderDefinition room) => room == RoomHeaderDefinitions.GlassTunnel;
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
-    public static Bgr555 ActiveBackdrop => new(3, 3, 3);
+    public static RgbColor ActiveBackdrop => new(3, 3, 3);
 
     /// <summary>
     /// How X-ray blends the room ($88:817B, $88:81A4 and $88:81DB): a reveal room and Fireflea's room blend both

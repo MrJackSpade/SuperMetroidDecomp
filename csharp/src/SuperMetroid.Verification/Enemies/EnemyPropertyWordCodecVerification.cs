@@ -25,7 +25,7 @@ internal static class EnemyPropertyWordCodecVerification
             {
                 var value = new EnemyPropertyWord(flag, checked((byte)familyData));
                 AssertEqual(familyData, value.FamilyData, "family data keeps its byte value");
-                AssertEqual(value, EnemyPropertyWord.FromNativeWord(value.ToNativeWord()), "property word round trips");
+                AssertEqual(value, EnemyPropertyWord.FromWord(value.ToWord()), "property word round trips");
                 AssertEqual(familyData, value.With(EnemyProperties.Deleted).Without(EnemyProperties.Deleted | flag).FamilyData,
                     "flag operations keep the family data");
             }
@@ -35,13 +35,13 @@ internal static class EnemyPropertyWordCodecVerification
         for (int bit = 0; bit < 16; bit++)
         {
             ushort word = checked((ushort)(1 << bit));
-            EnemyExtraPropertyWord extra = EnemyExtraPropertyWord.FromNativeWord(word);
-            AssertEqual(word, extra.ToNativeWord(), $"extra-property bit {bit} round trips");
+            EnemyExtraPropertyWord extra = EnemyExtraPropertyWord.FromWord(word);
+            AssertEqual(word, extra.ToWord(), $"extra-property bit {bit} round trips");
             bool translated = extra.HasAny(EnemyExtraProperties.UsesExtendedSpritemap | EnemyExtraProperties.NewInstructionFrame);
             AssertEqual(translated ? 0 : word, extra.UntranslatedBits, $"extra-property bit {bit} lands in the right part");
         }
-        EnemyExtraPropertyWord combined = EnemyExtraPropertyWord.FromNativeWord(ushort.MaxValue);
-        AssertEqual(ushort.MaxValue, combined.With(EnemyExtraProperties.NewInstructionFrame).ToNativeWord(),
+        EnemyExtraPropertyWord combined = EnemyExtraPropertyWord.FromWord(ushort.MaxValue);
+        AssertEqual(ushort.MaxValue, combined.With(EnemyExtraProperties.NewInstructionFrame).ToWord(),
             "the full extra-property word keeps every bit through a flag operation");
 
         // The death scratch word is the respawn flag's word, which the power-bomb walker then reads as its radius.

@@ -332,7 +332,7 @@ public sealed class SamusState
     /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
     /// word visible makes both native producers and the single consumer debugger-auditable.
     /// </remarks>
-    [NativeWord("packed transition word: the low byte is the shot direction and the high byte records which native producer wrote it")]
+    [PackedFields("packed transition word: the low byte is the shot direction and the high byte records which native producer wrote it")]
     public int PoseTransitionShotDirection
     {
         get;
@@ -380,7 +380,7 @@ public sealed class SamusState
     /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91
     /// special prospective command as accepted and prevents the same explosion rearming it.
     /// </summary>
-    [NativeWord("WRAM $0A56: low byte left, straight or right, plus the $0800 accepted-command bit; zero means no bomb jump")]
+    [PackedFields("WRAM $0A56: low byte left, straight or right, plus the $0800 accepted-command bit; zero means no bomb jump")]
     public int BombJumpDirection
     {
         get;
@@ -610,13 +610,13 @@ public sealed class SamusState
         BlockMoveResult upward = ProbeChangedPoseVertical(
 
             level,
-            displacement: unchecked(SnesSixteenSixteen.FromWhole(-radiusDifference)),
+            displacement: unchecked(SixteenSixteen.FromWhole(-radiusDifference)),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             targetPose, plms);
         BlockMoveResult downward = ProbeChangedPoseVertical(
 
             level,
-            displacement: SnesSixteenSixteen.FromWhole(radiusDifference),
+            displacement: SixteenSixteen.FromWhole(radiusDifference),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             targetPose, plms);
 
@@ -636,7 +636,7 @@ public sealed class SamusState
         {
             // `$91:FF49`: move away from the floor by
             // radiusDifference-spaceToMoveDown, preserving the old bottom boundary.
-            int freeWholePixels = Math.Max(0, SnesSixteenSixteen.WholeOf(downward.AcceptedDisplacement));
+            int freeWholePixels = Math.Max(0, SixteenSixteen.WholeOf(downward.AcceptedDisplacement));
             centerAdjustment = -(radiusDifference - freeWholePixels);
 
             // `$91:FF58` checks the proposed upward correction against the opposite side.
@@ -644,7 +644,7 @@ public sealed class SamusState
             // `$91:FFA7`'s crouch selector because the initial flags were not both set.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
-                displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
+                displacement: SixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
             if (opposite.Collided)
@@ -656,14 +656,14 @@ level,
         {
             // `$91:FF20` is the mirror: move down only as far as necessary to clear the
             // ceiling while admitting the enlarged body.
-            int acceptedWhole = unchecked((short)(SnesSixteenSixteen.WholeOf(upward.AcceptedDisplacement)));
+            int acceptedWhole = unchecked((short)(SixteenSixteen.WholeOf(upward.AcceptedDisplacement)));
             int freeWholePixels = Math.Max(0, -acceptedWhole);
             centerAdjustment = radiusDifference - freeWholePixels;
 
             // `$91:FF2B` is the downward mirror of the opposite-side check above.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
-                displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
+                displacement: SixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
             if (opposite.Collided)
@@ -724,14 +724,14 @@ level,
         SamusPoseId targetPose,
         ISamusRoomPlms? plms)
     {
-        int wholePixels = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
+        int wholePixels = unchecked((short)(SixteenSixteen.WholeOf(displacement)));
         if ((Math.Abs(wholePixels) & ~7) != 0)
         {
             // `$94:96C0` computes `(signedWhole & $FFF0) | 8`. Retain the literal
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
             int intermediateWhole = unchecked((short)((wholePixels & ~15) | 8));
-            BlockMoveResult intermediate = Probe(SnesSixteenSixteen.FromWhole(intermediateWhole));
+            BlockMoveResult intermediate = Probe(SixteenSixteen.FromWhole(intermediateWhole));
             if (intermediate.Collided)
                 return intermediate;
         }
@@ -868,8 +868,8 @@ level, probe, this, amount, scanLeftToRight, plms);
         _previousXPositionWrite = null;
         _previousFractionWrites = default;
         return new FixedPosition<RoomPixels>(
-            SnesFixedPosition.Of(xPosition, xSubposition),
-            SnesFixedPosition.Of(correctedY, ySubposition));
+            FixedCoordinate.Of(xPosition, xSubposition),
+            FixedCoordinate.Of(correctedY, ySubposition));
     }
 
     /// <summary>

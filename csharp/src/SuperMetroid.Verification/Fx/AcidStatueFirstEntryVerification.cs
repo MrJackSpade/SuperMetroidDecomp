@@ -10,8 +10,8 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Fx;
 
 using SuperMetroid.Verification.Harness;
@@ -75,7 +75,7 @@ internal static class AcidStatueFirstEntryVerification
             "completed Chozo event survives source-room staging");
         int destinationFrames = 0;
         bool sawDestinationFade = false;
-        Rgba32[]? lastDestinationFadePixels = null;
+        RgbaPixel[]? lastDestinationFadePixels = null;
         int lastDestinationFadeSurfaceRow = 0;
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
@@ -88,7 +88,7 @@ internal static class AcidStatueFirstEntryVerification
             LayeredScene? snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (snapshot is null)
                 continue;
-            Rgba32[] pixels = DisplayRendering.Render(snapshot);
+            RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
             if (phase is DoorTransitionPhase.HandleTransition or DoorTransitionPhase.FadeInDestinationPalette)
             {
                 sawDestinationFade = true;
@@ -109,7 +109,7 @@ internal static class AcidStatueFirstEntryVerification
         // High acid ($00C8) would cover this whole screen. Just above the drained surface
         // the room's dark background must show; just below it the drained acid is drawn.
         AssertTrue(lastDestinationFadeSurfaceRow is > 8 and < 216, $"drained acid surface lies on the captured screen (row {lastDestinationFadeSurfaceRow})");
-        Rgba32 background = new(66, 0, 24);
+        RgbaPixel background = new(66, 0, 24);
         AssertEqual(background, (lastDestinationFadePixels ?? throw new InvalidOperationException("Verification requires lastDestinationFadePixels."))[(lastDestinationFadeSurfaceRow - 8) * 256 + 16],
             "first-entry fade shows the dark room above the drained surface, not the high-acid flash");
         AssertTrue(lastDestinationFadePixels[(lastDestinationFadeSurfaceRow + 8) * 256 + 16] != background,

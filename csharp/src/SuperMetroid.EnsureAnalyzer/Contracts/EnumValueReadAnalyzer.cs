@@ -9,7 +9,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
 /// An identity's backing value is arbitrary and nothing reads it (SME6450, #1418): in <c>SuperMetroid.Core</c>, no code
-/// outside a type marked <c>[SnesEncodingOwner]</c> converts an enum to an integral type or an integral value to an enum
+/// outside a type marked <c>[EncodingOwner]</c> converts an enum to an integral type or an integral value to an enum
 /// (an explicit cast, <c>Enum.ToObject</c> or a <c>Convert</c> call), or combines an enum-typed value with an integral
 /// literal in arithmetic or a comparison. Each such read is a translation that belongs in a codec, a dispatch that
 /// belongs to a behaviour reference, or a table index that belongs to a typed lookup by identity.
@@ -29,7 +29,7 @@ public sealed class EnumValueReadAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Identities are semantic names whose backing values are arbitrary and unread. A cast between an enum " +
             "and an integral type, or an enum value combined with an integral literal, reads that value: a translation " +
-            "moves to the codec that owns the encoding (marked [SnesEncodingOwner]), a dispatch becomes a behaviour " +
+            "moves to the codec that owns the encoding (marked [EncodingOwner]), a dispatch becomes a behaviour " +
             "reference or capability, and a table index becomes a typed lookup by identity (#1418).");
 
     /// <inheritdoc/>

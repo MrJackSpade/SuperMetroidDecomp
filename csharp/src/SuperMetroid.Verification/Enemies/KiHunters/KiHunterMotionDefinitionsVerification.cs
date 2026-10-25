@@ -22,8 +22,8 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
         var delta = new Func<int, QuadraticSpeedHalf, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
-        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
-        var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(unchecked((byte)angle)), radius));
+        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new ByteAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
         var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var state = new KiHunterEnemyState(slot);
@@ -37,7 +37,7 @@ internal static class KiHunterMotionDefinitionsVerification
             // high-byte indexes would leave the authored quadratic-speed records.
             const ushort speed = 256;
             ushort angle = unchecked((ushort)(raw + delta(speed, QuadraticSpeedHalf.Negative)));
-            state.WingArcAngle = SnesAngle.FromRaw((ushort)raw);
+            state.WingArcAngle = RotationAngle.FromRaw((ushort)raw);
             state.WingFunction = KiHunterWingFunction.Orbit;
             state.DetachedSpeedIndex = speed;
             state.OrbitCenter = new Position16<RoomPixels>((ushort)raw, (ushort)(ushort.MaxValue - raw));
@@ -49,22 +49,22 @@ internal static class KiHunterMotionDefinitionsVerification
             AssertEqual(y, slot.Position.Y.Whole, "Actual detached orbit uses native radius and wrapped Y");
             // The orbit hands over to the falling arc exactly while the advanced angle lies from a quarter turn up
             // to three quarters (the cartridge's sign test of the angle plus a quarter turn, across its wrap).
-            bool changesArc = angle >= SnesAngle.QuarterTurn.RawValue && angle < SnesAngle.ThreeQuarterTurn.RawValue;
+            bool changesArc = angle >= RotationAngle.QuarterTurn.RawValue && angle < RotationAngle.ThreeQuarterTurn.RawValue;
             arcChanges += changesArc ? 1 : 0;
             AssertEqual(changesArc ? KiHunterWingFunction.FallingCollisionArc : KiHunterWingFunction.Orbit, state.WingFunction,
                 $"Detached orbit at advanced angle {angle} changes arc only within the middle half turn");
             AssertEqual(changesArc ? speedReset : 256, state.DetachedSpeedIndex,
                 $"Detached orbit at advanced angle {angle} restores the reset on an arc change or lands a slowing step on 256");
-            SnesSignedSixteenSixteen actual = SnesSignedSixteenSixteen.FromParts(
+            SignedSixteenSixteen actual = SignedSixteenSixteen.FromParts(
                 unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
-            uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + (SnesSixteenSixteen.Compose(high, low)));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), actual.WholeWord, "Native gravity whole carry");
+            uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + (SixteenSixteen.Compose(high, low)));
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), actual.WholeWord, "Native gravity whole carry");
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }
         AssertEqual(32768, arcChanges, "Detached orbit changes arc for exactly half of all advanced angles");
         foreach ((int before, int after) in new[] { new VerifyKiHunterMotionDefinitionsCase(1000, 616), new VerifyKiHunterMotionDefinitionsCase(384, 0), new VerifyKiHunterMotionDefinitionsCase(383, 256), new VerifyKiHunterMotionDefinitionsCase(0, 256) })
         {
-            state.WingArcAngle = SnesAngle.Zero;
+            state.WingArcAngle = RotationAngle.Zero;
             state.WingFunction = KiHunterWingFunction.Orbit;
             state.DetachedSpeedIndex = before;
             orbit(slot, state);

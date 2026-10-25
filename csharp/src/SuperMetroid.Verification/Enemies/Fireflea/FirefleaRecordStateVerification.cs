@@ -18,15 +18,15 @@ internal static class FirefleaRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new FirefleaEnemyState(slot, new FirefleaExtensionWords());
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.AngularSpeed = SnesSignedSixteenSixteen.FromParts(1, 0);
+        state.AngularSpeed = SignedSixteenSixteen.FromParts(1, 0);
         state.Radius = 1;
-        state.Angle = SnesAngle.FromTableIndex(1);
+        state.Angle = RotationAngle.FromTableIndex(1);
         state.Center = new Position16<RoomPixels>(1, 0);
 
         slot.Clear();
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.AngularSpeed, "a kill empties AngularSpeed");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.AngularSpeed, "a kill empties AngularSpeed");
         AssertEqual<int>(0, state.Radius, "a kill empties Radius");
-        AssertEqual<SnesAngle>(SnesAngle.FromTableIndex(0), state.Angle, "a kill empties Angle");
+        AssertEqual<RotationAngle>(RotationAngle.FromTableIndex(0), state.Angle, "a kill empties Angle");
         AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.Center, "a kill empties Center");
         Console.WriteLine("Fireflea record state: a kill empties every value the record holds.");
     }

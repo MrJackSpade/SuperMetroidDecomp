@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Spatial;
 /// </remarks>
 /// <typeparam name="TSpace">The coordinate space the displacement is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y words.")]
-[SnesEncodingOwner]
+[EncodingOwner("sixteen-bit signed coordinate difference")]
 public readonly record struct Offset16<TSpace>(short X, short Y)
     where TSpace : ISpatialSpace
 {

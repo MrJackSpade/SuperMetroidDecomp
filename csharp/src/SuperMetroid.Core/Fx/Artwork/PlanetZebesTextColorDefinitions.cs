@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -25,17 +26,17 @@ internal static class PlanetZebesTextColorDefinitions
         .Color(PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1, color);
 
     /// <summary>Round each RGB5 endpoint channel to nearest over seven native intervals; fade-out reverses the phase.</summary>
-    internal static bool TryCalculate(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> inputs, out Bgr555 color)
+    internal static bool TryCalculate(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> inputs, out RgbColor color)
     {
-        color = Bgr555.Black;
+        color = RgbColor.Black;
         if (!TryCoordinates(key, out var owner, out int frame, out int index)
-            || !inputs.TryGetValue(Endpoint(index), out Bgr555 endpoint)) return false;
+            || !inputs.TryGetValue(Endpoint(index), out RgbColor endpoint)) return false;
         int intervals = PlanetZebesTextPaletteFxColorDefinitions.FrameCount - 1;
         int phase = owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? frame : intervals - frame;
         int red = ((endpoint.Red) * phase + intervals / 2) / intervals;
         int green = ((endpoint.Green) * phase + intervals / 2) / intervals;
         int blue = ((endpoint.Blue) * phase + intervals / 2) / intervals;
-        color = new Bgr555(red, green, blue);
+        color = new RgbColor(red, green, blue);
         return true;
     }
 }

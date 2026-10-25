@@ -10,14 +10,14 @@ public sealed class CeresDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
         {
             content.Append("tiles", tiles.Characters.Span);
-            Span<Bgr555> normalColors = stackalloc Bgr555[CeresDoorVisualDefinitions.SetupColorCount];
+            Span<RgbColor> normalColors = stackalloc RgbColor[CeresDoorVisualDefinitions.SetupColorCount];
             for (int color = 0; color < normalColors.Length; color++) normalColors[color] = normal.ColorAt(color);
             content.AppendColors("normal", normalColors);
-            Span<Bgr555> escapeColors = stackalloc Bgr555[CeresDoorVisualDefinitions.SetupColorCount];
+            Span<RgbColor> escapeColors = stackalloc RgbColor[CeresDoorVisualDefinitions.SetupColorCount];
             for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = EscapeColor(color);
             content.AppendColors("escape", escapeColors);
             content.Append("animation", CeresDoorVisualDefinitions.AnimationRowCount);
-            Span<Bgr555> rowColors = stackalloc Bgr555[CeresDoorVisualDefinitions.AnimationColorCount];
+            Span<RgbColor> rowColors = stackalloc RgbColor[CeresDoorVisualDefinitions.AnimationColorCount];
             for (int row = 0; row < CeresDoorVisualDefinitions.AnimationRowCount; row++)
             {
                 for (int color = 0; color < rowColors.Length; color++) rowColors[color] = AnimationColor(row, color);
@@ -44,8 +44,8 @@ public sealed class CeresDoorVisualCatalog
     internal readonly Dictionary<int, byte> platformEdits = [];
 
     /// <summary>Retains validated visual data and extracts independently edited platform cells.</summary>
-    private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, Bgr555[] normal,
-        Bgr555[] escape, Bgr555[][] animation, byte[][] platformFrames)
+    private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, RgbColor[] normal,
+        RgbColor[] escape, RgbColor[][] animation, byte[][] platformFrames)
     {
         this.tiles = tiles;
         this.normal = new(normal);
@@ -65,8 +65,8 @@ public sealed class CeresDoorVisualCatalog
     /// <param name="platformFrames">The elevator platform's two four-cell floor strips, light then dark.</param>
     /// <returns>The compiled visual snapshot.</returns>
     /// <exception cref="InvalidDataException">The characters are not the door's 32.</exception>
-    internal static CeresDoorVisualCatalog Load(RoomCharacterAtlas tiles, Bgr555[] normal, Bgr555[] escape,
-        Bgr555[][] animation, byte[][] platformFrames)
+    internal static CeresDoorVisualCatalog Load(RoomCharacterAtlas tiles, RgbColor[] normal, RgbColor[] escape,
+        RgbColor[][] animation, byte[][] platformFrames)
     {
         Ensure.NotNull(tiles);
         if (tiles.Characters.Length != CeresDoorVisualDefinitions.CharacterBytes)
@@ -95,7 +95,7 @@ public sealed class CeresDoorVisualCatalog
     }
 
     /// <summary>Resolves one escape-state ink from the selected palette.</summary>
-    private Bgr555 EscapeColor(int color) => escape.ColorAt(color);
+    private RgbColor EscapeColor(int color) => escape.ColorAt(color);
 
     /// <summary>Installs the door animation's six colours from glow row 0–7; the actor derives the row from its frame bits 3–5.</summary>
     public void LoadAnimationColors(BackgroundColourSets colours, int row)
@@ -107,7 +107,7 @@ public sealed class CeresDoorVisualCatalog
     }
 
     /// <summary>Resolves one ink from the actor-selected door animation row.</summary>
-    private Bgr555 AnimationColor(int row, int color) => animation.ColorAt(row, color);
+    private RgbColor AnimationColor(int row, int color) => animation.ColorAt(row, color);
 
     /// <summary>Resolves one platform cell from the shared canonical strip or an independently supplied cell edit.</summary>
     private byte PlatformTile(int frame, int index)

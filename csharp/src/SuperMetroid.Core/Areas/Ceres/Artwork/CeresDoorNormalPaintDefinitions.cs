@@ -22,10 +22,10 @@ internal sealed class CeresDoorNormalPaintDefinitions
     /// <summary>Selected categorical channel seeds keyed by palette slot and channel.</summary>
     internal readonly Dictionary<CeresDoorPaintChannel, int> paint = [];
     /// <summary>Supplied colors that depart from the calculated normal-door composition.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Separates chosen material paint channels from calculated and independently edited colors.</summary>
-    internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<Bgr555> colors)
+    internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 15);
         WarmTargets = new(colors.Slice(8, 6));
@@ -50,16 +50,16 @@ internal sealed class CeresDoorNormalPaintDefinitions
     private int Seed(int slot, ColorChannel channel) => paint[new CeresDoorPaintChannel(slot, channel)];
 
     /// <summary>Resolves a supplied edit or calculates the requested one-based door paint slot.</summary>
-    internal Bgr555 ColorAt(int index)
+    internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 15) throw new ArgumentOutOfRangeException(nameof(index));
         int slot = index + 1;
         var slotCell = new ColourCell(0, index + 1);
-        return edits.TryGetValue(slotCell, out Bgr555 color) ? color : Calculate(slot);
+        return edits.TryGetValue(slotCell, out RgbColor color) ? color : Calculate(slot);
     }
 
     /// <summary>Builds a normal door shade from categorical channel seeds and copied warm targets.</summary>
-    private Bgr555 Calculate(int slot)
+    private RgbColor Calculate(int slot)
     {
         if (slot is >= 9 and <= 14) return WarmTargets.ColorAt(slot - 9);
         int green = slot == 15 ? MaximumChannel : slot == 4 ? 0 : slot == 8 ? Seed(7, ColorChannel.Green) : Seed(slot, ColorChannel.Green);

@@ -68,8 +68,8 @@ internal static class MapCrossViewAudit
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition });
         _ = pause.Render();
 
-        Position16<OamPixels> expectedMarker = hud.MinimapCenter
-            .ToMapPixels().ToScreen(pause.MapScroll).ToOam();
+        Position16<SpritePixels> expectedMarker = hud.MinimapCenter
+            .ToMapPixels().ToScreen(pause.MapScroll).ToSpritePosition();
         if (pause.LastIndicatorOrigin != expectedMarker)
         {
             throw new InvalidDataException(

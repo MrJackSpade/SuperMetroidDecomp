@@ -241,7 +241,7 @@ internal sealed class CrocomireMelting
             output[line++] = unchecked((ushort)(
                 _bg2.CrocomireBg2Scroll.Y + adjustedY - currentY));
             bool carry = false;
-            fraction = SnesCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
+            fraction = WordCarry.AddWithCarry((ushort)fraction, checked((ushort)death.DistortionStep), ref carry);
             if (!carry)
                 adjustedY++;
             currentY++;
@@ -262,7 +262,7 @@ internal sealed class CrocomireMelting
     /// <summary>Restores the BG2 presentation and actor state after the final melting pass.</summary>
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
-        state.StartVerticalMotion(SnesEightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
+        state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         _bg2.ClearCrocomireBg2WorkingTilemap();
         _bg2.WriteCrocomireBg2Words(0, 1024);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();

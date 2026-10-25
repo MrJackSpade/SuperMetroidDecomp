@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 
@@ -53,7 +54,7 @@ internal static class EscapeTimerFloorVerification
             AssertTrue(reachedFloor, "both escape starts reach one second");
             for (ushort frame = 0; frame < 128; frame++)
             {
-                guarded.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(1));
+                guarded.SetTime(PackedDecimal.FromDecimal(0), PackedDecimal.FromDecimal(1), PackedDecimal.FromDecimal(1));
                 AssertTrue(!guarded.Process(frame, true), "either correction crossing floor cannot expire");
                 AssertEqual((byte)1, guarded.Seconds.Raw, "crossing stops at one second");
                 AssertEqual((byte)0, guarded.Centiseconds.Raw, "crossing stops at zero fractional seconds");

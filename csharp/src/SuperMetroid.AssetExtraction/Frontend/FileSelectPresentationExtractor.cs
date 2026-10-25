@@ -160,15 +160,15 @@ public static class FileSelectPresentationExtractor
             },
             MainCursorAnchors = Enumerable.Range(0, FileSelectLayout.MainSelectionCount)
                 .Select(FileSelectLayout.MainSelectionY)
-                .Select(y => new Position16<OamPixels>(14, y)).ToArray(),
+                .Select(y => new Position16<SpritePixels>(14, y)).ToArray(),
             DataCursorAnchors = Enumerable.Range(0, FileSelectLayout.DataSelectionCount)
                 .Select(FileSelectLayout.DataSelectionY)
-                .Select(y => new Position16<OamPixels>(22, y)).ToArray(),
+                .Select(y => new Position16<SpritePixels>(22, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [new(94, 184), new(94, 208)],
             HelmetAnchors = Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
                 .Select(FileSelectLayout.HelmetY)
-                .Select(y => new Position16<OamPixels>(100, y)).ToArray(),
+                .Select(y => new Position16<SpritePixels>(100, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationDefinitions.AnchorName(FileSelectAnchor.CopyDestinationSource)] =

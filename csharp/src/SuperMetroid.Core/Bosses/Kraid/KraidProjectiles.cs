@@ -305,7 +305,7 @@ internal sealed class KraidProjectiles
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
 
         if (_terrain.MoveEnemyVertically(level, nail, part.NailVelocity.Y.RawValue))
-            part.NailVelocity = part.NailVelocity.WithY(SnesSignedSixteenSixteen.FromRaw(unchecked(-part.NailVelocity.Y.RawValue)));
+            part.NailVelocity = part.NailVelocity.WithY(SignedSixteenSixteen.FromRaw(unchecked(-part.NailVelocity.Y.RawValue)));
     }
 
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
@@ -324,8 +324,8 @@ internal sealed class KraidProjectiles
     /// each word independently. Do not propagate fractional borrow as a normal
     /// fixed-point negation would; the resulting nonzero-fraction quirk is native.
     /// </summary>
-    private static SnesSignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SnesSignedSixteenSixteen velocity) =>
-        SnesSignedSixteenSixteen.FromParts(unchecked((short)-velocity.WholeWord), unchecked((ushort)-velocity.Fraction));
+    private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) =>
+        SignedSixteenSixteen.FromParts(unchecked((short)-velocity.WholeWord), unchecked((ushort)-velocity.Fraction));
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
     internal void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
@@ -465,8 +465,8 @@ internal sealed class KraidProjectiles
         // her here. The clamp changes only the whole word; retain the fractional borrow.
         if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
         {
-            SnesSignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X +
-                SnesSignedSixteenSixteen.FromRaw(KraidPlatformMovement.FiringDisplacement);
+            SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X +
+                SignedSixteenSixteen.FromRaw(KraidPlatformMovement.FiringDisplacement);
             int whole = carry.WholePixels;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(carry.WithWholePixels((short)(
                 unchecked((short)(whole - KraidPlatformMovement.MinimumCarryWholePixels)) < 0
@@ -481,7 +481,7 @@ internal sealed class KraidProjectiles
     {
         uint position = slot.Position.X.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
+        slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
     }
 
     /// <summary>Updates a spit rock's flight and removes it at its native boundary.</summary>
@@ -499,8 +499,8 @@ internal sealed class KraidProjectiles
         int horizontal = unchecked((short)(rock.Velocity.X.RawValue + 8));
         if (horizontal >= 256)
             horizontal = -256;
-        rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)horizontal)));
-        rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(rock.Velocity.Y.RawValue + 64))));
+        rock.Velocity = rock.Velocity.WithX(new SignedEightEight(unchecked((ushort)horizontal)));
+        rock.Velocity = rock.Velocity.WithY(new SignedEightEight(unchecked((ushort)(rock.Velocity.Y.RawValue + 64))));
     }
 
     /// <summary>Updates a falling ceiling rock and its contact with room terrain.</summary>
@@ -513,7 +513,7 @@ internal sealed class KraidProjectiles
             rock.Clear();
             return;
         }
-        rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((rock.Velocity.Y.RawValue + 24) & 16383))));
+        rock.Velocity = rock.Velocity.WithY(new SignedEightEight(unchecked((ushort)((rock.Velocity.Y.RawValue + 24) & 16383))));
     }
 
     /// <summary>Binds nail touch callbacks and their shared contact-damage path.</summary>

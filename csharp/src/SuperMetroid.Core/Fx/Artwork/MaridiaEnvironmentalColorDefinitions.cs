@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -27,9 +28,9 @@ internal static class MaridiaEnvironmentalColorDefinitions
     }
 
     /// <summary>Eight required sand colors and eight required waterfall colors, selected by cyclic phase.</summary>
-    internal static bool TryReadColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> inputs, out Bgr555 color)
+    internal static bool TryReadColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> inputs, out RgbColor color)
     {
-        color = Bgr555.Black;
+        color = RgbColor.Black;
         return TrySource(key, out PaletteFxColorKey source) && inputs.TryGetValue(source, out color);
     }
 }

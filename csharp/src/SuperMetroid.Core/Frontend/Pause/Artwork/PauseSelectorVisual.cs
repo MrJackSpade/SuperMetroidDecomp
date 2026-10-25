@@ -74,6 +74,6 @@ internal sealed class PauseSelectorVisual
         : new(frameName, [.. Enumerable.Range(0, Count(group)).Select(index =>
         {
             CompiledSpritePart part = Part(group, index);
-            return ObjPartFrames.Part(part.X, part.Y, part.Attributes, 0, ObjPartFrames.StandardSizes, inheritPalette: true);
+            return SpritePartFrames.Part(part.X, part.Y, part.Attributes, 0, SpritePartFrames.StandardSizes, inheritPalette: true);
         })]);
 }

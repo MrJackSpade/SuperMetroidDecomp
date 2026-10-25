@@ -22,7 +22,7 @@ internal static class RoomFxRecordDefinitionAccess
             4 => (byte)self.TargetYPosition,
             5 => SnesLittleEndian.HighByte(self.TargetYPosition),
             6 => (byte)self.PackedYVelocity,
-            7 => (byte)(SnesEightEight.WholeOf(self.PackedYVelocity)),
+            7 => (byte)(EightEight.WholeOf(self.PackedYVelocity)),
             8 => checked((byte)self.Timer),
             9 => RoomFxRecordEncoding.TypeByte(self.Type),
             10 => RoomFxRecordEncoding.LayerBlendByte(self.DefaultLayerBlend),

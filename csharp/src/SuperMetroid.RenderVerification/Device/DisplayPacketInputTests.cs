@@ -5,6 +5,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.RenderVerification.Device;
 
@@ -20,7 +21,7 @@ internal static class DisplayPacketInputTests
     /// the layers a line shows and a blend's layers. Every other type there is a console memory image, register or layout the backend must not
     /// take.
     /// </summary>
-    private static readonly HashSet<Type> ModelValues = [typeof(Bgr555), typeof(Rgba32), typeof(ScreenLayers), typeof(ColorBlend)];
+    private static readonly HashSet<Type> ModelValues = [typeof(RgbColor), typeof(RgbaPixel), typeof(ScreenLayers), typeof(ColorBlend)];
 
     /// <summary>Checks the renderer's frame input and every member type of the backend assembly.</summary>
     internal static void Run()

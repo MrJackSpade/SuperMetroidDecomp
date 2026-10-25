@@ -49,7 +49,7 @@ internal static class DragonFireballBehaviorVerification
             AssertEqual(rising, ProgramOf(fireball), $"the fireball starts {rising}");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball, Entry(rising), 25, rising.ToString());
             AssertTrue(!deleted, $"{rising} loops");
-            fireball.Velocity = fireball.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-16));
+            fireball.Velocity = fireball.Velocity.WithY(SignedEightEight.FromSignedRaw(-16));
             DragonBehavior.RunDragonFireballPreInstruction(fireball, 0);
             AssertEqual(falling, ProgramOf(fireball), $"the zero crossing selects {falling}");
             AssertEqual((ushort)1, fireball.InstructionTimer.RawValue, $"the switch to {falling} requests a same-pass frame");

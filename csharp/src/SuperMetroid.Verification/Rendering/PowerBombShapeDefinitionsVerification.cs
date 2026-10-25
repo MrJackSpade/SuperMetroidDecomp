@@ -78,15 +78,15 @@ internal static class PowerBombShapeDefinitionsVerification
         {
             var result = Enumerable.Repeat(-1, 193).ToArray();
             if (radius == 0) return result;
-            int outer = SnesEightEight.Multiply(radius, tops[0]);
+            int outer = EightEight.Multiply(radius, tops[0]);
             // Independent native-style fill: later bands overwrite shared endpoints.
             for (int i = 0; i < 32; i++)
             {
-                int inner = SnesEightEight.Multiply(radius, tops[i]);
-                for (int y = inner; y <= outer; y++) result[y] = SnesEightEight.Multiply(radius, widths[i]);
+                int inner = EightEight.Multiply(radius, tops[i]);
+                for (int y = inner; y <= outer; y++) result[y] = EightEight.Multiply(radius, widths[i]);
                 outer = inner;
             }
-            for (int y = 0; y <= outer; y++) result[y] = SnesEightEight.Multiply(radius, widths[31]);
+            for (int y = 0; y <= outer; y++) result[y] = EightEight.Multiply(radius, widths[31]);
             return result;
         }
         var explosion = new SamusPowerBombExplosionState();
@@ -96,8 +96,8 @@ internal static class PowerBombShapeDefinitionsVerification
             explosion.RenderedPhase = phase;
             for (int radius = 0; radius < 256; radius++)
             {
-                explosion.RenderedPreExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius) | 123);
-                explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius) | 234);
+                explosion.RenderedPreExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius) | 123);
+                explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius) | 234);
                 int[] expected = Profile(radius);
                 for (int y = -192; y <= 192; y++)
                     AssertEqual(expected[Math.Abs(y)], read(explosion, y), "Power Bomb complete signed band profile without bus");
@@ -110,7 +110,7 @@ internal static class PowerBombShapeDefinitionsVerification
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
-            explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(SnesEightEight.FromWhole(radius));
+            explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius));
             explosion.FixedColor = explosion.FixedColor.WithRed(31);
             ScanlineColorAddRenderLayer windows = GameplayEffectCapture.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                 ?? throw new InvalidOperationException("An active Power Bomb captures its windows.");

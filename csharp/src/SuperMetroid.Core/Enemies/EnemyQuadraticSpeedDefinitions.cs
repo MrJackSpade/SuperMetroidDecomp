@@ -37,7 +37,7 @@ public static class EnemyQuadraticSpeedDefinitions
     {
         int fraction = ReadWord(byteOffset);
         int whole = unchecked((short)ReadWord(byteOffset + 2));
-        return (SnesSixteenSixteen.FromWhole(whole)) | fraction;
+        return (SixteenSixteen.FromWhole(whole)) | fraction;
     }
 
     /// <summary>Reconstructs a byte of the shared positive/negative 16.16 record, preserving the native discarded fractional carry.</summary>

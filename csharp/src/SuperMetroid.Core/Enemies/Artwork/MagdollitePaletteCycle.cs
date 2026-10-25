@@ -13,7 +13,7 @@ public sealed class MagdollitePaletteCycle
     public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
         {
             content.Append("frames", MagdollitePaletteDefinitions.FrameCount);
-            Span<Bgr555> row = stackalloc Bgr555[MagdollitePaletteDefinitions.AnimatedColorCount];
+            Span<RgbColor> row = stackalloc RgbColor[MagdollitePaletteDefinitions.AnimatedColorCount];
             for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
@@ -22,16 +22,16 @@ public sealed class MagdollitePaletteCycle
         });
 
     /// <summary>Four independently authored glow colors underlying the native row rotations.</summary>
-    private readonly Bgr555[] colors;
+    private readonly RgbColor[] colors;
     /// <summary>Later-row cells that differ from the native rotation of the first row.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>
     /// Palette_Magdollite_Glow_0..3 at $A8:AC2E-AC34 rotates left one color per
     /// phase in the four native OBJ rows. Preserve arbitrary edited later rows
     /// as deviations from that rotation, without rebuilding the native table.
     /// </summary>
-    internal MagdollitePaletteCycle(Bgr555[][] frames)
+    internal MagdollitePaletteCycle(RgbColor[][] frames)
     {
         colors = frames[0];
         for (int frame = 1; frame < frames.Length; frame++)
@@ -45,13 +45,13 @@ public sealed class MagdollitePaletteCycle
     /// <param name="color">Zero-based glow color 0..3, corresponding to OBJ palette colors nine through twelve.</param>
     /// <returns>Packed SNES BGR555 color from the selected row.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The row or color index is outside 0..3.</exception>
-    public Bgr555 Resolve(int frame, int color)
+    public RgbColor Resolve(int frame, int color)
     {
         if ((uint)frame >= MagdollitePaletteDefinitions.FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(frame, color), out Bgr555 edited)
+        return edits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
             ? edited : colors[(color + frame) % colors.Length];
     }
 

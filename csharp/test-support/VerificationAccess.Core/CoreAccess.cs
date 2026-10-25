@@ -116,7 +116,7 @@ internal static class CoreAccess
     extension(PauseMenuState pause)
     {
         /// <summary>Last OAM origin used for the pause menu's selection indicator.</summary>
-        internal Position16<OamPixels> LastIndicatorOrigin => pause.LastIndicatorOrigin;
+        internal Position16<SpritePixels> LastIndicatorOrigin => pause.LastIndicatorOrigin;
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
@@ -148,7 +148,7 @@ internal static class CoreAccess
     extension(GameplayBasePaletteCatalog palettes)
     {
         /// <summary>Initial gameplay CGRAM colors retained by the loaded palette catalog.</summary>
-        internal ReadOnlySpan<Bgr555> Initial => palettes.initial;
+        internal ReadOnlySpan<RgbColor> Initial => palettes.initial;
     }
 
 
@@ -400,11 +400,11 @@ internal static class CoreAccess
     extension(SamusShinesparkState self)
     {
         /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
-        internal SnesAngle FirstReleasedCrashEchoAngle =>
+        internal RotationAngle FirstReleasedCrashEchoAngle =>
             self.FirstReleasedCrashEchoSlot.Angle;
 
         /// <summary>Angular-travel word of departing crash-echo projectile slot four.</summary>
-        internal SnesAngle SecondReleasedCrashEchoAngle =>
+        internal RotationAngle SecondReleasedCrashEchoAngle =>
             self.SecondReleasedCrashEchoSlot.Angle;
 
         /// <summary>Departing radius (projectile X velocity) of crash-echo projectile slot three.</summary>

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Areas;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -24,7 +25,7 @@ internal static class NorfairGlowCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Cathedral, new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.Control.LockHandlers();
         LayeredScene? original = null;
-        SuperMetroid.Core.Hardware.Rgba32[]? initialPixels = null;
+        SuperMetroid.Core.Assets.RgbaPixel[]? initialPixels = null;
         int maximumChanged = 0;
         for (int tick = 0; tick < 232; tick++)
         {
@@ -38,7 +39,7 @@ internal static class NorfairGlowCaptureTests
             // Freeze geometry, camera, objects, and every unrelated palette entry.
             // Any remaining pixel change is specifically the room's foreground glow,
             // not a moving enemy, liquid surface, or BG2 heat distortion.
-            Bgr555[] colors = original.Paint.Colors.ToArray();
+            RgbColor[] colors = original.Paint.Colors.ToArray();
             foreach (int index in NorfairGlowFixture.ColorIndices)
                 colors[index] = scene.Paint.Colors[index];
             var memory = new FramePaint(colors, original.Paint.SpriteDraws);

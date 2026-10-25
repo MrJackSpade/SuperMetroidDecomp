@@ -22,11 +22,11 @@ public sealed record GameOptionsPresentationDocument
     /// <summary>Exactly three menu-heading compositions and four missile-cursor frames, using sprite-part offsets from drawing anchors.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Sprites { get; init; }
     /// <summary>Heading origins for primary, controller, and special menus in screen pixels, X=0-255 and Y=0-255; drawing subtracts vertical scroll from Y.</summary>
-    public required Dictionary<string, Position16<OamPixels>> HeadingAnchors { get; init; }
+    public required Dictionary<string, Position16<SpritePixels>> HeadingAnchors { get; init; }
     /// <summary>Cursor origins in selection-row order for each menu: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
-    public required Dictionary<string, Position16<OamPixels>[]> CursorAnchors { get; init; }
+    public required Dictionary<string, Position16<SpritePixels>[]> CursorAnchors { get; init; }
     /// <summary>Cursor origin for phases without a selection table, in screen pixels X=0-511 and Y=0-255, allowing offscreen placement.</summary>
-    public required Position16<OamPixels> HiddenCursor { get; init; }
+    public required Position16<SpritePixels> HiddenCursor { get; init; }
     /// <summary>BG palette index 0-7 for chosen language and toggle regions; must differ from the unselected index.</summary>
     public required int SelectedPalette { get; init; }
     /// <summary>BG palette index 0-7 for language and toggle regions that are not chosen.</summary>

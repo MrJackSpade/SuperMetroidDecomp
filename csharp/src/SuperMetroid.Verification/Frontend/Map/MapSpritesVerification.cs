@@ -43,7 +43,7 @@ internal static class MapSpritesVerification
         {
             installed.BeginFrame();
             installed.AddOnScreenSpritePart(SnesSpritemapXWord.Create(-1, true), new SnesSpritemapYByte((byte)offset),
-                SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(0, (ushort)origin));
+                SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<SpritePixels>(0, (ushort)origin));
             int sum = origin + offset;
             int signedY = origin + unchecked((sbyte)offset);
             bool hidden = signedY is < -32 or >= 224;
@@ -144,7 +144,7 @@ internal static class MapSpritesVerification
     /// OAM cannot read immutable cartridge sprites after installation.
     /// </summary>
     internal static void DrawImportedSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        int address, Position16<OamPixels> origin, ushort paletteBits,
+        int address, Position16<SpritePixels> origin, ushort paletteBits,
         bool originIsOnScreen = true) => ImportedSpritemapOracle.DrawGeneric(
             CartridgeImportSource.Require(bus), oam, address, origin,
             paletteBits, originIsOnScreen);

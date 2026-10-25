@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -32,7 +33,7 @@ internal static class PauseReserveArrowVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         pause.Step(0, ControllerButton.Up);
-        Rgba32[]? first = null;
+        RgbaPixel[]? first = null;
         for (byte frame = 0; frame < 32; frame++)
         {
             pause.Step(0, 0, frameCounterByte: frame);
@@ -75,8 +76,8 @@ internal static class PauseReserveArrowVerification
                 ushort expected = (ushort)((before & 0xe3ff) | (enabled ? 0x1800 : 0x1c00));
                 BinaryPrimitives.WriteUInt16LittleEndian(tiles.AsSpan(address), expected);
             }
-            colors[102] = Bgr555.FromWord(color6);
-            colors[107] = Bgr555.FromWord(colorB);
+            colors[102] = RgbColor.FromWord(color6);
+            colors[107] = RgbColor.FromWord(colorB);
             var memory = new FramePaint(colors, capture.Paint.SpriteDraws);
             var expectedPixels = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
             AssertTrue(pause.Render().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");

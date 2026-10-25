@@ -8,15 +8,15 @@ public static class FallingSparkLaunchDefinitions
     /// The eighth RNG outcome reads F3F0/F3F2 instruction words DBBD/301A; retain
     /// that cartridge overread rather than inventing a symmetric positive speed.
     /// </summary>
-    public static SnesSignedSixteenSixteen FromRandom(int random) => ((random & 0x1c) >> 2) switch
+    public static SignedSixteenSixteen FromRandom(int random) => ((random & 0x1c) >> 2) switch
     {
-        0 => SnesSignedSixteenSixteen.FromParts(-1, 0xb800),
-        1 => SnesSignedSixteenSixteen.FromParts(-1, 0xc000),
-        2 => SnesSignedSixteenSixteen.FromParts(-1, 0xe000),
-        3 => SnesSignedSixteenSixteen.FromParts(-1, 0xff00),
-        4 => SnesSignedSixteenSixteen.FromParts(0, 0x0100),
-        5 => SnesSignedSixteenSixteen.FromParts(0, 0x2000),
-        6 => SnesSignedSixteenSixteen.FromParts(0, 0x4000),
-        _ => SnesSignedSixteenSixteen.FromParts(unchecked((short)0xdbbd), 0x301a),
+        0 => SignedSixteenSixteen.FromParts(-1, 0xb800),
+        1 => SignedSixteenSixteen.FromParts(-1, 0xc000),
+        2 => SignedSixteenSixteen.FromParts(-1, 0xe000),
+        3 => SignedSixteenSixteen.FromParts(-1, 0xff00),
+        4 => SignedSixteenSixteen.FromParts(0, 0x0100),
+        5 => SignedSixteenSixteen.FromParts(0, 0x2000),
+        6 => SignedSixteenSixteen.FromParts(0, 0x4000),
+        _ => SignedSixteenSixteen.FromParts(unchecked((short)0xdbbd), 0x301a),
     };
 }

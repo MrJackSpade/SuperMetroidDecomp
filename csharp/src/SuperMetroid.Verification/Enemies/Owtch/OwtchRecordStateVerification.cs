@@ -18,14 +18,14 @@ internal static class OwtchRecordStateVerification
         var state = new OwtchEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         // Both halves of each velocity live in the record, so a fraction alone must not survive a kill (#1387).
-        state.RightVelocity = SnesSignedSixteenSixteen.FromParts(1, 0x4000);
-        state.LeftVelocity = SnesSignedSixteenSixteen.FromParts(1, 0x4000);
+        state.RightVelocity = SignedSixteenSixteen.FromParts(1, 0x4000);
+        state.LeftVelocity = SignedSixteenSixteen.FromParts(1, 0x4000);
         state.Behavior = Enum.GetValues<OwtchBehaviorState>()[^1];
         state.BurialDepth = 1;
 
         slot.Clear();
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties RightVelocity");
-        AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.LeftVelocity, "a kill empties LeftVelocity");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties RightVelocity");
+        AssertEqual<SignedSixteenSixteen>(SignedSixteenSixteen.Zero, state.LeftVelocity, "a kill empties LeftVelocity");
         AssertEqual<OwtchBehaviorState>(default(OwtchBehaviorState), state.Behavior, "a kill empties Behavior");
         AssertEqual<int>(0, state.BurialDepth, "a kill empties BurialDepth");
         Console.WriteLine("Owtch record state: a kill empties every value the record holds.");
@@ -43,8 +43,8 @@ internal static class OwtchRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
         NativeEnemyFamilyStateImport.Import(enemies, slot, new NativeEnemyRecordWords(
             A: 0x1234, B: 0x0002, C: 0xedcc, D: 0xfffd, E: (ushort)OwtchBehaviorState.Underground, F: 0x0010));
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(2, 0x1234), state.RightVelocity, "variables 0/1 are the right fraction and whole");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(-3, 0xedcc), state.LeftVelocity, "variables 2/3 are the left fraction and whole");
+        AssertEqual(SignedSixteenSixteen.FromParts(2, 0x1234), state.RightVelocity, "variables 0/1 are the right fraction and whole");
+        AssertEqual(SignedSixteenSixteen.FromParts(-3, 0xedcc), state.LeftVelocity, "variables 2/3 are the left fraction and whole");
         AssertEqual(OwtchBehaviorState.Underground, state.Behavior, "variable 4 is the state");
         AssertEqual(16, state.BurialDepth, "variable 5 is the sink depth");
         Console.WriteLine("Owtch record layout: right and left velocities, state and sink import from variables 0-5.");

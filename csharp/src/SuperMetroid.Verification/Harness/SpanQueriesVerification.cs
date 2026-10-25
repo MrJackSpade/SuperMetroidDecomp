@@ -72,7 +72,7 @@ internal static class SpanQueriesVerification
         oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
         var red = new FixedColorAddRenderLayer(31, 0, 0);
-        var objects = new ObjPriorityRenderLayer(2);
+        var objects = new SpritePriorityRenderLayer(2);
         var blue = new FixedColorAddRenderLayer(0, 0, 31);
         var snapshot = new LayeredScene(memory, new RenderLayer[] { red, objects, blue }, 15);
         LayeredScene without = snapshot.Without<FixedColorAddRenderLayer>();

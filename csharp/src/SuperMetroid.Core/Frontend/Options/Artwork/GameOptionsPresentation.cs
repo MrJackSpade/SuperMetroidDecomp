@@ -33,9 +33,9 @@ public sealed class GameOptionsPresentation
     /// <summary>The missile cursor's sprite by animation frame.</summary>
     internal readonly SpriteComposition[] cursorSprites;
     /// <summary>Edited heading anchors by menu layout, or null for the native anchors.</summary>
-    internal readonly Dictionary<GameOptionsPage, Position16<OamPixels>>? headingAnchors;
+    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>>? headingAnchors;
     /// <summary>Edited cursor anchors by menu layout, or null for the native anchors.</summary>
-    internal readonly Dictionary<GameOptionsPage, Position16<OamPixels>[]>? cursorAnchors;
+    internal readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]>? cursorAnchors;
 
     /// <summary>Retains compiled pages and only visual edits that depart from stock geometry.</summary>
     private GameOptionsPresentation(
@@ -66,10 +66,10 @@ public sealed class GameOptionsPresentation
             !pair.Value.EnabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
             !pair.Value.DisabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Disabled)))
             ? toggles : null;
-        Dictionary<GameOptionsPage, Position16<OamPixels>> headings = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
+        Dictionary<GameOptionsPage, Position16<SpritePixels>> headings = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
             page => page, page => document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)]);
         headingAnchors = headings.Any(pair => pair.Value != GameOptionsPresentationDefinitions.HeadingAnchor(pair.Key)) ? headings : null;
-        Dictionary<GameOptionsPage, Position16<OamPixels>[]> cursors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
+        Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
             page => page, page => document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)]);
         cursorAnchors = cursors.Any(pair => pair.Value.Where((point, index) =>
             point != GameOptionsPresentationDefinitions.CursorAnchor(pair.Key, index)).Any()) ? cursors : null;
@@ -84,7 +84,7 @@ public sealed class GameOptionsPresentation
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying selected artwork and layout including their encoding.</summary>
     public string ContentIdentity { get; }
     /// <summary>Cursor origin used during phases without a cursor table, in screen pixels with X=0-511 and Y=0-255; the actor remains in OAM.</summary>
-    public Position16<OamPixels> HiddenCursor { get; }
+    public Position16<SpritePixels> HiddenCursor { get; }
     /// <summary>BG palette index 0-7 applied to the currently chosen language and special-toggle text regions.</summary>
     public int SelectedPalette { get; }
     /// <summary>BG palette index 0-7 applied to the other language and toggle choices; differs from <see cref="SelectedPalette"/>.</summary>
@@ -161,13 +161,13 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Gets the cursor origin for an authored page and selection row.</summary>
-    internal Position16<OamPixels> CursorPosition(GameOptionsPage page, int selectedItem)
+    internal Position16<SpritePixels> CursorPosition(GameOptionsPage page, int selectedItem)
     {
         if (!Enum.IsDefined(page))
             throw new ArgumentOutOfRangeException(nameof(page), page, "Options cursors exist only for the three menu pages.");
         if (cursorAnchors is null)
             return GameOptionsPresentationDefinitions.CursorAnchor(page, selectedItem);
-        Position16<OamPixels>[] points = cursorAnchors[page];
+        Position16<SpritePixels>[] points = cursorAnchors[page];
         return (uint)selectedItem < points.Length
             ? points[selectedItem]
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
@@ -175,16 +175,16 @@ public sealed class GameOptionsPresentation
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
     internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)
     {
-        Position16<OamPixels> point = headingAnchors is null
+        Position16<SpritePixels> point = headingAnchors is null
             ? GameOptionsPresentationDefinitions.HeadingAnchor(page)
             : headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
-        Position16<OamPixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
+        Position16<SpritePixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
         sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.HeadingSpriteName(page)), origin);
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
-    internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<OamPixels> point) =>
+    internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<SpritePixels> point) =>
         sprites.AddImage(sheet.Frame(GameOptionsPresentationDefinitions.CursorSpriteName(frame)), point);
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>
@@ -296,10 +296,10 @@ public sealed class GameOptionsPresentation
             string name = GameOptionsPresentationDefinitions.MenuName(page);
             ValidatePoint(document.HeadingAnchors[name], $"{name} heading", offscreenX: OffscreenX.Rejected);
             int expected = GameOptionsPresentationDefinitions.CursorCount(page);
-            Position16<OamPixels>[]? points = document.CursorAnchors[name];
+            Position16<SpritePixels>[]? points = document.CursorAnchors[name];
             if (points is null || points.Length != expected)
                 throw new InvalidDataException($"Options {name} requires {expected} cursor anchors.");
-            foreach (Position16<OamPixels> point in points)
+            foreach (Position16<SpritePixels> point in points)
                 ValidatePoint(point, $"{name} cursor", offscreenX: OffscreenX.Rejected);
         }
 
@@ -388,7 +388,7 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Validates an OAM origin, allowing hidden cursor X positions when requested.</summary>
-    private static void ValidatePoint(Position16<OamPixels> point, string owner, OffscreenX offscreenX)
+    private static void ValidatePoint(Position16<SpritePixels> point, string owner, OffscreenX offscreenX)
     {
         int maximumX = offscreenX == OffscreenX.Allowed ? SnesSpritemapXWord.OffsetFieldMaximum : byte.MaxValue;
         if (point.X < 0 || point.X > maximumX || (uint)point.Y > byte.MaxValue)

@@ -39,7 +39,7 @@ internal static class GrappleFiringDefinitions
             _ => 0,
         };
         int octant = direction <= 4 ? direction : direction - 1;
-        return new(new EightEightVector<RoomPixels>(x, y), SnesAngle.FromRaw(unchecked((ushort)(0x8000 + 0x2000 * octant))));
+        return new(new EightEightVector<RoomPixels>(x, y), RotationAngle.FromRaw(unchecked((ushort)(0x8000 + 0x2000 * octant))));
     }
 
     /// <summary>$9B:C122/$C172 X and $C136/$C186 Y hand anchors selected by firing pose.

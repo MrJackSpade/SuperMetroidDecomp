@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -26,7 +27,7 @@ internal static class MapStaticPalettesExtractor
         {
             var colors = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(colors, bus, MapSourceDefinitions.Menu.Colors);
             for (int row = 0; row < FileSelectEntryColourDefinitions.BlackRows; row++)
-                new CgramPalettes(colors).BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, Bgr555.Black);
+                new CgramPalettes(colors).BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
             for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
             {
                 int offsets = area == selected ? MapSourceDefinitions.FileSelectMap.ActivePaletteOffsets : MapSourceDefinitions.FileSelectMap.InactivePaletteOffsets;

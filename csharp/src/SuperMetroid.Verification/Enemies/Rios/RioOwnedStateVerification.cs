@@ -29,7 +29,7 @@ internal static class RioOwnedStateVerification
         AssertEqual(NorfairRioEnemyFunction.FollowParent, followerState.Function, "the follower follows its parent");
 
         parentState.FollowerOffset = new Offset16<RoomPixels>(0, -12);
-        parentState.Velocity = new(new SnesSignedEightEight(0x0180), new SnesSignedEightEight(0xff00));
+        parentState.Velocity = new(new SignedEightEight(0x0180), new SignedEightEight(0xff00));
         parent.Clear();
         AssertEqual(null, parentState.Function, "a kill empties the Norfair Rio's function");
         AssertEqual(new EightEightVector<RoomPixels>(0, 0), parentState.Velocity, "a kill empties the Norfair Rio's velocity");
@@ -39,10 +39,10 @@ internal static class RioOwnedStateVerification
         rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
         RioBehavior.InitializeRio(rio);
         RioEnemyState rioState = enemies.RioStates[2] ?? throw new InvalidOperationException("The Rio has no state.");
-        rioState.SavedHorizontalVelocity = new SnesSignedEightEight(0xfe80);
+        rioState.SavedHorizontalVelocity = new SignedEightEight(0xfe80);
         rioState.AnimationFinished = true;
         rio.Clear();
-        AssertEqual(new VerifyRioOwnedStateCase(default(SnesSignedEightEight), false), new VerifyRioOwnedStateCase(rioState.SavedHorizontalVelocity, rioState.AnimationFinished),
+        AssertEqual(new VerifyRioOwnedStateCase(default(SignedEightEight), false), new VerifyRioOwnedStateCase(rioState.SavedHorizontalVelocity, rioState.AnimationFinished),
             "a kill empties the Rio's saved velocity and handshake");
         AssertEqual(null, rioState.Function, "a kill empties the Rio's function");
         Console.WriteLine("Rio owned state: the follower selection and both families' cleared records match.");

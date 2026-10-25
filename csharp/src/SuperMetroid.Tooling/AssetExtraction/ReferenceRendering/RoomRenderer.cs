@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Compression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.ReferenceRendering;
 
@@ -88,7 +89,7 @@ public static class RoomRenderer
 
         // Tiles do not carry colors. Each tile-table entry selects one of eight 16-color
         // background sub-palettes using bits 10-12.
-        IReadOnlyList<Rgba32> palette = SnesGraphicsTooling.DecodeBgr555Palette(LoadCompressed(rawAssetDirectory, room.Palette));
+        IReadOnlyList<RgbaPixel> palette = SnesGraphicsTooling.DecodeRgbColorPalette(LoadCompressed(rawAssetDirectory, room.Palette));
         if (palette.Count < 128)
             throw new InvalidDataException("Room palette must contain eight 16-color background palettes.");
 
@@ -113,8 +114,8 @@ public static class RoomRenderer
         Extent16<RoomBlocks> size,
         ReadOnlySpan<byte> blockDefinitions,
         ReadOnlySpan<byte> vram,
-        IReadOnlyList<Rgba32> palette,
-        Span<Rgba32> destination,
+        IReadOnlyList<RgbaPixel> palette,
+        Span<RgbaPixel> destination,
         int destinationWidth)
     {
         for (int blockY = 0; blockY < size.Y; blockY++)
@@ -155,8 +156,8 @@ public static class RoomRenderer
     private static void DrawTile(
         ushort tileEntry,
         ReadOnlySpan<byte> vram,
-        IReadOnlyList<Rgba32> palette,
-        Span<Rgba32> destination,
+        IReadOnlyList<RgbaPixel> palette,
+        Span<RgbaPixel> destination,
         int destinationWidth,
         Position16<ImagePixels> origin)
     {

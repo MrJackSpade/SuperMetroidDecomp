@@ -94,7 +94,7 @@ internal static class CrocomirePresentation1193Verification
                     $"Comeback frame {frame} applies current enemy rumble to foreground scroll");
                 if (frame != 0)
                 {
-                    AssertEqual(previousScroll, runtime.Display.DisplayedGameplayPpu.Bg1Scroll.Y,
+                    AssertEqual(previousScroll, runtime.Display.DisplayedGameplayScrolls.Bg1Scroll.Y,
                         "Rumble becomes visible at the following accepted NMI");
                     var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
                     AssertEqual(previousScroll, layer.View.Bg1Scroll.Y,

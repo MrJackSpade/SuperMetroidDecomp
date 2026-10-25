@@ -52,12 +52,12 @@ public static class SamusSlopePhysics
         // magnitude, multiplies, and negates the 32-bit result afterward.
         if (displacement >= 0)
         {
-            int truncated = unchecked((ushort)(SnesEightEight.WholeOf(displacement)));
+            int truncated = unchecked((ushort)(EightEight.WholeOf(displacement)));
             return unchecked((int)((uint)truncated * multiplier));
         }
         else
         {
-            int truncated = unchecked((ushort)(SnesEightEight.WholeOf(displacement)));
+            int truncated = unchecked((ushort)(EightEight.WholeOf(displacement)));
             int magnitude = unchecked((ushort)-truncated);
             return unchecked(-(int)((uint)magnitude * multiplier));
         }

@@ -92,7 +92,7 @@ internal static class GunshipLandingVerification
                     $"gunship descent rigid Samus sub-Y frame {frames}");
                 if (previousTopY >= 0x0300)
                 {
-                    uint previous = SnesSixteenSixteen.Compose(previousTopY, previousTopSubY);
+                    uint previous = SixteenSixteen.Compose(previousTopY, previousTopSubY);
                     uint current = top.Position.Y.RawValue;
                     AssertEqual(0x0002_8000u, current - previous,
                         "gunship descent slows to cartridge 2.8 fixed pixels");

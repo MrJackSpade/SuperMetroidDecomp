@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
@@ -49,7 +50,7 @@ public static class NorfairRidleyColorExtractor
         {
             int address = source + color * sizeof(ushort);
             ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            if (!Bgr555.IsColorWord(word))
+            if (!RgbColor.IsColorWord(word))
                 throw new InvalidDataException($"Norfair Ridley color ${address:X6} has bit 15 set.");
             colors[color] = new PaletteRgb5
             {

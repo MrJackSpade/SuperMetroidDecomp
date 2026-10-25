@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>Directional mounting and yellow beam intensity for the Morph Ball surveillance eye.</summary>
@@ -21,10 +23,10 @@ internal static class MorphBallEyeGeometryDefinitions
     /// $88:EA8B interleaves the red and green intensities, a dark blue and padding.
     /// Red and green trace intensity 16 down to 8 and back to 15 in sixteen steps; blue stays dark.
     /// </summary>
-    internal static Bgr555 BeamColor(int phase)
+    internal static RgbColor BeamColor(int phase)
     {
         if ((uint)phase >= 16) throw new ArgumentOutOfRangeException(nameof(phase));
         int intensity = 8 + Math.Abs(phase - 8);
-        return new Bgr555(intensity, intensity, 0);
+        return new RgbColor(intensity, intensity, 0);
     }
 }

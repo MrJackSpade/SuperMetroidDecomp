@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -42,30 +42,30 @@ internal static class PaletteFxColorAddressAccess
         : throw new InvalidDataException($"$8D:{pointer:X4} is no palette-FX record colour.");
 
     /// <summary><paramref name="colors"/> keyed by record colour.</summary>
-    internal static Dictionary<PaletteFxColorKey, Bgr555> Keyed(IReadOnlyDictionary<ushort, Bgr555> colors) =>
+    internal static Dictionary<PaletteFxColorKey, RgbColor> Keyed(IReadOnlyDictionary<ushort, RgbColor> colors) =>
         colors.ToDictionary(pair => KeyAt(pair.Key), pair => pair.Value);
 
     /// <summary>Colour sources by address.</summary>
     extension(IPaletteFxColorSource source)
     {
         /// <summary>The colour at bank-$8D <paramref name="pointer"/>; false when the word is no record colour.</summary>
-        internal bool TryReadColor(int pointer, out Bgr555 color)
+        internal bool TryReadColor(int pointer, out RgbColor color)
         {
-            color = Bgr555.Black;
+            color = RgbColor.Black;
             return TryKeyAt(pointer, out PaletteFxColorKey key) && source.TryReadColor(key, out color);
         }
     }
 
     /// <summary>Keyed colour tables by address.</summary>
-    extension(IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors)
+    extension(IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors)
     {
         /// <summary>Whether the table holds the colour at bank-$8D <paramref name="pointer"/>.</summary>
         internal bool ContainsKey(ushort pointer) => TryKeyAt(pointer, out PaletteFxColorKey key) && colors.ContainsKey(key);
 
         /// <summary>The table's colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal bool TryGetValue(ushort pointer, out Bgr555 value)
+        internal bool TryGetValue(ushort pointer, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return TryKeyAt(pointer, out PaletteFxColorKey key) && colors.TryGetValue(key, out value);
         }
 
@@ -81,92 +81,92 @@ internal static class HeatPaletteColorDefinitionsAddressAccess
     extension(HeatPaletteColorDefinitions)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 HeatPaletteColorDefinitions.TryCalculatedColor(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && HeatPaletteColorDefinitions.TryCalculatedColor(key, colors, out value);
         }
 
         /// <summary>TryRedRamp for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryRedRamp(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryRedRamp(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 HeatPaletteColorDefinitions.TryRedRamp(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryRedRamp for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryRedRamp(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryRedRamp(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && HeatPaletteColorDefinitions.TryRedRamp(key, colors, out value);
         }
 
         /// <summary>TrySecondaryRedRamp for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TrySecondaryRedRamp(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TrySecondaryRedRamp(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 HeatPaletteColorDefinitions.TrySecondaryRedRamp(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TrySecondaryRedRamp for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TrySecondaryRedRamp(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TrySecondaryRedRamp(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && HeatPaletteColorDefinitions.TrySecondaryRedRamp(key, colors, out value);
         }
 
         /// <summary>TryHighlightEndpoint for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryHighlightEndpoint(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryHighlightEndpoint(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 HeatPaletteColorDefinitions.TryHighlightEndpoint(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryHighlightEndpoint for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryHighlightEndpoint(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryHighlightEndpoint(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && HeatPaletteColorDefinitions.TryHighlightEndpoint(key, colors, out value);
         }
 
         /// <summary>TryMixedRamp for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryMixedRamp(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryMixedRamp(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 HeatPaletteColorDefinitions.TryMixedRamp(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryMixedRamp for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryMixedRamp(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryMixedRamp(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && HeatPaletteColorDefinitions.TryMixedRamp(key, colors, out value);
         }
 
         /// <summary>TrySharedRed for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TrySharedRed(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TrySharedRed(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 HeatPaletteColorDefinitions.TrySharedRed(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TrySharedRed for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TrySharedRed(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TrySharedRed(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && HeatPaletteColorDefinitions.TrySharedRed(key, colors, out value);
         }
 
@@ -199,17 +199,17 @@ internal static class LoadingPaletteColorDefinitionsAddressAccess
     extension(LoadingPaletteColorDefinitions)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 LoadingPaletteColorDefinitions.TryCalculatedColor(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && LoadingPaletteColorDefinitions.TryCalculatedColor(key, colors, out value);
         }
 
@@ -232,17 +232,17 @@ internal static class LogoGlarePaletteColorDefinitionsAddressAccess
     extension(LogoGlarePaletteColorDefinitions)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 LogoGlarePaletteColorDefinitions.TryCalculatedColor(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && LogoGlarePaletteColorDefinitions.TryCalculatedColor(key, colors, out value);
         }
 
@@ -262,17 +262,17 @@ internal static class EndingGunshipPaletteColorDefinitionsAddressAccess
     extension(EndingGunshipPaletteColorDefinitions)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 EndingGunshipPaletteColorDefinitions.TryCalculatedColor(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && EndingGunshipPaletteColorDefinitions.TryCalculatedColor(key, colors, out value);
         }
 
@@ -292,17 +292,17 @@ internal static class TourianStatueGreyColorDefinitionsAddressAccess
     extension(TourianStatueGreyColorDefinitions)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 TourianStatueGreyColorDefinitions.TryCalculatedColor(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && TourianStatueGreyColorDefinitions.TryCalculatedColor(key, colors, out value);
         }
 
@@ -322,24 +322,24 @@ internal static class CrateriaLightningColorDefinitionsAddressAccess
     extension(CrateriaLightningColorDefinitions)
     {
         /// <summary>TryCalculatedColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculatedColor(int pointer, out Bgr555 value)
+        internal static bool TryCalculatedColor(int pointer, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && CrateriaLightningColorDefinitions.TryCalculatedColor(key, out value);
         }
 
         /// <summary>TryCalculatedDarkColor for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryCalculatedDarkColor(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedDarkColor(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 CrateriaLightningColorDefinitions.TryCalculatedDarkColor(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryCalculatedDarkColor for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculatedDarkColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculatedDarkColor(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && CrateriaLightningColorDefinitions.TryCalculatedDarkColor(key, colors, out value);
         }
 
@@ -377,17 +377,17 @@ internal static class PlanetZebesTextColorDefinitionsAddressAccess
     extension(PlanetZebesTextColorDefinitions)
     {
         /// <summary>TryCalculate for the colour at bank-$8D <paramref name="pointer"/>, with colours keyed by address.</summary>
-        internal static bool TryCalculate(int pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculate(int pointer, IReadOnlyDictionary<ushort, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) &&
                 PlanetZebesTextColorDefinitions.TryCalculate(key, PaletteFxColorAddressAccess.Keyed(colors), out value);
         }
 
         /// <summary>TryCalculate for the colour at bank-$8D <paramref name="pointer"/>.</summary>
-        internal static bool TryCalculate(int pointer, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+        internal static bool TryCalculate(int pointer, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         {
-            value = Bgr555.Black;
+            value = RgbColor.Black;
             return PaletteFxColorAddressAccess.TryKeyAt(pointer, out PaletteFxColorKey key) && PlanetZebesTextColorDefinitions.TryCalculate(key, colors, out value);
         }
 

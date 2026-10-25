@@ -332,7 +332,7 @@ internal sealed class DoorTransitionState
     private static ColourImage BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
         ColourImage target = runtime.Colours.Capture();
-        target.Fill(Bgr555.Black);
+        target.Fill(RgbColor.Black);
 
         // Keep HUD colors legible while the source room palette disappears.
         Keep(runtime.Colours, target, DoorTransitionColourDefinitions.Hud);

@@ -44,7 +44,7 @@ public static class IndexedPng
         if (!signature.SequenceEqual(IndexedPngFormat.Signature)) throw new InvalidDataException("Invalid PNG signature.");
         bool headerSeen = false, dataSeen = false, dataEnded = false, transparencySeen = false;
         int depth = 0, encodedBytes = signature.Length;
-        Rgba32[]? palette = null;
+        RgbaPixel[]? palette = null;
         using var compressed = new MemoryStream();
         while (true)
         {
@@ -90,7 +90,7 @@ public static class IndexedPng
                     if (palette is not null || dataSeen || payload.Length == 0 || payload.Length % 3 != 0 || payload.Length / 3 > 1 << depth)
                         throw new InvalidDataException("Invalid PNG palette size, order or duplicate.");
                     palette = Enumerable.Range(0, payload.Length / 3)
-                        .Select(i => new Rgba32(payload[i * 3], payload[i * 3 + 1], payload[i * 3 + 2], 255)).ToArray();
+                        .Select(i => new RgbaPixel(payload[i * 3], payload[i * 3 + 1], payload[i * 3 + 2], 255)).ToArray();
                     break;
                 case "tRNS":
                     if (palette is null || dataSeen || transparencySeen || payload.Length > palette.Length)
@@ -119,7 +119,7 @@ public static class IndexedPng
     }
 
     /// <summary>Reverses PNG row filters and unpacks 1-, 2-, 4-, or 8-bit indices within the exact expected image extent.</summary>
-    private static IndexedPngImage DecodeRows(MemoryStream compressed, Extent16<ImagePixels> size, int depth, Rgba32[] palette)
+    private static IndexedPngImage DecodeRows(MemoryStream compressed, Extent16<ImagePixels> size, int depth, RgbaPixel[] palette)
     {
         compressed.Position = 0;
         using var zlib = new ZLibStream(compressed, CompressionMode.Decompress);
@@ -168,7 +168,7 @@ public static class IndexedPng
     /// <exception cref="ArgumentNullException">The output stream or palette is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A dimension is outside 1..2048.</exception>
     /// <exception cref="ArgumentException">Pixel count, palette count, or a pixel's palette index is invalid.</exception>
-    public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<byte> pixels, IReadOnlyList<Rgba32> palette)
+    public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<byte> pixels, IReadOnlyList<RgbaPixel> palette)
     {
         Ensure.NotNull(output);
         Ensure.NotNull(palette);

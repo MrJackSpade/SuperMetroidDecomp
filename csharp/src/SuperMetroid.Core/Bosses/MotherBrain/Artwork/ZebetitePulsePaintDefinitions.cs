@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
@@ -20,7 +22,7 @@ internal static class ZebetitePulsePaintDefinitions
     private const int DarkShadeDenominator = 4;
 
     /// <summary>Computes one of two symmetric red/green core facets for a pulse frame, leaving blue at zero.</summary>
-    internal static Bgr555 Color(int frame, int color)
+    internal static RgbColor Color(int frame, int color)
     {
         int intervals = ZebetiteColorFormat.FrameCount / 2;
         int phase = Math.Min(frame, ZebetiteColorFormat.FrameCount - frame);
@@ -28,6 +30,6 @@ internal static class ZebetitePulsePaintDefinitions
         int greenStart = color == 0 ? WarmGreenBias : WarmGreenBias / 2;
         int red = redStart + (ChannelMaximum - redStart) * phase / intervals;
         int green = greenStart * (intervals - phase) / intervals;
-        return new Bgr555(red, green, 0);
+        return new RgbColor(red, green, 0);
     }
 }

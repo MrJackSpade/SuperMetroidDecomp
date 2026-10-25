@@ -38,10 +38,10 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// </summary>
     private const int CavernHighlightRed = 14, CavernRedStep = 5, CavernHighlightBlue = 2;
     /// <summary>Independently supplied row colors that differ from the scaled material endpoints.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Captures only palette cells that differ from the calculated fifteen-step reveal.</summary>
-    internal NorfairRidleyRevealPaintDefinitions(Bgr555[][] rows)
+    internal NorfairRidleyRevealPaintDefinitions(RgbColor[][] rows)
     {
         for (int row = 0; row < Rows; row++)
             for (int color = 0; color < Colors; color++)
@@ -49,11 +49,11 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     }
 
     /// <summary>Resolves an independently edited reveal cell or scales its stock material endpoint.</summary>
-    internal Bgr555 ColorAt(int row, int color)
+    internal RgbColor ColorAt(int row, int color)
     {
         ValidateRow(row);
         if ((uint)color >= Colors) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Restricts lookup to the fifteen native reveal phases.</summary>
@@ -63,7 +63,7 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     }
 
     /// <summary>Applies the shared biased fade to one selected arena material endpoint.</summary>
-    private static Bgr555 Calculate(int row, int color) => CeresRidleyFadeColorDefinitions.Scale(Endpoint(color), row + 1);
+    private static RgbColor Calculate(int row, int color) => CeresRidleyFadeColorDefinitions.Scale(Endpoint(color), row + 1);
 
     /// <summary>
     /// Immutable stock material operation for $A6:A693-A6AE and theme9 slots113..126.
@@ -71,7 +71,7 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// slot14 is a copied white target (RGB5 maximum), not a visibility exemption.
     /// RoomStaticPalette's separate occurrence remains independently accounted.
     /// </summary>
-    internal static Bgr555 Endpoint(int color)
+    internal static RgbColor Endpoint(int color)
     {
         if ((uint)color >= Colors) throw new ArgumentOutOfRangeException(nameof(color));
         if (color < 3)
@@ -87,12 +87,12 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     }
 
     /// <summary>Calculates the selected red-blue steps of the masonry and pillar ramp.</summary>
-    private static Bgr555 Masonry(int shade) => Pack((3 - shade) * MasonryRedStep, 0,
+    private static RgbColor Masonry(int shade) => Pack((3 - shade) * MasonryRedStep, 0,
         TrimBlue + (2 - shade) * MasonryBlueStep);
     /// <summary>Calculates cavern-edge red steps and the one-unit blue decline.</summary>
-    private static Bgr555 Cavern(int shade) => Pack(CavernHighlightRed - CavernRedStep * shade, 0,
+    private static RgbColor Cavern(int shade) => Pack(CavernHighlightRed - CavernRedStep * shade, 0,
         CavernHighlightBlue - shade);
     /// <summary>Clamps calculated red and blue material channels to RGB5 bounds.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) =>
+    private static RgbColor Pack(int red, int green, int blue) =>
         new(Math.Clamp(red, 0, Maximum), green, Math.Clamp(blue, 0, Maximum));
 }

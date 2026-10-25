@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal readonly record struct DraygonBurialEvirDefinition(
     FixedVector<RoomPixels> SubspeedMagnitude,
     Position16<RoomPixels> Initial,
-    SnesByteAngle Angle)
+    ByteAngle Angle)
 {
     /// <summary>
     /// The signed per-frame displacement: X moves right when angle+$40 has bit 7 set and Y moves
     /// down when angle+$80 has bit 7 set; otherwise each magnitude is subtracted.
     /// </summary>
     internal FixedVector<RoomPixels> Velocity => new(
-        EnemyMath.CosineIsNegative(Angle) ? SubspeedMagnitude.X : SnesSignedSixteenSixteen.Zero - SubspeedMagnitude.X,
-        EnemyMath.SineIsNegative(Angle) ? SubspeedMagnitude.Y : SnesSignedSixteenSixteen.Zero - SubspeedMagnitude.Y);
+        EnemyMath.CosineIsNegative(Angle) ? SubspeedMagnitude.X : SignedSixteenSixteen.Zero - SubspeedMagnitude.X,
+        EnemyMath.SineIsNegative(Angle) ? SubspeedMagnitude.Y : SignedSixteenSixteen.Zero - SubspeedMagnitude.Y);
 }

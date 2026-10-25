@@ -75,9 +75,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
         int speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2)) * 8));
-        SnesSignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
+        SignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightSpeed = right;
-        SnesSignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
+        SignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
         state.LeftSpeed = left;
 
         state.YMovement = PlatformVerticalMovement.Rising;

@@ -275,7 +275,7 @@ internal sealed class MotherBrainFakeDeath
 
         MotherBrainProjectileStarts.Initialize(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
         projectile.Position = projectile.Position.WithWhole(position);
-        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
+        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.Variable0 = MotherBrainProjectiles.TopTubeDustPending;
     }
 
@@ -358,7 +358,7 @@ internal sealed class MotherBrainFakeDeath
     private static MotherBrainFallingTubeState AccelerateMotherBrainTube(RoomEnemySlot tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        tubeState.FallSpeed = new SnesSignedEightEight(unchecked((ushort)(tubeState.FallSpeed.RawValue + 6)));
+        tubeState.FallSpeed = new SignedEightEight(unchecked((ushort)(tubeState.FallSpeed.RawValue + 6)));
         tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
         return tubeState;
     }
@@ -394,8 +394,8 @@ internal sealed class MotherBrainFakeDeath
         // lengths and starting angles must exist before `$87A2` gets installed several
         // frames later or the first visible neck frame collapses every joint onto zero.
         MotherBrainNeckJointDefinitions.InitialDistances.CopyTo(state.NeckJointDistances);
-        state.LowerNeckAngle = SnesAngle.FromRaw(18432);
-        state.UpperNeckAngle = SnesAngle.FromRaw(20480);
+        state.LowerNeckAngle = RotationAngle.FromRaw(18432);
+        state.UpperNeckAngle = RotationAngle.FromRaw(20480);
         state.NeckAngleDelta = 256;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3;
         ExplodeMotherBrainTube(tube);

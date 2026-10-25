@@ -26,7 +26,7 @@ public static class GrappleTileDefinitions
     /// The rope character set the grapple's angle selects: `$9B:C005` folds the unsigned angle into an even table byte
     /// offset, equivalent to angle / 1024.
     /// </summary>
-    public static GrappleRopeOrientation OrientationFor(SnesAngle angle)
+    public static GrappleRopeOrientation OrientationFor(RotationAngle angle)
     {
         // The 64 sectors repeat after half a turn. Reflect each half-turn about
         // its midpoint, retaining the native three/eight/five sector widths.

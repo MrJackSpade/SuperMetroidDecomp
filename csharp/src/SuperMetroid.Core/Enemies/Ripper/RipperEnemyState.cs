@@ -14,7 +14,7 @@ public sealed class RipperEnemyState
     internal RipperEnemyState(RipperExtensionWords words) => _words = words;
 
     /// <summary>Signed 16.16 horizontal velocity per update, one half of the selected linear-speed record.</summary>
-    public SnesSignedSixteenSixteen XVelocity { get; internal set; }
+    public SignedSixteenSixteen XVelocity { get; internal set; }
 
     /// <summary>
     /// The selected linear-speed record's byte offset in the shared speed table, eight bytes per record, set by
@@ -45,7 +45,7 @@ public sealed class RipperEnemyState
     /// <summary>Empties the velocity and speed record, when a kill empties the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        XVelocity = SnesSignedSixteenSixteen.Zero;
+        XVelocity = SignedSixteenSixteen.Zero;
         SpeedTableByteOffset = 0;
     }
 }

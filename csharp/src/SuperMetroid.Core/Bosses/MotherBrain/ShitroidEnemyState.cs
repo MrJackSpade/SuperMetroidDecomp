@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class ShitroidEnemyState
 {
     /// <summary>The colours each of the encounter's target rows fades to, staged across its colour transitions (#1405).</summary>
-    private readonly Dictionary<ShitroidColorTarget, Bgr555[]> targetColours = new();
+    private readonly Dictionary<ShitroidColorTarget, RgbColor[]> targetColours = new();
 
     /// <summary>Creates the state for the Shitroid's slot.</summary>
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
@@ -79,10 +80,10 @@ public sealed class ShitroidEnemyState
     /// </summary>
     public bool VictimActivationFlag { get; internal set; }
     /// <summary>The colours <paramref name="target"/>'s row fades to, which encounter colour updates change in place.</summary>
-    internal Span<Bgr555> TargetColours(ShitroidColorTarget target) =>
-        targetColours.TryGetValue(target, out Bgr555[]? colours)
+    internal Span<RgbColor> TargetColours(ShitroidColorTarget target) =>
+        targetColours.TryGetValue(target, out RgbColor[]? colours)
             ? colours
-            : targetColours[target] = new Bgr555[ShitroidColorDefinitions.TargetColorCount];
+            : targetColours[target] = new RgbColor[ShitroidColorDefinitions.TargetColorCount];
 
     /// <summary>
     /// Whether Samus's touch, shots and power bombs reach the Shitroid's private reactions (parameter two): set while

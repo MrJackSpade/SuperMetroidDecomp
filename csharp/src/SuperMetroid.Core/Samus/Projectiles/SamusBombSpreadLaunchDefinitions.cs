@@ -14,6 +14,6 @@ internal static class SamusBombSpreadLaunchDefinitions
         int radius = Math.Abs(index - 2);
         return new((ushort)(100 + radius * 10),
             (ushort)((index < 2 ? 0x8000 : 0) | radius * 128),
-            new SnesUnsignedSixteenSixteen(2 - radius, radius == 0 ? 0x8000 : 0));
+            new UnsignedSixteenSixteen(2 - radius, radius == 0 ? 0x8000 : 0));
     }
 }

@@ -152,14 +152,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         int yDifference = unchecked((short)(slot.Position.Y.Whole - targetY));
-        int yVelocity = unchecked(state.Velocity.Y.RawValue - SnesEightEight.FromWhole(yDifference >> 2));
+        int yVelocity = unchecked(state.Velocity.Y.RawValue - EightEight.FromWhole(yDifference >> 2));
         yVelocity = ClampMetroidVelocity(yVelocity);
         StoreMetroidYVelocity(state, yVelocity);
         if (_terrain.MoveEnemyVertically(level, slot, yVelocity))
             StoreMetroidYVelocity(state, 0);
 
         int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
-        int xVelocity = unchecked(state.Velocity.X.RawValue - SnesEightEight.FromWhole(xDifference >> 2));
+        int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMetroidVelocity(xVelocity);
         StoreMetroidXVelocity(state, xVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
@@ -179,13 +179,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // This is observably not a clean full-word delta: crossing a 256-pixel boundary can
         // reverse the short route. Preserve the byte arithmetic instead of “fixing” it.
         int yVelocity = CalculateMetroidClosingVelocity(targetY, slot.Position.Y.Whole);
-        StoreMetroidYVelocity(state, SnesSixteenSixteen.FromWhole(yVelocity));
-        if (_terrain.MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(yVelocity)))
+        StoreMetroidYVelocity(state, SixteenSixteen.FromWhole(yVelocity));
+        if (_terrain.MoveEnemyVertically(level, slot, SixteenSixteen.FromWhole(yVelocity)))
             StoreMetroidYVelocity(state, 0);
 
         int xVelocity = CalculateMetroidClosingVelocity(samus.Position.X.Whole, slot.Position.X.Whole);
-        StoreMetroidXVelocity(state, SnesSixteenSixteen.FromWhole(xVelocity));
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SnesSixteenSixteen.FromWhole(xVelocity)))
+        StoreMetroidXVelocity(state, SixteenSixteen.FromWhole(xVelocity));
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SixteenSixteen.FromWhole(xVelocity)))
             StoreMetroidXVelocity(state, 0);
     }
 
@@ -415,11 +415,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Stores the raw signed 16.16 recoil or homing X speed.</summary>
     private static void StoreMetroidXVelocity(MetroidEnemyState state, int velocity) =>
-        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromRaw(velocity));
+        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromRaw(velocity));
 
     /// <summary>Stores the raw signed 16.16 recoil or homing Y speed.</summary>
     private static void StoreMetroidYVelocity(MetroidEnemyState state, int velocity) =>
-        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
+        state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromRaw(velocity));
 
     /// <summary>Moves an outer-body sprite to the Metroid's position and enables its selected graphics.</summary>
     private static void PositionMetroidOuterBody(

@@ -118,7 +118,7 @@ internal static class EndingMode7ArtworkVerification
             AssertTrue(baselineSnapshot.Brightness > 0,
                 $"ending {id} override fixture reaches a visible frame");
             byte[] baseline = baselineSnapshotVram.ToArray();
-            Rgba32[] baselinePixels = DisplayRendering.Render(baselineSnapshot);
+            RgbaPixel[] baselinePixels = DisplayRendering.Render(baselineSnapshot);
 
             string mapName = EndingFloorArtworkFormat.MapFileName(id);
             string mapOverride = Path.Combine(installation.EndingMode7OverrideDirectory, mapName);

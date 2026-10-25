@@ -9,16 +9,16 @@ namespace SuperMetroid.Core.Enemies;
 /// one place either flag set becomes or leaves a word; the destination is population and slot state holding the typed
 /// values directly, which leaves this conversion in the import pipeline only.
 /// </summary>
-[SnesEncodingOwner]
+[EncodingOwner("enemy property and extra-property words")]
 internal static class EnemyPropertyWordCodec
 {
     /// <summary>The property flags as the word bits the cartridge stores them in.</summary>
-    internal static ushort ToNativeWord(this EnemyProperties flags) => (ushort)flags;
+    internal static ushort ToWord(this EnemyProperties flags) => (ushort)flags;
 
-    /// <summary>A property value as its native word: the engine flags in the high byte, the family data in the low byte.</summary>
+    /// <summary>A property value as its stored word: the engine flags in the high byte, the family data in the low byte.</summary>
     internal static ushort Encode(EnemyPropertyWord value) => checked((ushort)((ushort)value.Flags | value.FamilyData));
 
-    /// <summary>A native property word as a typed value; an unnamed high-byte flag is corrupt.</summary>
+    /// <summary>A stored property word as a typed value; an unnamed high-byte flag is corrupt.</summary>
     /// <exception cref="InvalidDataException">The high byte holds a flag <see cref="EnemyProperties"/> does not name.</exception>
     internal static EnemyPropertyWord Decode(ushort word)
     {
@@ -32,7 +32,7 @@ internal static class EnemyPropertyWordCodec
         return new EnemyPropertyWord(flags, SnesLittleEndian.LowByte(word));
     }
 
-    /// <summary>An extra-property value as its native word: the translated flags beside the untranslated bits.</summary>
+    /// <summary>An extra-property value as its stored word: the translated flags beside the untranslated bits.</summary>
     internal static ushort Encode(EnemyExtraPropertyWord value) =>
         checked((ushort)((ushort)value.Flags | value.UntranslatedBits));
 
@@ -40,7 +40,7 @@ internal static class EnemyPropertyWordCodec
     internal static bool CarriesTranslatedExtraFlag(ushort bits) =>
         ((EnemyExtraProperties)bits & EnemyPropertyFlagExtensions.TranslatedExtraFlags) != EnemyExtraProperties.None;
 
-    /// <summary>A native extra-property word split into its translated flags and every other bit, verbatim.</summary>
+    /// <summary>A stored extra-property word split into its translated flags and every other bit, verbatim.</summary>
     internal static EnemyExtraPropertyWord DecodeExtra(ushort word) => new(
         (EnemyExtraProperties)word & EnemyPropertyFlagExtensions.TranslatedExtraFlags,
         unchecked((ushort)(word & ~(ushort)EnemyPropertyFlagExtensions.TranslatedExtraFlags)));

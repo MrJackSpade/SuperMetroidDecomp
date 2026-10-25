@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -23,10 +25,10 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     public CgramPalette Background => new(cgram, PpuMemoryLayout.BackgroundPalettes);
 
     /// <summary>The complete 256-colour image, in CGRAM order.</summary>
-    public ReadOnlySpan<Bgr555> Image => All.Colors;
+    public ReadOnlySpan<RgbColor> Image => All.Colors;
 
     /// <summary>Replaces the complete image with <paramref name="colors"/> (exactly 256 colours).</summary>
-    public void LoadImage(ReadOnlySpan<Bgr555> colors)
+    public void LoadImage(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, ColorCount);
         All.CopyFrom(colors);

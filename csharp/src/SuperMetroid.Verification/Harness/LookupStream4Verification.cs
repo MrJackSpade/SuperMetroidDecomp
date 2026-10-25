@@ -162,7 +162,7 @@ internal static class LookupStream4Verification
         {
             ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
             native.Add(pointer, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8d0000 | pointer)));
-            AssertTrue(stock.TryReadColor(pointer, out Bgr555 value), "calculated title ambient color resolves");
+            AssertTrue(stock.TryReadColor(pointer, out RgbColor value), "calculated title ambient color resolves");
             AssertEqual(native[pointer], value, "native title ambient color");
         }
         var stored = stock.animatedColors;
@@ -189,7 +189,7 @@ internal static class LookupStream4Verification
             ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
             PaletteRgb5 supplied = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                 ? document.BabyMetroidTubeLight[frame][index] : document.FlickeringDisplays[frame][index];
-            AssertTrue(changed.TryReadColor(pointer, out Bgr555 value), "edited ambient color resolves");
+            AssertTrue(changed.TryReadColor(pointer, out RgbColor value), "edited ambient color resolves");
             AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
@@ -284,7 +284,7 @@ internal static class LookupStream4Verification
                 for (int frame = 0; frame < rows.Length; frame++)
                 for (int index = 0; index < rows[frame].Length; index++)
                 {
-                    AssertTrue(selected.TryReadColor((ushort)(program.FramePointer(frame) + 2 + index * 2), out Bgr555 actual), "Every supplied ambient word resolves");
+                    AssertTrue(selected.TryReadColor((ushort)(program.FramePointer(frame) + 2 + index * 2), out RgbColor actual), "Every supplied ambient word resolves");
                     AssertEqual(Pack(rows[frame][index]), actual, "Independent initial/animated edits preserve every supplied neighbor");
                 }
             }
@@ -435,7 +435,7 @@ internal static class LookupStream4Verification
                 AssertTrue(MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out ushort source), "native rotation domain");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), rom.ReadCartridgeWordFixedBank(0x8D0000 | source), "direct native color rotation relationship");
                 AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
-                AssertTrue(stock.TryReadColor(pointer, out Bgr555 installed), "installed environmental color resolves");
+                AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed environmental color resolves");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "native installed environmental color");
             }
         }
@@ -452,9 +452,9 @@ internal static class LookupStream4Verification
             var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             foreach (var site in sites)
             {
-                AssertTrue(changed.TryReadColor(site.Pointer, out Bgr555 actual), "edited environmental pointer resolves");
+                AssertTrue(changed.TryReadColor(site.Pointer, out RgbColor actual), "edited environmental pointer resolves");
                 AssertEqual((ushort)(rom.ReadCartridgeWordFixedBank(0x8D0000 | site.Pointer) ^ (site.Pointer == edit.Pointer ? 1 : 0)), actual, "independent source/rotated/shared color edit");
-                AssertTrue(stock.TryReadColor(site.Pointer, out Bgr555 original), "stock environmental pointer resolves");
+                AssertTrue(stock.TryReadColor(site.Pointer, out RgbColor original), "stock environmental pointer resolves");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | site.Pointer), original, "stock environmental colors remain immutable");
             }
         }
@@ -503,12 +503,12 @@ internal static class LookupStream4Verification
         {
             ushort pointer = (ushort)((owner == 0 ? 0xC914 : 0xC96A) + frame * 10 + color * 2);
             AssertEqual(pointer, all[owner].ColorPointer(frame, color), "independent native timed-color layout");
-            AssertTrue(PlanetZebesTextColorDefinitions.TryCalculate(pointer, stored, out Bgr555 calculated), "native text interpolation domain");
+            AssertTrue(PlanetZebesTextColorDefinitions.TryCalculate(pointer, stored, out RgbColor calculated), "native text interpolation domain");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), calculated, "direct calculated native text color");
             bool required = owner == 0 && frame == 7;
             AssertEqual(required, stored.ContainsKey(pointer), "exact three required text endpoints with no stock overrides");
             if (stored.ContainsKey(pointer)) storedCount++;
-            AssertTrue(stock.TryReadColor(pointer, out Bgr555 installed), "installed text color available");
+            AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed text color available");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "installed native text color");
         }
         AssertEqual(3, storedCount, "three required selected endpoint colors");
@@ -527,9 +527,9 @@ internal static class LookupStream4Verification
             for (int color = 0; color < 3; color++)
             {
                 ushort pointer = all[owner].ColorPointer(frame, color);
-                AssertTrue(changed.TryReadColor(pointer, out Bgr555 actual), "edited text pointer resolves");
+                AssertTrue(changed.TryReadColor(pointer, out RgbColor actual), "edited text pointer resolves");
                 AssertEqual((ushort)(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) ^ (owner * 24 + frame * 3 + color == edit ? 1 : 0)), actual, "independent text endpoint/derived edit");
-                AssertTrue(stock.TryReadColor(pointer, out Bgr555 original), "stock text pointer resolves");
+                AssertTrue(stock.TryReadColor(pointer, out RgbColor original), "stock text pointer resolves");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), original, "stock text remains immutable");
             }
         }
@@ -669,7 +669,7 @@ internal static class LookupStream4Verification
             {
                 var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
                 var cgram = new SamusColourRig();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 enemies.Presentation.BindColours(cgram.Gameplay);
                 Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
@@ -693,7 +693,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 16; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                cgram.AsPaletteColors().SetColor(96, Bgr555.FromWord(0x1234)); cgram.AsPaletteColors().SetColor(100, Bgr555.FromWord(0x2345));
+                cgram.AsPaletteColors().SetColor(96, RgbColor.FromWord(0x1234)); cgram.AsPaletteColors().SetColor(100, RgbColor.FromWord(0x2345));
                 selected.ApplyAlarm(cgram, row);
                 for (int color = 0; color < 3; color++)
                 {
@@ -774,7 +774,7 @@ internal static class LookupStream4Verification
         {
             ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
-            return unchecked((int)(SnesSixteenSixteen.FromWhole((uint)whole) | fraction));
+            return unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction));
         }
         for (int index = 0; index < 16; index++)
             AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index), "native fast shake signed fixed-point value");
@@ -800,9 +800,9 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
+                AssertEqual(RotationAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
                 AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
@@ -811,7 +811,7 @@ internal static class LookupStream4Verification
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
             AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
             AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
@@ -946,7 +946,7 @@ internal static class LookupStream4Verification
     {
         byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
+        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
         AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
@@ -964,7 +964,7 @@ internal static class LookupStream4Verification
             for (int frame = 0; frame < 7; frame++)
             {
                 AssertEqual(frame == 6 || unresolved, values.ContainsKey(new ColourCell(frame, color)), "Only explicit unresolved columns and final colors remain stored");
-                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out Bgr555 value);
+                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out RgbColor value);
                 AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
                 if (calculated)
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), value, "Direct level interpolation matches original native words");
@@ -1017,7 +1017,7 @@ internal static class LookupStream4Verification
     {
         byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
+        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
         AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
         foreach (int color in Enumerable.Range(1, 11).Concat(UpperBackgroundColors))
         {
@@ -1034,7 +1034,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(frame == 6, values.ContainsKey(new ColourCell(frame, color)), "Stock background has no interior fallback samples");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
-                    SporeSpawnDeathColorDefinitions.BackgroundColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
+                    SporeSpawnDeathColorDefinitions.BackgroundColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
                     "Direct background calculation matches every original word independently of catalog loading");
             }
         Verify(stock, -1, -1);
@@ -1094,7 +1094,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(frame == 7, values.ContainsKey(new ColourCell(frame, color)), "Only final endpoint row remains stored in stock fade");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
-                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
+                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
                     "Direct channel interpolation equals every original sprite death word without loading fallback samples");
             }
         for (int color = 0; color < 16; color++)
@@ -1777,7 +1777,7 @@ internal static class LookupStream4Verification
             for (int selection = 0; selection < 12; selection++)
             {
                 var actual = new SamusColourRig();
-                for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, Bgr555.FromWord((ushort)(index * 31)));
+                for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, RgbColor.FromWord((ushort)(index * 31)));
                 if (edit is -1 or 0 or 575)
                     SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam,
                         (SamusBeamFlags)((ushort)(selection | 0x1000)), selected);
@@ -2113,7 +2113,7 @@ internal static class LookupStream4Verification
         {
             ushort pointer = program.ColorPointer(frame, index);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
-            AssertTrue(original.TryReadColor(pointer, out Bgr555 actual), "dark lightning installed color exists");
+            AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "dark lightning installed color exists");
             AssertEqual(native, actual, "dark lightning calculated native RGB5");
             AssertEqual(frame == 0, stored.ContainsKey(pointer), "dark lightning stores only unresolved base row");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "dark lightning audit identity enumerates once");
@@ -2129,7 +2129,7 @@ internal static class LookupStream4Verification
             for (int color = 0; color < 7; color++)
             {
                 var expected = document.CrateriaUnusedDarkLightning[row][color];
-                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out Bgr555 actual), "dark lightning edited color exists");
+                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out RgbColor actual), "dark lightning edited color exists");
                 AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
                     "dark lightning independent base/sample edit and neighbors preserved");
             }
@@ -2155,7 +2155,7 @@ internal static class LookupStream4Verification
         {
             ushort pointer = program.ColorPointer(frame, index);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
-            AssertTrue(original.TryReadColor(pointer, out Bgr555 actual), "surface lightning installed color exists");
+            AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "surface lightning installed color exists");
             AssertEqual(native, actual, "surface lightning calculated native RGB5");
             AssertTrue(!stored.ContainsKey(pointer), "surface lightning stock words are not stored");
             AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "surface lightning audit identity enumerates once");
@@ -2171,7 +2171,7 @@ internal static class LookupStream4Verification
             for (int color = 0; color < 8; color++)
             {
                 var expected = document.CrateriaSurfaceLightning[row][color];
-                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out Bgr555 actual), "surface lightning edited color exists");
+                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out RgbColor actual), "surface lightning edited color exists");
                 AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
                     "surface lightning independent edit and neighbors preserved");
             }
@@ -2238,7 +2238,7 @@ internal static class LookupStream4Verification
             bool owned = native.ContainsKey(pointer);
             AssertEqual(owned, TourianStatueGreyColorDefinitions.TryCoordinates(pointer, out int frame, out int color), "stream4 statue exact color domain");
             bool intermediate = owned && frame is > 0 and < 7;
-            AssertEqual(intermediate, TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, ToColors(native), out Bgr555 calculated), "stream4 statue intermediate domain");
+            AssertEqual(intermediate, TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, ToColors(native), out RgbColor calculated), "stream4 statue intermediate domain");
             if (owned) AssertEqual((ushort)(0xe240 + 20 * frame + 2 * color), pointer, "stream4 statue color coordinates");
             if (intermediate) AssertEqual(native[pointer], calculated, "stream4 every original statue interpolation sample");
         }
@@ -2249,7 +2249,7 @@ internal static class LookupStream4Verification
         int storedStatueColors = 0;
         foreach (var pair in native)
         {
-            AssertTrue(original.TryReadColor(pair.Key, out Bgr555 value), "stream4 original statue color remains readable");
+            AssertTrue(original.TryReadColor(pair.Key, out RgbColor value), "stream4 original statue color remains readable");
             AssertEqual(pair.Value, value, "stream4 loaded original statue color");
             if (stored.ContainsKey(pair.Key)) storedStatueColors++;
         }
@@ -2268,7 +2268,7 @@ internal static class LookupStream4Verification
             for (int color = 0; color < 8; color++)
             {
                 var expected = document.TourianStatueGrey[frame][color];
-                AssertTrue(edited.TryReadColor((ushort)(0xe240 + 20 * frame + 2 * color), out Bgr555 actual), "stream4 edited statue color readable");
+                AssertTrue(edited.TryReadColor((ushort)(0xe240 + 20 * frame + 2 * color), out RgbColor actual), "stream4 edited statue color readable");
                 AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual, "stream4 endpoints and independent intermediate edits preserved");
             }
         }
@@ -2324,7 +2324,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < count; index++)
             {
                 int address = PowerBombColorSources.Start(sequence) + index * 3;
-                var native = new Bgr555(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
+                var native = new RgbColor(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
                 AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
                 bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);
                 AssertEqual(sequence == PowerBombFixedColorSequence.PreExplosion || index <= 20, calculated,
@@ -2347,7 +2347,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
             {
                 var source = (sequence == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion)[index];
-                AssertEqual(new Bgr555(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
+                AssertEqual(new RgbColor(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
                     "Power Bomb supplied JSON color edits remain independent");
             }
             AssertEqual(edit.First == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
@@ -2456,7 +2456,7 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),selected.ResolveBackground(color),"Intro edits leave background independent");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),selected.ResolveSprite(color),"Intro edits leave sprite independent");
             }
-            var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,Bgr555.FromWord(0x1234));
+            var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
             selected.ApplyIntro(cgram);
             for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
             if(edit is -1 or 0 or 48 or 74)
@@ -2518,7 +2518,7 @@ internal static class LookupStream4Verification
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,Bgr555.FromWord(0x1234));
+                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,5);
                 for(int color=0;color<256;color++)
                 {
@@ -2582,7 +2582,7 @@ internal static class LookupStream4Verification
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++) cgram.AsPaletteColors().SetColor(color,Bgr555.FromWord(0x1234));
+                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++) cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,3);
                 for(int color=0;color<256;color++)
                 {
@@ -2638,7 +2638,7 @@ internal static class LookupStream4Verification
             AssertEqual(hash, selected.ContentIdentity, "Draygon health independent RGB edits preserve full resource identity");
             for (int band = 0; band < 8; band++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets()); for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+                var cgram = new GameplayColours(new SpriteColourSets()); for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
                 selected.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
@@ -2662,7 +2662,7 @@ internal static class LookupStream4Verification
                     update(state);
                     AssertEqual(band, state.HealthPaletteBand, "Actual health threshold selects native color band");
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
-                    cgram.SetColor(89, Bgr555.FromWord(0x1234)); update(state);
+                    cgram.SetColor(89, RgbColor.FromWord(0x1234)); update(state);
                     AssertEqual(0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
                     body.FlashTimer = WrappingCountdown.Start(2); hurt(body,state,null);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
@@ -2773,7 +2773,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 15; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
                 selected.ApplyReveal(cgram, row);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
@@ -2790,7 +2790,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossArtworkCatalog { NorfairRidleyColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SamusColourRig();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 enemies.Presentation.BindColours(cgram.Gameplay);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
@@ -2832,7 +2832,7 @@ internal static class LookupStream4Verification
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        static void NoEdits(Dictionary<ColourCell, Bgr555> edits) =>
+        static void NoEdits(Dictionary<ColourCell, RgbColor> edits) =>
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
@@ -2865,7 +2865,7 @@ internal static class LookupStream4Verification
             });
             AssertEqual(hash, selected.ContentIdentity, "Initial hash preserves exact supplied words and separate reveal");
             var cgram = new SamusColourRig();
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
             selected.ApplyInitial(cgram.Gameplay);
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160]) : (ushort)0x1234,
@@ -2972,7 +2972,7 @@ internal static class LookupStream4Verification
                 var state = new BotwoonEnemyState() { PaletteFirstColour = BotwoonHealthPaletteDefinitions.FirstColour };
                 for (int band = 0; band < 8; band++)
                 {
-                    for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                    for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                     state.PalettePhase = band;
                     head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
                     update(head, state);
@@ -2984,7 +2984,7 @@ internal static class LookupStream4Verification
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram.Colors[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
                 }
-                Bgr555[] completed = cgram.Colors.ToArray(); update(head, state);
+                RgbColor[] completed = cgram.Colors.ToArray(); update(head, state);
                 for (int color = 0; color < 256; color++) AssertEqual(completed[color], cgram.Colors[color], "completed palette remains unchanged");
                 AssertEqual(0, guard.ForbiddenReadAttempts, "actual palette producer performs no native palette reads");
             }
@@ -3247,7 +3247,7 @@ internal static class LookupStream4Verification
             }
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, Baby = babies })));
             var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
             selected.ApplyStart(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3316,7 +3316,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 4; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
                 selected.ApplyBaby(cgram, row);
                 for (int color = 0; color < 256; color++)
                 {
@@ -3387,7 +3387,7 @@ internal static class LookupStream4Verification
             }
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, RetreatShared = shared })));
             var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3432,7 +3432,7 @@ internal static class LookupStream4Verification
             Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
             for (int row = 0; row < 9; row++)
             {
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 apply((ushort)(row * 256 + (edit < 0 ? 255 : 0)));
                 for (int color = 0; color < 256; color++)
                 {
@@ -3459,7 +3459,7 @@ internal static class LookupStream4Verification
             else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
             var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
             selected.ApplyRetreat(cgram);
             for (int color = 0; color < 256; color++)
             {
@@ -3512,7 +3512,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 3; row++)
             {
                 var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
                 selected.ApplyHealth(cgram, row);
                 for (int color = 0; color < 256; color++)
                 {
@@ -3534,7 +3534,7 @@ internal static class LookupStream4Verification
             enemies.Presentation.BindColours(cgram.Gameplay);
             Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
             Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
-            void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234)); }
+            void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234)); }
             void Check(int row)
             {
                 for (int color = 0; color < 256; color++)

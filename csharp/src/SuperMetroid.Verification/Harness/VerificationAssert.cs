@@ -362,16 +362,16 @@ internal static class VerificationAssert
         AssertEqual<ushort?>(checked((ushort)expected), actual, context);
 
     /// <summary>Compares a color with an expected cartridge word, decoded as a 15-bit color.</summary>
-    internal static void AssertEqual(int expectedWord, Bgr555 actual, string context) =>
-        AssertEqual(Bgr555.FromWord(checked((ushort)expectedWord)), actual, context);
+    internal static void AssertEqual(int expectedWord, RgbColor actual, string context) =>
+        AssertEqual(RgbColor.FromWord(checked((ushort)expectedWord)), actual, context);
 
     /// <summary>Compares an expected color with an actual cartridge word, decoded as a 15-bit color.</summary>
-    internal static void AssertEqual(Bgr555 expected, ushort actualWord, string context) =>
-        AssertEqual(expected, Bgr555.FromWord(actualWord), context);
+    internal static void AssertEqual(RgbColor expected, ushort actualWord, string context) =>
+        AssertEqual(expected, RgbColor.FromWord(actualWord), context);
 
     /// <summary>Compares a nullable color with an expected cartridge word.</summary>
-    internal static void AssertEqual(int expectedWord, Bgr555? actual, string context) =>
-        AssertEqual<Bgr555?>(Bgr555.FromWord(checked((ushort)expectedWord)), actual, context);
+    internal static void AssertEqual(int expectedWord, RgbColor? actual, string context) =>
+        AssertEqual<RgbColor?>(RgbColor.FromWord(checked((ushort)expectedWord)), actual, context);
 
     /// <summary>Returns the expected exception, or fails when the action completes without it.</summary>
     internal static TException AssertThrows<TException>(Action action, string context)
@@ -2849,7 +2849,7 @@ internal static class VerificationAssert
             for (int color = 0; color < 16; color++, ordinal++)
             {
                 ushort pointer = program.ColorPointer(frame, color);
-                AssertTrue(edited.TryReadColor(pointer, out Bgr555 actual), "Edited loading color remains owned");
+                AssertTrue(edited.TryReadColor(pointer, out RgbColor actual), "Edited loading color remains owned");
                 ushort expected = editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7) ? (ushort)ordinal : ReadVerificationWord(rom, 0x8d0000 | pointer);
                 AssertEqual(expected, actual, "Independent loading row edits survive alias compilation");
             }
@@ -2882,7 +2882,7 @@ internal static class VerificationAssert
         for (int phase = 0; phase < 16; phase++)
         for (int color = 0; color < 15; color++, ordinal++)
         {
-            AssertTrue(edited.TryReadColor((ushort)(first + phase * 34 + color * 2), out Bgr555 actual), "Edited heat color owned");
+            AssertTrue(edited.TryReadColor((ushort)(first + phase * 34 + color * 2), out RgbColor actual), "Edited heat color owned");
             AssertEqual((ushort)ordinal, actual, "Every separately edited heat color survives alias compilation");
         }
         document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
@@ -2897,7 +2897,7 @@ internal static class VerificationAssert
         for (int color = 0; color < 15; color++)
         {
             ushort pointer = (ushort)(first + phase * 34 + color * 2);
-            AssertTrue(loadingEdited.TryReadColor(pointer, out Bgr555 actual), "Heat color survives independent loading-palette edit");
+            AssertTrue(loadingEdited.TryReadColor(pointer, out RgbColor actual), "Heat color survives independent loading-palette edit");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), actual, "Changing loading art cannot rewrite supplied heat art");
         }
         Console.WriteLine("Heat color aliases: original repeated rows, all pointer boundaries, stock storage, edited frames and guarded consumers pass.");

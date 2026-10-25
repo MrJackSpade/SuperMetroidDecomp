@@ -22,7 +22,7 @@ public static class CeresFlightPaletteFile
             document.Colors is not { Length: ScreenPalette.ColorCount })
             throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");
 
-        var compiled = new Bgr555[ScreenPalette.ColorCount];
+        var compiled = new RgbColor[ScreenPalette.ColorCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -30,7 +30,7 @@ public static class CeresFlightPaletteFile
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} requires red, green and blue in 0..31.");
-            compiled[index] = color.ToBgr555();
+            compiled[index] = color.ToRgbColor();
         }
         return new CeresFlightPalette(compiled);
     }

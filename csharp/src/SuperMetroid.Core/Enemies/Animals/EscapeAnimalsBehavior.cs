@@ -236,7 +236,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         uint fixedPosition = slot.Position.X.RawValue;
         fixedPosition = unchecked(fixedPosition + (uint)displacement);
-        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
+        slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(fixedPosition)));
     }
 
     /// <summary>Ports the escape Etecoon's main AI.</summary>

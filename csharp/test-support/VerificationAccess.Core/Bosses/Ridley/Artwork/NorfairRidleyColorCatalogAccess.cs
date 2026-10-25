@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
@@ -9,9 +9,9 @@ internal static class NorfairRidleyColorCatalogAccess
     extension(NorfairRidleyColorCatalog self)
     {
         /// <summary>Reads a pre-reveal Ridley color.</summary>
-        internal Bgr555 ResolveInitial(int color) => self.initial.ColorAt(color);
+        internal RgbColor ResolveInitial(int color) => self.initial.ColorAt(color);
 
         /// <summary>Reads a row and color from Ridley's reveal paint sequence.</summary>
-        internal Bgr555 ResolveReveal(int row, int color) => self.reveal.ColorAt(row, color);
+        internal RgbColor ResolveReveal(int row, int color) => self.reveal.ColorAt(row, color);
     }
 }

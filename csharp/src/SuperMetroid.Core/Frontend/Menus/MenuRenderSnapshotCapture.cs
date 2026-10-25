@@ -20,7 +20,7 @@ internal static class MenuRenderSnapshotCapture
         [
             new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg2, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, 0), null),
             new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1, new Extent16<TilemapCells>(32, 32), tiles), new Position16<BgPlanePixels>(0, unchecked((ushort)bg1VerticalScroll)), null),
-            new ObjRenderLayer(),
+            new SpriteRenderLayer(),
         ];
         return new(screen.Paint(), layers, brightness);
     }

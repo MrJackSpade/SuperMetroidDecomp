@@ -75,7 +75,7 @@ internal static class EnemyContentIdentityFixtureVerification
             pixels[0] = (byte)(seed ^ (edit == name ? 1 : 0));
             var png = new MemoryStream();
             IndexedPng.Write(png, new(checked((ushort)width), checked((ushort)height)), pixels, Enumerable.Range(0, 16).Select(index =>
-                new Rgba32((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
+                new RgbaPixel((byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
             png.Position = 0;
             return png;
         }

@@ -22,7 +22,7 @@ public sealed class FramePaint
     /// <param name="colours">The colour each ink shows: the background art's, and the sprite rows' for draws no owner coloured.</param>
     /// <param name="spriteDraws">The draws, frontmost first.</param>
     /// <exception cref="ArgumentException">There are not 256 colours, or the draw list is missing or holds a missing draw.</exception>
-    public FramePaint(ReadOnlySpan<Bgr555> colours, ImmutableArray<SpriteDraw> spriteDraws)
+    public FramePaint(ReadOnlySpan<RgbColor> colours, ImmutableArray<SpriteDraw> spriteDraws)
         : this(new BackgroundColours(colours), spriteDraws)
     {
     }

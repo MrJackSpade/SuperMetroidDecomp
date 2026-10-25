@@ -249,7 +249,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             ? StokeProjectileFunction.MoveLeft
             : StokeProjectileFunction.MoveRight);
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));
-        projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(256), SnesSignedEightEight.FromSignedRaw(-256));
+        projectile.Velocity = new(SignedEightEight.FromSignedRaw(256), SignedEightEight.FromSignedRaw(-256));
     }
 
     /// <summary>Ports pre-instruction <c>$86:DB5B</c> and its two indirect movers.</summary>
@@ -266,7 +266,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Stoke projectile movement function {projectile.Variable0} is not translated."),
         };
 
-        projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(new SignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
 
         // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);

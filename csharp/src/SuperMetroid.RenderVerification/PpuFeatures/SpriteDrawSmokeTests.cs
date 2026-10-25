@@ -32,14 +32,14 @@ internal static class SpriteDrawSmokeTests
         {
             // A sheet of four eight-pixel frames: three solid in colour 1 of rows 0 to 2, and one in row 3 colouring only
             // its left column, so a horizontal mirror moves that column to the frame's right edge.
-            var palette = new Bgr555[SnesPpuLayout.CgramColorCount];
-            palette[128 + 1] = new Bgr555(31, 0, 0);
-            palette[128 + 16 + 1] = new Bgr555(0, 31, 0);
-            palette[128 + 32 + 1] = new Bgr555(0, 0, 31);
-            palette[128 + 48 + 1] = new Bgr555(31, 31, 0);
+            var palette = new RgbColor[SnesPpuLayout.CgramColorCount];
+            palette[128 + 1] = new RgbColor(31, 0, 0);
+            palette[128 + 16 + 1] = new RgbColor(0, 31, 0);
+            palette[128 + 32 + 1] = new RgbColor(0, 0, 31);
+            palette[128 + 48 + 1] = new RgbColor(31, 31, 0);
             const int Frames = 4, Side = 8;
             var size = new Extent16<ImagePixels>(Frames * Side, Side);
-            var sheetPixels = new Rgba32[size.X * size.Y];
+            var sheetPixels = new RgbaPixel[size.X * size.Y];
             var indices = new byte[sheetPixels.Length];
             var priorities = new byte[sheetPixels.Length];
             var partRows = new byte[sheetPixels.Length];
@@ -53,7 +53,7 @@ internal static class SpriteDrawSmokeTests
                 indices[pixel] = (byte)(frame * 16 + 1);
                 priorities[pixel] = 3;
                 partRows[pixel] = (byte)frame;
-                sheetPixels[pixel] = palette[128 + indices[pixel]].ToRgba32();
+                sheetPixels[pixel] = palette[128 + indices[pixel]].ToRgbaPixel();
             }
             var sheet = new SpriteImage("Ordering", size, sheetPixels, indices,
                 new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), priorities, partRows);
@@ -68,20 +68,20 @@ internal static class SpriteDrawSmokeTests
                 new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 3), Frame(3), new(40, 30), SpriteMirror.Horizontal),
             ];
             var memory = new FramePaint(palette, draws);
-            Rgba32[] pixels = Check(memory, [new ObjRenderLayer()], "ordering and flip");
-            Rgba32 red = new(255, 0, 0), blue = new(0, 0, 255), yellow = new(255, 255, 0);
+            RgbaPixel[] pixels = Check(memory, [new SpriteRenderLayer()], "ordering and flip");
+            RgbaPixel red = new(255, 0, 0), blue = new(0, 0, 255), yellow = new(255, 255, 0);
             ExpectPixel(11, 10, red, "the first draw alone");
             ExpectPixel(15, 10, red, "the first-emitted draw is in front of later ones");
             ExpectPixel(18, 10, blue, "the second draw is in front of the third");
             ExpectPixel(21, 10, blue, "the second draw alone");
             // Mirroring about the origin puts the 8-pixel frame at x 32..39, its left column at x 39.
             ExpectPixel(39, 30, yellow, "a horizontal whole-frame flip mirrors the frame about the origin");
-            ExpectPixel(32, 30, new Rgba32(0, 0, 0), "the flipped frame leaves its unpainted columns transparent");
-            ExpectPixel(40, 30, new Rgba32(0, 0, 0), "nothing is drawn right of a horizontally flipped frame's origin");
+            ExpectPixel(32, 30, new RgbaPixel(0, 0, 0), "the flipped frame leaves its unpainted columns transparent");
+            ExpectPixel(40, 30, new RgbaPixel(0, 0, 0), "nothing is drawn right of a horizontally flipped frame's origin");
 
-            void ExpectPixel(int x, int y, Rgba32 expected, string what)
+            void ExpectPixel(int x, int y, RgbaPixel expected, string what)
             {
-                Rgba32 actual = pixels[y * SnesPpuLayout.ScreenWidthPixels + x];
+                RgbaPixel actual = pixels[y * SnesPpuLayout.ScreenWidthPixels + x];
                 if (actual.R != expected.R || actual.G != expected.G || actual.B != expected.B)
                     throw new InvalidOperationException($"{device.Kind}: {what}: pixel ({x},{y}) is {actual}, expected {expected}.");
             }
@@ -91,18 +91,18 @@ internal static class SpriteDrawSmokeTests
         {
             var vram = new byte[SnesPpuLayout.VramByteCount];
             random.NextBytes(vram);
-            Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
-                .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+            RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+                .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             var draws = ImmutableArray.CreateBuilder<SpriteDraw>();
             // Pre-coloured image draws (#1392): a sheet with transparent pixels, frames cut anywhere on it, any origin,
             // mirroring and rows, with per-pixel priorities and colour math. In about half the scenes the sheet's standard
             // colours differ from the scene's, as under a palette effect, so frames whose rows differ show the live
             // colours through their palette indices.
             bool effect = random.Next(2) == 0;
-            var standard = new Bgr555[SpriteImage.SpriteColourCount];
+            var standard = new RgbColor[SpriteImage.SpriteColourCount];
             for (int colour = 0; colour < standard.Length; colour++)
-                standard[colour] = effect ? Bgr555.FromWord((ushort)random.Next(32768)) : palette[128 + colour];
-            var sheetPixels = new Rgba32[64 * 48];
+                standard[colour] = effect ? RgbColor.FromWord((ushort)random.Next(32768)) : palette[128 + colour];
+            var sheetPixels = new RgbaPixel[64 * 48];
             var sheetIndices = new byte[64 * 48];
             var sheetPriorities = new byte[64 * 48];
             var sheetPartRows = new byte[64 * 48];
@@ -116,7 +116,7 @@ internal static class SpriteDrawSmokeTests
                 // naming its row may keep it under an override.
                 sheetPartRows[pixel] = random.Next(4) == 0 ? (byte)(sheetIndices[pixel] / 16 | SpriteImage.FixedPartRow)
                     : (byte)(sheetIndices[pixel] / 16 & random.Next(8));
-                sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgba32();
+                sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgbaPixel();
             }
             var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels, sheetIndices, new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]),
                 sheetPriorities, sheetPartRows);
@@ -133,19 +133,19 @@ internal static class SpriteDrawSmokeTests
             var memory = new FramePaint(palette, draws.ToImmutable());
             ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, BgBitDepth.FourBpp,
                 new Extent16<TilemapCells>(32, 32));
-            Check(memory, [new ObjRenderLayer()], $"seeded scene {cases}");
+            Check(memory, [new SpriteRenderLayer()], $"seeded scene {cases}");
             Check(memory, [
-                new ObjPriorityRenderLayer(0),
+                new SpritePriorityRenderLayer(0),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), false),
-                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2),
+                new SpritePriorityRenderLayer(1), new SpritePriorityRenderLayer(2),
                 new TileRenderLayer(cells, new Position16<BgPlanePixels>(3, 11), true),
-                new ObjPriorityRenderLayer(3)], $"seeded priority ladder {cases}");
+                new SpritePriorityRenderLayer(3)], $"seeded priority ladder {cases}");
         }
 
-        Rgba32[] Check(FramePaint memory, RenderLayer[] layers, string label)
+        RgbaPixel[] Check(FramePaint memory, RenderLayer[] layers, string label)
         {
             var frame = new DisplayPacket(new(++cases, 1, 0), new LayeredScene(memory, layers, 15));
-            Rgba32[] expected = DisplayRendering.Render(frame);
+            RgbaPixel[] expected = DisplayRendering.Render(frame);
             PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {label}");
             return expected;
         }

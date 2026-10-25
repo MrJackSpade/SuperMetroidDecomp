@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -51,9 +50,9 @@ internal static class MapAssetExtractor
                 new Extent16<ImagePixels>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles),
                 coverage,
                 [
-                    new Rgba32(8, 8, 16, 255),
-                    new Rgba32(64, 160, 255, 255),
-                    new Rgba32(224, 80, 192, 255),
+                    new RgbaPixel(8, 8, 16, 255),
+                    new RgbaPixel(64, 160, 255, 255),
+                    new RgbaPixel(224, 80, 192, 255),
                 ],
                 scale: 4);
             areas++;

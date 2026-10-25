@@ -39,8 +39,8 @@ internal static class SamusVerticalDefinitionsVerification
             ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6 + medium * 2));
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen((ushort)raw, (ushort)raw);
-                samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(999, 999);
+                samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen((ushort)raw, (ushort)raw);
+                samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(999, 999);
                 if (launch == 2) SamusAerialMovement.InitializeDryAirJump(guard, samus);
                 else if (launch == 1) SamusAerialMovement.InitializeWallJump(samus);
                 else SamusAerialMovement.InitializeJump(samus);

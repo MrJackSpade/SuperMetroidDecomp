@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -16,15 +17,15 @@ internal static class TitleAmbientColorDefinitions
     private const int DimGreenPaint = 19;
 
     /// <summary>Derives a title tube shade or display paint from the selected initial palette and any supplied first-frame edit.</summary>
-    internal static bool TryCalculate(PaletteFxColorKey key, ReadOnlySpan<Bgr555> initial,
-        IReadOnlyDictionary<PaletteFxColorKey, Bgr555> supplied, out Bgr555 color)
+    internal static bool TryCalculate(PaletteFxColorKey key, ReadOnlySpan<RgbColor> initial,
+        IReadOnlyDictionary<PaletteFxColorKey, RgbColor> supplied, out RgbColor color)
     {
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
         if (tube.Rows.TryLocate(key, out int frame, out int index))
         {
-            Bgr555 first = initial[tube.ColorByteIndex / Bgr555.ByteCount + index];
+            RgbColor first = initial[tube.ColorByteIndex / RgbColor.ByteCount + index];
             if (frame == 0) { color = first; return true; }
-            if (supplied.TryGetValue(tube.Color(0, index), out Bgr555 edited)) first = edited;
+            if (supplied.TryGetValue(tube.Color(0, index), out RgbColor edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
             color = first.Map((_, channel) => Channel(channel, phase));
             return true;
@@ -32,12 +33,12 @@ internal static class TitleAmbientColorDefinitions
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
         if (displays.Rows.TryLocate(key, out frame, out index))
         {
-            int paletteIndex = frame == 0 ? displays.ColorByteIndex / Bgr555.ByteCount + index
+            int paletteIndex = frame == 0 ? displays.ColorByteIndex / RgbColor.ByteCount + index
                 : index == 0 ? DimWarmPaint : DimGreenPaint;
             color = initial[paletteIndex];
             return true;
         }
-        color = Bgr555.Black;
+        color = RgbColor.Black;
         return false;
     }
 

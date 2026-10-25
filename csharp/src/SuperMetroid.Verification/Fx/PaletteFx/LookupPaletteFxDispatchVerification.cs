@@ -40,7 +40,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer),
-                (ushort)RoomPaletteFxDefinitions.Get(pointer).SetupCallback, "Native palette-FX setup callback");
+                FxNativeWords.PaletteFxSetups.Word(RoomPaletteFxDefinitions.Get(pointer).SetupCallback), "Native palette-FX setup callback");
     }
 
     /// <summary>Compares each compiled initial instruction pointer with the record's second word.</summary>

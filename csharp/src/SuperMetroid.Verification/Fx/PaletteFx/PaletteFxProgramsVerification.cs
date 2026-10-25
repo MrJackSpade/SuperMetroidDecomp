@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Harness;
@@ -114,7 +115,7 @@ internal static class PaletteFxProgramsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetPreInstruction:
-                    AssertCue(step, new PaletteFxCue.SetPreInstruction(PreInstruction: (PaletteFxPreInstruction)operandWord), at);
+                    AssertCue(step, new PaletteFxCue.SetPreInstruction(PreInstruction: FxNativeWords.PaletteFxPreInstructions.Decode(operandWord, "palette-FX pre-instruction")), at);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.ClearPreInstruction:

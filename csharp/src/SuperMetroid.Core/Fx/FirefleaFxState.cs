@@ -52,12 +52,11 @@ public sealed class FirefleaFxState
         }
         Timer = timer;
 
-        ushort combined = unchecked((ushort)(
+        byte shade = unchecked((byte)(
             FirefleaFxDefinitions.FlashingShade(index) +
             FirefleaFxDefinitions.DarknessShade(darkness)));
-        byte shade = SnesLittleEndian.HighByte(combined);
-        // Each of the cartridge's three writes carries the shade as its five-bit intensity. Past the darkness table the
-        // shade is an adjacent opcode byte, whose upper bits only select channels the other writes set to the same value.
+        // Each of the cartridge's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
+        // shade's upper bits only select channels the other writes set to the same value.
         int intensity = shade & Bgr555.MaxChannel;
         fixedColor.Color = new Bgr555(intensity, intensity, intensity);
     }

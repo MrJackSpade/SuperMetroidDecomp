@@ -92,22 +92,32 @@ internal static class FirefleaFxVerification
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
     }
 
-    /// <summary>Checks all twelve calculated flash shades against native words and rejects invalid indices.</summary>
+    /// <summary>
+    /// Checks all twelve calculated flash shade levels against the high byte of each native word, and that every
+    /// native flash word's low byte is zero, so adding a darkness word never carries into the shade (#1415: the shade
+    /// is a level, not the cartridge's word).
+    /// </summary>
     private static void VerifyFirefleaFlashingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort i = 0; i < 12; i++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i)),
-                FirefleaFxDefinitions.FlashingShade(i), $"Original Fireflea flash {i}");
+        {
+            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
+            AssertEqual(SnesLittleEndian.HighByte(word), FirefleaFxDefinitions.FlashingShade(i), $"Original Fireflea flash {i}");
+            AssertEqual((byte)0, SnesLittleEndian.LowByte(word), $"Original Fireflea flash {i} carries nothing");
+        }
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(12), "Flash upper bound");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
     }
 
-    /// <summary>Checks seven darkness offsets, including the native opcode alias, against cartridge words.</summary>
+    /// <summary>
+    /// Checks seven darkness shade levels, including the level read past the ramp, against the high byte of each
+    /// cartridge word; the low byte cannot reach the shade because the flash words' low bytes are zero (#1415).
+    /// </summary>
     private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 12; offset += 2)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + offset)),
-                FirefleaFxDefinitions.DarknessShade(offset), $"Original Fireflea darkness including opcode alias {offset}");
+            AssertEqual(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + offset))),
+                FirefleaFxDefinitions.DarknessShade(offset), $"Original Fireflea darkness including the past-ramp level {offset}");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(1), "Darkness odd offset");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14), "Darkness upper bound");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");

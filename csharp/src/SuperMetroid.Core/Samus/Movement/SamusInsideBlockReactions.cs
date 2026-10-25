@@ -107,13 +107,13 @@ public static class SamusInsideBlockReactions
                     }
                     break;
                 case SpecialAirReactionSetup.SubmergingQuicksand:
-                    SetExtra(SnesSignedSixteenSixteen.FromRaw(QuicksandRomData.SubmergingDisplacement));
+                    SetExtra(QuicksandDefinitions.SubmergingSinkDisplacement);
                     break;
                 case SpecialAirReactionSetup.SandFallsSlow:
-                    SetExtra(SnesSignedSixteenSixteen.FromRaw(QuicksandRomData.SlowFallsDisplacement));
+                    SetExtra(QuicksandDefinitions.SlowSandfallDisplacement);
                     break;
                 case SpecialAirReactionSetup.SandFallsFast:
-                    SetExtra(SnesSignedSixteenSixteen.FromRaw(QuicksandRomData.FastFallsDisplacement));
+                    SetExtra(QuicksandDefinitions.FastSandfallDisplacement);
                     break;
                 case SpecialAirReactionSetup.ClearCarry:
                 case SpecialAirReactionSetup.QuicksandSurfaceCollision:
@@ -141,7 +141,7 @@ public static class SamusInsideBlockReactions
             // The original checks only whole Y speed: fractional vertical motion does
             // not suppress carry. This replaces external X displacement, never adds to it.
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
-                rightward ? ConveyorBlockRomData.RightDisplacement : ConveyorBlockRomData.LeftDisplacement, 0));
+                rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry, 0));
         }
         void SetExtra(SnesSignedSixteenSixteen displacement)
         {
@@ -214,8 +214,8 @@ public static class SamusInsideBlockReactions
             displacement = 0;
             return true;
         }
-        if (body.YDirection == SamusVerticalDirection.None && (ushort)(SnesEightEight.WholeOf((uint)displacement)) > (QuicksandRomData.SurfaceProbeLimit >> 8))
-            displacement = (displacement & ~(ushort.MaxValue << 8)) | QuicksandRomData.SurfaceProbeLimit;
+        if (body.YDirection == SamusVerticalDirection.None && (ushort)(SnesEightEight.WholeOf((uint)displacement)) > SnesEightEight.WholeOf(QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue))
+            displacement = (displacement & ~(ushort.MaxValue << 8)) | QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue;
         surfaceContact = true;
         return false;
     }

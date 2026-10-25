@@ -332,15 +332,30 @@ public static class QuicksandDefinitions
                 header,
                 "Quicksand reaction header must be one of the eight bank-$84 sand entries.");
 
-    /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap (fractions in 1/65536 pixel).</summary>
+    /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap.</summary>
     private static readonly QuicksandSurfacePhysics withoutGravitySuit =
-        new(SnesSignedSixteenSixteen.FromParts(wholePixels: 2, fraction: 0),
-            SnesSignedSixteenSixteen.FromParts(wholePixels: 1, fraction: 8192),
-            SnesSignedSixteenSixteen.FromParts(wholePixels: 2, fraction: 32768));
+        new(SnesSignedSixteenSixteen.FromSixteenthsOfPixel(32),
+            SnesSignedSixteenSixteen.FromSixteenthsOfPixel(18),
+            SnesSignedSixteenSixteen.FromSixteenthsOfPixel(40));
 
-    /// <summary>With Gravity: 2-pixel moving and 1-pixel stationary displacement, 3.5-pixel upward speed cap (fractions in 1/65536 pixel).</summary>
+    /// <summary>With Gravity: 2-pixel moving and 1-pixel stationary displacement, 3.5-pixel upward speed cap.</summary>
     private static readonly QuicksandSurfacePhysics withGravitySuit =
-        new(SnesSignedSixteenSixteen.FromParts(wholePixels: 2, fraction: 0),
-            SnesSignedSixteenSixteen.FromParts(wholePixels: 1, fraction: 0),
-            SnesSignedSixteenSixteen.FromParts(wholePixels: 3, fraction: 32768));
+        new(SnesSignedSixteenSixteen.FromSixteenthsOfPixel(32),
+            SnesSignedSixteenSixteen.FromSixteenthsOfPixel(16),
+            SnesSignedSixteenSixteen.FromSixteenthsOfPixel(56));
+
+    /// <summary>How far submerging quicksand pulls Samus down each frame she is inside it: 1.125 pixels.</summary>
+    internal static readonly SnesSignedSixteenSixteen SubmergingSinkDisplacement = SnesSignedSixteenSixteen.FromSixteenthsOfPixel(18);
+
+    /// <summary>How far a slow sandfall carries Samus down each frame she is inside it: 1.25 pixels.</summary>
+    internal static readonly SnesSignedSixteenSixteen SlowSandfallDisplacement = SnesSignedSixteenSixteen.FromSixteenthsOfPixel(20);
+
+    /// <summary>How far a fast sandfall carries Samus down each frame she is inside it: 1.75 pixels.</summary>
+    internal static readonly SnesSignedSixteenSixteen FastSandfallDisplacement = SnesSignedSixteenSixteen.FromSixteenthsOfPixel(28);
+
+    /// <summary>
+    /// The most a stationary Samus's downward probe may sink into a quicksand surface: 0.1875 pixels. The surface
+    /// compares and replaces only the probe's middle word (whole and upper fraction byte).
+    /// </summary>
+    internal static readonly SnesSignedSixteenSixteen StationarySurfaceProbeLimit = SnesSignedSixteenSixteen.FromSixteenthsOfPixel(3);
 }

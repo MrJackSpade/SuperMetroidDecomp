@@ -60,8 +60,8 @@ internal static class GoldenTorizoCodeVerification
             [.. new[] { samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
                 samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
                 samus.PowerBombs, samus.MaxPowerBombs }.Select(SamusQuantity.Encode),
-             samus.EquippedItems.ToNativeWord(), samus.CollectedItems.ToNativeWord(),
-             samus.EquippedBeams.ToNativeWord(), samus.CollectedBeams.ToNativeWord()];
+             samus.EquippedItems.ToEquipmentWord(), samus.CollectedItems.ToEquipmentWord(),
+             samus.EquippedBeams.ToEquipmentWord(), samus.CollectedBeams.ToEquipmentWord()];
     }
 
     /// <summary>Reads a cartridge byte for the native code's input mask and inventory oracle.</summary>

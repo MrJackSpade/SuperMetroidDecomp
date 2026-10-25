@@ -134,7 +134,7 @@ internal static class PauseEquipmentRulesVerification
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             EquipmentSetTable + index * 2)).ToArray();
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
-        foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | SamusEquipmentFlags.GravitySuit.ToNativeWord()) }))
+        foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | SamusEquipmentFlags.GravitySuit.ToEquipmentWord()) }))
         {
             var pause = Create(new SamusState { EquippedItems = (SamusEquipmentFlags)items, CollectedItems = (SamusEquipmentFlags)items }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));

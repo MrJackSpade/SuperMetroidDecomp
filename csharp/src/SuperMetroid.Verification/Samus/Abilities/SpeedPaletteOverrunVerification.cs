@@ -30,7 +30,7 @@ internal static class SpeedPaletteOverrunVerification
         {
             var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400), SpecialPaletteTimer = WrappingCountdown.Start(1) };
             var cgram = new SamusColourRig();
-            ushort equipped = ((SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster).ToNativeWord());
+            ushort equipped = ((SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster).ToEquipmentWord());
             for (int call = 0; call < phase / 2; call++)
                 speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (SamusEquipmentFlags)equipped }, cycleColors: colors, overreads: InstalledFixtures.SamusOverreads);
             AssertEqual(phase, speed.SpecialPaletteFrame, "Screw Attack leaves its shared phase for the next movement handler");

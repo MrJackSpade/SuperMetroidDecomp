@@ -33,7 +33,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(equipment.HasAll(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs),
         "typed equipment flags set independently");
     equipment &= ~SamusEquipmentFlags.GravitySuit;
-    AssertEqual(0x1080, equipment.ToNativeWord(), "equipment flags preserve unnamed bits");
+    AssertEqual(0x1080, equipment.ToEquipmentWord(), "equipment flags preserve unnamed bits");
 
     // The snapshot boundary decodes $0A76 and $0DC0 into typed state and rejects undefined words.
     AssertEqual(true, SamusSnapshotWords.DecodeHyperBeam(SamusSnapshotWords.HyperBeamEnabledWord), "hyper beam $8000 imports as enabled");

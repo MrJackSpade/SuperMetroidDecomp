@@ -153,7 +153,7 @@ public sealed class SharedGameState
         if (offset < ProgressionSliceLayout.BossBitsOffset)
             _events[offset - ProgressionSliceLayout.EventsOffset] = value;
         else if (offset < ProgressionSliceLayout.RoomChozoBitsOffset)
-            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromNativeByte(value);
+            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromSaveByte(value);
         else if (offset < ProgressionSliceLayout.CollectedItemBitsOffset)
             RoomChozoBits[offset - ProgressionSliceLayout.RoomChozoBitsOffset] = value;
         else if (offset < ProgressionSliceLayout.OpenedDoorBitsOffset)
@@ -344,7 +344,7 @@ public sealed class SharedGameState
     public byte GetBossBitsRaw(int areaIndex)
     {
         ValidateAreaIndex(areaIndex);
-        return _bossBitsByArea[areaIndex].ToNativeByte();
+        return _bossBitsByArea[areaIndex].ToSaveByte();
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -371,7 +371,7 @@ public sealed class SharedGameState
         Ensure.LengthEqual(bytes, AreaCount);
 
         for (int area = 0; area < AreaCount; area++)
-            _bossBitsByArea[area] = BossBitsCodec.FromNativeByte(bytes[area]);
+            _bossBitsByArea[area] = BossBitsCodec.FromSaveByte(bytes[area]);
     }
 
     /// <summary>

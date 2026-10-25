@@ -145,10 +145,10 @@ public static class SaveRamCodec
         Ensure.NotNull(snapshot);
         byte[] payload = new byte[SaveRamLayout.SlotByteCount];
 
-        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems.ToNativeWord());
-        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems.ToNativeWord());
-        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams.ToNativeWord());
-        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams.ToNativeWord());
+        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams.ToEquipmentWord());
+        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams.ToEquipmentWord());
 
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
         // Later saves copy the live configurable action words, so do not silently restore

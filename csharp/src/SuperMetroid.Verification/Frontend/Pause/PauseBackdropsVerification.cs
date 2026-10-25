@@ -120,7 +120,7 @@ internal static class PauseBackdropsVerification
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
         glitch.Step(0, (ControllerButton.Left | ControllerButton.A));
-        AssertEqual((ushort)12, samus.EquippedBeams.ToNativeWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
+        AssertEqual((ushort)12, samus.EquippedBeams.ToEquipmentWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");
         glitch.BindFixtureArtwork(edited);

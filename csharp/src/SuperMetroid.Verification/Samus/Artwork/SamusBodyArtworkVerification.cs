@@ -257,8 +257,8 @@ internal static class SamusBodyArtworkVerification
         {
             ushort equipment = suit switch
             {
-                1 => SamusEquipmentFlags.VariaSuit.ToNativeWord(),
-                2 => SamusEquipmentFlags.GravitySuit.ToNativeWord(),
+                1 => SamusEquipmentFlags.VariaSuit.ToEquipmentWord(),
+                2 => SamusEquipmentFlags.GravitySuit.ToEquipmentWord(),
                 _ => 0,
             };
             var nativeSamus = new SamusState

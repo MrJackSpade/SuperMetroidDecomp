@@ -44,7 +44,7 @@ internal static class ChainsawFiringVerification
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (ControllerButton.Left | ControllerButton.A));
-        AssertEqual((ushort)0x000d, samus.EquippedBeams.ToNativeWord(),
+        AssertEqual((ushort)0x000d, samus.EquippedBeams.ToEquipmentWord(),
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(128, 128));

@@ -810,7 +810,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
         AssertEqual(0, runtime.Clock.Counter8, "door end-drawing IRQ clears the adjacent byte counter");
-        ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToNativeWord());
+        ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToEquipmentWord());
         for (int color = 0; color < 16; color++)
             AssertEqual(beamPalette[color], runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
         AssertEqual(0, runtime.Cgram.Colors[196], "visor remains faded before scroll completes");
@@ -1220,10 +1220,10 @@ internal static class RidleyFullMovieVerification
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToNativeWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode), NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", SamusQuantity.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
-            Check("Samus equipped items", samus.EquippedItems.ToNativeWord(), NativeSnapshotMemory.Items);
-            Check("Samus collected items", samus.CollectedItems.ToNativeWord(), NativeSnapshotMemory.CollectedItems);
-            Check("Samus equipped beams", samus.EquippedBeams.ToNativeWord(), NativeSnapshotMemory.Beams);
-            Check("Samus collected beams", samus.CollectedBeams.ToNativeWord(), NativeSnapshotMemory.CollectedBeams);
+            Check("Samus equipped items", samus.EquippedItems.ToEquipmentWord(), NativeSnapshotMemory.Items);
+            Check("Samus collected items", samus.CollectedItems.ToEquipmentWord(), NativeSnapshotMemory.CollectedItems);
+            Check("Samus equipped beams", samus.EquippedBeams.ToEquipmentWord(), NativeSnapshotMemory.Beams);
+            Check("Samus collected beams", samus.CollectedBeams.ToEquipmentWord(), NativeSnapshotMemory.CollectedBeams);
             Check("Samus missiles", SamusQuantity.Encode(samus.Missiles), NativeSnapshotMemory.Missiles);
             Check("Samus missile capacity", SamusQuantity.Encode(samus.MaxMissiles), NativeSnapshotMemory.MaxMissiles);
             Check("Samus super missiles", SamusQuantity.Encode(samus.SuperMissiles), NativeSnapshotMemory.SuperMissiles);

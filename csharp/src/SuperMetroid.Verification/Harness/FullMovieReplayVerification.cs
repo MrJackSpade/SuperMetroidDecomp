@@ -412,10 +412,10 @@ internal static class FullMovieReplayVerification
         Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, MovieDesyncMemory.SamusYFraction);
         Check("Samus health", SamusQuantity.Encode(samus.Health), MovieDesyncMemory.Health);
         Check("Samus max health", SamusQuantity.Encode(samus.MaxHealth), MovieDesyncMemory.MaxHealth);
-        Check("Equipped items", samus.EquippedItems.ToNativeWord(), MovieDesyncMemory.EquippedItems);
-        Check("Collected items", samus.CollectedItems.ToNativeWord(), MovieDesyncMemory.CollectedItems);
-        Check("Equipped beams", samus.EquippedBeams.ToNativeWord(), MovieDesyncMemory.EquippedBeams);
-        Check("Collected beams", samus.CollectedBeams.ToNativeWord(), MovieDesyncMemory.CollectedBeams);
+        Check("Equipped items", samus.EquippedItems.ToEquipmentWord(), MovieDesyncMemory.EquippedItems);
+        Check("Collected items", samus.CollectedItems.ToEquipmentWord(), MovieDesyncMemory.CollectedItems);
+        Check("Equipped beams", samus.EquippedBeams.ToEquipmentWord(), MovieDesyncMemory.EquippedBeams);
+        Check("Collected beams", samus.CollectedBeams.ToEquipmentWord(), MovieDesyncMemory.CollectedBeams);
         Check("Missiles", SamusQuantity.Encode(samus.Missiles), MovieDesyncMemory.Missiles);
         Check("Max missiles", SamusQuantity.Encode(samus.MaxMissiles), MovieDesyncMemory.MaxMissiles);
         Check("Super missiles", SamusQuantity.Encode(samus.SuperMissiles), MovieDesyncMemory.SuperMissiles);

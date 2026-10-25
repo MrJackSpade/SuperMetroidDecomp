@@ -47,7 +47,7 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(topRowRuntime.FrameBoundary.CaptureLayer3Plane().Words[..GameplayHudDefinitions.TopRowCellCount]
             .SequenceEqual(stockTopRow),
             "the BG3 plane the NMI latches shows the installed immutable HUD row without source reads");
-        ushort equipment = ((SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam).ToNativeWord());
+        ushort equipment = ((SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam).ToEquipmentWord());
         var snapshot = new HudSnapshot(
             Health: 345, MaxHealth: 499,
             Missiles: 123, MaxMissiles: 230,

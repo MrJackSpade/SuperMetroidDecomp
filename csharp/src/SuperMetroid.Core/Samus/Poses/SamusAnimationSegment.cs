@@ -83,8 +83,8 @@ internal sealed class SamusAnimationSegment
                 SamusAnimationCommand.WallJumpSelect or SamusAnimationCommand.ItemTransition or
                 SamusAnimationCommand.Loop => operand switch
             {
-                1 => unchecked((byte)Item.ToNativeWord()),
-                2 => SnesLittleEndian.HighByte(Item.ToNativeWord()),
+                1 => unchecked((byte)Item.ToEquipmentWord()),
+                2 => SnesLittleEndian.HighByte(Item.ToEquipmentWord()),
                 3 => (byte)UnequippedGrounded,
                 // $FC's equipped pose immediately follows its unequipped pose.
                 4 => (byte)(Command == SamusAnimationCommand.ItemTransition ? EquippedGrounded : UnequippedAirborne),

@@ -202,7 +202,7 @@ level, right, unchecked((ushort)(frame + 1))),
         "left drained release applies standing transition");
 
     left.Drained.EnableHyperBeam(left);
-    AssertEqual(0x1009, left.EquippedBeams.ToNativeWord(),
+    AssertEqual(0x1009, left.EquippedBeams.ToEquipmentWord(),
         "controller three installs exact hyper beam equipment word");
     AssertTrue(left.HyperBeamEnabled,
         "controller three sets hyper beam flag");

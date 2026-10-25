@@ -248,7 +248,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, InstalledFixtures.ProjectileArtwork()));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
         "even-slot Spazer draws while NMI bit one is clear");
-    ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork(spazerFlickerSamus.EquippedBeams.ToNativeWord());
+    ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork(spazerFlickerSamus.EquippedBeams.ToEquipmentWord());
     SamusProjectileSlot spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
         DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, spazerArtwork)),

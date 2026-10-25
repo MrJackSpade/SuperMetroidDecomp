@@ -31,7 +31,7 @@ internal static class InvalidBeamSelectionVerification
             for (int step = 0; step < boot; step++) navigation.Step(0, ControllerButton.Down);
             AssertEqual(boot, navigation.SelectedItem, "each of the three Boots entries is reachable");
             navigation.Step(0, (ControllerButton.Left | ControllerButton.A));
-            AssertEqual(0x000c, navigationSamus.EquippedBeams.ToNativeWord(), $"simultaneous selection from boot {boot}");
+            AssertEqual(0x000c, navigationSamus.EquippedBeams.ToEquipmentWord(), $"simultaneous selection from boot {boot}");
         }
         for (int scenario = 0; scenario < 3; scenario++)
         {
@@ -48,7 +48,7 @@ internal static class InvalidBeamSelectionVerification
         if (scenario == 1) pause.Step(0, ControllerButton.A);
         AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
         AssertEqual(4, pause.SelectedItem, "same-frame Left+A selects Plasma");
-        AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToNativeWord(),
+        AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToEquipmentWord(),
             "native beam bits distinguish simultaneous, adjacent and direction-only input");
         var after = pause.CaptureRenderSnapshot();
         byte[] afterVram = pause.ShownVram();

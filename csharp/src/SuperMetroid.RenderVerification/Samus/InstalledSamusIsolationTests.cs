@@ -598,7 +598,7 @@ internal sealed class InstalledSamusIsolationTests
     private void CheckDeath(SamusPoseId source, SamusEquipmentFlags suit)
     {
         Pair pair = Create(source, suit);
-        string context = $"death source {(int)source:X2}, suit {suit.ToNativeWord():X4}";
+        string context = $"death source {(int)source:X2}, suit {suit.ToEquipmentWord():X4}";
         pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Samus, new(0, 240)), draw: false);
         int frames = 0;
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)

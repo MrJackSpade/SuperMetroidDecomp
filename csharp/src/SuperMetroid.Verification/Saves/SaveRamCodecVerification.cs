@@ -180,14 +180,14 @@ internal static class SaveRamCodecVerification
 
         // An unproven bit beside two named ones: typed operations change only the named bits around it.
         byte unprovenBit = 128;
-        byte loaded = (byte)(unprovenBit | (BossBits.AreaBoss | BossBits.AreaTorizo).ToNativeByte());
+        byte loaded = (byte)(unprovenBit | (BossBits.AreaBoss | BossBits.AreaTorizo).ToSaveByte());
         byte[] areas = new byte[SharedGameState.AreaCount];
         areas[AreaIds.ToIndex(AreaId.Norfair)] = loaded;
         system.LoadBossBytes(areas);
         AssertEqual(loaded, system.GetBossBitsRaw(AreaId.Norfair), "a loaded boss byte reads back exactly");
         system.SetBossBits(AreaId.Norfair, BossBits.AreaMiniBoss);
         system.ClearBossBits(AreaId.Norfair, BossBits.AreaBoss);
-        AssertEqual((byte)(unprovenBit | (BossBits.AreaMiniBoss | BossBits.AreaTorizo).ToNativeByte()),
+        AssertEqual((byte)(unprovenBit | (BossBits.AreaMiniBoss | BossBits.AreaTorizo).ToSaveByte()),
             system.GetBossBitsRaw(AreaId.Norfair), "typed set and clear keep the unproven bit");
         AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named bit beside an unproven one is found");
         AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named bit is absent");

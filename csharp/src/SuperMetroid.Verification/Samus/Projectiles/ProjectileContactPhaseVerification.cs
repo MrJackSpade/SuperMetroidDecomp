@@ -93,11 +93,11 @@ internal static class ProjectileContactPhaseVerification
             projectile.InvincibilityFrames = 96;
             projectile.CanDamageSamus = true;
             runtime.Enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
-            Console.WriteLine($"PROJECTILE suit={suit.ToNativeWord():X4} health={samus.Health} pose={(int)samus.Pose:X2} timer={samus.KnockbackTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+            Console.WriteLine($"PROJECTILE suit={suit.ToEquipmentWord():X4} health={samus.Health} pose={(int)samus.Pose:X2} timer={samus.KnockbackTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
             ushort expectedHealth = suit == 0 ? (ushort)79 : suit == SamusEquipmentFlags.VariaSuit ? (ushort)89 : (ushort)94;
-            if (samus.Health != expectedHealth) failures.Add($"suit {suit.ToNativeWord():X4}: expected health {expectedHealth}, got {samus.Health}");
+            if (samus.Health != expectedHealth) failures.Add($"suit {suit.ToEquipmentWord():X4}: expected health {expectedHealth}, got {samus.Health}");
             if (verifyPhase && (samus.Pose != SamusPoseId.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != 0))
-                failures.Add($"suit {suit.ToNativeWord():X4}: projectile contact initialized hurt movement early");
+                failures.Add($"suit {suit.ToEquipmentWord():X4}: projectile contact initialized hurt movement early");
             AssertEqual(5, samus.KnockbackTimer.RawValue, "projectile publishes five-frame hurt request");
             AssertEqual(96, samus.InvincibilityTimer.RawValue, "projectile publishes invincibility");
             AssertTrue(!projectile.IsActive, "nonpersistent projectile deletes on contact");

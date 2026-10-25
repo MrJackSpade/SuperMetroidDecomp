@@ -52,7 +52,7 @@ internal static class MurderBeamVerification
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (ControllerButton.Left | ControllerButton.A));
-        AssertEqual((ushort)0x100f, samus.EquippedBeams.ToNativeWord(),
+        AssertEqual((ushort)0x100f, samus.EquippedBeams.ToEquipmentWord(),
             "same-frame Boots Left+A equips all four beams while retaining Charge");
 
         shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);

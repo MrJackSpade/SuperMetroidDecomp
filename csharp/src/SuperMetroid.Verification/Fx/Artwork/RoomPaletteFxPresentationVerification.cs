@@ -701,8 +701,8 @@ internal static class RoomPaletteFxPresentationVerification
             ushort equipment = definition.Suit switch
             {
                 PaletteFxHeatSuit.Power => 0,
-                PaletteFxHeatSuit.Varia => SamusEquipmentFlags.VariaSuit.ToNativeWord(),
-                PaletteFxHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToNativeWord(),
+                PaletteFxHeatSuit.Varia => SamusEquipmentFlags.VariaSuit.ToEquipmentWord(),
+                PaletteFxHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToEquipmentWord(),
                 _ => throw new InvalidOperationException(),
             };
             native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);

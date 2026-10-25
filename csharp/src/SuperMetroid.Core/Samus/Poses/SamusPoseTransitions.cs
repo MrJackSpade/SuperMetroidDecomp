@@ -35,7 +35,7 @@ RoomLevelData level, SamusPoseId targetPose,
             // The caller computes the target from this pose's ROM metadata immediately
             // before invoking us. A mismatch is an inconsistent request, not missing logic.
             throw new InvalidOperationException(
-                $"Walk-off transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} does not match the pose's ROM-selected falling target ${(int)expectedTarget:X2}.");
+                $"Walk-off transition {samus.Pose} -> {targetPose} does not match the pose's ROM-selected falling target {expectedTarget}.");
         }
 
         // A crouched or compact source can grow when falling is selected. Native
@@ -255,7 +255,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         Ensure.NotNull(level);
         if (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose))
-            throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not {samus.Pose}.");
 
         SamusPoseId sourcePose = samus.Pose;
         SamusPoseId targetPose = SamusPoseMetadata.ReadShotDirection(samus) switch
@@ -263,7 +263,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             4 => SamusPoseId.NormalLandingRightPose,
             5 => SamusPoseId.NormalLandingLeftPose,
             byte shotDirection => throw new InvalidOperationException(
-                $"Compact pose ${(int)samus.Pose:X2} has unexpected shot direction ${shotDirection:X2}."),
+                $"Compact pose {samus.Pose} has unexpected shot direction ${shotDirection:X2}."),
         };
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
 
@@ -411,7 +411,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             // by active retail animation streams. Anything else means the caller supplied
             // a target that was not read from the current pose's animation bytecode.
             throw new InvalidOperationException(
-                $"Animation transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not an active retail animation-command route.");
+                $"Animation transition {samus.Pose} -> {targetPose} is not an active retail animation-command route.");
         }
 
         bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) &&

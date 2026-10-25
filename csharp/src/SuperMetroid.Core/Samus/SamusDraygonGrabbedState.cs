@@ -240,7 +240,7 @@ public sealed class SamusDraygonGrabbedState
         if (!SamusPoseMetadata.IsDraygonGrabbedPose(samus.Pose))
         {
             throw new InvalidOperationException(
-                $"Draygon movement requires pose $BA-$BE/$EC-$F0, not ${(int)samus.Pose:X2}.");
+                $"Draygon movement requires pose $BA-$BE/$EC-$F0, not {samus.Pose}.");
         }
     }
 }

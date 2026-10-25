@@ -83,7 +83,7 @@ public sealed class SamusDeathSequenceState
         if ((byte)sourceMovementType >= initialFrames.Length)
         {
             throw new InvalidDataException(
-                $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
+                $"Death-pose frame table has no movement type {sourceMovementType}.");
         }
 
         FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);

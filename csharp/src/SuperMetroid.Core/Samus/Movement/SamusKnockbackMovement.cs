@@ -119,7 +119,7 @@ public static class SamusKnockbackMovement
             // A larger value cannot name another native behavior; it means the caller supplied
             // corrupt pose metadata rather than an untranslated movement family.
             throw new InvalidDataException(
-                $"Movement type ${(byte)sourceMovementType:X2} lies outside the 28-entry knockback table.");
+                $"Movement type {sourceMovementType} lies outside the 28-entry knockback table.");
         }
 
         // Enemy contact has already established `$18AA` before `$90:DDE9` selects a pose.
@@ -288,7 +288,7 @@ level, targetPose, nmiFrameCounter, plms))
         if (!valid)
         {
             throw new InvalidOperationException(
-                $"Damage boost ${(int)sourcePose:X2} -> ${(int)targetPose:X2} is not a retail transition.");
+                $"Damage boost {sourcePose} -> {targetPose} is not a retail transition.");
         }
 
         // `$91:F8CB` restores only the normal movement handler. The conditional jump
@@ -318,7 +318,7 @@ level, targetPose, nmiFrameCounter, plms))
         if (!valid)
         {
             throw new InvalidOperationException(
-                $"Damage-boost exit ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not in the ROM table.");
+                $"Damage-boost exit {samus.Pose} -> {targetPose} is not in the ROM table.");
         }
 
         // Both target families have the same radius. HandlePoseChange nevertheless runs

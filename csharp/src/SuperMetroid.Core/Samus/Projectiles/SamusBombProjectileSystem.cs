@@ -593,7 +593,7 @@ public sealed class SamusBombProjectileSystem
             // retail producer installs another family in these semantic slots; seeing
             // one means the host-side slot model was mutated inconsistently.
             throw new InvalidDataException(
-                $"Bomb slot {slot.Index} has invalid projectile family ${(ushort)typeFamily:X4}.");
+                $"Bomb slot {slot.Index} has invalid projectile family {typeFamily}.");
         }
 
         bool explosionStarted = false;
@@ -939,7 +939,7 @@ public sealed class SamusBombProjectileSystem
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
                 // caller-composition error rather than untranslated cartridge behavior.
                 throw new InvalidOperationException(
-                    $"Bombed block reaction type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
+                    $"Bombed block reaction type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -998,7 +998,7 @@ public sealed class SamusBombProjectileSystem
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed shootable type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
+                    $"Bombed shootable type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -1033,7 +1033,7 @@ public sealed class SamusBombProjectileSystem
         // type 5/D either resolves to its parent or returned before this dispatcher. Keep
         // the guard for corrupted packed words, but do not label it missing behavior.
         throw new InvalidDataException(
-            $"Bombed block reaction reached impossible type ${(int)block.CollisionType:X1}/" +
+            $"Bombed block reaction reached impossible type {block.CollisionType}/" +
             $"BTS ${block.Bts.Value:X2} at ({x},{y}).");
     }
 

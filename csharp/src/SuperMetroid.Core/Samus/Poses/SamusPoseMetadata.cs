@@ -85,8 +85,8 @@ internal static class SamusPoseMetadata
         if (rawMovementType > (byte)SamusMovementType.Special)
         {
             throw new InvalidDataException(
-                $"Pose ${(int)pose:X2} has invalid movement type ${rawMovementType:X2}; " +
-                $"the retail dispatcher ends at ${(byte)SamusMovementType.Special:X2}.");
+                $"Pose {pose} has invalid movement type ${rawMovementType:X2}; " +
+                $"the retail dispatcher ends at {SamusMovementType.Special}.");
         }
 
         return (SamusMovementType)rawMovementType;
@@ -306,7 +306,7 @@ internal static class SamusPoseMetadata
             // cross-family request to this table-transition API is a caller contract error,
             // not an omitted input record.
             throw new InvalidOperationException(
-                $"Draygon-grabbed input transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} crosses owner-controlled facing families.");
+                $"Draygon-grabbed input transition {samus.Pose} -> {targetPose} crosses owner-controlled facing families.");
         }
 
         ushort oldRadius = samus.Kinematics.Radius.Y;
@@ -315,7 +315,7 @@ internal static class SamusPoseMetadata
         if (samus.Kinematics.Radius.Y != oldRadius)
         {
             throw new InvalidDataException(
-                $"Draygon pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {samus.Kinematics.Radius.Y}.");
+                $"Draygon pose {targetPose} unexpectedly changed radius {oldRadius} -> {samus.Kinematics.Radius.Y}.");
         }
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -772,7 +772,7 @@ internal static class SamusPoseMetadata
                 // The retail pose table never exceeds `$1B`; this is corrupt metadata,
                 // analogous to indexing beyond `$90:DFB5` into unrelated bank words.
                 throw new InvalidDataException(
-                    $"Bomb-jump setup cannot dispatch invalid movement type ${(byte)movementType:X2} for pose ${(int)samus.Pose:X2}.");
+                    $"Bomb-jump setup cannot dispatch invalid movement type {movementType} for pose {samus.Pose}.");
         }
     }
 

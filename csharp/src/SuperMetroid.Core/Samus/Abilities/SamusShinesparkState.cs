@@ -609,12 +609,12 @@ public sealed class SamusShinesparkState
                 SamusPoseId.UnusedPoseC5 or
                 SamusPoseId.UnusedPoseC6 => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
-                $"Pose ${(int)targetPose:X2} is not one of the six directional shinespark poses."),
+                $"Pose {targetPose} is not one of the six directional shinespark poses."),
             SamusPoseId.AdjacentCodePoseFD or
                 SamusPoseId.AdjacentCodePoseFE or
                 SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
-                $"Pose ${(int)targetPose:X2} is not one of the six directional shinespark poses."),
+                $"Pose {targetPose} is not one of the six directional shinespark poses."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
 

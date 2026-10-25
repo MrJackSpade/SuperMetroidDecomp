@@ -53,7 +53,7 @@ public static class SamusGrappleMovement
         if (direction >= 10)
         {
             throw new InvalidOperationException(
-                $"Pose ${(int)samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
+                $"Pose {samus.Pose} has no fireable grapple direction (${direction:X2}).");
         }
 
         grapple.Phase = GrapplePhase.Firing;
@@ -874,8 +874,8 @@ public static class SamusGrappleMovement
                         catch (UnsupportedShotBlockReactionException error)
                         {
                             throw new UnmodeledBehaviorException(
-                                $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Bts.Value:X2}",
-                                $"Grapple shootable dispatch type ${(int)block.CollisionType:X}/BTS ${block.Bts.Value:X2} " +
+                                $"grapple-shootable/type-{block.CollisionType}/bts-{block.Bts.Value:X2}",
+                                $"Grapple shootable dispatch type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
                                 $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",
                                 error);
                         }
@@ -896,7 +896,7 @@ public static class SamusGrappleMovement
 
                 default:
                     throw new InvalidDataException(
-                        $"Grapple block type ${(int)block.CollisionType:X1} escaped the complete " +
+                        $"Grapple block type {block.CollisionType} escaped the complete " +
                         $"sixteen-entry dispatcher at ({resolvedX},{resolvedY}).");
             }
         }
@@ -1163,7 +1163,7 @@ public static class SamusGrappleMovement
             if (fallback == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback)
             {
                 throw new InvalidDataException(
-                    $"Connected grapple pose ${(int)samus.Pose:X2} has no cancellation fallback.");
+                    $"Connected grapple pose {samus.Pose} has no cancellation fallback.");
             }
 
             samus.Pose = fallback;

@@ -220,7 +220,7 @@ internal static class SamusPoseInputDefinitions
             SamusPoseId.MoonwalkTurnJumpAimDownRightPose => MoonwalkTurnJumpAimDownRightPoseList,
             SamusPoseId.AdjacentCodePoseFD or
                 SamusPoseId.AdjacentCodePoseFE or
-                SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException($"Pose ${(int)pose:X2} has no compiled input graph."),
+                SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException($"Pose {pose} has no compiled input graph."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
         return true;

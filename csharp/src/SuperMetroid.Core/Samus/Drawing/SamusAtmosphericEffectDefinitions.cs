@@ -40,7 +40,7 @@ internal static class SamusAtmosphericEffectDefinitions
     internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType)
     {
         if ((byte)movementType > (byte)SamusMovementType.Special)
-            throw new InvalidDataException($"Water-splash movement type ${(byte)movementType:X2} is outside 28 retail selectors.");
+            throw new InvalidDataException($"Water-splash movement type {movementType} is outside 28 retail selectors.");
         return movementType switch
         {
             SamusMovementType.Standing or SamusMovementType.MorphBallGround or SamusMovementType.Crouching or

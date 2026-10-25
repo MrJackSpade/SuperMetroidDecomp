@@ -298,10 +298,10 @@ internal static class SamusHudDefinitions
                 SamusPoseId.UnusedPoseB0 or
                 SamusPoseId.UnusedPoseB1 or
                 SamusPoseId.UnusedPoseC5 or
-                SamusPoseId.UnusedPoseC6 => throw new InvalidOperationException($"Pose ${(int)pose:X2} is outside the $35-$40 transition block."),
+                SamusPoseId.UnusedPoseC6 => throw new InvalidOperationException($"Pose {pose} is outside the $35-$40 transition block."),
             SamusPoseId.AdjacentCodePoseFD or
                 SamusPoseId.AdjacentCodePoseFE or
-                SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException($"Pose ${(int)pose:X2} is outside the $35-$40 transition block."),
+                SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException($"Pose {pose} is outside the $35-$40 transition block."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }

@@ -275,11 +275,11 @@ public static class ShinesparkEchoDefinitions
                 SamusPoseId.UnusedPoseB1 or
                 SamusPoseId.UnusedPoseC5 or
                 SamusPoseId.UnusedPoseC6 => throw new InvalidOperationException(
-                $"Shinespark crash finish has no modeled echo angles for pose ${(int)pose:X2}."),
+                $"Shinespark crash finish has no modeled echo angles for pose {pose}."),
             SamusPoseId.AdjacentCodePoseFD or
                 SamusPoseId.AdjacentCodePoseFE or
                 SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException(
-                $"Shinespark crash finish has no modeled echo angles for pose ${(int)pose:X2}."),
+                $"Shinespark crash finish has no modeled echo angles for pose {pose}."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }

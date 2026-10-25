@@ -18,9 +18,9 @@ internal static class SamusGroundedPoseTransitions
     public static void ApplyAimedCrouchingTurnInputFallback(SamusState samus, SamusPoseId targetPose)
     {
         if (!SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose))
-            throw new InvalidOperationException($"Aimed crouching turn fallback requires a type-$17 crouching turn, not ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Aimed crouching turn fallback requires a type-$17 crouching turn, not {samus.Pose}.");
         if (!SamusPoseMetadata.IsRightFacingCrouchingPose(targetPose) && !SamusPoseMetadata.IsLeftFacingCrouchingPose(targetPose))
-            throw new InvalidDataException($"Aimed crouching turn ${(int)samus.Pose:X2} names non-crouching fallback ${(int)targetPose:X2}.");
+            throw new InvalidDataException($"Aimed crouching turn {samus.Pose} names non-crouching fallback {targetPose}.");
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Aimed crouching turn release");
     }
 
@@ -35,7 +35,7 @@ internal static class SamusGroundedPoseTransitions
     {
         if (movementType is not (SamusMovementType.TurningOnGround or
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling))
-            throw new InvalidOperationException($"Turn fallback requires a turning movement type, not ${(byte)movementType:X2}.");
+            throw new InvalidOperationException($"Turn fallback requires a turning movement type, not {movementType}.");
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
     }
@@ -91,7 +91,7 @@ internal static class SamusGroundedPoseTransitions
             // The native input tables never feed a facing reversal through this arm-only
             // transition seam; reversal has its own turn-pose initialization path.
             throw new InvalidOperationException(
-                $"Grounded aim transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is outside this same-facing pose family.");
+                $"Grounded aim transition {samus.Pose} -> {targetPose} is outside this same-facing pose family.");
         }
         if (!SamusPoseMetadata.IsGroundedAimPose(samus.Pose) && !SamusPoseMetadata.IsGroundedAimPose(targetPose) &&
             !SamusPoseMetadata.IsGunExtendedPose(samus.Pose) && !SamusPoseMetadata.IsGunExtendedPose(targetPose))
@@ -122,7 +122,7 @@ internal static class SamusGroundedPoseTransitions
         if (samus.Kinematics.Radius.Y != oldRadius)
         {
             throw new InvalidDataException(
-                $"Running arm pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {samus.Kinematics.Radius.Y}.");
+                $"Running arm pose {targetPose} unexpectedly changed radius {oldRadius} -> {samus.Kinematics.Radius.Y}.");
         }
     }
 
@@ -146,7 +146,7 @@ internal static class SamusGroundedPoseTransitions
             8 => SamusPoseId.RanIntoWallAimUpLeftPose,
             9 => SamusPoseId.StandingAimUpLeftPose,
             _ => throw new InvalidDataException(
-                $"Pose ${(int)sourcePose:X2} has invalid shot-direction byte ${shotDirection:X2}."),
+                $"Pose {sourcePose} has invalid shot-direction byte ${shotDirection:X2}."),
         };
     }
 
@@ -231,7 +231,7 @@ internal static class SamusGroundedPoseTransitions
             // Only block-backed ran-into-wall records call this exact initializer. Treat a
             // different source/target pair as misuse of the specialized operation.
             throw new InvalidOperationException(
-                $"Ran-into-wall pose change ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a block-backed retail route.");
+                $"Ran-into-wall pose change {samus.Pose} -> {targetPose} is not a block-backed retail route.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Ran into wall");
@@ -249,7 +249,7 @@ internal static class SamusGroundedPoseTransitions
         {
             // Running exits are a strict same-facing subset of the ran-into-wall table.
             throw new InvalidOperationException(
-                $"Ran-into-wall running exit ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a retail route.");
+                $"Ran-into-wall running exit {samus.Pose} -> {targetPose} is not a retail route.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Ran into wall to running");
@@ -313,7 +313,7 @@ internal static class SamusGroundedPoseTransitions
             // The complete stable moonwalk table is represented by the predicates above;
             // reaching this branch means the caller selected the wrong pose-change API.
             throw new InvalidOperationException(
-                $"Moonwalk pose change ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a stable retail route.");
+                $"Moonwalk pose change {samus.Pose} -> {targetPose} is not a stable retail route.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Moonwalk");
@@ -348,7 +348,7 @@ internal static class SamusGroundedPoseTransitions
             // Input requests the un-aimed turn; the pose initializer then substitutes
             // the old muzzle's aimed turn. Already-resolved diagnostic callers are valid too.
             throw new InvalidOperationException(
-                $"Moonwalk turn/jump ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a retail route.");
+                $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not a retail route.");
         }
 
         // Preserve the old muzzle direction before installing turn art. The next alpha
@@ -375,7 +375,7 @@ internal static class SamusGroundedPoseTransitions
         if (samus.Pose != SamusPoseId.FacingRightNormalPose)
         {
             throw new InvalidOperationException(
-                $"Standing-right to running-right transition requires pose $01, not ${(int)samus.Pose:X2}.");
+                $"Standing-right to running-right transition requires pose $01, not {samus.Pose}.");
         }
 
         samus.Pose = SamusPoseId.MovingRightNormalPose;
@@ -396,7 +396,7 @@ internal static class SamusGroundedPoseTransitions
         if (samus.Pose != SamusPoseId.MovingRightNormalPose)
         {
             throw new InvalidOperationException(
-                $"Running-right to standing-right transition requires pose $09, not ${(int)samus.Pose:X2}.");
+                $"Running-right to standing-right transition requires pose $09, not {samus.Pose}.");
         }
 
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -448,7 +448,7 @@ internal static class SamusGroundedPoseTransitions
         if (!right && !left)
         {
             throw new InvalidOperationException(
-                $"Landing-to-run transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not verified.");
+                $"Landing-to-run transition {samus.Pose} -> {targetPose} is not verified.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Landing-to-run");
@@ -505,7 +505,7 @@ internal static class SamusGroundedPoseTransitions
         if (!turnsLeft && !turnsRight && !leavesForwardView)
         {
             throw new InvalidOperationException(
-                $"Grounded turn ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a verified transition.");
+                $"Grounded turn {samus.Pose} -> {targetPose} is not a verified transition.");
         }
 
         // F8F9 checks held Jump, not a fresh press. Releasing Shoot from a buffered
@@ -569,7 +569,7 @@ internal static class SamusGroundedPoseTransitions
              (turnsRight && !SamusPoseMetadata.IsLeftToRightGroundTurnPose(selectedTurnPose))))
         {
             throw new InvalidOperationException(
-                $"Grounded turn source ${(int)samus.Pose:X2} has direction metadata inconsistent with target ${(int)targetPose:X2}.");
+                $"Grounded turn source {samus.Pose} has direction metadata inconsistent with target {targetPose}.");
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -633,7 +633,7 @@ level, targetPose, nmiFrameCounter, plms, out int adjustment);
         if (samus.Pose != expectedPose)
         {
             throw new InvalidOperationException(
-                $"{transitionName} requires pose ${(int)expectedPose:X2}, not ${(int)samus.Pose:X2}.");
+                $"{transitionName} requires pose {expectedPose}, not {samus.Pose}.");
         }
 
         samus.Pose = targetPose;

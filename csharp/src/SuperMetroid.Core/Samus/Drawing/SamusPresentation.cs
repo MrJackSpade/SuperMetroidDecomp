@@ -102,7 +102,7 @@ internal sealed class SamusPresentation
         if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
         {
             throw new InvalidOperationException(
-                $"Samus pose ${(int)samus.Pose:X2} cannot initialize directly on delay command ${initialDelay:X2}.");
+                $"Samus pose {samus.Pose} cannot initialize directly on delay command ${initialDelay:X2}.");
         }
 
         samus.AnimationFrameTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.AnimationFrameBuffer + initialDelay)));
@@ -159,7 +159,7 @@ internal sealed class SamusPresentation
     public static void SetGrappleSwingAnimationFrame(SamusState samus, int frame)
     {
         if (samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
-            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
         samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(15);
     }

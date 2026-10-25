@@ -100,7 +100,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.NormalJumping)
             throw new InvalidOperationException(
-                $"Normal-jump movement requires type 2, not ${(byte)SamusPoseMetadata.ReadMovementType(samus):X2}.");
+                $"Normal-jump movement requires type 2, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.NormalJumping,
             controllerInput,
@@ -168,7 +168,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.SpinJumping)
             throw new InvalidOperationException(
-                $"Spin-jump movement requires type 3, not ${(byte)SamusPoseMetadata.ReadMovementType(samus):X2}.");
+                $"Spin-jump movement requires type 3, not {SamusPoseMetadata.ReadMovementType(samus)}.");
 
         // `$90:A436-$90:A4CB` runs this before ordinary spin movement. Space Jump is not a
         // host-side double-jump: it only accepts a fresh Jump edge while descending and
@@ -288,7 +288,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.WallJumping ||
             !SamusPoseMetadata.IsWallJumpPose(samus.Pose))
-            throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Wall-jump movement requires type $14 pose, not {samus.Pose}.");
 
         // Frames 23+ are the somersault portion and always use Screw-style index three.
         // Frames 3..22 use charge-beam index four only after the projectile flare counter
@@ -333,7 +333,7 @@ public static class SamusAerialMovement
             samus.Pose is not (SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose))
         {
             throw new InvalidOperationException(
-                $"Damage-boost movement requires type $19 pose, not ${(int)samus.Pose:X2}.");
+                $"Damage-boost movement requires type $19 pose, not {samus.Pose}.");
         }
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
@@ -376,7 +376,7 @@ public static class SamusAerialMovement
              SamusPoseMetadata.IsAimedCrouchingTurnPose(samus.Pose));
         if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
             !isTranslatedTurnPose)
-            throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not {samus.Pose}.");
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         // The native turning wrapper enters the shared X mover, including its
@@ -438,7 +438,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Falling)
             throw new InvalidOperationException(
-                $"Falling movement requires type 6, not ${(byte)SamusPoseMetadata.ReadMovementType(samus):X2}.");
+                $"Falling movement requires type 6, not {SamusPoseMetadata.ReadMovementType(samus)}.");
         samus.HorizontalSpeed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Falling,
             controllerInput,

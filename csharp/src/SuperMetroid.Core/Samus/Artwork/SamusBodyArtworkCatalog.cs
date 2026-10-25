@@ -240,7 +240,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
     public sbyte GraphicsYOffset(SamusPoseId pose) =>
         (int)pose < PoseCount ? graphicsYOffsets.TryGetValue((int)pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
-            throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored graphics Y offset.");
+            throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
     /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
     /// <summary>Resolves a frame-selector byte through edited values, aliases, or compiled defaults.</summary>
@@ -265,7 +265,7 @@ public sealed class SamusBodyArtworkCatalog
     public SamusBodyFrameSelection Frame(SamusPoseId pose, int animationFrame)
     {
         if ((int)pose >= PoseCount)
-            throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored Samus body frame list.");
+            throw new InvalidDataException($"Pose {pose} has no authored Samus body frame list.");
         int index = PoseFirstFrame(pose) + animationFrame;
         if ((uint)index >= FrameCount)
             throw new InvalidDataException($"Samus frame {index} is outside extracted visual selectors.");

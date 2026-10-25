@@ -38,7 +38,7 @@ internal static class SamusPosturePoseTransitions
             // This entry point is the exact `$27/$28 -> $01/$02` direct-exit route.
             // Animated stand-ups and cross-facing changes have separate initializers.
             throw new InvalidOperationException(
-                $"Direct crouch exit ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a ROM-table route.");
+                $"Direct crouch exit {samus.Pose} -> {targetPose} is not a ROM-table route.");
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -101,7 +101,7 @@ internal static class SamusPosturePoseTransitions
             // Only the two neutral `$4B/$4C` transition records enter this routine; aimed
             // crouches deliberately reuse the same facing-selected target.
             throw new InvalidOperationException(
-                $"Crouch jump ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a ROM-table route.");
+                $"Crouch jump {samus.Pose} -> {targetPose} is not a ROM-table route.");
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -190,7 +190,7 @@ internal static class SamusPosturePoseTransitions
         {
             // `$91:F7B0/$F7D3` admit exactly the crouch/stand records enumerated above.
             throw new InvalidOperationException(
-                $"Posture transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is outside the crouch/stand ROM-table family.");
+                $"Posture transition {samus.Pose} -> {targetPose} is outside the crouch/stand ROM-table family.");
         }
 
         if (startsCrouching)
@@ -308,7 +308,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardP
             // Morph and unmorph use a closed, facing-preserving table. Other ball pose
             // changes are handled by ApplyMorphBallPoseChange and must not enter here.
             throw new InvalidOperationException(
-                $"Morph transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is not a ROM-table route.");
+                $"Morph transition {samus.Pose} -> {targetPose} is not a ROM-table route.");
         }
 
         if (startsMorphing)
@@ -326,7 +326,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardP
             if (samus.Kinematics.Radius.Y > previousRadius)
             {
                 throw new InvalidDataException(
-                    $"Morph entry ${(int)targetPose:X2} expanded radius {previousRadius} -> {samus.Kinematics.Radius.Y}.");
+                    $"Morph entry {targetPose} expanded radius {previousRadius} -> {samus.Kinematics.Radius.Y}.");
             }
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
 level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
@@ -429,7 +429,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
             // unmorph body's direction. Rejecting every other pairing keeps this helper
             // from silently becoming a catch-all for unrelated movement initializers.
             throw new InvalidOperationException(
-                $"Unmorph-to-falling transition ${(int)sourcePose:X2} -> ${(int)targetPose:X2} is not a same-facing retail route.");
+                $"Unmorph-to-falling transition {sourcePose} -> {targetPose} is not a same-facing retail route.");
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
@@ -473,7 +473,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         if (!sourceSupported || !targetSupported)
         {
             throw new InvalidOperationException(
-                $"Stable Morph-Ball transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} requires stable ball endpoints.");
+                $"Stable Morph-Ball transition {samus.Pose} -> {targetPose} requires stable ball endpoints.");
         }
 
         SamusFacingDirection previousDirection = SamusPoseMetadata.ReadFacingDirection(samus);
@@ -531,7 +531,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
     public static bool ApplyMorphBallLanding(SamusState samus)
     {
         if (!SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose))
-            throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not {samus.Pose}.");
 
         // The cartridge tests the sign of a word subtraction, not an unsigned
         // magnitude. Moonfall's negative velocity therefore lands without a rebound.
@@ -576,7 +576,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
     public static bool ApplySpringBallLanding(SamusState samus, ControllerButton controllerInput)
     {
         if (!SamusPoseMetadata.IsAirborneSpringBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose))
-            throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not {samus.Pose}.");
 
         if ((controllerInput & ControllerButton.A) != 0)
         {
@@ -632,7 +632,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         bool validTarget = targetPose is SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose;
         if (!SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose) || !validTarget)
             throw new InvalidOperationException(
-                $"Spring-Ball jump ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} is outside the grounded-to-airborne Spring-Ball route.");
+                $"Spring-Ball jump {samus.Pose} -> {targetPose} is outside the grounded-to-airborne Spring-Ball route.");
 
         ApplyMorphBallPoseChange(samus, targetPose);
         samus.MorphBallBounceState = SamusBallBounceState.None;
@@ -656,7 +656,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         else if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.Standing or SamusMovementType.Running or
                  SamusMovementType.Crouching or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall)
             throw new InvalidOperationException(
-                $"Bomb-jump falling result for humanoid pose ${(int)samus.Pose:X2} ($91:E8F2 airborne) is not translated.");
+                $"Bomb-jump falling result for humanoid pose {samus.Pose} ($91:E8F2 airborne) is not translated.");
     }
 
 
@@ -668,7 +668,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
     {
         bool springBall = SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose);
         if (!SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose) && !springBall)
-            throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not ${(int)samus.Pose:X2}.");
+            throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not {samus.Pose}.");
 
         SamusPoseId fallingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? springBall ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.MorphBallFallingLeftPose

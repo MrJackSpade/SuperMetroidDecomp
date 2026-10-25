@@ -564,9 +564,9 @@ internal sealed class ProjectileMotion
                 RoomCollisionType.ShootableBlock or
                 RoomCollisionType.VerticalExtension or
                 RoomCollisionType.BombableBlock => throw new InvalidDataException(
-                $"Invalid missile collision type ${(int)block.CollisionType:X2} at block {block.Index}."),
+                $"Invalid missile collision type {block.CollisionType} at block {block.Index}."),
             _ => throw new InvalidDataException(
-                $"Invalid missile collision type ${(int)block.CollisionType:X2} at block {block.Index}."),
+                $"Invalid missile collision type {block.CollisionType} at block {block.Index}."),
         };
     }
 

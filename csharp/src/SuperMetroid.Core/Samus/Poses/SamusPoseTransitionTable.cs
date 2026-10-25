@@ -48,7 +48,7 @@ public static class SamusPoseTransitionTable
         if (!SamusPoseInputDefinitions.TryGetInputList(currentPose, out SamusPoseInputList tablePointer))
         {
             throw new InvalidDataException(
-                $"Pose ${(int)currentPose:X2} has no authored input-transition graph; " +
+                $"Pose {currentPose} has no authored input-transition graph; " +
                 "adjacent bank-$91 code is not mechanics metadata.");
         }
         SamusPoseInputMatch match = SamusPoseInputDefinitions.Match(tablePointer, held, newlyPressed);

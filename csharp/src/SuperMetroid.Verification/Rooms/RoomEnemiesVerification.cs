@@ -156,7 +156,7 @@ internal static void VerifyRoomEnemyLoading()
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
 
     AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
-    AssertEqual(EnemySlotTable.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
+    AssertEqual(EnemySlotTable.EnemyIndexStride, enemies.SlotTable.FirstFreeEnemyIndex,
         "first free enemy keeps native byte offset");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
@@ -260,7 +260,7 @@ internal static void VerifyRoomEnemyLoading()
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
-    AssertEqual(EnemySlotTable.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
+    AssertEqual(EnemySlotTable.EnemyIndexStride, enemies.SlotTable.FirstFreeEnemyIndex,
         "empty population preserves native first-free quirk");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual(0, enemies.RoomStatus.BossId, "room load clears boss ID before empty population");

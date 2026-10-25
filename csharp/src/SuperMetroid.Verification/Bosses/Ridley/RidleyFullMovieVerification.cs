@@ -1277,7 +1277,7 @@ internal static class RidleyFullMovieVerification
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
             {
                 if (deferLoadingOwners) continue;
-                int address = NativeSnapshotMemory.EnemyBase + actor.NativeIndex;
+                int address = NativeSnapshotMemory.EnemyBase + actor.EnemyIndex;
                 string owner = $"Enemy {actor.SlotIndex}";
                 Check(owner + " identity", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
                 if (actor.DefinitionId == 0 || W(address) == 0) continue;
@@ -1710,7 +1710,7 @@ internal static class RidleyFullMovieVerification
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none.
                     KilledEnemy killed = projectile.KilledEnemy;
                     Check(owner + " killed enemy index", killed.SlotIndex < 0 ? 0xffff
-                        : killed.SlotIndex * EnemySlotTable.NativeSlotSize | (killed.Respawns ? 0x8000 : 0),
+                        : killed.SlotIndex * EnemySlotTable.EnemyIndexStride | (killed.Respawns ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);

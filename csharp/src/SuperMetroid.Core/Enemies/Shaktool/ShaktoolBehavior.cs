@@ -63,7 +63,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TargetAngle = SnesAngle.Zero;
         state.ResetOrientation();
         slot.Properties = slot.Properties.With(definition.PropertyMask);
-        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerNativeOffset / EnemySlotTable.NativeSlotSize;
+        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerNativeOffset / EnemySlotTable.EnemyIndexStride;
         state.PreInstruction = definition.PreInstruction;
         // Native initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.

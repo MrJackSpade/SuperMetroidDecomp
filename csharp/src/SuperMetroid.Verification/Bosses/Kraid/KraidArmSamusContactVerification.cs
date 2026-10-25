@@ -45,7 +45,7 @@ internal static class KraidArmSamusContactVerification
 
         // $A0:8EB6 builds this frame's interactive list from the native camera (0,$100).
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(new Position16<RoomPixels>(0, 0x100));
-        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LevelData, onlyNativeEnemyIndex: 0x40);
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LevelData, onlyEnemyIndex: 0x40);
 
         AssertEqual(4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
         AssertEqual((short)-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");

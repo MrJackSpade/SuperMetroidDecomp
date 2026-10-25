@@ -80,9 +80,9 @@ internal sealed class EnemyProcessingWindow
             if (!active)
                 continue;
 
-            _activeEnemyIndexes.Add(slot.NativeIndex);
+            _activeEnemyIndexes.Add(slot.EnemyIndex);
             if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
-                _interactiveEnemyIndexes.Add(slot.NativeIndex);
+                _interactiveEnemyIndexes.Add(slot.EnemyIndex);
         }
     }
 

@@ -169,8 +169,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
         {
             RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
-            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex = slot.NativeIndex;
-            state.LinkedNativeIndex = secondary.NativeIndex;
+            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex = slot.EnemyIndex;
+            state.LinkedNativeIndex = secondary.EnemyIndex;
         }
 
         state.Function = ZebetiteAiFunction.WaitForDoorTransition;
@@ -263,7 +263,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * EnemySlotTable.NativeSlotSize));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
         return spawned;
     }
 
@@ -272,15 +272,15 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
         ushort linkedIndex = checked((ushort)struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex);
-        if (linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize ||
-            linkedIndex % EnemySlotTable.NativeSlotSize != 0)
+        if (linkedIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride ||
+            linkedIndex % EnemySlotTable.EnemyIndexStride != 0)
         {
             throw new InvalidDataException(
                 $"Zebetite slot {struck.SlotIndex} contains invalid linked index " +
                 $"${linkedIndex:X4}.");
         }
 
-        RoomEnemySlot linked = _slotTable.SlotFromNativeIndex(linkedIndex);
+        RoomEnemySlot linked = _slotTable.SlotAtEnemyIndex(linkedIndex);
         linked.Health = struck.Health;
         linked.FlashTimer = struck.FlashTimer;
     }

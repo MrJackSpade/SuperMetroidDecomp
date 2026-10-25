@@ -102,7 +102,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
             ? EnemyFrameId.Empty
             : null;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.NativeSlotSize));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
         return slot;
     }
 

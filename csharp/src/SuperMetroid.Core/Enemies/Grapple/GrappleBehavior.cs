@@ -38,9 +38,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
         _room.EnsureLoaded();
-        foreach (int nativeIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (int enemyIndex in _dispatch.InteractiveEnemyIndexes)
         {
-            RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(nativeIndex);
+            RoomEnemySlot enemy = _slotTable.SlotAtEnemyIndex(enemyIndex);
             if (!enemy.InvincibilityTimer.IsZero)
                 continue;
 

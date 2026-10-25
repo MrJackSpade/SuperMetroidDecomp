@@ -85,13 +85,13 @@ internal static class EnemyGameplayAcceptanceVerification
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
         (RoomEnemySystem baseline, byte[] beforeCharacters, SamusColourRig beforeColors) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
-        AssertEqual(population.Records.Length * EnemySlotTable.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
+        AssertEqual(population.Records.Length * EnemySlotTable.EnemyIndexStride, baseline.SlotTable.FirstFreeEnemyIndex,
             "compiled population publishes its physical first-free offset");
         AssertEqual(population.DeathQuota, baseline.PopulationLoader.DeathQuota, "compiled population publishes its authored death quota");
         for (int index = 0; index < population.Records.Length; index++)
         {
             RoomEnemySlot slot = baseline.SlotTable.Slots[index];
-            AssertEqual(index * EnemySlotTable.NativeSlotSize, slot.NativeIndex, "linked population physical slot order");
+            AssertEqual(index * EnemySlotTable.EnemyIndexStride, slot.EnemyIndex, "linked population physical slot order");
             AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
             AssertEqual(RoomEnemyDefinitionCatalog.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");

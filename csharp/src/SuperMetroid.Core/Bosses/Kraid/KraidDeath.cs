@@ -242,7 +242,7 @@ internal sealed class KraidDeath
         foreach (int slot in new[] { 6, 7 })
             _slotTable.Slots[slot].Properties = _slotTable.Slots[slot].Properties.Without(EnemyProperties.RespawnIfKilled);
         foreach (int slot in new[] { 6, 7, 2, 3, 4 })
-            _deathsAndDrops.StartGenericEnemyDeath(_slotTable.Slots[slot], deathAnimation: _slotTable.Slots[slot].NativeIndex);
+            _deathsAndDrops.StartGenericEnemyDeath(_slotTable.Slots[slot], deathAnimation: _slotTable.Slots[slot].EnemyIndex);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
         _frameResults.KraidPlms.Add(KraidPlmDefinitions.LiveDeathSpikes);

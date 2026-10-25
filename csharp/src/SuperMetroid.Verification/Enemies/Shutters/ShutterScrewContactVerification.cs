@@ -33,7 +33,7 @@ internal static class ShutterScrewContactVerification
             AssertEqual(ShutterTriggerMode.OneShotReaction, (state ?? throw new InvalidOperationException("Verification requires state.")).TriggerMode, "the movie's shutter waits only for a shot");
 
             samus.HorizontalSpeed.ContactDamageIndex = contactDamage;
-            samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Left, (ushort?)shutter.NativeIndex);
+            samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Left, (ushort?)shutter.EnemyIndex);
             foreach (var direction in new[] { SamusCollisionDirection.Right, SamusCollisionDirection.Up, SamusCollisionDirection.Down })
                 samus.Kinematics.RecordSolidEnemyCollision(direction, null);
 

@@ -71,7 +71,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.PaletteIndex = PaletteBits(pirate.PaletteRow);
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(1, EnemySlotTable.NativeSlotSize);
+        enemies.Drawing.Enqueue(1, EnemySlotTable.EnemyIndexStride);
 
         // Enemy projectile in the high-priority pass, drawn from the set's spawned-object sheet.
         EnemyProjectileFrameId projectileFrame = SpawnedObjectFrameDefinitions.Anywhere.Projectiles

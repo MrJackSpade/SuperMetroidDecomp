@@ -53,7 +53,7 @@ internal sealed class EnemyDrawList
     }
 
     /// <summary>Queues an enemy, by native index, for its draw layer.</summary>
-    internal void Enqueue(int layer, int nativeIndex) => DrawQueues[layer].Add(nativeIndex);
+    internal void Enqueue(int layer, int enemyIndex) => DrawQueues[layer].Add(enemyIndex);
 
     /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
     [NonSerialized] private List<PreparedEnemyDraw>? _prepared;
@@ -78,9 +78,9 @@ internal sealed class EnemyDrawList
         var prepared = new List<PreparedEnemyDraw>();
         foreach (int layer in Enumerable.Range(firstLayer, lastLayer - firstLayer + 1))
         {
-            foreach (int nativeIndex in DrawQueues[layer])
+            foreach (int enemyIndex in DrawQueues[layer])
             {
-                RoomEnemySlot slot = _slotTable.SlotFromNativeIndex(nativeIndex);
+                RoomEnemySlot slot = _slotTable.SlotAtEnemyIndex(enemyIndex);
                 // Power-bomb damage runs after queue construction and can clear a
                 // queued actor or replace it with the inert respawn reservation.
                 // Neither lifecycle state owns a display composition.
@@ -109,7 +109,7 @@ internal sealed class EnemyDrawList
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy {slot.DefinitionId} draws before showing a frame.");
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, frame, null, null));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawPaletteIndex, frame, null, null));
                     continue;
                 }
 
@@ -121,7 +121,7 @@ internal sealed class EnemyDrawList
                     // continue to belong to compiled animation and collision programs.
                     EnemyFrameId selected = _room.Artwork.ExtendedFrames.GetDisplayFrame(shown);
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, null, shown, installed));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, enemyIndex, origin, drawPaletteIndex, null, shown, installed));
                     continue;
                 }
 
@@ -162,7 +162,7 @@ internal sealed class EnemyDrawList
             {
                 PreparedEnemyDraw draw = prepared[next];
                 RoomEnemySlot slot = draw.Slot;
-                var source = new SpriteSource(SpriteSourceKind.Enemy, draw.NativeIndex / EnemySlotTable.NativeSlotSize);
+                var source = new SpriteSource(SpriteSourceKind.Enemy, draw.EnemyIndex / EnemySlotTable.EnemyIndexStride);
                 // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
                 // and wings), preserving both that drawing order and the enemy's normal layer queue.
                 if (slot.Entity is IEnemyDrawHooks drawHooks)
@@ -212,13 +212,13 @@ internal sealed class EnemyDrawList
     /// <summary>One queued enemy's draw, formed by <see cref="AdvanceLayers"/>.</summary>
     /// <param name="Layer">The native draw layer it was queued on.</param>
     /// <param name="Slot">The enemy.</param>
-    /// <param name="NativeIndex">The enemy's native index.</param>
+    /// <param name="EnemyIndex">The enemy's index.</param>
     /// <param name="Origin">Its shaken screen origin.</param>
     /// <param name="PaletteBits">The common draw palette selected for this frame.</param>
     /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
     /// <param name="ExtendedFrame">The extended frame an extended enemy shows, which names its components' sheet frames; null for an ordinary enemy.</param>
     /// <param name="Components">An extended enemy's installed components; null for an ordinary enemy.</param>
-    private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int NativeIndex,
+    private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot, int EnemyIndex,
         Position16<ScreenPixels> Origin, int PaletteBits, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
         ReadOnlyMemory<EnemyExtendedDrawComponent>? Components);
 

@@ -54,7 +54,7 @@ internal static class MotherBrainLaterContactVerification
         body.Frame = EnemyFrameId.MotherBrainBodyOamStanding;
         body.Health = 1000;
         var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
-        interactive.Add(body.NativeIndex);
+        interactive.Add(body.EnemyIndex);
         foreach (ushort type in new ushort[] { 0x8000, 0x8100 })
         {
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);

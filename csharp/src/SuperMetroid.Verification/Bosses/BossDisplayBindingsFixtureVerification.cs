@@ -52,7 +52,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions);
-            Enemies.Drawing.Enqueue(0, Actor.NativeIndex);
+            Enemies.Drawing.Enqueue(0, Actor.EnemyIndex);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }

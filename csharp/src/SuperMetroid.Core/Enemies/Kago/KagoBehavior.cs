@@ -219,7 +219,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.KagoBug,
             unchecked((ushort)(source.TileIndexBase | source.PaletteIndex)));
 
-        projectile.Variable1 = source.NativeIndex;
+        projectile.Variable1 = source.EnemyIndex;
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 
         // Kago samples the existing random word and never advances it. SpawnEprojInner has
@@ -252,7 +252,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
     {
-        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(checked((ushort)projectile.Variable1));
+        RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
         int distance = Math.Abs(unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole)));
         if (distance >= KagoBugSourceCollisionEnableDistance)
             projectile.BlocksSamusProjectiles = true;
@@ -344,7 +344,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
-        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(checked((ushort)projectile.Variable1));
+        RoomEnemySlot source = _slotTable.SlotAtEnemyIndex(checked((ushort)projectile.Variable1));
         short sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
         bool jumpLeft;
         if (Math.Abs((int)sourceDelta) >= KagoBugSourceHomingDistance)

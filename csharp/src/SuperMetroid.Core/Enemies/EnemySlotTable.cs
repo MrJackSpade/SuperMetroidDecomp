@@ -1,14 +1,14 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The 32 physical enemy slots and their native indexes, with the population counts installed at room load.
+/// The 32 physical enemy slots and their enemy indexes, with the population counts installed at room load.
 /// </summary>
 internal sealed class EnemySlotTable
 {
     /// <summary>Thirty-two fixed physical enemy records in the native bank-$A0 scheduler, including unused and multipart slots.</summary>
     public const int MaximumEnemyCount = 32;
-    /// <summary>Native enemy-record stride in bytes ($0040), used to translate host slot numbers into cartridge indexes $0000..$07C0.</summary>
-    public const int NativeSlotSize = 64;
+    /// <summary>The step between consecutive slots' enemy indexes, which run $0000..$07C0 as the game numbers its enemies.</summary>
+    public const int EnemyIndexStride = 64;
 
 
     /// <summary>Fixed physical slot storage; native indexes address $40-byte records within this array.</summary>
@@ -32,12 +32,12 @@ internal sealed class EnemySlotTable
             _slots[slotIndex] = new RoomEnemySlot(slotIndex, species);
     }
 
-    /// <summary>Converts an aligned native byte offset to a physical slot and rejects out-of-range or unaligned indexes.</summary>
-    internal RoomEnemySlot SlotFromNativeIndex(int nativeIndex)
+    /// <summary>The slot with enemy index <paramref name="enemyIndex"/>, rejecting an out-of-range or unaligned index.</summary>
+    internal RoomEnemySlot SlotAtEnemyIndex(int enemyIndex)
     {
-        if ((nativeIndex & (EnemySlotTable.NativeSlotSize - 1)) != 0 || nativeIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize)
-            throw new ArgumentOutOfRangeException(nameof(nativeIndex));
-        return _slots[nativeIndex / EnemySlotTable.NativeSlotSize];
+        if ((enemyIndex & (EnemySlotTable.EnemyIndexStride - 1)) != 0 || enemyIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride)
+            throw new ArgumentOutOfRangeException(nameof(enemyIndex));
+        return _slots[enemyIndex / EnemySlotTable.EnemyIndexStride];
     }
     /// <summary>
     /// Native byte offset marking the allocation frontier, not a zero-based slot number; nonempty population load sets it
@@ -48,7 +48,7 @@ internal sealed class EnemySlotTable
     public int FirstFreeEnemyIndex
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, EnemySlotTable.MaximumEnemyCount * EnemySlotTable.NativeSlotSize, value);
+        internal set => field = Ensure.BetweenInclusive(0, EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride, value);
     }
 
     /// <summary>

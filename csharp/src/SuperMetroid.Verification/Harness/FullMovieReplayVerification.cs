@@ -354,8 +354,8 @@ internal static class FullMovieReplayVerification
             foreach (var actor in traceEnemies.SlotTable.Slots.Where(slot => slot.DefinitionId != 0))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
-                int slotBase = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
-                Console.WriteLine($"  enemy {actor.NativeIndex / MovieDesyncMemory.EnemyStride} {actor.DefinitionId} " +
+                int slotBase = MovieDesyncMemory.EnemyBase + actor.EnemyIndex;
+                Console.WriteLine($"  enemy {actor.EnemyIndex / MovieDesyncMemory.EnemyStride} {actor.DefinitionId} " +
                     $"port inst={actor.CurrentInstruction:X4}/{actor.InstructionTimer.RawValue:X4} prop={actor.Properties:X4} " +
                     $"pos={actor.Position.X.Whole:X4}.{actor.Position.X.Fraction:X4}/{actor.Position.Y.Whole:X4}.{actor.Position.Y.Fraction:X4} " +
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)} " +
@@ -488,7 +488,7 @@ internal static class FullMovieReplayVerification
         }
         foreach (var actor in runtime.Enemies.SlotTable.Slots)
         {
-            int address = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
+            int address = MovieDesyncMemory.EnemyBase + actor.EnemyIndex;
             string owner = $"Enemy {actor.SlotIndex}";
             Check(owner + " identity", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);
             if (actor.DefinitionId == EnemyDefinitionId.None) continue;

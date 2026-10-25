@@ -38,7 +38,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
             // Her phase-two transition attaches the enemy BG2 image her body draws into (#1356).
             Inner.Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(0));
-            Inner.Enemies.Drawing.Enqueue(0, Body.NativeIndex);
+            Inner.Enemies.Drawing.Enqueue(0, Body.EnemyIndex);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
         }
 

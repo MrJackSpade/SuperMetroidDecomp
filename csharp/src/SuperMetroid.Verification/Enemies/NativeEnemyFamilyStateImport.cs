@@ -252,8 +252,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
         {
             babyTurtleRecord.Function = words.A == 0 ? null : (BabyTurtleAiFunction)words.A;
-            babyTurtleRecord.ParentSlotIndex = words.B % EnemySlotTable.NativeSlotSize == 0
-            ? words.B / EnemySlotTable.NativeSlotSize
+            babyTurtleRecord.ParentSlotIndex = words.B % EnemySlotTable.EnemyIndexStride == 0
+            ? words.B / EnemySlotTable.EnemyIndexStride
             : throw new InvalidDataException($"Baby Turtle parent offset {words.B} is not a slot boundary.");
             babyTurtleRecord.SpawnTopCenter = new(words.C, words.D);
             babyTurtleRecord.Velocity = new(unchecked((short)words.E), babyTurtleRecord.Velocity.Y);
@@ -708,8 +708,8 @@ internal static class NativeEnemyFamilyStateImport
     /// <param name="word">The recorded byte index, a multiple of the record size.</param>
     /// <param name="meaning">What the word holds, for the failure message.</param>
     private static int SlotIndex(ushort word, string meaning) =>
-        word % EnemySlotTable.NativeSlotSize == 0 && word / EnemySlotTable.NativeSlotSize < EnemySlotTable.MaximumEnemyCount
-            ? word / EnemySlotTable.NativeSlotSize
+        word % EnemySlotTable.EnemyIndexStride == 0 && word / EnemySlotTable.EnemyIndexStride < EnemySlotTable.MaximumEnemyCount
+            ? word / EnemySlotTable.EnemyIndexStride
             : throw new InvalidDataException($"Recorded {meaning} ${word:X4} is not an enemy slot.");
 
     /// <summary>Decodes a dead Tourian corpse's recorded bank-$A9 main-AI function word into its phase.</summary>

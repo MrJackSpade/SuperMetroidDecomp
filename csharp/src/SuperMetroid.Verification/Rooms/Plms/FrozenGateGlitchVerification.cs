@@ -117,7 +117,7 @@ internal static class FrozenGateGlitchVerification
         [
             new SolidEnemyCollisionBody(
                 zero.SlotIndex,
-                zero.NativeIndex,
+                zero.EnemyIndex,
                 new(expected.EnemyX, FrozenGateY),
                 new(zero.Radius.X, zero.Radius.Y),
                 expected.Frozen ||

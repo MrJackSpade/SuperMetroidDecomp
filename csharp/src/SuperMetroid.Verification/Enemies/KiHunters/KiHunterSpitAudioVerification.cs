@@ -47,7 +47,7 @@ internal static class KiHunterSpitAudioVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.KihunterGreen);
-        var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64];
+        var state = runtime.Enemies.KiHunterStates[body.EnemyIndex / 64];
         body.Position = body.Position.WithWhole(new(128, 128));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = KiHunterEnemyFunction.NoOp;
         // Stage the real spit opcode; subsequent frames must not replay its one-shot call.

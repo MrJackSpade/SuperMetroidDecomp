@@ -91,7 +91,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             ? EnemyFrameId.Empty
             : null;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.NativeSlotSize));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
     }
 
     /// <summary>Creates the physical Baby only after the rainbow sequence exists and installs its first list and fifteen nontransparent palette colors.</summary>

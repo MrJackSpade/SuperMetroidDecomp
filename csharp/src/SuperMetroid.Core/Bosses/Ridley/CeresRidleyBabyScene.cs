@@ -88,7 +88,7 @@ internal sealed class CeresRidleyBabyScene
                 throw new InvalidOperationException("The Ceres Baby Metroid has no behavior function.");
 
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresBabyFunction)} {(int)state.BabyFunction:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(CeresBabyFunction)} {state.BabyFunction}.");
         }
     }
 

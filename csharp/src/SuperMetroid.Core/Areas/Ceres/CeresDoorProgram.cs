@@ -39,11 +39,11 @@ internal enum CeresDoorProgram
     /// <summary><c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_1</c> at $A6:F622.</summary>
     RotatingElevatorInvisibleWallLoop,
     /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_0</c> at $A6:F62A.</summary>
-    RidleyEscapeMode7LeftWall,
+    RidleyEscapeFloorLeftWall,
     /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_1</c> at $A6:F62C.</summary>
-    RidleyEscapeMode7LeftWallLoop,
+    RidleyEscapeFloorLeftWallLoop,
     /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7RightWall_0</c> at $A6:F634.</summary>
-    RidleyEscapeMode7RightWall,
+    RidleyEscapeFloorRightWall,
     /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7RightWall_1</c> at $A6:F636.</summary>
-    RidleyEscapeMode7RightWallLoop,
+    RidleyEscapeFloorRightWallLoop,
 }

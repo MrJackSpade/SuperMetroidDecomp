@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Mutually exclusive bank-$A6 main-function identities stored in the steam actor's
-/// variable A by <c>$A6:EFB1</c> and dispatched by <c>$A6:F00D</c>.
+/// The steam actor's mutually exclusive main behaviours, chosen by its population variant.
+/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1415).
 /// </summary>
 public enum CeresSteamFunction : ushort
 {
-    /// <summary>The shared return at <c>$A6:EFF4</c>; no graphical offset is required.</summary>
-    None = 0xeff4,
+    /// <summary><c>$A6:EFF4</c>, the shared return: no graphical offset is required.</summary>
+    None = 1,
 
-    /// <summary>Applies the rotating-elevator graphical transform at <c>$A6:F019</c>.</summary>
-    ApplyRotatingElevatorOffset = 0xf019,
+    /// <summary><c>$A6:F019</c>: applies the rotating-elevator graphical transform.</summary>
+    ApplyRotatingElevatorOffset,
 }

@@ -104,12 +104,12 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
         {
-            ceresSteamRecord.Function = words.A == 0 ? null : (CeresSteamFunction)words.A;
+            ceresSteamRecord.Function = words.A == 0 ? null : CeresNativeWords.SteamFunctions.Decode(words.A, "recorded CeresSteamFunction");
             ceresSteamRecord.ActivationDelay = WrappingCountdown.FromRaw(words.D);
         }
         if (slot.SpeciesState<CeresDoorEnemyState>() is { } ceresDoorRecord)
         {
-            ceresDoorRecord.Function = words.A == 0 ? null : (CeresDoorFunction)words.A;
+            ceresDoorRecord.Function = words.A == 0 ? null : CeresNativeWords.DoorFunctions.Decode(words.A, "recorded CeresDoorFunction");
             ceresDoorRecord.HandsDrawingToRidley = words.B != 0;
             ceresDoorRecord.RumbleCallsLeft = words.D;
             ceresDoorRecord.ExplosionIntervalLeft = words.E;

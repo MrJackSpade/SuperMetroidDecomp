@@ -1773,13 +1773,13 @@ internal static class LookupStream5Verification
         {
             var actual = CeresDoorInitializationDefinitions.For(variant);
             AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
-            AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), (ushort)actual.MainFunction, "Ceres door original function dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorFunctions.Word(actual.MainFunction), "Ceres door original function dispatch");
         }
         for (ushort variant = 0; variant < 6; variant++)
         {
             var actual = CeresSteamDefinitions.Initialization((CeresSteamVariant)variant);
             AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Program), "Ceres steam original instruction dispatch");
-            AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), (ushort)actual.Function, "Ceres steam original function dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamFunctions.Word(actual.Function), "Ceres steam original function dispatch");
         }
         for (int index = 0; index < 9; index++)
         {

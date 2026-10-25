@@ -204,7 +204,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunCeresDoorEarthquake(baseEarthquakeType: 29);
                 return;
 
-            case CeresDoorFunction.RidleyEscapeMode7Wall:
+            case CeresDoorFunction.RidleyEscapeFloorWall:
                 // Ridley's room overlay begins hidden. Ridley's escape reveals it and swap
                 // to enemy palette seven; the actor remains present so later Mode-7 drawing
                 // can retain the native priority relationship with Samus and Ridley.

@@ -145,25 +145,25 @@ internal static class CeresDoorAnimations
             Show(1, 1),
             GoTo(P.RotatingElevatorInvisibleWallLoop),
         ],
-        [P.RidleyEscapeMode7LeftWall] =
+        [P.RidleyEscapeFloorLeftWall] =
         [
             Cue(new(K.MakeIntangible)),
-            FallInto(P.RidleyEscapeMode7LeftWallLoop),
+            FallInto(P.RidleyEscapeFloorLeftWallLoop),
         ],
-        [P.RidleyEscapeMode7LeftWallLoop] =
+        [P.RidleyEscapeFloorLeftWallLoop] =
         [
             Show(11, 1),
-            GoTo(P.RidleyEscapeMode7LeftWallLoop),
+            GoTo(P.RidleyEscapeFloorLeftWallLoop),
         ],
-        [P.RidleyEscapeMode7RightWall] =
+        [P.RidleyEscapeFloorRightWall] =
         [
             Cue(new(K.MakeIntangible)),
-            FallInto(P.RidleyEscapeMode7RightWallLoop),
+            FallInto(P.RidleyEscapeFloorRightWallLoop),
         ],
-        [P.RidleyEscapeMode7RightWallLoop] =
+        [P.RidleyEscapeFloorRightWallLoop] =
         [
             Show(12, 1),
-            GoTo(P.RidleyEscapeMode7RightWallLoop),
+            GoTo(P.RidleyEscapeFloorRightWallLoop),
         ],
     });
 

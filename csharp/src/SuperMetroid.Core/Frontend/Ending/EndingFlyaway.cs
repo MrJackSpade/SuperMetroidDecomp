@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -45,9 +46,9 @@ internal sealed class EndingFlyaway
     internal void SetupPlanetEscape()
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
-        screen.Palette.Backdrop = Bgr555.Black;
-        screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Write(0, Bgr555.Black);
-        screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, Bgr555.Black);
+        screen.Palette.Backdrop = RgbColor.Black;
+        screen.Palette.BackgroundRow(EndingColourRowDefinitions.LogoBackgroundRow).Write(0, RgbColor.Black);
+        screen.Palette.SpriteRow(EndingColourRowDefinitions.ClearedSpriteRow).Write(0, RgbColor.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));

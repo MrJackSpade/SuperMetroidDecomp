@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -14,5 +13,5 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <see cref="SpriteImage.FixedPartRow"/> where the part keeps its own row under a draw's override.
 /// </param>
 /// <param name="Manifest">The frames' rectangles, origins, blending and rows, and the standard colours.</param>
-internal sealed record ComposedSpriteSheet(Extent16<ImagePixels> Size, Rgba32[] Pixels, byte[] PaletteIndices, byte[] Priorities,
+internal sealed record ComposedSpriteSheet(Extent16<ImagePixels> Size, RgbaPixel[] Pixels, byte[] PaletteIndices, byte[] Priorities,
     byte[] PartRows, SpriteSheetDocument Manifest);

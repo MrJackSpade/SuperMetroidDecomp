@@ -1089,7 +1089,7 @@ internal static class LookupStream3Verification
         for (int group = 0; group < nativeDoorCopies.Length; group++)
         {
             // The fade target the copy writes into; slots it leaves alone stay black.
-            Bgr555[] actual = ToColors(new ushort[256]);
+            RgbColor[] actual = ToColors(new ushort[256]);
             ushort[] expected = new ushort[256];
             foreach (int instruction in nativeDoorCopies[group])
             {
@@ -1587,7 +1587,7 @@ internal static class LookupStream3Verification
         var pulse = stock.normal;
         AssertTrue(pulse.supplied is null, "stream 3 Shitroid original pulse rows discarded");
         AssertTrue(!MetadataShape.Fields(pulse.GetType(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
+            .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
             "stream 3 Shitroid pulse owns no duplicate paint origins or floor words");
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 4; color++)
@@ -1725,7 +1725,7 @@ internal static class LookupStream3Verification
         void CheckBeam(MotherBrainRainbowPalettePresentation palette)
         {
             for (int index = 0; index < 38; index++)
-                AssertTrue(palette.TryReadBeamColor(index, out Bgr555 beam) && beam == Bgr555.FromWord(Word(document.BeamCycle[index])),
+                AssertTrue(palette.TryReadBeamColor(index, out RgbColor beam) && beam == RgbColor.FromWord(Word(document.BeamCycle[index])),
                     "stream 3 beam wheel matches every native sampled color");
             AssertTrue(!palette.TryReadBeamColor(38, out _), "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
@@ -1767,8 +1767,8 @@ internal static class LookupStream3Verification
             var cgram = new GameplayColours(new SpriteColourSets());
             for (int frame = 0; frame < 8; frame++)
             {
-                cgram.AsPaletteColors().SetColor(0x4e, new Bgr555(27, 3, 0));
-                cgram.AsPaletteColors().SetColor(0x9e, new Bgr555(27, 3, 0));
+                cgram.AsPaletteColors().SetColor(0x4e, new RgbColor(27, 3, 0));
+                cgram.AsPaletteColors().SetColor(0x9e, new RgbColor(27, 3, 0));
                 palette.ApplyFromGrey(cgram, frame);
                 for (int color = 0; color < 13; color++)
                 {
@@ -1967,7 +1967,7 @@ internal static class LookupStream3Verification
         var selectedFade = stock.fade;
         AssertTrue(selectedFade.supplied is null,
             "stream 3 original Baby fade discards its stored frame table");
-        AssertEqual(0, MetadataShape.Fields(selectedFade.GetType(), fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(Bgr555) || field.FieldType == typeof(Bgr555[])), "stream 3 Baby fade keeps no stock endpoint payload");
+        AssertEqual(0, MetadataShape.Fields(selectedFade.GetType(), fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(RgbColor) || field.FieldType == typeof(RgbColor[])), "stream 3 Baby fade keeps no stock endpoint payload");
         static ushort ScaleHealth(ushort value, int remaining)
         {
             int result = 0;
@@ -2247,10 +2247,10 @@ internal static class LookupStream3Verification
             var basis = palette.basis;
             AssertTrue(basis.supplied is null,
                 "stream 3 native health shade ramps calculated from paint endpoints");
-            AssertEqual(6, MetadataShape.Fields(basis.GetType(), flags).Count(field => field.FieldType == typeof(Bgr555)),
+            AssertEqual(6, MetadataShape.Fields(basis.GetType(), flags).Count(field => field.FieldType == typeof(RgbColor)),
                 "stream 3 health base exposes only six possible paint anchors");
-            Bgr555[] anchors = [basis.highlight, basis.midtone, basis.shadow, basis.brown];
-            AssertTrue(ReferenceEquals(palette, stock.body) ? anchors.All(value => value != Bgr555.Black) : anchors.All(value => value == Bgr555.Black),
+            RgbColor[] anchors = [basis.highlight, basis.midtone, basis.shadow, basis.brown];
+            AssertTrue(ReferenceEquals(palette, stock.body) ? anchors.All(value => value != RgbColor.Black) : anchors.All(value => value == RgbColor.Black),
                 "stream 3 stock rear palette stores no independent paint colors");
         }
         for (int state = 0; state < 4; state++)
@@ -2322,7 +2322,7 @@ internal static class LookupStream3Verification
         AssertTrue(ReferenceEquals(fade.finalRoom,
             stock.finalRoom),
             "stream 3 recovery endpoint reuses the final room palette");
-        AssertEqual(0, MetadataShape.Fields(fade.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
+        AssertEqual(0, MetadataShape.Fields(fade.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
             "stream 3 reviewed recovery paints reside only in their domain catalog");
         for (int frame = 0; frame < 7; frame++)
         {
@@ -2418,7 +2418,7 @@ internal static class LookupStream3Verification
         AssertTrue(ReferenceEquals(flash.basis,
             stock.finalRoom),
             "stream 3 stock flash reuses final room paint basis");
-        AssertEqual(0, MetadataShape.Fields(flash.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
+        AssertEqual(0, MetadataShape.Fields(flash.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
             "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
         {
@@ -2638,7 +2638,7 @@ internal static class LookupStream3Verification
         {
             AssertTrue(palette.supplied is null,
                 "stream 3 calculated auxiliary cycles have no stored frame rows");
-            foreach (Bgr555[] endpoint in new[] { palette.first, palette.last })
+            foreach (RgbColor[] endpoint in new[] { palette.first, palette.last })
                 AssertEqual(0, endpoint.Length,
                     "stream 3 complete auxiliary palette keeps no stock endpoint arrays");
             AssertTrue(palette.corpse is null,

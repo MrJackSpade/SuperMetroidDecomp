@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Android;
 
@@ -8,6 +8,6 @@ namespace SuperMetroid.Android;
 internal static class AndroidPixelPacking
 {
     /// <summary>The packed ARGB integer for <paramref name="color"/>.</summary>
-    public static int Argb(Rgba32 color) =>
+    public static int Argb(RgbaPixel color) =>
         unchecked((int)((uint)color.A << 24 | (uint)color.R << 16 | (uint)color.G << 8 | color.B));
 }

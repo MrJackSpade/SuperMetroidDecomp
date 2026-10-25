@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
@@ -11,13 +13,13 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal readonly record struct CinematicFadeColor(ushort Red, ushort Green, ushort Blue)
 {
     /// <summary>The live 8.8 value of a target colour: each five-bit component as the whole part.</summary>
-    internal static CinematicFadeColor Target(Bgr555 color) => new(
+    internal static CinematicFadeColor Target(RgbColor color) => new(
         (ushort)EightEight.FromWhole((ushort)color.Red),
         (ushort)EightEight.FromWhole((ushort)color.Green),
         (ushort)EightEight.FromWhole((ushort)color.Blue));
 
     /// <summary>One thirty-second of a target colour in 8.8 form: <c>component &lt;&lt; 3</c>, the literal shifts at $8B:8C19-$8C59.</summary>
-    internal static CinematicFadeColor Step(Bgr555 color) => new(
+    internal static CinematicFadeColor Step(RgbColor color) => new(
         (ushort)(color.Red << 3), (ushort)(color.Green << 3), (ushort)(color.Blue << 3));
 
     /// <summary>One step toward black. Native SBC stores a wrapping 16-bit result in each component.</summary>
@@ -32,8 +34,8 @@ internal readonly record struct CinematicFadeColor(ushort Red, ushort Green, ush
         (ushort)((Red + step.Red) % 8192), (ushort)((Green + step.Green) % 8192), (ushort)((Blue + step.Blue) % 8192));
 
     /// <summary>The visible colour: each component's high byte, as the following NMI upload writes it into CGRAM.</summary>
-    internal Bgr555 Visible => new(
-        SnesLittleEndian.HighByte(Red) & Bgr555.MaxChannel,
-        SnesLittleEndian.HighByte(Green) & Bgr555.MaxChannel,
-        SnesLittleEndian.HighByte(Blue) & Bgr555.MaxChannel);
+    internal RgbColor Visible => new(
+        SnesLittleEndian.HighByte(Red) & RgbColor.MaxChannel,
+        SnesLittleEndian.HighByte(Green) & RgbColor.MaxChannel,
+        SnesLittleEndian.HighByte(Blue) & RgbColor.MaxChannel);
 }

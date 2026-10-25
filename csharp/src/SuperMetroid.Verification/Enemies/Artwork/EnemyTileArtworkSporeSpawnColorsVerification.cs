@@ -157,7 +157,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, current and target palette edits, ROM guard and strict failures pass.");
 
-        void VerifyFrame(int source, Func<int, Bgr555> resolve, string name)
+        void VerifyFrame(int source, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -165,7 +165,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                     $"installed {name} color {color} matches cartridge");
         }
 
-        void VerifyFrames(int source, int count, Func<int, int, Bgr555> resolve, string name)
+        void VerifyFrames(int source, int count, Func<int, int, RgbColor> resolve, string name)
         {
             for (int frame = 0; frame < count; frame++)
                 VerifyFrame(source + frame * SporeSpawnSourceDefinitions.ImageBytes,
@@ -183,7 +183,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                 int destination = SporeSpawnColorDestinations.DeathDestination(layer);
                 for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
                 {
-                    Bgr555 actual = targetOnly
+                    RgbColor actual = targetOnly
                         ? StagedAt(state, destination + color)
                         : cgram.Colors[destination + color];
                     AssertEqual(colors.ResolveDeath(layer, frame, color), actual,
@@ -198,8 +198,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckEditedFrame(Func<int, int, Bgr555> original,
-            Func<int, int, Bgr555> changed, int frame, string name)
+        static void CheckEditedFrame(Func<int, int, RgbColor> original,
+            Func<int, int, RgbColor> changed, int frame, string name)
         {
             AssertTrue(original(frame, 5) != changed(frame, 5),
                 $"{name} frame {frame} edit changes selected RGB5 word");
@@ -209,6 +209,6 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
     }
 
     /// <summary>The fade-target colour Spore Spawn last staged at the cartridge's colour <paramref name="position"/>.</summary>
-    private static Bgr555 StagedAt(SporeSpawnEnemyState state, int position) =>
+    private static RgbColor StagedAt(SporeSpawnEnemyState state, int position) =>
         state.StagedTargetColours.Last(staged => ColourSetRunPositions.First(staged.Run) + staged.Colour == position).Value;
 }

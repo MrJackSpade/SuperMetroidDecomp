@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -287,7 +288,7 @@ internal static void VerifySamusHorizontalSpeed()
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityBoostFirst, 0x6a5a);
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401) };
     var submergedBoostCgram = new SamusColourRig();
-    submergedBoostCgram.SetColor(192, Bgr555.FromWord(0x7777));
+    submergedBoostCgram.SetColor(192, RgbColor.FromWord(0x7777));
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Speed Booster palette copy");
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }),
@@ -310,7 +311,7 @@ internal static void VerifySamusHorizontalSpeed()
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityScrewFirst, 0x5b4b);
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SamusColourRig();
-    submergedScrewCgram.SetColor(192, Bgr555.FromWord(0x2222));
+    submergedScrewCgram.SetColor(192, RgbColor.FromWord(0x2222));
     AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Screw Attack palette copy");
     AssertEqual(0x2222, submergedScrewCgram.Colors[192],

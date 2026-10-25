@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Hud;
 
 using SuperMetroid.Verification.Harness;
@@ -103,7 +104,7 @@ internal static class ReserveAutoFrontendVerification
         // automatic recovery freezes movement. Inspect presentation, not just HP.
         runtime.Hud.UpdateGameplayCounters(samus);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var digitImages = new Dictionary<int, Rgba32[]>();
+        var digitImages = new Dictionary<int, RgbaPixel[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationFrame;
         lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;

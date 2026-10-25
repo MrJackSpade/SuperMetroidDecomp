@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
@@ -86,7 +87,7 @@ internal static class InstalledPowerBombIsolationTests
                         if (Colors(baseline) != Colors(replacement)) changedColors++;
                         if (second is not null)
                         {
-                            var memoryImage = new FramePaint(new Bgr555[SnesPpuLayout.CgramColorCount], []);
+                            var memoryImage = new FramePaint(new RgbColor[SnesPpuLayout.CgramColorCount], []);
                             var packet = new DisplayPacket(new(framesToRender.Count + 1, 1, 0),
                                 new LayeredScene(memoryImage, new RenderLayer[] { second }, 15));
                             framesToRender.Add(new ContextFrame(packet, context));
@@ -95,7 +96,7 @@ internal static class InstalledPowerBombIsolationTests
                             ColorAddWindow center = second.Windows[112];
                             if (center.Left <= 128 && center.Right >= 128)
                                 Require(DisplayRendering.Render(packet)[112 * packet.Size.X + 128] ==
-                                    new Rgba32(checked((byte)center.Red), checked((byte)center.Green), checked((byte)center.Blue)), context + ": edited RGB did not reach pixels");
+                                    new RgbaPixel(checked((byte)center.Red), checked((byte)center.Green), checked((byte)center.Blue)), context + ": edited RGB did not reach pixels");
                         }
                         comparisons++;
                     } while (baseline.IsActive);

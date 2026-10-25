@@ -54,7 +54,7 @@ internal static class RoomFxPaletteBlendsVerification
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
         foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDefinitions.Ids)
         {
-            ReadOnlySpan<Bgr555> compiled = catalog.Resolve(id);
+            ReadOnlySpan<RgbColor> compiled = catalog.Resolve(id);
 
             (RoomLayer3FxState state, CartridgeReadGuard bus, GameplayColours cgram) =
                 ConstructBlendLoad(catalog, tilemaps, id);
@@ -123,7 +123,7 @@ internal static class RoomFxPaletteBlendsVerification
         AssertEqual(stockLine, GameplayEffectCapture.CaptureCeresHaze(false).Windows[120],
             "cosmetic override does not mutate stock presentation");
         // The edited haze over a black screen, as the display renderer draws it.
-        Rgba32[] pixels = DisplayRendering.Render(new LayeredScene(new FramePaint(new Bgr555[SnesPpuLayout.CgramColorCount], []),
+        RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(new FramePaint(new RgbColor[SnesPpuLayout.CgramColorCount], []),
             new RenderLayer[] { GameplayEffectCapture.CaptureCeresHaze(false, colors: edited) }, FadeLevel.Full));
         AssertEqual(editedLine.Green, pixels[120 * DisplayScreen.Width].G,
             "the display renderer draws the same edited Ceres tint the capture holds");
@@ -170,7 +170,7 @@ internal static class RoomFxPaletteBlendsVerification
         AreaMapPresentationCatalog edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX blend edit changes installed content identity");
-        Bgr555 expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
+        RgbColor expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
         AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0],
             "room-FX blend edit changes the authored color");
         (_, CartridgeReadGuard bus, GameplayColours cgram) = ConstructBlendLoad(
@@ -206,9 +206,9 @@ internal static class RoomFxPaletteBlendsVerification
         var memory = new TestAddressSpace();
         var bus = NewForbiddenRoomFxPaletteBus(memory);
         var cgram = new GameplayColours(new SpriteColourSets());
-        cgram.AsPaletteColors().SetColor(25, Bgr555.FromWord(0x1234));
-        cgram.AsPaletteColors().SetColor(26, Bgr555.FromWord(0x2345));
-        cgram.AsPaletteColors().SetColor(27, Bgr555.FromWord(0x3456));
+        cgram.AsPaletteColors().SetColor(25, RgbColor.FromWord(0x1234));
+        cgram.AsPaletteColors().SetColor(26, RgbColor.FromWord(0x2345));
+        cgram.AsPaletteColors().SetColor(27, RgbColor.FromWord(0x3456));
         var stateSession = new RoomFxSession{
             PaletteBlendColors = catalog,
             Layer3Tilemaps = tilemaps,

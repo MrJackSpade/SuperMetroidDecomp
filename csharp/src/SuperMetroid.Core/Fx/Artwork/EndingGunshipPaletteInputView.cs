@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -17,10 +18,10 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// recite this drawing. Shared channel/shade rules and temporal fades are calculated.
 /// The exact18 retained components and source-art evidence are recorded in the review
 /// inventory's endingGunshipIndependentInkReview.</remarks>
-internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, Bgr555>
+internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, RgbColor>
 {
     /// <summary>Ordinary stored fade colors after the thirteen final-frame painted inks are separated.</summary>
-    private readonly Dictionary<PaletteFxColorKey, Bgr555> colors;
+    private readonly Dictionary<PaletteFxColorKey, RgbColor> colors;
     /// <summary>Gold highlight inputs with green derived from red minus one.</summary>
     private readonly Channels highlight;
     /// <summary>Light hull gold inputs using the same one-step green offset.</summary>
@@ -51,10 +52,10 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
     private readonly int undersideBlueOffset;
 
     /// <summary>Extracts independent channel edits and shared hue relationships from the final gunship palette frame.</summary>
-    internal EndingGunshipPaletteInputView(Dictionary<PaletteFxColorKey, Bgr555> colors)
+    internal EndingGunshipPaletteInputView(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
         this.colors = colors;
-        Bgr555 Word(EndingGunshipPaletteInk ink) => colors[Key(ink)];
+        RgbColor Word(EndingGunshipPaletteInk ink) => colors[Key(ink)];
         int Red(EndingGunshipPaletteInk ink) => Word(ink).Red;
         Channels Gold(EndingGunshipPaletteInk ink) => new(Word(ink), null, Math.Max(0, Red(ink) - 1), null);
         Channels Hull(EndingGunshipPaletteInk ink, int? red = null) => new(Word(ink), red, Math.Max(0, Red(ink) - 3), 0);
@@ -67,7 +68,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         hullShadeMiddle = Hull(EndingGunshipPaletteInk.HullShadeMiddle,
             (Red(EndingGunshipPaletteInk.HullShadeLight) + Red(EndingGunshipPaletteInk.HullShadeDark) + 1) / 2);
 
-        Bgr555 cockpit = Word(EndingGunshipPaletteInk.CockpitLight);
+        RgbColor cockpit = Word(EndingGunshipPaletteInk.CockpitLight);
         int green = cockpit.Green, blue = cockpit.Blue;
         Channels Cockpit(EndingGunshipPaletteInk ink) => new(Word(ink), 0, null,
             green == 0 ? null : Math.Min(31, (Word(ink).Green) * blue / green));
@@ -75,7 +76,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         cockpitMiddle = Cockpit(EndingGunshipPaletteInk.CockpitMiddle);
         cockpitDark = Cockpit(EndingGunshipPaletteInk.CockpitDark);
 
-        Bgr555 underside = Word(EndingGunshipPaletteInk.UndersideLight);
+        RgbColor underside = Word(EndingGunshipPaletteInk.UndersideLight);
         undersideBlueOffset = (underside.Blue) - (underside.Red);
         Channels Underside(EndingGunshipPaletteInk ink) => new(Word(ink), null, Red(ink), Math.Clamp(Red(ink) + undersideBlueOffset, 0, 31));
         undersideLight = Underside(EndingGunshipPaletteInk.UndersideLight);
@@ -94,7 +95,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         /// <summary>Independent blue component, or null when supplied by a shared rule.</summary>
         internal readonly int? blue;
         /// <summary>Retains supplied RGB5 components only where a calculated target does not explain them.</summary>
-        internal Channels(Bgr555 supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
+        internal Channels(RgbColor supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
         {
             red = (supplied.Red) == expectedRed ? null : supplied.Red;
             green = (supplied.Green) == expectedGreen ? null : supplied.Green;
@@ -107,33 +108,33 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         /// <summary>Selected cockpit blue channel, defaulting to black when absent.</summary>
         internal int Blue => blue ?? 0;
         /// <summary>Overlays independent components onto a calculated gold, cockpit, or underside target.</summary>
-        internal Bgr555 Apply(int r, int g, int b) => new(red ?? r, green ?? g, blue ?? b);
+        internal RgbColor Apply(int r, int g, int b) => new(red ?? r, green ?? g, blue ?? b);
     }
 
     /// <summary>Calculates a gold or hull shade's green offset from red before applying independent edits.</summary>
-    private static Bgr555 Gold(Channels channels, int red, int greenOffset) =>
+    private static RgbColor Gold(Channels channels, int red, int greenOffset) =>
         channels.Apply(red, Math.Max(0, red - greenOffset), 0);
     /// <summary>Derives blue from the light cockpit ink's blue/green proportion.</summary>
-    private Bgr555 Cockpit(Channels channels)
+    private RgbColor Cockpit(Channels channels)
     {
         int blue = cockpitLight.Green == 0 ? 0 : Math.Min(31, channels.Green * cockpitLight.Blue / cockpitLight.Green);
         return channels.Apply(0, channels.Green, blue);
     }
     /// <summary>Uses equal red and green with the common blue offset, clamped to RGB5.</summary>
-    private Bgr555 Underside(Channels channels)
+    private RgbColor Underside(Channels channels)
     {
         int red = channels.Red(0);
         return channels.Apply(red, red, Math.Clamp(red + undersideBlueOffset, 0, 31));
     }
 
     /// <summary>Reconstructs thirteen final-frame gunship inks while leaving other fade and non-ink words stored.</summary>
-    public bool TryGetValue(PaletteFxColorKey key, out Bgr555 value)
+    public bool TryGetValue(PaletteFxColorKey key, out RgbColor value)
     {
         // Colors 0, 2 and 15 of the final frame are not inks; they stay stored values.
         if (ZebesExplosionGunshipPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) && frame == 15 &&
             InkAtColor.TryGetValue(color, out EndingGunshipPaletteInk paintedInk))
         {
-            Bgr555 calculated = paintedInk switch
+            RgbColor calculated = paintedInk switch
             {
                 EndingGunshipPaletteInk.Highlight => Gold(highlight, highlight.Red(0), 1),
                 EndingGunshipPaletteInk.DeepShadow => Gold(deepShadow, deepShadow.Red(0), 3),
@@ -182,7 +183,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
     private static readonly FrozenDictionary<int, EndingGunshipPaletteInk> InkAtColor =
         ColorOf.ToFrozenDictionary(pair => pair.Value, pair => pair.Key);
     /// <summary>Requires a stored fade color or reconstructed final-frame ink.</summary>
-    public Bgr555 this[PaletteFxColorKey key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    public RgbColor this[PaletteFxColorKey key] => TryGetValue(key, out RgbColor value) ? value : throw new KeyNotFoundException();
     /// <summary>Includes ordinary stored colors and thirteen reconstructed painted inks.</summary>
     public int Count => colors.Count + 13;
     /// <summary>Checks membership among ordinary colors and reconstructed final-frame inks.</summary>
@@ -197,9 +198,9 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
         }
     }
     /// <summary>Resolves values in the same stored-then-derived order as <see cref="Keys"/>.</summary>
-    public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    public IEnumerable<RgbColor> Values => Keys.Select(key => this[key]);
     /// <summary>Enumerates every ordinary or reconstructed gunship color by color.</summary>
-    public IEnumerator<KeyValuePair<PaletteFxColorKey, Bgr555>> GetEnumerator()
+    public IEnumerator<KeyValuePair<PaletteFxColorKey, RgbColor>> GetEnumerator()
     {
         foreach (PaletteFxColorKey key in Keys) yield return new(key, this[key]);
     }

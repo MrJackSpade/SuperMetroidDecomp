@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -64,7 +65,7 @@ public static class LoadingPaletteColorDefinitions
     }
 
     /// <summary>Resolves an explicit edit before following a calculated loading alias.</summary>
-    internal static bool TryReadColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value) =>
+    internal static bool TryReadColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value) =>
         colors.TryGetValue(key, out value) ||
         (TryCanonical(key, out PaletteFxColorKey canonical) &&
          (colors.TryGetValue(canonical, out value) || TryCalculatedColor(canonical, colors, out value)));
@@ -83,9 +84,9 @@ public static class LoadingPaletteColorDefinitions
     /// Independent endpoint components are documented by LoadingPaletteInputView.
     /// Remaining base inks and tint components have the specific dispositions
     /// on this catalog and LoadingPaletteInputView; unrelated palettes are not exempt.</remarks>
-    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if (!TryLocate(key, out PaletteFxHeatSuit suit, out int row, out int slot) || row is not (1 or 5 or 7)) return false;
         PaletteFxColorRows rows = Rows(suit);
         int group = row / 2;
@@ -95,18 +96,18 @@ public static class LoadingPaletteColorDefinitions
             return TryReadColor(rows.Color(5, 0), colors, out value);
         if (power && group == 3 && slot is 10 or 11)
         {
-            if (!TryReadColor(rows.Color(0, slot), colors, out Bgr555 normal) ||
-                !TryReadColor(rows.Color(7, 2), colors, out Bgr555 blueSource)) return false;
+            if (!TryReadColor(rows.Color(0, slot), colors, out RgbColor normal) ||
+                !TryReadColor(rows.Color(7, 2), colors, out RgbColor blueSource)) return false;
             value = normal.WithBlue(blueSource.Blue);
             return true;
         }
         if (power && slot == 9 && group != 0)
         {
-            if (!TryReadColor(rows.Color(0, slot), colors, out Bgr555 normal)) return false;
-            Bgr555 tint = TintColor(normal, shade);
+            if (!TryReadColor(rows.Color(0, slot), colors, out RgbColor normal)) return false;
+            RgbColor tint = TintColor(normal, shade);
             if (group == 2)
             {
-                if (!TryReadColor(rows.Color(1, slot), colors, out Bgr555 bright)) return false;
+                if (!TryReadColor(rows.Color(1, slot), colors, out RgbColor bright)) return false;
                 tint = tint.WithBlue(bright.Blue);
             }
             value = tint;
@@ -117,7 +118,7 @@ public static class LoadingPaletteColorDefinitions
         if (group != 3 && (power ? slot is 1 or 2 or 10 or 11 or 12 :
             suit == PaletteFxHeatSuit.Varia ? slot == 12 : slot == 2))
         {
-            if (!TryReadColor(rows.Color(7, slot), colors, out Bgr555 dim)) return false;
+            if (!TryReadColor(rows.Color(7, slot), colors, out RgbColor dim)) return false;
             bool plateau = suit == PaletteFxHeatSuit.Gravity || (power && slot is 1 or 12);
             int greenPeak = plateau ? 15 : power && slot is 10 or 11 ? 5 : 0;
             value = BrightenDimColor(dim, shade, greenPeak, plateau);
@@ -126,7 +127,7 @@ public static class LoadingPaletteColorDefinitions
         bool varia = suit == PaletteFxHeatSuit.Varia;
         if (!(power ? slot is >= 3 and <= 8 or >= 13 and <= 15 :
             varia ? slot is 1 or 2 || (group != 0 && slot is 10 or 11) : slot is 10 or 11)) return false;
-        if (!TryReadColor(rows.Color(0, slot), colors, out Bgr555 original)) return false;
+        if (!TryReadColor(rows.Color(0, slot), colors, out RgbColor original)) return false;
         value = varia ? VariaTintColor(original, shade) : TintColor(original, shade);
         return true;
     }
@@ -138,7 +139,7 @@ public static class LoadingPaletteColorDefinitions
     /// sums saturate at31. These14 words derive from seven editable dim
     /// endpoints whose independent channels are documented by LoadingPaletteInputView.
     /// Shade0/1 is bright/middle; greenPeak is an RGB5 additive amount.</remarks>
-    internal static Bgr555 BrightenDimColor(Bgr555 dim, int shade, int greenPeak, bool bluePlateau)
+    internal static RgbColor BrightenDimColor(RgbColor dim, int shade, int greenPeak, bool bluePlateau)
     {
         if ((uint)shade >= 2) throw new ArgumentOutOfRangeException(nameof(shade));
         if ((uint)greenPeak > 31) throw new ArgumentOutOfRangeException(nameof(greenPeak));
@@ -153,7 +154,7 @@ public static class LoadingPaletteColorDefinitions
     /// three levels; slots10/11 follow levels1/2. The brightest slots10/11
     /// are excluded because their blue is29 rather than30. All ten included
     /// words match the original program; no correction table is used.</remarks>
-    internal static Bgr555 VariaTintColor(Bgr555 original, int shade)
+    internal static RgbColor VariaTintColor(RgbColor original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
         int green = Math.Min(31, original.Green + Math.Max(0, 5 - 5 * shade));
@@ -192,7 +193,7 @@ public static class LoadingPaletteColorDefinitions
     /// <summary>Applies the three saturating loading tint levels to one RGB5 input.</summary>
     /// <remarks>Shade0..2 runs bright to dim. Green=max(0,15-10*shade),
     /// blue=min(20,30-10*shade); channel sums saturate at31, red is unchanged.</remarks>
-    internal static Bgr555 TintColor(Bgr555 original, int shade)
+    internal static RgbColor TintColor(RgbColor original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
         int green = Math.Min(31, original.Green + Math.Max(0, 15 - 10 * shade));

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 using SuperMetroid.Verification.Harness;
@@ -82,7 +83,7 @@ internal static class DraygonPrebattleXrayVerification
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");
 
-        Rgba32[] RenderWithRegisters(OrdinaryGameplayView registers)
+        RgbaPixel[] RenderWithRegisters(OrdinaryGameplayView registers)
         {
             var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
             var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, math.Blend, math.Subscreen, math.SubscreenUsesBg2);

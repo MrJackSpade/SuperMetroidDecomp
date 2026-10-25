@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend;
 
 using SuperMetroid.Verification.Harness;
@@ -397,7 +398,7 @@ internal static void VerifyEndingCreditsState()
         {
             previous = ending.Stage.Phase;
             reached.Add(previous);
-            Rgba32[] pixels = ending.Render();
+            RgbaPixel[] pixels = ending.Render();
             AssertEqual(FrontendFrame.Width * FrontendFrame.Height, pixels.Length,
                 $"ending {previous} frame size");
             renderedTransitions++;

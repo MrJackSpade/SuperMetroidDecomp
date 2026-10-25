@@ -26,13 +26,13 @@ public sealed class DrawColours
     private const int FirstBlendingRow = 4;
 
     /// <summary>For each key, the colours its pixels show, or null where they show the image's own.</summary>
-    private readonly Bgr555[]?[] shown;
+    private readonly RgbColor[]?[] shown;
 
     /// <summary>One bit per key whose pixels blend.</summary>
     private readonly int blending;
 
     /// <summary>Keeps the resolved colours and blending.</summary>
-    private DrawColours(ColourKeying keying, Bgr555[]?[] shown, int blending)
+    private DrawColours(ColourKeying keying, RgbColor[]?[] shown, int blending)
     {
         FollowsPartRows = keying == ColourKeying.PartRow;
         this.shown = shown;
@@ -52,7 +52,7 @@ public sealed class DrawColours
 
     /// <summary>The colour <paramref name="colour"/> of key <paramref name="key"/>'s pixels show.</summary>
     /// <exception cref="InvalidOperationException">The key's pixels show the image's own colours.</exception>
-    public Bgr555 Colour(int key, int colour) =>
+    public RgbColor Colour(int key, int colour) =>
         (shown[CheckKey(key)] ?? throw new InvalidOperationException($"Key {key} shows the image's own colours."))
         [Ensure.BetweenInclusive(0, RowColours - 1, colour)];
 
@@ -64,11 +64,11 @@ public sealed class DrawColours
     /// draw shows each ink row the frame uses, keeping its image's own colours while that row holds them. A draw with
     /// an override shows, for each part row, the row the override leaves it.
     /// </summary>
-    public static DrawColours Resolve(ImageSpriteDraw draw, ReadOnlySpan<Bgr555> frameColours)
+    public static DrawColours Resolve(ImageSpriteDraw draw, ReadOnlySpan<RgbColor> frameColours)
     {
         Ensure.NotNull(draw);
         Ensure.LengthEqual(frameColours, FrameColours);
-        var shown = new Bgr555[]?[Keys];
+        var shown = new RgbColor[]?[Keys];
         int blending = 0;
         if (draw.PaletteOverride is int overriding)
         {
@@ -81,14 +81,14 @@ public sealed class DrawColours
             }
             return new DrawColours(ColourKeying.PartRow, shown, blending);
         }
-        ReadOnlySpan<Bgr555> standard = draw.Image.Sheet.StandardColours;
+        ReadOnlySpan<RgbColor> standard = draw.Image.Sheet.StandardColours;
         for (int row = 0; row < InkRows; row++)
         {
             if (row >= FirstBlendingRow)
                 blending |= 1 << row;
             if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == SpritePaletteRows.None)
                 continue;
-            ReadOnlySpan<Bgr555> colours = Row(frameColours, row);
+            ReadOnlySpan<RgbColor> colours = Row(frameColours, row);
             // Colour zero is transparent and never shown.
             if (!colours[1..].SequenceEqual(standard.Slice(row * RowColours, RowColours)[1..]))
                 shown[row] = colours.ToArray();
@@ -107,14 +107,14 @@ public sealed class DrawColours
         Ensure.NotNull(owner);
         if (draw.PaletteOverride is not null)
             throw new InvalidOperationException("An owner colours its draws itself; an override selects colours from a row.");
-        ReadOnlySpan<Bgr555> standard = draw.Image.Sheet.StandardColours;
-        var shown = new Bgr555[]?[Keys];
-        Span<Bgr555> colours = stackalloc Bgr555[RowColours];
+        ReadOnlySpan<RgbColor> standard = draw.Image.Sheet.StandardColours;
+        var shown = new RgbColor[]?[Keys];
+        Span<RgbColor> colours = stackalloc RgbColor[RowColours];
         for (int row = 0; row < InkRows; row++)
         {
             if ((draw.Image.Rows & SpritePaletteRowSet.Rows[row]) == SpritePaletteRows.None)
                 continue;
-            ReadOnlySpan<Bgr555> own = standard.Slice(row * RowColours, RowColours);
+            ReadOnlySpan<RgbColor> own = standard.Slice(row * RowColours, RowColours);
             own.CopyTo(colours);
             owner.Overlay(row, colours);
             // Colour zero is transparent and never shown.
@@ -129,7 +129,7 @@ public sealed class DrawColours
     /// a frame's 256 colours, as the frame publishes them. An owner's draws keep the colours it gave them.
     /// </summary>
     /// <exception cref="InvalidDataException">A draw is not an image draw.</exception>
-    public static ImmutableArray<SpriteDraw> ResolveAll(ImmutableArray<SpriteDraw> draws, ReadOnlySpan<Bgr555> frameColours)
+    public static ImmutableArray<SpriteDraw> ResolveAll(ImmutableArray<SpriteDraw> draws, ReadOnlySpan<RgbColor> frameColours)
     {
         var resolved = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
         foreach (SpriteDraw draw in draws)
@@ -153,7 +153,7 @@ public sealed class DrawColours
     }
 
     /// <summary>The sixteen colours of sprite row <paramref name="row"/> in <paramref name="frameColours"/>.</summary>
-    private static ReadOnlySpan<Bgr555> Row(ReadOnlySpan<Bgr555> frameColours, int row) =>
+    private static ReadOnlySpan<RgbColor> Row(ReadOnlySpan<RgbColor> frameColours, int row) =>
         frameColours.Slice(SpriteImage.SpriteColourCount + row * RowColours, RowColours);
 
     /// <summary>Checks that <paramref name="key"/> is one of the draw's.</summary>

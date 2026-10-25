@@ -16,15 +16,15 @@ internal static class RawArrayElements
     /// <summary>The packed element types written raw, with the bytes each occupies.</summary>
     private static readonly FrozenDictionary<Type, int> PackedSizes = new Dictionary<Type, int>
     {
-        [typeof(Rgba32)] = 4,
+        [typeof(RgbaPixel)] = 4,
         [typeof(SpriteImageInk)] = 4,
     }.ToFrozenDictionary();
 
     /// <summary>Ensures each packed type still occupies exactly its recorded raw bytes.</summary>
     static RawArrayElements()
     {
-        if (Unsafe.SizeOf<Rgba32>() != PackedSizes[typeof(Rgba32)])
-            throw new InvalidOperationException("Rgba32 must remain four packed bytes to be serialized raw.");
+        if (Unsafe.SizeOf<RgbaPixel>() != PackedSizes[typeof(RgbaPixel)])
+            throw new InvalidOperationException("RgbaPixel must remain four packed bytes to be serialized raw.");
         if (Unsafe.SizeOf<SpriteImageInk>() != PackedSizes[typeof(SpriteImageInk)])
             throw new InvalidOperationException("SpriteImageInk must remain one packed word to be serialized raw.");
     }

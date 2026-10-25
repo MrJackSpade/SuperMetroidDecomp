@@ -11,6 +11,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -41,7 +42,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles), rows = (tiles + columns - 1) / columns;
             using var png = new MemoryStream();
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
-                Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(index => new Rgba32((byte)index, 0, 0)).ToArray());
+                Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(index => new RgbaPixel((byte)index, 0, 0)).ToArray());
             png.Position = 0;
             RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(png, bytes);
             cached.Add(bytes, atlas);
@@ -92,7 +93,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             Enumerable.Range(1, first.ByteCount).All(offset => VramBytes.At(vram, offset) == 0), "exact tile upload and unchanged neighbors");
         var cgram = new ScreenPalette();
         catalog.LoadPaletteTo(first.DefinitionId, cgram.All.Slice(1, 16));
-        Require(cgram.Colors[0] == Bgr555.Black && cgram.Colors[1] == new Bgr555(1, 0, 0) && cgram.Colors[16] == new Bgr555(1, 0, 0) && cgram.Colors[17] == Bgr555.Black,
+        Require(cgram.Colors[0] == RgbColor.Black && cgram.Colors[1] == new RgbColor(1, 0, 0) && cgram.Colors[16] == new RgbColor(1, 0, 0) && cgram.Colors[17] == RgbColor.Black,
             "exact palette upload and unchanged neighbors");
     }
 

@@ -19,6 +19,7 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Assets;
 
@@ -146,16 +147,16 @@ internal static class PaletteJsonContractsVisibleVerification
         oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), new Position16<OamPixels>(0, 0));
         oam.FinalizeFrame();
-        Rgba32[] stockPixels = SpritePixels(FramePaintConstants.CaptureFrontend(vram, stock, oam, objectSelection: 0));
-        Rgba32[] editedPixels = SpritePixels(FramePaintConstants.CaptureFrontend(vram, edited, oam, objectSelection: 0));
+        RgbaPixel[] stockPixels = SpritePixels(FramePaintConstants.CaptureFrontend(vram, stock, oam, objectSelection: 0));
+        RgbaPixel[] editedPixels = SpritePixels(FramePaintConstants.CaptureFrontend(vram, edited, oam, objectSelection: 0));
         AssertTrue(stockPixels.All(pixel => pixel == stock.GetRgba(color)), "all original raster pixels have the exact selected RGB5 color");
         AssertTrue(editedPixels.All(pixel => pixel == edited.GetRgba(color)), "all edited raster pixels have the exact replacement RGB5 color");
         AssertTrue(!stockPixels.SequenceEqual(editedPixels), "the real renderer observes the installed visual edit");
 
         // The 8x8 sprite's pixels at the screen's top-left corner, as the display renderer draws them.
-        static Rgba32[] SpritePixels(FramePaint paint)
+        static RgbaPixel[] SpritePixels(FramePaint paint)
         {
-            Rgba32[] frame = DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
+            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
             return [.. Enumerable.Range(0, 64).Select(pixel => frame[pixel / 8 * SnesPpuLayout.ScreenSize.X + pixel % 8])];
         }
     }

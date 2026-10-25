@@ -208,7 +208,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
     /// <summary>Target palette restored by transitions back from gameplay flashbacks.</summary>
-    private readonly Bgr555[] introColours = new Bgr555[ScreenPalette.ColorCount];
+    private readonly RgbColor[] introColours = new RgbColor[ScreenPalette.ColorCount];
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
     internal IntroCinematicObjectSystem? CurrentObjects { get; private set; }
     /// <summary>The intro's sprite objects, which exist from the first text page onward.</summary>

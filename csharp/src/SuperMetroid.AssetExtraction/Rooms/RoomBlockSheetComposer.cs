@@ -81,7 +81,7 @@ internal static class RoomBlockSheetComposer
             inputs.Characters.Get(tileset.Characters).Characters);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Concat(uploads.Uploads).GroupBy(placement => placement.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
-        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
+        RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, checked((ushort)(background.Words.Length / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels))));
         SpritePaletteRows rows = SpritePaletteRows.None;
         for (int index = 0; index < background.Words.Length; index++)
@@ -131,7 +131,7 @@ internal static class RoomBlockSheetComposer
                 placement.BindTo(bound);
             return bound;
         })];
-        Bgr555[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
+        RgbColor[] colours = RoomTileCanvas.StandardColours(inputs.Palettes.Get(tileset.Palette).PackedColours.Span);
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
         BgCharacterPlacement[] all = [.. uploads.Uploads.Concat(uploads.Collectibles.Select(slot => slot.Characters))

@@ -47,14 +47,14 @@ internal static class FirefleaEyeVerification
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the
         // retail graphics/palette and the production source-aware color-math kernel.
         var palette = memory.Colors.ToArray();
-        palette[0] = Bgr555.Black;
+        palette[0] = RgbColor.Black;
         memory = new(palette, memory.SpriteDraws);
         var objects = new OrdinaryGameplayRenderLayer(baseLayer.View with { MainScreenLayers = ScreenLayers.Sprites }, baseLayer.Rooms);
-        Rgba32[]? bright = null;
+        RgbaPixel[]? bright = null;
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray();
-            var layer = new GameplayColorMathRenderLayer(objects, closed, false, new SceneBlend { Layers = actualDarkness.Blend.Layers, BlendsWithSubscreen = false, FixedColor = new Bgr555(darkness, darkness, darkness) });
+            var layer = new GameplayColorMathRenderLayer(objects, closed, false, new SceneBlend { Layers = actualDarkness.Blend.Layers, BlendsWithSubscreen = false, FixedColor = new RgbColor(darkness, darkness, darkness) });
             var pixels = DisplayRendering.Render(new LayeredScene(memory, new RenderLayer[] { layer }, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");

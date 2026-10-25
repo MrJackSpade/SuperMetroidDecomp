@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -50,14 +49,14 @@ internal static class SpriteSheetFilesVerification
                 "the installed timer sheet holds exactly the timer's frames");
 
             string image = SpriteSheetStore.ImageFile(SpriteSheetDefinitions.FileName(SpriteSheetId.EscapeTimer));
-            Rgba32[] edited = [.. composed.Pixels];
+            RgbaPixel[] edited = [.. composed.Pixels];
             int opaque = Array.FindIndex(edited, pixel => pixel.A != 0);
-            edited[opaque] = new Rgba32(1, 2, 3, 255);
+            edited[opaque] = new RgbaPixel(1, 2, 3, 255);
             Directory.CreateDirectory(overrides);
             using (FileStream output = File.Create(Path.Combine(overrides, image)))
                 RgbaPng.Write(output, composed.Size, edited);
             InstalledSpriteSheets overridden = SpriteSheetFiles.Load(stock, overrides);
-            AssertEqual(new Rgba32(1, 2, 3, 255), overridden.Get(SpriteSheetId.EscapeTimer).Image.Pixels[opaque],
+            AssertEqual(new RgbaPixel(1, 2, 3, 255), overridden.Get(SpriteSheetId.EscapeTimer).Image.Pixels[opaque],
                 "a player's sheet image replaces the stock pixels");
             AssertTrue(overridden.ContentIdentity != installed.ContentIdentity, "a sheet image override changes the content identity");
             File.Delete(Path.Combine(overrides, image));

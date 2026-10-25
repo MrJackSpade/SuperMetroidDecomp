@@ -22,7 +22,7 @@ behind this boundary; a new display need is expressed in the display model, and 
 |---|---|---|
 | PPU backend | `SnesVram`, `SnesCgram`, `OamBuffer`, `VramWriteQueue`, `GameplayWindowRegisterCache` | yes — raw members are `[PpuLayoutAccess]`; mixed types are `[PpuLayoutBoundary("backend: …")]` |
 | Layout catalogs | static classes of `PpuLayoutCell` per domain (gameplay BG tilemaps, HUD, menu planes, palette rows, OAM ranges, window/screen registers), `SnesPpuLayout` | yes — the only place a VRAM base, colour slot or register number appears; `[PpuLayoutBoundary("catalog: …")]` |
-| Rendering views | typed views over the backend (e.g. a BG tilemap view returning `SnesTilemapWord`, a palette view taking `Bgr555`, an object view taking `SnesObjAttributeWord`, a window-register view) | through cells only — `[PpuLayoutBoundary("rendering view: …")]` |
+| Rendering views | typed views over the backend (e.g. a BG tilemap view returning `SnesTilemapWord`, a palette view taking `RgbColor`, an object view taking `SnesObjAttributeWord`, a window-register view) | through cells only — `[PpuLayoutBoundary("rendering view: …")]` |
 | Codecs | render-snapshot/packet codecs, VRAM/CGRAM/OAM upload payloads, DMA transfers, asset uploads | through cells only — `[PpuLayoutBoundary("codec: …")]` |
 | Exact hardware tests | port/latch order, increment and wrap modes, OAM packing, CGRAM masking, alias coherence | narrowest method — `[PpuLayoutBoundary("exact hardware test: …")]` |
 | Everyone else | gameplay, rendering composition, frontend screens, behavioural verification | **no** — typed members only |
@@ -46,11 +46,11 @@ boundary on a local function or lambda has no effect.
   with its native identity (VMADD word, CGADD slot, `$21xx` register, native symbol) in XML docs.
   Two meanings that share storage are two cells; the second declares `aliasOf:`.
 - Views bind from cells and expose domain types end to end: `SnesTilemapWord`/tile words,
-  `SnesObjAttributeWord`, `Bgr555`, bounded indices, typed register values. Masks, packing, byte
+  `SnesObjAttributeWord`, `RgbColor`, bounded indices, typed register values. Masks, packing, byte
   order and raw-word conversion happen inside the view or codec.
 - Ranges are bounded typed views and batch/DMA operations — never raw spans handed to callers.
   Hot paths stay allocation-free: views are structs over the backend, batch operations take spans.
-- `Bgr555` is the colour type everywhere after the raw CGRAM word crosses the codec boundary.
+- `RgbColor` is the colour type everywhere after the raw CGRAM word crosses the codec boundary.
 - The backend that emulates the PPU preserves its behaviour exactly (byte/word port behaviour, VMAIN
   increment/remap modes, latch order, OAM low/high packing, CGRAM masking, register side effects, snapshot
   ownership) because that backend is the current renderer. None of it is a requirement on the simulation or
@@ -72,7 +72,7 @@ boundary on a local function or lambda has no effect.
   tilemap and byte reads, slices), `Mode7Vram` (the interleaved map and character planes), the
   gameplay layouts `GameplayVramLayout` and `RoomGraphicsLayout`, `BgCharacterWords` (the codec
   from native words to character sets) and `VramDmaDestination`. `CgramPalette`/`CgramPalettes`
-  (`Bgr555` reads and writes, CGDATA port streams, banks and rows) stay in
+  (`RgbColor` reads and writes, CGDATA port streams, banks and rows) stay in
   `SuperMetroid.Core.Hardware`. Their cell-binding constructors are `[PpuLayoutAccess]`: only a
   domain view binds a cell, and callers use its properties.
 - The GPU dispatch and render-packet producers model BGnSC/NBA and OBSEL register values and the snapshot images;
@@ -93,7 +93,7 @@ the catalog cells and checks:
   when one's alias chain reaches the other or a cell covering it;
 - every alias pair round-trips through the typed views on a real backend (VRAM and CGRAM writes
   through one view read back through the other; `gameplay_TM` is TM's NMI-latched copy);
-- representative typed round trips (tilemap word, `Bgr555` palette entry, object attributes,
+- representative typed round trips (tilemap word, `RgbColor` palette entry, object attributes,
   register value), view and cell bounds, VMAIN one/32-word increments and the 15-bit VMADD wrap,
   DMA mode 1 and Mode 7 port byte order, OAM low/high-table packing and CGRAM bit-15 masking;
 - representative view paths (palette writes, tilemap row/column writes and reads, Mode 7 map

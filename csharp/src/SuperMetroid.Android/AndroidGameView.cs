@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend;
 using System.Diagnostics;
 using SuperMetroid.Android.Diagnostics;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Android;
 
@@ -27,7 +28,7 @@ internal sealed class AndroidGameView : View
     /// <summary>Single-frame handoff that replaces stale presentation frames.</summary>
     private readonly AndroidFrameMailbox frames = new(FrontendFrame.Width * FrontendFrame.Height, new AndroidFrameHandoffTrace());
     /// <summary>Cached delegate used when the mailbox supplies a frame for upload.</summary>
-    private readonly Action<Rgba32[]> uploadFrame;
+    private readonly Action<RgbaPixel[]> uploadFrame;
     /// <summary>Current diagnostic status displayed inside the game viewport.</summary>
     private string status = "Starting game...";
     /// <summary>Current room label updated independently of the FPS display window.</summary>
@@ -77,7 +78,7 @@ internal sealed class AndroidGameView : View
     }
 
     /// <summary>Copies the newest game frame into the mailbox and requests a display redraw.</summary>
-    public void Publish(Rgba32[] frame, string description)
+    public void Publish(RgbaPixel[] frame, string description)
     {
         Volatile.Write(ref status, description);
         if (frames.Publish(frame))
@@ -122,12 +123,12 @@ internal sealed class AndroidGameView : View
     }
 
     /// <summary>Packs a software frame into Android ARGB pixels and updates the reusable bitmap.</summary>
-    private void UploadFrame(Rgba32[] frame)
+    private void UploadFrame(RgbaPixel[] frame)
     {
         long uploadStart = Stopwatch.GetTimestamp();
         for (int i = 0; i < frame.Length; i++)
         {
-            Rgba32 p = frame[i];
+            RgbaPixel p = frame[i];
             argb[i] = AndroidPixelPacking.Argb(p);
         }
         bitmap.SetPixels(argb, 0, FrontendFrame.Width, 0, 0, FrontendFrame.Width, FrontendFrame.Height);

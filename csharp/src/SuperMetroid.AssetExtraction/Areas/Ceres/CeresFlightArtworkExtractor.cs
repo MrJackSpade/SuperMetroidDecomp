@@ -63,7 +63,7 @@ internal static class CeresFlightArtworkExtractor
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
                 nativePalette.AsSpan(index * sizeof(ushort)));
-            if (!Bgr555.IsColorWord(word))
+            if (!RgbColor.IsColorWord(word))
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5
@@ -131,7 +131,7 @@ internal static class CeresFlightArtworkExtractor
             !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters))
             throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
         for (int index = 0; index < CgramPalettes.ColorCount; index++)
-            if (roundTrip.Palette.ColorAt(index) != Bgr555.FromCgramPortWord(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * Bgr555.ByteCount))))
+            if (roundTrip.Palette.ColorAt(index) != RgbColor.FromCgramPortWord(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * RgbColor.ByteCount))))
                 throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {

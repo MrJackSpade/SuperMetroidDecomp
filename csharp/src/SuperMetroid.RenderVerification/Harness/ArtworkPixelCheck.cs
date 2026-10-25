@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -25,8 +26,8 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
         DisplayPacket a = Packet(stock), b = Packet(edited);
-        Rgba32[] first = DisplayRendering.Render(a);
-        Rgba32[] second = DisplayRendering.Render(b);
+        RgbaPixel[] first = DisplayRendering.Render(a);
+        RgbaPixel[] second = DisplayRendering.Render(b);
         var substitutions = Enumerable.Range(0, 16).ToDictionary(
             index => colors.GetRgba(index), index => colors.GetRgba(InstalledSamusArtworkFixture.Remap((byte)index)));
         for (int pixel = 0; pixel < first.Length; pixel++)
@@ -34,7 +35,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
             // The fixture changes every nontransparent index to its successor.
             // This independent oracle catches wrong tile planes, palette indices,
             // crop/flip mistakes and edits which never reach visible output.
-            if (!substitutions.TryGetValue(first[pixel], out Rgba32 expected) || second[pixel] != expected)
+            if (!substitutions.TryGetValue(first[pixel], out RgbaPixel expected) || second[pixel] != expected)
                 throw new InvalidOperationException($"{context}: PNG index substitution differs at " +
                     $"({pixel % a.Size.X},{pixel / a.Size.X}): {first[pixel]} -> {second[pixel]}.");
             if (first[pixel] != second[pixel]) ChangedPixels++;
@@ -51,7 +52,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     }
 
     /// <summary>Reads a GPU frame and compares its pixels with the WARP reference's.</summary>
-    private void Compare(DisplayPacket frame, Rgba32[] expected, string context)
+    private void Compare(DisplayPacket frame, RgbaPixel[] expected, string context)
     {
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {context}");
         Comparisons++;
@@ -65,7 +66,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
         // All palette rows deliberately share sixteen distinct colors. Sprite
         // palette selection remains native, while the pixel-index oracle is exact.
         for (int index = 0; index < SnesPpuLayout.CgramColorCount; index++)
-            result.SetColor(index, new Bgr555(index % 16 + 1, 7, 13));
+            result.SetColor(index, new RgbColor(index % 16 + 1, 7, 13));
         return result;
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -17,14 +18,14 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// painting, the #1165 nonsense exception. This narrow disposition does not
 /// exempt other normal/speed-boost palettes or their unreviewed relationships.
 /// Custom differences remain nullable overrides, never generated color caches.</remarks>
-internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, Bgr555>
+internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, RgbColor>
 {
     /// <summary>The eight tinted endpoints, by the color each names.</summary>
     private static readonly Dictionary<PaletteFxColorKey, LoadingSuitColor> Endpoints =
         Enum.GetValues<LoadingSuitColor>().ToDictionary(LoadingPaletteColorDefinitions.Key);
 
     /// <summary>Ordinary stored suit colors after the eight selected tinted endpoints are removed.</summary>
-    private readonly Dictionary<PaletteFxColorKey, Bgr555> colors;
+    private readonly Dictionary<PaletteFxColorKey, RgbColor> colors;
     /// <summary>Power dim slot1.</summary>
     internal readonly Channels powerDim1;
     /// <summary>Power dim slot2.</summary>
@@ -43,10 +44,10 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
     internal readonly Channels gravityDim2;
 
     /// <summary>Captures only channels differing from calculated tint endpoints, then removes those endpoints from ordinary storage.</summary>
-    internal LoadingPaletteInputView(Dictionary<PaletteFxColorKey, Bgr555> colors)
+    internal LoadingPaletteInputView(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
         this.colors = colors;
-        Bgr555 Supplied(LoadingSuitColor slot) => colors[LoadingPaletteColorDefinitions.Key(slot)];
+        RgbColor Supplied(LoadingSuitColor slot) => colors[LoadingPaletteColorDefinitions.Key(slot)];
         powerDim1 = new(Supplied(LoadingSuitColor.PowerDim1), Expected(LoadingSuitColor.PowerDim1));
         powerDim2 = new(Supplied(LoadingSuitColor.PowerDim2), Expected(LoadingSuitColor.PowerDim2));
         powerBright9 = new(Supplied(LoadingSuitColor.PowerBright9), Expected(LoadingSuitColor.PowerBright9));
@@ -60,12 +61,12 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
     }
 
     /// <summary>Requires the normal-suit source color used to derive a loading tint endpoint.</summary>
-    private Bgr555 Normal(PaletteFxColorKey key) =>
-        LoadingPaletteColorDefinitions.TryReadColor(key, colors, out Bgr555 value)
+    private RgbColor Normal(PaletteFxColorKey key) =>
+        LoadingPaletteColorDefinitions.TryReadColor(key, colors, out RgbColor value)
             ? value : throw new InvalidDataException($"Missing loading base {key}.");
 
     /// <summary>Calculates the selected loading tint from a normal-suit source and shared channel rules.</summary>
-    private Bgr555 Expected(LoadingSuitColor slot) => slot switch
+    private RgbColor Expected(LoadingSuitColor slot) => slot switch
     {
         LoadingSuitColor.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim1)), 2),
         LoadingSuitColor.PowerDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim2)), 2),
@@ -89,18 +90,18 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
         /// <summary>Independent blue value, or null when the calculated endpoint supplies it.</summary>
         internal readonly int? blue;
         /// <summary>Captures differing channels; independentMask bits0/1/2 always retain red/green/blue inputs.</summary>
-        internal Channels(Bgr555 supplied, Bgr555 expected, int independentMask = 0)
+        internal Channels(RgbColor supplied, RgbColor expected, int independentMask = 0)
         {
             red = (independentMask & 1) == 0 && supplied.Red == expected.Red ? null : supplied.Red;
             green = (independentMask & 2) == 0 && supplied.Green == expected.Green ? null : supplied.Green;
             blue = (independentMask & 4) == 0 && supplied.Blue == expected.Blue ? null : supplied.Blue;
         }
         /// <summary>Overlays retained independent channels on the calculated normal-suit tint.</summary>
-        internal Bgr555 Apply(Bgr555 expected) => new(red ?? expected.Red, green ?? expected.Green, blue ?? expected.Blue);
+        internal RgbColor Apply(RgbColor expected) => new(red ?? expected.Red, green ?? expected.Green, blue ?? expected.Blue);
     }
 
     /// <summary>Resolves an ordinary stored color or reconstructs one of eight derived loading-tint endpoints.</summary>
-    public bool TryGetValue(PaletteFxColorKey key, out Bgr555 value)
+    public bool TryGetValue(PaletteFxColorKey key, out RgbColor value)
     {
         // Colors other than the eight tinted endpoints are ordinary stored colors.
         if (!Endpoints.TryGetValue(key, out LoadingSuitColor slot))
@@ -121,7 +122,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
         return true;
     }
     /// <summary>Requires a stored or derived loading color.</summary>
-    public Bgr555 this[PaletteFxColorKey key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    public RgbColor this[PaletteFxColorKey key] => TryGetValue(key, out RgbColor value) ? value : throw new KeyNotFoundException();
     /// <summary>Includes ordinary stored colors and the eight reconstructed tint endpoints.</summary>
     public int Count => colors.Count + Endpoints.Count;
     /// <summary>Checks whether a color is stored or derived.</summary>
@@ -129,9 +130,9 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxCol
     /// <summary>Enumerates stored colors followed by the eight derived tint endpoints.</summary>
     public IEnumerable<PaletteFxColorKey> Keys => colors.Keys.Concat(Endpoints.Keys);
     /// <summary>Resolves values in the same stored-then-derived order as <see cref="Keys"/>.</summary>
-    public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    public IEnumerable<RgbColor> Values => Keys.Select(key => this[key]);
     /// <summary>Enumerates stored and reconstructed colors.</summary>
-    public IEnumerator<KeyValuePair<PaletteFxColorKey, Bgr555>> GetEnumerator()
+    public IEnumerator<KeyValuePair<PaletteFxColorKey, RgbColor>> GetEnumerator()
     {
         foreach (PaletteFxColorKey key in Keys) yield return new(key, this[key]);
     }

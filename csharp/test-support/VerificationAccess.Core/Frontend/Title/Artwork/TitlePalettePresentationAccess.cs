@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -9,6 +9,6 @@ internal static class TitlePalettePresentationAccess
     extension(TitlePalettePresentation self)
     {
         /// <summary>Reads the stored RGB5 color span used by the title presentation.</summary>
-        internal ReadOnlySpan<Bgr555> Colors => self.colors;
+        internal ReadOnlySpan<RgbColor> Colors => self.colors;
     }
 }

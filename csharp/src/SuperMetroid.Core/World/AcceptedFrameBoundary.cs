@@ -345,7 +345,7 @@ internal sealed class AcceptedFrameBoundary
     private GameplayLatchedFixedColors CaptureFixedColors()
     {
         // Before the first room exists there is no explosion; its colour is black.
-        Bgr555 powerBomb = _room.BombProjectiles?.PowerBombExplosion.FixedColor ?? Bgr555.Black;
+        RgbColor powerBomb = _room.BombProjectiles?.PowerBombExplosion.FixedColor ?? RgbColor.Black;
         return new(
             _roomFx.FixedColors.Color,
             powerBomb,

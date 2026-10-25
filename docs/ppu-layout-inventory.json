@@ -271,7 +271,7 @@
       "region": "Cgram",
       "offset": "$0000",
       "count": 128,
-      "encoding": "Bgr555 background palettes",
+      "encoding": "RgbColor background palettes",
       "aliasOf": "PpuMemoryLayout.Cgram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Hardware/CgramPalettes.cs",
@@ -284,7 +284,7 @@
       "region": "Cgram",
       "offset": "$0000",
       "count": 256,
-      "encoding": "Bgr555 colours",
+      "encoding": "RgbColor colours",
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Hardware/CgramPalettes.cs",

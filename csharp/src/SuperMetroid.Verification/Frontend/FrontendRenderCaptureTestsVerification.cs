@@ -7,9 +7,9 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend;
 
@@ -30,12 +30,12 @@ internal static class FrontendRenderCaptureTestsVerification
         {
             MapPresentation = presentation,
         });
-        AssertEqual(new Rgba32(0, 0, 0, 255), captured.GetRetainedDisplay(1, 1).SolidColor,
+        AssertEqual(new RgbaPixel(0, 0, 0, 255), captured.GetRetainedDisplay(1, 1).SolidColor,
             "the initial display is a published black frame");
         var states = new HashSet<SuperMetroidGameState>();
         int packetCount = 0;
         DisplayPacket? held = null;
-        Rgba32[]? heldPixels = null;
+        RgbaPixel[]? heldPixels = null;
         for (int tick = 0; tick < 500; tick++)
         {
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : 0;
@@ -46,7 +46,7 @@ internal static class FrontendRenderCaptureTestsVerification
             AssertEqual(expected.FrameNumber, actual.Frame.FrameNumber, "captured frontend NMI identity");
             AssertSequenceEqual(legacy.AudioEventsForVerification, captured.AudioEventsForVerification, "captured frontend audio event order");
             states.Add(expected.GameState);
-            Rgba32[] actualPixels;
+            RgbaPixel[] actualPixels;
             DisplayPacket packet = actual.Snapshot;
             {
                 long allocationStart = GC.GetAllocatedBytesForCurrentThread();

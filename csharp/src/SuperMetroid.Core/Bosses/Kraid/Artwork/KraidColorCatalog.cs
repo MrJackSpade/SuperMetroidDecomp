@@ -9,7 +9,7 @@ public sealed class KraidColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
             // Each row is tagged by its position in this order: room backdrop, initial target, health, secondary, death arm.
-            IReadOnlyList<Bgr555>[] rows = [roomBackdrop, initialTarget, health, secondary, deathArm];
+            IReadOnlyList<RgbColor>[] rows = [roomBackdrop, initialTarget, health, secondary, deathArm];
             for (int tag = 0; tag < rows.Length; tag++)
             {
                 content.Append("source", tag);
@@ -18,19 +18,19 @@ public sealed class KraidColorCatalog
         });
 
     /// <summary>Target colors for Kraid's room-backdrop fade.</summary>
-    internal readonly IReadOnlyList<Bgr555> roomBackdrop;
+    internal readonly IReadOnlyList<RgbColor> roomBackdrop;
     /// <summary>Rock sprite target colors staged during initial setup.</summary>
-    internal readonly IReadOnlyList<Bgr555> initialTarget;
+    internal readonly IReadOnlyList<RgbColor> initialTarget;
     /// <summary>White hurt flash and eight body health bands.</summary>
-    internal readonly IReadOnlyList<Bgr555> health;
+    internal readonly IReadOnlyList<RgbColor> health;
     /// <summary>Independently editable sprite flash and health bands.</summary>
-    internal readonly IReadOnlyList<Bgr555> secondary;
+    internal readonly IReadOnlyList<RgbColor> secondary;
     /// <summary>Arm and body death colors installed before the fade.</summary>
-    internal readonly IReadOnlyList<Bgr555> deathArm;
+    internal readonly IReadOnlyList<RgbColor> deathArm;
 
     /// <summary>Compiles five authored sources, sharing health-band storage only when secondary colors match exactly.</summary>
-    internal KraidColorCatalog(Bgr555[] roomBackdrop, Bgr555[] initialTarget, Bgr555[] health,
-        Bgr555[] secondary, Bgr555[] deathArm)
+    internal KraidColorCatalog(RgbColor[] roomBackdrop, RgbColor[] initialTarget, RgbColor[] health,
+        RgbColor[] secondary, RgbColor[] deathArm)
     {
         this.roomBackdrop = new StockBand(KraidPaletteSource.RoomBackdrop, roomBackdrop);
         this.initialTarget = new StockBand(KraidPaletteSource.InitialTarget, initialTarget);
@@ -43,9 +43,9 @@ public sealed class KraidColorCatalog
     /// Selects one of five named editable sources directly. Each source keeps its
     /// own loaded color bounds; unknown sources and out-of-range indices are rejected.
     /// </summary>
-    public Bgr555 Resolve(KraidPaletteSource source, int index)
+    public RgbColor Resolve(KraidPaletteSource source, int index)
     {
-        IReadOnlyList<Bgr555> band = source switch
+        IReadOnlyList<RgbColor> band = source switch
         {
             KraidPaletteSource.RoomBackdrop => roomBackdrop,
             KraidPaletteSource.InitialTarget => initialTarget,
@@ -63,15 +63,15 @@ public sealed class KraidColorCatalog
     /// One sixteen-color source stored as its supplied deviations from the stock paint in
     /// <see cref="KraidPaintDefinitions"/>; an unedited stock band stores nothing.
     /// </summary>
-    internal sealed class StockBand : IReadOnlyList<Bgr555>
+    internal sealed class StockBand : IReadOnlyList<RgbColor>
     {
         /// <summary>Named native source that supplies calculated unedited colors.</summary>
         private readonly KraidPaletteSource source;
         /// <summary>Only supplied colors that differ from the reviewed stock paint.</summary>
-        internal readonly Dictionary<ColourCell, Bgr555> deviations = new();
+        internal readonly Dictionary<ColourCell, RgbColor> deviations = new();
 
         /// <summary>Records independent edits to one sixteen-color source.</summary>
-        internal StockBand(KraidPaletteSource source, Bgr555[] supplied)
+        internal StockBand(KraidPaletteSource source, RgbColor[] supplied)
         {
             this.source = source;
             for (int index = 0; index < supplied.Length; index++)
@@ -82,11 +82,11 @@ public sealed class KraidColorCatalog
         /// <summary>Native color count of this named source.</summary>
         public int Count => KraidPalettes.ColorCount(source);
         /// <summary>Edited color at an index, or its calculated stock paint.</summary>
-        public Bgr555 this[int index] => deviations.TryGetValue(new ColourCell(0, index), out Bgr555 supplied)
+        public RgbColor this[int index] => deviations.TryGetValue(new ColourCell(0, index), out RgbColor supplied)
             ? supplied : KraidPaintDefinitions.Color(source, index);
 
         /// <summary>Visits source colors in their native palette order.</summary>
-        public IEnumerator<Bgr555> GetEnumerator()
+        public IEnumerator<RgbColor> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
@@ -99,7 +99,7 @@ public sealed class KraidColorCatalog
     /// Interpolates one channelwise health color for <paramref name="band"/> between the first
     /// normal band and the final band, to nearest integer over the seven intervals.
     /// </summary>
-    internal static Bgr555 InterpolateHealth(Bgr555 first, Bgr555 last, int band)
+    internal static RgbColor InterpolateHealth(RgbColor first, RgbColor last, int band)
     {
         int intervals = KraidPalettes.HealthBandCount - 2;
         return first.Zip(last, (_, start, end) =>
@@ -116,17 +116,17 @@ public sealed class KraidColorCatalog
     /// interpolate the current endpoints, and their transparent slot is the final band's.
     /// Only supplied deviations are stored, so edited endpoints still drive every step.
     /// </summary>
-    internal sealed class HealthPalette : IReadOnlyList<Bgr555>
+    internal sealed class HealthPalette : IReadOnlyList<RgbColor>
     {
         /// <summary>Edited authored endpoints or interior samples that differ from calculated interpolation.</summary>
-        internal readonly Dictionary<ColourCell, Bgr555> deviations = new();
+        internal readonly Dictionary<ColourCell, RgbColor> deviations = new();
 
         /// <summary>Records endpoint edits before comparing interior colors against those selected endpoints.</summary>
-        internal HealthPalette(Bgr555[] supplied)
+        internal HealthPalette(RgbColor[] supplied)
         {
             // Authored cells first: interior interpolation reads the (possibly edited) endpoints.
             for (int index = 0; index < supplied.Length; index++)
-                if (KraidPaintDefinitions.HealthAuthored(index) is Bgr555 stock && stock != supplied[index])
+                if (KraidPaintDefinitions.HealthAuthored(index) is RgbColor stock && stock != supplied[index])
                     deviations.Add(new ColourCell(0, index), supplied[index]);
             for (int index = 0; index < supplied.Length; index++)
                 if (KraidPaintDefinitions.HealthAuthored(index) is null && Calculate(index) != supplied[index])
@@ -136,20 +136,20 @@ public sealed class KraidColorCatalog
         /// <summary>White flash plus eight native sixteen-color health bands.</summary>
         public int Count => KraidPalettes.HealthBandCount * KraidPalettes.BandColors;
         /// <summary>Selected health color, preserving independent edits over calculated bands.</summary>
-        public Bgr555 this[int index]
+        public RgbColor this[int index]
         {
             get
             {
                 if ((uint)index >= Count)
                     throw new ArgumentOutOfRangeException(nameof(index));
-                return deviations.TryGetValue(new ColourCell(0, index), out Bgr555 supplied) ? supplied : Calculate(index);
+                return deviations.TryGetValue(new ColourCell(0, index), out RgbColor supplied) ? supplied : Calculate(index);
             }
         }
 
         /// <summary>Uses authored flash/endpoints or interpolates an interior band from the current selected endpoints.</summary>
-        private Bgr555 Calculate(int index)
+        private RgbColor Calculate(int index)
         {
-            if (KraidPaintDefinitions.HealthAuthored(index) is Bgr555 authored)
+            if (KraidPaintDefinitions.HealthAuthored(index) is RgbColor authored)
                 return authored;
             int band = index / KraidPalettes.BandColors;
             int color = index % KraidPalettes.BandColors;
@@ -160,7 +160,7 @@ public sealed class KraidColorCatalog
         }
 
         /// <summary>Visits flash and health bands in their native contiguous order.</summary>
-        public IEnumerator<Bgr555> GetEnumerator()
+        public IEnumerator<RgbColor> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];

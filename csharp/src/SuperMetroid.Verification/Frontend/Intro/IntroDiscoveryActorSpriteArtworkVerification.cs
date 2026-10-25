@@ -83,8 +83,8 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             var discovery = state.CurrentBabyDiscovery;
             (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
         }
-        Rgba32[] stockPixels = stockState.RenderArtwork();
-        Rgba32[] editedPixels = editedState.RenderArtwork();
+        RgbaPixel[] stockPixels = stockState.RenderArtwork();
+        RgbaPixel[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg visual override changes visible production discovery pixels");
         stockState.BindFixtureIntroArtwork(edited);

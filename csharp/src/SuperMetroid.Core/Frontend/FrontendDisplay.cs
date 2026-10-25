@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -37,7 +38,7 @@ internal sealed class FrontendDisplay
     }
 
     /// <summary>The solid color a blank frame shows.</summary>
-    private static Rgba32 Black => new(0, 0, 0, 255);
+    private static RgbaPixel Black => new(0, 0, 0, 255);
 
     /// <summary>The identity to publish under: the host's while it captures, otherwise the next own sequence number.</summary>
     private RenderFrameIdentity NextIdentity() => captureIdentity ?? new(++uncapturedSequence, 1, 0);

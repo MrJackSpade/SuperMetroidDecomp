@@ -40,7 +40,7 @@ internal static class PowerBombFixedColorsVerification
             {
                 int address = PowerBombColorSources.Start(sequence) +
                     index * SamusSourceDefinitions.PowerBombBytesPerColor;
-                Bgr555 color = catalog.Resolve(sequence, index);
+                RgbColor color = catalog.Resolve(sequence, index);
                 byte red = (byte)color.Red;
                 byte green = (byte)color.Green;
                 byte blue = (byte)color.Blue;

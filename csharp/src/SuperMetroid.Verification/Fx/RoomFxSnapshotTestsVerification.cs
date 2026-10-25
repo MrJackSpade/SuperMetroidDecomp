@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -18,10 +19,10 @@ internal static class RoomFxSnapshotTestsVerification
         var vram = new SnesVram();
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes); vram.LoadBytes(0, bytes);
         var cgram = new SnesCgram();
-        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord(checked((ushort)random.Next(32768))));
+        for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, RgbColor.FromWord(checked((ushort)random.Next(32768))));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureFrontend(vram, cgram, oam, 3);
-        Rgba32[] baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
+        RgbaPixel[] baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
         int samples = 0;
         var configurations = new[]
         {
@@ -45,7 +46,7 @@ internal static class RoomFxSnapshotTestsVerification
             FxPlaneBlendRenderLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(fx, plane);
             var packet = new DisplayPacket(new(++samples, 1, 0),
                 new LayeredScene(memory, layer is null ? [] : new RenderLayer[] { layer }, 15));
-            Rgba32[] actual = DisplayRendering.Render(packet);
+            RgbaPixel[] actual = DisplayRendering.Render(packet);
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
                 $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY} preserves HUD band");
         }

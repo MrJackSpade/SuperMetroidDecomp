@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -11,12 +12,12 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal static class TourianStatueGreyColorDefinitions
 {
     /// <summary>Explicit supplied edits take precedence; generated colors are never cached.</summary>
-    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> colors, out Bgr555 value)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if (!TourianStatueGreyPaletteFxColorDefinitions.Rows.TryLocate(key, out int frame, out int color) || frame is 0 or 7 ||
-            !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.Color(0, color), out Bgr555 first) ||
-            !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.Color(7, color), out Bgr555 last))
+            !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.Color(0, color), out RgbColor first) ||
+            !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.Color(7, color), out RgbColor last))
             return false;
         if (color == 0)
         {
@@ -26,7 +27,7 @@ internal static class TourianStatueGreyColorDefinitions
         int red = Channel(first.Red, last.Red, frame);
         int green = Channel(first.Green, last.Green, frame);
         int blue = Channel(first.Blue, last.Blue, frame);
-        value = new Bgr555(red, green, blue);
+        value = new RgbColor(red, green, blue);
         return true;
     }
 

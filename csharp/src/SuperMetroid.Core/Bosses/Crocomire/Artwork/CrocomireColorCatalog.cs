@@ -34,11 +34,11 @@ public sealed class CrocomireColorCatalog
         WallSpikes,
     }
     /// <summary>Independently supplied differences; every unedited stock ink is calculated.</summary>
-    internal readonly Dictionary<CrocomireColorKey, Bgr555> edits = [];
+    internal readonly Dictionary<CrocomireColorKey, RgbColor> edits = [];
 
     /// <summary>Retains only colors that differ from their calculated native material paint.</summary>
-    internal CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
-        Bgr555[] initialProjectile, Bgr555[] skeletonArm, Bgr555[] wallSpikes)
+    internal CrocomireColorCatalog(RgbColor[] fightBody, RgbColor[] initialWall,
+        RgbColor[] initialProjectile, RgbColor[] skeletonArm, RgbColor[] wallSpikes)
     {
         RetainEdits(Band.FightBody, fightBody);
         RetainEdits(Band.InitialWall, initialWall);
@@ -48,7 +48,7 @@ public sealed class CrocomireColorCatalog
     }
 
     /// <summary>Keeps each supplied color of one band that differs from its calculated stock paint.</summary>
-    private void RetainEdits(Band band, Bgr555[] colors)
+    private void RetainEdits(Band band, RgbColor[] colors)
     {
         for (int color = 0; color < colors.Length; color++)
             if (colors[color] != Stock(band, color))
@@ -56,7 +56,7 @@ public sealed class CrocomireColorCatalog
     }
 
     /// <summary>Each named material calculates its native paint and transfer overlaps; supplied edits never alias across fields.</summary>
-    private static Bgr555 Stock(Band band, int color) => band switch
+    private static RgbColor Stock(Band band, int color) => band switch
     {
         Band.FightBody => CrocomirePaintDefinitions.FightBody(color),
         Band.InitialWall => CrocomirePaintDefinitions.InitialWall(color),
@@ -79,7 +79,7 @@ public sealed class CrocomireColorCatalog
     /// <summary>Hashes a complete resolved transfer in native color order.</summary>
     private void Append(SelectedPresentationHash content, Band band, string label)
     {
-        Span<Bgr555> transfer = stackalloc Bgr555[Count(band)];
+        Span<RgbColor> transfer = stackalloc RgbColor[Count(band)];
         for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
         content.AppendColors(label, transfer);
     }
@@ -103,10 +103,10 @@ public sealed class CrocomireColorCatalog
         Apply(new BossColours(colours).CrocomireWallSpikes, Band.WallSpikes);
 
     /// <summary>Returns an edited color or calculates the corresponding native stock paint.</summary>
-    internal Bgr555 Get(Band band, int index)
+    internal RgbColor Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(new CrocomireColorKey(band, index), out Bgr555 edited) ? edited : Stock(band, index);
+        return edits.TryGetValue(new CrocomireColorKey(band, index), out RgbColor edited) ? edited : Stock(band, index);
     }
 
     /// <summary>Writes one complete material band to its selected CGRAM destination.</summary>

@@ -44,10 +44,10 @@ internal sealed class GradualPaletteTransition
         for (int run = 0; run < Target.RunCount; run++)
         {
             ColourRun colours = Target.Run(run);
-            ReadOnlySpan<Bgr555> goals = Target.Copy(run);
+            ReadOnlySpan<RgbColor> goals = Target.Copy(run);
             for (int index = 0; index < colours.Count; index++)
             {
-                Bgr555 current = colours[index];
+                RgbColor current = colours[index];
                 if (current != goals[index])
                     colours.Write(index, CalculateColor(transitionNumber, current, goals[index]));
             }
@@ -60,7 +60,7 @@ internal sealed class GradualPaletteTransition
     internal ColourImage Target { get; }
 
     /// <summary>Applies native fixed-point interpolation independently to each RGB5 channel.</summary>
-    private Bgr555 CalculateColor(int step, Bgr555 current, Bgr555 destination) =>
+    private RgbColor CalculateColor(int step, RgbColor current, RgbColor destination) =>
         current.Zip(destination, (_, from, to) => CalculateComponent(step, from, to));
 
     /// <summary>Moves one channel toward its target using the remaining-step divisor and 8.8 truncation.</summary>

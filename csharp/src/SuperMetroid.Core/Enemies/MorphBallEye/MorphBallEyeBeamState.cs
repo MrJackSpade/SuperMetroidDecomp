@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
@@ -32,7 +34,7 @@ public sealed class MorphBallEyeBeamState
     /// The colour the beam adds inside its cone: red and green only, never blue; black before the beam appears and once
     /// it has faded.
     /// </summary>
-    public Bgr555 Color { get; internal set; }
+    public RgbColor Color { get; internal set; }
 
     /// <summary>Ends the beam's lifetime and returns its colour to black.</summary>
     internal void Reset()
@@ -42,7 +44,7 @@ public sealed class MorphBallEyeBeamState
         AngularHalfWidth = SignedSixteenSixteen.Zero;
         AngularHalfWidthGrowth = SignedSixteenSixteen.Zero;
         ColorIndex = 0;
-        Color = Bgr555.Black;
+        Color = RgbColor.Black;
     }
 
     /// <summary>Darkens each colour channel by one intensity, leaving a channel already at zero unchanged.</summary>

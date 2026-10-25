@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -8,5 +10,5 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Geometry">Last non-retain geometry; null until the first build, and retained across deactivation.</param>
 public readonly record struct MotherBrainRainbowBeamRenderSnapshot(
     bool Active,
-    Bgr555 Color,
+    RgbColor Color,
     MotherBrainRainbowBeamGeometry? Geometry);

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -686,8 +687,8 @@ internal sealed class PhantoonPatterns
 
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _presentation.BossColours().PhantoonBody[color];
-            Bgr555 target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+            RgbColor current = _presentation.BossColours().PhantoonBody[color];
+            RgbColor target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
             _presentation.BossColours().PhantoonBody.Write(
                 color,

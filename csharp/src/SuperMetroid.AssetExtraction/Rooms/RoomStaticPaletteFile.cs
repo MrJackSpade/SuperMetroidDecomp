@@ -28,7 +28,7 @@ public static class RoomStaticPaletteFile
                 $"Room palette requires version {RoomStaticPaletteFormat.Version} and " +
                 $"{RoomStaticPaletteFormat.ColorCount} RGB5 colors.");
 
-        var colours = new Bgr555[document.Colors.Length];
+        var colours = new RgbColor[document.Colors.Length];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -36,7 +36,7 @@ public static class RoomStaticPaletteFile
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Room palette color {index} requires red, green and blue in 0..31.");
-            colours[index] = color.ToBgr555();
+            colours[index] = color.ToRgbColor();
         }
         return RoomStaticPalette.FromColours(colours);
     }

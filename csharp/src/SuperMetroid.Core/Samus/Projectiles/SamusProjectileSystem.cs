@@ -275,7 +275,7 @@ public sealed class SamusProjectileSystem
             // That is exactly colors 15..1: transparent color zero is intentionally left
             // untouched while every visible Samus color becomes yellow `$03FF`.
             for (int color = 1; color < 16; color++)
-                colours.Suit.Write(color, new Bgr555(31, 31, 0));
+                colours.Suit.Write(color, new RgbColor(31, 31, 0));
 
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.OrdinaryWhite);

@@ -12,6 +12,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -115,7 +116,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
         for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
-            Bgr555 expected = color is >= 9 and <= 12
+            RgbColor expected = color is >= 9 and <= 12
                 ? colors.ResolveHealthBand(1, color - 9)
                 : colors.ResolveBackground(color);
             AssertEqual(expected,
@@ -168,7 +169,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Draygon colors: 105 native RGB5 words, live intro/hurt/flash/eight health bands, persistent override, ROM guard, and strict failures pass.");
 
-        void VerifyBand(int source, int count, Func<int, Bgr555> resolve, string name)
+        void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -176,7 +177,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     $"installed Draygon {name} color {color} preserves native RGB5");
         }
 
-        void AssertBand(int destination, int count, Func<int, Bgr555> resolve, string name)
+        void AssertBand(int destination, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), cgram.Colors[destination + color],
@@ -188,8 +189,8 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckEditedBand(int count, Func<int, Bgr555> original,
-            Func<int, Bgr555> changed, string name)
+        static void CheckEditedBand(int count, Func<int, RgbColor> original,
+            Func<int, RgbColor> changed, string name)
         {
             AssertTrue(original(1) != changed(1),
                 $"Draygon {name} edit changes selected color");

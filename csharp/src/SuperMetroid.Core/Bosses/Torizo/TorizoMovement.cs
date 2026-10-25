@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -112,7 +113,7 @@ internal sealed class TorizoMovement
     /// <summary>Writes the two palette rows shared by both statue variants to live CGRAM.</summary>
     private void LoadTorizoSharedPaletteRows()
     {
-        ReadOnlySpan<Bgr555> rows = TorizoPaletteDefinitions.SharedRows;
+        ReadOnlySpan<RgbColor> rows = TorizoPaletteDefinitions.SharedRows;
         for (int color = 0; color < 16; color++)
         {
             _presentation.BossColours().TorizoSharedFirst.Write(color, rows[color]);

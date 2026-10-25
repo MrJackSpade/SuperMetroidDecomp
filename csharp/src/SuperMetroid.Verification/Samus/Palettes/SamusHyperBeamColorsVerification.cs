@@ -108,14 +108,14 @@ internal static class SamusHyperBeamColorsVerification
                 if (frame == 7 && index != 0)
                 {
                     ushort greenPointer = ReadVerificationWord(rom, 0x91d9a8);
-                    AssertEqual(native, SamusHyperBeamColorFormat.YellowFromGreen(Bgr555.FromWord(ReadVerificationWord(rom,
+                    AssertEqual(native, SamusHyperBeamColorFormat.YellowFromGreen(RgbColor.FromWord(ReadVerificationWord(rom,
                         0x9b0000 | (greenPointer + 2 * index)))), "Every original green-to-yellow hue word");
                 }
                 bool midpoint = frame == 6 && index is not (0 or 1 or 8 or 11);
                 if (midpoint)
                 {
                     ushort greenPointer = ReadVerificationWord(rom, 0x91d9a8);
-                    AssertEqual(native, SamusHyperBeamColorFormat.GreenYellowMidpoint(Bgr555.FromWord(ReadVerificationWord(rom,
+                    AssertEqual(native, SamusHyperBeamColorFormat.GreenYellowMidpoint(RgbColor.FromWord(ReadVerificationWord(rom,
                         0x9b0000 | (greenPointer + 2 * index)))), "Every original regular midpoint color");
                 }
                 bool cyanGreen = frame == 4 && index is not (0 or 7);
@@ -123,16 +123,16 @@ internal static class SamusHyperBeamColorsVerification
                 {
                     ushort cyanPointer = ReadVerificationWord(rom, 0x91d9a4), greenPointer = ReadVerificationWord(rom, 0x91d9a8);
                     AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
-                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (cyanPointer + 2 * index)))),
-                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index))))), "Every original cyan-green midpoint word");
+                        RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (cyanPointer + 2 * index)))),
+                        RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (greenPointer + 2 * index))))), "Every original cyan-green midpoint word");
                 }
                 bool yellowRed = frame == 8 && index is not (0 or 1 or 7 or 8 or 11);
                 if (yellowRed)
                 {
                     ushort yellowPointer = ReadVerificationWord(rom, 0x91d9ac), redPointer = ReadVerificationWord(rom, 0x91d9b0);
                     AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
-                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (yellowPointer + 2 * index)))),
-                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (redPointer + 2 * index))))), "Every original yellow-red midpoint word");
+                        RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (yellowPointer + 2 * index)))),
+                        RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (redPointer + 2 * index))))), "Every original yellow-red midpoint word");
                 }
                 bool remainingMidpoint = (frame == 0 && index is 4 or 5 or 9 or 13) || (frame == 2 && index == 7);
                 if (remainingMidpoint)
@@ -140,8 +140,8 @@ internal static class SamusHyperBeamColorsVerification
                     ushort firstPointer = ReadVerificationWord(rom, frame == 0 ? 0x91d9b0 : 0x91d9a0);
                     ushort secondPointer = ReadVerificationWord(rom, frame == 0 ? 0x91d9a0 : 0x91d9a4);
                     AssertEqual(native, SamusHyperBeamColorFormat.HueMidpoint(
-                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)))),
-                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))))), "Original cycle-wrap and magenta-cyan midpoint colors");
+                        RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (firstPointer + 2 * index)))),
+                        RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (secondPointer + 2 * index))))), "Original cycle-wrap and magenta-cyan midpoint colors");
                 }
                 bool endpointOwner = !sharedShade && source == frame * 16 + index && index != 0 && frame is 1 or 5 or 9;
                 AssertEqual(endpointOwner, endpointInputs.ContainsKey(frame * 16 + index), "Endpoint channel ownership");
@@ -173,59 +173,59 @@ internal static class SamusHyperBeamColorsVerification
             foreach (int ink in new[] { 3, 11 })
             {
                 bool fits = ink == 3 ? green > 0 : rgb % 32 < 31 && green < 31 && blue < 31;
-                AssertEqual(fits, SamusHyperBeamColorFormat.TryCyanTransitionShadow(Bgr555.FromWord(checked((ushort)rgb)), ink, out Bgr555 shadow), "Complete transition-shadow acceptance domain");
+                AssertEqual(fits, SamusHyperBeamColorFormat.TryCyanTransitionShadow(RgbColor.FromWord(checked((ushort)rgb)), ink, out RgbColor shadow), "Complete transition-shadow acceptance domain");
                 AssertEqual(fits ? (ushort)(rgb + (ink == 3 ? -32 : 1057)) : (ushort)0, shadow, "Transition shadows preserve channel arithmetic and reject overflow");
             }
             foreach (int brightness in new[] { 2, 4, 7, 8 })
             {
                 bool fits = rgb % 32 <= 31 - brightness && green <= 31 - brightness && blue <= 31 - brightness;
-                AssertEqual(fits, SamusHyperBeamColorFormat.TryBrighten(Bgr555.FromWord(checked((ushort)rgb)), brightness, out Bgr555 brighter),
+                AssertEqual(fits, SamusHyperBeamColorFormat.TryBrighten(RgbColor.FromWord(checked((ushort)rgb)), brightness, out RgbColor brighter),
                     "Every RGB5 shade source accepts exactly the non-overflow domain");
                 if (fits) AssertEqual((ushort)(rgb + brightness * 1057), brighter, "Every valid RGB5 uniform shade increment");
             }
             foreach (bool redHue in new[] { false, true })
             {
-                var inputs = new SamusHyperBeamColorCatalog.EndpointChannels(Bgr555.FromWord(checked((ushort)rgb)), redHue, rgb % 32);
+                var inputs = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, rgb % 32);
                 AssertEqual((ushort)rgb, inputs.Resolve(redHue, rgb % 32), "Every RGB5 endpoint input survives channel separation");
-                var independent = new SamusHyperBeamColorCatalog.EndpointChannels(Bgr555.FromWord(checked((ushort)rgb)), redHue, (rgb + 1) % 32);
+                var independent = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, (rgb + 1) % 32);
                 AssertEqual((ushort)rgb, independent.Resolve(redHue, (rgb + 1) % 32), "Every RGB5 endpoint preserves a differing source maximum");
             }
-            var minimumInput = new SamusHyperBeamColorCatalog.EndpointChannels(Bgr555.FromWord(checked((ushort)rgb)), false, 0, green);
+            var minimumInput = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, green);
             AssertEqual((ushort)rgb, minimumInput.Resolve(false, 0, green), "Every RGB5 shared endpoint minimum");
-            var editedMinimum = new SamusHyperBeamColorCatalog.EndpointChannels(Bgr555.FromWord(checked((ushort)rgb)), false, 0, (green + 1) % 32);
+            var editedMinimum = new SamusHyperBeamColorCatalog.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, (green + 1) % 32);
             AssertEqual((ushort)rgb, editedMinimum.Resolve(false, 0, (green + 1) % 32), "Every RGB5 independently edited endpoint minimum");
-            AssertEqual((ushort)(green + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.YellowFromGreen(Bgr555.FromWord(checked((ushort)rgb))), "Complete RGB5 green-to-yellow domain");
+            AssertEqual((ushort)(green + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.YellowFromGreen(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 green-to-yellow domain");
             int midpoint = (int)Math.Ceiling((rgb % 32 + green) / 2.0);
-            AssertEqual((ushort)(midpoint + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.GreenYellowMidpoint(Bgr555.FromWord(checked((ushort)rgb))), "Complete RGB5 hue midpoint domain");
+            AssertEqual((ushort)(midpoint + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.GreenYellowMidpoint(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 hue midpoint domain");
             for (int other = 0; other < 32; other++)
             {
                 int expected = (int)Math.Ceiling((rgb % 32 + other) / 2.0) +
                     32 * (int)Math.Ceiling((green + other) / 2.0) + 1024 * (int)Math.Ceiling((blue + other) / 2.0);
-                AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint(Bgr555.FromWord(checked((ushort)rgb)), Bgr555.FromWord((ushort)(other * 1057))), "All RGB5 first colors and all independent per-channel midpoint pairs");
+                AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057))), "All RGB5 first colors and all independent per-channel midpoint pairs");
                 int lower = (int)Math.Floor((rgb % 32 + other) / 2.0) +
                     32 * (int)Math.Floor((green + other) / 2.0) + 1024 * (int)Math.Floor((blue + other) / 2.0);
-                AssertEqual((ushort)lower, SamusHyperBeamColorFormat.HueMidpoint(Bgr555.FromWord(checked((ushort)rgb)), Bgr555.FromWord((ushort)(other * 1057)), direction: HueRounding.Down), "Complete downward RGB5 midpoint arithmetic");
+                AssertEqual((ushort)lower, SamusHyperBeamColorFormat.HueMidpoint(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057)), direction: HueRounding.Down), "Complete downward RGB5 midpoint arithmetic");
                 AssertEqual((ushort)((lower & 31) | (expected & 0x7fe0)),
-                    SamusHyperBeamColorFormat.CyanTransitionMiddle(Bgr555.FromWord(checked((ushort)rgb)), Bgr555.FromWord((ushort)(other * 1057))), "Complete cyan-biased midpoint channel pairs");
+                    SamusHyperBeamColorFormat.CyanTransitionMiddle(RgbColor.FromWord(checked((ushort)rgb)), RgbColor.FromWord((ushort)(other * 1057))), "Complete cyan-biased midpoint channel pairs");
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, 1, 3, 5, 6, 9, 31, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryBrighten(new Bgr555(0, 0, 0), invalid, out _), "Unsupported shade increments reject");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryBrighten(new RgbColor(0, 0, 0), invalid, out _), "Unsupported shade increments reject");
         foreach (int invalid in new[] { -1, 0, 2, 3, 4, 6, 7, 8, 10, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(invalid, 3, new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), new Bgr555(0, 0, 0)), "Invalid endpoint hue");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(invalid, 3, new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), new RgbColor(0, 0, 0)), "Invalid endpoint hue");
         foreach (int invalid in new[] { -1, 0, 1, 2, 4, 10, 12, 14, 15, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, invalid, new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), new Bgr555(0, 0, 0)), "Invalid endpoint shadow ink");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, invalid, new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), new RgbColor(0, 0, 0)), "Invalid endpoint shadow ink");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, Bgr555.FromWord(checked(invalid)), new Bgr555(0, 0, 0), new Bgr555(0, 0, 0)), "Invalid green-hue input");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, new Bgr555(0, 0, 0), Bgr555.FromWord(checked(invalid)), new Bgr555(0, 0, 0)), "Invalid low shadow input");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), Bgr555.FromWord(checked(invalid))), "Invalid high shadow input");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0), new RgbColor(0, 0, 0)), "Invalid green-hue input");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0)), "Invalid low shadow input");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.EndpointSourceChannels(1, 13, new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid))), "Invalid high shadow input");
         }
         for (int low = 0; low < 32; low++)
         for (int middle = 0; middle < 32; middle++)
         {
             ushort green = (ushort)(low | middle << 5 | (31 - middle) << 10);
-            bool valid = SamusHyperBeamColorFormat.TryGreenYellowHighShadow(Bgr555.FromWord(checked((ushort)low)), Bgr555.FromWord(checked((ushort)middle)), Bgr555.FromWord(checked(green)), out Bgr555 result);
+            bool valid = SamusHyperBeamColorFormat.TryGreenYellowHighShadow(RgbColor.FromWord(checked((ushort)low)), RgbColor.FromWord(checked((ushort)middle)), RgbColor.FromWord(checked(green)), out RgbColor result);
             AssertEqual(middle - low >= -middle && middle - low <= 31 - middle, valid, "Equal shadow step accepts precisely RGB5 red results");
             if (valid)
             {
@@ -236,17 +236,17 @@ internal static class SamusHyperBeamColorsVerification
         }
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(Bgr555.FromWord(checked(invalid)), new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), out _), "Invalid lower shadow");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(new Bgr555(0, 0, 0), Bgr555.FromWord(checked(invalid)), new Bgr555(0, 0, 0), out _), "Invalid middle shadow");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), Bgr555.FromWord(checked(invalid)), out _), "Invalid green source");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), out _), "Invalid lower shadow");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0), out _), "Invalid middle shadow");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryGreenYellowHighShadow(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid)), out _), "Invalid green source");
         }
         foreach (int invalid in new[] { -1, 0, 1, 2, 4, 10, 12, 13, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryCyanTransitionShadow(new Bgr555(0, 0, 0), invalid, out _), "Invalid transition shadow selector");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryCyanTransitionShadow(new RgbColor(0, 0, 0), invalid, out _), "Invalid transition shadow selector");
         foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.CyanTransitionMiddle(Bgr555.FromWord(checked(invalid)), new Bgr555(0, 0, 0)), "Invalid transition magenta endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.CyanTransitionMiddle(new Bgr555(0, 0, 0), Bgr555.FromWord(checked(invalid))), "Invalid transition cyan endpoint");
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryCyanTransitionShadow(Bgr555.FromWord(checked(invalid)), 3, out _), "Invalid transition middle ink");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.CyanTransitionMiddle(RgbColor.FromWord(checked(invalid)), new RgbColor(0, 0, 0)), "Invalid transition magenta endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.CyanTransitionMiddle(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid))), "Invalid transition cyan endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryCyanTransitionShadow(RgbColor.FromWord(checked(invalid)), 3, out _), "Invalid transition middle ink");
         }
         foreach (int shadowFrame in new[] { 0, 1, 2, 3, 5, 6, 8, 9 })
         foreach (int ink in new[] { 3, 11, 13 })

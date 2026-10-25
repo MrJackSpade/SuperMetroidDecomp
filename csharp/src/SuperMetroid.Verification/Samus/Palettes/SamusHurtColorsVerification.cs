@@ -76,7 +76,7 @@ internal static class SamusHurtColorsVerification
         for (int call = 1; call <= 7; call++)
         {
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                cgram.SetColor(SamusPaletteDefinitions.Common.SamusObjPaletteStart + index, Bgr555.FromWord(checked(sentinel)));
+                cgram.SetColor(SamusPaletteDefinitions.Common.SamusObjPaletteStart + index, RgbColor.FromWord(checked(sentinel)));
             SamusHurtFlashPalette.Update(
                 cgram.Samus.Suit, samus, 0, catalog);
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,

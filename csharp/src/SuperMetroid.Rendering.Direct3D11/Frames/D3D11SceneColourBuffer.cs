@@ -77,9 +77,9 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
     }
 
     /// <summary>A colour as the shaders write an opaque output pixel.</summary>
-    private static uint Shown(Bgr555 colour)
+    private static uint Shown(RgbColor colour)
     {
-        Rgba32 shown = colour.ToRgba32();
+        RgbaPixel shown = colour.ToRgbaPixel();
         return shown.R | (uint)shown.G << 8 | (uint)shown.B << 16 | (uint)byte.MaxValue << 24;
     }
 

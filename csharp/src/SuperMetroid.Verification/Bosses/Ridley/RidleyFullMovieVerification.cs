@@ -687,8 +687,8 @@ internal static class RidleyFullMovieVerification
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
         samus.Presentation.LoadSuitPalette(samus, runtime.Player.Colours);
-        Bgr555[] expected = runtime.Colours.Colors.Slice(192, 16).ToArray();
-        for (int color = 192; color < 208; color++) runtime.Colours.AsPaletteColors().SetColor(color, Bgr555.FromWord(0x1234));
+        RgbColor[] expected = runtime.Colours.Colors.Slice(192, 16).ToArray();
+        for (int color = 192; color < 208; color++) runtime.Colours.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
         runtime.StepFrame(ControllerButton.Select);
         AssertEqual(HudItem.SuperMissile, samus.SelectedHudItem, "selection enters Super Missiles without charge");
         AssertTrue(runtime.Colours.Colors.Slice(192, 16).SequenceEqual(expected),
@@ -700,7 +700,7 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         var menu = game.Session.ScreenAs<PauseMenuState>();
         var menuPalette = (menu ?? throw new InvalidOperationException("Verification requires menu.")).screen.Palette;
-        Bgr555[] initial = menuPalette.Colors.ToArray();
+        RgbColor[] initial = menuPalette.Colors.ToArray();
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
         {
@@ -710,7 +710,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(SuperMetroidGameState.PausedB, game.GameState, "pause fade-in completes");
         game.Step(0);
         AssertTrue(!menuPalette.Colors.SequenceEqual(initial), "stable pause starts palette animation");
-        Bgr555[] animated = menuPalette.Colors.ToArray();
+        RgbColor[] animated = menuPalette.Colors.ToArray();
         game.GameState = SuperMetroidGameState.UnpausingA;
         game.Session.BeginPauseFade(15);
         fadeFrames = 0;

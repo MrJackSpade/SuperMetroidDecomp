@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -98,11 +99,11 @@ public static class CeresDoorVisualFiles
         if (document.Version != 1 || document.Animation is null ||
             document.Animation.Length != CeresDoorVisualDefinitions.AnimationRowCount)
             throw new InvalidDataException("Ceres-door visuals require version 1 and eight animation rows.");
-        Bgr555[] normal = Compile(document.Normal, CeresDoorVisualDefinitions.SetupColorCount,
+        RgbColor[] normal = Compile(document.Normal, CeresDoorVisualDefinitions.SetupColorCount,
             "normal");
-        Bgr555[] escape = Compile(document.Escape, CeresDoorVisualDefinitions.SetupColorCount,
+        RgbColor[] escape = Compile(document.Escape, CeresDoorVisualDefinitions.SetupColorCount,
             "escape");
-        Bgr555[][] animation = document.Animation.Select((row, index) =>
+        RgbColor[][] animation = document.Animation.Select((row, index) =>
             Compile(row, CeresDoorVisualDefinitions.AnimationColorCount,
                 $"animation row {index}")).ToArray();
         byte[][] platformFrames = CompileMode7Frames(document.Mode7DoorFrames);
@@ -138,7 +139,7 @@ public static class CeresDoorVisualFiles
         for (int index = 0; index < count; index++)
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * 2));
-            if (!Bgr555.IsColorWord(word))
+            if (!RgbColor.IsColorWord(word))
                 throw new InvalidDataException(
                     $"Ceres-door color ${sourceAddress + index * 2:X6} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5
@@ -175,18 +176,18 @@ public static class CeresDoorVisualFiles
     }
 
     /// <summary>Validates a palette's size and RGB5 channel bounds before packing its colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int expectedCount, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int expectedCount, string name)
     {
         if (source is null || source.Length != expectedCount)
             throw new InvalidDataException($"Ceres-door {name} needs {expectedCount} RGB5 colors.");
-        var result = new Bgr555[source.Length];
+        var result = new RgbColor[source.Length];
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
                 (uint)color.Blue > 31)
                 throw new InvalidDataException($"Ceres-door {name} color {index} must be RGB5.");
-            result[index] = color.ToBgr555();
+            result[index] = color.ToRgbColor();
         }
         return result;
     }

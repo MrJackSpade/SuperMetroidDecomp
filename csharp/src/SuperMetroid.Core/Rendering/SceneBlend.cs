@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
@@ -13,5 +15,5 @@ public readonly record struct SceneBlend
     public required bool BlendsWithSubscreen { get; init; }
 
     /// <summary>The fixed colour the layers blend with, and the fallback where nothing shows behind them.</summary>
-    public required Bgr555 FixedColor { get; init; }
+    public required RgbColor FixedColor { get; init; }
 }

@@ -38,8 +38,8 @@ public sealed class SamusChargeColorCatalog
     /// <param name="chargedBeam">Three suits of six charged-beam phase rows.</param>
     /// <param name="pseudoScrew">Three suits of six pseudo-Screw phase rows.</param>
     /// <param name="hyperShot">The Hyper-shot rows in full-body cycle order.</param>
-    internal SamusChargeColorCatalog(Bgr555[][][] chargedBeam,
-        Bgr555[][][] pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
+    internal SamusChargeColorCatalog(RgbColor[][][] chargedBeam,
+        RgbColor[][][] pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
     {
         this.chargedBeam = new(chargedBeam, SamusChargeKind.ChargedBeam);
         this.pseudoScrew = new(pseudoScrew, SamusChargeKind.PseudoScrew);
@@ -47,7 +47,7 @@ public sealed class SamusChargeColorCatalog
     }
 
     /// <summary>Gets packed RGB5 ink 0–15 from Hyper-shot playback frame 0–9 in the native $91:D82B reverse-cycle pointer order; this asset's edits are independent of the full-body Hyper cycle.</summary>
-    public Bgr555 ResolveHyper(int frame, int color)
+    public RgbColor ResolveHyper(int frame, int color)
     {
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return hyperShot.Resolve(SamusChargeColorFormat.HyperFrameCount - 1 - frame, color);
@@ -87,12 +87,12 @@ public sealed class SamusChargeColorCatalog
         /// <summary>Selects three-phase pseudo-Screw holds instead of the mirrored charge pulse.</summary>
         private readonly bool pseudo;
         /// <summary>Palette cells whose supplied inks cannot be shared with a canonical suit or phase.</summary>
-        internal readonly Dictionary<ColourCell, Bgr555> colors = new();
+        internal readonly Dictionary<ColourCell, RgbColor> colors = new();
         /// <summary>Per-channel deviations from the calculated whitening or pseudo-Screw bright tint.</summary>
         internal readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
         /// <summary>Reduces each supplied row to its independent colors and channel differences while preserving divergent repeated phases.</summary>
-        internal ChargeInputs(Bgr555[][][] source, SamusChargeKind kind)
+        internal ChargeInputs(RgbColor[][][] source, SamusChargeKind kind)
         {
             pseudo = kind == SamusChargeKind.PseudoScrew;
             for (int suit = 0; suit < source.Length; suit++)
@@ -100,11 +100,11 @@ public sealed class SamusChargeColorCatalog
             for (int color = 0; color < source[suit][phase].Length; color++)
             {
                 int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
-                Bgr555 value = source[suit][phase][color];
+                RgbColor value = source[suit][phase][color];
                 if (phase != canonical && value == source[suit][canonical][color]) continue;
                 if (pseudo && phase == 0)
                 {
-                    Bgr555 expected = color == 0 ? source[0][3][0] :
+                    RgbColor expected = color == 0 ? source[0][3][0] :
                         SamusChargeColorFormat.PseudoScrewBrightColor(suit, color, source[suit][3][color]);
                     if (value != expected) fadeInputs.Add((suit * 6 + phase) * 16 + color, new(value, expected));
                     continue;
@@ -114,7 +114,7 @@ public sealed class SamusChargeColorCatalog
                 var keyCell = new ColourCell((suit * 6 + phase), color);
                 if (!pseudo && phase == canonical && phase != 0)
                 {
-                    Bgr555 expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
+                    RgbColor expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
                     if (value != expected) fadeInputs.Add(key, new(value, expected));
                 }
                 else colors.Add(keyCell, value);
@@ -122,23 +122,23 @@ public sealed class SamusChargeColorCatalog
         }
 
         /// <summary>Restores one edited or shared ink through canonical phase, suit alias, and calculated tint relationships.</summary>
-        internal Bgr555 Resolve(int suit, int phase, int color)
+        internal RgbColor Resolve(int suit, int phase, int color)
         {
             if ((uint)suit >= SamusChargeColorFormat.SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
             int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
             if ((uint)color >= SamusChargeColorFormat.ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
             int key = (suit * 6 + phase) * 16 + color;
             var keyCell = new ColourCell((suit * 6 + phase), color);
-            if (colors.TryGetValue(keyCell, out Bgr555 value)) return value;
+            if (colors.TryGetValue(keyCell, out RgbColor value)) return value;
             if (phase != canonical) return Resolve(suit, canonical, color);
             if (pseudo && phase == 0)
             {
-                Bgr555 bright = color == 0 ? Resolve(0, 3, 0) :
+                RgbColor bright = color == 0 ? Resolve(0, 3, 0) :
                     SamusChargeColorFormat.PseudoScrewBrightColor(suit, color, Resolve(suit, 3, color));
                 return fadeInputs.TryGetValue(key, out var brightInput) ? brightInput.Apply(bright) : bright;
             }
             if (suit != 0 && (pseudo || phase == 0)) return Resolve(0, phase, color);
-            Bgr555 expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
+            RgbColor expected = SamusPaletteFade.EighthTowardWhite(Resolve(suit, 0, color), phase);
             return fadeInputs.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
         }
     }

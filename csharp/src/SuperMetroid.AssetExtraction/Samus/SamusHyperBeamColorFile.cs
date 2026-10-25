@@ -29,20 +29,20 @@ public static class SamusHyperBeamColorFile
     {
         if (!SamusHyperBeamColorFormat.Shape.HasRows(frames))
             throw new InvalidDataException("Samus Hyper Beam colors require ten frames.");
-        var compiled = new Bgr555[frames.Length][];
+        var compiled = new RgbColor[frames.Length][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = frames[frame];
             if (!SamusHyperBeamColorFormat.Shape.HasColumns(source))
                 throw new InvalidDataException($"Samus Hyper Beam frame {frame} requires sixteen RGB5 colors.");
-            compiled[frame] = new Bgr555[source.Length];
+            compiled[frame] = new RgbColor[source.Length];
             for (int colorIndex = 0; colorIndex < source.Length; colorIndex++)
             {
                 PaletteRgb5? color = source[colorIndex];
                 if (color is null || (uint)color.Red > 31 ||
                     (uint)color.Green > 31 || (uint)color.Blue > 31)
                     throw new InvalidDataException($"Samus Hyper Beam frame {frame} color {colorIndex} requires RGB components from zero through 31.");
-                compiled[frame][colorIndex] = color.ToBgr555();
+                compiled[frame][colorIndex] = color.ToRgbColor();
             }
         }
         return new(compiled);

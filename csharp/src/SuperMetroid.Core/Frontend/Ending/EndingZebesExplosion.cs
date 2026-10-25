@@ -50,7 +50,7 @@ internal sealed class EndingZebesExplosion
     }
 
     /// <summary>CGRAM snapshot taken before the planet explosion's object/background crossfade.</summary>
-    private Bgr555[] explosionFadeSource = [];
+    private RgbColor[] explosionFadeSource = [];
 
     /// <summary>Current native palette interpolation step during the explosion crossfade.</summary>
     private int explosionFadeStep;
@@ -95,7 +95,7 @@ internal sealed class EndingZebesExplosion
     /// <summary>Scales one row of the explosion's colours from those captured when the crossfade began.</summary>
     private void ApplyExplosionFade(ColourRun row, int factor)
     {
-        ReadOnlySpan<Bgr555> source = row.SamePositionsIn(explosionFadeSource);
+        ReadOnlySpan<RgbColor> source = row.SamePositionsIn(explosionFadeSource);
         for (int colour = 0; colour < row.Count; colour++)
             row.Write(colour, source[colour].Map((_, channel) => channel * factor / EndingExplosionFadeDefinitions.Steps));
     }

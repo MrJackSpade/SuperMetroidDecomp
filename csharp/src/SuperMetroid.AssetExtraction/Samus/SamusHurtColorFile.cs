@@ -32,18 +32,18 @@ public static class SamusHurtColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Checks one complete sixteen-color RGB5 document array and converts it to packed colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusHurtColorFormat.ColorsPerPalette)
             throw new InvalidDataException($"Samus {name} palette requires sixteen RGB5 colors.");
-        var colors = new Bgr555[source.Length];
+        var colors = new RgbColor[source.Length];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus {name} color {index} requires RGB components from zero through 31.");
-            colors[index] = color.ToBgr555();
+            colors[index] = color.ToRgbColor();
         }
         return colors;
     }

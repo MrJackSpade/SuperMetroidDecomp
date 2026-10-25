@@ -42,8 +42,8 @@ internal static class GameplayBasePalettesVerification
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: baseline);
             AssertTrue(runtime.Colours.Colors.SequenceEqual(baseline.Initial.ToArray()),
                 "runtime construction consumes installed starting colors without cartridge reads");
-            runtime.Colours.AsPaletteColors().SetColor(128, new Bgr555(0, 0, 0));
-            runtime.Colours.AsPaletteColors().SetColor(208, new Bgr555(0, 0, 0));
+            runtime.Colours.AsPaletteColors().SetColor(128, new RgbColor(0, 0, 0));
+            runtime.Colours.AsPaletteColors().SetColor(208, new RgbColor(0, 0, 0));
             // Exercise the production room-load restore, not just the catalog helpers.
             runtime.RoomLoader.LoadGameplaySpritePalettes();
             for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)

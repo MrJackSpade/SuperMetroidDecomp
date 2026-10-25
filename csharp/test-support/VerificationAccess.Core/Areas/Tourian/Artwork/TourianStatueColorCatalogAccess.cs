@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
@@ -9,6 +9,6 @@ internal static class TourianStatueColorCatalogAccess
     extension(TourianStatueColorCatalog self)
     {
         /// <summary>Reads one statue color through its private paint definition.</summary>
-        internal Bgr555 ResolveStatue(int color) => self.statueColors.Read(color);
+        internal RgbColor ResolveStatue(int color) => self.statueColors.Read(color);
     }
 }

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
@@ -37,7 +38,7 @@ public static class BabyMetroidCutsceneColorExtractor
             {
                 int address = source + color * MotherBrainSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!Bgr555.IsColorWord(native))
+                if (!RgbColor.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Cutscene Baby color ${address:X6} has an unrepresentable high bit.");
                 colors[color] = new PaletteRgb5

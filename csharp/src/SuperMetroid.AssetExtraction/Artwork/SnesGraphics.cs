@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -78,13 +79,13 @@ public static class SnesGraphics
     /// Creates a grayscale palette for inspecting raw tile indexes when the tilemap has
     /// not yet supplied the real palette selection. It is diagnostic, not game artwork.
     /// </summary>
-    public static IReadOnlyList<Rgba32> DiagnosticPalette(int colorCount)
+    public static IReadOnlyList<RgbaPixel> DiagnosticPalette(int colorCount)
     {
-        var colors = new Rgba32[colorCount];
+        var colors = new RgbaPixel[colorCount];
         for (int i = 0; i < colorCount; i++)
         {
             byte value = colorCount <= 1 ? (byte)0 : (byte)(i * 255 / (colorCount - 1));
-            colors[i] = new Rgba32(value, value, value);
+            colors[i] = new RgbaPixel(value, value, value);
         }
         return colors;
     }

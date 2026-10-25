@@ -142,7 +142,7 @@ internal static class RoomBlockPicturesVerification
         SpriteImage sheet = picture.Sheet;
         int at = (picture.Corner.Y + pixel.Y) * sheet.Size.X + picture.Corner.X + pixel.X;
         AssertTrue(sheet.Inks[at].PaletteIndex == expected && (colour == 0 || ((sheet.Inks[at].Priority != 0) == word.HasPriority
-                && sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32())),
+                && sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel())),
             $"{context}: the picture paints index {sheet.Inks[at].PaletteIndex} where tile ${word.Raw:X4} paints {expected}");
     }
 
@@ -323,7 +323,7 @@ internal static class RoomBlockPicturesVerification
                     int expected = word.PaletteIndex * 4 + colour;
                     int at = (picture.Picture.Corner.Y + picture.Corner.Y + y) * sheet.Size.X + picture.Picture.Corner.X + picture.Corner.X + x;
                     AssertTrue(sheet.Inks[at].PaletteIndex == expected && (sheet.Inks[at].Priority != 0) == word.HasPriority
-                            && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32()),
+                            && (colour == 0 ? sheet.Pixels[at].A == 0 : sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel()),
                         $"{room.Name}: BG3 word {index} ${word.Raw:X4} pixel ({x}, {y}) paints index {sheet.Inks[at].PaletteIndex} where its character, "
                         + $"{runtime.BgArtwork.Showing(layer3, word.CharacterIndex, 1)}, paints {expected}");
                 }
@@ -359,7 +359,7 @@ internal static class RoomBlockPicturesVerification
             {
                 int expected = vram[(tile * FloorTileSheet.TileWords + pixel) * 2 + 1];
                 int at = (tiles.Picture.Corner.Y + corner.Y + pixel / 8) * sheet.Size.X + tiles.Picture.Corner.X + corner.X + pixel % 8;
-                AssertTrue(sheet.Inks[at].PaletteIndex == expected && (expected == 0 || sheet.Pixels[at] == sheet.StandardColours[expected].ToRgba32()),
+                AssertTrue(sheet.Inks[at].PaletteIndex == expected && (expected == 0 || sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel()),
                     $"{tiles.Name}: tile {tile} pixel {pixel} paints index {sheet.Inks[at].PaletteIndex} where its characters name {expected}");
             }
         }
@@ -420,7 +420,7 @@ internal static class RoomBlockPicturesVerification
             SpriteImage sheet = picture.Sheet;
             int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
             AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || ((sheet.Inks[pixel].Priority != 0) == word.HasPriority
-                    && sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32())),
+                    && sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgbaPixel())),
                 $"{where}: the background paints index {sheet.Inks[pixel].PaletteIndex} at ({x}, {y}) where its tile ${word.Raw:X4} paints {expected}");
         }
         int rebound = 0;
@@ -525,7 +525,7 @@ internal static class RoomBlockPicturesVerification
                         int pixel = (picture.Corner.Y + tile / 2 * CharacterPixels + y) * sheet.Size.X + picture.Corner.X + tile % 2 * CharacterPixels + x;
                         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
                         AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority)
-                            && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32()),
+                            && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgbaPixel()),
                             $"{where}: definition {definition}'s picture paints index {sheet.Inks[pixel].PaletteIndex} priority {sheet.Inks[pixel].Priority} " +
                             $"at tile {tile} pixel ({x}, {y}), where its tile ${word.Raw:X4} paints index {expected} over {shown.Artwork.Name}+{shown.WordOffset:X4}");
                     }
@@ -565,7 +565,7 @@ internal static class RoomBlockPicturesVerification
             SpriteImage sheet = picture.Sheet;
             int pixel = (picture.Corner.Y + picturePixel.Y) * sheet.Size.X + picture.Corner.X + picturePixel.X;
             AssertTrue(sheet.Inks[pixel].PaletteIndex == expected && (colour == 0 || (sheet.Inks[pixel].Priority != 0) == word.HasPriority)
-                && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgba32()),
+                && (colour == 0 || sheet.Pixels[pixel] == sheet.StandardColours[expected].ToRgbaPixel()),
                 $"{where}: reveal block ({column}, {row}) pixel ({x}, {y}) paints index {sheet.Inks[pixel].PaletteIndex} where its tile ${word.Raw:X4} paints {expected}");
         }
     }

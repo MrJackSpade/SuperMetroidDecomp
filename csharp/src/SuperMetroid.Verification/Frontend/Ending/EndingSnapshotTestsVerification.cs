@@ -37,12 +37,12 @@ internal static class EndingSnapshotTestsVerification
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
-            Bgr555[]? explosionBackgroundSource = null;
+            RgbColor[]? explosionBackgroundSource = null;
             int finaleDisplayFrames = 0;
             int burstDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;
             DisplayPacket? previousPacket = null;
-            Rgba32[]? previousPixels = null;
+            RgbaPixel[]? previousPixels = null;
             for (int tick = 0; tick < 60000; tick++)
             {
                 legacy.Step(); captured.Step();
@@ -60,7 +60,7 @@ internal static class EndingSnapshotTestsVerification
                     for (int i = 0; i < 16; i++)
                     {
                         int remaining = 32 - elapsed / 2;
-                        Bgr555 expectedColor = (explosionBackgroundSource ?? throw new InvalidOperationException("Verification requires explosionBackgroundSource."))[i].Map((_, channel) => channel * remaining / 32);
+                        RgbColor expectedColor = (explosionBackgroundSource ?? throw new InvalidOperationException("Verification requires explosionBackgroundSource."))[i].Map((_, channel) => channel * remaining / 32);
                         AssertEqual(expectedColor, explosion.Paint.Colors[112 + i], "native explosion BG palette fades out on the same cadence");
                     }
 
@@ -185,7 +185,7 @@ internal static class EndingSnapshotTestsVerification
                         "final text uses native upper screen" + TilemapDifference(legacy.ShownVram(), textPlane.Cells, 0x4c00));
                     AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
-                        AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
+                        AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)), "post-shot flash begins fully white");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                     AssertEqual(32, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash], "native white flash lasts 32 calls");
@@ -245,7 +245,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
                     AssertEqual(0x7fff, flash.Paint.Colors[0], "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
-                        AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)),
+                        AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsReward)
@@ -324,7 +324,7 @@ internal static class EndingSnapshotTestsVerification
                         "reward branch uses native contiguous OBJ characters");
                 }
                 DisplayPacket? packet = null;
-                Rgba32[]? expected = null;
+                RgbaPixel[]? expected = null;
                 if (sample)
                 {
                     // IntroDiscoverySprite.Draw only writes OAM; it does not advance
@@ -355,7 +355,7 @@ internal static class EndingSnapshotTestsVerification
             AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
-            Rgba32[] final = legacy.Render();
+            RgbaPixel[] final = legacy.Render();
             LayeredScene retained = EndingCreditsPresentation.CaptureRenderSnapshot(captured);
             for (int i = 0; i < 600; i++) captured.Step();
 

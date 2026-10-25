@@ -1,8 +1,10 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// A bounded, typed view of consecutive CGRAM colours (#630). Callers address colours by their
-/// index within the named range and exchange <see cref="Bgr555"/> values; the CGRAM slot, the
+/// index within the named range and exchange <see cref="RgbColor"/> values; the CGRAM slot, the
 /// native word encoding and bit-15 masking stay behind the view. A struct over the backend, so
 /// palette fades and render lookups allocate nothing.
 /// </summary>
@@ -35,13 +37,13 @@ public readonly struct CgramPalette
     public int Count { get; }
 
     /// <summary>The range's colours, in CGRAM order.</summary>
-    public ReadOnlySpan<Bgr555> Colors => cgram.Colors.Slice(first, Count);
+    public ReadOnlySpan<RgbColor> Colors => cgram.Colors.Slice(first, Count);
 
     /// <summary>Writes one colour.</summary>
-    public void Write(int index, Bgr555 color) => cgram.SetColor(first + Index(index), color);
+    public void Write(int index, RgbColor color) => cgram.SetColor(first + Index(index), color);
 
     /// <summary>Writes <paramref name="colors"/> starting at <paramref name="start"/>.</summary>
-    public void CopyFrom(ReadOnlySpan<Bgr555> colors, int start = 0)
+    public void CopyFrom(ReadOnlySpan<RgbColor> colors, int start = 0)
     {
         CheckSpan(start, colors.Length);
         for (int index = 0; index < colors.Length; index++)
@@ -56,7 +58,7 @@ public readonly struct CgramPalette
     {
         if ((littleEndianWords.Length & 1) != 0)
             throw new ArgumentException("CGRAM data must contain complete two-byte colours.", nameof(littleEndianWords));
-        CheckSpan(start, littleEndianWords.Length / Bgr555.ByteCount);
+        CheckSpan(start, littleEndianWords.Length / RgbColor.ByteCount);
         cgram.LoadBytes(littleEndianWords, first + start);
     }
 

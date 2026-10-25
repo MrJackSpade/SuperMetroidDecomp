@@ -12,6 +12,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -107,7 +108,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             enemies.PhantoonBehavior.CopyPhantoonHealthPalette(body);
             AssertBodyBand(band, $"Phantoon live health restore band {band}");
             for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
-                cgram.SetColor(PhantoonColorDestinations.BodyDestination + color, new Bgr555(0, 0, 0));
+                cgram.SetColor(PhantoonColorDestinations.BodyDestination + color, new RgbColor(0, 0, 0));
             state.Parts[eye.SlotIndex].FadeNumerator = 1;
             state.Parts[eye.SlotIndex].FadeComplete = false;
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 0);
@@ -164,7 +165,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Phantoon colors: 256 native RGB5 targets, all health bands and three live transitions, persistent override, ROM guard, and strict failures pass.");
 
-        void VerifyBand(int source, int count, Func<int, Bgr555> resolve, string name)
+        void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -185,8 +186,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckUnchangedBand(int count, Func<int, Bgr555> original,
-            Func<int, Bgr555> changed, string name)
+        static void CheckUnchangedBand(int count, Func<int, RgbColor> original,
+            Func<int, RgbColor> changed, string name)
         {
             for (int color = 0; color < count; color++)
                 if (color != 1)

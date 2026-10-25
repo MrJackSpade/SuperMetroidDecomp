@@ -6,6 +6,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -117,7 +118,7 @@ internal sealed class CeresRidleyFlight
         // The native loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
         // colors one through fifteen. Color zero belongs to the shared transparent backdrop
         // and is intentionally left untouched.
-        _presentation.BossColours().CeresRidleyRevealedObjects.Fill(Bgr555.Black);
+        _presentation.BossColours().CeresRidleyRevealedObjects.Fill(RgbColor.Black);
     }
 
     /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>

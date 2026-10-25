@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -28,10 +29,10 @@ public static class BotwoonColorExtractor
                     (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) *
                     sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!Bgr555.IsColorWord(native))
+                if (!RgbColor.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Botwoon color ${address:X6} has an unrepresentable high bit.");
-                bands[band][color] = PaletteRgb5.From(Bgr555.FromWord(native));
+                bands[band][color] = PaletteRgb5.From(RgbColor.FromWord(native));
             }
         }
         return BotwoonColorFile.Write(new BotwoonColorDocument

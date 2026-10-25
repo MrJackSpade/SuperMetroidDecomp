@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -543,7 +544,7 @@ public sealed class SamusXrayState
         // Keep the cartridge read for non-catalog offsets reachable through externally
         // edited debugger state; ordinary widening/cycling uses installed artwork.
         if (PresentationColors is null ||
-            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out Bgr555 visorColor))
+            !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out RgbColor visorColor))
             throw new InvalidDataException(
                 $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
         colours.Visor.Write(0, visorColor);

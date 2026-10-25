@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>$A9:9534-954F exploded-door opaque inks1..14, copied by B275-B27E.
@@ -16,7 +18,7 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
     internal const int ColorCount = 14;
 
     /// <summary>Admits a supplied fourteen-color opaque door ramp only when every word matches the reviewed paint calculation.</summary>
-    internal static bool Matches(ReadOnlySpan<Bgr555> colors)
+    internal static bool Matches(ReadOnlySpan<RgbColor> colors)
     {
         for (int color = 0; color < ColorCount; color++)
             if (colors[color] != Color(color)) return false;
@@ -24,7 +26,7 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
     }
 
     /// <summary>Builds the violet gamma ramp, yellow ramp, neutral metal shades, and terminal white door ink by native color index.</summary>
-    internal static Bgr555 Color(int color)
+    internal static RgbColor Color(int color)
     {
         if ((uint)color >= ColorCount) throw new ArgumentOutOfRangeException(nameof(color));
         if (color < 4)
@@ -48,5 +50,5 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
     /// <summary>Interpolates a channel across the four authored shade positions using integer truncation.</summary>
     private static int Interpolate(int first, int last, int shade) => (first * (ShadeIntervals - shade) + last * shade) / ShadeIntervals;
     /// <summary>Combines calculated RGB5 channels into the door's opaque CGRAM color word.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

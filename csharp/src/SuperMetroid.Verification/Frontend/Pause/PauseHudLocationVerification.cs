@@ -8,6 +8,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks the gameplay minimap marker's colors and position through paused HUD updates.</summary>
@@ -42,7 +43,7 @@ internal static class PauseHudLocationVerification
             const int centerWord = Layer3Plane.Columns + 60;
             // A BG3 cell's palette selects four of the first CGRAM inks; the pause screen loads them from $B6:F000.
             int inks = ((center >> 10) & 7) * 4;
-            Bgr555[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => Bgr555.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];
+            RgbColor[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => RgbColor.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];
             var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);

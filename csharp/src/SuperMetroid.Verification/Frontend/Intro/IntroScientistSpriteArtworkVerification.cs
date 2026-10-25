@@ -83,8 +83,8 @@ internal static class IntroScientistSpriteArtworkVerification
             var scientist = state.CurrentScientistCutscene;
             (scientist ?? throw new InvalidOperationException("Verification requires scientist.")).Step(0, introCrossfadeTimer: 0x007f);
         }
-        Rgba32[] stockPixels = stockState.RenderArtwork();
-        Rgba32[] editedPixels = editedState.RenderArtwork();
+        RgbaPixel[] stockPixels = stockState.RenderArtwork();
+        RgbaPixel[] editedPixels = editedState.RenderArtwork();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "scientist sprite override changes visible delivery-scene pixels");
         stockState.BindFixtureIntroArtwork(edited);

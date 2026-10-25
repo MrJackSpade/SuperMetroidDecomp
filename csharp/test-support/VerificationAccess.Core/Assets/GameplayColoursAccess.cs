@@ -19,18 +19,18 @@ internal static class GameplayColoursAccess
     private sealed class PositionalColours(GameplayColours colours) : IPaletteColors
     {
         /// <inheritdoc />
-        public ReadOnlySpan<Bgr555> Colors => colours.Colors;
+        public ReadOnlySpan<RgbColor> Colors => colours.Colors;
 
         /// <inheritdoc />
-        public void SetColor(int index, Bgr555 color)
+        public void SetColor(int index, RgbColor color)
         {
-            Bgr555[] image = colours.Colors.ToArray();
+            RgbColor[] image = colours.Colors.ToArray();
             image[Ensure.BetweenInclusive(0, GameplayColours.ColorCount - 1, index)] = color;
             colours.LoadCartridgeImage(image);
         }
 
         /// <inheritdoc />
-        public Rgba32 GetRgba(int index) => colours.Colors[Ensure.BetweenInclusive(0, GameplayColours.ColorCount - 1, index)].ToRgba32();
+        public RgbaPixel GetRgba(int index) => colours.Colors[Ensure.BetweenInclusive(0, GameplayColours.ColorCount - 1, index)].ToRgbaPixel();
 
         /// <inheritdoc />
         public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0)
@@ -40,9 +40,9 @@ internal static class GameplayColoursAccess
             int count = bytes.Length / 2;
             if (destinationIndex < 0 || destinationIndex + count > GameplayColours.ColorCount)
                 throw new ArgumentOutOfRangeException(nameof(destinationIndex), "A palette load must remain within 256 colours.");
-            Bgr555[] image = colours.Colors.ToArray();
+            RgbColor[] image = colours.Colors.ToArray();
             for (int color = 0; color < count; color++)
-                image[destinationIndex + color] = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
+                image[destinationIndex + color] = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
             colours.LoadCartridgeImage(image);
         }
     }

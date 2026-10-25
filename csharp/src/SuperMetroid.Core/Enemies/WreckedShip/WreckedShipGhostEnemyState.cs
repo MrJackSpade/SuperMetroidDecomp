@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
@@ -9,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 public sealed class WreckedShipGhostEnemyState
 {
     /// <summary>The colours the ghost fades to, kept separate from the colours it shows.</summary>
-    private readonly Bgr555[] _targetColours = new Bgr555[16];
+    private readonly RgbColor[] _targetColours = new RgbColor[16];
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<WreckedShipGhostProgram> Program { get; set; }
@@ -78,8 +79,8 @@ public sealed class WreckedShipGhostEnemyState
     /// palette WRAM; the sidecar preserves that second buffer because <see cref="Hardware.SnesCgram"/>
     /// models the independently visible current palette.
     /// </summary>
-    public ReadOnlyMemory<Bgr555> TargetColours => _targetColours;
+    public ReadOnlyMemory<RgbColor> TargetColours => _targetColours;
 
     /// <summary>Allows the palette transition to update all sixteen target colors in place.</summary>
-    internal Span<Bgr555> MutableTargetColours => _targetColours;
+    internal Span<RgbColor> MutableTargetColours => _targetColours;
 }

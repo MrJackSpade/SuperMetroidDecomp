@@ -39,19 +39,19 @@ public static class ZebetiteColorFile
             !ZebetiteColorFormat.Shape.HasRows(document.Frames))
             throw new InvalidDataException("Zebetite colors require all eight frames at the supported version.");
 
-        var frames = new Bgr555[document.Frames.Length][];
+        var frames = new RgbColor[document.Frames.Length][];
         for (int frame = 0; frame < document.Frames.Length; frame++)
         {
             PaletteRgb5[]? colors = document.Frames[frame];
             if (!ZebetiteColorFormat.Shape.HasColumns(colors))
                 throw new InvalidDataException($"Zebetite frame {frame} requires two RGB5 colors.");
-            frames[frame] = new Bgr555[colors.Length];
+            frames[frame] = new RgbColor[colors.Length];
             for (int color = 0; color < colors.Length; color++)
             {
                 PaletteRgb5? rgb = colors[color];
                 if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                     throw new InvalidDataException($"Zebetite frame {frame}, color {color} requires RGB5 channels.");
-                frames[frame][color] = rgb.ToBgr555();
+                frames[frame][color] = rgb.ToRgbColor();
             }
         }
         return new(frames);

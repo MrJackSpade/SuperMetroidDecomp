@@ -49,9 +49,9 @@ public static class AudioInputReplaySmokeTest
         bool firstDoorCompleted = false;
         RoomHeaderDefinition? sourceRoom = null;
         RoomHeaderDefinition? destinationRoom = null;
-        Rgba32[]? firstSourceFrame = null;
-        Rgba32[]? lastSourceGameplayFrame = null;
-        Rgba32[]? completedDestinationFrame = null;
+        RgbaPixel[]? firstSourceFrame = null;
+        RgbaPixel[]? lastSourceGameplayFrame = null;
+        RgbaPixel[]? completedDestinationFrame = null;
 
         // Continue briefly with neutral input after the journal ends. A recording stopped
         // while state $0B was waiting cannot itself contain the later fade/scroll frames;
@@ -307,7 +307,7 @@ public static class AudioInputReplaySmokeTest
     }
 
     /// <summary>Writes an owned diagnostic gameplay frame as a 256-by-224 PNG after ensuring replay produced it.</summary>
-    private static void WriteCapture(Rgba32[]? pixels, string directory, string fileName)
+    private static void WriteCapture(RgbaPixel[]? pixels, string directory, string fileName)
     {
         if (pixels is null)
             throw new InvalidDataException($"Replay did not produce capture '{fileName}'.");

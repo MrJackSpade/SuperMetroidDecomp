@@ -14,7 +14,7 @@ internal static class FramePaintAccess
         /// (the extraction pipeline's ObjCharacterImage), so the records reach both backends only as a frame description.
         /// </summary>
         [PpuLayoutBoundary("exact hardware test: builds frames from native OAM fixture tables")]
-        internal static FramePaint FromOam(ReadOnlySpan<byte> vram, ReadOnlySpan<Bgr555> cgram,
+        internal static FramePaint FromOam(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> cgram,
             ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)
         {
             var oam = new OamBuffer();
@@ -29,7 +29,7 @@ internal static class FramePaintAccess
     extension(FramePaint memory)
     {
         /// <summary>The colour each ink shows, in ink order, for fixtures that compare or rebuild a frame's colours.</summary>
-        internal ReadOnlySpan<Bgr555> Colors => memory.Backgrounds.AllColours;
+        internal ReadOnlySpan<RgbColor> Colors => memory.Backgrounds.AllColours;
 
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -12,8 +12,8 @@ internal static class FileSelectMapWindowCompositorAccess
         /// Keeps the area scene outside the window and the empty room frame inside it.
         /// Inputs must already have their own color math applied; this does not scale pixels.
         /// </summary>
-        internal static Rgba32[] Composite(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame,
+        internal static RgbaPixel[] Composite(ReadOnlySpan<RgbaPixel> area, ReadOnlySpan<RgbaPixel> roomFrame,
             FileSelectMapWindow window) =>
-            FileSelectMapWindowCompositor.Composite(area, roomFrame, window, new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
+            FileSelectMapWindowCompositor.Composite(area, roomFrame, window, new RgbaPixel[FrontendFrame.Width * FrontendFrame.Height]);
     }
 }

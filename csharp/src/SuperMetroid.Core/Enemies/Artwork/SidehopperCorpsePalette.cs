@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
@@ -8,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal sealed class SidehopperCorpsePalette
 {
     /// <summary>Stores either the complete supplied colors or independent colors plus a fade endpoint.</summary>
-    internal readonly Bgr555[] independentOrSupplied;
+    internal readonly RgbColor[] independentOrSupplied;
     /// <summary>Marks palettes whose white slot and seven-step gradient can be reproduced exactly.</summary>
     private readonly bool calculated;
     /// <summary>Uses reviewed stock paint definitions for a matching sixteen-color target.</summary>
@@ -18,7 +20,7 @@ internal sealed class SidehopperCorpsePalette
     internal int Count { get; }
 
     /// <summary>Preserves supplied paint unless its gradient has one exact reproducible endpoint.</summary>
-    internal SidehopperCorpsePalette(Bgr555[] colors)
+    internal SidehopperCorpsePalette(RgbColor[] colors)
     {
         Count = colors.Length;
         if (Count is not (15 or 16)) throw new ArgumentException("Corpse palette requires15 or16 colors.", nameof(colors));
@@ -29,8 +31,8 @@ internal sealed class SidehopperCorpsePalette
             return;
         }
         independentOrSupplied = colors;
-        if (colors[5] != Bgr555.White) return;
-        Bgr555 endpoint = Count == 16 ? colors[15] : Bgr555.Black;
+        if (colors[5] != RgbColor.White) return;
+        RgbColor endpoint = Count == 16 ? colors[15] : RgbColor.Black;
         if (Count == 15)
         {
             // Ambiguous or incompatible independent content stays raw.
@@ -42,7 +44,7 @@ internal sealed class SidehopperCorpsePalette
         }
         for (int color = 8; color < Count; color++)
             if (Interpolate(colors[8], endpoint, color - 8) != colors[color]) return;
-        independentOrSupplied = new Bgr555[9];
+        independentOrSupplied = new RgbColor[9];
         colors.AsSpan(0, 5).CopyTo(independentOrSupplied);
         colors.AsSpan(6, 3).CopyTo(independentOrSupplied.AsSpan(5));
         independentOrSupplied[8] = endpoint;
@@ -53,7 +55,7 @@ internal sealed class SidehopperCorpsePalette
     /// The one endpoint channel value every rounded sample of the fifteen-colour gradient admits, found by intersecting
     /// the exact integer intervals each sample allows, or null when the samples admit none or several.
     /// </summary>
-    private static int? EndpointChannel(Bgr555[] colors, ColorChannel channel)
+    private static int? EndpointChannel(RgbColor[] colors, ColorChannel channel)
     {
         int start = colors[8][channel];
         int lower = 0, upper = 31;
@@ -68,18 +70,18 @@ internal sealed class SidehopperCorpsePalette
     }
 
     /// <summary>Resolves a stock, independently supplied, or reconstructed corpse palette color.</summary>
-    internal Bgr555 Resolve(int color)
+    internal RgbColor Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
         if (stockTarget) return SidehopperCorpsePaintDefinitions.Color(color);
         if (!calculated) return independentOrSupplied[color];
-        if (color == 5) return new Bgr555(31, 31, 31);
+        if (color == 5) return new RgbColor(31, 31, 31);
         if (color < 8) return independentOrSupplied[color < 5 ? color : color - 1];
         return Interpolate(independentOrSupplied[7], independentOrSupplied[8], color - 8);
     }
 
     /// <summary>Interpolates RGB5 channels with the cartridge's seven-interval nearest rounding.</summary>
-    internal static Bgr555 Interpolate(Bgr555 start, Bgr555 end, int phase)
+    internal static RgbColor Interpolate(RgbColor start, RgbColor end, int phase)
     {
         return start.Zip(end, (_, a, b) => ((a * (7 - phase) + b * phase + 3) / 7));
     }

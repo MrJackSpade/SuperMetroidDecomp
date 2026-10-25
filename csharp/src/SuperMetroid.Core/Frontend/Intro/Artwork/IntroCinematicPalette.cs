@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -11,11 +12,11 @@ public sealed class IntroCinematicPalette
 
     /// <summary>Keeps the opening's 256 selected colours, recognising stock, neutral-cycle and shared cross-fade rows.</summary>
     /// <param name="colours">The selected colours in screen-palette order.</param>
-    internal static IntroCinematicPalette FromColours(ReadOnlySpan<Bgr555> colours)
+    internal static IntroCinematicPalette FromColours(ReadOnlySpan<RgbColor> colours)
     {
-        var transfer = new byte[colours.Length * Bgr555.ByteCount];
+        var transfer = new byte[colours.Length * RgbColor.ByteCount];
         for (int index = 0; index < colours.Length; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(transfer.AsSpan(index * Bgr555.ByteCount), colours[index].ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(transfer.AsSpan(index * RgbColor.ByteCount), colours[index].ToWord());
         return new IntroCinematicPalette(transfer);
     }
 
@@ -27,9 +28,9 @@ public sealed class IntroCinematicPalette
         rows = new PaletteRow[ScreenPalette.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
         for (int row = 0; row < rows.Length; row++)
         {
-            var colors = new Bgr555[IntroCinematicPaletteFormat.ColorsPerRow];
+            var colors = new RgbColor[IntroCinematicPaletteFormat.ColorsPerRow];
             for (int color = 0; color < colors.Length; color++)
-                colors[color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(transfer.AsSpan(2 * (row * colors.Length + color))));
+                colors[color] = RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(transfer.AsSpan(2 * (row * colors.Length + color))));
             bool neutralCycle = row == IntroCinematicPaletteFormat.NeutralCycleRow;
             PaletteRow? crossFadeSource = row == IntroCinematicPaletteFormat.CrossFadeRow
                 ? rows[IntroCinematicPaletteFormat.SharedCrossFadeSourceRow] : null;
@@ -38,11 +39,11 @@ public sealed class IntroCinematicPalette
     }
 
     /// <summary>The installed colours, in screen order.</summary>
-    public Bgr555[] Colors
+    public RgbColor[] Colors
     {
         get
         {
-            var output = new Bgr555[ScreenPalette.ColorCount];
+            var output = new RgbColor[ScreenPalette.ColorCount];
             for (int row = 0; row < ScreenPalette.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow; row++)
             for (int color = 0; color < IntroCinematicPaletteFormat.ColorsPerRow; color++)
                 output[row * IntroCinematicPaletteFormat.ColorsPerRow + color] = rows.Length == 0 ? IntroCinematicPaintDefinitions.Color(row, color) : rows[row].Resolve(color);
@@ -55,10 +56,10 @@ public sealed class IntroCinematicPalette
     {
         get
         {
-            Bgr555[] colors = Colors;
-            var output = new byte[colors.Length * Bgr555.ByteCount];
+            RgbColor[] colors = Colors;
+            var output = new byte[colors.Length * RgbColor.ByteCount];
             for (int color = 0; color < colors.Length; color++)
-                BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(color * Bgr555.ByteCount), colors[color].ToWord());
+                BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(color * RgbColor.ByteCount), colors[color].ToWord());
             return output;
         }
     }
@@ -71,17 +72,17 @@ public sealed class IntroCinematicPalette
     internal sealed class PaletteRow
     {
         /// <summary>Background and common foreground inks for flat or derived neutral-cycle rows.</summary>
-        private readonly Bgr555 background, foreground;
+        private readonly RgbColor background, foreground;
         /// <summary>Original row colors when they cannot be represented by a stock shade relationship.</summary>
-        private readonly Bgr555[]? supplied;
+        private readonly RgbColor[]? supplied;
         /// <summary>Whether visible inks follow the four-shade neutral material cycle.</summary>
         private readonly bool cycle;
         /// <summary>The earlier palette row reused by the cross-fade row's first eight visible inks.</summary>
         private readonly PaletteRow? sharedGradient;
         /// <summary>Independent cross-fade endpoints and trailing inks retained alongside the shared gradient.</summary>
-        private readonly Bgr555[]? crossFadeInputs;
+        private readonly RgbColor[]? crossFadeInputs;
         /// <summary>Recognizes exact cross-fade or neutral-cycle relationships before retaining unmatched colors verbatim.</summary>
-        internal PaletteRow(Bgr555[] colors, bool allowCycle, PaletteRow? crossFadeSource)
+        internal PaletteRow(RgbColor[] colors, bool allowCycle, PaletteRow? crossFadeSource)
         {
             if (crossFadeSource is not null && MatchesCrossFade(colors, crossFadeSource))
             {
@@ -98,23 +99,23 @@ public sealed class IntroCinematicPalette
             {
                 if (cycle && colors[color] == CycleColor(color)) continue;
                 supplied = colors;
-                background = foreground = Bgr555.Black;
+                background = foreground = RgbColor.Black;
                 break;
             }
         }
         /// <summary>Checks that the shared gradient and four descending blue inks reproduce the supplied row.</summary>
-        private static bool MatchesCrossFade(Bgr555[] colors, PaletteRow source)
+        private static bool MatchesCrossFade(RgbColor[] colors, PaletteRow source)
         {
             for (int color = 1; color <= 8; color++)
                 if (colors[color] != source.Resolve(color)) return false;
             int blue = colors[9].Blue;
             if (colors[9].Red != 0 || colors[9].Green != 0 || blue < 3 * IntroCinematicPaletteFormat.CrossFadeBlueStep) return false;
             for (int shade = 1; shade < 4; shade++)
-                if (colors[9 + shade] != new Bgr555(0, 0, blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep)) return false;
+                if (colors[9 + shade] != new RgbColor(0, 0, blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep)) return false;
             return true;
         }
         /// <summary>Reconstructs a color from retained source inks or its proven cycle/cross-fade relationship.</summary>
-        internal Bgr555 Resolve(int color)
+        internal RgbColor Resolve(int color)
         {
             if (crossFadeInputs is not null)
             {
@@ -124,7 +125,7 @@ public sealed class IntroCinematicPalette
                     return (sharedGradient ?? throw new InvalidOperationException(
                         "A cross-faded intro palette requires its shared gradient.")).Resolve(color);
                 }
-                if (color <= 12) return new Bgr555(0, 0, crossFadeInputs[1].Blue -
+                if (color <= 12) return new RgbColor(0, 0, crossFadeInputs[1].Blue -
                     (color - 9) * IntroCinematicPaletteFormat.CrossFadeBlueStep);
                 return crossFadeInputs[color - 11];
             }
@@ -132,7 +133,7 @@ public sealed class IntroCinematicPalette
                 color == 0 ? background : cycle ? CycleColor(color) : foreground;
         }
         /// <summary>Decreases each foreground RGB5 channel for its position in the repeating neutral ramp.</summary>
-        private Bgr555 CycleColor(int color)
+        private RgbColor CycleColor(int color)
         {
             int decrease = (color - 1) % IntroCinematicPaletteFormat.NeutralCycleLength *
                 IntroCinematicPaletteFormat.NeutralCycleStep;

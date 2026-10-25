@@ -36,7 +36,7 @@ public static class SamusHyperBeamColorFormat
     /// green/blue half-sums: the quantization favors the cyan channels.
     /// No fixed correction value is added. Numerators0..63,RGB5 inputs only.
     /// This states the exact color construction,not the original tool's identity.</remarks>
-    internal static Bgr555 CyanTransitionMiddle(Bgr555 magenta, Bgr555 cyan)
+    internal static RgbColor CyanTransitionMiddle(RgbColor magenta, RgbColor cyan)
     {
         return HueMidpoint(magenta, cyan).WithRed(HueMidpoint(magenta, cyan, direction: HueRounding.Down).Red);
     }
@@ -47,18 +47,18 @@ public static class SamusHyperBeamColorFormat
     /// This gives10/6/18 and11/8/19 without independent intermediate inputs.
     /// Edited middle colors may exceed those operations' RGB5 bounds; return
     /// false so import preserves the supplied whole target,without saturation.</remarks>
-    internal static bool TryCyanTransitionShadow(Bgr555 middle, int ink, out Bgr555 value)
+    internal static bool TryCyanTransitionShadow(RgbColor middle, int ink, out RgbColor value)
     {
         if (ink is not (3 or 11)) throw new ArgumentOutOfRangeException(nameof(ink));
         int red = middle.Red, green = middle.Green, blue = middle.Blue;
         if (ink == 3)
         {
-            if (green == 0) { value = Bgr555.Black; return false; }
+            if (green == 0) { value = RgbColor.Black; return false; }
             value = middle.WithGreen(green - 1);
         }
         else
         {
-            if (red == 31 || green == 31 || blue == 31) { value = Bgr555.Black; return false; }
+            if (red == 31 || green == 31 || blue == 31) { value = RgbColor.Black; return false; }
             value = new(red + 1, green + 1, blue + 1);
         }
         return true;
@@ -75,7 +75,7 @@ public static class SamusHyperBeamColorFormat
     /// Domain:frames1/5/9,shadow inks3/11/13,RGB5 inputs. The reused midpoint
     /// is bounded,no clamping or generated color storage is needed.</remarks>
     internal static HyperBeamEndpointChannels EndpointSourceChannels(int frame, int color,
-        Bgr555 greenHue, Bgr555 lowShadow, Bgr555 highShadow)
+        RgbColor greenHue, RgbColor lowShadow, RgbColor highShadow)
     {
         if (frame is not (1 or 5 or 9)) throw new ArgumentOutOfRangeException(nameof(frame));
         if (color is not (3 or 11 or 13)) throw new ArgumentOutOfRangeException(nameof(color));
@@ -83,7 +83,7 @@ public static class SamusHyperBeamColorFormat
         int? green = frame == 1 ? greenHue.Red : null;
         if (color == 13)
         {
-            Bgr555 middle = HueMidpoint(lowShadow, highShadow);
+            RgbColor middle = HueMidpoint(lowShadow, highShadow);
             if (frame == 1) red = middle.Red;
             if (frame == 5) red = lowShadow.Red;
             if (frame is 5 or 9) green = middle.Green;
@@ -111,14 +111,14 @@ public static class SamusHyperBeamColorFormat
     /// <remarks>Original shades never overflow. A supplied edited source that
     /// would exceed31 cannot replace its independently supplied target; import
     /// keeps that target explicit instead of clamping or wrapping a channel.</remarks>
-    internal static bool TryBrighten(Bgr555 source, int brightness, out Bgr555 value)
+    internal static bool TryBrighten(RgbColor source, int brightness, out RgbColor value)
     {
         if (brightness is not (2 or 4 or 7 or 8)) throw new ArgumentOutOfRangeException(nameof(brightness));
         int red = (source.Red) + brightness;
         int green = (source.Green) + brightness;
         int blue = (source.Blue) + brightness;
-        if (red > 31 || green > 31 || blue > 31) { value = Bgr555.Black; return false; }
-        value = new Bgr555(red, green, blue);
+        if (red > 31 || green > 31 || blue > 31) { value = RgbColor.Black; return false; }
+        value = new RgbColor(red, green, blue);
         return true;
     }
     /// <summary>Turns the red endpoint into magenta by raising blue to red.</summary>
@@ -126,7 +126,7 @@ public static class SamusHyperBeamColorFormat
     /// frame0 ink3 ($D90C). Body-cycle frame1 also has blue=red,including
     /// its independently edited shade-red channels. Red/green stay fixed; copying red into blue
     /// needs no rounding,saturation or overflow. Edits remain independent.</remarks>
-    internal static Bgr555 MagentaFromRed(Bgr555 red) =>
+    internal static RgbColor MagentaFromRed(RgbColor red) =>
         red.WithBlue(red.Red);
     /// <summary>Interpolates RGB5 colors by half with the caller's channel rounding convention.</summary>
     /// <remarks>Even frames interpolate the adjacent odd hue endpoints, with
@@ -137,13 +137,13 @@ public static class SamusHyperBeamColorFormat
     /// Upward rounding is the default for hue blends. The magenta-cyan
     /// middle shadow selects downward red and upward green/blue rounding.
     /// Each independent channel numerator is0..63; no saturation or overflow.</remarks>
-    internal static Bgr555 HueMidpoint(Bgr555 first, Bgr555 second, HueRounding direction = HueRounding.Up)
+    internal static RgbColor HueMidpoint(RgbColor first, RgbColor second, HueRounding direction = HueRounding.Up)
     {
         int rounding = direction == HueRounding.Up ? 1 : 0;
         int red = ((first.Red) + (second.Red) + rounding) / 2;
         int green = ((first.Green) + (second.Green) + rounding) / 2;
         int blue = ((first.Blue) + (second.Blue) + rounding) / 2;
-        return new Bgr555(red, green, blue);
+        return new RgbColor(red, green, blue);
     }
 
     /// <summary>Interpolates red halfway from green-frame red to its green value, rounding upward.</summary>
@@ -153,7 +153,7 @@ public static class SamusHyperBeamColorFormat
     /// deriving their brighter shades from it. Green/blue remain shared.
     /// The numerator is at most63; no saturation or
     /// overflow is needed. This reuses the green-frame input, not a generated cache.</remarks>
-    internal static Bgr555 GreenYellowMidpoint(Bgr555 green) =>
+    internal static RgbColor GreenYellowMidpoint(RgbColor green) =>
         green.WithRed((green.Red + green.Green + 1) / 2);
 
     /// <summary>Extends the green-yellow red shadow ramp by its existing equal step.</summary>
@@ -163,10 +163,10 @@ public static class SamusHyperBeamColorFormat
     /// storing a red correction to the temporal midpoint. RGB5 inputs only.
     /// Edited shadow endpoints may yield red-31..62; return false outside0..31
     /// so import keeps the independently supplied whole target,without clamping.</remarks>
-    internal static bool TryGreenYellowHighShadow(Bgr555 low, Bgr555 middle, Bgr555 green, out Bgr555 value)
+    internal static bool TryGreenYellowHighShadow(RgbColor low, RgbColor middle, RgbColor green, out RgbColor value)
     {
         int red = 2 * (middle.Red) - (low.Red);
-        if ((uint)red > 31) { value = Bgr555.Black; return false; }
+        if ((uint)red > 31) { value = RgbColor.Black; return false; }
         value = green.WithRed(red);
         return true;
     }
@@ -176,7 +176,7 @@ public static class SamusHyperBeamColorFormat
     /// ($9B:A2C0) with red replaced by green. Green/blue remain unchanged.
     /// RGB5 component copying needs no rounding or saturation. Transparent
     /// payloads are outside the hue transform; differing asset values override it.</remarks>
-    internal static Bgr555 YellowFromGreen(Bgr555 green) =>
+    internal static RgbColor YellowFromGreen(RgbColor green) =>
         green.WithRed(green.Green);
 
     /// <summary>Shares repeated Hyper Beam sprite inks and transparent payloads.</summary>

@@ -20,11 +20,11 @@ public sealed class EndingPalette
     /// <summary>Keeps one ending palette's selected colours, recognising the logo cross-fade when its colours follow the calculated fade.</summary>
     /// <param name="id">The ending palette the colours belong to.</param>
     /// <param name="colours">The selected colours.</param>
-    internal static EndingPalette FromColours(EndingPaletteId id, ReadOnlySpan<Bgr555> colours)
+    internal static EndingPalette FromColours(EndingPaletteId id, ReadOnlySpan<RgbColor> colours)
     {
-        var compiled = new byte[colours.Length * Bgr555.ByteCount];
+        var compiled = new byte[colours.Length * RgbColor.ByteCount];
         for (int index = 0; index < colours.Length; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(compiled.AsSpan(index * Bgr555.ByteCount), colours[index].ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(compiled.AsSpan(index * RgbColor.ByteCount), colours[index].ToWord());
         if (id == EndingPaletteId.LogoCrossfade && EndingLogoPaletteFade.TryCreate(compiled) is { } fade)
             return new EndingPalette(fade);
         return new EndingPalette(compiled);
@@ -37,25 +37,25 @@ public sealed class EndingPalette
         get
         {
             if (colorBytes is not null) return colorBytes;
-            var bytes = new byte[ColorCount * Bgr555.ByteCount];
+            var bytes = new byte[ColorCount * RgbColor.ByteCount];
             WriteColors(bytes, 0, ColorCount);
             return bytes;
         }
     }
     /// <summary>Number of color words in the complete resource, including all 512 ordered colors when this is the sixteen-step logo crossfade.</summary>
-    public int ColorCount => colorBytes is not null ? colorBytes.Length / Bgr555.ByteCount : EndingLogoPaletteFade.ColorCount;
+    public int ColorCount => colorBytes is not null ? colorBytes.Length / RgbColor.ByteCount : EndingLogoPaletteFade.ColorCount;
 
     /// <summary>Reads one selected color, evaluating a recognized logo fade directly rather than materializing its transfer image.</summary>
     /// <param name="index">Zero-based color position within <see cref="ColorCount"/>; crossfade positions use (step * 2 + palette) * 16 + color, with BG palette 0 and OBJ palette 1.</param>
     /// <returns>A compiled BGR555 word: red in bits 0..4, green in 5..9 and blue in 10..14.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside this resource.</exception>
-    public Bgr555 Color(int index)
+    public RgbColor Color(int index)
     {
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         if (logoFade is not null) return logoFade.Color(index);
-        return Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(
-            colorBytes.AsSpan(index * Bgr555.ByteCount)));
+        return RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(
+            colorBytes.AsSpan(index * RgbColor.ByteCount)));
     }
 
     /// <summary>Changes <paramref name="destination"/> to this resource's colours from <paramref name="sourceColor"/>.</summary>
@@ -70,7 +70,7 @@ public sealed class EndingPalette
     }
 
     /// <summary>The colour of this whole-screen resource at the screen position of <paramref name="positions"/>' colour <paramref name="colour"/>.</summary>
-    public Bgr555 Color(ColourRun positions, int colour) => Color(FirstColorFor(positions) + colour);
+    public RgbColor Color(ColourRun positions, int colour) => Color(FirstColorFor(positions) + colour);
 
     /// <summary>Where <paramref name="positions"/> start in this whole-screen resource.</summary>
     /// <exception cref="InvalidOperationException">This resource does not hold a whole screen's colours.</exception>
@@ -82,6 +82,6 @@ public sealed class EndingPalette
     private void WriteColors(Span<byte> bytes, int sourceColor, int count)
     {
         for (int i = 0; i < count; i++)
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.Slice(i * Bgr555.ByteCount), Color(sourceColor + i).ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.Slice(i * RgbColor.ByteCount), Color(sourceColor + i).ToWord());
     }
 }

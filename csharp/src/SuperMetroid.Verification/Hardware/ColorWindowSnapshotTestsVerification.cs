@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +19,7 @@ internal static class ColorWindowSnapshotTestsVerification
     internal static void VerifyColorWindowSnapshots()
     {
         var cgram = new SnesCgram();
-        cgram.SetColor(0, Bgr555.FromWord(0x396b));
+        cgram.SetColor(0, RgbColor.FromWord(0x396b));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
         int samples = 0;

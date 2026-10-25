@@ -3,12 +3,12 @@ using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -63,7 +63,7 @@ internal static class MapHudDefinitionMigrationVerification
         AssertEqual(124, GameplayMessageBoxDefinitions.Layout.WindowCenterY, "message window centre");
         AssertEqual(8, GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames, "pre-open waits");
         AssertEqual(360, GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames, "item message duration");
-        AssertEqual(Bgr555.FromWord(0x0bb1), GameplayMessageBoxDefinitions.Palette.TemporaryLightColor, "light message colour");
+        AssertEqual(RgbColor.FromWord(0x0bb1), GameplayMessageBoxDefinitions.Palette.TemporaryLightColor, "light message colour");
         AssertEqual(0x284e, GameplayMessageBoxDefinitions.Buttons.UnknownGlyph.Raw, "blank button glyph");
         AssertEqual(0x3ce1, GameplayMessageButtonGlyphs.ResolveGlyphWord(ControllerButton.B), "B glyph");
         AssertEqual(0x120, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.SpeedBooster), "speed booster glyph offset");

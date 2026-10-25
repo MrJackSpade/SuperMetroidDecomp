@@ -76,7 +76,7 @@ public sealed class SpriteSheet
     /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
     /// <param name="partRows">Each pixel's part palette row 0..7.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
-    public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels,
+    public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
         ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partRows)
     {
         SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
@@ -88,7 +88,7 @@ public sealed class SpriteSheet
         try
         {
             image = new SpriteImage(name, size, pixels, paletteIndices,
-                new SpriteImagePalette(document.Palette, [.. document.Colours.Select(Bgr555.FromWord)]), priorities, partRows);
+                new SpriteImagePalette(document.Palette, [.. document.Colours.Select(RgbColor.FromWord)]), priorities, partRows);
         }
         catch (ArgumentException error)
         {

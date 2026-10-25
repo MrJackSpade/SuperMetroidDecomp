@@ -1,19 +1,19 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// One SNES color: three five-bit channels packed as the 15-bit CGRAM word, red in bits 0-4,
-/// green in bits 5-9 and blue in bits 10-14 (despite the conventional "BGR" name, read
-/// from the little-endian word's low end). Bit 15 is not a color bit.
+/// One game colour (#1420): three five-bit channels, red, green and blue, each 0 through <see cref="MaxChannel"/>,
+/// the precision every authored palette and colour effect works in. Packed as a word, red takes bits 0-4, green bits
+/// 5-9 and blue bits 10-14; bit 15 is not a colour bit.
 /// </summary>
 /// <remarks>
 /// The packed word is reachable only through explicit <see cref="FromWord"/>/<see cref="ToWord"/>
-/// conversions at ROM, memory, CGRAM-port and serialization boundaries. No implicit numeric
-/// conversion exists, so the representation cannot leak back into color logic.
-/// This type is the single owner of the BGR555 colour encoding: channel packing, the bit-15
-/// rule and the CGRAM data port's masking all live here, so its stored word is that encoding.
+/// conversions at the installed palette documents' and serialization boundaries. No implicit numeric
+/// conversion exists, so the representation cannot leak back into colour logic.
+/// This type is the single owner of the RGB5 colour form: channel packing, the bit-15 rule and the
+/// palette-port masking all live here, so its stored word is that form.
 /// </remarks>
 [EncodingOwner("RGB5 colour word of the installed palette documents")]
-public readonly record struct Bgr555
+public readonly record struct RgbColor
 {
     /// <summary>Bytes in one encoded color word, as stored in ROM, WRAM and CGRAM.</summary>
     public const int ByteCount = sizeof(ushort);
@@ -28,23 +28,23 @@ public readonly record struct Bgr555
     private readonly ushort channels;
 
     /// <summary>Accepts a previously validated or CGRAM-masked packed word.</summary>
-    private Bgr555(ushort word) => channels = word;
+    private RgbColor(ushort word) => channels = word;
 
     /// <summary>Packs three channels, each 0-<see cref="MaxChannel"/>.</summary>
-    public Bgr555(int red, int green, int blue)
+    public RgbColor(int red, int green, int blue)
         : this(Pack(red, green, blue))
     {
     }
 
     /// <summary>Black: every channel zero.</summary>
-    public static Bgr555 Black => default;
+    public static RgbColor Black => default;
 
     /// <summary>Expands a five-bit channel to eight bits by replicating its high bits into the low ones.</summary>
     public static byte ExpandChannel(int fiveBit) =>
         (byte)(((fiveBit & MaxChannel) << 3) | ((fiveBit & MaxChannel) >> 2));
 
     /// <summary>White: every channel at <see cref="MaxChannel"/>.</summary>
-    public static Bgr555 White => new(ColorBits);
+    public static RgbColor White => new(ColorBits);
 
     /// <summary>The red channel, 0-<see cref="MaxChannel"/>.</summary>
     public int Red => channels & MaxChannel;
@@ -65,7 +65,7 @@ public readonly record struct Bgr555
     };
 
     /// <summary>This color with one channel replaced.</summary>
-    public Bgr555 With(ColorChannel channel, int value) => channel switch
+    public RgbColor With(ColorChannel channel, int value) => channel switch
     {
         ColorChannel.Red => WithRed(value),
         ColorChannel.Green => WithGreen(value),
@@ -74,30 +74,30 @@ public readonly record struct Bgr555
     };
 
     /// <summary>This color with its red channel replaced.</summary>
-    public Bgr555 WithRed(int red) => new(red, Green, Blue);
+    public RgbColor WithRed(int red) => new(red, Green, Blue);
 
     /// <summary>This color with its green channel replaced.</summary>
-    public Bgr555 WithGreen(int green) => new(Red, green, Blue);
+    public RgbColor WithGreen(int green) => new(Red, green, Blue);
 
     /// <summary>This color with its blue channel replaced.</summary>
-    public Bgr555 WithBlue(int blue) => new(Red, Green, blue);
+    public RgbColor WithBlue(int blue) => new(Red, Green, blue);
 
     /// <summary>
     /// Packs three channels, saturating each into 0-<see cref="MaxChannel"/>. For paint
     /// arithmetic whose authored or native rule clamps; strict packing uses the constructor.
     /// </summary>
-    public static Bgr555 Saturating(int red, int green, int blue) =>
+    public static RgbColor Saturating(int red, int green, int blue) =>
         new(Math.Clamp(red, 0, MaxChannel), Math.Clamp(green, 0, MaxChannel), Math.Clamp(blue, 0, MaxChannel));
 
     /// <summary>Applies <paramref name="map"/> to each channel; the results must be valid channels.</summary>
-    public Bgr555 Map(Func<ColorChannel, int, int> map)
+    public RgbColor Map(Func<ColorChannel, int, int> map)
     {
         Ensure.NotNull(map);
         return new(map(ColorChannel.Red, Red), map(ColorChannel.Green, Green), map(ColorChannel.Blue, Blue));
     }
 
     /// <summary>Combines matching channels of this color and <paramref name="other"/>; the results must be valid channels.</summary>
-    public Bgr555 Zip(Bgr555 other, Func<ColorChannel, int, int, int> combine)
+    public RgbColor Zip(RgbColor other, Func<ColorChannel, int, int, int> combine)
     {
         Ensure.NotNull(combine);
         return new(combine(ColorChannel.Red, Red, other.Red), combine(ColorChannel.Green, Green, other.Green),
@@ -111,7 +111,7 @@ public readonly record struct Bgr555
     /// Decodes a stored 15-bit color word. A set bit 15 is rejected: it is not part of any
     /// color, and only the CGRAM data port (<see cref="FromCgramPortWord"/>) defines a result for it.
     /// </summary>
-    public static Bgr555 FromWord(ushort word)
+    public static RgbColor FromWord(ushort word)
     {
         if ((word & ~ColorBits) != 0)
             throw new ArgumentOutOfRangeException(nameof(word), word, $"BGR555 word ${word:X4} sets bit 15, which is not a color bit.");
@@ -122,13 +122,13 @@ public readonly record struct Bgr555
     /// Decodes a word written through the CGRAM data port (<c>$2122</c>). The PPU stores only
     /// fifteen bits, so the port discards bit 15 of the second byte.
     /// </summary>
-    public static Bgr555 FromCgramPortWord(ushort word) => new((ushort)(word & ColorBits));
+    public static RgbColor FromCgramPortWord(ushort word) => new((ushort)(word & ColorBits));
 
     /// <summary>The packed 15-bit word, for ROM, memory, CGRAM and serialization boundaries.</summary>
     public ushort ToWord() => channels;
 
     /// <summary>Host RGBA, expanding each five-bit channel to eight bits by bit replication.</summary>
-    public Rgba32 ToRgba32() => new(Expand(Red), Expand(Green), Expand(Blue));
+    public RgbaPixel ToRgbaPixel() => new(Expand(Red), Expand(Green), Expand(Blue));
 
     /// <inheritdoc />
     public override string ToString() => $"BGR555(r{Red}, g{Green}, b{Blue}; ${channels:X4})";

@@ -299,7 +299,7 @@ internal static class TitleGradientVerification
                     ushort expected = RomDataReader.ReadWordFixedBank(
                         CartridgeImportSource.Require(bus),
                         RoomFxBankSourceDefinitions.PaletteFx | pointer);
-                    if (!presentation.TryReadColor(pointer, out Bgr555 actual) ||
+                    if (!presentation.TryReadColor(pointer, out RgbColor actual) ||
                         actual.ToWord() != expected)
                     {
                         throw new InvalidDataException(

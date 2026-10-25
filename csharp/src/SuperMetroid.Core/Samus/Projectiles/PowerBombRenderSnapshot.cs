@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
@@ -18,7 +20,7 @@ public readonly record struct PowerBombRenderSnapshot(
     PowerBombShapeCursor? RenderedShape,
     PowerBombRadius RenderedPreExplosionRadius,
     PowerBombRadius RenderedExplosionRadius,
-    Bgr555 FixedColor)
+    RgbColor FixedColor)
 {
     /// <summary>Copies the explosion's rendered window inputs and its current colour.</summary>
     public static PowerBombRenderSnapshot Capture(SamusPowerBombExplosionState explosion)

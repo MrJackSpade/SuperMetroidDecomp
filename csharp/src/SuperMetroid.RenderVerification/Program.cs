@@ -12,6 +12,7 @@ using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RenderFixtures;
@@ -194,7 +195,7 @@ internal static class Program
                 DisplayPacket? last = null;
                 for (int i = 0; i < 64; i++)
                 {
-                    last = new(new(i + 1, 1, 0), new Rgba32((byte)i, 73, 129));
+                    last = new(new(i + 1, 1, 0), new RgbaPixel((byte)i, 73, 129));
                     renderer.Render(last);
                 }
                 PixelComparison.Verify((last ?? throw new InvalidOperationException("Verification requires last.")), DisplayRendering.Render((last)), renderer.Readback(),
@@ -206,15 +207,15 @@ internal static class Program
                 foreach (byte alpha in new byte[] { 0, 1, 128, 255 })
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
-                    var frame = new DisplayPacket(new(++samples, 1, 0), new Rgba32(231, 123, 47, alpha), [new FadeLevel(brightness), new FadeLevel(11)]);
-                    Rgba32[] expected = DisplayRendering.Render(frame);
-                    Rgba32[] actual = renderer.RenderForReadback(frame);
+                    var frame = new DisplayPacket(new(++samples, 1, 0), new RgbaPixel(231, 123, 47, alpha), [new FadeLevel(brightness), new FadeLevel(11)]);
+                    RgbaPixel[] expected = DisplayRendering.Render(frame);
+                    RgbaPixel[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");
                 }
                 // A wrong-thread call must fail before issuing any D3D context operation.
                 Exception? wrongThread = Task.Run(() =>
                 {
-                    try { renderer.RenderForReadback(new(new(1, 1, 0), new Rgba32(0, 0, 0))); return null; }
+                    try { renderer.RenderForReadback(new(new(1, 1, 0), new RgbaPixel(0, 0, 0))); return null; }
                     catch (Exception exception) { return exception; }
                 }).GetAwaiter().GetResult();
                 if (wrongThread is not InvalidOperationException) throw new InvalidOperationException("Missing render-owner thread guard.");

@@ -62,7 +62,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     public void RunPreInstruction(
         ScreenPalette colours,
-        ReadOnlySpan<Bgr555> introPalette,
+        ReadOnlySpan<RgbColor> introPalette,
         int cinematicFrameCounter,
         int introCrossfadeTimer)
     {
@@ -95,7 +95,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Eight-frame white/normal alternation loaded into OBJ palette seven by <c>$8B:B846</c>.
     /// </summary>
-    public void ApplyHurtFlash(ScreenPalette colours, ReadOnlySpan<Bgr555> introPalette)
+    public void ApplyHurtFlash(ScreenPalette colours, ReadOnlySpan<RgbColor> introPalette)
     {
         Ensure.NotNull(colours);
         if (hurtFlashTimer.IsZero)
@@ -106,7 +106,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (normalPalette)
             row.CopyFrom(row.SamePositionsIn(introPalette));
         else
-            row.Fill(Bgr555.White);
+            row.Fill(RgbColor.White);
         hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;
     }
 

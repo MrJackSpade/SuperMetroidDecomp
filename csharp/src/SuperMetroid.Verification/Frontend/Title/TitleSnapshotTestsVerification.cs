@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerifi
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -39,7 +40,7 @@ internal static class TitleSnapshotTestsVerification
                 if (newPhase || frame % 17 == 0 || phase == TitleSequencePhase.TitleScreenFadeOut)
                 {
                     // Compare at phase boundaries and throughout motion, not just black endpoints.
-                    Rgba32[] expected = scene.Render();
+                    RgbaPixel[] expected = scene.Render();
                     FloorScene packet = scene.CaptureRenderSnapshot();
                     Match(expected, DisplayRendering.Render(
                         new DisplayPacket(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
@@ -74,7 +75,7 @@ internal static class TitleSnapshotTestsVerification
             throw new InvalidOperationException("Title snapshot fixture did not reach file select.");
         }
 
-        static void Match(Rgba32[] expected, Rgba32[] actual, int frame, TitleSequencePhase phase)
+        static void Match(RgbaPixel[] expected, RgbaPixel[] actual, int frame, TitleSequencePhase phase)
         {
             AssertEqual(expected.Length, actual.Length, "title snapshot frame size");
             for (int index = 0; index < expected.Length; index++)

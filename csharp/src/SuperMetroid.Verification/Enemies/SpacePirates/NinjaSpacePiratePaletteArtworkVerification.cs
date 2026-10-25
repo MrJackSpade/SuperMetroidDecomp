@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
@@ -30,12 +31,12 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // Keep the oracle independent of the installed catalog and runtime callback.
         var nativeColors = new SnesCgram();
         for (int color = 0; color < SnesCgram.ColorCount; color++)
-            nativeColors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
+            nativeColors.SetColor(color, RgbColor.FromWord((ushort)(color * 17)));
         for (int color = 0; color < 16; color++)
         {
             int address = 0xb28727 + color * 2;
             nativeColors.SetColor(240 + color,
-                Bgr555.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
+                RgbColor.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
         }
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
@@ -86,7 +87,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var colors = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
+                colors.SetColor(color, RgbColor.FromWord((ushort)(color * 17)));
             enemies.Presentation.BindColours(colors.Gameplay);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);

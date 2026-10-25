@@ -515,7 +515,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>Writes the copyright glyph's white and red colours.</summary>
-    private void WriteCopyright(Bgr555 white, Bgr555 red)
+    private void WriteCopyright(RgbColor white, RgbColor red)
     {
         ColourRun row = palette.SpriteRow(TitleCopyrightColourDefinitions.SpriteRow);
         row.Write(TitleCopyrightColourDefinitions.WhiteColour, white);

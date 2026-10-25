@@ -6,8 +6,8 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
 
@@ -35,7 +35,7 @@ internal static class AttractCaptureTestsVerification
             });
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false, bounded = false;
-            Rgba32[]? held = null;
+            RgbaPixel[]? held = null;
             for (int tick = 0; tick < 8000; tick++)
             {
                 if (!bounded && legacy.GameState == SuperMetroidGameState.TransitionToDemoB)

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.TestSupport.RenderFixtures;
 
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -11,7 +11,7 @@ using SuperMetroid.Core.Rooms;
 internal static class MinimapBlinkAudit
 {
     /// <summary>Checks visible current-cell blinking in representative rooms across four retail areas.</summary>
-    public static int Run(Func<SuperMetroidRuntime, Rgba32[]>? render = null)
+    public static int Run(Func<SuperMetroidRuntime, RgbaPixel[]>? render = null)
     {
         foreach (ushort room in MapCrossViewAuditDefinitions.RepresentativeRooms)
             VerifyRoom(room, render ?? (runtime => FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame())));
@@ -20,7 +20,7 @@ internal static class MinimapBlinkAudit
     }
 
     /// <summary>Keeps Samus on one map cell and compares the rendered HUD cell through two blink cycles.</summary>
-    private static void VerifyRoom(ushort room, Func<SuperMetroidRuntime, Rgba32[]> render)
+    private static void VerifyRoom(ushort room, Func<SuperMetroidRuntime, RgbaPixel[]> render)
     {
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

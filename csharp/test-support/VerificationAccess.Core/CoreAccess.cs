@@ -148,7 +148,7 @@ internal static class CoreAccess
     extension(GameplayBasePaletteCatalog palettes)
     {
         /// <summary>Initial gameplay CGRAM colors retained by the loaded palette catalog.</summary>
-        internal ReadOnlySpan<Bgr555> Initial => palettes.initial;
+        internal ReadOnlySpan<RgbColor> Initial => palettes.initial;
     }
 
 

@@ -65,7 +65,7 @@ internal static class ScreenSpritesFixtures
                 new SnesObjAttributeWord(key.Attributes), InheritPalette: false)]).ToFrame(name, 0);
             var page = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects), new byte[2 * 256 * SpriteArtwork.CharacterByteCount]);
             var sources = new SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources(
-                [new SuperMetroid.AssetExtraction.Artwork.SheetFrameSource(name, frame, page, 0)], new Bgr555[8 * 16], ObjPartFrames.StandardSizes,
+                [new SuperMetroid.AssetExtraction.Artwork.SheetFrameSource(name, frame, page, 0)], new RgbColor[8 * 16], ObjPartFrames.StandardSizes,
                 PartsKeepOwnRows: true);
             return SuperMetroid.TestSupport.RepositoryInstallation.Verification.CinematicSheetFixtures.Load(sources, name).Frame(name);
         });

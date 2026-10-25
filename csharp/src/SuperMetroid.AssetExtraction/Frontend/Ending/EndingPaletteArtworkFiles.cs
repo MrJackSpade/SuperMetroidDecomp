@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -40,7 +41,7 @@ public static class EndingPaletteArtworkFiles
             {
                 ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
                     native.AsSpan(index * sizeof(ushort)));
-                if (!Bgr555.IsColorWord(word))
+                if (!RgbColor.IsColorWord(word))
                     throw new InvalidDataException(
                         $"Ending {id} palette color {index} has an unrepresentable high bit.");
                 colors[index] = new PaletteRgb5

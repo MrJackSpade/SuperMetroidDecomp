@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
     /// <summary>Explicit RGB5 samples by the record color each one is.</summary>
-    internal readonly Dictionary<PaletteFxColorKey, Bgr555> colors;
+    internal readonly Dictionary<PaletteFxColorKey, RgbColor> colors;
 
     /// <summary>Canonical and derived heat-palette samples shared across Samus suits.</summary>
     internal readonly HeatPaletteInputView heatInputs;
@@ -19,7 +20,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     private readonly EndingGunshipPaletteInputView gunshipInputs;
 
     /// <summary>Builds calculated-color views over validated, explicitly authored samples.</summary>
-    private RoomPaletteFxPresentation(Dictionary<PaletteFxColorKey, Bgr555> colors)
+    private RoomPaletteFxPresentation(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
         this.colors = colors;
         heatInputs = new HeatPaletteInputView(colors);
@@ -29,7 +30,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 
     /// <summary>Keeps every selected palette-effect colour except those a shared row alias or calculation already reproduces.</summary>
     /// <param name="colors">Every selected colour, by the record colour it is.</param>
-    internal static RoomPaletteFxPresentation Create(Dictionary<PaletteFxColorKey, Bgr555> colors)
+    internal static RoomPaletteFxPresentation Create(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
         // Collapse only values equal to the calculated row alias. Differing player
         // edits keep their original per-frame identity, including edits to base rows.
@@ -42,8 +43,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.Rows))
         {
-            if (colors.TryGetValue(key, out Bgr555 supplied) &&
-                HeatPaletteColorDefinitions.TryCalculatedColor(key, colors, out Bgr555 calculated) && supplied == calculated)
+            if (colors.TryGetValue(key, out RgbColor supplied) &&
+                HeatPaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
                 colors.Remove(key);
         }
         foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
@@ -55,37 +56,37 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
         foreach (PaletteFxColorKey key in Keys(program.Rows))
         {
-            if (colors.TryGetValue(key, out Bgr555 supplied) &&
-                LoadingPaletteColorDefinitions.TryCalculatedColor(key, colors, out Bgr555 calculated) && supplied == calculated)
+            if (colors.TryGetValue(key, out RgbColor supplied) &&
+                LoadingPaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) && supplied == calculated)
                 colors.Remove(key);
         }
         // Only matching samples are discarded. If the player edits a base color,
         // unchanged intermediate samples that no longer fit remain explicit values.
         foreach (PaletteFxColorKey key in Keys(PostCreditsIconGlarePaletteFxColorDefinitions.Rows, lastFrame: PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount - 1))
         {
-            if (LogoGlarePaletteColorDefinitions.TryCalculatedColor(key, colors, out Bgr555 calculated) &&
+            if (LogoGlarePaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (PaletteFxColorKey key in Keys(ZebesExplosionGunshipPaletteFxColorDefinitions.Rows, lastFrame: ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount - 1))
         {
-            if (EndingGunshipPaletteColorDefinitions.TryCalculatedColor(key, colors, out Bgr555 calculated) &&
+            if (EndingGunshipPaletteColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         // Keep both endpoints and independent sample edits. Only values matching
         // their supplied endpoints can be reconstructed on demand.
         foreach (PaletteFxColorKey key in Keys(TourianStatueGreyPaletteFxColorDefinitions.Rows, firstFrame: 1, lastFrame: TourianStatueGreyPaletteFxColorDefinitions.FrameCount - 1))
         {
-            if (TourianStatueGreyColorDefinitions.TryCalculatedColor(key, colors, out Bgr555 calculated) &&
+            if (TourianStatueGreyColorDefinitions.TryCalculatedColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.SurfaceProgram.Rows))
         {
-            if (CrateriaLightningColorDefinitions.TryCalculatedColor(key, out Bgr555 calculated) &&
+            if (CrateriaLightningColorDefinitions.TryCalculatedColor(key, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (PaletteFxColorKey key in Keys(CrateriaLightningColorDefinitions.DarkProgram.Rows, firstFrame: 1))
         {
-            if (CrateriaLightningColorDefinitions.TryCalculatedDarkColor(key, colors, out Bgr555 calculated) &&
+            if (CrateriaLightningColorDefinitions.TryCalculatedDarkColor(key, colors, out RgbColor calculated) &&
                 colors[key] == calculated) colors.Remove(key);
         }
         foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
@@ -94,7 +95,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         {
             PaletteFxColorKey key = program.Color(frame, index);
             if (key != PlanetZebesTextColorDefinitions.Endpoint(index)
-                && PlanetZebesTextColorDefinitions.TryCalculate(key, colors, out Bgr555 calculated)
+                && PlanetZebesTextColorDefinitions.TryCalculate(key, colors, out RgbColor calculated)
                 && colors[key] == calculated) colors.Remove(key);
         }
         foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
@@ -107,7 +108,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     }
 
     /// <inheritdoc />
-    public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color) =>
+    public bool TryReadColor(PaletteFxColorKey key, out RgbColor color) =>
         gunshipInputs.TryGetValue(key, out color) ||
         PlanetZebesTextColorDefinitions.TryCalculate(key, colors, out color) ||
         MaridiaEnvironmentalColorDefinitions.TryReadColor(key, colors, out color) ||

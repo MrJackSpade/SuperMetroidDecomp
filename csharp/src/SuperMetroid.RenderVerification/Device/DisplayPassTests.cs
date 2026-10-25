@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -20,8 +21,8 @@ internal static class DisplayPassTests
         var random = new Random(32111);
         var vram = new byte[SnesPpuLayout.VramByteCount];
         random.NextBytes(vram);
-        Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
-            .Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
+        RgbColor[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
+            .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(new FramePaint(palette, []),
             [new TileRenderLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, BgBitDepth.FourBpp, new Extent16<TilemapCells>(32, 32)),
                 new Position16<BgPlanePixels>(3, 11), null)], 15));
@@ -52,7 +53,7 @@ internal static class DisplayPassTests
                 for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
                 {
-                    Rgba32 expected = x < left || x >= left + w || y < top || y >= top + h
+                    RgbaPixel expected = x < left || x >= left + w || y < top || y >= top + h
                         ? new(0,0,0) : native[((y - top) * 224 / h) * 256 + (x - left) * 256 / w];
                     uint actual = *(uint*)((byte*)mapped.DataPointer + y * mapped.RowPitch + x * 4);
                     uint packed = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian([expected.B, expected.G, expected.R, 255]);

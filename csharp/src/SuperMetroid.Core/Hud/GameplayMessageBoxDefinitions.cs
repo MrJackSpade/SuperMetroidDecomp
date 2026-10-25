@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>
@@ -61,11 +63,11 @@ public static class GameplayMessageBoxDefinitions
         /// <summary>The colour index the light message colour replaces.</summary>
         public const int TemporaryLightIndex = 25;
         /// <summary>The light colour installed for the message box.</summary>
-        public static Bgr555 TemporaryLightColor => Bgr555.FromWord(0x0bb1);
+        public static RgbColor TemporaryLightColor => RgbColor.FromWord(0x0bb1);
         /// <summary>The colour index the dark message colour replaces.</summary>
         public const int TemporaryDarkIndex = 26;
         /// <summary>The dark colour installed for the message box.</summary>
-        public static Bgr555 TemporaryDarkColor => new(31, 0, 0);
+        public static RgbColor TemporaryDarkColor => new(31, 0, 0);
     }
 
     /// <summary>The button glyphs a panel patches in for the configured shoot or run binding, and where they go.</summary>

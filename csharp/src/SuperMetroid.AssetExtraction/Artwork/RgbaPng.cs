@@ -4,6 +4,7 @@ using System.Text;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -31,7 +32,7 @@ public static class RgbaPng
     /// <param name="size">The image's width and height; both are positive.</param>
     /// <param name="pixels">Width times height pixels, row by row from the top.</param>
     /// <exception cref="ArgumentException">A dimension is zero or the pixel count does not match.</exception>
-    public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<Rgba32> pixels)
+    public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels)
     {
         Ensure.NotNull(output);
         if (size.X == 0 || size.Y == 0 || pixels.Length != size.X * size.Y)
@@ -50,7 +51,7 @@ public static class RgbaPng
             int line = row * (stride + 1);
             for (int column = 0; column < size.X; column++)
             {
-                Rgba32 pixel = pixels[row * size.X + column];
+                RgbaPixel pixel = pixels[row * size.X + column];
                 int at = line + 1 + column * PixelBytes;
                 raw[at] = pixel.R;
                 raw[at + 1] = pixel.G;
@@ -70,7 +71,7 @@ public static class RgbaPng
     /// <param name="size">The image's width and height.</param>
     /// <returns>The pixels, row by row from the top.</returns>
     /// <exception cref="InvalidDataException">The data is not a well-formed 8-bit RGBA, non-interlaced PNG.</exception>
-    public static Rgba32[] Read(Stream input, out Extent16<ImagePixels> size)
+    public static RgbaPixel[] Read(Stream input, out Extent16<ImagePixels> size)
     {
         Ensure.NotNull(input);
         Span<byte> signature = stackalloc byte[8];
@@ -120,7 +121,7 @@ public static class RgbaPng
         data.Position = 0;
         using (var zlib = new ZLibStream(data, CompressionMode.Decompress, leaveOpen: true))
             zlib.ReadExactly(raw);
-        var pixels = new Rgba32[width * height];
+        var pixels = new RgbaPixel[width * height];
         var previous = new byte[stride];
         var current = new byte[stride];
         for (int row = 0; row < height; row++)
@@ -131,7 +132,7 @@ public static class RgbaPng
             for (int column = 0; column < width; column++)
             {
                 int at = column * PixelBytes;
-                pixels[row * width + column] = new Rgba32(current[at], current[at + 1], current[at + 2], current[at + 3]);
+                pixels[row * width + column] = new RgbaPixel(current[at], current[at + 1], current[at + 2], current[at + 3]);
             }
             byte[] filtered = previous;
             previous = current;

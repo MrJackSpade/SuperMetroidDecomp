@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -83,7 +84,7 @@ public sealed class SamusSuitPickupState
     public EightEightVector<ScreenPixels> LightBeamWideningVelocity { get; private set; }
 
     /// <summary>The colour the light beam adds inside its window.</summary>
-    public Bgr555 FixedColor { get; private set; }
+    public RgbColor FixedColor { get; private set; }
 
     /// <summary>Light-beam outline and progress produced by the most recent stage.</summary>
     public SamusSuitPickupBeam Beam { get; private set; }
@@ -103,8 +104,8 @@ public sealed class SamusSuitPickupState
 
         Kind = kind;
         FixedColor = kind == SamusSuitPickupKind.Varia
-            ? new Bgr555(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.VariaGreen, SamusPaletteDefinitions.SuitPickup.VariaBlue)
-            : new Bgr555(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.GravityGreen, SamusPaletteDefinitions.SuitPickup.GravityBlue);
+            ? new RgbColor(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.VariaGreen, SamusPaletteDefinitions.SuitPickup.VariaBlue)
+            : new RgbColor(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.GravityGreen, SamusPaletteDefinitions.SuitPickup.GravityBlue);
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamScanlines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
@@ -369,14 +370,14 @@ public sealed class SamusSuitPickupState
     /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last HDMA stage.</summary>
     private void Finish(SamusState samus)
     {
-        FixedColor = new Bgr555(SamusPaletteDefinitions.SuitPickup.ResetRed, SamusPaletteDefinitions.SuitPickup.ResetGreen,
+        FixedColor = new RgbColor(SamusPaletteDefinitions.SuitPickup.ResetRed, SamusPaletteDefinitions.SuitPickup.ResetGreen,
             SamusPaletteDefinitions.SuitPickup.ResetBlue);
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamScanlines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
-        FixedColor = Bgr555.Black;
+        FixedColor = RgbColor.Black;
         samus.Control.Unlock();
         IsActive = false;
     }
@@ -397,7 +398,7 @@ public sealed class SamusSuitPickupState
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>
-        FixedColor = new Bgr555(AddTwoAndClamp(FixedColor.Red, SamusPaletteDefinitions.SuitPickup.WhiteRed),
+        FixedColor = new RgbColor(AddTwoAndClamp(FixedColor.Red, SamusPaletteDefinitions.SuitPickup.WhiteRed),
             AddTwoAndClamp(FixedColor.Green, SamusPaletteDefinitions.SuitPickup.WhiteGreen),
             AddTwoAndClamp(FixedColor.Blue, SamusPaletteDefinitions.SuitPickup.WhiteBlue));
 
@@ -415,7 +416,7 @@ public sealed class SamusSuitPickupState
 
     /// <summary>Lowers each channel by one until it reaches its target.</summary>
     private void StepColorDownToward(int red, int green, int blue) =>
-        FixedColor = new Bgr555(FixedColor.Red == red ? red : FixedColor.Red - 1, FixedColor.Green == green ? green : FixedColor.Green - 1,
+        FixedColor = new RgbColor(FixedColor.Red == red ? red : FixedColor.Red - 1, FixedColor.Green == green ? green : FixedColor.Green - 1,
             FixedColor.Blue == blue ? blue : FixedColor.Blue - 1);
 
     /// <summary>Advances a channel by two without overshooting its stage target.</summary>

@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -112,7 +113,7 @@ internal static class CeresEnginePaletteBindingVerification
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
             (owner.Session.ScreenAs<CeresDestructionCinematicState>() ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
 
-        static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
+        static RgbColor[] Colors(CeresDestructionCinematicState owner) =>
             owner.palette.Colors.ToArray();
     }
 

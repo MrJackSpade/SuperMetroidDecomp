@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Bosses;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -165,7 +166,7 @@ internal static class RetailKraidCaptureTests
     private static Action<DisplayPacket> RequireSteadyHud(SuperMetroidRuntime runtime, string context)
     {
         const int hudPixels = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.GameplayHudHeightPixels;
-        Rgba32[] before = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).AsSpan(0, hudPixels).ToArray();
+        RgbaPixel[] before = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).AsSpan(0, hudPixels).ToArray();
         int frame = 0;
         return packet =>
         {

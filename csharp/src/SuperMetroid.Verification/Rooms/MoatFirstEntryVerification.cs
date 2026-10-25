@@ -11,6 +11,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Harness;
@@ -26,8 +27,8 @@ internal static class MoatFirstEntryVerification
     internal static void VerifyMoatFirstEntry()
     {
 
-        var unpausedFrames = new Dictionary<UnpausedFrame, Rgba32[]>();
-        var unpausedTransitionFrames = new Dictionary<UnpausedFrame, Rgba32[]>();
+        var unpausedFrames = new Dictionary<UnpausedFrame, RgbaPixel[]>();
+        var unpausedTransitionFrames = new Dictionary<UnpausedFrame, RgbaPixel[]>();
         foreach (ushort source in new ushort[] { 0x948c, 0x93fe })
         foreach (bool pauseBeforeEntry in new[] { false, true })
         {

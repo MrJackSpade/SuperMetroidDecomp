@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Bosses;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -18,8 +19,8 @@ internal static class MotherBrainAscentMaskTests
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        cgram.SetColor(1, new Bgr555(31, 0, 0)); cgram.SetColor(2, new Bgr555(0, 31, 0));
-        cgram.SetColor(3, new Bgr555(31, 31, 0)); cgram.SetColor(129, new Bgr555(0, 0, 31));
+        cgram.SetColor(1, new RgbColor(31, 0, 0)); cgram.SetColor(2, new RgbColor(0, 31, 0));
+        cgram.SetColor(3, new RgbColor(31, 31, 0)); cgram.SetColor(129, new RgbColor(0, 0, 31));
         for (int row = 0; row < 8; row++)
         {
             vram.LoadBytes(32 + row * 2, new byte[] { 255, 0 });
@@ -44,7 +45,7 @@ internal static class MotherBrainAscentMaskTests
             Check(0, 80, 2, "middle band retains BG2");
             var packet = new DisplayPacket(new(1, 1, 0), scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
-            var math = new GameplayColorMathRenderLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.None, BlendsWithSubscreen = false, FixedColor = Bgr555.Black });
+            var math = new GameplayColorMathRenderLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = ColorBlend.None, BlendsWithSubscreen = false, FixedColor = RgbColor.Black });
             var mathScene = new LayeredScene(memory, [math], 15);
             var mathPacket = new DisplayPacket(new(2, 1, 0), mathScene);
             PixelComparison.Verify(mathPacket, pixels, DisplayRendering.Render(mathScene), "CPU source-aware ascent mask");

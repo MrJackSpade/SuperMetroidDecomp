@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -51,7 +52,7 @@ public static class SporeSpawnColorExtractor
             {
                 int address = source + color * SporeSpawnSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!Bgr555.IsColorWord(native))
+                if (!RgbColor.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Spore Spawn color ${address:X6} has an unrepresentable high bit.");
                 colors[color] = new PaletteRgb5

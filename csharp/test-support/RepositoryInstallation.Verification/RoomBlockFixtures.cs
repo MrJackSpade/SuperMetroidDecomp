@@ -22,7 +22,7 @@ internal static class RoomBlockFixtures
     /// </summary>
     /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
     [PpuLayoutBoundary("exact hardware test: decodes a fixture's block definitions and four-bit characters into block pictures")]
-    internal static RoomBlockPictureTable Pictures(ReadOnlySpan<byte> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette,
+    internal static RoomBlockPictureTable Pictures(ReadOnlySpan<byte> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = 0)
     {
         const int columns = 16, side = RoomBlockSheet.BlockPixels, tile = 8, characterWords = 16;
@@ -31,7 +31,7 @@ internal static class RoomBlockFixtures
         int count = definitions.Length / RoomLevelPlane.DefinitionBytes;
         int rows = (count + columns - 1) / columns;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * side, checked((ushort)(rows * side))));
-        Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int block = 0; block < count; block++)
@@ -73,12 +73,12 @@ internal static class RoomBlockFixtures
     /// background image.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: decodes a fixture's BG2 tilemap and four-bit characters into a background image")]
-    internal static RoomBackgroundImagePlane LoadedBackground(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette, int tilemapWord,
+    internal static RoomBackgroundImagePlane LoadedBackground(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
         int characterWord = 0)
     {
         const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImage.Pages * RoomBackgroundImage.PagePixels));
-        Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var words = new ushort[RoomBackgroundImage.Words];
         SpritePaletteRows coloured = SpritePaletteRows.None;

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -31,7 +31,7 @@ internal static class ShaderFailureTests
             // Late shader failure occurs after earlier native resources were created.
             // A fresh renderer must still execute correctly on the same owner/device.
             using var recovered = new D3D11FrameRenderer(device);
-            var packet = new DisplayPacket(new(1, 1, 0), new Rgba32(13, 29, 71));
+            var packet = new DisplayPacket(new(1, 1, 0), new RgbaPixel(13, 29, 71));
             PixelComparison.Verify(packet, DisplayRendering.Render(packet), recovered.RenderForReadback(packet),
                 $"{device.Kind}: initialization after missing {missing}");
         }

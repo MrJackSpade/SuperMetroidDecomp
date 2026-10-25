@@ -151,7 +151,7 @@ internal static class InstalledSporesTests
                         ScreenLayers.Bg2), RoomBackgroundsFixtures.Blank() with
                         {
                             Bg3 = Layer3CellsFixtures.FromWords(Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns],
-                                replacement.EffectPageWords()).Words, new byte[SnesPpuLayout.VramByteCount], new Bgr555[SnesPpuLayout.CgramColorCount]),
+                                replacement.EffectPageWords()).Words, new byte[SnesPpuLayout.VramByteCount], new RgbColor[SnesPpuLayout.CgramColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&
@@ -355,9 +355,9 @@ internal static class InstalledSporesTests
         foreach (int enabled in Enumerable.Range(0, 4))
         {
             var vram = new SnesVram(); var colors = new GameplayColours(new SpriteColourSets());
-            colors.AsPaletteColors().SetColor(0, new Bgr555(2, 2, 2));
-            colors.AsPaletteColors().SetColor(1, new Bgr555(10, 0, 0)); colors.AsPaletteColors().SetColor(2, new Bgr555(0, 12, 0)); colors.AsPaletteColors().SetColor(3, new Bgr555(0, 0, 7));
-            colors.AsPaletteColors().SetColor(128 + palette * 16 + 1, new Bgr555(18, 2, 0));
+            colors.AsPaletteColors().SetColor(0, new RgbColor(2, 2, 2));
+            colors.AsPaletteColors().SetColor(1, new RgbColor(10, 0, 0)); colors.AsPaletteColors().SetColor(2, new RgbColor(0, 12, 0)); colors.AsPaletteColors().SetColor(3, new RgbColor(0, 0, 7));
+            colors.AsPaletteColors().SetColor(128 + palette * 16 + 1, new RgbColor(18, 2, 0));
             for (int y = 0; y < 8; y++)
             {
                 vram.LoadBytes(y * 2, new byte[] { 255, 0 });
@@ -379,7 +379,7 @@ internal static class InstalledSporesTests
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);
-            Rgba32[] pixels = DisplayRendering.Render(scene);
+            RgbaPixel[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.
             foreach (bool objectPixel in new[] { false, true })
@@ -394,12 +394,12 @@ internal static class InstalledSporesTests
                 if ((enabled & 1) != 0) Insert(bg1High ? 6 : 3, 10, 0, false);
                 if (objectPixel) Insert(ObjPriorityLayers[objPriority], 18, 2, palette >= 4);
                 byte Expand(int value) => (byte)((value << 3) | (value >> 2));
-                var expected = new Rgba32(Expand(red), Expand(green), Expand(blue + (blend ? 7 : 0)));
+                var expected = new RgbaPixel(Expand(red), Expand(green), Expand(blue + (blend ? 7 : 0)));
                 int x = objectPixel ? 16 : 64;
                 Require(pixels[64 * 256 + x] == expected,
                     $"Spore source exclusion differs: x{x}, expected {expected}, actual {pixels[64 * 256 + x]}; palette {palette}, OBJ {objPriority}, BG priorities {bg1High}/{bg2High}, planes {enabled}.");
             }
-            Require(pixels[0] == new Rgba32(16, 16, 16), "Spores blended into the HUD.");
+            Require(pixels[0] == new RgbaPixel(16, 16, 16), "Spores blended into the HUD.");
             var packet = new DisplayPacket(new(packets.Count + 1, 1, 0), scene);
             packets.Add(packet); cases++;
         }

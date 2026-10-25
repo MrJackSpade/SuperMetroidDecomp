@@ -11,7 +11,7 @@ internal static class PpuMemoryLayoutConstants
         "SnesOamHighTablePair (2 bits per OBJ)");
     /// <summary>CGADD $80-$FF: the eight 16-colour OBJ palettes.</summary>
     public static readonly PpuLayoutCell ObjectPalettes = new(nameof(ObjectPalettes), PpuLayoutRegion.Cgram,
-        PpuMemoryLayout.PaletteRowCount * PpuMemoryLayout.ColorsPerRow, PpuMemoryLayout.PaletteRowCount * PpuMemoryLayout.ColorsPerRow, "Bgr555 OBJ palettes", PpuMemoryLayout.Cgram);
+        PpuMemoryLayout.PaletteRowCount * PpuMemoryLayout.ColorsPerRow, PpuMemoryLayout.PaletteRowCount * PpuMemoryLayout.ColorsPerRow, "RgbColor OBJ palettes", PpuMemoryLayout.Cgram);
     /// <summary>
     /// The eight background palette rows at CGADD $00-$7F, indexed by palette: row N is colours N*16 through N*16+15, and
     /// colour 0 of row 0 is the backdrop.
@@ -36,7 +36,7 @@ internal static class PpuMemoryLayoutConstants
     }
     /// <summary>Creates a sixteen-color CGRAM row nested under its background or OBJ bank.</summary>
     internal static PpuLayoutCell Row(string name, int row, PpuLayoutCell palettes) =>
-        new(name, PpuLayoutRegion.Cgram, row * PpuMemoryLayout.ColorsPerRow, PpuMemoryLayout.ColorsPerRow, "Bgr555 4-bpp palette row", palettes);
+        new(name, PpuLayoutRegion.Cgram, row * PpuMemoryLayout.ColorsPerRow, PpuMemoryLayout.ColorsPerRow, "RgbColor 4-bpp palette row", palettes);
     /// <summary>Checks whether the requested color interval fits entirely inside a hardware container.</summary>
     internal static bool Covers(PpuLayoutCell outer, int first, int count) =>
         outer.Offset <= first && first + count <= outer.Offset + outer.Count;

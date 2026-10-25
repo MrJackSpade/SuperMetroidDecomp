@@ -24,23 +24,23 @@ public static class MotherBrainHealthPaletteFile
         return new(Convert(document.Body, nameof(document.Body)),
             Convert(document.BackLegs, nameof(document.BackLegs)));
 
-        static Bgr555[][] Convert(PaletteRgb5[][]? frames, string name)
+        static RgbColor[][] Convert(PaletteRgb5[][]? frames, string name)
         {
             if (frames is null || frames.Length != MotherBrainHealthPaletteFormat.StateCount)
                 throw new InvalidDataException($"Mother Brain {name} requires four damage states.");
-            var values = new Bgr555[frames.Length][];
+            var values = new RgbColor[frames.Length][];
             for (int state = 0; state < frames.Length; state++)
             {
                 PaletteRgb5[]? colors = frames[state];
                 if (colors is null || colors.Length != MotherBrainRainbowPaletteDefinitions.ColorCount)
                     throw new InvalidDataException($"Mother Brain {name} state {state} requires fifteen colors.");
-                values[state] = new Bgr555[colors.Length];
+                values[state] = new RgbColor[colors.Length];
                 for (int color = 0; color < colors.Length; color++)
                 {
                     PaletteRgb5? rgb = colors[color];
                     if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                         throw new InvalidDataException($"Mother Brain {name} state {state} color {color} requires RGB5 components.");
-                    values[state][color] = rgb.ToBgr555();
+                    values[state][color] = rgb.ToRgbColor();
                 }
             }
             return values;

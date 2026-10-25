@@ -144,8 +144,8 @@ internal static class ScreenTilePicturesVerification
             FloorScene scene = title.CaptureRenderSnapshot();
             if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
             {
-                Rgba32[] pictured = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), scene)).ToArray();
-                Rgba32[] characters = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), new FloorScene(scene.Paint,
+                RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), scene)).ToArray();
+                RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), new FloorScene(scene.Paint,
                     scene.Background, scene.Brightness, scene.Gradient, AffineFloorFixtures.Floor(title.ShownVram(), scene.Paint.Colors)))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
@@ -218,8 +218,8 @@ internal static class ScreenTilePicturesVerification
             fromCharacters.Add(stripped);
         }
         AssertTrue(layers > 0, $"{name} draws backgrounds");
-        Rgba32[] pictured = RenderNamed(scene, name);
-        Rgba32[] characters = DisplayRendering.Render(new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
+        RgbaPixel[] pictured = RenderNamed(scene, name);
+        RgbaPixel[] characters = DisplayRendering.Render(new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
         int mismatch = -1;
         for (int pixel = 0; pixel < pictured.Length; pixel++)
         {
@@ -301,7 +301,7 @@ internal static class ScreenTilePicturesVerification
 
     /// <summary>Renders <paramref name="scene"/>, naming the screen in any failure to draw it.</summary>
     /// <exception cref="InvalidOperationException">The scene cannot be drawn.</exception>
-    private static Rgba32[] RenderNamed(LayeredScene scene, string name)
+    private static RgbaPixel[] RenderNamed(LayeredScene scene, string name)
     {
         try
         {

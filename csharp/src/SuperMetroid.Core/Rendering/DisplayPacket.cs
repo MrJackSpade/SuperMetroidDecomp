@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Closed, immutable display packet. It contains neither game objects nor backend handles.</summary>
@@ -11,7 +12,7 @@ public sealed class DisplayPacket
     /// <summary>Immutable Mode 7/backdrop and OBJ composition when this is a Mode 7 packet; otherwise <see langword="null"/>.</summary>
     public FloorScene? Mode7 { get; }
     /// <summary>RGBA color filling every output pixel when this is a solid-color packet; otherwise <see langword="null"/>. Outer brightness passes are still applied.</summary>
-    public Rgba32? SolidColor { get; }
+    public RgbaPixel? SolidColor { get; }
     /// <summary>Native visible output size of 256 pixels by 224 physical scanlines, including the HUD where present, before any host presentation scaling.</summary>
     public Extent16<ScreenPixels> Size { get; } = SnesPpuLayout.ScreenSize;
     /// <summary>
@@ -48,7 +49,7 @@ public sealed class DisplayPacket
     /// <param name="identity">Publication identity with positive host sequence and generation.</param>
     /// <param name="solidColor">RGBA value used to fill all 256-by-224 output pixels before brightness filtering.</param>
     /// <param name="fades">The fades applied in order after the scene; empty or default for none.</param>
-    public DisplayPacket(RenderFrameIdentity identity, Rgba32 solidColor,
+    public DisplayPacket(RenderFrameIdentity identity, RgbaPixel solidColor,
         ImmutableArray<FadeLevel> fades = default)
         : this(identity, fades) => SolidColor = solidColor;
 

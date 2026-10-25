@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -9,9 +9,9 @@ internal static class ChozoAndTubeColorCatalogAccess
     extension(ChozoAndTubeColorCatalog self)
     {
         /// <summary>Selects Wrecked Ship statue colors through the production palette branch.</summary>
-        internal Bgr555 ResolveWreckedShip(int color) => self.ResolveStatue(ChozoStatuePalette.WreckedShip, color);
+        internal RgbColor ResolveWreckedShip(int color) => self.ResolveStatue(ChozoStatuePalette.WreckedShip, color);
 
         /// <summary>Selects Lower Norfair statue colors through the production palette branch.</summary>
-        internal Bgr555 ResolveLowerNorfair(int color) => self.ResolveStatue(ChozoStatuePalette.LowerNorfair, color);
+        internal RgbColor ResolveLowerNorfair(int color) => self.ResolveStatue(ChozoStatuePalette.LowerNorfair, color);
     }
 }

@@ -31,12 +31,12 @@ public static class ChozoAndTubeColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Validates exactly 32 five-bit RGB triples and converts them to packed CGRAM colors.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != ChozoAndTubeColorDefinitions.ColorCount)
             throw new InvalidDataException(
                 $"Chozo/tube {name} requires {ChozoAndTubeColorDefinitions.ColorCount} RGB5 colors.");
-        var compiled = new Bgr555[source.Length];
+        var compiled = new RgbColor[source.Length];
         for (int color = 0; color < source.Length; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -44,7 +44,7 @@ public static class ChozoAndTubeColorFile
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Chozo/tube {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
+            compiled[color] = rgb.ToRgbColor();
         }
         return compiled;
     }

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -114,8 +115,8 @@ internal sealed class NorfairRidleyCombat
         (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))
             .ApplyInitial(_presentation.Colours);
-        _presentation.BossColours().NorfairRidleyBody.Fill(Bgr555.Black);
-        _presentation.BossColours().NorfairRidleyTail.Fill(Bgr555.Black);
+        _presentation.BossColours().NorfairRidleyBody.Fill(RgbColor.Black);
+        _presentation.BossColours().NorfairRidleyTail.Fill(RgbColor.Black);
     }
 
     /// <summary>

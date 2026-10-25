@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
@@ -20,19 +22,19 @@ internal static class KraidPaintDefinitions
     private const int BandColors = KraidPalettes.BandColors;
 
     /// <summary>First and last colors of the first health band's hide ramp (colors four to eleven).</summary>
-    private static readonly Bgr555 RampLight = new(26, 19, 4);
+    private static readonly RgbColor RampLight = new(26, 19, 4);
     /// <summary>Dark endpoint of the first health band's eight-shade hide ramp.</summary>
-    private static readonly Bgr555 RampDark = new(3, 1, 0);
+    private static readonly RgbColor RampDark = new(3, 1, 0);
     /// <summary>First slot of the first health band's calculated hide ramp.</summary>
     private const int RampFirst = 4;
     /// <summary>Last slot of that ramp before independently chosen eye and claw inks.</summary>
     private const int RampLast = 11;
 
     /// <summary>The transparent slot after the first normal band: Kraid's room backdrop blue.</summary>
-    private static Bgr555 BackdropBlue => Pack(0, 0, 14);
+    private static RgbColor BackdropBlue => Pack(0, 0, 14);
 
     /// <summary>Routes room, target, health, death-arm, and secondary palette requests to their stock paint rules.</summary>
-    internal static Bgr555 Color(KraidPaletteSource source, int index)
+    internal static RgbColor Color(KraidPaletteSource source, int index)
     {
         if ((uint)index >= KraidPalettes.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -51,7 +53,7 @@ internal static class KraidPaintDefinitions
     /// color-six steps. Other interior bands are interpolated by the catalog and return
     /// <see langword="null"/> here.
     /// </summary>
-    internal static Bgr555? HealthAuthored(int index)
+    internal static RgbColor? HealthAuthored(int index)
     {
         int band = index / BandColors;
         int color = index % BandColors;
@@ -67,9 +69,9 @@ internal static class KraidPaintDefinitions
     }
 
     /// <summary>Uses authored endpoints and off-ramp steps, interpolating other health-band colors.</summary>
-    private static Bgr555 Health(int index)
+    private static RgbColor Health(int index)
     {
-        if (HealthAuthored(index) is Bgr555 authored) return authored;
+        if (HealthAuthored(index) is RgbColor authored) return authored;
         int band = index / BandColors;
         int color = index % BandColors;
         return color == 0 ? BackdropBlue
@@ -77,7 +79,7 @@ internal static class KraidPaintDefinitions
     }
 
     /// <summary>Builds the first normal band from hull inks and the nearest-rounded hide ramp.</summary>
-    private static Bgr555 FirstBand(int color)
+    private static RgbColor FirstBand(int color)
     {
         if (color is >= RampFirst and <= RampLast)
         {
@@ -89,7 +91,7 @@ internal static class KraidPaintDefinitions
         }
         return color switch
         {
-            0 or 15 => Bgr555.Black,
+            0 or 15 => RgbColor.Black,
             12 => Pack(3, 2, 1),
             13 => Pack(18, 18, 15),
             14 => Pack(21, 22, 18),
@@ -98,7 +100,7 @@ internal static class KraidPaintDefinitions
     }
 
     /// <summary>Supplies the painted final health band's warmer shade, eye, claw, and transparent colors.</summary>
-    private static Bgr555 FinalBand(int color) => color switch
+    private static RgbColor FinalBand(int color) => color switch
     {
         0 => BackdropBlue,
         4 => Pack(31, 28, 18),
@@ -112,12 +114,12 @@ internal static class KraidPaintDefinitions
         12 => Pack(3, 0, 0),
         13 => Pack(24, 24, 24),
         14 => Pack(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum),
-        15 => Bgr555.Black,
+        15 => RgbColor.Black,
         _ => Hull(color),
     };
 
     /// <summary>Hull colors one to three, unchanged across every normal health band.</summary>
-    private static Bgr555 Hull(int color) => color switch
+    private static RgbColor Hull(int color) => color switch
     {
         1 => Pack(29, 12, 21),
         2 => Pack(22, 0, 6),
@@ -126,17 +128,17 @@ internal static class KraidPaintDefinitions
     };
 
     /// <summary>The first health band with its hull darkened and the backdrop-blue slot.</summary>
-    private static Bgr555 DeathArm(int color) => color switch
+    private static RgbColor DeathArm(int color) => color switch
     {
         0 => BackdropBlue,
         1 => Pack(7, 0, 2),
         2 => Pack(4, 0, 1),
-        3 => Bgr555.Black,
+        3 => RgbColor.Black,
         _ => FirstBand(color),
     };
 
     /// <summary>Supplies the authored room-backdrop greys, greens, and yellow accents.</summary>
-    private static Bgr555 RoomBackdrop(int color) => color switch
+    private static RgbColor RoomBackdrop(int color) => color switch
     {
         0 or 7 => Pack(0, 0, 1),
         1 or 2 or 3 or 13 => Pack(11, 11, 11),
@@ -149,17 +151,17 @@ internal static class KraidPaintDefinitions
         11 => Pack(0, 1, 1),
         12 => Pack(18, 18, 0),
         14 => Pack(18, 18, 18),
-        _ => Bgr555.Black,
+        _ => RgbColor.Black,
     };
 
     /// <summary>Only colors five to eight of the initial target band are painted.</summary>
-    private static Bgr555 InitialTarget(int color) => color switch
+    private static RgbColor InitialTarget(int color) => color switch
     {
         5 => Pack(22, 15, 3),
         6 => Pack(18, 12, 3),
         7 => Pack(12, 7, 3),
         8 => Pack(9, 5, 3),
-        _ => Bgr555.Black,
+        _ => RgbColor.Black,
     };
 
     /// <summary>Rounds an RGB channel to the nearest step between two painted ramp endpoints.</summary>
@@ -170,5 +172,5 @@ internal static class KraidPaintDefinitions
     }
 
     /// <summary>Packs three validated five-bit paint components into a native CGRAM color.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

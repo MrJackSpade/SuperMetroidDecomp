@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's text page geometry, blank glyph, white and sprite-sheet selections (#1416).</summary>
@@ -16,7 +18,7 @@ public static class EndingScreenDefinitions
     public const int TilemapWords = TilemapWidth * TilemapHeight;
 
     /// <summary>White, with every channel at full intensity.</summary>
-    public static Bgr555 WhiteColor => Bgr555.White;
+    public static RgbColor WhiteColor => RgbColor.White;
 
     /// <summary>The sprite-sheet selection of the escape and explosion scenes.</summary>
     public const byte EscapeObjectSelection = 2;

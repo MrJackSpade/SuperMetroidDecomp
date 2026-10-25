@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -44,7 +45,7 @@ public static class DachoraColorExtractor
             {
                 int address = source + color * EnemySpeciesSourceDefinitions.ColorWordBytes;
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!Bgr555.IsColorWord(native))
+                if (!RgbColor.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Dachora color ${address:X6} has an unrepresentable high bit.");
                 colors[color] = new PaletteRgb5

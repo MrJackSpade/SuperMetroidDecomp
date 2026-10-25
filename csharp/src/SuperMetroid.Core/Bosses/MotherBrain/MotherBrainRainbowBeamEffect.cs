@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -15,7 +16,7 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <summary>Whether the last simulation update showed the beam; hiding it keeps the previous colour and geometry stored but stops them being drawn.</summary>
     public bool Active { get; private set; }
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
-    public Bgr555 Color { get; private set; }
+    public RgbColor Color { get; private set; }
     /// <summary>The next colour of the beam's cycle, advancing by one each update the beam shows; the cycle's end resets it to zero and repeats colour zero without advancing that update.</summary>
     public int ColorIndex { get; private set; }
     /// <summary>
@@ -47,7 +48,7 @@ public sealed class MotherBrainRainbowBeamEffect
         }
         else
         {
-            if (!TryReadColor(ColorIndex, out Bgr555 color))
+            if (!TryReadColor(ColorIndex, out RgbColor color))
             {
                 // The cycle's end: the reset frame repeats colour zero without incrementing.
                 ColorIndex = 0;
@@ -84,7 +85,7 @@ public sealed class MotherBrainRainbowBeamEffect
     }
 
     /// <summary>Reads the installed color cycle and fails if rainbow presentation colors were never bound.</summary>
-    private bool TryReadColor(int index, out Bgr555 color) =>
+    private bool TryReadColor(int index, out RgbColor color) =>
         (PresentationColors ?? throw new InvalidOperationException(
             "Mother Brain rainbow beam requires installed colors."))
             .TryReadBeamColor(index, out color);

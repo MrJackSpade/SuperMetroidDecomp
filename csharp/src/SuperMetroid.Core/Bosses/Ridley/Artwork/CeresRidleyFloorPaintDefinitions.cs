@@ -19,10 +19,10 @@ internal sealed class CeresRidleyFloorPaintDefinitions
     /// <summary>The reviewed eye contour shared by every zoom bucket.</summary>
     private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
     /// <summary>Extracted colors that differ from the computed contour at a row and color index.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Builds the shared contours from the first native row and retains only differences in later rows.</summary>
-    internal CeresRidleyFloorPaintDefinitions(Bgr555[][] rows)
+    internal CeresRidleyFloorPaintDefinitions(RgbColor[][] rows)
     {
         body = new(rows[0].AsSpan(0, 11));
         eyes = CeresRidleyFadeColorDefinitions.EyePaint.From(rows[0].AsSpan(11, 3));
@@ -31,22 +31,22 @@ internal sealed class CeresRidleyFloorPaintDefinitions
     }
 
     /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour at $84:8050; no duplicate grey input.</summary>
-    private static Bgr555 Neutral => GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false);
+    private static RgbColor Neutral => GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false);
     /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
-    internal static Bgr555 RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
+    internal static RgbColor RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
 
     /// <summary>Uses a reviewed native color override when present, otherwise scales the shared contour for this zoom row.</summary>
-    internal Bgr555 Resolve(int row, int color)
+    internal RgbColor Resolve(int row, int color)
     {
         if ((uint)row >= 9) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Applies one exposure step through bucket six and two steps for each remaining zoom bucket.</summary>
-    private Bgr555 Calculate(int row, int color)
+    private RgbColor Calculate(int row, int color)
     {
-        Bgr555 endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;
+        RgbColor endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;
         // Each zoom bucket reduces exposure once through bucket6, then twice per bucket.
         int exposure = 15 - Math.Min(row, 6) - 2 * Math.Max(0, row - 6);
         return CeresRidleyFadeColorDefinitions.Scale(endpoint, exposure);

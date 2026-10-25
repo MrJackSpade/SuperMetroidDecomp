@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class HyperBeamFxColorCatalog
 {
     /// <summary>Exact supplied colors that differ from every derived hue and shade relationship.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> colors = new();
+    internal readonly Dictionary<ColourCell, RgbColor> colors = new();
     /// <summary>Base RGB5 intensity shared by the stock neutral highlight channels.</summary>
     internal readonly int neutralIntensity;
     /// <summary>Independent edits to the neutral highlight's otherwise equal channels.</summary>
@@ -36,14 +36,14 @@ public sealed class HyperBeamFxColorCatalog
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     /// <summary>Separates supplied palette rows into canonical relationships and exact independent edits.</summary>
-    internal HyperBeamFxColorCatalog(Bgr555[][] frames)
+    internal HyperBeamFxColorCatalog(RgbColor[][] frames)
     {
         neutralIntensity = frames[0][0].Red;
         neutralOverrides = new(frames[0][0], HyperBeamFxColorFormat.Neutral(neutralIntensity));
         for (int frame = 0; frame < HyperBeamFxColorFormat.FrameCount; frame++)
         for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
         {
-            Bgr555 value = frames[frame][color];
+            RgbColor value = frames[frame][color];
             if (frame == 0 && color == 0) continue;
             if (color == 0 && frame != 0 && value == frames[0][0]) continue;
             if (color != 0 && (frame & 1) != 0 && value == SamusHyperBeamColorFormat.HueMidpoint(
@@ -52,7 +52,7 @@ public sealed class HyperBeamFxColorCatalog
             if (frame == 0 && color >= 4 && value == HyperBeamFxColorFormat.RedHighlight(frames[0][3], frames[0][0], color)) continue;
             if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
             {
-                Bgr555 expected = SamusHyperBeamColorFormat.HueMidpoint(frames[frame][color - 1], frames[frame][color + 1]);
+                RgbColor expected = SamusHyperBeamColorFormat.HueMidpoint(frames[frame][color - 1], frames[frame][color + 1]);
                 if (value != expected) shadeInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, expected));
                 continue;
             }
@@ -64,7 +64,7 @@ public sealed class HyperBeamFxColorCatalog
                 pairedInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, frame == 0, shared.Red, shared.Green));
                 continue;
             }
-            if (HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, frames[0][0], frames[0][3], out Bgr555 basis, out int independentMask))
+            if (HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, frames[0][0], frames[0][3], out RgbColor basis, out int independentMask))
             {
                 endpointInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, basis, independentMask));
                 continue;
@@ -82,18 +82,18 @@ public sealed class HyperBeamFxColorCatalog
     /// Frame2 highlight inks4..7 at8D:D936..D93C preserve frame4 green/blue
     /// and raise red to green: the same green-to-yellow transform used by the
     /// body cycle. Remaining independent inputs have the class-level art disposition.</remarks>
-    private Bgr555 Resolve(int frame, int color)
+    private RgbColor Resolve(int frame, int color)
     {
         if (frame == 0 && color == 0) return neutralOverrides.Apply(HyperBeamFxColorFormat.Neutral(neutralIntensity));
-        if (colors.TryGetValue(new ColourCell(frame, color), out Bgr555 value)) return value;
+        if (colors.TryGetValue(new ColourCell(frame, color), out RgbColor value)) return value;
         if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired))
         {
-            var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? Bgr555.Black : Resolve(0, 3));
+            var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? RgbColor.Black : Resolve(0, 3));
             return paired.Resolve(frame == 0, shared.Red ?? 0, shared.Green ?? 0);
         }
         if (endpointInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var endpoint))
         {
-            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, Resolve(0, 0), Resolve(0, 3), out Bgr555 basis, out _);
+            HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, Resolve(0, 0), Resolve(0, 3), out RgbColor basis, out _);
             return endpoint.Apply(basis);
         }
         if (color == 0) return Resolve(0, 0);
@@ -101,7 +101,7 @@ public sealed class HyperBeamFxColorCatalog
         if (frame == 8 && color == 1) return SamusHyperBeamColorFormat.MagentaFromRed(Resolve(0, 3));
         if (HyperBeamFxColorFormat.IsShadeMidpoint(frame, color))
         {
-            Bgr555 expected = SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, color - 1), Resolve(frame, color + 1));
+            RgbColor expected = SamusHyperBeamColorFormat.HueMidpoint(Resolve(frame, color - 1), Resolve(frame, color + 1));
             return shadeInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var inputs) ? inputs.Apply(expected) : expected;
         }
         if (frame == 0) return HyperBeamFxColorFormat.RedHighlight(Resolve(0, 3), Resolve(0, 0), color);
@@ -124,7 +124,7 @@ public sealed class HyperBeamFxColorCatalog
     /// it as red, while shadow inks3/7 use the red endpoint's green minimum.
     /// All relationships are between supplied RGB5 inputs; differing edits
     /// stay explicit. Independent shade intensities have the class-level art disposition.</remarks>
-    private static HyperBeamEndpointChannels SharedEndpointChannels(int frame, int color, Bgr555 white, Bgr555 red) =>
+    private static HyperBeamEndpointChannels SharedEndpointChannels(int frame, int color, RgbColor white, RgbColor red) =>
         frame == 0 ? new HyperBeamEndpointChannels(white.Red, null) :
         frame == 4 ? new HyperBeamEndpointChannels(null, red.Red) :
         color is 3 or 7 ? new HyperBeamEndpointChannels(null, red.Green) : new HyperBeamEndpointChannels(red.Red, null);
@@ -139,7 +139,7 @@ public sealed class HyperBeamFxColorCatalog
         internal readonly int? blue;
 
         /// <summary>Extracts only channels that differ from the shared red or green hue basis.</summary>
-        internal PairedChannels(Bgr555 supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
+        internal PairedChannels(RgbColor supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
         {
             int suppliedRed = supplied.Red, suppliedGreen = supplied.Green;
             red = suppliedRed == sharedRed ? null : suppliedRed;
@@ -149,7 +149,7 @@ public sealed class HyperBeamFxColorCatalog
         }
 
         /// <summary>Recombines edited channels with shared hue extrema and the paired blue channel.</summary>
-        internal Bgr555 Resolve(bool redHue, int sharedRed = 0, int sharedGreen = 0)
+        internal RgbColor Resolve(bool redHue, int sharedRed = 0, int sharedGreen = 0)
         {
             int resolvedRed = red ?? sharedRed, resolvedGreen = green ?? sharedGreen;
             return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));

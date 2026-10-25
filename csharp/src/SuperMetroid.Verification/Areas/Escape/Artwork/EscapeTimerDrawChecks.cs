@@ -67,9 +67,9 @@ internal static class EscapeTimerDrawChecks
         var vram = new SnesVram();
         vram.LoadBytes(ObjCharacterImage.ResolveTileByteAddress(FirstCharacter, TimerObjectSelection), characters.Characters);
         native.FinalizeFrame();
-        Rgba32[] expected = Render(FramePaintConstants.CaptureFrontend(vram, cgram, native, TimerObjectSelection));
-        Rgba32[] actual = Render(new FramePaint(cgram.Colors, [.. draws]));
-        Rgba32[] backdrop = Render(new FramePaint(cgram.Colors, []));
+        RgbaPixel[] expected = Render(FramePaintConstants.CaptureFrontend(vram, cgram, native, TimerObjectSelection));
+        RgbaPixel[] actual = Render(new FramePaint(cgram.Colors, [.. draws]));
+        RgbaPixel[] backdrop = Render(new FramePaint(cgram.Colors, []));
         int opaque = 0;
         for (int index = 0; index < expected.Length; index++)
         {
@@ -82,6 +82,6 @@ internal static class EscapeTimerDrawChecks
     }
 
     /// <summary>The frame the display renderer draws of <paramref name="paint"/>'s sprites alone.</summary>
-    private static Rgba32[] Render(FramePaint paint) =>
+    private static RgbaPixel[] Render(FramePaint paint) =>
         DisplayRendering.Render(new LayeredScene(paint, new RenderLayer[] { new ObjRenderLayer() }, FadeLevel.Full));
 }

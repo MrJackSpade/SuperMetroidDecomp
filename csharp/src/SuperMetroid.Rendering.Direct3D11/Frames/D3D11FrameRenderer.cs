@@ -14,6 +14,7 @@ using SuperMetroid.Rendering.Direct3D11.Telemetry;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
@@ -160,7 +161,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 operations.ToArray(), mode7.Brightness), mode7.Gradient);
             return;
         }
-        Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
+        RgbaPixel color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
         if (packet.Fades.Length > D3D11ShaderLayout.MaximumBrightnessPasses) throw new ArgumentOutOfRangeException(nameof(packet));
         uint[] data = ClearUploadConstants();
         data[0] = D3D11ConstantPacking.Bytes(color.R, color.G, color.B, color.A);

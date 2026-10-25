@@ -12,6 +12,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Core.Rooms;
@@ -40,7 +41,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Player.Colours);
-        Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
+        RgbaPixel[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer

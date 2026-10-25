@@ -16,7 +16,7 @@ internal static class AffineFloorFixtures
 {
     /// <summary>The floor <paramref name="image"/>'s map and characters show, coloured from <paramref name="palette"/>.</summary>
     [PpuLayoutBoundary("exact hardware test: decodes a fixture's Mode 7 characters, the high byte of each VRAM word")]
-    internal static AffineFloor Floor(ReadOnlySpan<byte> image, ReadOnlySpan<Bgr555> palette)
+    internal static AffineFloor Floor(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette)
     {
         var pixels = new byte[FloorTilePictures.Tiles * Mode7CharacterSheet.TileBytes];
         for (int pixel = 0; pixel < pixels.Length; pixel++)

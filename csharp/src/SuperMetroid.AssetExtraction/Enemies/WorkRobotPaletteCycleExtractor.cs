@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -32,7 +33,7 @@ public static class WorkRobotPaletteCycleExtractor
                     frame * WorkRobotPaletteTimingDefinitions.RecordByteCount +
                     color * sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
-                if (!Bgr555.IsColorWord(native))
+                if (!RgbColor.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Work Robot color ${source:X6} has an unrepresentable high bit.");
                 frames[frame][color] = new PaletteRgb5

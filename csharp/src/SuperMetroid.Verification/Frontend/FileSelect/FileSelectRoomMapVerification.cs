@@ -88,7 +88,7 @@ internal static class FileSelectRoomMapVerification
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, MenuScreenFixtures.Vram(graphics.screen).ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
-            Rgba32[] pixels = graphics.RenderBackgrounds(new(0, unchecked((ushort)-40)));
+            RgbaPixel[] pixels = graphics.RenderBackgrounds(new(0, unchecked((ushort)-40)));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             var retailIcons = new FileSelectMapIcons(system, area);
@@ -131,18 +131,18 @@ internal static class FileSelectRoomMapVerification
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new SharedGameState();
         system.LoadMapStationBytes(slot.MapStationBytes);
-        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
+        RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
         var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites, MenuSheetFixtures.For(maps));
         areaGraphics.BindLabels(maps.Labels);
-        Rgba32[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
+        RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
         {
             cancel.Step(0);
             AssertTrue(cancel.Render().SequenceEqual(roomFrame), "return transfer stages retain only BG2 frame");
         }
         cancel.Step(0);
-        Rgba32[] setup = cancel.Render();
+        RgbaPixel[] setup = cancel.Render();
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
             AssertEqual(x >= 127 && x <= 129 && y >= 111 && y < 113 ? area[y * 256 + x] : roomFrame[y * 256 + x],
@@ -196,7 +196,7 @@ internal static class FileSelectRoomMapVerification
             return animations.arrows[index].Frame;
         }
         var cgram = new ScreenPalette();
-        cgram.SetColor(175, new Bgr555(13, 2, 0)); cgram.SetColor(192, new Bgr555(24, 2, 0));
+        cgram.SetColor(175, new RgbColor(13, 2, 0)); cgram.SetColor(192, new RgbColor(24, 2, 0));
         AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
         for (int color = 0; color < 16; color++)
             AssertEqual(116 + color, cgram.Colors[176 + color], "map palette copies frame one including transparent entry");

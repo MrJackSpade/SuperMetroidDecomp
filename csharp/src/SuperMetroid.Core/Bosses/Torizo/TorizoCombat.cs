@@ -4,6 +4,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -135,8 +136,8 @@ internal sealed class TorizoCombat
         {
             for (int color = 0; color < 16; color++)
             {
-                _presentation.BossColours().TorizoBody.Write(color, Bgr555.White);
-                _presentation.BossColours().TorizoBelly.Write(color, Bgr555.White);
+                _presentation.BossColours().TorizoBody.Write(color, RgbColor.White);
+                _presentation.BossColours().TorizoBelly.Write(color, RgbColor.White);
             }
         }
     }

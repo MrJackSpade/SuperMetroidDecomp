@@ -8,7 +8,7 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
         {
-            Span<Bgr555> row = stackalloc Bgr555[16];
+            Span<RgbColor> row = stackalloc RgbColor[16];
             for (int tag = 0; tag < EnemyAuxiliaryColorDefinitions.All.Length; tag++)
             {
                 // Each palette is tagged by its place in the definitions' face-block, corpse, body and belly order.
@@ -32,7 +32,7 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <summary>Golden Torizo's eight rear-belly health-band palettes.</summary>
     internal readonly PaletteRows torizoBelly;
     /// <summary>Recognizes each supplied family's stock paint relationship while retaining unmatched edits.</summary>
-    internal EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, Bgr555[][]> frames)
+    internal EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, RgbColor[][]> frames)
     {
         faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], AuxiliaryPaint.FaceGlow);
         deadSidehopper = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], AuxiliaryPaint.SidehopperDrain);
@@ -55,7 +55,7 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <param name="frame">Zero-based row: 0..7 for face-block or Torizo palettes, or 0..6 for sidehopper stages; rows are not necessarily elapsed animation frames.</param>
     /// <param name="color">Zero-based supplied color: 0..3 for face-block, 0..14 for sidehopper, or 0..15 for Torizo; sidehopper entries omit the native row's color zero.</param>
     /// <returns>The packed RGB5 word preserving independently supplied edits.</returns>
-    public Bgr555 Resolve(EnemyAuxiliaryPalette palette, int frame, int color)
+    public RgbColor Resolve(EnemyAuxiliaryPalette palette, int frame, int color)
     {
         PaletteRows rows = RowsFor(palette);
         if ((uint)frame >= rows.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -74,26 +74,26 @@ public sealed class EnemyAuxiliaryColorCatalog
     internal sealed class PaletteRows
     {
         /// <summary>Initial per-color interpolation endpoints for non-stock derived rows.</summary>
-        internal readonly Bgr555[] first;
+        internal readonly RgbColor[] first;
         /// <summary>Final per-color interpolation endpoints for non-stock derived rows.</summary>
-        internal readonly Bgr555[] last;
+        internal readonly RgbColor[] last;
         /// <summary>Exact supplied rows when their colors do not match a known native progression.</summary>
-        internal readonly Bgr555[][]? supplied;
+        internal readonly RgbColor[][]? supplied;
         /// <summary>Whether non-stock rows mirror a face-block glow rise and fall.</summary>
         private readonly bool faceGlow;
         /// <summary>Stock paint recognition and Torizo rear-palette selection flags.</summary>
         private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
         /// <summary>The face-block accent color used for the active portion of its mirrored glow.</summary>
-        private readonly Bgr555 glowAccentStart;
+        private readonly RgbColor glowAccentStart;
         /// <summary>The independently authored terminal sidehopper corpse row.</summary>
-        internal readonly Bgr555[]? corpse;
+        internal readonly RgbColor[]? corpse;
 
         /// <summary>Number of authored stages or health bands in this family.</summary>
         internal int FrameCount { get; }
         /// <summary>Colors supplied per row, excluding sidehopper's native transparent slot zero.</summary>
         internal int ColorCount { get; }
         /// <summary>Accepts a calculated paint progression only when every supplied RGB5 word matches it.</summary>
-        internal PaletteRows(Bgr555[][] rows, AuxiliaryPaint paint)
+        internal PaletteRows(RgbColor[][] rows, AuxiliaryPaint paint)
         {
             bool healthGradient = paint is AuxiliaryPaint.TorizoFront or AuxiliaryPaint.TorizoRear;
             bool faceGlow = paint == AuxiliaryPaint.FaceGlow;
@@ -117,7 +117,7 @@ public sealed class EnemyAuxiliaryColorCatalog
             last = rows[faceGlow ? 3 : sidehopperDrain ? rows.Length - 2 : rows.Length - 1];
             corpse = sidehopperDrain ? rows[^1] : null;
             this.faceGlow = faceGlow;
-            glowAccentStart = faceGlow ? rows[1][3] : Bgr555.Black;
+            glowAccentStart = faceGlow ? rows[1][3] : RgbColor.Black;
             if (!healthGradient && !faceGlow && !sidehopperDrain) { supplied = rows; return; }
             for (int frame = 0; frame < FrameCount; frame++)
                 for (int color = 0; color < ColorCount; color++)
@@ -125,9 +125,9 @@ public sealed class EnemyAuxiliaryColorCatalog
 
         }
         /// <summary>Uses exact edited paint where retained; otherwise derives the native color relationship.</summary>
-        internal Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        internal RgbColor Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
         /// <summary>Interpolates RGB5 health/drain endpoints or mirrors the face-block glow, with stock palettes using their own paint definitions.</summary>
-        private Bgr555 Calculate(int frame, int color)
+        private RgbColor Calculate(int frame, int color)
         {
             if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
             if (stockFaceGlow) return FaceBlockGlowPaintDefinitions.Color(frame, color);
@@ -136,7 +136,7 @@ public sealed class EnemyAuxiliaryColorCatalog
             int steps = faceGlow ? 3 : FrameCount - (corpse is null ? 1 : 2);
             if (faceGlow) frame = Math.Min(frame, FrameCount - 1 - frame);
             else if (corpse is null && color == 0) return frame == steps ? last[color] : first[color];
-            Bgr555 start = first[color];
+            RgbColor start = first[color];
             if (faceGlow && color == 3)
             {
                 if (frame == 0) return start;

@@ -518,14 +518,14 @@ internal static class MapPresentationVerification
             var installed = new GameplayColours(new SpriteColourSets());
             // Revival writes thirteen colors and deliberately leaves the last two from
             // the preceding phase. Seed both CGRAM images to catch an overlong copy.
-            native.SetColor(MotherBrainColorDestinations.BodyColor + 13, Bgr555.FromWord(0x1234));
-            native.SetColor(MotherBrainColorDestinations.BodyColor + 14, Bgr555.FromWord(0x1235));
-            native.SetColor(MotherBrainColorDestinations.BrainColor + 13, Bgr555.FromWord(0x2234));
-            native.SetColor(MotherBrainColorDestinations.BrainColor + 14, Bgr555.FromWord(0x2235));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 13, Bgr555.FromWord(0x1234));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 14, Bgr555.FromWord(0x1235));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 13, Bgr555.FromWord(0x2234));
-            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 14, Bgr555.FromWord(0x2235));
+            native.SetColor(MotherBrainColorDestinations.BodyColor + 13, RgbColor.FromWord(0x1234));
+            native.SetColor(MotherBrainColorDestinations.BodyColor + 14, RgbColor.FromWord(0x1235));
+            native.SetColor(MotherBrainColorDestinations.BrainColor + 13, RgbColor.FromWord(0x2234));
+            native.SetColor(MotherBrainColorDestinations.BrainColor + 14, RgbColor.FromWord(0x2235));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 13, RgbColor.FromWord(0x1234));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BodyColor + 14, RgbColor.FromWord(0x1235));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 13, RgbColor.FromWord(0x2234));
+            installed.AsPaletteColors().SetColor(MotherBrainColorDestinations.BrainColor + 14, RgbColor.FromWord(0x2235));
             int table = draining ? MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable :
                 MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable;
             int count = draining ? MotherBrainDrainedPaletteDefinitions.DrainedColors :
@@ -562,8 +562,8 @@ internal static class MapPresentationVerification
         {
             int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
             ushort nativeBeamColor = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
-            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(frame, out Bgr555 beamColor) &&
-                beamColor == Bgr555.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
+            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(frame, out RgbColor beamColor) &&
+                beamColor == RgbColor.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }
         AssertTrue(!original.MotherBrainRainbowPalette.TryReadBeamColor(
                 MotherBrainRainbowPaletteFormat.BeamCycleColorCount, out _),

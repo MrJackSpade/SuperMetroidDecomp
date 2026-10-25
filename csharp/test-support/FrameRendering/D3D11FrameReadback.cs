@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.TestSupport.FrameRendering;
 
@@ -16,13 +17,13 @@ internal static class D3D11FrameReadback
     extension(D3D11FrameRenderer self)
     {
         /// <summary>Diagnostic convenience; production presentation must use Render without readback.</summary>
-        public Rgba32[] RenderForReadback(DisplayPacket packet)
+        public RgbaPixel[] RenderForReadback(DisplayPacket packet)
         {
             self.Render(packet);
             return self.Readback();
         }
         /// <summary>Reads the last completed submission for diagnostics; never advances simulation.</summary>
-        public unsafe Rgba32[] Readback()
+        public unsafe RgbaPixel[] Readback()
         {
             self.owner.VerifyOwner(); ObjectDisposedException.ThrowIf(self.disposed, self);
             if (self.renderedIdentity is null) throw new InvalidOperationException("No successful frame submission is available for readback.");
@@ -35,7 +36,7 @@ internal static class D3D11FrameReadback
             MappedSubresource mapped = self.owner.Context.Map(staging, 0, MapMode.Read);
             try
             {
-                var pixels = new Rgba32[width * height];
+                var pixels = new RgbaPixel[width * height];
                 for (int y = 0; y < height; y++)
                 {
                     uint* row = (uint*)((byte*)mapped.DataPointer + y * mapped.RowPitch);
@@ -52,7 +53,7 @@ internal static class D3D11FrameReadback
     }
 
     /// <summary>An R8G8B8A8 texel read as a little-endian word: red in the lowest byte.</summary>
-    private static Rgba32 UnpackRgba(uint packed)
+    private static RgbaPixel UnpackRgba(uint packed)
     {
         Span<byte> channels = stackalloc byte[sizeof(uint)];
         System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(channels, packed);

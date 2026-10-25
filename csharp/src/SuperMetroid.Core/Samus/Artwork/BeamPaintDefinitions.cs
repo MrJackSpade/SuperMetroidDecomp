@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -18,11 +19,11 @@ internal static class BeamPaintDefinitions
     /// <summary>$90:C3E1 and corresponding slot0 aliases copy this blue target despite OBJ transparency.</summary>
     private const int ClearTargetBlue = 14;
     /// <summary>Builds a sixteen-color beam material row from shared clear/white/black slots and the selected power, ice, wave, plasma, or Spazer paint.</summary>
-    internal static Bgr555 Color(SamusBeamCombination selection, int color)
+    internal static RgbColor Color(SamusBeamCombination selection, int color)
     {
-        if (color == 0) return new Bgr555(0, 0, ClearTargetBlue);
-        if (color == 1) return new Bgr555(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum);
-        if (BeamPaletteDefinitions.IsBlackSlot(selection, color)) return Bgr555.Black;
+        if (color == 0) return new RgbColor(0, 0, ClearTargetBlue);
+        if (color == 1) return new RgbColor(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum);
+        if (BeamPaletteDefinitions.IsBlackSlot(selection, color)) return RgbColor.Black;
         SamusBeamCombination source = BeamPaletteDefinitions.ColorSourceSelection(selection, color);
         return source switch
         {
@@ -47,102 +48,102 @@ internal static class BeamPaintDefinitions
     }
 
     /// <summary>Combines Power's orange three-step ramp with its separate yellow, red, and dark accent inks.</summary>
-    private static Bgr555 Power(int color)
+    private static RgbColor Power(int color)
     {
         if (color is >= 2 and <= 4)
         {
             int shade = color - 2;
             int red = shade switch { 0 => Rgb5Maximum, 1 => 21, _ => 13 };
             int blue = shade switch { 0 => 6, 1 => 7, _ => 4 };
-            return new Bgr555(red, 15 - 5 * shade, blue);
+            return new RgbColor(red, 15 - 5 * shade, blue);
         }
         return color switch
         {
-            5 => new Bgr555(Rgb5Maximum, Rgb5Maximum, 20),
-            6 => new Bgr555(30, 28, 0),
-            7 => new Bgr555(Rgb5Maximum, 10, 10),
-            8 => new Bgr555(Rgb5Maximum, 6, 6),
-            15 => new Bgr555(10, 2, 4),
+            5 => new RgbColor(Rgb5Maximum, Rgb5Maximum, 20),
+            6 => new RgbColor(30, 28, 0),
+            7 => new RgbColor(Rgb5Maximum, 10, 10),
+            8 => new RgbColor(Rgb5Maximum, 6, 6),
+            15 => new RgbColor(10, 2, 4),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }
 
     /// <summary>Builds Ice's blue-white and frost ramps, including the selected extra green step in the final frost targets.</summary>
-    private static Bgr555 Ice(int color)
+    private static RgbColor Ice(int color)
     {
         if (color is >= 2 and <= 4)
         {
             int shade = color - 2;
             int blue = shade switch { 0 => Rgb5Maximum, 1 => 27, _ => 21 };
-            return new Bgr555(0, (22 * (2 - shade) + 7 * shade + 1) / 2, blue);
+            return new RgbColor(0, (22 * (2 - shade) + 7 * shade + 1) / 2, blue);
         }
         if (color is >= 5 and <= 8)
         {
             int shade = color - 5;
             int red = shade switch { 0 => 14, 1 => 10, 2 => 5, _ => 2 };
             int green = shade switch { 0 => 27, 1 => 24, 2 => 19, _ => 17 };
-            return new Bgr555(red, green, (Rgb5Maximum * (3 - shade) + 23 * shade) / 3);
+            return new RgbColor(red, green, (Rgb5Maximum * (3 - shade) + 23 * shade) / 3);
         }
         if (color is >= 9 and <= 13)
         {
             int shade = color - 9;
             // Selected extra green step belongs to final two frost targets. It is
             // color composition, not a spatial lighting or hardware rule.
-            return new Bgr555(0, 29 - 2 * (shade + (shade >= 3 ? 1 : 0)), Rgb5Maximum - shade);
+            return new RgbColor(0, 29 - 2 * (shade + (shade >= 3 ? 1 : 0)), Rgb5Maximum - shade);
         }
         return color switch
         {
-            14 => new Bgr555(17, 28, Rgb5Maximum),
-            15 => new Bgr555(0, 6, 8),
+            14 => new RgbColor(17, 28, Rgb5Maximum),
+            15 => new RgbColor(0, 6, 8),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }
 
     /// <summary>Interpolates Wave's magenta ramp and its brighter violet accents.</summary>
-    private static Bgr555 Wave(int color)
+    private static RgbColor Wave(int color)
     {
         if (color is >= 2 and <= 4)
         {
             int shade = color - 2;
             int magenta = (Rgb5Maximum * (2 - shade) + 12 * shade + 1) / 2;
-            return new Bgr555(magenta, 0, magenta);
+            return new RgbColor(magenta, 0, magenta);
         }
-        if (color is >= 5 and <= 7) return new Bgr555(Rgb5Maximum, (22 * (7 - color) + 6 * (color - 5)) / 2, Rgb5Maximum);
+        if (color is >= 5 and <= 7) return new RgbColor(Rgb5Maximum, (22 * (7 - color) + 6 * (color - 5)) / 2, Rgb5Maximum);
         int level = color switch { 8 => 26, 15 => 9, _ => throw new ArgumentOutOfRangeException(nameof(color)) };
-        return new Bgr555(level, 0, level);
+        return new RgbColor(level, 0, level);
     }
 
     /// <summary>Interpolates Plasma's green ramp and the brighter green-white accent row.</summary>
-    private static Bgr555 Plasma(int color)
+    private static RgbColor Plasma(int color)
     {
         if (color is >= 2 and <= 4)
         {
             int shade = color - 2, green = shade switch { 0 => Rgb5Maximum, 1 => 20, _ => 12 };
-            return new Bgr555(0, green, (14 * (2 - shade) + 5 * shade) / 2);
+            return new RgbColor(0, green, (14 * (2 - shade) + 5 * shade) / 2);
         }
         if (color is >= 5 and <= 7)
         {
             int level = (26 * (7 - color) + 10 * (color - 5)) / 2;
-            return new Bgr555(level, Rgb5Maximum, level);
+            return new RgbColor(level, Rgb5Maximum, level);
         }
-        return color switch { 8 => new Bgr555(0, Rgb5Maximum, 0), 15 => new Bgr555(0, 9, 2), _ => throw new ArgumentOutOfRangeException(nameof(color)) };
+        return color switch { 8 => new RgbColor(0, Rgb5Maximum, 0), 15 => new RgbColor(0, 9, 2), _ => throw new ArgumentOutOfRangeException(nameof(color)) };
     }
 
     /// <summary>Reuses Plasma's green ramp channels for Spazer's yellow-green accents and supplies its remaining gold inks.</summary>
-    private static Bgr555 Spazer(int color)
+    private static RgbColor Spazer(int color)
     {
         if (color is >= 5 and <= 7)
         {
             var plasma = Plasma(color);
-            return new Bgr555(plasma.Green, plasma.Green, plasma.Red);
+            return new RgbColor(plasma.Green, plasma.Green, plasma.Red);
         }
         return color switch
         {
-            2 => new Bgr555(Rgb5Maximum, Rgb5Maximum, 0),
-            3 => new Bgr555(22, 16, 0),
-            4 => new Bgr555(14, 7, 0),
-            8 => new Bgr555(27, 27, 0),
-            15 => new Bgr555(13, 5, 0),
+            2 => new RgbColor(Rgb5Maximum, Rgb5Maximum, 0),
+            3 => new RgbColor(22, 16, 0),
+            4 => new RgbColor(14, 7, 0),
+            8 => new RgbColor(27, 27, 0),
+            15 => new RgbColor(13, 5, 0),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }

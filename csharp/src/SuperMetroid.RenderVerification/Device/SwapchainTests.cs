@@ -14,6 +14,7 @@ using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
@@ -51,7 +52,7 @@ internal static partial class SwapchainTests
             var idle = System.Diagnostics.Stopwatch.StartNew();
             PumpUntil(() => idle.ElapsedMilliseconds >= 40);
             for (int sequence = 1; sequence <= 1000; sequence++)
-                worker.Publish(new(new(sequence, 1, 0), new Rgba32(19,73,129)));
+                worker.Publish(new(new(sequence, 1, 0), new RgbaPixel(19,73,129)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == 1000; });
             long previousRedraws = worker.RetainedRedraws;
             worker.Resize(new Extent16<DisplayPixels>(800, 600));
@@ -73,7 +74,7 @@ internal static partial class SwapchainTests
             worker.AdvanceGeneration(2);
             worker.Resize(new Extent16<DisplayPixels>(319, 601));
             Interlocked.Exchange(ref injectedLoss, (int)DxgiDeviceLoss.DeviceReset);
-            worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
+            worker.Publish(new(new(1001,2,0), new RgbaPixel(91,27,173)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 2 && worker.LastConsumedSequence == 1001; });
             if (worker.LastDeviceLoss?.FailureHResult != (int)DxgiDeviceLoss.DeviceReset ||
                 (worker.LastDeviceLoss ?? throw new InvalidOperationException("Verification requires worker.LastDeviceLoss.")).Frame?.Generation != 2)
@@ -157,7 +158,7 @@ internal static partial class SwapchainTests
         {
             using var presenter = new D3D11SwapchainPresenter(device, window, new Extent16<DisplayPixels>(640, 480));
             var gate = new RenderPresentationGate(1);
-            var packet = new DisplayPacket(new(1, 1, 0), new Rgba32(173,91,27));
+            var packet = new DisplayPacket(new(1, 1, 0), new RgbaPixel(173,91,27));
             renderer.Render(packet);
             _ = presenter.TryAcquireFrameOpportunity();
             var outcome = presenter.Present(renderer, packet.Identity, gate, null);
@@ -172,7 +173,7 @@ internal static partial class SwapchainTests
             foreach (var size in new Extent16<DisplayPixels>[] { new(319, 601), new(1, 1), new(800, 600) })
             {
                 presenter.Resize(size);
-                packet = new(new(packet.Identity.Sequence + 1, 2, 0), new Rgba32(27,91,173));
+                packet = new(new(packet.Identity.Sequence + 1, 2, 0), new RgbaPixel(27,91,173));
                 renderer.Render(packet);
                 outcome = presenter.Present(renderer, packet.Identity, gate, null);
                 if (outcome == D3D11PresentationResult.StaleGeneration) throw new InvalidOperationException("Resized frame was rejected.");
@@ -261,7 +262,7 @@ internal static partial class SwapchainTests
             });
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
-            worker.Publish(new(new(1, 1, 0), new Rgba32(1, 2, 3)));
+            worker.Publish(new(new(1, 1, 0), new RgbaPixel(1, 2, 3)));
             PumpUntil(() => worker.Completion.IsCompleted);
             if (!worker.Completion.IsFaulted) throw new InvalidOperationException("Renderer failure was suppressed.");
             int expected = repeatDeviceLoss ? D3D11RecoveryPolicy.MaximumConsecutiveRecreations + 1 : 1;
@@ -451,7 +452,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             long sequence = 1, generation = 1;
-            worker.Publish(new(new(sequence, generation, 0), new Rgba32(23, 71, 127)));
+            worker.Publish(new(new(sequence, generation, 0), new RgbaPixel(23, 71, 127)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
 
             foreach (var size in new Extent16<DisplayPixels>[] { new(0, 480), new(640, 0), new(0, 0) })
@@ -463,7 +464,7 @@ internal static partial class SwapchainTests
                 long presentations = worker.PresentedFrames + worker.OccludedFrames;
                 long replacements = worker.MailboxMetrics.Replaced;
                 for (int i = 0; i < 32; i++)
-                    worker.Publish(new(new(++sequence, generation, 0), new Rgba32(127, 71, 23)));
+                    worker.Publish(new(new(++sequence, generation, 0), new RgbaPixel(127, 71, 23)));
 
                 // The acknowledgement prevents an arbitrary sleep from masking an
                 // unprocessed resize. Wait across multiple actual worker wake cycles.
@@ -477,7 +478,7 @@ internal static partial class SwapchainTests
                 worker.AdvanceGeneration(++generation);
                 if (MailboxCounters(worker).HasPendingFrame)
                     throw new InvalidOperationException("Generation change retained a queued pre-load frame while suspended.");
-                worker.Publish(new(new(++sequence, generation, 0), new Rgba32(43, 91, 173)));
+                worker.Publish(new(new(++sequence, generation, 0), new RgbaPixel(43, 91, 173)));
                 worker.Resize(new Extent16<DisplayPixels>(641, 481));
                 PumpUntil(() => { worker.ThrowIfFaulted(); return !worker.IsSurfaceSuspended &&
                     worker.LastConsumedSequence == sequence && worker.LastDrawnSize == new Extent16<DisplayPixels>(641, 481); });
@@ -489,7 +490,7 @@ internal static partial class SwapchainTests
 
             worker.Resize(new Extent16<DisplayPixels>(0, 0));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.IsSurfaceSuspended; });
-            worker.Publish(new(new(++sequence, generation, 0), new Rgba32(1, 2, 3)));
+            worker.Publish(new(new(++sequence, generation, 0), new RgbaPixel(1, 2, 3)));
             Task stop = worker.StopAsync();
             PumpUntil(() => stop.IsCompleted);
             stop.GetAwaiter().GetResult();

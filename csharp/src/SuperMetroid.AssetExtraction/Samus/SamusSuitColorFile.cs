@@ -30,18 +30,18 @@ public static class SamusSuitColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusSuitColorFormat.ColorsPerSuit)
             throw new InvalidDataException($"Samus {name} suit requires sixteen RGB5 colors.");
-        var result = new Bgr555[source.Length];
+        var result = new RgbColor[source.Length];
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
                 (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus {name} color {index} requires RGB components 0..31.");
-            result[index] = color.ToBgr555();
+            result[index] = color.ToRgbColor();
         }
         return result;
     }

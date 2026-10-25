@@ -16,14 +16,14 @@ internal static class FramePaintTestsVerification
         var cgram = new SnesCgram();
         var sprites = new SpriteFrameBuffer();
         for (int index = 0; index < SnesCgram.ColorCount; index++)
-            cgram.SetColor(index, Bgr555.FromWord((ushort)(index * 97)));
-        var image = new SpriteImage("Fixture", new(8, 8), new Rgba32[64], new byte[64],
-            new SpriteImagePalette(SpriteImageColours.Sprite, [.. new Bgr555[SpriteImage.SpriteColourCount]]), new byte[64], new byte[64]);
+            cgram.SetColor(index, RgbColor.FromWord((ushort)(index * 97)));
+        var image = new SpriteImage("Fixture", new(8, 8), new RgbaPixel[64], new byte[64],
+            new SpriteImagePalette(SpriteImageColours.Sprite, [.. new RgbColor[SpriteImage.SpriteColourCount]]), new byte[64], new byte[64]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(8, 8), default,
             SpritePaletteRows.None, []), new(10, 20), SpriteMirror.None));
         sprites.FinalizeFrame();
-        Bgr555[] expectedPalette = cgram.Colors.ToArray();
+        RgbColor[] expectedPalette = cgram.Colors.ToArray();
 
         FramePaint first = FramePaintConstants.Capture(cgram, sprites);
         FramePaint repeated = FramePaintConstants.Capture(cgram, sprites);
@@ -33,7 +33,7 @@ internal static class FramePaintTestsVerification
             "repeat capture changed the paint");
         AssertTrue(cgram.Colors.SequenceEqual(expectedPalette), "capture mutated its source");
 
-        cgram.SetColor(1, new Bgr555(0, 0, 0));
+        cgram.SetColor(1, new RgbColor(0, 0, 0));
         sprites.BeginFrame();
         sprites.FinalizeFrame();
         AssertTrue(first.Colors.SequenceEqual(expectedPalette) && first.SpriteDraws.Length == 1,
@@ -41,7 +41,7 @@ internal static class FramePaintTestsVerification
 
         var fromFixture = new FramePaint(expectedPalette, first.SpriteDraws);
         // Flip every color bit (the PPU stores fifteen).
-        expectedPalette[0] = Bgr555.FromWord((ushort)(expectedPalette[0].ToWord() ^ 0x7fff));
+        expectedPalette[0] = RgbColor.FromWord((ushort)(expectedPalette[0].ToWord() ^ 0x7fff));
         AssertTrue(fromFixture.Colors.SequenceEqual(first.Colors) && Order(fromFixture.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
             "fixture arrays escaped into frame ownership");
 

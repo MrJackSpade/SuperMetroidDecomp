@@ -17,13 +17,13 @@ public sealed class PauseReserveUiPresentation
     /// <summary>BG palette selections used for active and inactive arrow tile cells.</summary>
     private readonly int enabledPalette, disabledPalette;
     /// <summary>Two bevel colors shown when AUTO pulse animation is inactive.</summary>
-    private readonly Bgr555 solidColor6, solidColor11;
+    private readonly RgbColor solidColor6, solidColor11;
     /// <summary>Only pulse starting colors that differ from the reversed solid bevel colors.</summary>
     private readonly ReserveArrowColorEdits arrowStartEdits;
     /// <summary>Grey midpoint levels from which each mirrored pulse ramp is calculated.</summary>
     private readonly ReserveArrowGreyLevels arrowGreyLevels;
     /// <summary>Independently edited pulse colors that depart from the mirrored ramp.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> arrowColorEdits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> arrowColorEdits = [];
 
     /// <summary>Compacts stock-equivalent digit/arrow positions and derives sparse label and pulse-color edits.</summary>
     private PauseReserveUiPresentation(PauseReserveUiParts parts)
@@ -133,13 +133,13 @@ public sealed class PauseReserveUiPresentation
     /// different choices paint a different pulse. Held magnitudes derive from the prior shade;
     /// independently supplied differences stay sparse.
     /// </summary>
-    private Bgr555 CalculateArrowColor(int frame, ReserveArrowColorSlot slot)
+    private RgbColor CalculateArrowColor(int frame, ReserveArrowColorSlot slot)
     {
         int last = PauseReserveUiDefinitions.ArrowFrames - 1;
         int phase = Math.Min(frame, last - frame);
         int steps = last / 2;
         bool second = slot == ReserveArrowColorSlot.Color11;
-        Bgr555 start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
+        RgbColor start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
         int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
         if (phase == steps) return new(grey, grey, grey);
         ColorChannel held = second ? ColorChannel.Blue : ColorChannel.Red;
@@ -159,10 +159,10 @@ public sealed class PauseReserveUiPresentation
     }
 
     /// <summary>Uses the supplied independent bevel shade when present; otherwise mirrors the calculated 32-phase ramp.</summary>
-    private Bgr555 ArrowColor(int frame, ReserveArrowColorSlot slot)
+    private RgbColor ArrowColor(int frame, ReserveArrowColorSlot slot)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
-        return arrowColorEdits.TryGetValue(new ColourCell(frame, (slot == ReserveArrowColorSlot.Color11 ? 1 : 0)), out Bgr555 supplied)
+        return arrowColorEdits.TryGetValue(new ColourCell(frame, (slot == ReserveArrowColorSlot.Color11 ? 1 : 0)), out RgbColor supplied)
             ? supplied : CalculateArrowColor(frame, slot);
     }
 
@@ -224,10 +224,10 @@ public sealed class PauseReserveUiPresentation
         public required int DisabledPalette { get; init; }
 
         /// <summary>Static arrow bevel color for palette slot six outside pulse animation.</summary>
-        public required Bgr555 SolidColor6 { get; init; }
+        public required RgbColor SolidColor6 { get; init; }
 
         /// <summary>Static arrow bevel color for palette slot eleven outside pulse animation.</summary>
-        public required Bgr555 SolidColor11 { get; init; }
+        public required RgbColor SolidColor11 { get; init; }
 
         /// <summary>Two RGB5 bevel colors for each of the 32 mirrored pulse phases.</summary>
         public required ReserveArrowColors[] ArrowFrames { get; init; }

@@ -37,7 +37,7 @@ internal static class EndingPlanetBoundaryVerification
                 : [prefix + ".ppu", prefix + ".bgra"]);
             byte[] bgra = File.ReadAllBytes(prefix + ".bgra");
             AssertEqual(256 * 224 * 4, bgra.Length, "native PPU raster length");
-            var native = new Rgba32[256 * 224];
+            var native = new RgbaPixel[256 * 224];
             for (int i = 0; i < native.Length; i++) native[i] = new(bgra[i * 4 + 2], bgra[i * 4 + 1], bgra[i * 4]);
             var actual = DisplayRendering.Render(capture.Snapshots[frame]);
             int differences = actual.Zip(native, (first, second) => first != second).Count(differs => differs);
@@ -98,7 +98,7 @@ internal static class EndingPlanetBoundaryVerification
     {
         var input = new List<byte>(SnesPpuLayout.VramByteCount + SnesPpuLayout.CgramColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
         input.AddRange(snapshotVram);
-        foreach (Bgr555 color in snapshot.Paint.Colors)
+        foreach (RgbColor color in snapshot.Paint.Colors)
         {
             input.Add(SnesLittleEndian.LowByte(color.ToWord()));
             input.Add(SnesLittleEndian.HighByte(color.ToWord()));

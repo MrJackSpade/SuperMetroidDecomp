@@ -45,8 +45,8 @@ public static class PauseReserveUiFile
         var frames = document.Arrow.Frames.Select((frame, index) =>
             new ReserveArrowColors(Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
         int digitOffset = Offset(document.Digits.Anchor, "Digits");
-        Bgr555 solidColor6 = Color(document.Arrow.SolidColor6, "solid color 6");
-        Bgr555 solidColor11 = Color(document.Arrow.SolidColor11, "solid color 11");
+        RgbColor solidColor6 = Color(document.Arrow.SolidColor6, "solid color 6");
+        RgbColor solidColor11 = Color(document.Arrow.SolidColor11, "solid color 11");
         return PauseReserveUiPresentation.Create(new PauseReserveUiSelection
         {
             LabelOffsets = labelOffsets, LabelWords = labelWords, DigitOffset = digitOffset, Digits = digits,
@@ -64,11 +64,11 @@ public static class PauseReserveUiFile
             return (point.Row * PauseReserveUiDefinitions.TilemapColumns + point.Column) * sizeof(ushort);
         }
         // Requires nonnull five-bit RGB components before packing an arrow color.
-        static Bgr555 Color(PaletteRgb5? color, string name)
+        static RgbColor Color(PaletteRgb5? color, string name)
         {
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Pause reserve UI {name} requires RGB components from zero through 31.");
-            return color.ToBgr555();
+            return color.ToRgbColor();
         }
     }
 

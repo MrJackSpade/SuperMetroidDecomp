@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -87,7 +88,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
         {
-            Bgr555[] before = cgram.Colors.Slice(destination,
+            RgbColor[] before = cgram.Colors.Slice(destination,
                 MagdollitePaletteDefinitions.AnimatedColorCount).ToArray();
             step();
             int frame = (tick + 1) / 8 & (MagdollitePaletteDefinitions.FrameCount - 1);

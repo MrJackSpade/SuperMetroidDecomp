@@ -10,6 +10,7 @@ using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
@@ -67,7 +68,7 @@ public static class DebuggerSaveStateSmokeTest
             long stateBytes = new FileInfo(saved.Path).Length;
             const int continuationFrames = 45;
             var expected = new FrontendFrame[continuationFrames];
-            var expectedPixels = new Rgba32[continuationFrames][];
+            var expectedPixels = new RgbaPixel[continuationFrames][];
             var expectedPcm = new short[continuationFrames][];
             var expectedAcknowledgements = new SoundAcknowledgements<SoundEffectId>[continuationFrames];
             var expectedAudioEvents = new AudioEvent[continuationFrames][];

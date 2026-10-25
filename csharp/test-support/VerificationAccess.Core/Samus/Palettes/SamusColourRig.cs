@@ -29,13 +29,13 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     public GameplayColours Gameplay { get; }
 
     /// <inheritdoc />
-    public ReadOnlySpan<Bgr555> Colors => Gameplay.Colors;
+    public ReadOnlySpan<RgbColor> Colors => Gameplay.Colors;
 
     /// <inheritdoc />
-    public void SetColor(int index, Bgr555 color) => Gameplay.AsPaletteColors().SetColor(index, color);
+    public void SetColor(int index, RgbColor color) => Gameplay.AsPaletteColors().SetColor(index, color);
 
     /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
-    public Rgba32 GetRgba(int index) => Gameplay.AsPaletteColors().GetRgba(index);
+    public RgbaPixel GetRgba(int index) => Gameplay.AsPaletteColors().GetRgba(index);
 
     /// <inheritdoc />
     public void LoadBytes(ReadOnlySpan<byte> bytes, int destinationIndex = 0) => Gameplay.AsPaletteColors().LoadBytes(bytes, destinationIndex);

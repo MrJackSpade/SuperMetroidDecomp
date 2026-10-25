@@ -10,7 +10,7 @@ public sealed class ColourImage
     private readonly ColourRun[] runs;
 
     /// <summary>Each run's copied colours.</summary>
-    private readonly Bgr555[][] copies;
+    private readonly RgbColor[][] copies;
 
     /// <summary>Copies <paramref name="runs"/>' colours as they are now.</summary>
     public ColourImage(params ColourRun[] runs)
@@ -26,10 +26,10 @@ public sealed class ColourImage
     internal ColourRun Run(int index) => runs[index];
 
     /// <summary>The copy of run <paramref name="index"/>'s colours.</summary>
-    internal ReadOnlySpan<Bgr555> Copy(int index) => copies[index];
+    internal ReadOnlySpan<RgbColor> Copy(int index) => copies[index];
 
     /// <summary>The copy of <paramref name="run"/>'s colours, which lie within one of the copied runs.</summary>
-    public Span<Bgr555> Of(ColourRun run)
+    public Span<RgbColor> Of(ColourRun run)
     {
         for (int index = 0; index < runs.Length; index++)
         {
@@ -40,9 +40,9 @@ public sealed class ColourImage
     }
 
     /// <summary>Changes every copied colour to <paramref name="colour"/>.</summary>
-    public void Fill(Bgr555 colour)
+    public void Fill(RgbColor colour)
     {
-        foreach (Bgr555[] copy in copies)
+        foreach (RgbColor[] copy in copies)
             copy.AsSpan().Fill(colour);
     }
 

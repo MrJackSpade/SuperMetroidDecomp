@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>The selected Mother Brain rainbow, drain, revival, fake-death, restoration and beam-backdrop colours.</summary>
@@ -13,14 +15,14 @@ internal sealed record MotherBrainRainbowPaletteColours
     public required MotherBrainPaletteFrameColours[] FromGrey { get; init; }
 
     /// <summary>The fake-death brain fade, or null when an older override inherits it from stock.</summary>
-    public required Bgr555[][]? FakeDeathToGrey { get; init; }
+    public required RgbColor[][]? FakeDeathToGrey { get; init; }
 
     /// <summary>The restored normal phase.</summary>
     public required MotherBrainPaletteFrameColours Normal { get; init; }
 
     /// <summary>The beam backdrop's first colour.</summary>
-    public required Bgr555 BeamInitial { get; init; }
+    public required RgbColor BeamInitial { get; init; }
 
     /// <summary>The beam backdrop's hue cycle.</summary>
-    public required Bgr555[] BeamCycle { get; init; }
+    public required RgbColor[] BeamCycle { get; init; }
 }

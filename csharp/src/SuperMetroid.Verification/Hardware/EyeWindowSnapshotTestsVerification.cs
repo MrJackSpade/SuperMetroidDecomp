@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Hardware;
 
 /// <summary>Checks morph-ball eye windows: the intersection arithmetic, the captured windows and the cartridge endpoints.</summary>
@@ -33,7 +34,7 @@ internal static class EyeWindowSnapshotTestsVerification
         foreach (ushort width in new ushort[] { 0, 1, 24 })
             Check(x, y, angle, width);
         foreach (MorphBallEyeBeamPhase phase in new[] { MorphBallEyeBeamPhase.Inactive, MorphBallEyeBeamPhase.PendingInitialization })
-            AssertTrue(GameplayEffectCapture.CaptureMorphBallEyeBeam(new(phase, Position16<RoomPixels>.Zero, RotationAngle.Zero, 0, Bgr555.Black), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
+            AssertTrue(GameplayEffectCapture.CaptureMorphBallEyeBeam(new(phase, Position16<RoomPixels>.Zero, RotationAngle.Zero, 0, RgbColor.Black), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
         Console.WriteLine($"  Eye window snapshots: {samples} captures across origins, angles and widths; cartridge endpoint assertions also pass.");
 
         void Check(int x, int y, int angle, ushort width)
@@ -41,7 +42,7 @@ internal static class EyeWindowSnapshotTestsVerification
             // Nonzero camera coordinates also exercise signed world-to-screen wrapping.
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
                 new(unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768))),
-                RotationAngle.FromTableIndex((byte)angle), width, new Bgr555(31, 12, 1));
+                RotationAngle.FromTableIndex((byte)angle), width, new RgbColor(31, 12, 1));
             ScanlineColorAddRenderLayer? layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768));
             AssertTrue(layer is not null, $"eye capture origin {x},{y}; angle {angle}; width {width}");
             samples++;
@@ -67,7 +68,7 @@ internal static class EyeWindowSnapshotTestsVerification
         foreach (var sample in expected)
         {
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
-                new(552, 616), RotationAngle.FromTableIndex(sample.Angle), sample.Width, new Bgr555(31, 31, 0));
+                new(552, 616), RotationAngle.FromTableIndex(sample.Angle), sample.Width, new RgbColor(31, 31, 0));
             ColorAddWindow row = (GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(384, 512)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>....")).Windows[sample.Y];
             for (int x = 0; x < 256; x++)
                 AssertEqual(x >= sample.Left && x <= sample.Right, x >= row.Left && x <= row.Right,

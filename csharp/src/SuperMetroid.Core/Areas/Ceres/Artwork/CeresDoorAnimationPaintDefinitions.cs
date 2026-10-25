@@ -27,12 +27,12 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     /// <summary>Red channel retained independently for the dim middle amber phase.</summary>
     internal readonly int dimMiddleAmberRed;
     /// <summary>Seed colors that differ from the shared normal target paint.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> seedEdits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> seedEdits = [];
     /// <summary>Individual source cells that differ from the calculated mirrored fade.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Captures independent paint channels and per-cell edits from eight six-color source rows.</summary>
-    internal CeresDoorAnimationPaintDefinitions(Bgr555[][] rows, CeresDoorNormalPaintDefinitions normal)
+    internal CeresDoorAnimationPaintDefinitions(RgbColor[][] rows, CeresDoorNormalPaintDefinitions normal)
     {
         Ensure.NotNull(rows); Ensure.NotNull(normal);
         if (rows.Length != 8 || rows.Any(row => row is null || row.Length != 6))
@@ -48,28 +48,28 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     }
 
     /// <summary>Uses normal target paint for each seed, with the first seed's independent blue channel.</summary>
-    private Bgr555 SharedSeed(int color)
+    private RgbColor SharedSeed(int color)
     {
         if (color != 0) return normal.ColorAt(8 + color);
-        Bgr555 normalSeed = normal.ColorAt(8);
+        RgbColor normalSeed = normal.ColorAt(8);
         return new(normalSeed.Red, normalSeed.Green, firstSeedBlue);
     }
 
     /// <summary>Resolves an edited beacon cell or reconstructs its mirrored fade color.</summary>
-    internal Bgr555 ColorAt(int row, int color)
+    internal RgbColor ColorAt(int row, int color)
     {
         if ((uint)row >= 8)
             throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 6)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(row, color), out Bgr555 edited) ? edited : Calculate(row, color);
+        return edits.TryGetValue(new ColourCell(row, color), out RgbColor edited) ? edited : Calculate(row, color);
     }
 
     /// <summary>Applies the five-step mirrored fade, peak gold brightening, and dim amber exception.</summary>
-    private Bgr555 Calculate(int row, int color)
+    private RgbColor Calculate(int row, int color)
     {
         int phase = Math.Min(row, 7 - row);
-        Bgr555 seed = seedEdits.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : SharedSeed(color);
+        RgbColor seed = seedEdits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : SharedSeed(color);
         int red = seed.Red, green = seed.Green, blue = seed.Blue;
         if (phase == 0 && color >= 3)
         {

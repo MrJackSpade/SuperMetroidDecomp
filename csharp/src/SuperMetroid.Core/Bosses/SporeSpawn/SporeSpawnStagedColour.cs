@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="Run">The colours the staged colour is among.</param>
 /// <param name="Colour">The colour within the run.</param>
 /// <param name="Value">The target colour.</param>
-internal readonly record struct SporeSpawnStagedColour(IColourSetRun Run, int Colour, Bgr555 Value);
+internal readonly record struct SporeSpawnStagedColour(IColourSetRun Run, int Colour, RgbColor Value);

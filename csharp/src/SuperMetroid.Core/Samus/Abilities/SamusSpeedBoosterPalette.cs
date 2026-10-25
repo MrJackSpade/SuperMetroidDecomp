@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -21,7 +22,7 @@ internal static class SamusSpeedBoosterPalette
                 // The native unrolled copy uses LDA $0000..001E,X; the expansion window's open
                 // bus returns the operand's high byte for every word.
                 // Arbitrary bus words reach CGRAM through its fifteen-bit data port.
-                colours.Suit.Write(index, Bgr555.FromCgramPortWord(overrun switch
+                colours.Suit.Write(index, RgbColor.FromCgramPortWord(overrun switch
                 {
                     SpeedBoosterPaletteOverrun.Expansion => SpeedBoosterPaletteOverrunDefinitions.ExpansionOpenBusWord,
                     SpeedBoosterPaletteOverrun.GrappleCode => (overreads ?? throw new InvalidOperationException(

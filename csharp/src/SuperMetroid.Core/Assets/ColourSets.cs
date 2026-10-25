@@ -17,7 +17,7 @@ public abstract class ColourSets : IGameplayColourOwner
     private readonly int firstPosition;
 
     /// <summary>The sets' colours, set after set.</summary>
-    private readonly Bgr555[] colours = new Bgr555[SetCount * SetColours];
+    private readonly RgbColor[] colours = new RgbColor[SetCount * SetColours];
 
     /// <summary>Sets whose first colour sits at gameplay position <paramref name="firstPosition"/>.</summary>
     private protected ColourSets(int firstPosition) => this.firstPosition = firstPosition;
@@ -43,10 +43,10 @@ public abstract class ColourSets : IGameplayColourOwner
     public bool Holds(int position) => position >= firstPosition && position < firstPosition + colours.Length;
 
     /// <inheritdoc />
-    public Bgr555 At(int position) => colours[Check(position)];
+    public RgbColor At(int position) => colours[Check(position)];
 
     /// <inheritdoc />
-    public void Set(int position, Bgr555 colour) => colours[Check(position)] = colour;
+    public void Set(int position, RgbColor colour) => colours[Check(position)] = colour;
 
     /// <summary>The index of a held gameplay position among the sets' colours.</summary>
     private int Check(int position) => Holds(position)

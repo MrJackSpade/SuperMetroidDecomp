@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -191,7 +192,7 @@ public static class GameplayEffectCapture
 
     /// <summary>Replicates low color bits to expand one SNES five-bit channel to host eight-bit color.</summary>
     internal static byte ExpandFiveBit(int value) =>
-        Bgr555.ExpandChannel(value);
+        RgbColor.ExpandChannel(value);
 
     /// <summary>One signed 8.8 screen-space direction vector reconstructed from `$91:C9D4`.</summary>
     internal static Offset16<ScreenPixels> ReadXrayDirection(int angle)
@@ -275,7 +276,7 @@ public static class GameplayEffectCapture
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
         var windows = new XrayWindowLine[Height];
         Array.Fill(windows, new XrayWindowLine(255, 0));
-        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
+        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
@@ -334,7 +335,7 @@ public static class GameplayEffectCapture
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
         var emptyWindows = new XrayWindowLine[Height];
         Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
+        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
     }
 
     /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>
@@ -346,7 +347,7 @@ public static class GameplayEffectCapture
         Array.Fill(windows, ColorAddWindow.Empty);
         for (int y = HudHeight; y < Height; y++)
         {
-            Bgr555 haze = CeresHazeRenderDefinitions.ResolveComponents(
+            RgbColor haze = CeresHazeRenderDefinitions.ResolveComponents(
                 y, intensity, ridleyIsDead, colors);
             windows[y] = new(0, Width - 1, ExpandFiveBit(haze.Red),
                 ExpandFiveBit(haze.Green), ExpandFiveBit(haze.Blue));

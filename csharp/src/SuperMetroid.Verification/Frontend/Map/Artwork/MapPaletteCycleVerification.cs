@@ -96,12 +96,12 @@ internal static class MapPaletteCycleVerification
             // Since #1251 the pause-map scroll arrows draw with OBJ palette 3 as on the cartridge,
             // so the highlight edit may recolor them. Every differing pixel must therefore show a
             // palette-3 color in both renders; nothing drawn from other palettes may change.
-            var editedPalette3 = new HashSet<SuperMetroid.Core.Hardware.Rgba32>();
-            var stockPalette3 = new HashSet<SuperMetroid.Core.Hardware.Rgba32>();
+            var editedPalette3 = new HashSet<SuperMetroid.Core.Assets.RgbaPixel>();
+            var stockPalette3 = new HashSet<SuperMetroid.Core.Assets.RgbaPixel>();
             for (int color = 0; color < 16; color++)
             {
-                editedPalette3.Add(editedMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgba32());
-                stockPalette3.Add(stockMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgba32());
+                editedPalette3.Add(editedMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgbaPixel());
+                stockPalette3.Add(stockMemory.Colors[ScreenColourPositions.Sprite(MapScreenDefinitions.HighlightSpriteRow) + color].ToRgbaPixel());
             }
             var editedPixels = pause.Render();
             var stockPixels = nativePause.Render();

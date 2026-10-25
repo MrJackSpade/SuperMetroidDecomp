@@ -119,7 +119,7 @@ internal static class EnemyEffectsFixtureVerification
             out Extent16<ImagePixels> size);
         var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
-            Enumerable.Range(0, 16).Select(index => new Rgba32((byte)(index * 16), 0, 0)).ToArray());
+            Enumerable.Range(0, 16).Select(index => new RgbaPixel((byte)(index * 16), 0, 0)).ToArray());
         output.Position = 0;
         return output;
     }

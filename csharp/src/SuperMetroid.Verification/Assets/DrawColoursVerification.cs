@@ -18,18 +18,18 @@ internal static class DrawColoursVerification
     internal static void VerifyDrawColours()
     {
         // Two pixels: one of part row 2 the draw's override can reach, one whose part names row 3.
-        var standard = new Bgr555[SpriteImage.SpriteColourCount];
+        var standard = new RgbColor[SpriteImage.SpriteColourCount];
         for (int colour = 0; colour < standard.Length; colour++)
-            standard[colour] = new Bgr555(colour % 32, colour / 32, 1);
+            standard[colour] = new RgbColor(colour % 32, colour / 32, 1);
         byte[] indices = [2 * 16 + 5, 3 * 16 + 6];
         byte[] partRows = [2, 3 | SpriteImage.FixedPartRow];
-        var sheet = new SpriteImage("Pair", new(2, 1), [standard[indices[0]].ToRgba32(), standard[indices[1]].ToRgba32()], indices,
+        var sheet = new SpriteImage("Pair", new(2, 1), [standard[indices[0]].ToRgbaPixel(), standard[indices[1]].ToRgbaPixel()], indices,
             new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]), [0, 0], partRows);
         var frame = new SpriteSheetFrame(sheet, default, new(2, 1), default,
             SpritePaletteRows.None | SpritePaletteRowSet.Rows[2] | SpritePaletteRowSet.Rows[3], []);
-        var colours = new Bgr555[ScreenPalette.ColorCount];
+        var colours = new RgbColor[ScreenPalette.ColorCount];
         standard.CopyTo(colours, ScreenPalette.ColorCount / 2);
-        var white = new Bgr555(31, 31, 31);
+        var white = new RgbColor(31, 31, 31);
         for (int colour = 0; colour < 16; colour++)
             colours[ScreenPalette.ColorCount / 2 + 7 * 16 + colour] = white;
 
@@ -47,7 +47,7 @@ internal static class DrawColoursVerification
         // Without an override, an untouched frame keeps the image's own colours; a changed row shows the frame's.
         var plain = new ImageSpriteDraw(new(SpriteSourceKind.Enemy), frame, default, SpriteMirror.None);
         AssertTrue(DrawColours.Resolve(plain, colours).IsOwn, "a row the frame does not use leaves a plain draw in its own colours");
-        var untouched = new Bgr555[ScreenPalette.ColorCount];
+        var untouched = new RgbColor[ScreenPalette.ColorCount];
         standard.CopyTo(untouched, ScreenPalette.ColorCount / 2);
         AssertTrue(DrawColours.Resolve(plain, untouched).IsOwn, "a draw whose rows hold its image's colours shows its own");
         untouched[ScreenPalette.ColorCount / 2 + 2 * 16 + 5] = white;
@@ -60,7 +60,7 @@ internal static class DrawColoursVerification
         var paint = new FramePaint(untouched, [plain]);
         AssertEqual(white, ((ImageSpriteDraw)paint.SpriteDraws[0]).Colours!.Colour(2, 5), "a frame publishes its draws' colours");
         // An ink row the part row does not name: a plain draw shows the ink row, as the hardware shows a pixel's index.
-        var inked = new SpriteImage("Inked", new(1, 1), [standard[4 * 16 + 1].ToRgba32()], [4 * 16 + 1],
+        var inked = new SpriteImage("Inked", new(1, 1), [standard[4 * 16 + 1].ToRgbaPixel()], [4 * 16 + 1],
             new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]), [0], [0]);
         var inkedFrame = new SpriteSheetFrame(inked, default, new(1, 1), default, SpritePaletteRows.None | SpritePaletteRowSet.Rows[4], []);
         untouched[ScreenPalette.ColorCount / 2 + 4 * 16 + 1] = white;

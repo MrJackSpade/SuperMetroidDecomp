@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Assets;
 public sealed class GameplayBasePaletteCatalog
 {
     /// <summary>Owned 256-color CGRAM image loaded at gameplay startup.</summary>
-    internal readonly Bgr555[] initial;
+    internal readonly RgbColor[] initial;
     /// <summary>Owned sixteen-color palette reused by common room sprites.</summary>
-    internal readonly Bgr555[] commonSprites;
+    internal readonly RgbColor[] commonSprites;
 
     /// <summary>Retains validated RGB5 arrays detached from the editable document.</summary>
-    internal GameplayBasePaletteCatalog(Bgr555[] initial, Bgr555[] commonSprites)
+    internal GameplayBasePaletteCatalog(RgbColor[] initial, RgbColor[] commonSprites)
     {
         this.initial = initial;
         this.commonSprites = commonSprites;

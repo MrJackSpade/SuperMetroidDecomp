@@ -108,7 +108,7 @@ internal static class ScreenTileSheetComposer
     /// coloured from <paramref name="palette"/>'s background half.
     /// </summary>
     /// <exception cref="InvalidDataException">The characters are not whole characters of the depth.</exception>
-    internal static ComposedSpriteSheet Compose(ReadOnlySpan<byte> characters, BgBitDepth depth, ReadOnlySpan<Bgr555> palette)
+    internal static ComposedSpriteSheet Compose(ReadOnlySpan<byte> characters, BgBitDepth depth, ReadOnlySpan<RgbColor> palette)
     {
         int bytes = ScreenTileSheet.CharacterWordsOf(depth) * sizeof(ushort);
         if (characters.IsEmpty || characters.Length % bytes != 0)
@@ -116,7 +116,7 @@ internal static class ScreenTileSheetComposer
         int count = characters.Length / bytes;
         int blockRows = ScreenTileSheet.BlockRowsOf(count);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenTileSheet.Columns * ScreenTileSheet.TilePixels, checked((ushort)(ScreenTileSheet.ColourVariants * blockRows * ScreenTileSheet.TilePixels))));
-        Bgr555[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         for (int row = 0; row < ScreenTileSheet.ColourVariants; row++)
         {
             for (int character = 0; character < count; character++)
@@ -212,13 +212,13 @@ internal static class ScreenTileSheetComposer
 
     /// <summary>The sheet of Mode 7 characters whose pixels <paramref name="pixels"/> holds, one colour index each, coloured from <paramref name="palette"/>.</summary>
     /// <exception cref="InvalidDataException">The pixels are not whole characters.</exception>
-    internal static ComposedSpriteSheet ComposeMode7Pixels(ReadOnlySpan<byte> pixels, ReadOnlySpan<Bgr555> palette)
+    internal static ComposedSpriteSheet ComposeMode7Pixels(ReadOnlySpan<byte> pixels, ReadOnlySpan<RgbColor> palette)
     {
         if (pixels.IsEmpty || pixels.Length % Mode7CharacterSheet.TileBytes != 0)
             throw new InvalidDataException($"{pixels.Length} pixels are not whole Mode 7 characters.");
         int tiles = pixels.Length / Mode7CharacterSheet.TileBytes;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(Mode7CharacterSheet.TilesPerRow * Mode7CharacterSheet.TilePixels, checked((ushort)(Mode7CharacterSheet.RowsOf(tiles) * Mode7CharacterSheet.TilePixels))));
-        Bgr555[] colours = palette[..SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
+        RgbColor[] colours = palette[..SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
         SpritePaletteRows coloured = SpritePaletteRows.None;
         for (int tile = 0; tile < tiles; tile++)
         {
@@ -255,7 +255,7 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The title's palette.</summary>
-    private static ReadOnlySpan<Bgr555> TitleColours(TitlePalettePresentation palette)
+    private static ReadOnlySpan<RgbColor> TitleColours(TitlePalettePresentation palette)
     {
         var colours = new ScreenPalette();
         Ensure.NotNull(palette).Apply(colours);
@@ -267,7 +267,7 @@ internal static class ScreenTileSheetComposer
         Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], BgBitDepth.FourBpp, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
-    private static ReadOnlySpan<Bgr555> IntroColours(IntroCinematicArtworkCatalog intro)
+    private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtworkCatalog intro)
     {
         var colours = new ScreenPalette();
         intro.Palette.LoadTo(colours);
@@ -275,10 +275,10 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The ending's palette <paramref name="palette"/>, whose colours its scenes load where they lie.</summary>
-    private static ReadOnlySpan<Bgr555> EndingColours(ScreenTileSources sources, EndingPaletteId palette) => EndingColours(sources.EndingPalettes, palette);
+    private static ReadOnlySpan<RgbColor> EndingColours(ScreenTileSources sources, EndingPaletteId palette) => EndingColours(sources.EndingPalettes, palette);
 
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>
-    private static ReadOnlySpan<Bgr555> EndingColours(EndingPaletteCatalog palettes, EndingPaletteId palette)
+    private static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteCatalog palettes, EndingPaletteId palette)
     {
         var colours = new ScreenPalette();
         palettes[palette].LoadTo(colours.All, 0);
@@ -286,7 +286,7 @@ internal static class ScreenTileSheetComposer
     }
 
     /// <summary>The Ceres flight's palette.</summary>
-    private static ReadOnlySpan<Bgr555> FlightColours(CeresFlightArtworkCatalog flight)
+    private static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtworkCatalog flight)
     {
         var colours = new ScreenPalette();
         flight.Palette.LoadTo(colours);

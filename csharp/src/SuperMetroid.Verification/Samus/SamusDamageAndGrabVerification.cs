@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies;
@@ -216,8 +217,8 @@ level, right, unchecked((ushort)(frame + 1))),
     // Seed both neighboring colors so the test can distinguish the exact eight-color
     // write from a convenient whole-palette copy. Calls 1/2 show frame zero, calls 3/4
     // show frame one, and call 21 executes `$C61E,$D904` and reloads frame zero.
-    drainedCgram.SetColor(0xe0, Bgr555.FromWord(0x4567));
-    drainedCgram.SetColor(0xe9, Bgr555.FromWord(0x2345));
+    drainedCgram.SetColor(0xe0, RgbColor.FromWord(0x4567));
+    drainedCgram.SetColor(0xe9, RgbColor.FromWord(0x2345));
     var hyperBeamGuard = NewHyperBeamPaletteFxControlGuard(bus);
     for (int call = 0; call < 21; call++)
     {

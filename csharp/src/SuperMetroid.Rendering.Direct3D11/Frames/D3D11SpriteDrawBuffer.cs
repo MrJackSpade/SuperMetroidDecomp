@@ -124,7 +124,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private static void PackColours(Span<uint> words, ImageSpriteDraw draw)
     {
         DrawColours colours = draw.Colours!;
-        ReadOnlySpan<Bgr555> own = draw.Image.Sheet.StandardColours;
+        ReadOnlySpan<RgbColor> own = draw.Image.Sheet.StandardColours;
         uint header = colours.FollowsPartRows ? FollowsPartRowsFlag : 0;
         int keys = colours.FollowsPartRows ? DrawColours.Keys : SpriteImage.MaximumPaletteRow + 1;
         for (int key = 0; key < keys; key++)
@@ -133,9 +133,9 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
                 header |= 1u << key;
             for (int colour = 0; colour < DrawColours.RowColours; colour++)
             {
-                Rgba32 shown = (colours.ShowsOwnColours(key)
+                RgbaPixel shown = (colours.ShowsOwnColours(key)
                     ? own[key * DrawColours.RowColours + colour]
-                    : colours.Colour(key, colour)).ToRgba32();
+                    : colours.Colour(key, colour)).ToRgbaPixel();
                 words[1 + key * DrawColours.RowColours + colour] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
             }
         }

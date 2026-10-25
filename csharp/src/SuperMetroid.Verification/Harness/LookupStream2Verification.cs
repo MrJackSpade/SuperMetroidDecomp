@@ -180,7 +180,7 @@ internal static class LookupStream2Verification
             AssertEqual(native[color], WreckedShipGhostAppearanceDefinitions.PaletteColor(color), "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
-            cgram.SetColor(128 + color, Bgr555.FromWord(0x7fff));
+            cgram.SetColor(128 + color, RgbColor.FromWord(0x7fff));
         }
         brightening(slot, state);
         AssertEqual(WreckedShipGhostAiFunction.FadingToGhostPalette, state.Function, "White flash installs native target palette phase");

@@ -109,18 +109,18 @@ public static class GameplayBasePaletteFiles
     }
 
     /// <summary>Checks palette length and channel bounds before converting authoring colors to packed CGRAM values.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int expected, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int expected, string name)
     {
         if (source is null || source.Length != expected)
             throw new InvalidDataException($"Gameplay {name} palette requires {expected} RGB5 colors.");
-        var result = new Bgr555[expected];
+        var result = new RgbColor[expected];
         for (int color = 0; color < expected; color++)
         {
             PaletteRgb5 entry = source[color] ??
                 throw new InvalidDataException($"Gameplay {name} color {color} is null.");
             if ((uint)entry.Red > 31 || (uint)entry.Green > 31 || (uint)entry.Blue > 31)
                 throw new InvalidDataException($"Gameplay {name} color {color} exceeds RGB5.");
-            result[color] = entry.ToBgr555();
+            result[color] = entry.ToRgbColor();
         }
         return result;
     }
@@ -130,14 +130,14 @@ public static class GameplayBasePaletteFiles
     /// The eight sprite palette rows as a room load leaves them: the initial image's upper half, with the common sprite
     /// colours in the first row. The enemy-projectile row a room load copies is the initial image's own.
     /// </summary>
-    internal static Bgr555[] RoomLoadSpriteColours(ISnesAddressSpace bus)
+    internal static RgbColor[] RoomLoadSpriteColours(ISnesAddressSpace bus)
     {
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress, GameplayBasePaletteFormat.SpriteColorCount));
         GameplayBasePaletteCatalog catalog = Read(new MemoryStream(Write(document), writable: false));
         int first = FirstSpriteColour;
-        Bgr555[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
+        RgbColor[] colours = catalog.initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();
         catalog.commonSprites.CopyTo(colours, 0);
         return colours;
     }

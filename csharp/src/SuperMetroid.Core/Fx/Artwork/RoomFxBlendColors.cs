@@ -20,7 +20,7 @@ internal sealed class RoomFxBlendColors
     internal readonly RoomFxThirdColor? thirdOverride;
 
     /// <summary>Separates selected colors into calculated components and explicit edits.</summary>
-    public RoomFxBlendColors(RoomFxPaletteBlend selection, Bgr555 primary, Bgr555 secondary, Bgr555 third)
+    public RoomFxBlendColors(RoomFxPaletteBlend selection, RgbColor primary, RgbColor secondary, RgbColor third)
     {
         this.primary = new(selection, primary, RoomFxPairMember.Primary);
         this.secondary = new(selection, secondary, RoomFxPairMember.Secondary);
@@ -32,6 +32,6 @@ internal sealed class RoomFxBlendColors
     {
         blend.Write(0, primary.CreateColor());
         blend.Write(1, secondary.CreateColor());
-        blend.Write(2, thirdOverride?.CreateColor() ?? Bgr555.Black);
+        blend.Write(2, thirdOverride?.CreateColor() ?? RgbColor.Black);
     }
 }

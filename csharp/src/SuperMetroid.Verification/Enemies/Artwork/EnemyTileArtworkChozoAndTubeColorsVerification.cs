@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -95,7 +96,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Chozo/tube colors: 96 native RGB5 words, all three live initializers, persistent overrides, ROM guard, and strict failures pass.");
 
-        void VerifyBand(int source, Func<int, Bgr555> resolve, string name)
+        void VerifyBand(int source, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -103,7 +104,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
                     $"installed {name} color {color} preserves native RGB5");
         }
 
-        void VerifyLive(ushort variant, Func<int, Bgr555> resolve, string name,
+        void VerifyLive(ushort variant, Func<int, RgbColor> resolve, string name,
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
             var cgram = new SamusColourRig();
@@ -132,8 +133,8 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckEditedBand(Func<int, Bgr555> original,
-            Func<int, Bgr555> changed, string name)
+        static void CheckEditedBand(Func<int, RgbColor> original,
+            Func<int, RgbColor> changed, string name)
         {
             AssertTrue(original(5) != changed(5),
                 $"{name} edit changes selected RGB5 word");

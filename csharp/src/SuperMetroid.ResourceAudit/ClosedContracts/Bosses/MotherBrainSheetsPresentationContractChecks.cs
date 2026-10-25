@@ -9,6 +9,7 @@ using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 
@@ -25,7 +26,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
             int rows = (tiles + columns - 1) / columns;
             using var png = new MemoryStream();
             IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
-                Enumerable.Range(0, 16).Select(_ => new Rgba32(0, 0, 0, 255)).ToArray());
+                Enumerable.Range(0, 16).Select(_ => new RgbaPixel(0, 0, 0, 255)).ToArray());
             png.Position = 0;
             return RoomCharacterAtlasPng.Read(png, count);
         }

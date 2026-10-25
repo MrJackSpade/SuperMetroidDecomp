@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -37,6 +36,6 @@ public static class CrocomireColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Validates a band's length and RGB5 range before packing its color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Crocomire {name}");
 }

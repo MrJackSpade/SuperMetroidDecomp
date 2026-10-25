@@ -507,7 +507,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
     chargeSamus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
     var chargedGlowCgram = new SamusColourRig();
-    chargedGlowCgram.SetColor(192, Bgr555.FromWord(0x4321));
+    chargedGlowCgram.SetColor(192, RgbColor.FromWord(0x4321));
     for (int call = 0; call < 4; call++)
     {
         SamusBeamChargePaletteStepResult paletteStep =
@@ -671,7 +671,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var hyperGlowCgram = new SamusColourRig();
     for (int call = 0; call < 21; call++)
     {
-        Bgr555[] beforeColors = hyperGlowCgram.Colors.ToArray();
+        RgbColor[] beforeColors = hyperGlowCgram.Colors.ToArray();
         ushort hyperTimerBefore = hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue;
         SamusBeamChargePaletteStepResult paletteStep =
             hyperProjectiles.UpdateBeamChargePalette(hyperGlowCgram.Samus, hyperSamus);

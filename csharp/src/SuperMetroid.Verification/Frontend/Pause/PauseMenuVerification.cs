@@ -16,6 +16,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
@@ -115,10 +116,10 @@ internal static class PauseMenuVerification
             "pause equipment reserve-supply tens digit renders current supply");
         AssertEqual(0x080b, pause.ReadReserveSupplyDigit(2).Raw,
             "pause equipment reserve-supply ones digit renders current supply");
-        Rgba32[] firstPauseFrame = pause.Render();
-        AssertEqual(new Rgba32(255, 255, 255, 255), firstPauseFrame[0],
+        RgbaPixel[] firstPauseFrame = pause.Render();
+        AssertEqual(new RgbaPixel(255, 255, 255, 255), firstPauseFrame[0],
             "pause retains and draws gameplay BG3 HUD tilemap");
-        AssertEqual(new Rgba32(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],
+        AssertEqual(new RgbaPixel(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],
             "high-priority pause holder clips the fully revealed low-priority map");
         AssertEqual(124, pause.MapScroll.X,
             "downloaded pause map horizontal centering");
@@ -213,8 +214,8 @@ internal static class PauseMenuVerification
         // backdrop black, proving that `$80:A211`'s $184E fill prevented visible BG3
         // character zero from leaking below the four-row HUD.
         var blankMapPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram), MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
-        Rgba32[] blankMapFrame = blankMapPause.Render();
-        AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
+        RgbaPixel[] blankMapFrame = blankMapPause.Render();
+        AssertEqual(new RgbaPixel(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");
 
         // The same persistent state is projected through all three host modes. One public

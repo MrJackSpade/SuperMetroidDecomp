@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -43,7 +44,7 @@ internal sealed class KraidBackground
     }
 
     /// <summary>Separates immutable RGB5 artwork from Kraid's native palette timing.</summary>
-    internal Bgr555 ReadKraidColor(KraidPaletteSource source, int index)
+    internal RgbColor ReadKraidColor(KraidPaletteSource source, int index)
     {
         if ((uint)index >= KraidPalettes.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -61,9 +62,9 @@ internal sealed class KraidBackground
         {
             for (int color = 0; color < 16; color++)
             {
-                Bgr555 current = _presentation.BossColours().KraidRoomBackdrop[color];
-                Bgr555 target = fade == KraidBackdropFade.ToBlack
-                    ? Bgr555.Black
+                RgbColor current = _presentation.BossColours().KraidRoomBackdrop[color];
+                RgbColor target = fade == KraidBackdropFade.ToBlack
+                    ? RgbColor.Black
                     : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
                 _presentation.BossColours().KraidRoomBackdrop.Write(color, TransitionKraidColor(step, current, target));
             }
@@ -75,7 +76,7 @@ internal sealed class KraidBackground
     }
 
     /// <summary>Interpolates one RGB5 color toward its growth-phase target.</summary>
-    private static Bgr555 TransitionKraidColor(int step, Bgr555 current, Bgr555 target) =>
+    private static RgbColor TransitionKraidColor(int step, RgbColor current, RgbColor target) =>
         current.Zip(target, (_, from, to) => TransitionKraidComponent(step, from, to));
 
     /// <summary>Moves one color channel toward its target under the native step rule.</summary>

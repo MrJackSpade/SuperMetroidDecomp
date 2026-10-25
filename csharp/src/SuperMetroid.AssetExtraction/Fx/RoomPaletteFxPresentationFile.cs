@@ -38,7 +38,7 @@ public static class RoomPaletteFxPresentationFile
                 $"{RoomPaletteFxPresentationFormat.Version}.");
         }
 
-        var colors = new Dictionary<PaletteFxColorKey, Bgr555>();
+        var colors = new Dictionary<PaletteFxColorKey, RgbColor>();
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {
@@ -58,7 +58,7 @@ public static class RoomPaletteFxPresentationFile
                 for (int index = 0; index < definition.Rows.ColorsPerFrame; index++)
                 {
                     PaletteFxColorKey key = definition.Rows.Color(frame, index);
-                    if (!(previousVersionFallback ?? throw new InvalidDataException("A previous-version room palette-FX override requires the current stock presentation.")).TryReadColor(key, out Bgr555 stockColor))
+                    if (!(previousVersionFallback ?? throw new InvalidDataException("A previous-version room palette-FX override requires the current stock presentation.")).TryReadColor(key, out RgbColor stockColor))
                         throw new InvalidDataException(
                             $"Current stock is missing {definition.Suit} heat color {key}.");
                     colors.Add(key, stockColor);
@@ -284,7 +284,7 @@ public static class RoomPaletteFxPresentationFile
         string owner,
         PaletteRgb5[][]? frames,
         PaletteFxColorRows rows,
-        Dictionary<PaletteFxColorKey, Bgr555> destination)
+        Dictionary<PaletteFxColorKey, RgbColor> destination)
     {
         int frameCount = rows.FrameCount;
         int colorCount = rows.ColorsPerFrame;
@@ -317,7 +317,7 @@ public static class RoomPaletteFxPresentationFile
 
                 destination.Add(
                     rows.Color(frame, index),
-                    color.ToBgr555());
+                    color.ToRgbColor());
             }
         }
     }

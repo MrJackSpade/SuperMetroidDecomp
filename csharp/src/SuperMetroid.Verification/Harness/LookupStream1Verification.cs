@@ -1348,7 +1348,7 @@ internal static class LookupStream1Verification
         {
             AssertEqual((byte)(native[index + 16] & 31), SamusHurtColorDefinitions.DefaultIntroLevel(index), "Direct calculated shade level equals native");
             AssertEqual(native[index + 16], SamusHurtColorDefinitions.IntroFromLevel((byte)(native[index + 16] & 31)), "Direct native intro channel relation");
-            AssertEqual(native[index], SamusHurtColorDefinitions.HurtFromIntro(Bgr555.FromWord(checked(native[index + 16]))), "Direct native hurt white blend");
+            AssertEqual(native[index], SamusHurtColorDefinitions.HurtFromIntro(RgbColor.FromWord(checked(native[index + 16]))), "Direct native hurt white blend");
         }
         for (int selected = 0; selected < 32; selected++)
         for (int channel = 0; channel < 3; channel++)
@@ -2536,7 +2536,7 @@ internal static class LookupStream1Verification
         SamusVisorColorCatalog Load(SamusVisorColorDocument value) =>
             SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(value)));
         var stock = Load(document);
-        Dictionary<ColourCell, Bgr555> Stored(SamusVisorColorCatalog value) => value.colors;
+        Dictionary<ColourCell, RgbColor> Stored(SamusVisorColorCatalog value) => value.colors;
         ushort Native(int index)
         {
             int address = SamusSourceDefinitions.VisorColors.Value + index * 2;

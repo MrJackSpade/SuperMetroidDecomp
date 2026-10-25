@@ -230,7 +230,7 @@ public sealed class TourianStatueSequence
                     statue.AnimationState |= TourianStatueAnimationState.ReleaseInProgress;
                     return null;
                 case TourianStatueTileCueKind.ClearThreeColors:
-                    definition.ClearedColours.In(_colours).Fill(Bgr555.Black);
+                    definition.ClearedColours.In(_colours).Fill(RgbColor.Black);
                     return null;
                 case TourianStatueTileCueKind.SpawnEyeGlow:
                     statue.SpawnEyeGlow(definition.UnlockEffectParameter);

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Calculated native visor color phases with narrowly retained painted-light composition choices.</summary>
@@ -9,10 +11,10 @@ internal static class SamusVisorColorDefinitions
     /// not a measured quantity determining its RGB value. The same3BE0 begins this visor
     /// transition. Catalogs remain independently editable; this is shared source identity,
     /// not mutable cross-catalog coupling. FullBeamStart and DarkeningStep have a separate narrow visor-light disposition.</remarks>
-    internal static readonly Bgr555 WideningStart = Bgr555.FromWord(0x3be0);
+    internal static readonly RgbColor WideningStart = RgbColor.FromWord(0x3be0);
 
     /// <summary>$9B:A3C6, SamusPalettes_Visor: selected yellow-white full-beam/room-cycle ink (31,31,16); retained painted visor-light choice.</summary>
-    internal static readonly Bgr555 FullBeamStart = Bgr555.FromWord(0x43ff);
+    internal static readonly RgbColor FullBeamStart = RgbColor.FromWord(0x43ff);
 
     /// <summary>$9B:A3C6-$A3CB, SamusPalettes_Visor: selected five-level decrement per RGB5 channel; retained visor-light brightness contrast.</summary>
     /// <remarks>Only the six original visor RGB outputs are covered. Native $91:D86F/DCD3/DD09
@@ -24,7 +26,7 @@ internal static class SamusVisorColorDefinitions
     internal const int WideningPhaseCount = 3;
 
     /// <summary>Interpolates the widening visor into white, then darkens the selected full-beam ink by five RGB5 levels per phase.</summary>
-    internal static Bgr555 Color(int index)
+    internal static RgbColor Color(int index)
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 
 using SuperMetroid.TestSupport.FrameCapture;
@@ -20,11 +21,11 @@ internal static class WaterfallTests
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        Bgr555 main = new(24, 20, 16);
+        RgbColor main = new(24, 20, 16);
         cgram.SetColor(0, main);
         cgram.SetColor(1, main);
-        cgram.SetColor(2, new Bgr555(5, 7, 9));
-        cgram.SetColor(3, new Bgr555(2, 3, 4));
+        cgram.SetColor(2, new RgbColor(5, 7, 9));
+        cgram.SetColor(3, new RgbColor(2, 3, 4));
         cgram.SetColor(128 + 3 * 16 + 1, main);
         cgram.SetColor(128 + 4 * 16 + 1, main);
         for (int row = 0; row < 8; row++)
@@ -50,7 +51,7 @@ internal static class WaterfallTests
             WaterfallRoomDisplayRules.MainScreen);
         var bg3 = new FxPlaneBlendRenderLayer(plane, Layer3Plane.Rows / 2, 32, 32,
             ExpandedColorMathOperation.Subtract, new Position16<BgPlanePixels>[224]);
-        var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = Bgr555.Black }, bg3, subscreenUsesBg2: true);
+        var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4))) with { Bg3 = plane }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithSubscreen = true, FixedColor = RgbColor.Black }, bg3, subscreenUsesBg2: true);
         var scene = new LayeredScene(memory, [layer], 15);
         var pixels = DisplayRendering.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");
@@ -67,7 +68,7 @@ internal static class WaterfallTests
         void Check(int x, int red, int green, int blue, string property)
         {
             static byte Expand(int value) => (byte)((value << 3) | (value >> 2));
-            var expected = new Rgba32(Expand(red), Expand(green), Expand(blue), 255);
+            var expected = new RgbaPixel(Expand(red), Expand(green), Expand(blue), 255);
             if (pixels[64 * 256 + x] != expected)
                 throw new InvalidDataException($"Waterfall {property}: expected {expected}, got {pixels[64 * 256 + x]}.");
         }

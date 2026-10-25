@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Standalone Sidehopper target paints at $A9:F8C6-F8E4.
@@ -5,31 +7,31 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class SidehopperInitialPaintDefinitions
 {
     /// <summary>$A9:F8CA, ink2: cyan shell/leg edge highlights.</summary>
-    private static readonly Bgr555 BodyHighlight = new(0, 23, 21);
+    private static readonly RgbColor BodyHighlight = new(0, 23, 21);
     /// <summary>$A9:F8CC, ink3: cyan shell/leg surfaces with equal green/blue.</summary>
-    private static readonly Bgr555 BodySurface = new(0, 12, 12);
+    private static readonly RgbColor BodySurface = new(0, 12, 12);
     /// <summary>$A9:F8D0, ink5: upper-head glint.</summary>
-    private static readonly Bgr555 HeadGlint = new(0, 30, 26);
+    private static readonly RgbColor HeadGlint = new(0, 30, 26);
     /// <summary>$A9:F8D2, ink6: installed inner-detail light endpoint.
     /// Its exact visible pixels are unidentified in the three native alive compositions.</summary>
-    private static readonly Bgr555 DetailLight = new(0, 22, 23);
+    private static readonly RgbColor DetailLight = new(0, 22, 23);
     /// <summary>$A9:F8D6, ink8: dark inner head/limb details with equal green/blue.</summary>
-    private static readonly Bgr555 DetailDark = new(0, 13, 13);
+    private static readonly RgbColor DetailDark = new(0, 13, 13);
     /// <summary>$A9:F8DA, ink10: yellow mouth/claw light with equal red/green.</summary>
-    private static readonly Bgr555 ClawLight = new(28, 28, 0);
+    private static readonly RgbColor ClawLight = new(28, 28, 0);
     /// <summary>$A9:F8DE, ink12: brown mouth/claw shadow.</summary>
-    private static readonly Bgr555 ClawDark = new(17, 6, 0);
+    private static readonly RgbColor ClawDark = new(17, 6, 0);
     /// <summary>$A9:F8C6, standalone target ink0 copied by EF92-EF9B;
     /// OBJ ink0 is transparent. This does not cover shifted auxiliary visible ink1.</summary>
-    private static readonly Bgr555 TransparentSlot = new(0, 0, 14);
+    private static readonly RgbColor TransparentSlot = new(0, 0, 14);
     /// <summary>$A9:F8E0, ink13: saturated-yellow paired head features.</summary>
-    private static readonly Bgr555 HeadYellow = new(31, 31, 0);
+    private static readonly RgbColor HeadYellow = new(31, 31, 0);
 
     /// <summary>Combines reviewed ink endpoints with derived midtones for the standalone Sidehopper palette.</summary>
-    internal static Bgr555 Color(int color) => color switch
+    internal static RgbColor Color(int color) => color switch
     {
         0 => TransparentSlot,
-        1 or 9 => Bgr555.White,
+        1 or 9 => RgbColor.White,
         2 => BodyHighlight,
         3 => BodySurface,
         4 => SidehopperInitialPalette.BodyShadow(BodySurface),

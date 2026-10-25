@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye's beam colour and mount encoding, as its bank-$A3 routines write them.</summary>
@@ -10,7 +12,7 @@ internal static class MorphBallEyeBeamDefinitions
     internal const int PoseAngleBits = 0x00f0;
 
     /// <summary>The colour the beam adds when it appears: red and green at intensity 16, without blue.</summary>
-    internal static Bgr555 InitialColor { get; } = new(16, 16, 0);
+    internal static RgbColor InitialColor { get; } = new(16, 16, 0);
 
     /// <summary>The beam cycles through sixteen colours.</summary>
     internal const int ColorIndexBits = 0x000f;

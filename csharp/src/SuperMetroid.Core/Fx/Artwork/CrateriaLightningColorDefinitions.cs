@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -14,16 +15,16 @@ internal static class CrateriaLightningColorDefinitions
     /// Record phases ascend zero through four, descend to zero, then descend four to one.
     /// Each nonwhite row darkens by one RGB5 unit per color position.
     /// </summary>
-    internal static bool TryCalculatedColor(PaletteFxColorKey key, out Bgr555 color)
+    internal static bool TryCalculatedColor(PaletteFxColorKey key, out RgbColor color)
     {
-        color = Bgr555.Black;
+        color = RgbColor.Black;
         if (!SurfaceProgram.Rows.TryLocate(key, out int frame, out int index))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : 13 - frame;
         // Native words $2D6C + $18C6 * phase - $0421 * index: channels (12, 11, 11) rise
         // six per phase and fall one per position, never borrowing between channels.
         int level = 6 * phase - index;
-        color = phase == 4 ? Bgr555.White : new Bgr555(12 + level, 11 + level, 11 + level);
+        color = phase == 4 ? RgbColor.White : new RgbColor(12 + level, 11 + level, 11 + level);
         return true;
     }
 
@@ -36,17 +37,17 @@ internal static class CrateriaLightningColorDefinitions
     /// clamping at zero. Seven first-row colors remain supplied inputs; other independent
     /// samples are retained whenever they differ from the supplied-base calculation.
     /// </summary>
-    internal static bool TryCalculatedDarkColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> inputs, out Bgr555 color)
+    internal static bool TryCalculatedDarkColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> inputs, out RgbColor color)
     {
-        color = Bgr555.Black;
+        color = RgbColor.Black;
         if (!DarkProgram.Rows.TryLocate(key, out int frame, out int index) || frame == 0 ||
-            !inputs.TryGetValue(DarkProgram.Color(0, index), out Bgr555 first))
+            !inputs.TryGetValue(DarkProgram.Color(0, index), out RgbColor first))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : frame == 9 ? 0 : 14 - frame;
         int red = Math.Max(0, (first.Red) - 5 * phase);
         int green = Math.Max(0, (first.Green) - 5 * phase);
         int blue = Math.Max(0, (first.Blue) - 5 * phase);
-        color = new Bgr555(red, green, blue);
+        color = new RgbColor(red, green, blue);
         return true;
     }
 }

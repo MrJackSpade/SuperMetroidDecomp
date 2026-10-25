@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -89,7 +90,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Target BG palette seven is black at fight start. In the software PPU CGRAM is the
         // renderer-visible incarnation of native current/target palette storage; clearing
         // these exact sixteen words makes the later health-palette interpolation observable.
-        _presentation.BossColours().PhantoonBody.Fill(Bgr555.Black);
+        _presentation.BossColours().PhantoonBody.Fill(RgbColor.Black);
 
         Combat.Part(body).FunctionTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
         Combat.Part(body).StartingFlameIndex = 0;
@@ -316,7 +317,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((body.FrameCounter & 2) == 0 || tentacles.HurtFlashShown)
             return;
 
-        _presentation.BossColours().PhantoonBody.Fill(Bgr555.White);
+        _presentation.BossColours().PhantoonBody.Fill(RgbColor.White);
         tentacles.HurtFlashShown = true;
     }
 

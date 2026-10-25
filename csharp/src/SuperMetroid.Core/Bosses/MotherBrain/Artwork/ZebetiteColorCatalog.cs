@@ -9,7 +9,7 @@ public sealed class ZebetiteColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("ZebetiteColorCatalog-v1", content =>
         {
             content.Append("frames", ZebetiteColorFormat.FrameCount);
-            Span<Bgr555> row = stackalloc Bgr555[ZebetiteColorFormat.ColorsPerFrame];
+            Span<RgbColor> row = stackalloc RgbColor[ZebetiteColorFormat.ColorsPerFrame];
             for (int frame = 0; frame < ZebetiteColorFormat.FrameCount; frame++)
             {
                 for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
@@ -18,11 +18,11 @@ public sealed class ZebetiteColorCatalog
         });
 
     /// <summary>Only palette cells edited away from the calculated native pulse, keyed by frame and color.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits;
+    internal readonly Dictionary<ColourCell, RgbColor> edits;
 
     /// <summary>Keeps the selected pulse colours that differ from the calculated native pulse.</summary>
     /// <param name="frames">The eight selected two-colour pulse rows.</param>
-    internal ZebetiteColorCatalog(Bgr555[][] frames)
+    internal ZebetiteColorCatalog(RgbColor[][] frames)
     {
         edits = [];
         for (int frame = 0; frame < frames.Length; frame++)
@@ -32,11 +32,11 @@ public sealed class ZebetiteColorCatalog
     }
 
     /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
-    private static Bgr555 StockColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
+    private static RgbColor StockColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
 
     /// <summary>Selects an edited pulse color when present, otherwise the symmetric native color.</summary>
-    private Bgr555 Resolve(int frame, int color) =>
-        edits.TryGetValue(new ColourCell(frame, color), out Bgr555 edited)
+    private RgbColor Resolve(int frame, int color) =>
+        edits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
             ? edited : StockColor(frame, color);
 
     /// <summary>Writes the selected pulse row's two colors without advancing the shared palette counter or testing fade/linkage conditions; native <c>HandleZebetitePaletteAnimation</c> at <c>$A6:FD5E</c> targets CGRAM entries 172 and 173 (OBJ palette 2 colors 12 and 13).</summary>

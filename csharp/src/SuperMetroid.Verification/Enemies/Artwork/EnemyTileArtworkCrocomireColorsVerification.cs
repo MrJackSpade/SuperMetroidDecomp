@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -146,7 +147,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Crocomire colors: five native RGB5 transfers, live boss CGRAM, white flash, persistent override, and strict failures pass.");
 
-        void VerifyBand(int source, int count, Func<int, Bgr555> resolve, string name)
+        void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -154,7 +155,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                     $"installed Crocomire {name} color {color} preserves native RGB5");
         }
 
-        void AssertBand(int destination, int count, Func<int, Bgr555> resolve, string name)
+        void AssertBand(int destination, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), cgram.Colors[destination + color],
@@ -166,8 +167,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
         };
 
-        static void CheckEditedBand(int count, Func<int, Bgr555> original,
-            Func<int, Bgr555> changed, string name)
+        static void CheckEditedBand(int count, Func<int, RgbColor> original,
+            Func<int, RgbColor> changed, string name)
         {
             AssertTrue(original(1) != changed(1),
                 $"Crocomire {name} edit changes selected color");

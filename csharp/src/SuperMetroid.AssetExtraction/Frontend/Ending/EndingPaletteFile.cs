@@ -25,7 +25,7 @@ public static class EndingPaletteFile
         if (document.Version != EndingPaletteDefinitions.Version ||
             document.Colors is null || document.Colors.Length != count)
             throw new InvalidDataException($"Ending {id} palette requires {count} RGB5 colors.");
-        var compiled = new Bgr555[count];
+        var compiled = new RgbColor[count];
         for (int index = 0; index < count; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -33,7 +33,7 @@ public static class EndingPaletteFile
                 (uint)color.Blue > 31)
                 throw new InvalidDataException(
                     $"Ending {id} palette color {index} requires red, green and blue in 0..31.");
-            compiled[index] = color.ToBgr555();
+            compiled[index] = color.ToRgbColor();
         }
         return EndingPalette.FromColours(id, compiled);
     }

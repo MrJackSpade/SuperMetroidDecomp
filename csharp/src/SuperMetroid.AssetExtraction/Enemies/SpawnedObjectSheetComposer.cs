@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -64,7 +65,7 @@ internal static class SpawnedObjectSheetComposer
 
     /// <summary>What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>.</summary>
     internal static SpawnedObjectSheetSource Sources(EnemyTileArtworkCatalog enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
-        Bgr555[] colours)
+        RgbColor[] colours)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(plan);

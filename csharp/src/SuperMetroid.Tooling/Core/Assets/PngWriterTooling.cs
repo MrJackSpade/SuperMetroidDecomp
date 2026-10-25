@@ -15,7 +15,7 @@ internal static class PngWriterTooling
         string path,
         Extent16<TSpace> size,
         ReadOnlySpan<byte> indexes,
-        IReadOnlyList<Rgba32> palette,
+        IReadOnlyList<RgbaPixel> palette,
         int scale = 1)
         where TSpace : ISpatialSpace
     {
@@ -23,7 +23,7 @@ internal static class PngWriterTooling
         if (palette.Count == 0)
             throw new ArgumentException("Palette is empty.", nameof(palette));
 
-        var pixels = new Rgba32[indexes.Length];
+        var pixels = new RgbaPixel[indexes.Length];
         for (int i = 0; i < indexes.Length; i++)
             pixels[i] = palette[indexes[i] % palette.Count];
         WriteRgba(path, size, pixels, scale);
@@ -32,7 +32,7 @@ internal static class PngWriterTooling
     public static void WriteRgba<TSpace>(
         string path,
         Extent16<TSpace> size,
-        ReadOnlySpan<Rgba32> pixels,
+        ReadOnlySpan<RgbaPixel> pixels,
         int scale = 1)
         where TSpace : ISpatialSpace
     {
@@ -59,7 +59,7 @@ internal static class PngWriterTooling
                 int sourceY = y / scale;
                 for (int x = 0; x < outputWidth; x++)
                 {
-                    Rgba32 color = pixels[sourceY * width + x / scale];
+                    RgbaPixel color = pixels[sourceY * width + x / scale];
                     raw[offset++] = color.R;
                     raw[offset++] = color.G;
                     raw[offset++] = color.B;

@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Samus.Palettes;
 public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
 {
     /// <summary>The suit's colours.</summary>
-    private readonly Bgr555[] suit = new Bgr555[SamusColourDefinitions.RowColours];
+    private readonly RgbColor[] suit = new RgbColor[SamusColourDefinitions.RowColours];
 
     /// <summary>The beams' colours.</summary>
-    private readonly Bgr555[] beam = new Bgr555[SamusColourDefinitions.RowColours];
+    private readonly RgbColor[] beam = new RgbColor[SamusColourDefinitions.RowColours];
 
     /// <summary>For each ink row of Samus's sheets, the colours she holds in it, or null where she holds none.</summary>
     private readonly ColourRun?[] heldByInkRow;
@@ -76,7 +76,7 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     }
 
     /// <inheritdoc />
-    public void Overlay(int inkRow, Span<Bgr555> colours)
+    public void Overlay(int inkRow, Span<RgbColor> colours)
     {
         // A held run fills its row from the row's start, or, for the flare's one colour, ends at the row's end; her draws
         // show their images' own colours everywhere else.
@@ -90,14 +90,14 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     public bool Holds(int position) => Locate(position) is not null;
 
     /// <inheritdoc />
-    public Bgr555 At(int position)
+    public RgbColor At(int position)
     {
         Place place = Locate(position) ?? throw new ArgumentOutOfRangeException(nameof(position), position, "Samus holds no colour there.");
         return place.Colours[place.Index];
     }
 
     /// <inheritdoc />
-    public void Set(int position, Bgr555 colour)
+    public void Set(int position, RgbColor colour)
     {
         Place place = Locate(position) ?? throw new ArgumentOutOfRangeException(nameof(position), position, "Samus holds no colour there.");
         place.Colours[place.Index] = colour;
@@ -117,5 +117,5 @@ public sealed class SamusColours : IGameplayColourOwner, IInkRowColours
     };
 
     /// <summary>One of Samus's colours: the colours it lies among and its index there.</summary>
-    private readonly record struct Place(Bgr555[] Colours, int Index);
+    private readonly record struct Place(RgbColor[] Colours, int Index);
 }

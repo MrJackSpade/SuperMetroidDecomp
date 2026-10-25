@@ -15,7 +15,7 @@ public sealed class GameplayColours
 
     /// <summary>Every colour as the owners and the router hold it, rebuilt on each read of <see cref="Colors"/>.</summary>
     [NonSerialized]
-    private Bgr555[]? composed;
+    private RgbColor[]? composed;
 
     /// <summary>Routes the positions <paramref name="owners"/> hold to them, and the positions they do not to the sets.</summary>
     /// <param name="spriteSets">The sprite colour sets, which owners such as Samus's colours may also show.</param>
@@ -36,11 +36,11 @@ public sealed class GameplayColours
     public BackgroundColourSets BackgroundSets { get; } = new();
 
     /// <summary>Every colour as it shows, in the cartridge's colour order.</summary>
-    public ReadOnlySpan<Bgr555> Colors
+    public ReadOnlySpan<RgbColor> Colors
     {
         get
         {
-            composed ??= new Bgr555[ColorCount];
+            composed ??= new RgbColor[ColorCount];
             for (int position = 0; position < ColorCount; position++)
                 composed[position] = Owner(position).At(position);
             return composed;
@@ -51,7 +51,7 @@ public sealed class GameplayColours
     /// Loads the cartridge's initial 256-colour image, the one load that names colours by position: each colour goes to
     /// the owner that holds its position.
     /// </summary>
-    public void LoadCartridgeImage(ReadOnlySpan<Bgr555> image)
+    public void LoadCartridgeImage(ReadOnlySpan<RgbColor> image)
     {
         Ensure.LengthEqual(image, ColorCount);
         for (int position = 0; position < ColorCount; position++)

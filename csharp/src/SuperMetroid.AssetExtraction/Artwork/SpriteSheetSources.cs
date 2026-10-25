@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -15,5 +14,5 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Whether a part that names its own row keeps it under a draw's palette override, as frontend spritemaps place only
 /// their palette-inheriting parts in the draw's palette; enemies' draws OR their bits into every part instead.
 /// </param>
-internal sealed record SpriteSheetSources(IReadOnlyList<SheetFrameSource> Frames, Bgr555[] SpriteColours,
+internal sealed record SpriteSheetSources(IReadOnlyList<SheetFrameSource> Frames, RgbColor[] SpriteColours,
     ScreenObjectSizes ObjectSizes, int PaletteBits = 0, bool PartsKeepOwnRows = false);

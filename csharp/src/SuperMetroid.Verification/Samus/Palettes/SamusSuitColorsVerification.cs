@@ -45,8 +45,8 @@ internal static class SamusSuitColorsVerification
             {
                 ushort powerColor = ReadVerificationWord(cartridge, 0x9b9400 + 2 * color);
                 ushort suitColor = ReadVerificationWord(cartridge, source + 2 * color);
-                AssertEqual(powerColor != suitColor, differences.TryGetValue(new ColourCell(0, color), out Bgr555 stored), "Every native shared/different slot is independently classified");
-                if (powerColor != suitColor) AssertEqual(Bgr555.FromCgramPortWord(suitColor), stored, "Differing native word is preserved");
+                AssertEqual(powerColor != suitColor, differences.TryGetValue(new ColourCell(0, color), out RgbColor stored), "Every native shared/different slot is independently classified");
+                if (powerColor != suitColor) AssertEqual(RgbColor.FromCgramPortWord(suitColor), stored, "Differing native word is preserved");
             }
         }
         for (int offset = 0; offset <= ushort.MaxValue; offset++)
@@ -185,7 +185,7 @@ internal static class SamusSuitColorsVerification
         samus.HurtFlashCounter = 2;
         // Overwrite the restored color first so only a real normal-suit reload passes.
         ushort hurtRestoreSentinel = unchecked((ushort)(edited.SamusSuitColors.Resolve(2, 1).ToWord() ^ 0x7fff));
-        cgram.SetColor(SamusPaletteDefinitions.Common.SamusObjPaletteStart + 1, Bgr555.FromWord(checked(hurtRestoreSentinel)));
+        cgram.SetColor(SamusPaletteDefinitions.Common.SamusObjPaletteStart + 1, RgbColor.FromWord(checked(hurtRestoreSentinel)));
         SamusHurtFlashPalette.Update(
             cgram.Samus.Suit, samus, controllerInput: 0);
         AssertTrue(cgram.Colors[SamusPaletteDefinitions.Common.SamusObjPaletteStart + 1].ToWord() != hurtRestoreSentinel,

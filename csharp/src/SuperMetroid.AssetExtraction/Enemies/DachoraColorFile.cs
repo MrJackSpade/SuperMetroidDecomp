@@ -35,7 +35,7 @@ public static class DachoraColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Requires four animated frames and validates each sixteen-color row.</summary>
-    private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, string name)
+    private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source, string name)
     {
         if (source is null || source.Length != DachoraColorDefinitions.AnimatedFrameCount)
             throw new InvalidDataException(
@@ -45,12 +45,12 @@ public static class DachoraColorFile
     }
 
     /// <summary>Checks a full Dachora palette row and converts five-bit channels to hardware color words.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
+    private static RgbColor[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != DachoraColorDefinitions.ColorsPerFrame)
             throw new InvalidDataException(
                 $"Dachora {name} requires {DachoraColorDefinitions.ColorsPerFrame} RGB5 colors.");
-        var compiled = new Bgr555[source.Length];
+        var compiled = new RgbColor[source.Length];
         for (int color = 0; color < source.Length; color++)
         {
             PaletteRgb5? rgb = source[color];
@@ -58,7 +58,7 @@ public static class DachoraColorFile
                 (uint)rgb.Blue > 31)
                 throw new InvalidDataException(
                     $"Dachora {name} color {color} requires RGB5 channels 0..31.");
-            compiled[color] = rgb.ToBgr555();
+            compiled[color] = rgb.ToRgbColor();
         }
         return compiled;
     }

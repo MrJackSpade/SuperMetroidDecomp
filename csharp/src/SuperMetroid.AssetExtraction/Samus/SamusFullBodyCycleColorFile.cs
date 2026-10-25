@@ -18,7 +18,7 @@ public static class SamusFullBodyCycleColorFile
         if (document.Version != SamusFullBodyCycleColorFormat.Version)
             throw new InvalidDataException("Samus full-body cycle colors require the supported version.");
 
-        var palettes = new Bgr555[SamusFullBodyCycleColorFormat.PaletteCount][];
+        var palettes = new RgbColor[SamusFullBodyCycleColorFormat.PaletteCount][];
         AddFamily(palettes, SamusFullBodyCycleFamily.SpeedBooster, document.SpeedBooster);
         AddFamily(palettes, SamusFullBodyCycleFamily.ScrewAttack, document.ScrewAttack);
         AddFamily(palettes, SamusFullBodyCycleFamily.StoredShine, document.StoredShine);
@@ -31,7 +31,7 @@ public static class SamusFullBodyCycleColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Validates a family's three suits and four shades, then places RGB5 colors in their artwork rows.</summary>
-    private static void AddFamily(Bgr555[][] destination,
+    private static void AddFamily(RgbColor[][] destination,
         SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
     {
         if (source is null || source.Length != SamusFullBodyCycleColorFormat.SuitCount)
@@ -46,7 +46,7 @@ public static class SamusFullBodyCycleColorFile
                 PaletteRgb5[]? color = shades[shade];
                 if (color is null || color.Length != SamusFullBodyCycleColorFormat.ColorsPerPalette)
                     throw new InvalidDataException($"{family} suit {suit}, shade {shade} requires sixteen colors.");
-                var words = new Bgr555[color.Length];
+                var words = new RgbColor[color.Length];
                 for (int index = 0; index < color.Length; index++)
                 {
                     PaletteRgb5? rgb = color[index];
@@ -54,7 +54,7 @@ public static class SamusFullBodyCycleColorFile
                         (uint)rgb.Blue > 31)
                         throw new InvalidDataException(
                             $"{family} suit {suit}, shade {shade}, color {index} requires RGB5 channels 0..31.");
-                    words[index] = rgb.ToBgr555();
+                    words[index] = rgb.ToRgbColor();
                 }
                 int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(new(family, suit, shade));
                 if (destination[paletteIndex] is not null)

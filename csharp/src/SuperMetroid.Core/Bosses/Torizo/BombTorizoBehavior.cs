@@ -92,7 +92,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private ColourRun TorizoBodyColours => _presentation.Colours.SpriteSets.Sets(1, 2);
 
     /// <summary>Sets target colors beginning at the first body entry for the authored palette fade.</summary>
-    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<Bgr555> colors)
+    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<RgbColor> colors)
     {
         colors.CopyTo(GetTorizoPaletteTransition(state).Target.Of(TorizoBodyColours));
     }
@@ -302,7 +302,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.FadeToBlack }:
-                SetTorizoPaletteTarget(state, new Bgr555[32]);
+                SetTorizoPaletteTarget(state, new RgbColor[32]);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.FinishDeath }:

@@ -23,10 +23,10 @@ internal sealed class CeresRidleyAlarmColorDefinitions
     /// <summary>Initial green component of the dark warning shade.</summary>
     private const int DarkGreen = 5;
     /// <summary>Independent supplied colors that differ from the reflected sixteen-row trajectory.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Compares supplied warning colors with calculated rows and retains only independently edited cells.</summary>
-    internal CeresRidleyAlarmColorDefinitions(Bgr555[][] rows)
+    internal CeresRidleyAlarmColorDefinitions(RgbColor[][] rows)
     {
         for (int row = 0; row < CeresRidleyPaletteDefinitions.AlarmRowCount; row++)
         for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
@@ -43,17 +43,17 @@ internal sealed class CeresRidleyAlarmColorDefinitions
     }
 
     /// <summary>Uses an edited cell when supplied; otherwise computes its bright, middle, or dark warning shade.</summary>
-    internal Bgr555 Resolve(int row, int color)
+    internal RgbColor Resolve(int row, int color)
     {
         _ = SourceRow(row);
         if ((uint)color >= CeresRidleyPaletteDefinitions.AlarmColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         var key = new ColourCell(row, color);
-        return edits.TryGetValue(key, out Bgr555 value) ? value : Calculate(row, color);
+        return edits.TryGetValue(key, out RgbColor value) ? value : Calculate(row, color);
     }
 
     /// <summary>Builds the three copied target colors from the rising and reflected phase's channel rates.</summary>
-    private static Bgr555 Calculate(int row, int color)
+    private static RgbColor Calculate(int row, int color)
     {
         int phase = SourceRow(row), halfStep = (phase + 1) / 2;
         int blue = phase * 6 / 5;

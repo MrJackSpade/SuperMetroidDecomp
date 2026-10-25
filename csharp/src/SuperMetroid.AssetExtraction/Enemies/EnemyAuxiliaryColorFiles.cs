@@ -65,25 +65,25 @@ public static class EnemyAuxiliaryColorFiles
         if (document.Version != EnemyAuxiliaryColorFormat.Version || document.Palettes is null ||
             document.Palettes.Count != EnemyAuxiliaryColorDefinitions.All.Length)
             throw new InvalidDataException("Enemy auxiliary colors require version one and all four named palettes.");
-        var result = new Dictionary<EnemyAuxiliaryPalette, Bgr555[][]>();
+        var result = new Dictionary<EnemyAuxiliaryPalette, RgbColor[][]>();
         foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
         {
             if (!document.Palettes.TryGetValue(definition.Id, out PaletteRgb5[][]? rows) ||
                 rows is null || rows.Length != definition.FrameCount)
                 throw new InvalidDataException($"Palette {definition.Id} requires {definition.FrameCount} frames.");
-            var compiled = new Bgr555[rows.Length][];
+            var compiled = new RgbColor[rows.Length][];
             for (int frame = 0; frame < rows.Length; frame++)
             {
                 PaletteRgb5[]? row = rows[frame];
                 if (row is null || row.Length != definition.ColorCount)
                     throw new InvalidDataException($"Palette {definition.Id} frame {frame} requires {definition.ColorCount} colors.");
-                compiled[frame] = new Bgr555[row.Length];
+                compiled[frame] = new RgbColor[row.Length];
                 for (int color = 0; color < row.Length; color++)
                 {
                     PaletteRgb5? rgb = row[color];
                     if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                         throw new InvalidDataException($"Palette {definition.Id} frame {frame} color {color} requires RGB5 channels 0..31.");
-                    compiled[frame][color] = rgb.ToBgr555();
+                    compiled[frame][color] = rgb.ToRgbColor();
                 }
             }
             result.Add(definition.Id, compiled);

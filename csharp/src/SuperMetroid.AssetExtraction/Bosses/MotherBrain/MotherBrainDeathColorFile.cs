@@ -44,7 +44,7 @@ public static class MotherBrainDeathColorFile
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
     /// <summary>Checks the authored stage count and converts each RGB5 row.</summary>
-    private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source,
+    private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source,
         int frameCount, int colorCount, string name)
     {
         if (source is null || source.Length != frameCount)
@@ -55,6 +55,6 @@ public static class MotherBrainDeathColorFile
     }
 
     /// <summary>Checks row size and channel bounds before packing one palette image.</summary>
-    private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
+    private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Mother Brain death {name}");
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
@@ -12,7 +14,7 @@ internal sealed class SidehopperInitialPalette
     /// The exact shadow halves each RGB5 channel. This selected ratio is reviewed for the standalone target only; the shifted auxiliary disposition is separate.</summary>
     private const int BodyShadowDivisor = 2;
     /// <summary>Independent source paints for calculated slots, or the full supplied palette for noncalculated content.</summary>
-    internal readonly Bgr555[] independentOrSupplied;
+    internal readonly RgbColor[] independentOrSupplied;
     /// <summary>Whether white, repeated, shadow, and midpoint slots can be reconstructed from selected paints.</summary>
     private readonly bool calculated;
     /// <summary>Whether all sixteen colors use the reviewed standalone stock paint catalog.</summary>
@@ -22,7 +24,7 @@ internal sealed class SidehopperInitialPalette
     internal int Count { get; }
 
     /// <summary>Selects stock, calculated, or independent paint ownership from the supplied palette values.</summary>
-    internal SidehopperInitialPalette(Bgr555[] colors)
+    internal SidehopperInitialPalette(RgbColor[] colors)
     {
         Count = colors.Length;
         if (Count is not (15 or 16)) throw new ArgumentException("Sidehopper palette requires15 or16 colors.", nameof(colors));
@@ -32,10 +34,10 @@ internal sealed class SidehopperInitialPalette
             independentOrSupplied = [];
             return;
         }
-        calculated = colors[7] == DetailMidpoint(colors[6], colors[8]) && colors[11] == ClawMidpoint(colors[10], colors[12]) && colors[4] == BodyShadow(colors[3]) && colors[1] == Bgr555.White && colors[9] == Bgr555.White && colors[14] == colors[11] &&
+        calculated = colors[7] == DetailMidpoint(colors[6], colors[8]) && colors[11] == ClawMidpoint(colors[10], colors[12]) && colors[4] == BodyShadow(colors[3]) && colors[1] == RgbColor.White && colors[9] == RgbColor.White && colors[14] == colors[11] &&
             (Count == 15 || colors[15] == colors[12]);
         if (!calculated) { independentOrSupplied = colors; return; }
-        independentOrSupplied = new Bgr555[9];
+        independentOrSupplied = new RgbColor[9];
         independentOrSupplied[0] = colors[0];
         colors.AsSpan(2, 2).CopyTo(independentOrSupplied.AsSpan(1));
         colors.AsSpan(5, 2).CopyTo(independentOrSupplied.AsSpan(3));
@@ -45,14 +47,14 @@ internal sealed class SidehopperInitialPalette
     }
 
     /// <summary>Resolves one palette slot, deriving dependent shades only when the supplied palette matched their formulas.</summary>
-    internal Bgr555 Resolve(int color)
+    internal RgbColor Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
         if (stockTarget) return SidehopperInitialPaintDefinitions.Color(color);
         if (!calculated) return independentOrSupplied[color];
         return color switch
         {
-            1 or 9 => new Bgr555(31, 31, 31),
+            1 or 9 => new RgbColor(31, 31, 31),
             11 => ClawMidpoint(Resolve(10), Resolve(12)),
             14 => Resolve(11),
             15 => Resolve(12),
@@ -68,18 +70,18 @@ internal sealed class SidehopperInitialPalette
     }
     /// <summary>$A9:EBDA/$F8D4, inner-detail ink7 is the channel-floor midpoint
     /// of installed inner-detail paints at slots6/8 (5EC0/35A0).</summary>
-    internal static Bgr555 DetailMidpoint(Bgr555 light, Bgr555 dark)
+    internal static RgbColor DetailMidpoint(RgbColor light, RgbColor dark)
     {
         return light.Zip(dark, (_, a, b) => ((a + b) / 2));
     }
     /// <summary>Halves each RGB5 channel of the selected body paint for the standalone shadow slot.</summary>
-    internal static Bgr555 BodyShadow(Bgr555 light)
+    internal static RgbColor BodyShadow(RgbColor light)
     {
         return light.Map((_, a) => (a / BodyShadowDivisor));
     }
     /// <summary>$A9:EBE2/$F8DC: yellow claw shade0237 is the ceiling-channel midpoint of039C/00D1.
     /// Independently supplied light/dark endpoints remain editable.</summary>
-    internal static Bgr555 ClawMidpoint(Bgr555 light, Bgr555 dark)
+    internal static RgbColor ClawMidpoint(RgbColor light, RgbColor dark)
     {
         return light.Zip(dark, (_, a, b) => ((a + b + 1) / 2));
     }

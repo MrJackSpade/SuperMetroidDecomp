@@ -74,9 +74,9 @@ internal static class MapScreensVerification
                 MapScreenPageId.RoomFrame frame => frame.Area,
                 _ => throw new InvalidOperationException($"Undefined map-screen page {name}."),
             };
-            Rgba32[] before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original)).RenderFrameOnly()
+            RgbaPixel[] before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original)).RenderFrameOnly()
                 : World(guard, original, (int)area).RenderBackgrounds();
-            Rgba32[] after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit, sheets: MenuSheetFixtures.For(oneEdit)).RenderFrameOnly()
+            RgbaPixel[] after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit, sheets: MenuSheetFixtures.For(oneEdit)).RenderFrameOnly()
                 : World(guard, oneEdit, (int)area).RenderBackgrounds();
             AssertTrue(!before.SequenceEqual(after), $"independent {name} JSON edit reaches its composed pixels");
         }

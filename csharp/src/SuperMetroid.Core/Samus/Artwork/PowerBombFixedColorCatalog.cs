@@ -6,23 +6,23 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class PowerBombFixedColorCatalog
 {
     /// <summary>Authored pre-explosion colors that differ from the calculated sixteen-entry stock sequence.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> preExplosion;
+    internal readonly Dictionary<ColourCell, RgbColor> preExplosion;
     /// <summary>Authored explosion colors, including later entries without a calculated stock definition.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> explosion;
+    internal readonly Dictionary<ColourCell, RgbColor> explosion;
 
     /// <summary>Retains the selected colours that differ from the calculated stock, separately for the two radius-selected sequences.</summary>
     /// <param name="preExplosion">The selected pre-explosion colours.</param>
     /// <param name="explosion">The selected explosion colours.</param>
-    internal PowerBombFixedColorCatalog(Bgr555[] preExplosion, Bgr555[] explosion)
+    internal PowerBombFixedColorCatalog(RgbColor[] preExplosion, RgbColor[] explosion)
     {
         this.preExplosion = Edits(preExplosion, PowerBombFixedColorSequence.PreExplosion);
         this.explosion = Edits(explosion, PowerBombFixedColorSequence.Explosion);
     }
 
     /// <summary>Keeps the entries that differ from the calculated stock sequence, and every entry stock does not calculate.</summary>
-    private static Dictionary<ColourCell, Bgr555> Edits(Bgr555[] supplied, PowerBombFixedColorSequence sequence)
+    private static Dictionary<ColourCell, RgbColor> Edits(RgbColor[] supplied, PowerBombFixedColorSequence sequence)
     {
-        var colors = new Dictionary<ColourCell, Bgr555>();
+        var colors = new Dictionary<ColourCell, RgbColor>();
         for (int index = 0; index < supplied.Length; index++)
             if (!PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var calculated) || supplied[index] != calculated)
                 colors.Add(new ColourCell(0, index), supplied[index]);
@@ -30,9 +30,9 @@ public sealed class PowerBombFixedColorCatalog
     }
 
     /// <summary>Returns authored display color; phase and radius indexing remain engine-owned.</summary>
-    public Bgr555 Resolve(PowerBombFixedColorSequence sequence, int index)
+    public RgbColor Resolve(PowerBombFixedColorSequence sequence, int index)
     {
-        Dictionary<ColourCell, Bgr555> colors = sequence switch
+        Dictionary<ColourCell, RgbColor> colors = sequence switch
         {
             PowerBombFixedColorSequence.PreExplosion => preExplosion,
             PowerBombFixedColorSequence.Explosion => explosion,

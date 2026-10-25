@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -48,7 +48,7 @@ internal sealed class MovieReplayVideo : IDisposable
     {
         CapturedFrontendFrame captured = game.StepCaptured(input, ++sequence, 1);
         DisplayPacket snapshot = captured.Snapshot;
-        Rgba32[] pixels = DisplayRendering.Render(snapshot);
+        RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
         if (encoder is null)
         {
             size = snapshot.Size;

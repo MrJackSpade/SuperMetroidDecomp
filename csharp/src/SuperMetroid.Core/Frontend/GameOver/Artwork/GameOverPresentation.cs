@@ -209,16 +209,16 @@ public sealed class GameOverPresentation
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
             MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, GameOverPresentationDefinitions.CursorFrameName(frame))))];
 
-        var palettes = new Dictionary<GameOverBabyPalette, Bgr555[]>();
+        var palettes = new Dictionary<GameOverBabyPalette, RgbColor[]>();
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         {
             string name = GameOverPresentationDefinitions.BabyPaletteName(palette);
             if (!document.BabyPalettes.TryGetValue(name, out ushort[]? colors) ||
                 colors is null || colors.Length != GameOverMenuDefinitions.BabyPaletteColorCount ||
-                colors.Any(color => !Bgr555.IsColorWord(color)))
+                colors.Any(color => !RgbColor.IsColorWord(color)))
                 throw new InvalidDataException(
                     $"Game-over Baby palette {name} requires sixteen SNES BGR555 colors.");
-            palettes.Add(palette, Array.ConvertAll(colors, Bgr555.FromWord));
+            palettes.Add(palette, Array.ConvertAll(colors, RgbColor.FromWord));
         }
 
         return new(tilemap, babySprites, eggSprite, cursorSprites, new GameOverBabyColorCatalog(palettes), document,

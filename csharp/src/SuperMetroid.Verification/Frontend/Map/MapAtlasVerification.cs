@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -35,7 +36,7 @@ internal static class MapAtlasVerification
         var samus = new SamusState();
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-        Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(new(0, 0)).ToArray();
+        RgbaPixel[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(new(0, 0)).ToArray();
         AssertTrue(pauseBefore.SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, MapTileAtlasFormat.FileName);
@@ -55,7 +56,7 @@ internal static class MapAtlasVerification
         pause.BindFixtureArtwork(edited);
         AssertTrue(!menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "PNG artwork changes rendered file-select map");
         AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "PNG artwork changes rendered pause map");
-        bool InnerMapChanged(Rgba32[] before, Rgba32[] after) => Enumerable.Range(64, 96)
+        bool InnerMapChanged(RgbaPixel[] before, RgbaPixel[] after) => Enumerable.Range(64, 96)
             .Any(y => Enumerable.Range(64, 128).Any(x => before[y * 256 + x] != after[y * 256 + x]));
         AssertTrue(InnerMapChanged(menuBefore, menu.RenderBackgrounds(new(0, 0))), "file-select artwork change reaches map interior, not only frame chrome");
         AssertTrue(InnerMapChanged(pauseBefore, pause.Render()), "pause artwork change reaches map interior, not only frame chrome");

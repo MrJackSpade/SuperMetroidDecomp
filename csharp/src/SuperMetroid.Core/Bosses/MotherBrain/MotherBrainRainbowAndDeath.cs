@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -170,7 +171,7 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
             {
-                Bgr555 shared = colors.BodyColor(frame, color);
+                RgbColor shared = colors.BodyColor(frame, color);
                 _presentation.BossColours().MotherBrainBody.Write(color, shared);
                 _presentation.BossColours().MotherBrainBrain.Write(color, shared);
                 _presentation.BossColours().MotherBrainLegs.Write(color, colors.LegColor(frame, color));

@@ -24,7 +24,7 @@ internal static class PauseMapPositionVerification
         var cart = CartridgeImportSource.Require(bus);
         // The marker's $0E00 attribute selects the last object palette, whose fifteen inks the pause screen loads from $B6:F000.
         const int markerPalette = 240;
-        Bgr555[] markerColors = [.. Enumerable.Range(markerPalette + 1, 15).Select(color => Bgr555.FromWord(checked(Read(0xb6f000 + color * 2))))];
+        RgbColor[] markerColors = [.. Enumerable.Range(markerPalette + 1, 15).Select(color => RgbColor.FromWord(checked(Read(0xb6f000 + color * 2))))];
         foreach (var (area, roomX, roomY, samusX, samusY) in new[]
         {
             new VerifyPauseMapPositionCase(AreaId.Crateria, 28, 1, 0x200, 0x300),

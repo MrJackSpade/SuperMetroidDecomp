@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="CgramPalette"/> members production does not use.</summary>
 internal static class CgramPaletteAccess
@@ -7,6 +9,6 @@ internal static class CgramPaletteAccess
     extension(CgramPalette self)
     {
         /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
-        public Rgba32 Rgba(int index) => self.cgram.GetRgba(self.first + self.Index(index));
+        public RgbaPixel Rgba(int index) => self.cgram.GetRgba(self.first + self.Index(index));
     }
 }

@@ -131,7 +131,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // while retaining the independent target copy above.
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
-            Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
+            RgbColor value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
             state.WriteTargetColor(BossColourDefinitions.SporeSpawnSpores, color, value);
             _presentation.BossColours().SporeSpawnSpores.Write(color, value);
@@ -632,7 +632,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
-            Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
+            RgbColor value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, frame, color);
             if (targetOnly)
                 state.WriteTargetColor(DeathColours(layer), color, value);

@@ -59,7 +59,7 @@ public sealed class FileSelectMapEntry
     }
 
     /// <summary>The colours the entry fade reaches: <paramref name="fileSelect"/> with the entry's black colours.</summary>
-    private static Bgr555[] EntryTarget(ReadOnlySpan<Bgr555> fileSelect)
+    private static RgbColor[] EntryTarget(ReadOnlySpan<RgbColor> fileSelect)
     {
         var target = new ScreenPalette();
         target.Load(fileSelect);
@@ -71,7 +71,7 @@ public sealed class FileSelectMapEntry
     internal static void BlackenEntryColours(ScreenPalette palette)
     {
         for (int row = 0; row < FileSelectEntryColourDefinitions.BlackRows; row++)
-            palette.BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, Bgr555.Black);
+            palette.BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
     }
 
     /// <summary>Advances the palette fade, setup coroutine, or centered reveal by one frontend update.</summary>

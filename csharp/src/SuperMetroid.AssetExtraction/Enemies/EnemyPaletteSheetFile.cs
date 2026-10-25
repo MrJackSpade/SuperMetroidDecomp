@@ -18,14 +18,14 @@ public static class EnemyPaletteSheetFile
         document = JsonAssetDocument.Read<EnemyPaletteSheetDocument>(json, Options, "enemy palette");
         if (document.Version != 1 || document.Colors is null || document.Colors.Length != EnemyPaletteSheet.ColorCount)
             throw new InvalidDataException("Enemy palette requires version 1 and exactly sixteen RGB5 colors.");
-        var compiled = new Bgr555[EnemyPaletteSheet.ColorCount];
+        var compiled = new RgbColor[EnemyPaletteSheet.ColorCount];
         for (int i = 0; i < EnemyPaletteSheet.ColorCount; i++)
         {
             PaletteRgb5? color = document.Colors[i];
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
                 (uint)color.Blue > 31)
                 throw new InvalidDataException($"Enemy palette color {i} requires RGB channels in 0..31.");
-            compiled[i] = color.ToBgr555();
+            compiled[i] = color.ToRgbColor();
         }
         return new EnemyPaletteSheet(compiled);
     }

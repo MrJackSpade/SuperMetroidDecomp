@@ -24,20 +24,20 @@ public static class CeresRidleyMode7ColorFile
         if (document.Version != CeresRidleyFloorColorFormat.Version ||
             !zoomShape.HasRows(document.ZoomRows))
             throw new InvalidDataException("Ceres Ridley Mode-7 colors require version one and nine zoom rows.");
-        var rows = new Bgr555[CeresRidleyPaletteDefinitions.GetawayZoomRowCount][];
+        var rows = new RgbColor[CeresRidleyPaletteDefinitions.GetawayZoomRowCount][];
         for (int row = 0; row < rows.Length; row++)
         {
             PaletteRgb5[]? colors = document.ZoomRows[row];
             if (!zoomShape.HasColumns(colors))
                 throw new InvalidDataException($"Ceres Ridley zoom row {row} requires fifteen colors.");
-            rows[row] = new Bgr555[colors.Length];
+            rows[row] = new RgbColor[colors.Length];
             for (int color = 0; color < colors.Length; color++)
             {
                 PaletteRgb5? rgb = colors[color];
                 if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
                     (uint)rgb.Blue > 31)
                     throw new InvalidDataException($"Ceres Ridley zoom row {row} color {color} requires RGB5 channels 0..31.");
-                rows[row][color] = rgb.ToBgr555();
+                rows[row][color] = rgb.ToRgbColor();
             }
         }
         return new(rows);

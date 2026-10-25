@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -24,9 +25,9 @@ public static class SamusFullBodyCycleColorFormat
     ///31/20 and their midpoint rounded upward. Green is base+5 saturated31,
     /// blue is base blue. Bright red remains an independent input; midpoint
     /// arithmetic uses nonnegative RGB5 values and numerator at most63.</remarks>
-    internal static bool TryVariaScrewInk(int palette, int color, Bgr555 basis, Bgr555 bright, out Bgr555 value)
+    internal static bool TryVariaScrewInk(int palette, int color, RgbColor basis, RgbColor bright, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if (palette is < 29 or > 31 || color != 2) return false;
         int red = palette == 29 ? basis.Red : palette == 31 ? bright.Red : ((basis.Red) + (bright.Red) + 1) / 2;
         value = new(red, Math.Min(31, basis.Green + 5), basis.Blue);
@@ -38,7 +39,7 @@ public static class SamusFullBodyCycleColorFormat
     /// and blue with9B22/9B38. These are repeated channels of the same suit
     /// inks, not newly encoded color constants. Differing supplied Gravity
     /// words remain explicit overrides, including when Power sources change.</remarks>
-    internal static Bgr555 GravitySharedBase(Bgr555 powerBase, Bgr555 powerDim) =>
+    internal static RgbColor GravitySharedBase(RgbColor powerBase, RgbColor powerDim) =>
         powerDim.WithBlue(powerBase.Blue);
 
     /// <summary>Calculates Power Screw Attack's descending-red ink and shared gold ink.</summary>
@@ -48,15 +49,15 @@ public static class SamusFullBodyCycleColorFormat
     /// and the Screw base's blue plus10 at the final shade. RGB5 additions
     /// saturate31 and red subtraction clamps0. Independent source/shade edits
     /// remain explicit inputs; endpoint choices have the owning catalog disposition.</remarks>
-    internal static bool TryScrewPowerInk(int palette, int color, Bgr555 basis, Bgr555 speedDim, out Bgr555 value)
+    internal static bool TryScrewPowerInk(int palette, int color, RgbColor basis, RgbColor speedDim, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if (palette is < 13 or > 15 || color is not (2 or 12)) return false;
         int shade = palette - 12;
         int red = color == 2 ? Math.Max(0, (basis.Red) - 5 * shade) : speedDim.Red;
         int green = Math.Min(31, (color == 2 ? basis : speedDim).Green + (color == 2 ? 5 : 10) * shade);
         int blue = Math.Min(31, (basis.Blue) + (color == 12 && shade == 3 ? 10 : 0));
-        value = new Bgr555(red, green, blue);
+        value = new RgbColor(red, green, blue);
         return true;
     }
 
@@ -70,9 +71,9 @@ public static class SamusFullBodyCycleColorFormat
     /// Power slot4 blue ramps through quarter/half/full of the same ten-unit increment:
     /// floor(10/2^(3-shade)), producing2/5/10 before saturation. Other
     /// slots/components use the other catalog formulas or its explicit input dispositions.</remarks>
-    internal static bool TryScrewAttackTint(int palette, int color, Bgr555 basis, out Bgr555 value)
+    internal static bool TryScrewAttackTint(int palette, int color, RgbColor basis, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if ((uint)palette >= PaletteCount || palette % 16 < 13) return false;
         int suit = palette / 16, shade = palette % 4;
         bool fast = suit == 0 ? color is >= 3 and <= 9 or >= 13 and <= 15 :
@@ -93,9 +94,9 @@ public static class SamusFullBodyCycleColorFormat
     /// channels. Varia1/11/12 add five per shade to red/green; Varia10 changes only green. All sums saturate at31.
     /// Original rows9C40/60/80 and9E40/60/80 establish the mapping;
     /// Power/Varia slot2 also add five red/green per shade; their differing blue components remain explicit. Other slots and Gravity are outside this domain.</remarks>
-    internal static bool TryActiveGoldRamp(int palette, int color, Bgr555 basis, out Bgr555 value)
+    internal static bool TryActiveGoldRamp(int palette, int color, RgbColor basis, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if ((uint)palette >= PaletteCount || palette % 16 is < 9 or > 11) return false;
         int suit = palette / 16, shade = palette % 4;
         if (suit == 0 && color is 1 or 9 or 11 or 12)
@@ -130,7 +131,7 @@ public static class SamusFullBodyCycleColorFormat
     /// IsActiveShineTint. Phase0 is the unchanged supplied base. Power slot8's
     /// first shade uses the same red/green operation with the catalogued blue input.
     /// Tint amounts describe shared phase operations, not per-color corrections.</remarks>
-    internal static Bgr555 ActiveShineTint(Bgr555 basis, int shade)
+    internal static RgbColor ActiveShineTint(RgbColor basis, int shade)
     {
         var (warm, blue) = shade switch
         {
@@ -161,11 +162,11 @@ public static class SamusFullBodyCycleColorFormat
     };
 
     /// <summary>Combines the reviewed base tint with the explicitly selected shared blue channel.</summary>
-    internal static Bgr555 SpeedSharedChannelColor(int palette, int color, Bgr555 basis, Bgr555 shared)
+    internal static RgbColor SpeedSharedChannelColor(int palette, int color, RgbColor basis, RgbColor shared)
     {
         if (SpeedSharedChannelSource(palette, color) < 0) throw new ArgumentOutOfRangeException(nameof(palette));
         if (palette == 1 && color == 9) return LoadingPaletteColorDefinitions.TintColor(basis, 2);
-        Bgr555 tint = palette == 2 ? LoadingPaletteColorDefinitions.TintColor(basis, 1) :
+        RgbColor tint = palette == 2 ? LoadingPaletteColorDefinitions.TintColor(basis, 1) :
             palette == 19 ? LoadingPaletteColorDefinitions.VariaTintColor(basis, 0) : basis;
         return tint.WithBlue(shared.Blue);
     }
@@ -177,9 +178,9 @@ public static class SamusFullBodyCycleColorFormat
     /// Varia12 add green0/0 and blue5/10; Power10/11 add green0/5 and
     /// blue5/10. Red is unchanged and sums saturate at31. Reuse the loading
     /// endpoint brightening formula while preserving separate full-body inputs.</remarks>
-    internal static bool TrySpeedBoosterBrightening(int palette, int color, Bgr555 dim, out Bgr555 value)
+    internal static bool TrySpeedBoosterBrightening(int palette, int color, RgbColor dim, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if ((uint)palette >= PaletteCount || color is < 1 or > 15 || palette % 16 is not (2 or 3)) return false;
         int suit = palette / 16;
         if (!(suit == 0 ? color is 1 or 2 or 10 or 11 or 12 : suit == 1 ? color == 12 : color == 2)) return false;
@@ -197,9 +198,9 @@ public static class SamusFullBodyCycleColorFormat
     /// the first two levels. The bright Varia10/11 endpoint remains an input.
     /// These43 canonical words reuse the reviewed loading tint arithmetic;
     /// loading and full-body assets retain independent input ownership.</remarks>
-    internal static bool TrySpeedBoosterTint(int palette, int color, Bgr555 basis, out Bgr555 value)
+    internal static bool TrySpeedBoosterTint(int palette, int color, RgbColor basis, out RgbColor value)
     {
-        value = Bgr555.Black;
+        value = RgbColor.Black;
         if ((uint)palette >= PaletteCount || color is < 1 or > 15 || palette % 16 is < 1 or > 3) return false;
         int suit = palette / 16, shade = palette % 4;
         bool included = suit switch
@@ -224,13 +225,13 @@ public static class SamusFullBodyCycleColorFormat
     /// Shade0 is the supplied base, shades1..3 are quarter steps toward white.
     /// Arithmetic is nonnegative and bounded by124 per channel; no saturation,
     /// wrapping or cross-channel carry is involved. Differing asset edits remain inputs.</remarks>
-    internal static Bgr555 StoredShineColor(Bgr555 basis, int shade)
+    internal static RgbColor StoredShineColor(RgbColor basis, int shade)
     {
         if ((uint)shade >= 4) throw new ArgumentOutOfRangeException(nameof(shade));
         int red = ((4 - shade) * (basis.Red) + 31 * shade) / 4;
         int green = ((4 - shade) * (basis.Green) + 31 * shade) / 4;
         int blue = ((4 - shade) * (basis.Blue) + 31 * shade) / 4;
-        return new Bgr555(red, green, blue);
+        return new RgbColor(red, green, blue);
     }
 
     /// <summary>Shares each family's opaque base row with its suit's Speed Booster base.</summary>

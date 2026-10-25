@@ -19,10 +19,10 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
     /// <summary>Independent paint channels retained from the six supplied target colors so shared shade relationships survive edits.</summary>
     private readonly int highlightBlue, amberRed, amberGreen, red, goldRed, goldGreen, goldBlue;
     /// <summary>Per-color overrides for supplied targets that do not fit the shared warm-paint calculation.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> edits = [];
+    internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>Validates six supplied target colors, captures their shared channels, and preserves independently edited colors as overrides.</summary>
-    internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<Bgr555> colors)
+    internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 6);
         highlightBlue = colors[0].Blue;
@@ -37,14 +37,14 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
     }
 
     /// <summary>Returns an independently supplied target when present, otherwise computes the matching warm highlight, amber, red, or gold shade.</summary>
-    internal Bgr555 ColorAt(int index)
+    internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 6) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(new ColourCell(0, index), out Bgr555 edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new ColourCell(0, index), out RgbColor edited) ? edited : Calculate(index);
     }
 
     /// <summary>Builds the white, amber, red, and three descending gold targets from shared five-bit channel parameters.</summary>
-    private Bgr555 Calculate(int index)
+    private RgbColor Calculate(int index)
     {
         if (index == 0) return new(Maximum, Maximum, highlightBlue);
         if (index == 1) return new(amberRed, amberGreen, 0);

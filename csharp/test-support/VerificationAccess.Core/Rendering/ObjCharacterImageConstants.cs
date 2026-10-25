@@ -29,8 +29,8 @@ internal static class ObjCharacterImageConstants
         if (Composition(oam, vram, objectSelection) is not { } composition)
             return [];
         var draws = ImmutableArray.CreateBuilder<SpriteDraw>();
-        var standard = new SpriteImagePalette(SpriteImageColours.Sprite, [.. new Bgr555[SpriteImage.SpriteColourCount]]);
-        Rgba32 black = default(Bgr555).ToRgba32();
+        var standard = new SpriteImagePalette(SpriteImageColours.Sprite, [.. new RgbColor[SpriteImage.SpriteColourCount]]);
+        RgbaPixel black = default(RgbColor).ToRgbaPixel();
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(checked((byte)objectSelection));
         int part = 0;
         for (int index = 0; index < oam.LastFinalizedSpriteCount; index++)
@@ -48,7 +48,7 @@ internal static class ObjCharacterImageConstants
                 top = Math.Min(top, placed.Position.Y);
             }
             var cellParts = ImmutableArray.CreateBuilder<SpriteFramePart>(cells);
-            var pixels = new Rgba32[size.X * size.Y];
+            var pixels = new RgbaPixel[size.X * size.Y];
             var indices = new byte[pixels.Length];
             var priorities = new byte[pixels.Length];
             var partRows = new byte[pixels.Length];

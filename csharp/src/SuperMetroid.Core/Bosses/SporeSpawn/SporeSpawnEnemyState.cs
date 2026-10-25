@@ -72,7 +72,7 @@ public sealed class SporeSpawnEnemyState
     public bool LoadedAsDefeated { get; internal set; }
 
     /// <summary>Stages <paramref name="value"/> as the fade target of <paramref name="run"/>'s colour <paramref name="colour"/>.</summary>
-    internal void WriteTargetColor(IColourSetRun run, int colour, Bgr555 value) => stagedTargetColours.Add(new(run, colour, value));
+    internal void WriteTargetColor(IColourSetRun run, int colour, RgbColor value) => stagedTargetColours.Add(new(run, colour, value));
 
     /// <summary>Hands every staged colour to <paramref name="write"/> in staging order, then forgets them.</summary>
     internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write)

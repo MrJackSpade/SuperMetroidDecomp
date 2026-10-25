@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Title;
 
@@ -107,9 +108,9 @@ public static class TitleSequenceDefinitions
     public static class Palette
     {
         /// <summary>The copyright's white on the skipped-to title screen.</summary>
-        public static Bgr555 CopyrightWhite => Bgr555.White;
+        public static RgbColor CopyrightWhite => RgbColor.White;
         /// <summary>The skip-only copyright colour, kept under its historical Red name.</summary>
-        public static Bgr555 CopyrightRed => Bgr555.FromWord(0x7d80);
+        public static RgbColor CopyrightRed => RgbColor.FromWord(0x7d80);
     }
 
     /// <summary>Holds, fades and the buttons that skip.</summary>

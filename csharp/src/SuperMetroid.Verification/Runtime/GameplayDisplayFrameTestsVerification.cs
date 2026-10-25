@@ -57,7 +57,7 @@ internal static class GameplayDisplayFrameTestsVerification
     private static void VerifyRepaintAndImmutability(SuperMetroidRuntime runtime)
     {
         GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
-        Rgba32[] pixels = DisplayRendering.Render(GameplayDisplayCapture.Capture(frame));
+        RgbaPixel[] pixels = DisplayRendering.Render(GameplayDisplayCapture.Capture(frame));
         AssertTrue(pixels.SequenceEqual(DisplayRendering.Render(GameplayDisplayCapture.Capture(frame))),
             "capturing one published frame twice is identical");
         AssertTrue(pixels.SequenceEqual(DisplayRendering.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()))),
@@ -75,7 +75,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // Wiping VRAM unbinds the room's artwork, so it follows the next frame's latch; the room reloads below.
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
-        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new Bgr555(31, 0, 31));
+        for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(31, 0, 31));
         AssertTrue(ReferenceEquals(frameEnd, frame.FrameEnd) && ReferenceEquals(latched, frame.Latched),
             "a published frame keeps its own latch and frame-end inputs");
         AssertEqual(false, frame.FrameEnd.PowerBomb.IsActive, "published power bomb inputs are a value copy");
@@ -159,7 +159,7 @@ internal static class GameplayDisplayFrameTestsVerification
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
         RoomFixedColor fixedColor = runtime.RoomLayer3Fx.FixedColors;
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
-        fixedColor.Color = new Bgr555(9, 9, 9);
+        fixedColor.Color = new RgbColor(9, 9, 9);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is OrdinaryGameplayRenderLayer,
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -172,7 +172,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.FixedColor.Red,
             "the next accepted frame publishes the chosen fixed colour");
         runtime.RoomLayer3Fx.Type = originalFx;
-        fixedColor.Color = Bgr555.Black;
+        fixedColor.Color = RgbColor.Black;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Power bomb: the window table is built during the main loop and read live; the
@@ -199,7 +199,7 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
-        Bgr555 suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
+        RgbColor suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
         AssertEqual(suitBefore.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "suit COLDATA waits for the NMI");

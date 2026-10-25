@@ -11,6 +11,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -91,14 +92,14 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         enemies.Presentation.BindColours(cgram.Gameplay);
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
         int destination = 0x01e2 / 2;
-        cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));
+        cgram.SetColor(destination - 1, RgbColor.FromWord(0x1234));
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
         AssertEqual(0x1234, cgram.Colors[destination - 1],
             "cutscene Baby initial load preserves palette color zero");
         for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
             AssertEqual(colors.InitialColor(color), cgram.Colors[destination + color],
                 $"live cutscene Baby initial color {color}");
-        Bgr555 initialLastColor = cgram.Colors[destination + 14];
+        RgbColor initialLastColor = cgram.Colors[destination + 14];
 
         for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {

@@ -540,7 +540,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         ColourRun arrow = screen.Palette.SpriteRow(FileCopyArrowDefinitions.SpriteRow)
             .Slice(FileCopyArrowDefinitions.FirstColour, FileCopyArrowDefinitions.ColorCount);
         int last = arrow.Count - 1;
-        Bgr555 color = arrow[0];
+        RgbColor color = arrow[0];
         for (int index = 0; index < last; index++)
             arrow.Write(index, arrow[index + 1]);
         arrow.Write(last, color);

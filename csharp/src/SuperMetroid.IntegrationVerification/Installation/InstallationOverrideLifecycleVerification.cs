@@ -259,7 +259,7 @@ internal static class InstallationOverrideLifecycleVerification
         AssertSnapshot(files, FileSnapshot(Path.Combine(installation.Root, "overrides")), phase + ": override bytes preserved");
         Assert(installation.LoadStandardObjects().Characters.Span.SequenceEqual(expected.StandardObjects), phase + ": actual PNG transfer");
         Assert(IntroFontCharacters.Of(installation.LoadMaps().IntroFont).Characters.Span.SequenceEqual(expected.Font), phase + ": actual font transfer");
-        Assert(installation.LoadGameplayBasePalettes().Initial[0] == Bgr555.FromWord(expected.Color), phase + ": actual palette word");
+        Assert(installation.LoadGameplayBasePalettes().Initial[0] == RgbColor.FromWord(expected.Color), phase + ": actual palette word");
         ClipAudioCatalog audio = installation.LoadAudioClips();
         Assert(audio.ReadClip(audio.GetMusic(expected.MusicSet, expected.MusicTrack).Clip)[0] == expected.ClipFirstSample,
             phase + ": actual replacement clip sample");

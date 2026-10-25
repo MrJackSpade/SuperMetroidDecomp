@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
@@ -9,7 +11,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="SuitPickup">The suit pickup light beam's colour.</param>
 /// <param name="RainbowBeam">Mother Brain's rainbow beam's colour, or null when no Mother Brain exists.</param>
 public readonly record struct GameplayLatchedFixedColors(
-    Bgr555 Shared,
-    Bgr555 PowerBomb,
-    Bgr555 SuitPickup,
-    Bgr555? RainbowBeam);
+    RgbColor Shared,
+    RgbColor PowerBomb,
+    RgbColor SuitPickup,
+    RgbColor? RainbowBeam);

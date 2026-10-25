@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Rooms;
 
@@ -51,8 +52,8 @@ internal static class RoomArtworkRenderParityVerification
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.ComposedVram().AsSpan().SequenceEqual(installed.ComposedVram()),
                 $"{name} installed artwork binds the same background characters");
-            Rgba32[] nativeFrame = FrontendScenePixelsAccess.Pixels(native.PublishDisplayFrame());
-            Rgba32[] installedFrame = FrontendScenePixelsAccess.Pixels(installed.PublishDisplayFrame());
+            RgbaPixel[] nativeFrame = FrontendScenePixelsAccess.Pixels(native.PublishDisplayFrame());
+            RgbaPixel[] installedFrame = FrontendScenePixelsAccess.Pixels(installed.PublishDisplayFrame());
             AssertTrue(nativeFrame.Length == installedFrame.Length &&
                 nativeFrame.SequenceEqual(installedFrame),
                 $"{name} installed artwork preserves every rendered pixel");
@@ -68,9 +69,9 @@ internal static class RoomArtworkRenderParityVerification
                 // opaque pixel shows the inverse of its colour and its row's next colour.
                 TilesetDefinition tileset = (native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.Tileset;
                 string sheetName = RoomBlockSheet.NameOf(tileset);
-                Rgba32 Inverted(Rgba32 pixel) => pixel with { R = (byte)~pixel.R, G = (byte)~pixel.G, B = (byte)~pixel.B };
-                Rgba32 NextColour(Rgba32 pixel) => pixel with { R = (byte)((pixel.R & ~15) | ((pixel.R & 15) % 15 + 1)) };
-                string[] overridePaths = [.. new (string File, Func<Rgba32, Rgba32> Edit)[]
+                RgbaPixel Inverted(RgbaPixel pixel) => pixel with { R = (byte)~pixel.R, G = (byte)~pixel.G, B = (byte)~pixel.B };
+                RgbaPixel NextColour(RgbaPixel pixel) => pixel with { R = (byte)((pixel.R & ~15) | ((pixel.R & 15) % 15 + 1)) };
+                string[] overridePaths = [.. new (string File, Func<RgbaPixel, RgbaPixel> Edit)[]
                 {
                     (SpriteSheetStore.ImageFile(sheetName), Inverted),
                     (SpriteSheetStore.PaletteFile(sheetName), NextColour),
@@ -83,7 +84,7 @@ internal static class RoomArtworkRenderParityVerification
                     WriteEdited(SpriteSheetStore.ImageFile(sheetName), Inverted);
                     WriteEdited(SpriteSheetStore.PaletteFile(sheetName), NextColour);
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
-                    Rgba32[] changedFrame = FrontendScenePixelsAccess.Pixels(changed.PublishDisplayFrame());
+                    RgbaPixel[] changedFrame = FrontendScenePixelsAccess.Pixels(changed.PublishDisplayFrame());
                     AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
                         "Landing Site block sheet override changes rendered pixels");
                     AssertGameplayPlanesUnchanged(changed, "block sheet");
@@ -94,9 +95,9 @@ internal static class RoomArtworkRenderParityVerification
                         File.Delete(path);
                 }
 
-                void WriteEdited(string file, Func<Rgba32, Rgba32> edit)
+                void WriteEdited(string file, Func<RgbaPixel, RgbaPixel> edit)
                 {
-                    Rgba32[] pixels = RgbaPng.Read(new MemoryStream(File.ReadAllBytes(Path.Combine(installation.RoomBlockSheetDirectory, file)),
+                    RgbaPixel[] pixels = RgbaPng.Read(new MemoryStream(File.ReadAllBytes(Path.Combine(installation.RoomBlockSheetDirectory, file)),
                         writable: false), out Extent16<ImagePixels> size);
                     for (int index = 0; index < pixels.Length; index++)
                     {
@@ -126,7 +127,7 @@ internal static class RoomArtworkRenderParityVerification
                 {
                     File.WriteAllText(blockOverridePath, blocks.ToJsonString());
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
-                    Rgba32[] changedFrame = FrontendScenePixelsAccess.Pixels(changed.PublishDisplayFrame());
+                    RgbaPixel[] changedFrame = FrontendScenePixelsAccess.Pixels(changed.PublishDisplayFrame());
                     AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
                         "Landing Site visual block override changes rendered pixels");
                     AssertGameplayPlanesUnchanged(changed, "visual block JSON");

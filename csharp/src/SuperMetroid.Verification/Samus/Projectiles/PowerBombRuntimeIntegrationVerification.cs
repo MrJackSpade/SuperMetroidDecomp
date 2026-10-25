@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
@@ -43,7 +44,7 @@ internal static class PowerBombRuntimeIntegrationVerification
             camera: new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 
-        Rgba32[] baseline = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
+        RgbaPixel[] baseline = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(
@@ -66,7 +67,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         ScanlineColorAddRenderLayer window = published.LayersOf<ScanlineColorAddRenderLayer>().Single();
         AssertTrue(window.Windows.SequenceEqual(expected.Windows),
             "the published gameplay frame carries the bank-$88 Power Bomb window");
-        Rgba32[] actual = FrontendScenePixelsAccess.Pixels(published);
+        RgbaPixel[] actual = FrontendScenePixelsAccess.Pixels(published);
         AssertTrue(CountPowerBombFrameDifferences(baseline, actual) > 0,
             "shared runtime rendering shows the Power Bomb window");
 
@@ -76,8 +77,8 @@ internal static class PowerBombRuntimeIntegrationVerification
 
     /// <summary>Counts pixels changed between equal-size rendered frames.</summary>
     private static int CountPowerBombFrameDifferences(
-        ReadOnlySpan<Rgba32> first,
-        ReadOnlySpan<Rgba32> second)
+        ReadOnlySpan<RgbaPixel> first,
+        ReadOnlySpan<RgbaPixel> second)
     {
         AssertEqual(first.Length, second.Length, "Power Bomb comparison frame lengths");
         int count = 0;

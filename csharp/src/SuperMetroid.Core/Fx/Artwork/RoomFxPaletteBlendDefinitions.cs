@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -13,19 +15,19 @@ public static class RoomFxPaletteBlendDefinitions
     public const int Version = 1;
 
     /// <summary>Stock blue-channel fixed-color amplitude for Ceres haze.</summary>
-    public static Bgr555 StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
+    public static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
     /// <summary>Stock red-channel fixed-color amplitude after Ceres Ridley.</summary>
-    public static Bgr555 StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
+    public static RgbColor StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
 
     /// <summary>
     /// Native $88:DE10/DE15 selects COLDATA blue/red; DE42 stops fade-in at counter16,
     /// after counter15 was the final written amplitude. Calculate that selected RGB
     /// axis directly instead of retaining two default tint records.
     /// </summary>
-    public static Bgr555 StockCeresHaze(CeresHazeColor color) => StockCeresHazeTint(color == CeresHazeColor.Red);
+    public static RgbColor StockCeresHaze(CeresHazeColor color) => StockCeresHazeTint(color == CeresHazeColor.Red);
 
     /// <summary>The same native tint as a colour value, without constructing a per-scanline record.</summary>
-    internal static Bgr555 StockCeresHazeTint(bool ridleyIsDead) =>
+    internal static RgbColor StockCeresHazeTint(bool ridleyIsDead) =>
         new(ridleyIsDead ? CeresHazeDefinitions.FadeSteps - 1 : 0, 0,
             ridleyIsDead ? 0 : CeresHazeDefinitions.FadeSteps - 1);
 
@@ -75,9 +77,9 @@ public static class RoomFxPaletteBlendDefinitions
     /// The six liquid blends use black as their third color. Weather's independent
     /// third colors have no calculated value here. Unknown selectors still reject.
     /// </summary>
-    public static Bgr555? CalculatedThirdColor(RoomFxPaletteBlend id) => id switch
+    public static RgbColor? CalculatedThirdColor(RoomFxPaletteBlend id) => id switch
     {
-        RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD => Bgr555.Black,
+        RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD => RgbColor.Black,
         RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.Fog => null,
         RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
         _ => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),

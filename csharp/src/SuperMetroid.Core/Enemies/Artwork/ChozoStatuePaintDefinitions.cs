@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
@@ -14,12 +16,12 @@ internal static class ChozoStatuePaintDefinitions
     private const int HalfColors = 16;
 
     /// <summary>Chooses a shared shade or calculates the selected area's half-palette material paint.</summary>
-    internal static Bgr555 Color(ChozoStatuePalette palette, int color)
+    internal static RgbColor Color(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= HalfColors * 2) throw new ArgumentOutOfRangeException(nameof(color));
         int local = color % HalfColors;
         bool second = color >= HalfColors;
-        if (Shared(local) is Bgr555 shared) return shared;
+        if (Shared(local) is RgbColor shared) return shared;
         return palette switch
         {
             ChozoStatuePalette.WreckedShip => WreckedShip(local, second),
@@ -29,31 +31,31 @@ internal static class ChozoStatuePaintDefinitions
     }
 
     /// <summary>Calculates skin and gold colors common to all four statue halves.</summary>
-    private static Bgr555? Shared(int local) => local switch
+    private static RgbColor? Shared(int local) => local switch
     {
         0 => Pack(0, 0, 14),
         1 => Pack(31, 25, 24),
         2 => Pack(31, 20, 18),
         3 => Pack(31, 14, 11),
-        >= 8 and <= 11 => Ramp(new Bgr555(31, 31, 9), new Bgr555(6, 6, 0), local - 8, 3),
+        >= 8 and <= 11 => Ramp(new RgbColor(31, 31, 9), new RgbColor(6, 6, 0), local - 8, 3),
         12 => Pack(31, 31, 15),
         13 => Pack(25, 25, 10),
         _ => null,
     };
 
     /// <summary>Calculates first- and second-half grey ramps and their distinct highlight.</summary>
-    private static Bgr555 WreckedShip(int local, bool second) => local switch
+    private static RgbColor WreckedShip(int local, bool second) => local switch
     {
         >= 4 and <= 7 => second
-            ? Ramp(new Bgr555(16, 16, 16), new Bgr555(4, 4, 4), local - 4, 3)
-            : Ramp(new Bgr555(25, 25, 25), new Bgr555(6, 6, 6), local - 4, 3),
+            ? Ramp(new RgbColor(16, 16, 16), new RgbColor(4, 4, 4), local - 4, 3)
+            : Ramp(new RgbColor(25, 25, 25), new RgbColor(6, 6, 6), local - 4, 3),
         14 => second ? Pack(20, 20, 20) : Pack(31, 31, 31),
-        15 => Bgr555.Black,
+        15 => RgbColor.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(local)),
     };
 
     /// <summary>Uses retained Lower Norfair paint, including second-half shades that repeat the first half one step darker.</summary>
-    private static Bgr555 LowerNorfair(int local, bool second)
+    private static RgbColor LowerNorfair(int local, bool second)
     {
         if (second && local is >= 4 and <= 6) return LowerNorfair(local + 1, false);
         return new ChozoStatueShade(local, second) switch
@@ -72,7 +74,7 @@ internal static class ChozoStatuePaintDefinitions
     }
 
     /// <summary>Interpolates each RGB5 channel between authored material endpoints with nearest-integer rounding.</summary>
-    private static Bgr555 Ramp(Bgr555 start, Bgr555 end, int step, int steps) =>
+    private static RgbColor Ramp(RgbColor start, RgbColor end, int step, int steps) =>
         Pack(Nearest(start.Red, end.Red, step, steps), Nearest(start.Green, end.Green, step, steps),
             Nearest(start.Blue, end.Blue, step, steps));
 
@@ -84,5 +86,5 @@ internal static class ChozoStatuePaintDefinitions
     }
 
     /// <summary>Forms one typed five-bit statue color from its selected channels.</summary>
-    private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

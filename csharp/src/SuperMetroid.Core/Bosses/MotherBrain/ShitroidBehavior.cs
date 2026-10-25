@@ -14,6 +14,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -126,7 +127,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int color = 0; color < ShitroidColorDefinitions.TargetColorCount; color++)
         {
-            Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
+            RgbColor value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
             state.TargetColours(target)[color] = value;
 
@@ -771,7 +772,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
         {
-            Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
+            RgbColor value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);
             _presentation.BossColours().ShitroidMembrane.Write(color, value);
         }

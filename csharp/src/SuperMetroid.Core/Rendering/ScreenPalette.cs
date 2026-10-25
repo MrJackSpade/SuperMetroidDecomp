@@ -21,10 +21,10 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
     private const int KindColours = RowsPerKind * ColoursPerRow;
 
     /// <summary>The colours, background rows first.</summary>
-    internal readonly Bgr555[] colors = new Bgr555[ColorCount];
+    internal readonly RgbColor[] colors = new RgbColor[ColorCount];
 
     /// <inheritdoc />
-    public ReadOnlySpan<Bgr555> Colors => colors;
+    public ReadOnlySpan<RgbColor> Colors => colors;
 
     /// <summary>Every colour of the screen.</summary>
     public ColourRun All => new(colors, 0, ColorCount);
@@ -47,21 +47,21 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
     public ColourRun Set(int set) => SpriteRow(set);
 
     /// <summary>The colour behind every layer, where nothing is drawn.</summary>
-    public Bgr555 Backdrop
+    public RgbColor Backdrop
     {
         get => colors[0];
         set => colors[0] = value;
     }
 
     /// <summary>Replaces every colour with <paramref name="screenColours"/>, a whole screen's colours.</summary>
-    public void Load(ReadOnlySpan<Bgr555> screenColours)
+    public void Load(ReadOnlySpan<RgbColor> screenColours)
     {
         Ensure.LengthEqual(screenColours, ColorCount);
         screenColours.CopyTo(colors);
     }
 
     /// <summary>Replaces every colour with <paramref name="screenColours"/> except those in <paramref name="kept"/>.</summary>
-    public void LoadExcept(ReadOnlySpan<Bgr555> screenColours, params ReadOnlySpan<ColourRun> kept)
+    public void LoadExcept(ReadOnlySpan<RgbColor> screenColours, params ReadOnlySpan<ColourRun> kept)
     {
         Ensure.LengthEqual(screenColours, ColorCount);
         for (int position = 0; position < ColorCount; position++)
@@ -72,7 +72,7 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
     }
 
     /// <inheritdoc />
-    public void SetColor(int index, Bgr555 color)
+    public void SetColor(int index, RgbColor color)
     {
         if ((uint)index >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
@@ -88,7 +88,7 @@ public sealed class ScreenPalette : IPaletteColors, ISpriteColourSets
         if (destinationIndex < 0 || destinationIndex + count > ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destinationIndex), "A palette load must remain within 256 colours.");
         for (int color = 0; color < count; color++)
-            colors[destinationIndex + color] = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
+            colors[destinationIndex + color] = RgbColor.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
     }
 
     /// <summary>Whether a run in <paramref name="kept"/> holds the colour at <paramref name="position"/>.</summary>

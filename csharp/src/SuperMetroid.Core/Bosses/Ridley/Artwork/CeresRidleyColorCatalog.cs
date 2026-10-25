@@ -16,9 +16,9 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>The reflected self-destruct text cycle is independent of Ridley's body fades.</summary>
     internal readonly CeresRidleyAlarmColorDefinitions alarm;
     /// <summary>Only retreat BG colors that differ from the body, eye, and neutral composition.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> retreatBg = [];
+    internal readonly Dictionary<ColourCell, RgbColor> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
-    internal readonly Dictionary<ColourCell, Bgr555> retreatShared = [];
+    internal readonly Dictionary<ColourCell, RgbColor> retreatShared = [];
     /// <summary>Private Baby draw shades retain their link to the body fade family.</summary>
     internal readonly CeresBabyPaintDefinitions baby;
 
@@ -61,21 +61,21 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
-    public Bgr555 ResolveRetreatBg(int color)
+    public RgbColor ResolveRetreatBg(int color)
     {
         if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatBgColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return retreatBg.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : CalculateRetreatBg(color);
+        return retreatBg.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : CalculateRetreatBg(color);
     }
     /// <summary>Composes the native retreat background from body-fade row one, eye-fade row fourteen, and its neutral final color.</summary>
-    private Bgr555 CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
+    private RgbColor CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
         : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyFloorPaintDefinitions.RetreatNeutral;
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
-    public Bgr555 ResolveRetreatShared(int color)
+    public RgbColor ResolveRetreatShared(int color)
     {
         if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return retreatShared.TryGetValue(new ColourCell(0, color), out Bgr555 edited) ? edited : start.Resolve(color + 1);
+        return retreatShared.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : start.Resolve(color + 1);
     }
 
     /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
@@ -131,7 +131,7 @@ public sealed class CeresRidleyColorCatalog
             new RidleyColours(colours).CeresRetreatBackground.Write(color, ResolveRetreatBg(color));
         for (int color = 0; color < CeresRidleyPaletteDefinitions.RetreatSharedColorCount; color++)
         {
-            Bgr555 selected = ResolveRetreatShared(color);
+            RgbColor selected = ResolveRetreatShared(color);
             new RidleyColours(colours).CeresRetreatSharedBackground.Write(color, selected);
             new RidleyColours(colours).CeresRetreatSharedObject.Write(color, selected);
         }

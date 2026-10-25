@@ -467,7 +467,7 @@ internal static class EndingPaletteArtworkVerification
         {
             if (frame == 20)
             {
-                Bgr555[] before = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Paint.Colors.ToArray();
+                RgbColor[] before = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Paint.Colors.ToArray();
                 editedScene.InstalledArtwork.BindPaletteFxColors(editedColors);
                 AssertTrue(before.SequenceEqual(
                         EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Paint.Colors),
@@ -523,7 +523,7 @@ internal static class EndingPaletteArtworkVerification
                     {
                         int offset = (((nativeLogo.PaletteStep - 1) * 2 + palette) * 16 + color) * 2;
                         nativeCgram.SetColor((palette == 0 ? 16 : 240) + color,
-                            Bgr555.FromWord(SnesLittleEndian.Word(nativeColors[offset], nativeColors[offset + 1])));
+                            RgbColor.FromWord(SnesLittleEndian.Word(nativeColors[offset], nativeColors[offset + 1])));
                     }
             }
             installedLogo.Step(installedCgram);

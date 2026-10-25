@@ -33,7 +33,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
         var colorReaderOwner = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
-        Func<KraidPaletteSource, int, Bgr555> productionReader = colorReaderOwner.KraidBehavior.Background.ReadKraidColor;
+        Func<KraidPaletteSource, int, RgbColor> productionReader = colorReaderOwner.KraidBehavior.Background.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
             int count = KraidPalettes.ColorCount(source);
@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         {
             ushort[] expected = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = NewKraidPaletteSourceGuard(rom);
-            Bgr555[] actual = CaptureKraidPaletteConsumer(stock, consumer);
+            RgbColor[] actual = CaptureKraidPaletteConsumer(stock, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"installed Kraid {consumer} avoids all palette ROM sources");
             AssertTrue(actual.SequenceEqual(ToColors(expected)),
@@ -100,7 +100,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         {
             ushort[] baseline = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = NewKraidPaletteSourceGuard(rom);
-            Bgr555[] changed = CaptureKraidPaletteConsumer(edited, consumer);
+            RgbColor[] changed = CaptureKraidPaletteConsumer(edited, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"edited Kraid {consumer} avoids palette ROM reads");
             AssertEqual((ushort)(baseline[cgramIndex] ^ 1), changed[cgramIndex],
@@ -192,7 +192,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
 
     /// <summary>Runs one Kraid palette consumer and captures the resulting complete CGRAM image.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static Bgr555[] CaptureKraidPaletteConsumer(
+    private static RgbColor[] CaptureKraidPaletteConsumer(
         InstalledEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
@@ -229,7 +229,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 break;
             case KraidPaletteConsumer.EyeUnglow:
                 for (int eye = 0; eye < 3; eye++)
-                    cgram.SetColor(113 + eye, Bgr555.FromWord(0x03ff));
+                    cgram.SetColor(113 + eye, RgbColor.FromWord(0x03ff));
                 new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
                 break;
             case KraidPaletteConsumer.DeathArm:

@@ -62,10 +62,10 @@ internal static class LookupFxBlendBlackColorsVerification
         foreach (byte id in OriginalBlackBlendIds())
         foreach (ushort third in new ushort[] { 0, 1, 31, 32, 1023, 1024, 32767 })
         {
-            var owner = new RoomFxBlendColors(FxNativeWords.PaletteBlend(id), Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked(third)));
+            var owner = new RoomFxBlendColors(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(0x1234), RgbColor.FromWord(0x2345), RgbColor.FromWord(checked(third)));
             var colors = owner.CreateColors();
             AssertEqual(third, colors[2], "Custom third-color components survive");
-            colors[2] = Bgr555.FromWord((ushort)(colors[2].ToWord() ^ (1)));
+            colors[2] = RgbColor.FromWord((ushort)(colors[2].ToWord() ^ (1)));
             AssertEqual(third, owner.CreateColors()[2], "Output edits do not mutate loaded colors");
         }
     }

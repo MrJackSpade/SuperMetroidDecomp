@@ -46,13 +46,13 @@ public sealed class SpriteImage
         Ensure.LengthEqual(paletteIndices, size.X * size.Y);
         Ensure.LengthEqual(standardColours, ColourCountOf(palette.Half));
         Ensure.LengthEqual(priorities, size.X * size.Y);
-        foreach (byte priority in priorities)
+        foreach (int priority in priorities)
         {
             if (priority > 3)
                 throw new ArgumentException($"Sprite image {name} has a pixel of priority {priority}; priorities are 0..3.", nameof(priorities));
         }
         Ensure.LengthEqual(partRows, size.X * size.Y);
-        foreach (byte row in partRows)
+        foreach (int row in partRows)
         {
             if ((row & ~FixedPartRow) > MaximumPaletteRow)
                 throw new ArgumentException($"Sprite image {name} has a pixel of part row {row}; sprite rows are 0..{MaximumPaletteRow}.", nameof(partRows));

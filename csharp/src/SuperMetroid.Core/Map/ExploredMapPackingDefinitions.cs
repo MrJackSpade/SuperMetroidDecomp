@@ -20,7 +20,7 @@ internal static class ExploredMapPackingDefinitions
         int offset = 0;
         for (int previous = 0; previous < area; previous++)
             offset += new OccupiedByteIndexes(maps.Get(AreaIds.At(previous))).Count;
-        return new(checked((ushort)offset), new(maps.Get(AreaIds.At(area))));
+        return new(offset, new(maps.Get(AreaIds.At(area))));
     }
 
     /// <summary>

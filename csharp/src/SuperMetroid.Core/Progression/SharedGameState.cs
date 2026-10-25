@@ -146,32 +146,34 @@ public sealed class SharedGameState
     /// on #1330), so a store there changes nothing.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> lies outside the slice.</exception>
-    internal void WriteProgressionSliceByte(int offset, byte value)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte, 0 through 255.</exception>
+    internal void WriteProgressionSliceByte(int offset, int value)
     {
         if (!ProgressionSliceHolds(offset))
             throw new ArgumentOutOfRangeException(nameof(offset), offset, "The offset lies outside the progression slice.");
+        Ensure.BetweenInclusive(0, byte.MaxValue, value);
         if (offset < ProgressionSliceLayout.BossBitsOffset)
-            _events[offset - ProgressionSliceLayout.EventsOffset] = value;
+            _events[offset - ProgressionSliceLayout.EventsOffset] = (byte)value;
         else if (offset < ProgressionSliceLayout.RoomChozoBitsOffset)
-            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromSaveByte(value);
+            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromSaveByte((byte)value);
         else if (offset < ProgressionSliceLayout.CollectedItemBitsOffset)
-            RoomChozoBits[offset - ProgressionSliceLayout.RoomChozoBitsOffset] = value;
+            RoomChozoBits[offset - ProgressionSliceLayout.RoomChozoBitsOffset] = (byte)value;
         else if (offset < ProgressionSliceLayout.OpenedDoorBitsOffset)
-            _collectedItemBits[offset - ProgressionSliceLayout.CollectedItemBitsOffset] = value;
+            _collectedItemBits[offset - ProgressionSliceLayout.CollectedItemBitsOffset] = (byte)value;
         else if (offset < ProgressionSliceLayout.PaddingOffset)
-            _openedDoorBits[offset - ProgressionSliceLayout.OpenedDoorBitsOffset] = value;
+            _openedDoorBits[offset - ProgressionSliceLayout.OpenedDoorBitsOffset] = (byte)value;
         else if (offset < ProgressionSliceLayout.UsedSaveStationsOffset)
             return;
         else if (offset < ProgressionSliceLayout.MapStationsOffset)
-            _usedSaveStationsAndElevators[offset - ProgressionSliceLayout.UsedSaveStationsOffset] = value;
+            _usedSaveStationsAndElevators[offset - ProgressionSliceLayout.UsedSaveStationsOffset] = (byte)value;
         else if (offset < ProgressionSliceLayout.LoadingGameStateOffset)
-            _mapStations[offset - ProgressionSliceLayout.MapStationsOffset] = value;
+            _mapStations[offset - ProgressionSliceLayout.MapStationsOffset] = (byte)value;
         else
         {
-            ushort word = SaveFieldValue.Encode(SavedLoadingGameState, nameof(SavedLoadingGameState));
+            int word = SaveFieldValue.Encode(SavedLoadingGameState, nameof(SavedLoadingGameState));
             SavedLoadingGameState = offset == ProgressionSliceLayout.LoadingGameStateOffset
-                ? SnesLittleEndian.Word(value, SnesLittleEndian.HighByte(word))
-                : SnesLittleEndian.Word(SnesLittleEndian.LowByte(word), value);
+                ? SnesLittleEndian.Word((byte)value, SnesLittleEndian.HighByte(word))
+                : SnesLittleEndian.Word(SnesLittleEndian.LowByte(word), (byte)value);
         }
     }
 
@@ -697,8 +699,7 @@ public sealed class SharedGameState
             throw new ArgumentOutOfRangeException(nameof(eventNumber), eventNumber, "Event number must be in the allocated $00-$3F range.");
 
         int byteIndex = eventNumber >> 3;
-        byte bitMask = (byte)(1 << (eventNumber & 7));
-        return new ProgressionBit(byteIndex, bitMask);
+        return new ProgressionBit(byteIndex, 1 << (eventNumber & 7));
     }
 
     /// <summary>

@@ -59,7 +59,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     }
 
     /// <summary>Creates a word containing only a validated OBJ palette field.</summary>
-    public static SnesObjAttributeWord FromPaletteBits(ushort paletteBits)
+    public static SnesObjAttributeWord FromPaletteBits(int paletteBits)
     {
         if ((paletteBits & ~PaletteFieldMask) != 0)
         {
@@ -67,7 +67,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
                 nameof(paletteBits), paletteBits, "OBJ palette bits must fit the three-bit field.");
         }
 
-        return new(paletteBits);
+        return new((ushort)paletteBits);
     }
 
     /// <summary>Replaces only the OBJ palette field, preserving tile, priority, and flips.</summary>

@@ -13,7 +13,7 @@ internal static class FrontendSheetPalette
     /// The override that places a frame's palette-inheriting parts in the row <paramref name="paletteBits"/> select, or
     /// null where that is the row the sheet coloured them in.
     /// </summary>
-    internal static int? Override(ushort paletteBits)
+    internal static int? Override(int paletteBits)
     {
         int row = SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex;
         return row == FramePalette ? null : row;

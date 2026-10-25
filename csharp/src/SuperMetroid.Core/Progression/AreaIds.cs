@@ -19,9 +19,9 @@ public static class AreaIds
     public static IReadOnlyList<AreaId> Zebes { get; } = Retail[..^1];
 
     /// <summary>Validates and names one area index read from room or save data.</summary>
-    public static AreaId FromIndex(byte value, string source)
+    public static AreaId FromIndex(int value, string source)
     {
-        if (value >= RetailCount)
+        if ((uint)value >= RetailCount)
         {
             throw new InvalidDataException(
                 $"{source} contains area ${value:X2}, outside the seven retail areas.");

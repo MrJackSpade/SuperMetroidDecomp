@@ -204,7 +204,7 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>Adds signed quake displacement to a 16-bit PPU scroll register with native wrapping.</summary>
-    private static ushort Add(ushort scroll, short shake) => unchecked((ushort)(scroll + shake));
+    private static ushort Add(int scroll, int shake) => unchecked((ushort)(scroll + shake));
 
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
     private static GameplayColorMathRenderLayer CaptureFirefleaDarkness(Bgr555 fixedColor, LayeredScene basis)

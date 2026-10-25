@@ -93,7 +93,7 @@ public sealed class DemoInputState
     /// prevents a host callback from publishing a new list with a stale countdown for one
     /// frame, a state the native routine cannot expose.
     /// </remarks>
-    public void Redirect(DemoInputPreInstruction preInstruction, DemoInputProgram program, ushort instructionTimer = 1)
+    public void Redirect(DemoInputPreInstruction preInstruction, DemoInputProgram program, int instructionTimer = 1)
     {
         PreInstruction = preInstruction;
         Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);

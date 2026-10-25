@@ -31,8 +31,7 @@ public sealed class SnesCgram : IPaletteColors
 
         for (int color = 0; color < colorCount; color++)
         {
-            ushort word = SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]);
-            _colors[destinationIndex + color] = Bgr555.FromCgramPortWord(word);
+            _colors[destinationIndex + color] = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
         }
     }
 

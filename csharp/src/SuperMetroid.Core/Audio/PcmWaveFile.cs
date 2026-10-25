@@ -3,6 +3,11 @@ using System.Text;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>Strict PCM16 RIFF/WAVE codec: mono for extracted and replacement samples, interleaved stereo for rendered clips (#1305).</summary>
+/// <remarks>
+/// The single owner of the WAVE file encoding: its two-byte header fields and sixteen-bit samples are read and written
+/// at the widths the file format defines.
+/// </remarks>
+[SnesEncodingOwner]
 public static class PcmWaveFile
 {
     /// <summary>RIFF format code one, required to exclude compressed WAVE encodings.</summary>

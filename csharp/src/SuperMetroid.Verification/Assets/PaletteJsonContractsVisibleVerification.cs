@@ -4,6 +4,7 @@ using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsFixturesVerification;

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;

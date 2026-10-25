@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the front-end tables the title and map extractors read.</summary>

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;

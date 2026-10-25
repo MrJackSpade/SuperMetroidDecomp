@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;

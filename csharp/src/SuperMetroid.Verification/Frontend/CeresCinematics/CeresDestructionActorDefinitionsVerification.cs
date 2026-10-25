@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresInitialActorMetadataVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresZebesActorMetadataVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;

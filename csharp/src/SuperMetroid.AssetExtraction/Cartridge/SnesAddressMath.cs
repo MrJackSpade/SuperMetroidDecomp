@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Address arithmetic whose wrapping rules come from the 65C816 operand width rather than

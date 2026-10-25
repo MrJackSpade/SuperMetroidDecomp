@@ -1,7 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;

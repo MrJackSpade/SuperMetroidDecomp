@@ -1,5 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 
@@ -15,6 +16,10 @@ internal static class RuntimeCartridgeBoundaryVerification
     /// </summary>
     internal static void VerifyRuntimeAddressSpaceHasNoCartridgeApi()
     {
+        Assembly gameplay = typeof(SnesVram).Assembly;
+        AssertTrue(!gameplay.GetTypes().Any(type =>
+                type.Name is nameof(SuperMetroidAddressSpace) or nameof(ISnesAddressSpace) or nameof(ISnesMutableMemory)),
+            "the CPU address space belongs to the import pipeline, not the gameplay assembly (#1417)");
         Type runtimeBus = typeof(SuperMetroidAddressSpace);
         const BindingFlags publicInstance = BindingFlags.Public | BindingFlags.Instance;
         AssertTrue(!MetadataShape.DeclaresProperty(runtimeBus, "Rom", publicInstance),
@@ -27,9 +32,9 @@ internal static class RuntimeCartridgeBoundaryVerification
             "gameplay bus contract must not expose an untyped read");
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(ISnesAddressSpace), "ReadCartridgeByte"),
             "gameplay bus contract must not expose a cartridge read");
-        AssertTrue(!MetadataShape.AssemblyDeclaresType(runtimeBus.Assembly, "SuperMetroid.Core.Hardware.SnesCpuMappedData"),
+        AssertTrue(!MetadataShape.AssemblyDeclaresType(gameplay, "SuperMetroid.Core.Hardware.SnesCpuMappedData"),
             "gameplay assembly must not retain a generic dynamic CPU read adapter");
-        AssertTrue(!runtimeBus.Assembly.GetReferencedAssemblies().Any(
+        AssertTrue(!gameplay.GetReferencedAssemblies().Any(
                 name => name.Name == "SuperMetroid.AssetExtraction"),
             "gameplay assembly must not reference the cartridge importer");
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(SnesVram), "ExecuteQueuedWrite") &&
@@ -48,7 +53,7 @@ internal static class RuntimeCartridgeBoundaryVerification
             "the sequential PLM allocator requires typed decoded placements, not a native pointer/read flag");
         foreach (string importOnlyType in new[]
                  { "SuperMetroid.AssetExtraction.Compression.SmCompression", "SuperMetroid.AssetExtraction.ReferenceRendering.RoomRenderer" })
-            AssertTrue(runtimeBus.Assembly.GetType(importOnlyType) is null,
+            AssertTrue(gameplay.GetType(importOnlyType) is null,
                 $"Core must not compile the import-only {importOnlyType} type");
     }
 

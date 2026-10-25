@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Maridia.LookupElevatubeVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

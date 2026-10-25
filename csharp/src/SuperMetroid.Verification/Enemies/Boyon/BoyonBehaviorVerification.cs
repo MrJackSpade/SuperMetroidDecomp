@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelect
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Boyon.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Boyon;

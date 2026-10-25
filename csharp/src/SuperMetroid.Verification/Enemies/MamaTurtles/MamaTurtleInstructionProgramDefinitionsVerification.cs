@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.MamaTurtles;
 using SuperMetroid.Verification.Harness;

@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;

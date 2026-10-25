@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;

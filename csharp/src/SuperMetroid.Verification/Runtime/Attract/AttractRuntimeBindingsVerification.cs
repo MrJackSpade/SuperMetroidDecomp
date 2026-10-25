@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core;

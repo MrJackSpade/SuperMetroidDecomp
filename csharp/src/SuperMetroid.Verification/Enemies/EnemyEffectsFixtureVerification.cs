@@ -3,6 +3,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.Crocomire;

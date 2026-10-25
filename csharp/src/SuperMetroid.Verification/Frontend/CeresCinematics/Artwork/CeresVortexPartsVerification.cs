@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationPartsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Intro.Artwork;

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// One named CPU-bus location or bounded range (#629). Domain catalog types declare every address

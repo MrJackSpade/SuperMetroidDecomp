@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;

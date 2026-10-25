@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Stoke.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Stoke;
 using SuperMetroid.Verification.Harness;

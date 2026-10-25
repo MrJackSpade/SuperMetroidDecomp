@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;

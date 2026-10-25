@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileInstructionProgramDefinitionsVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 namespace SuperMetroid.Verification.Bosses.Kraid;

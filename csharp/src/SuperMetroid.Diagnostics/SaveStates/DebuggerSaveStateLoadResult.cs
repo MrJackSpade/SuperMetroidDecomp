@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
 

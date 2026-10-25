@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Draygon.LookupDraygonCannonStockVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.AssetExtraction.Cartridge;

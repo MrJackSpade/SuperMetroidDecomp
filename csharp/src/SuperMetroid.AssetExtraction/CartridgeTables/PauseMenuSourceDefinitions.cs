@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 

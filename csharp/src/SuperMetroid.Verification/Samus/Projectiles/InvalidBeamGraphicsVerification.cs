@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

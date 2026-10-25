@@ -1,7 +1,7 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;

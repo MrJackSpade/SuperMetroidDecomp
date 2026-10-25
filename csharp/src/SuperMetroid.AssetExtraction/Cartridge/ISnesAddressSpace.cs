@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// A SNES CPU address space: the identity an importer, the WRAM image or a test bus is handed around as.

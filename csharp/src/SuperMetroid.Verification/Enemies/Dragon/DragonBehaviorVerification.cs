@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Harness;

@@ -2,6 +2,7 @@ using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;

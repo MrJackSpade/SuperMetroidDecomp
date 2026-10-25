@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Hardware;
@@ -52,7 +53,7 @@ internal static class CpuBusBoundaryVerification
     {
         string[] declared = [.. entries
             .Where(entry => entry.Cell.Region == CpuBusRegion.WorkRam &&
-                entry.Owner.Assembly == typeof(CpuBusRegion).Assembly)
+                entry.Owner.Assembly == typeof(SuperMetroid.Core.Ensure).Assembly)
             .Select(entry => $"{entry.Owner.FullName ?? entry.Owner.Name}.{entry.Cell.Name}")
             .Order(StringComparer.Ordinal)];
         AssertTrue(declared.Length == 0, "Core gameplay WRAM cells; move the state into its owning system:" +

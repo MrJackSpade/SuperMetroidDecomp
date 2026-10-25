@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>One catalog cell found by reflection: its declaring catalog, member and descriptor.</summary>

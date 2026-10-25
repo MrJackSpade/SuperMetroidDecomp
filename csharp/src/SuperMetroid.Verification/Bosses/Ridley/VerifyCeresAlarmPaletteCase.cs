@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;

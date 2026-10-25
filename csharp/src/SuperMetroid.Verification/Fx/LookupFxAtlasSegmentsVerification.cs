@@ -57,7 +57,7 @@ internal static class LookupFxAtlasSegmentsVerification
     private const int StatueStrip = 0x879364;
 
     /// <summary>Checks native source order, editable windows, statue aliases, and invalid addresses.</summary>
-    internal static void VerifyRoomFxAtlasSegmentSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
+    internal static void VerifyRoomFxAtlasSegmentSources(SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace rom)
     {
         var expected = OriginalRoomFxAtlasSegments();
         var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();

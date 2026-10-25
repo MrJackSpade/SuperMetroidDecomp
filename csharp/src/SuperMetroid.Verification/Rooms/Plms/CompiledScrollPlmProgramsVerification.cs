@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Scrolling.LookupScrollProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

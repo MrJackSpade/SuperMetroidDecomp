@@ -1,5 +1,5 @@
 using System.Globalization;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;

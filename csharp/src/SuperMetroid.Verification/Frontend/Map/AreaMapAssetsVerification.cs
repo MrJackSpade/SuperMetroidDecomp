@@ -1,5 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.DebugRunner.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

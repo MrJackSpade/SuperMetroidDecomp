@@ -77,7 +77,7 @@ internal static class FileSelectSlotDestinationsVerification
     private static byte FileSelectSlotDestinationsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks both slot-label load sites use the compiled source and terminal word.</summary>
-    private static void VerifyFileSelectSlotLabelSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
+    private static void VerifyFileSelectSlotLabelSources(SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace rom)
     {
         int[][] loadInstructions = [[0x819f13, 0x819f46, 0x819f7c], [0x819636, 0x819666, 0x819696]];
         foreach (int[] view in loadInstructions)

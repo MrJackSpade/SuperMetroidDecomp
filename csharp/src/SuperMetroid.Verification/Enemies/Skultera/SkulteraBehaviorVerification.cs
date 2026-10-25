@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Skultera.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Skultera;
 using SuperMetroid.Verification.Harness;

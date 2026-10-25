@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
 

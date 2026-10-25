@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;

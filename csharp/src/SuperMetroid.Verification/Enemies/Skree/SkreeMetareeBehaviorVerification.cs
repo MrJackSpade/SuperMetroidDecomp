@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metaree;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Skree.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Skree;
 using SuperMetroid.Verification.Harness;

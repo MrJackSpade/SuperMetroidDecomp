@@ -63,7 +63,7 @@ internal static class ParameterContractsTests
                 void Run(IRoomEnemyServices enemies, IChozoStatueRoomServices chozo, IMotherBrainRoomServices motherBrain,
                     IRoomPlmEnemyEffects effects, INoobTubeProjectileSpawner noobTube, IAreaBossFlags bosses,
                     IAreaBossFlagReader bossReader, IRoomSamusAccess samus,
-                    DemoInputState demo, ISnesAddressSpace bus)
+                    DemoInputState demo)
                 {
                     {{statement}}
                 }

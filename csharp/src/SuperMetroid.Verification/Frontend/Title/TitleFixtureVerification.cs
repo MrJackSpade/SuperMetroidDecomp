@@ -1,5 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;

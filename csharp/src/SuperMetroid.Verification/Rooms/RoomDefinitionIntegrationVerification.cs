@@ -1,7 +1,7 @@
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Areas.Ceres.PostCeresLandingHandOffVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;

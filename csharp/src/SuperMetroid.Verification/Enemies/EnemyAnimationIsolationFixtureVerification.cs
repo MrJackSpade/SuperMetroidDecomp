@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;

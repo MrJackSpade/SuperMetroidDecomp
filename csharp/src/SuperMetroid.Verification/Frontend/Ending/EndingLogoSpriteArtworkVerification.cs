@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;

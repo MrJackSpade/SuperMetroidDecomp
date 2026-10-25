@@ -1,8 +1,10 @@
-namespace SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// The mutable work RAM portion of Super Metroid's 24-bit CPU address space. Cartridge ROM
-/// belongs to the asset importer, and saves to <see cref="Saves.SaveSlotStore"/>, never to the
+/// belongs to the asset importer, and saves to <see cref="SuperMetroid.Core.Saves.SaveSlotStore"/>, never to the
 /// gameplay address space.
 /// </summary>
 /// <remarks>

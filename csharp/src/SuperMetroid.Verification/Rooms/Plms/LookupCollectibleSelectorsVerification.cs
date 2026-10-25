@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Plms.CollectibleVisualsVerification;
 using SuperMetroid.Core.Rooms.Plms;
 

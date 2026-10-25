@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.RoomPaletteFxDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

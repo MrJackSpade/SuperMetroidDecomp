@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Full WRAM banks and LoROM lower-window SRAM bank ranges.</summary>
 internal static class LoRomMemoryBankLayout

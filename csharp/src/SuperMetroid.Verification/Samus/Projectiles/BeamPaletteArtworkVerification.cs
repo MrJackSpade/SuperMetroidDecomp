@@ -4,6 +4,7 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamTileArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

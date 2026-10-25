@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Which CPU-visible store a <see cref="CpuBusCell"/> lives in.</summary>
 public enum CpuBusRegion

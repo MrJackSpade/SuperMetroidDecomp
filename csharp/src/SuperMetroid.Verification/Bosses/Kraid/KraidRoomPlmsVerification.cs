@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidDrawMappingsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.BossRoomPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

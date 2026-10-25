@@ -93,7 +93,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
         foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
         {
-            int source = TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture);
+            int source = AnimatedTileImageSources.TourianStatue(definition.AnimatedObject, picture);
             byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.FrameByteCount);
             AssertTrue(artwork.TryResolve(source, native.Length,
                     out ReadOnlyMemory<byte> installed) &&
@@ -121,8 +121,8 @@ internal static class TourianStatueUnlockDefinitionsVerification
         var guarded = new MutableCartridgeReadGuard(rom);
         guarded
             .Forbid(address => forbidArtworkReads &&
-                    address >= TourianStatueTileStripDefinitions.FirstSource &&
-                    address < TourianStatueTileStripDefinitions.SourceEnd,
+                    address >= AnimatedTileImageSources.TourianStatueStripStart &&
+                    address < AnimatedTileImageSources.TourianStatueStripEnd,
                 address => $"Installed Tourian statue artwork read cartridge byte ${address:X6}.")
             .Forbid(address => IsTourianStatueProgramByte(programOffsets, address),
                 address => $"Production read Tourian statue program byte {SnesAddress.FromBusAddress(address)}.");
@@ -155,7 +155,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
     private static bool IsTourianStatueProgramByte(HashSet<int> programOffsets, int address)
     {
         SnesAddress snesAddress = SnesAddress.FromBusAddress(address);
-        return snesAddress.Bank == SnesLittleEndianConstants.BankByte(RoomFxRomData.Banks.AnimatedTiles) &&
+        return snesAddress.Bank == SnesLittleEndianConstants.BankByte(RoomFxNativeSources.AnimatedTilesBank) &&
             programOffsets.Contains(snesAddress.Offset);
     }
 

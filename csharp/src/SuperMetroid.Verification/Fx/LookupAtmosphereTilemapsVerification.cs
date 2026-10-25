@@ -25,7 +25,7 @@ internal static class LookupAtmosphereTilemapsVerification
     private static void VerifyAtmosphereTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock,
         RoomFxType type, int mask)
     {
-        int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
+        int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
         ReadOnlySpan<byte> installed = stock.Resolve(type).Span;
         AssertEqual(0x840, installed.Length, "Complete original atmosphere page");
         for (int index = 0; index < 1056; index++)
@@ -59,7 +59,7 @@ internal static class LookupAtmosphereTilemapsVerification
             _ = stock.Resolve(type);
             AssertTrue(page.customFields is null && retained.All(word => (word & mask) == 0),
                 "Transfer never caches stock fields");
-            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
+            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
             var original = new byte[0x840];
             for (int offset = 0; offset < original.Length; offset++) original[offset] = AtmosphereTilemapDomainAndEditsRomByte(rom, source + offset);
             for (int index = 0; index < 1056; index++)

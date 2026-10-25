@@ -22,7 +22,7 @@ internal static class LookupFxTilemapDispatchVerification
         for (int index = 0; index < OriginalFxTilemapTypes.Length; index++)
         {
             RoomFxType type = OriginalFxTilemapTypes[index];
-            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
+            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
             var bytes = new byte[0x840];
             for (int offset = 0; offset < bytes.Length; offset++) bytes[offset] = FxTilemapPageDispatchRomByte(rom, source + offset);
             native.Add(type, bytes);

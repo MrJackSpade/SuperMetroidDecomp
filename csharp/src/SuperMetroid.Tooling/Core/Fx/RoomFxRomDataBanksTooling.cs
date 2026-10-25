@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Fx;
 
-/// <summary>Development-tool members of <see cref="RoomFxRomData.Banks"/>; never linked by player hosts.</summary>
+/// <summary>Room-effect cartridge banks development tools read; never linked by player hosts.</summary>
 internal static class RoomFxRomDataBanksTooling
 {
         /// <summary>SNES bank $83 base address for room FX definitions consumed by development tooling.</summary>

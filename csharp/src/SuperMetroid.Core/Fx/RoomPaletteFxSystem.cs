@@ -124,13 +124,13 @@ public sealed class RoomPaletteFxSystem
             return;
 
         // Palette FX and animated tiles have separate owners and bitsets.
-        byte paletteFxBits = record.PaletteFxBitset;
-        if (paletteFxBits == 0)
+        RoomFxEffectSlots paletteFxSlots = record.PaletteFxSlots;
+        if (paletteFxSlots == RoomFxEffectSlots.None)
             return;
 
         for (int bit = 0; bit < SlotCount; bit++)
         {
-            if ((paletteFxBits & (1 << bit)) == 0)
+            if (!paletteFxSlots.Includes(bit))
                 continue;
 
             PaletteFxObject definition = RoomPaletteFxDefinitions.GetAreaDefinition(areaIndex, bit);
@@ -279,7 +279,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstruction.Heat:
-                RunHeatPreInstruction(slot, conditions.EquippedItems, conditions.Samus, conditions.NmiFrameCounter);
+                RunHeatPreInstruction(slot, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
                 return;
 
             case PaletteFxPreInstruction.InspectAdjacentSlot:
@@ -312,7 +312,7 @@ public sealed class RoomPaletteFxSystem
         PaletteFxSlot slot,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         IRoomSamus? samus,
-        int nmiFrameCounter)
+        int frameCounter)
     {
         bool protectedFromHeat = equippedItems.HasAny(
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
@@ -321,7 +321,7 @@ public sealed class RoomPaletteFxSystem
             samus.TakePeriodicDamage(
                 PaletteFxHeatData.SubdamagePerFrame,
                 wholeDamage: 0);
-            if ((nmiFrameCounter & 7) == 0 &&
+            if ((frameCounter & 7) == 0 &&
                 samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
             {
                 soundRequests.Add(new SoundRequest(

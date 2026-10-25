@@ -30,15 +30,15 @@ internal static class LookupTourianDescriptorsVerification
     private static void VerifyTourianStatueObjectDomain()
     {
         AssertTrue(OriginalTourianObjects.SequenceEqual(
-            TourianStatueAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.AnimatedObject)),
+            TourianStatueAnimatedTileMechanicsDefinitions.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x.AnimatedObject))),
             "Original statue descriptor enumeration order");
         var original = OriginalTourianObjects.ToHashSet();
         foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
         {
-            ushort pointer = (ushort)header;
+            ushort pointer = FxNativeWords.AnimatedTileObjects.Word(header);
             bool found = TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header, out var definition);
             AssertEqual(original.Contains(pointer), found, "Complete statue object identity domain");
-            if (found) AssertEqual(pointer, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject, "Selected statue identity");
+            if (found) AssertEqual(pointer, FxNativeWords.AnimatedTileObjects.Word((definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject), "Selected statue identity");
             else AssertTrue(definition is null, "Unknown statue preserves false/null contract");
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)
@@ -63,12 +63,12 @@ internal static class LookupTourianDescriptorsVerification
 
     /// <summary>Word <paramref name="index"/> of the native animated-tile object header at <paramref name="header"/>.</summary>
     private static ushort HeaderWord(ISnesAddressSpace rom, ushort header, int index) =>
-        ReadVerificationWord(rom, RoomFxRomData.Banks.AnimatedTiles | (header + index * sizeof(ushort)));
+        ReadVerificationWord(rom, RoomFxNativeSources.AnimatedTilesBank | (header + index * sizeof(ushort)));
 
     /// <summary>The production definition for a native statue header, which must resolve.</summary>
     internal static TourianStatueAnimatedTileProgramDefinition Resolve(ushort header)
     {
-        AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header,
+        AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(FxNativeWords.AnimatedTileObjects.Decode(header, "animated-tile object"),
             out var definition), "Native statue descriptor resolves");
         return definition ?? throw new InvalidOperationException("Verification requires definition.");
     }

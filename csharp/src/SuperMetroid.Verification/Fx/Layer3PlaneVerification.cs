@@ -53,7 +53,7 @@ internal static class Layer3PlaneVerification
         var runtime = CreateRetailRuntimeFixture();
         var presentation = runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("The retail fixture installs the FX artwork.");
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
-            candidate.Type == (byte)RoomFxType.Water && candidate.DoorPointer == 0) with { BaseYPosition = 0x0080 };
+            candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { BaseYPosition = 0x0080 };
         var session = new RoomFxSession { Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps, PaletteBlendColors = presentation.RoomFxPaletteBlends };
         RoomLayer3FxState water = RoomLayer3FxState.ForDefinition(session, new GameplayColours(new SpriteColourSets()), record, 0);
         AssertEqual<RoomFxType?>(RoomFxType.Water, water.EffectPageType, "the water room shows the water page");
@@ -69,7 +69,7 @@ internal static class Layer3PlaneVerification
             int pageWord = (row - Layer3Plane.EffectPageFirstRow) * Layer3Plane.Columns + column;
             ushort expected = pageWord >= 0 && pageWord * 2 < page.Length
                 ? SnesLittleEndian.Word(page[pageWord * 2], page[pageWord * 2 + 1])
-                : RoomFxRomData.Layer3.ClearTilemapWord;
+                : Layer3Plane.ClearedCell.Raw;
             AssertEqual(expected, plane.Words[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
         AssertTrue(plane.Words[..hudRows.Length].SequenceEqual(hudRows), "the HUD rows stay above the effect");

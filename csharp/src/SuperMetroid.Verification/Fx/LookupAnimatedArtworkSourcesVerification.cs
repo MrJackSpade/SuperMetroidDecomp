@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -17,7 +16,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {
-            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition),
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
                 "Original animation resolves for artwork");
             var expected = new Dictionary<ushort, int>();
             for (int cursor = original.First; cursor < original.End; cursor += 4)
@@ -29,17 +28,17 @@ internal static class LookupAnimatedArtworkSourcesVerification
             {
                 ushort cursor = (ushort)value;
                 if (expected.TryGetValue(cursor, out int source))
-                    AssertEqual(source, RoomFxAnimatedTileArtworkDefinitions.SourceAddress((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
+                    AssertEqual(source, AnimatedTileImageSources.OfCursor((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
                         "Original artwork source operand");
                 else
                     AssertThrows<InvalidDataException>(
-                        () => RoomFxAnimatedTileArtworkDefinitions.SourceAddress((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
+                        () => AnimatedTileImageSources.OfCursor((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
                         "Non-frame cursor rejects including odd/source/loop words");
             }
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
-        var unknown = new RoomFxAnimatedTileObjectDefinition(0, 32, 1, 10);
-        AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileArtworkDefinitions.SourceAddress(unknown, 0x8000),
+        var unknown = new RoomFxAnimatedTileObjectDefinition(0, 32, 1, 10, 1);
+        AssertThrows<InvalidDataException>(() => AnimatedTileImageSources.Of(unknown.Image(unknown.Frames[0])),
             "Unknown object cannot acquire an artwork mapping");
     }
 }

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
@@ -46,7 +47,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         int specializedCompiledPrograms = 0;
         foreach (ushort pointer in pointers)
         {
-            int address = RoomFxRomData.Banks.PaletteFx | pointer;
+            int address = RoomFxCartridgeBanks.PaletteFx | pointer;
             for (int index = 0; index < RoomPaletteFxDefinitions.DefinitionByteCount; index++)
                 forbidden.Add(address + index);
 
@@ -71,7 +72,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         Suite(nameof(VerifyPaletteFxAreaSelections), () => VerifyPaletteFxAreaSelections(rom));
         for (int area = 0; area < RoomPaletteFxDefinitions.AreaCount; area++)
         {
-            int pointerAddress = RoomFxRomData.Tables.AreaPaletteFxObjectListPointers + area * 2;
+            int pointerAddress = RoomFxNativeSources.AreaPaletteFxObjectListPointers + area * 2;
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
             ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointerAddress);
@@ -90,8 +91,11 @@ internal static class RoomPaletteFxDefinitionsVerification
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
-            var definition = new RoomFxRecordDefinition(null, false, 0, 0, 0,
-                0, 0, 0, 0, 0, unchecked((byte)(1 << bit)), 0, 0);
+            var definition = RoomFxRecordCodec.Terminator with
+            {
+                Terminates = false,
+                PaletteFxSlots = RoomFxEffectSlotSet.Slot(bit),
+            };
             var systemSession = new PaletteFxSessionState();
             var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition, (AreaId)area,
                 equippedItems: 0, areaMiniBossDefeated: false);

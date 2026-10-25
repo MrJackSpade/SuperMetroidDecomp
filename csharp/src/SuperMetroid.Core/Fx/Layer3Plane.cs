@@ -21,6 +21,9 @@ public sealed class Layer3Plane
     /// <summary>The row the effect's authored page begins on (<c>$5BE0</c>).</summary>
     public const int EffectPageFirstRow = 31;
 
+    /// <summary>The cell the effect area is cleared to before its page is drawn: the blank character 78 in palette 6.</summary>
+    public static SnesBgTilemapWord ClearedCell { get; } = SnesBgTilemapWord.Create(characterIndex: 78, paletteIndex: 6, priority: false);
+
     /// <summary>The plane's tilemap words, row-major.</summary>
     private readonly ushort[] words;
 
@@ -33,7 +36,7 @@ public sealed class Layer3Plane
     }
 
     /// <summary>
-    /// The plane a room shows: the HUD's rows, then the effect area cleared to <c>$184E</c> (<c>$82:E566</c>) with the
+    /// The plane a room shows: the HUD's rows, then the effect area cleared to <see cref="ClearedCell"/> with the
     /// room effect's authored page from row <see cref="EffectPageFirstRow"/>, when the effect has one.
     /// </summary>
     /// <param name="hudRows">The HUD's four rows: its static top row, then the three rows <see cref="Hud.HudState"/> owns.</param>
@@ -46,7 +49,7 @@ public sealed class Layer3Plane
             throw new ArgumentException($"An effect page of {effectPage.Length} words runs past the plane.", nameof(effectPage));
         var plane = new ushort[Columns * Rows];
         hudRows.CopyTo(plane);
-        plane.AsSpan(hudRows.Length).Fill(RoomFxRomData.Layer3.ClearTilemapWord);
+        plane.AsSpan(hudRows.Length).Fill(ClearedCell);
         effectPage.CopyTo(plane.AsSpan(pageStart));
         return new Layer3Plane(plane);
     }

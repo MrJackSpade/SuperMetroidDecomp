@@ -46,7 +46,7 @@ internal static class RoomFxLayer3TilemapsVerification
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
-            int source = RoomFxLayer3TilemapFormat.SourceAddress(type);
+            int source = RoomFxLayer3TilemapSources.Page(type).Value;
             byte[] native = RomDataReader.ReadFixedBank(rom, source,
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;
@@ -114,7 +114,7 @@ internal static class RoomFxLayer3TilemapsVerification
         out CartridgeReadGuard guarded)
     {
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
-            candidate.DoorPointer == 0 && candidate.Type == (byte)type)
+            candidate.DoorPointer == 0 && candidate.Type == type)
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
         guarded = NewForbiddenRoomFxTilemapBus(memory);

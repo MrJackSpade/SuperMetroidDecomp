@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.Artwork;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
@@ -16,15 +18,19 @@ public sealed class WreckedShipTreadmillObjectDefinition
     /// <summary>The physical direction selected by the entrance door setup.</summary>
     public WreckedShipTreadmillDirection Direction { get; }
 
-    /// <summary>The object-header address within bank $87.</summary>
+    /// <summary>The animated-tile object running this direction's loop.</summary>
     public AnimatedTileObject AnimatedObject { get; }
 
     /// <summary>
-    /// The artwork identity of loop frame <paramref name="frameIndex"/>, 0 through 3: the leftward loop shows the
-    /// rightward loop's art in reverse order.
+    /// The picture loop frame <paramref name="frameIndex"/>, 0 through 3, shows: both directions show the rightward
+    /// treadmill's four pictures, the leftward loop in reverse order.
     /// </summary>
-    public int FrameSource(int frameIndex) =>
-        WreckedShipTreadmillRomData.FrameSource(
+    public AnimatedTileImage Image(int frameIndex)
+    {
+        if ((uint)frameIndex >= WreckedShipTreadmillMechanicsDefinitions.FrameCount)
+            throw new ArgumentOutOfRangeException(nameof(frameIndex));
+        return new(AnimatedTileObject.WreckedShipTreadmillRightwards,
             Direction == WreckedShipTreadmillDirection.Rightwards
                 ? frameIndex : WreckedShipTreadmillMechanicsDefinitions.FrameCount - 1 - frameIndex);
+    }
 }

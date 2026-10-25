@@ -59,7 +59,7 @@ internal static class RoomShakeDefinitionsVerification
             () => RoomShakeDefinitions.ForType(renderedTypeCount),
             "room shake type outside rendered table");
 
-        enemies.Earthquake.EarthquakeType = RoomFxRomData.Earthquake.FirstNonRenderedType;
+        enemies.Earthquake.EarthquakeType = RoomEarthquakeDefinitions.FirstNonRenderedType;
         enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
             "non-rendered earthquake type does not access compiled definitions");
@@ -84,8 +84,8 @@ internal static class RoomShakeDefinitionsVerification
 
         // Timer bits are OR'd into the running timer, keeping its existing bits.
         enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
-        enemies.Earthquake.AddTimerBits(RoomFxRomData.Earthquake.RisingLiquidTimerBits);
-        AssertEqual((ushort)(1 | RoomFxRomData.Earthquake.RisingLiquidTimerBits), enemies.Earthquake.EarthquakeTimer.RawValue,
+        enemies.Earthquake.AddTimerBits(RoomEarthquakeDefinitions.RisingLiquidTimerBits);
+        AssertEqual((ushort)(1 | RoomEarthquakeDefinitions.RisingLiquidTimerBits), enemies.Earthquake.EarthquakeTimer.RawValue,
             "earthquake timer bits keep the running timer's bits");
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.Earthquake.AddTimerBits(ushort.MaxValue + 1),
             "earthquake timer bits above the cartridge word are rejected");

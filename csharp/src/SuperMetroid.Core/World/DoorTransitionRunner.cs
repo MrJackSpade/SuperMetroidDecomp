@@ -311,7 +311,7 @@ internal sealed class DoorTransitionRunner
         if (perLineEffects == PerLineEffectProcessing.Run)
         {
             _perLineEffects.Advance(plms, room);
-            if (_player.Samus is not null && room.Layer3Fx.MovesLiquidInHdmaPass)
+            if (_player.Samus is not null && room.Layer3Fx.MovesLiquidBeforeMainLoop)
                 _player.Samus.LiquidPhysics.ConfigureFor(room.Layer3Fx);
         }
         _system.NextRandom();

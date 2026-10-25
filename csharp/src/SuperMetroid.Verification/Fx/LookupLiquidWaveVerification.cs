@@ -16,14 +16,14 @@ internal static class LookupLiquidWaveVerification
         short Heat(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b60a + 2 * index));
         for (int index = 0; index < 16; index++)
         {
-            AssertEqual(Water(index), RoomFxRomData.Water.WaveDisplacement(index), "Original water displacement");
-            AssertEqual(Heat(index), RoomFxRomData.LavaAcid.VerticalWaveDisplacement(index), "Original heat displacement");
+            AssertEqual(Water(index), LiquidEffects.WaterWaveDisplacement(index), "Original water displacement");
+            AssertEqual(Heat(index), LiquidEffects.HeatVerticalWaveDisplacement(index), "Original heat displacement");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.Water.WaveDisplacement(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => LiquidEffects.WaterWaveDisplacement(invalid),
                 "Water retains original sixteen-word bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.LavaAcid.VerticalWaveDisplacement(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => LiquidEffects.HeatVerticalWaveDisplacement(invalid),
                 "Heat alias retains original sixteen-word bounds");
         }
 

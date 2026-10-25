@@ -33,7 +33,7 @@ internal static class LookupLiquidTilemapsVerification
     {
         foreach (RoomFxType type in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water })
         {
-            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
+            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
             byte[] transfer = RoomFxLiquidTilemapDefinitions.ComposePage(type);
             ReadOnlySpan<byte> installed = catalog.Resolve(type).Span;
             AssertEqual(0x840, transfer.Length, "Calculated full native transfer length");
@@ -65,7 +65,7 @@ internal static class LookupLiquidTilemapsVerification
         }
         foreach (RoomFxType type in valid)
         {
-            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
+            int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
             var original = new byte[0x840];
             for (int offset = 0; offset < original.Length; offset++) original[offset] = LiquidTilemapDomainAndStorageRomByte(rom, source + offset);
             AssertTrue(RoomFxLiquidTilemapDefinitions.Matches(type, original), "Full original page is recognized");

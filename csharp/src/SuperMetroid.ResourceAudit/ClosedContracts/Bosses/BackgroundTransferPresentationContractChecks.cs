@@ -44,7 +44,7 @@ internal static class BackgroundTransferPresentationContractChecks
                     pages.Resolve((RoomFxType)255);
                     blends.Apply(backgrounds, 0);
                     blends.Apply(backgrounds, RoomFxPaletteBlend.Lava);
-                    blends.Apply(backgrounds, (RoomFxPaletteBlend)1);
+                    blends.Apply(backgrounds, (RoomFxPaletteBlend)200);
                     blends.Apply(backgrounds, (RoomFxPaletteBlend)255);
                     blends.Apply(backgrounds, RoomFxPaletteBlend.Fog);
                     ending.Fragment(EndingObjectFragmentId.Segment7C);

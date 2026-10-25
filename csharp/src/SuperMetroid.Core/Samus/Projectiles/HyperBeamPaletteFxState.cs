@@ -81,7 +81,7 @@ public sealed class HyperBeamPaletteFxState
         {
             throw new InvalidDataException(
                 $"Compiled Hyper Beam palette-FX definition is inconsistent: setup " +
-                $"${(int)definition.SetupCallback:X4}, program {definition.InitialProgram}.");
+                $"{definition.SetupCallback}, program {definition.InitialProgram}.");
         }
 
         // `$8D:C552` decrements before testing. A timer of two therefore displays a frame

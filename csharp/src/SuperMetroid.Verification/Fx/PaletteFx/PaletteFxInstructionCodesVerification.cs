@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
@@ -32,10 +31,11 @@ internal static class PaletteFxInstructionCodesVerification
     /// </summary>
     internal static void VerifyPaletteFxInstructionCodeCatalogs()
     {
-        AssertPaletteFxCatalog(PaletteFxInstructionCodesType(), expectedCount: 19);
-        AssertPaletteFxCatalog(typeof(PaletteFxSetup), expectedCount: 4);
-        AssertPaletteFxCatalog(typeof(PaletteFxPreInstruction), expectedCount: 9);
-        AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 2, requireMappedPointers: false);
+        AssertPaletteFxCatalog(nameof(PaletteFxInstruction), CatalogWords(PaletteFxInstructionCodesType()), expectedCount: 19);
+        // The setups' and pre-instructions' values are arbitrary (#1415): their routine words are the native view's.
+        AssertPaletteFxCatalog(nameof(PaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
+        AssertPaletteFxCatalog(nameof(PaletteFxPreInstruction), NativeWords(FxNativeWords.PaletteFxPreInstructions), expectedCount: 9);
+        AssertPaletteFxCatalog(nameof(PaletteFxHeatData), CatalogWords(typeof(PaletteFxHeatData)), expectedCount: 2, requireMappedPointers: false);
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -47,13 +47,13 @@ internal static class PaletteFxInstructionCodesVerification
         }
 
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        Type[] catalogs =
+        ushort[][] catalogs =
         [
-            PaletteFxInstructionCodesType(),
-            typeof(PaletteFxSetup),
-            typeof(PaletteFxPreInstruction),
+            CatalogWords(PaletteFxInstructionCodesType()),
+            NativeWords(FxNativeWords.PaletteFxSetups),
+            NativeWords(FxNativeWords.PaletteFxPreInstructions),
         ];
-        foreach (Type catalog in catalogs)
+        foreach (ushort[] catalog in catalogs)
             ReadPaletteFxCatalogPointerTargets(bus, catalog);
 
         Suite(nameof(VerifyBeaconSoundInstruction), () => VerifyBeaconSoundInstruction(bus));
@@ -94,14 +94,20 @@ internal static class PaletteFxInstructionCodesVerification
 
     /// <summary>Reads each pointer's first byte so an unmapped bank-$8D cartridge target fails loudly.</summary>
     [CpuBusBoundary("exact bus test: retail ROM mapping probe for palette-FX catalog pointer targets in bank $8D")]
-    private static void ReadPaletteFxCatalogPointerTargets(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace cartridge, Type catalog)
+    private static void ReadPaletteFxCatalogPointerTargets(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace cartridge, ushort[] pointers)
     {
-        foreach (FieldInfo field in GetUshortConstants(catalog))
-        {
-            ushort pointer = field.RequiredConstant<ushort>();
+        foreach (ushort pointer in pointers)
             _ = cartridge.ReadCartridgeByte(0x8d0000 | pointer);
-        }
     }
+
+    /// <summary>The ushort constants a catalog type declares, in declaration order.</summary>
+    private static ushort[] CatalogWords(Type catalog) =>
+        GetUshortConstants(catalog).Select(field => field.RequiredConstant<ushort>()).ToArray();
+
+    /// <summary>The cartridge word naming each member of an identity whose values are arbitrary.</summary>
+    private static ushort[] NativeWords<TIdentity>(SuperMetroid.AssetExtraction.Cartridge.NativeWordIdentities<TIdentity> words)
+        where TIdentity : struct, Enum =>
+        Enum.GetValues<TIdentity>().Select(words.Word).ToArray();
 
     /// <summary>Checks both standalone delete programs' compiled words and cartridge locations.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled standalone palette-FX delete instruction words")]
@@ -215,7 +221,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual((ushort)0xc655, Word(0xdf94), "native glare set-color opcode");
         AssertEqual((ushort)0x01e0, Word(0xdf96), "native glare destination operand");
         AssertEqual(PostCreditsIconGlarePaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe202), "native glare definition entry");
-        AssertEqual((ushort)PaletteFxSetup.Null, Word(0xe200), "native glare setup callback");
+        AssertEqual(FxNativeWords.PaletteFxSetups.Word(PaletteFxSetup.Null), Word(0xe200), "native glare setup callback");
         foreach (int invalid in new[] { int.MinValue, -1, 14, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => PostCreditsIconGlarePaletteFxColorDefinitions.FramePointer(invalid), "glare frame bounds");
@@ -310,7 +316,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual((ushort)0xc655, Word(0xd6ba), "native gunship reveal set-color opcode");
         AssertEqual((ushort)0x00a0, Word(0xd6bc), "native gunship reveal destination operand");
         AssertEqual(ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe1e6), "native gunship reveal definition entry");
-        AssertEqual((ushort)PaletteFxSetup.Null, Word(0xe1e4), "native gunship reveal setup callback");
+        AssertEqual(FxNativeWords.PaletteFxSetups.Word(PaletteFxSetup.Null), Word(0xe1e4), "native gunship reveal setup callback");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionGunshipPaletteFxColorDefinitions.FramePointer(invalid), "gunship reveal frame bounds");
@@ -904,7 +910,7 @@ internal static class PaletteFxInstructionCodesVerification
         int damageSoundCount = 0;
         for (ushort frame = 0; frame <= 17; frame++)
         {
-            paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, EnemyZeroIsDead = false, AreaMiniBossDefeated = false, Samus = samus.RoomView, NmiFrameCounter = frame });
+            paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, EnemyZeroIsDead = false, AreaMiniBossDefeated = false, Samus = samus.RoomView, FrameCounter = frame });
             damageSoundCount += paletteFx.SoundRequests.Count;
             foreach (SoundRequest request in paletteFx.SoundRequests)
             {
@@ -1606,21 +1612,18 @@ internal static class PaletteFxInstructionCodesVerification
 
     /// <summary>Checks catalog size, unique callback values, and mapped bank-$8D pointers where required.</summary>
     private static void AssertPaletteFxCatalog(
-        Type catalog,
+        string catalog,
+        ushort[] pointers,
         int expectedCount,
         bool requireMappedPointers = true)
     {
-        FieldInfo[] fields = GetUshortConstants(catalog);
-        AssertEqual(expectedCount, fields.Length, $"{catalog.Name} exhaustive entry count");
-        ushort[] pointers = fields
-            .Select(field => field.RequiredConstant<ushort>())
-            .ToArray();
+        AssertEqual(expectedCount, pointers.Length, $"{catalog} exhaustive entry count");
         AssertEqual(pointers.Length, pointers.Distinct().Count(),
-            $"{catalog.Name} contains no duplicate callbacks");
+            $"{catalog} contains no duplicate callbacks");
         if (requireMappedPointers)
         {
             foreach (ushort pointer in pointers)
-                AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
+                AssertTrue(pointer >= 0x8000, $"{catalog} pointer ${pointer:X4} is mapped");
         }
     }
 

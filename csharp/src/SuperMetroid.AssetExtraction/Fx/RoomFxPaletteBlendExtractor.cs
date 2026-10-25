@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -25,9 +24,9 @@ public static class RoomFxPaletteBlendExtractor
         {
             Bgr555? calculatedThird = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(id);
             byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                RoomFxPaletteBlendDefinitions.SourceAddress(id),
-                (calculatedThird.HasValue ? 2 : RoomFxRomData.Layer3.PaletteBlendColorCount) * sizeof(ushort));
-            var colors = new PaletteRgb5[RoomFxRomData.Layer3.PaletteBlendColorCount];
+                RoomFxLayer3TilemapSources.PaletteBlend(id),
+                (calculatedThird.HasValue ? 2 : RoomFxPaletteBlendDefinitions.ColorCount) * sizeof(ushort));
+            var colors = new PaletteRgb5[RoomFxPaletteBlendDefinitions.ColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
                 Bgr555 stored = index == 2 && calculatedThird.HasValue ? calculatedThird.Value

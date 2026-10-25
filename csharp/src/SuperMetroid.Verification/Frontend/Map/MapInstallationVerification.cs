@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
@@ -277,10 +278,10 @@ internal static class MapInstallationVerification
             edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles).Span),
             "full installation consumes escape-timer artwork override");
         AssertTrue(stock.RoomFxAnimatedTiles.TryResolve(
-                RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource, 0x40,
+                AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0)), 0x40,
                 out ReadOnlyMemory<byte> stockRoomFx) &&
             edited.RoomFxAnimatedTiles.TryResolve(
-                RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource, 0x40,
+                AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0)), 0x40,
                 out ReadOnlyMemory<byte> editedRoomFx) &&
             !stockRoomFx.Span.SequenceEqual(editedRoomFx.Span),
             "full installation consumes room-FX animation artwork override");

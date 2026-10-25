@@ -23,7 +23,7 @@ public static class RoomFxAnimatedTileAtlasExtractor
         using var planar = new MemoryStream();
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
             planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                segment.SourceAddress, segment.ByteCount));
+                RoomFxAnimatedTileSources.Of(segment), segment.ByteCount));
         if (planar.Length != RoomFxAnimatedTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException(
                 $"Room-FX animation art has {planar.Length} bytes, expected {RoomFxAnimatedTileAtlasFormat.TotalByteCount}.");

@@ -13,19 +13,19 @@ namespace SuperMetroid.Core.Fx;
 /// published with <see cref="Publish"/>.
 /// </remarks>
 /// <param name="variant">The land or ocean chunk table the room main selects.</param>
-/// <param name="horizontalHdmaConfigured">Whether the sky FX or setup spawned the band HDMA object.</param>
+/// <param name="hasBands">Whether the sky FX or setup spawned the band HDMA object.</param>
 [RoomLifetime]
-public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horizontalHdmaConfigured = true)
+public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBands = true)
 {
     /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>
-    public bool HorizontalHdmaConfigured { get; } = horizontalHdmaConfigured;
+    public bool HasBands { get; } = hasBands;
 
     /// <summary>The land or ocean chunk table the sky's rows follow.</summary>
     public ScrollingSkyChunkTable Variant { get; } = variant;
 
     /// <summary>23 native 16.16 HDMA data slots; the last slot is stationary.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
-        new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
+        new uint[ScrollingSkyBandDefinitions.DataSlotCount];
 
     /// <summary>
     /// Returns whether a room-state callback dispatches to the translated land-sky
@@ -53,7 +53,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horiz
     public Position16<Bg2Pixels> Bg2Scroll { get; private set; }
 
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
-    public bool HdmaEnabled { get; private set; } = horizontalHdmaConfigured;
+    public bool BandsShown { get; private set; } = hasBands;
 
     /// <summary>Integer HDMA data words, indexed like the 23 four-byte slots at $7E:9F80.</summary>
     public ushort GetDataSlotPosition(int slot)
@@ -70,12 +70,12 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horiz
         {
             // $88:AFA8 writes a zero first HDMA entry, terminating the table. The
             // pre-instruction wrapper likewise skips fixed-point advancement.
-            HdmaEnabled = false;
+            BandsShown = false;
             return;
         }
 
-        HdmaEnabled = HorizontalHdmaConfigured;
-        if (HorizontalHdmaConfigured) AdvanceHorizontalScrolls();
+        BandsShown = HasBands;
+        if (HasBands) AdvanceHorizontalScrolls();
         Bg2Scroll = new Position16<Bg2Pixels>(0, layer1YPosition);
     }
 
@@ -86,26 +86,26 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horiz
     /// <param name="layer1YPosition">The camera's layer-one Y the bands are positioned from.</param>
     public ScrollingSkyLayer? Publish(ushort layer1YPosition)
     {
-        if (!HorizontalHdmaConfigured)
+        if (!HasBands)
             return null;
         var offsets = ImmutableArray.CreateBuilder<ushort>(_fixedHorizontalScrolls.Length);
         for (int slot = 0; slot < _fixedHorizontalScrolls.Length; slot++)
             offsets.Add(GetDataSlotPosition(slot));
-        return new ScrollingSkyLayer(layer1YPosition, offsets.MoveToImmutable(), HdmaEnabled);
+        return new ScrollingSkyLayer(layer1YPosition, offsets.MoveToImmutable(), BandsShown);
     }
 
     /// <summary>Adds each strip's native 16.16 speed and resets the stationary bottom strip.</summary>
     private void AdvanceHorizontalScrolls()
     {
-        for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
+        for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
         {
-            SkyScrollSection section = RoomFxRomData.ScrollingSky.GetSection(index);
+            SkyScrollSection section = ScrollingSkyBands.GetSection(index);
             _fixedHorizontalScrolls[section.DataSlot] = unchecked(
                 _fixedHorizontalScrolls[section.DataSlot] + (uint)section.Velocity.RawValue);
         }
 
         // $88:ADF2-$88:ADFA clears the final fractional and integer words after all 23
         // additions, keeping the bottommost section stationary.
-        _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
+        _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = 0;
     }
 }

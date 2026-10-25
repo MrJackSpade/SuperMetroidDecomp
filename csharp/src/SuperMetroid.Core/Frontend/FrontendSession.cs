@@ -170,13 +170,13 @@ internal sealed class FrontendSession
     /// <summary>Records the brightness register at full, as a fade-in that wrote $51 = $0F leaves it.</summary>
     internal void RecordFullBrightness() => PauseBrightness = PauseFadeTiming.FullyLit;
     /// <summary>Palette transition for Samus's death sequence, when active.</summary>
-    internal CartridgePaletteTransition? DeathPaletteFade { get; private set; }
+    internal GradualPaletteTransition? DeathPaletteFade { get; private set; }
     /// <summary>Starts Samus's death palette transition.</summary>
-    internal void BeginDeathPaletteFade(CartridgePaletteTransition fade) => DeathPaletteFade = Ensure.NotNull(fade);
+    internal void BeginDeathPaletteFade(GradualPaletteTransition fade) => DeathPaletteFade = Ensure.NotNull(fade);
     /// <summary>Palette transition for the escape time-up sequence.</summary>
-    internal CartridgePaletteTransition? TimeUpPaletteFade { get; private set; }
+    internal GradualPaletteTransition? TimeUpPaletteFade { get; private set; }
     /// <summary>Starts the escape time-up white-out.</summary>
-    internal void BeginTimeUpPaletteFade(CartridgePaletteTransition fade) => TimeUpPaletteFade = Ensure.NotNull(fade);
+    internal void BeginTimeUpPaletteFade(GradualPaletteTransition fade) => TimeUpPaletteFade = Ensure.NotNull(fade);
     /// <summary>Ends the escape time-up white-out.</summary>
     internal void EndTimeUpPaletteFade() => TimeUpPaletteFade = null;
     /// <summary>The death-state blackout, from full brightness on a two-frame cadence.</summary>

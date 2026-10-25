@@ -11,19 +11,19 @@ public static class RoomFxAnimatedTileAtlasFormat
     public const int ColorCount = 4;
     /// <summary>89 characters in the original simple room-FX prefix, before treadmill, statue, spore, and spike extensions.</summary>
     public const int LegacyTileCount = 89;
-    /// <summary>Four native Wrecked Ship treadmill images beginning at $87:8E64, each containing two 2bpp characters; direction reverses their runtime order.</summary>
+    /// <summary>Four Wrecked Ship treadmill pictures, each containing two 2bpp characters; direction reverses their runtime order.</summary>
     public const int TreadmillFrameCount = 4;
     /// <summary>Character count of the historical prefix after its eight treadmill characters, before the shared Tourian-statue strip.</summary>
     public const int PreStatueTileCount = LegacyTileCount + TreadmillFrameCount * 2;
-    /// <summary>Character count in the contiguous Tourian-statue source strip beginning at $87:9364; runtime frame operands select overlapping windows within it.</summary>
-    public const int StatueTileCount = TourianStatueTileStripDefinitions.ByteCount / 16;
+    /// <summary>Character count in the contiguous Tourian-statue strip; each statue picture is an overlapping window within it.</summary>
+    public const int StatueTileCount = TourianStatueTileStripDefinitions.TileCount;
     /// <summary>Character count of the historical prefix including the statue strip but preceding the spore animation extension.</summary>
     public const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
-    /// <summary>Nine 2bpp characters across the native spore animation images beginning at $87:A7E4.</summary>
+    /// <summary>Nine 2bpp characters across the three spore pictures.</summary>
     public const int SporesTileCount = 9;
     /// <summary>Character count of the historical prefix including spores but preceding horizontal-spike artwork.</summary>
     public const int PreSpikesTileCount = PreSporesTileCount + SporesTileCount;
-    /// <summary>24 characters in the three distinct horizontal-spike images beginning at $87:9D84; the fourth animation step reuses the second image rather than adding tiles.</summary>
+    /// <summary>24 characters in the three distinct horizontal-spike pictures; the fourth animation step reuses the second picture rather than adding tiles.</summary>
     public const int SpikeTileCount = 24;
     /// <summary>Total 8-by-8 characters in the current ordered strip, including all historical prefixes and the spike extension.</summary>
     public const int TileCount = PreSpikesTileCount + SpikeTileCount;
@@ -60,15 +60,16 @@ public static class RoomFxAnimatedTileAtlasFormat
                     total += segment.ByteCount;
                     yield return segment;
                 }
+        WreckedShipTreadmillObjectDefinition treadmill =
+            WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);
         for (int frame = 0; frame < TreadmillFrameCount; frame++)
         {
-            total += WreckedShipTreadmillRomData.FrameByteCount;
-            yield return new(WreckedShipTreadmillRomData.FrameSource(frame),
-                WreckedShipTreadmillRomData.FrameByteCount, true);
+            total += WreckedShipTreadmillMechanicsDefinitions.FrameByteCount;
+            yield return new RoomFxAtlasSegment.Image(treadmill.Image(frame), WreckedShipTreadmillMechanicsDefinitions.FrameByteCount);
         }
-        total += TourianStatueTileStripDefinitions.ByteCount;
-        yield return new(TourianStatueTileStripDefinitions.FirstSource,
-            TourianStatueTileStripDefinitions.ByteCount, false);
+        var statues = new RoomFxAtlasSegment.TourianStatueStrip();
+        total += statues.ByteCount;
+        yield return statues;
         foreach (var segment in Frames(RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Spores)))
         {
             total += segment.ByteCount;
@@ -82,16 +83,8 @@ public static class RoomFxAnimatedTileAtlasFormat
         if (total != TotalByteCount)
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
 
-        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileObjectDefinition definition)
-        {
-            foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
-            {
-                // The last spike step reuses image 1, already present in the strip.
-                if (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes &&
-                    frame.Index == 3) continue;
-                yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame),
-                    definition.FrameByteCount, true);
-            }
-        }
+        // Each distinct picture once: the last spike step reuses a picture already present in the strip.
+        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileObjectDefinition definition) =>
+            definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.FrameByteCount));
     }
 }

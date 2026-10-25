@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -29,8 +30,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>Index of the next entry in the four-frame cartridge list.</summary>
     public int NextFrameIndex { get; private set; }
 
-    /// <summary>Most recent 24-bit source published for the next NMI transfer.</summary>
-    public int? LastSourceAddress { get; private set; }
+    /// <summary>The picture the most recent handler pass showed, if it showed one.</summary>
+    public AnimatedTileImage? LastImage { get; private set; }
 
 
     /// <summary>
@@ -56,12 +57,12 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         IsActive = true;
         Direction = direction;
         NextFrameIndex = 0;
-        LastSourceAddress = null;
+        LastImage = null;
         if (!WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out _compiledMechanics))
-            throw new InvalidDataException($"Wrecked Ship treadmill $87:{(int)animatedObject:X4} is not compiled.");
+            throw new InvalidDataException($"Wrecked Ship treadmill {animatedObject} is not compiled.");
         if (_compiledMechanics.Direction != direction)
             throw new InvalidDataException(
-                $"Wrecked Ship treadmill $87:{(int)animatedObject:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
+                $"Wrecked Ship treadmill {animatedObject} belongs to {_compiledMechanics.Direction}, not {direction}.");
         _waitingForAreaBoss = true;
         _instructionTimer = WrappingCountdown.Start(1);
     }
@@ -76,7 +77,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         ArtworkFrameSelections frames)
     {
         Ensure.NotNull(frames);
-        LastSourceAddress = null;
+        LastImage = null;
         if (!IsActive)
             return;
 
@@ -97,8 +98,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         WreckedShipTreadmillObjectDefinition definition = _compiledMechanics ?? throw new InvalidOperationException(
             "Wrecked Ship treadmill lost its compiled mechanics.");
         _instructionTimer = WrappingCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
-        int source = definition.FrameSource(NextFrameIndex);
-        LastSourceAddress = source;
+        AnimatedTileImage image = definition.Image(NextFrameIndex);
+        LastImage = image;
         frames.Select(AnimatedTileFrames.Frame(definition.AnimatedObject, NextFrameIndex));
         NextFrameIndex = (NextFrameIndex + 1) % WreckedShipTreadmillMechanicsDefinitions.FrameCount;
     }

@@ -13,6 +13,9 @@ public static class WreckedShipTreadmillMechanicsDefinitions
     /// <summary>The frames in each treadmill loop.</summary>
     public const int FrameCount = 4;
 
+    /// <summary>The bytes of characters every treadmill frame shows: two characters.</summary>
+    public const ushort FrameByteCount = 32;
+
     /// <summary>The passes each treadmill frame is shown for: every pass shows the next frame.</summary>
     public const int FrameDuration = 1;
 

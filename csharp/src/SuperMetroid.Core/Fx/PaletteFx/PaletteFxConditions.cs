@@ -29,5 +29,5 @@ public sealed record PaletteFxConditions
     /// The frame counter this frame, 0 through 65535: the heat pre-instruction plays its damage sound on every
     /// eighth frame of it. Values outside the counter's range are rejected.
     /// </summary>
-    public int NmiFrameCounter { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int FrameCounter { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 }

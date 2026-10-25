@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>Verification access to <see cref="RoomFxRecordDefinition"/> members production does not use.</summary>
 internal static class RoomFxRecordDefinitionAccess
 {
-    /// <summary>Reads the packed 16-byte room-FX record as native little-endian fields.</summary>
+    /// <summary>Encodes the typed room-FX record back to its 16 native bytes through the record codec (#1415).</summary>
     extension(RoomFxRecordDefinition self)
     {
         /// <summary>The record's native door word: FFFF for a terminator, zero for a default record, else the door's pointer.</summary>
@@ -24,13 +24,13 @@ internal static class RoomFxRecordDefinitionAccess
             6 => (byte)self.PackedYVelocity,
             7 => (byte)(SnesEightEight.WholeOf(self.PackedYVelocity)),
             8 => self.Timer,
-            9 => self.Type,
-            10 => self.DefaultLayerBlend,
-            11 => self.Layer3LayerBlend,
-            12 => self.LiquidOptions,
-            13 => self.PaletteFxBitset,
-            14 => self.AnimatedTileBitset,
-            15 => self.PaletteBlend,
+            9 => RoomFxRecordCodec.TypeByte(self.Type),
+            10 => RoomFxRecordCodec.LayerBlendByte(self.DefaultLayerBlend),
+            11 => RoomFxRecordCodec.LayerBlendByte(self.Layer3LayerBlend),
+            12 => RoomFxRecordCodec.LiquidOptionsByte(self.LiquidOptions),
+            13 => RoomFxRecordCodec.SlotsByte(self.PaletteFxSlots),
+            14 => RoomFxRecordCodec.SlotsByte(self.AnimatedTileSlots),
+            15 => RoomFxRecordCodec.PaletteBlendByte(self.PaletteBlend),
             _ => throw new ArgumentOutOfRangeException(nameof(offset)),
         };
 

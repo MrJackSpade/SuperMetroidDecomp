@@ -31,7 +31,7 @@ internal static class LookupTreadmillMechanicsVerification
     /// <summary>Resolves a native treadmill object header to its compiled direction definition.</summary>
     internal static WreckedShipTreadmillObjectDefinition TreadmillDefinition(ushort header)
     {
-        AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)header, out var definition), "Native treadmill resolves");
+        AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(header, "animated-tile object"), out var definition), "Native treadmill resolves");
         return (definition ?? throw new InvalidOperationException("Verification requires definition."));
     }
 
@@ -51,17 +51,17 @@ internal static class LookupTreadmillMechanicsVerification
         {
             ushort header = index == 0 ? (ushort)0x8275 : (ushort)0x827b;
             var direction = index == 0 ? WreckedShipTreadmillDirection.Rightwards : WreckedShipTreadmillDirection.Leftwards;
-            AssertEqual(header, (ushort)all[index].AnimatedObject, "Original enumeration identity/order");
+            AssertEqual(header, FxNativeWords.AnimatedTileObjects.Word(all[index].AnimatedObject), "Original enumeration identity/order");
             AssertEqual(direction, all[index].Direction, "Original direction association");
-            AssertEqual(header, (ushort)WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction).AnimatedObject, "Named direction selects header");
+            AssertEqual(header, FxNativeWords.AnimatedTileObjects.Word(WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction).AnimatedObject), "Named direction selects header");
             AssertEqual(direction, TreadmillDefinition(header).Direction, "Header selects named direction");
         }
         foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
         {
-            ushort value = (ushort)header;
+            ushort value = FxNativeWords.AnimatedTileObjects.Word(header);
             bool found = WreckedShipTreadmillMechanicsDefinitions.TryResolve(header, out var definition);
             AssertEqual(value is 0x8275 or 0x827b, found, "Complete header domain");
-            if (found) AssertEqual(value, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject, "Resolved identity");
+            if (found) AssertEqual(value, FxNativeWords.AnimatedTileObjects.Word((definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject), "Resolved identity");
             else AssertTrue(definition is null, "Unknown header returns null");
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)

@@ -189,9 +189,9 @@ internal static class LookupTourianProgramVerification
     /// <summary>The statue picture whose artwork window a native frame operand selects.</summary>
     private static TourianStatueTilePicture Picture(TourianStatueAnimatedTileProgramDefinition definition, ushort operand, string at)
     {
-        int source = RoomFxRomData.Banks.AnimatedTiles | operand;
+        int source = RoomFxNativeSources.AnimatedTilesBank | operand;
         TourianStatueTilePicture[] matches = [.. TourianStatueTileStripDefinitions.Pictures.Where(picture =>
-            TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture) == source)];
+            AnimatedTileImageSources.TourianStatue(definition.AnimatedObject, picture) == source)];
         AssertEqual(1, matches.Length, $"{at}: frame source selects exactly one statue picture");
         return matches[0];
     }
@@ -202,5 +202,5 @@ internal static class LookupTourianProgramVerification
 
     /// <summary>The bank-$87 word at <paramref name="cursor"/>.</summary>
     private static ushort Word(ISnesAddressSpace rom, int cursor) =>
-        ReadVerificationWord(rom, RoomFxRomData.Banks.AnimatedTiles | cursor);
+        ReadVerificationWord(rom, RoomFxNativeSources.AnimatedTilesBank | cursor);
 }

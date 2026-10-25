@@ -33,16 +33,16 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(ushort.MaxValue + 1), "layer-3 frame random number above the word");
         AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(-1), "negative layer-3 frame random number");
 
-        AssertEqual(ushort.MaxValue, (Conditions(0) with { NmiFrameCounter = ushort.MaxValue }).NmiFrameCounter,
+        AssertEqual(ushort.MaxValue, (Conditions(0) with { FrameCounter = ushort.MaxValue }).FrameCounter,
             "palette-FX frame counter keeps the largest word");
-        AssertEqual(0, Conditions(0).NmiFrameCounter, "palette-FX frame counter defaults to zero");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { NmiFrameCounter = ushort.MaxValue + 1 },
+        AssertEqual(0, Conditions(0).FrameCounter, "palette-FX frame counter defaults to zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { FrameCounter = ushort.MaxValue + 1 },
             "palette-FX frame counter above the word");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { NmiFrameCounter = -1 }, "negative palette-FX frame counter");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { FrameCounter = -1 }, "negative palette-FX frame counter");
 
-        var request = new RoomFxEarthquakeRequest(RoomFxRomData.Earthquake.RisingLiquidType, RoomFxRomData.Earthquake.RisingLiquidTimerBits);
-        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, request.Type, "earthquake request keeps its type");
-        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidTimerBits, request.TimerBits, "earthquake request keeps its timer bits");
+        var request = new RoomFxEarthquakeRequest(RoomEarthquakeDefinitions.RisingLiquidType, RoomEarthquakeDefinitions.RisingLiquidTimerBits);
+        AssertEqual(RoomEarthquakeDefinitions.RisingLiquidType, request.Type, "earthquake request keeps its type");
+        AssertEqual(RoomEarthquakeDefinitions.RisingLiquidTimerBits, request.TimerBits, "earthquake request keeps its timer bits");
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomFxEarthquakeRequest(ushort.MaxValue + 1, 0), "earthquake request type above the word");
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomFxEarthquakeRequest(0, -1), "negative earthquake request timer bits");
 

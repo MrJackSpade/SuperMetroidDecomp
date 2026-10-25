@@ -867,7 +867,7 @@ internal sealed class RoomLoader
         // ($88:A7D8 / $88:ADC2), not to the tilemap callback ($88:AFA3).
         RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
         bool skyHdmaConfigured =
-            selectedFx?.Type == (byte)RoomFxType.ScrollingSky ||
+            selectedFx?.Type == RoomFxType.ScrollingSky ||
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
                 RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)

@@ -32,7 +32,7 @@ internal static class LookupAnimatedAreasVerification
                 AssertEqual(expected, AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit),
                     "Original native animation area/bit selection");
                 if (area < 7)
-                    AssertEqual(expected, (ushort)AreaAnimatedTileObjectDefinitions.Read((AreaId)area, bit),
+                    AssertEqual(expected, FxNativeWords.AnimatedTileObjects.Word(AreaAnimatedTileObjectDefinitions.Read((AreaId)area, bit)),
                         "Retail view shares original selection");
             }
             else

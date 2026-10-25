@@ -40,7 +40,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
                 RoomFxAnimatedTileFrameDefinition frame = definition.Frames[frameIndex];
-                int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                int source = AnimatedTileImageSources.OfCursor(
                     definition, frame.InstructionPointer);
                 byte[] native = RomDataReader.ReadFixedBank(rom, source,
                     definition.FrameByteCount);
@@ -50,7 +50,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
                 int ticksUntilFrame = frameIndex == 0 ? 1 : definition.Frames[frameIndex - 1].Duration;
                 for (int tick = 0; tick < ticksUntilFrame; tick++)
                     state.Step(frames);
-                AssertEqual(source, state.LastSourceAddress,
+                AssertEqual(source, AnimatedTileImageSources.Of(state.LastImage),
                     $"room-FX frame $87:{frame.InstructionPointer:X4} selects its compiled art source");
                 AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
                         shown == AnimatedTileFrames.Frame(definition.AnimatedObject, frameIndex),
@@ -74,15 +74,15 @@ internal static class RoomFxAnimatedTileArtworkVerification
             {
                 int nativeFrame = direction == WreckedShipTreadmillDirection.Rightwards
                     ? frame : 3 - frame;
-                int source = WreckedShipTreadmillRomData.FrameSource(nativeFrame);
+                int source = AnimatedTileImageSources.Treadmill(nativeFrame);
                 byte[] native = RomDataReader.ReadFixedBank(rom, source,
-                    WreckedShipTreadmillRomData.FrameByteCount);
+                    WreckedShipTreadmillMechanicsDefinitions.FrameByteCount);
                 AssertTrue(atlas.TryResolve(source, native.Length,
                         out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
                     $"{direction} treadmill frame {frame} preserves every cartridge pixel byte");
                 treadmill.Step(areaBossDefeated: true, treadmillFrames);
-                AssertEqual(source, treadmill.LastSourceAddress,
+                AssertEqual(source, AnimatedTileImageSources.Of(treadmill.LastImage),
                     $"{direction} frame {frame} selects the compiled artwork identity");
                 AssertTrue(treadmillFrames.TryShown(AnimatedTileFrames.Of(treadmillObject), out ArtworkFrame shown) &&
                         shown == AnimatedTileFrames.Frame(treadmillObject, frame),
@@ -91,7 +91,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed animations never read bank-$87 ROM data");
         AssertThrows<InvalidDataException>(() => atlas.TryResolve(
-            RoomFxAnimatedTileArtworkDefinitions.LavaFirstSource, 1, out _),
+            AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.Lava, 0)), 1, out _),
             "artwork cannot change the native transfer byte count");
         AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");
@@ -121,7 +121,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         AreaMapPresentationCatalog changed = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(changed.ContentIdentity != baseline.ContentIdentity,
             "room-FX PNG edit changes installed content identity");
-        int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.MaridiaSandCeilingFirstSource;
+        int sourceAddress = AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0));
         AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
             out ReadOnlyMemory<byte> edited), "edited room-FX atlas resolves first frame");
         AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(sourceAddress, 0x40,
@@ -137,13 +137,13 @@ internal static class RoomFxAnimatedTileArtworkVerification
                 shownSand == AnimatedTileFrames.Frame(AnimatedTileObject.MaridiaSandCeiling, 0),
             "the edited first frame is the frame the sand ceiling shows");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "edited room-FX animation remains ROM-free");
-        int treadmillSource = WreckedShipTreadmillRomData.Frame0Source;
+        int treadmillSource = AnimatedTileImageSources.Treadmill(0);
         AssertTrue(changed.RoomFxAnimatedTiles.TryResolve(treadmillSource,
-                WreckedShipTreadmillRomData.FrameByteCount,
+                WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
                 out ReadOnlyMemory<byte> editedTreadmill),
             "edited room-FX atlas resolves the Wrecked Ship treadmill frame");
         AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(treadmillSource,
-                WreckedShipTreadmillRomData.FrameByteCount,
+                WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
                 out ReadOnlyMemory<byte> stockTreadmill),
             "stock room-FX atlas resolves the Wrecked Ship treadmill frame");
         AssertTrue(!editedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
@@ -158,7 +158,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             "the edited first frame is the frame the treadmill shows");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited treadmill animation remains ROM-free");
-        int statueSource = TourianStatueTileStripDefinitions.FirstSource;
+        int statueSource = AnimatedTileImageSources.TourianStatueStripStart;
         AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
                 out ReadOnlyMemory<byte> stockStatue),
             "stock Tourian statue frame is installed");
@@ -217,7 +217,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             !migratedSimple.Span.SequenceEqual(original.Span),
             "old-size room-FX override retains its edited liquid/sand pixels");
         AssertTrue(migrated.RoomFxAnimatedTiles.TryResolve(treadmillSource,
-                WreckedShipTreadmillRomData.FrameByteCount,
+                WreckedShipTreadmillMechanicsDefinitions.FrameByteCount,
                 out ReadOnlyMemory<byte> migratedTreadmill) &&
             migratedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
             "old-size room-FX override receives only new treadmill frames from stock");

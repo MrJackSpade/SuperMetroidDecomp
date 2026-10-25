@@ -26,6 +26,9 @@ public enum RoomLiquidOptions : byte
     /// </summary>
     WaterPhysicsDisabledOrHorizontalHeatWave = 0x04,
 
+    /// <summary>An option some records set that no liquid tests; kept so the record's options round-trip.</summary>
+    Untested = 0x08,
+
     /// <summary>The surface rises and falls by up to 32 pixels; the small tide takes priority when both are set.</summary>
     LargeTide = 0x40,
 

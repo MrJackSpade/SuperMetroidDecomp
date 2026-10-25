@@ -1,19 +1,20 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The shared bank-$87 strip the four Tourian statues' animated tiles read (#1395): each statue's three oscillation
-/// windows and its released picture are windows of the one strip the room-FX atlas packs.
+/// The shared strip of characters the four Tourian statues' animated tiles show (#1395): each statue's three
+/// oscillation pictures and its released picture are windows of the one strip the room-FX atlas packs (#1415: by
+/// character position, not by cartridge address).
 /// </summary>
 public static class TourianStatueTileStripDefinitions
 {
-    /// <summary>The strip's first source byte.</summary>
-    public const int FirstSource = 0x879364;
+    /// <summary>The characters in the strip.</summary>
+    public const int TileCount = 96;
 
-    /// <summary>The source byte after the strip.</summary>
-    public const int SourceEnd = 0x879964;
+    /// <summary>The bytes of one two-bit character.</summary>
+    public const int BytesPerTile = 16;
 
     /// <summary>The strip's length in bytes.</summary>
-    public const int ByteCount = SourceEnd - FirstSource;
+    public const int ByteCount = TileCount * BytesPerTile;
 
     /// <summary>The statues whose pictures are windows of the strip.</summary>
     public static IReadOnlyList<AnimatedTileObject> Statues { get; } =
@@ -27,34 +28,33 @@ public static class TourianStatueTileStripDefinitions
     /// <summary>The pictures each statue shows, each one window of the strip.</summary>
     public static IReadOnlyList<TourianStatueTilePicture> Pictures { get; } = Enum.GetValues<TourianStatueTilePicture>();
 
-    /// <summary>The bytes one picture of <paramref name="statue"/> transfers.</summary>
-    public static int WindowByteCount(AnimatedTileObject statue) => Window(statue).Width;
+    /// <summary>The bytes one picture of <paramref name="statue"/> shows.</summary>
+    public static int WindowByteCount(AnimatedTileObject statue) => Window(statue).Tiles * BytesPerTile;
 
-    /// <summary>A statue's first oscillation window, the window width and its released picture.</summary>
-    private readonly record struct StatueWindow(int First, int Width, int Released);
+    /// <summary>A statue's first oscillation picture's first character, its pictures' width in characters and its released picture's first character.</summary>
+    private readonly record struct StatueWindow(int First, int Tiles, int Released);
 
-    /// <summary>The source address of <paramref name="picture"/> of <paramref name="statue"/>.</summary>
-    public static int SourceAddress(AnimatedTileObject statue, TourianStatueTilePicture picture)
+    /// <summary>The strip character <paramref name="picture"/> of <paramref name="statue"/> starts at.</summary>
+    public static int FirstTile(AnimatedTileObject statue, TourianStatueTilePicture picture)
     {
-        (int first, int width, int released) = Window(statue);
-        int source = picture switch
+        StatueWindow window = Window(statue);
+        return picture switch
         {
-            TourianStatueTilePicture.OscillationFirst => first,
-            TourianStatueTilePicture.OscillationSecond => first + width,
-            TourianStatueTilePicture.OscillationThird => first + 2 * width,
-            TourianStatueTilePicture.Released => released,
+            TourianStatueTilePicture.OscillationFirst => window.First,
+            TourianStatueTilePicture.OscillationSecond => window.First + window.Tiles,
+            TourianStatueTilePicture.OscillationThird => window.First + 2 * window.Tiles,
+            TourianStatueTilePicture.Released => window.Released,
             _ => throw new InvalidDataException($"Undefined {nameof(TourianStatueTilePicture)} {picture}."),
         };
-        return RoomFxRomData.Banks.AnimatedTiles | source;
     }
 
     /// <summary>The windows of <paramref name="statue"/>.</summary>
     private static StatueWindow Window(AnimatedTileObject statue) => statue switch
     {
-        AnimatedTileObject.TourianStatuePhantoon => new(0x9364, 0x80, 0x97e4),
-        AnimatedTileObject.TourianStatueRidley => new(0x94e4, 0x40, 0x9864),
-        AnimatedTileObject.TourianStatueKraid => new(0x9724, 0x40, 0x98a4),
-        AnimatedTileObject.TourianStatueDraygon => new(0x95a4, 0x80, 0x98e4),
+        AnimatedTileObject.TourianStatuePhantoon => new(0, 8, 72),
+        AnimatedTileObject.TourianStatueRidley => new(24, 4, 80),
+        AnimatedTileObject.TourianStatueKraid => new(60, 4, 84),
+        AnimatedTileObject.TourianStatueDraygon => new(36, 8, 88),
         AnimatedTileObject.None or
             AnimatedTileObject.Empty or
             AnimatedTileObject.HorizontalSpikes or

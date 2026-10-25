@@ -13,10 +13,10 @@ internal static class LookupHorizontalHeatWaveVerification
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));
         for (int index = 0; index < 16; index++)
-            AssertEqual(Original(index), RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(index),
+            AssertEqual(Original(index), LiquidEffects.HeatHorizontalWaveDisplacement(index),
                 "Original horizontal heat wave including unequal zero gaps");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => LiquidEffects.HeatHorizontalWaveDisplacement(invalid),
                 "Horizontal wave retains original span bounds");
 
         for (int phase = 0; phase < 16; phase++)

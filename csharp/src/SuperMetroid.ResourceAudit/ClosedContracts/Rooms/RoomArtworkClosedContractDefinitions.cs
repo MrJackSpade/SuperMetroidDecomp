@@ -24,6 +24,7 @@ internal static class RoomArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/Scrolling/SkyTilemap.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollingSkyChunks.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomBackgroundTilemapAtlas.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/RoomFxRomData.cs")]),
+             new("csharp/src/SuperMetroid.Core/Fx/ScrollingSkyBands.cs"),
+             new("csharp/src/SuperMetroid.Core/Fx/ScrollingSkyBandDefinitions.cs")]),
     ];
 }

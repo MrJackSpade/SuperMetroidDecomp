@@ -1,22 +1,36 @@
+using SuperMetroid.Core.Fx.Artwork;
+
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>One engine-owned bank-$87 animated-tile object header and loop skeleton.</summary>
+/// <summary>One engine-owned room-FX animated-tile object: its frame size, frame schedule and the pictures its frames show.</summary>
 public sealed class RoomFxAnimatedTileObjectDefinition
 {
     /// <summary>Arithmetic view of timed records, retaining no presentation source pointers.</summary>
     internal readonly CalculatedFrames frames;
 
-    /// <summary>Binds a bank-$87 object header to its frame size and frame schedule.</summary>
+    /// <summary>Binds an animated-tile object to its frame size, frame schedule and distinct pictures.</summary>
+    /// <param name="animatedObject">The object.</param>
+    /// <param name="frameByteCount">The bytes of characters every frame shows.</param>
+    /// <param name="frameCount">The timed frames in the loop.</param>
+    /// <param name="frameDuration">The passes each frame is shown for.</param>
+    /// <param name="imageCount">
+    /// The distinct pictures the frames show. A loop with fewer pictures than frames plays them forward and back:
+    /// the horizontal spikes' four frames show pictures 0, 1, 2 and 1.
+    /// </param>
     internal RoomFxAnimatedTileObjectDefinition(
         AnimatedTileObject animatedObject,
         ushort frameByteCount,
         int frameCount,
-        ushort frameDuration)
+        ushort frameDuration,
+        int imageCount)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(imageCount);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(imageCount, frameCount);
 
         AnimatedObject = animatedObject;
         FrameByteCount = frameByteCount;
+        ImageCount = imageCount;
         frames = new CalculatedFrames(animatedObject, frameCount, frameDuration);
     }
 
@@ -50,13 +64,30 @@ public sealed class RoomFxAnimatedTileObjectDefinition
         /// <summary>Exposes the same native frame order to non-generic collection callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>The object-header address within bank $87.</summary>
+    /// <summary>The animated-tile object this definition schedules.</summary>
     public AnimatedTileObject AnimatedObject { get; }
 
 
     /// <summary>The bytes of characters every frame shows.</summary>
     public ushort FrameByteCount { get; }
 
+    /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
+    public int ImageCount { get; }
+
     /// <summary>The timed frame-control records in cartridge execution order.</summary>
     public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => frames;
+
+    /// <summary>The distinct pictures the object's frames show, in order.</summary>
+    public IEnumerable<AnimatedTileImage> Images => Enumerable.Range(0, ImageCount).Select(index => new AnimatedTileImage(AnimatedObject, index));
+
+    /// <summary>The picture <paramref name="frame"/> shows: past the last picture, the loop plays its pictures back.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of this object's frames.</exception>
+    public AnimatedTileImage Image(RoomFxAnimatedTileFrameDefinition frame)
+    {
+        if (frame.Object != AnimatedObject || (uint)frame.Index >= (uint)Frames.Count)
+            throw new InvalidDataException(
+                $"Room-FX object {AnimatedObject} has no artwork frame {frame.Index} of {frame.Object}.");
+        int index = frame.Index < ImageCount ? frame.Index : 2 * (ImageCount - 1) - frame.Index;
+        return new(AnimatedObject, index);
+    }
 }

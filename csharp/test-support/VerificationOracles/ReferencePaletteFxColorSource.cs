@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx;
 
+using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
@@ -18,7 +18,7 @@ internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : 
     [CpuBusBoundary("exact bus test: retail ROM oracle for palette-FX color words")]
     public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color)
     {
-        int address = RoomFxRomData.Banks.PaletteFx | PaletteFxRecordSources.ColorAddress(key);
+        int address = RoomFxCartridgeBanks.PaletteFx | PaletteFxRecordSources.ColorAddress(key);
         color = Bgr555.FromWord(CartridgeImportSource.Require(source).ReadCartridgeWord(address));
         return true;
     }

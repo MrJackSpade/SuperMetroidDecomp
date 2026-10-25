@@ -10,16 +10,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed record TourianStatuePictureCharacters(AnimatedTileObject Statue, TourianStatueTilePicture Picture) : ObjCharacterSource
 {
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The installed animated tiles hold no such picture.</exception>
+    /// <exception cref="InvalidDataException">The statue's pictures are not the size its program copies.</exception>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver)
     {
         TourianStatueAnimatedTileProgramDefinition definition =
             TourianStatueAnimatedTileMechanicsDefinitions.All.Single(statue => statue.AnimatedObject == Statue);
-        return InstalledSpriteCharacterArtwork.Of(resolver).AnimatedTiles.TryResolve(
-            TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, Picture), definition.FrameByteCount,
-            out ReadOnlyMemory<byte> characters)
-            ? characters
-            : throw new InvalidDataException($"Installed animated tiles hold no {Statue} {Picture} picture.");
+        return InstalledSpriteCharacterArtwork.Of(resolver).AnimatedTiles.TourianStatuePicture(
+            definition.AnimatedObject, Picture, definition.FrameByteCount);
     }
 
     /// <summary>Names the source for diagnostics.</summary>

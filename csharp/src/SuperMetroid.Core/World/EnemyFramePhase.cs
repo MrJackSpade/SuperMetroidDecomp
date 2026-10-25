@@ -139,7 +139,7 @@ internal sealed class EnemyFramePhase
             }
             // `$A9:8C0C` deletes HDMA objects 0-3; the next frame's HDMA pass runs none of them.
             if (result.DeleteLiquidHdmaObjects)
-                room.Layer3Fx.DeleteLiquidHdmaObjects();
+                room.Layer3Fx.StopLiquidMotion();
             if (result.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary

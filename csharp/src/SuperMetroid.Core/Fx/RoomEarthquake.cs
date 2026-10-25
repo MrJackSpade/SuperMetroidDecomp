@@ -35,10 +35,10 @@ internal sealed class RoomEarthquake
     /// <summary>Ports $86:8427, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
     {
-        if (EarthquakeTimer.IsZero || timeIsFrozen || EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
+        if (EarthquakeTimer.IsZero || timeIsFrozen || EarthquakeType >= RoomEarthquakeDefinitions.FirstNonRenderedType)
             return default;
         RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
-        return (EarthquakeTimer.RawValue & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0
+        return (EarthquakeTimer.RawValue & RoomEarthquakeDefinitions.AlternatingDirectionTimerMask) != 0
             ? -definition.Projectile
             : definition.Projectile;
     }
@@ -56,7 +56,7 @@ internal sealed class RoomEarthquake
         // displacement table and are owned by other effects rather than room shaking.
         if (EarthquakeTimer.IsZero ||
             timeIsFrozen ||
-            EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
+            EarthquakeType >= RoomEarthquakeDefinitions.FirstNonRenderedType)
             return false;
 
         RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
@@ -65,7 +65,7 @@ internal sealed class RoomEarthquake
 
         // Bit one alternates which side of the origin is shown. Native code forms the
         // negative half with EOR #$FFFF / INC before adding the same table word.
-        if ((EarthquakeTimer.RawValue & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
+        if ((EarthquakeTimer.RawValue & RoomEarthquakeDefinitions.AlternatingDirectionTimerMask) != 0)
         {
             bg1 = -bg1;
             bg2 = -bg2;
@@ -74,6 +74,6 @@ internal sealed class RoomEarthquake
         EarthquakeTimer = EarthquakeTimer.Decrement().Remaining;
         LastRoomShake = new RoomShakeFrameResult(bg1, bg2);
         // Types $12-$23 shake every actor selected by DetermineWhichEnemiesToProcess.
-        return EarthquakeType >= RoomFxRomData.Earthquake.FirstEnemyShakingType;
+        return EarthquakeType >= RoomEarthquakeDefinitions.FirstEnemyShakingType;
     }
 }

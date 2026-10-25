@@ -6,6 +6,8 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
+using SuperMetroid.Core.Fx;
+
 namespace SuperMetroid.Verification.Fx;
 
 /// <summary>Checks calculated black liquid-blend third colors and preservation of supplied overrides.</summary>
@@ -28,10 +30,10 @@ internal static class LookupFxBlendBlackColorsVerification
         foreach (byte id in OriginalBlackBlendIds())
         {
             int expected = (ReadVerificationWord(rom, 0x89aa06 + id) >> shift) & 31;
-            AssertEqual(expected, ((RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id).")).ToWord() >> shift) & 31, "Original third-color component");
-            AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> shift) & 31, "Resolved third-color component");
+            AssertEqual(expected, ((RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")).ToWord() >> shift) & 31, "Original third-color component");
+            AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> shift) & 31, "Resolved third-color component");
             var cgram = new GameplayColours(new SpriteColourSets());
-            stock.Apply(cgram.BackgroundSets, (RoomFxPaletteBlend)id);
+            stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> shift) & 31, "Applied third-color component");
         }
     }
@@ -43,9 +45,9 @@ internal static class LookupFxBlendBlackColorsVerification
         {
             byte id = (byte)value;
             if (OriginalBlackBlendIds().Contains(id)) AssertEqual(0,
-                (RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id).")), "Six liquid selections calculate black");
-            else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) is null, "Weather third color stays independent");
-            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id), "Unknown calculated-color selector rejects");
+                (RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")), "Six liquid selections calculate black");
+            else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) is null, "Weather third color stays independent");
+            else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)), "Unknown calculated-color selector rejects");
         }
         foreach (var field in MetadataShape.Fields(typeof(RoomFxPaletteBlendCatalog), BindingFlags.Instance | BindingFlags.NonPublic)
                      .Where(field => field.FieldType == typeof(RoomFxBlendColors)))
@@ -59,7 +61,7 @@ internal static class LookupFxBlendBlackColorsVerification
         foreach (byte id in OriginalBlackBlendIds())
         foreach (ushort third in new ushort[] { 0, 1, 31, 32, 1023, 1024, 32767 })
         {
-            var owner = new RoomFxBlendColors((RoomFxPaletteBlend)id, Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked(third)));
+            var owner = new RoomFxBlendColors(FxNativeWords.PaletteBlend(id), Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked(third)));
             var colors = owner.CreateColors();
             AssertEqual(third, colors[2], "Custom third-color components survive");
             colors[2] = Bgr555.FromWord((ushort)(colors[2].ToWord() ^ (1)));

@@ -190,12 +190,12 @@ internal sealed class DraygonGoop
     /// <summary>Registers goop flight and attachment instructions with the projectile interpreter.</summary>
     internal void RegisterDraygonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunAttachedDraygonGoop(context.Projectile, context.Samus);
         }, EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
             DeleteEnemyProjectileIfPowerBombed(context.Projectile, context.Samus);
@@ -203,19 +203,19 @@ internal sealed class DraygonGoop
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
         }, EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunFlyingDraygonGoop(context.Projectile, context.Samus);
         }, EnemyProjectilePreInstruction.DraygonGoop);
 
         // A shot wall turret runs the shared misc-dust small explosion, the list its definition names.
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.DraygonWallTurret,
+        table.AddShotAnimation(RoomEnemyProjectileKind.DraygonWallTurret,
             () => new MiscDustProjectileAnimation(MiscDustProjectileProgram.SmallExplosion));
-        table.RegisterTouchAnimation(RoomEnemyProjectileKind.DraygonGoop,
+        table.AddTouchAnimation(RoomEnemyProjectileKind.DraygonGoop,
             () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.DraygonGoop,
+        table.AddShotAnimation(RoomEnemyProjectileKind.DraygonGoop,
             () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopShot));
-        table.RegisterCue<DraygonProjectileCue>((context, cue) =>
+        table.AddCue<DraygonProjectileCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             SamusState? samus = context.Samus;

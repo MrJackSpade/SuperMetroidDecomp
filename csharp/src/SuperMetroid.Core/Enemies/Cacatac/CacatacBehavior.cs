@@ -187,7 +187,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
     internal static void RegisterCacatacProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             // Cacatac spike: ten direction-table movers.
             RunCacatacSpikePreInstruction(context.Projectile, context.Camera);

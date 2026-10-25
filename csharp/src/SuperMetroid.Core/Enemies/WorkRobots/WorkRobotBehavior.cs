@@ -391,7 +391,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects robot lasers to collision-first movement in their projectile pre-instruction.</summary>
     internal static void RegisterWorkRobotProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunWorkRobotLaserPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.WreckedShipRobotLaser);

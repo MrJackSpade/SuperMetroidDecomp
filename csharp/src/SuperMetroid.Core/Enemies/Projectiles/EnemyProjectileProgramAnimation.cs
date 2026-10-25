@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// A projectile animation that runs programs of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/>: for
 /// families whose native lists run on into, or jump between, one another. Each cue goes to the handler its family
-/// registered with <see cref="EnemyProjectileHandlerTable.RegisterCue{TCue}"/>, or with
-/// <see cref="EnemyProjectileHandlerTable.RegisterBranchingCue{TProgram, TCue}"/> when a cue may redirect the program,
+/// registered with <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
+/// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when a cue may redirect the program,
 /// as a native conditional goto does. Counter steps count the projectile's general timer.
 /// </summary>
 /// <typeparam name="TProgram">The family's program identity.</typeparam>

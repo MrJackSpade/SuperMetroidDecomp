@@ -388,7 +388,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects Alcoon fireballs to their bank-$86 movement pre-instruction.</summary>
     internal static void RegisterAlcoonProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunAlcoonFireballPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.AlcoonFireball);

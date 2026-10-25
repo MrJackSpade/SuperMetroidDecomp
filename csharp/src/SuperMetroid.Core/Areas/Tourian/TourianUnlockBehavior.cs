@@ -259,7 +259,7 @@ internal sealed class TourianUnlockBehavior
     {
         // The Tourian statue effects use words outside the closed bank-$86 sets.
         table.InterceptPreInstructions(TryStepTourianUnlockEffect);
-        table.RegisterCue<TourianStatueProjectileCue>((context, cue) =>
+        table.AddCue<TourianStatueProjectileCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)

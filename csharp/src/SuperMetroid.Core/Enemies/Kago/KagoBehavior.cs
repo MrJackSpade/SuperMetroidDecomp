@@ -124,24 +124,24 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects the bug's idle, rising, falling, jump, landing, and drop handlers to projectile dispatch.</summary>
     internal void RegisterKagoProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunKagoBugIdle(context.Projectile);
         }, EnemyProjectilePreInstruction.KagoBug_Idle);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunKagoBugJumping(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KagoBug_Jumping);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunKagoBugFalling(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KagoBug_Falling);
 
-        table.RegisterCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
+        table.AddCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
         // A shot bug runs its typed shot program, the list its definition names.
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileProgram.Shot));
+        table.AddShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileProgram.Shot));
     }
 
     /// <summary>Carries out one cue of the bugs' programs.</summary>

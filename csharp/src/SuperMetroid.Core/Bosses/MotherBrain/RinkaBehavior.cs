@@ -602,7 +602,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Attaches the native camera cull to miscellaneous dust and explosion projectiles.</summary>
     internal static void RegisterMiscDustPreInstruction(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             CullMiscDustOutsideCamera(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.MiscDust);

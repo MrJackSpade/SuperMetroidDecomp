@@ -519,12 +519,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers front and linked attack-circle movement callbacks.</summary>
     internal void RegisterShaktoolProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunShaktoolFrontCirclePreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.ShaktoolsAttack_Front);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunShaktoolLinkedCirclePreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);

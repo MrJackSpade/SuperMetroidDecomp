@@ -560,14 +560,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>
     internal static void RegisterWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunPirateMotherBrainLaserPreInstruction(
                 context.Projectile,
                 context.Camera);
         }, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right);
 
-        table.RegisterCue<SpacePirateProjectileCue>((context, cue) =>
+        table.AddCue<SpacePirateProjectileCue>((context, cue) =>
         {
             context.Projectile.PreInstruction = cue.Movement;
             // A050 returns the argument cursor unchanged, so the common interpreter dispatches the installed

@@ -40,67 +40,67 @@ internal sealed class TorizoAttacks
     /// <summary>Installs movement handlers and typed program cues for statue fragments, orbs, attacks, and reflected missiles.</summary>
     internal void RegisterBombTorizoProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunBombTorizoStatueBreakingPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunBombTorizoChozoOrbPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.BombTorizosChozoOrbs);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunGoldenTorizoChozoOrbPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.GoldenTorizosChozoOrbs);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunBombTorizoSonicBoomPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.TorizoSonicBoom);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunBombTorizoDroolPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.BombTorizoLowHealthDrool_Falling);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEggPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEggHorizontalCharge(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEggFall(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunGoldenTorizoSuperMissilePreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunGoldenTorizoSuperMissileFlight(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEyeBeamPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.GoldenTorizoEyeBeam);
 
-        table.RegisterBranchingCue<TorizoProjectileProgram, TorizoProjectileCue>((context, cue) => ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.BombTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.GoldenTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
+        table.AddBranchingCue<TorizoProjectileProgram, TorizoProjectileCue>((context, cue) => ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue));
+        table.AddShotAnimation(RoomEnemyProjectileKind.BombTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
+        table.AddShotAnimation(RoomEnemyProjectileKind.GoldenTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
         // The egg's definition names the Chozo orb's wall-impact list as its shot list.
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.GoldenTorizoEgg, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbWallImpact));
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.GoldenTorizoSuperMissile, () => new TorizoProjectileAnimation(TorizoProjectileProgram.SuperMissileImpact));
+        table.AddShotAnimation(RoomEnemyProjectileKind.GoldenTorizoEgg, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbWallImpact));
+        table.AddShotAnimation(RoomEnemyProjectileKind.GoldenTorizoSuperMissile, () => new TorizoProjectileAnimation(TorizoProjectileProgram.SuperMissileImpact));
     }
 
     /// <summary>

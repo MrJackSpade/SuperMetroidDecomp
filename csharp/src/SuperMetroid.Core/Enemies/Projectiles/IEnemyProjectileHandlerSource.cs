@@ -4,5 +4,5 @@
 internal interface IEnemyProjectileHandlerSource
 {
     /// <summary>Registers every projectile handler this owner implements.</summary>
-    void RegisterEnemyProjectileHandlers(EnemyProjectileHandlerTable table);
+    void AddEnemyProjectileHandlers(EnemyProjectileHandlerTable table);
 }

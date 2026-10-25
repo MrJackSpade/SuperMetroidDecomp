@@ -376,12 +376,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Dispatches spit gravity and spike wall collision through their projectile pre-instructions.</summary>
     internal static void RegisterFakeKraidProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunFakeKraidSpitPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.MiniKraidSpit);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunFakeKraidSpikePreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.MiniKraidSpikes);

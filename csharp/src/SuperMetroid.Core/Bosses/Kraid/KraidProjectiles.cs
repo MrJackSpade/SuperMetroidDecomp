@@ -80,12 +80,12 @@ internal sealed class KraidProjectiles
     /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
     internal static void RegisterKraidProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunKraidRockPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KraidRocks);
 
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             RunKraidCeilingRockPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KraidCeilingRocks);
@@ -124,9 +124,9 @@ internal sealed class KraidProjectiles
     /// <summary>Registers the spat rock's typed burst and the rock programs' cues.</summary>
     internal static void RegisterKraidRockAnimations(EnemyProjectileHandlerTable table)
     {
-        table.RegisterShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,
+        table.AddShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,
             () => new KraidRockAnimation(KraidRockProgram.SpitRockShot));
-        table.RegisterCue<KraidRockCue>((context, cue) =>
+        table.AddCue<KraidRockCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
@@ -534,7 +534,7 @@ internal sealed class KraidProjectiles
     /// <summary>Registers the shared pre-instruction used by spit rocks.</summary>
     internal static void RegisterKraidRockSpitPreInstruction(EnemyProjectileHandlerTable table)
     {
-        table.RegisterPreInstruction(context =>
+        table.AddPreInstruction(context =>
         {
             context.Projectile.GraphicsIndex = 0;
         }, EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0);

@@ -454,6 +454,18 @@ internal static void VerifySamusSolidEnemyCollision()
         samus, SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
     AssertEqual(104, exactCarry.Y, "an exact fractional carry still rounds two pixels outward");
 
+    // #1419: the rounding steps are sixteen-bit DEC/INC of the room coordinate word. At the room's left edge a
+    // borrow decrements zero to $FFFF, which is nonzero, so the second DEC lands on $FFFE; at $FFFF a carry
+    // increments to zero, whose Z flag skips the second INC.
+    var leftEdge = new SamusKinematicsState { Position = new(new(0, 0), new(100, 0)), Radius = new(5, 10) };
+    AssertEqual(0xfffe, ObserveSolidEnemyProbeTarget(
+            leftEdge, SamusCollisionDirection.Left, distance: 0, distanceSubposition: 0x8000).X,
+        "a borrow at coordinate zero wraps the target to $FFFF and decrements it again");
+    var rightEdge = new SamusKinematicsState { Position = new(new(0xffff, 0xf000), new(100, 0)), Radius = new(5, 10) };
+    AssertEqual(0, ObserveSolidEnemyProbeTarget(
+            rightEdge, SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0x2000).X,
+        "a carry at coordinate $FFFF wraps the target to zero, which skips the second increment");
+
     // The 100% movie's Mother Brain room: Samus falls onto a frozen Rinka whose top is three
     // pixels below her; only the doubled rounding brings the future boxes into overlap.
     var falling = new SamusKinematicsState

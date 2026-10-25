@@ -66,7 +66,7 @@ internal sealed class NoobTubePlms
                 return;
 
             case NoobTubePlmPreInstruction.WakeOnAcceptedInput:
-                if ((controllerNewInput & NoobTubePlmDefinitions.AcceptedWakeInputMask) != 0)
+                if ((controllerNewInput & NoobTubePlmDefinitions.AcceptedWakeInputMask) != ControllerButton.None)
                 {
                     slot.WakeAtLink();
                 }

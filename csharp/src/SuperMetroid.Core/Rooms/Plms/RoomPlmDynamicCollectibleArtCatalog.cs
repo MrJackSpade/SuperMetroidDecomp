@@ -26,8 +26,7 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
         {
             if (entry is null)
                 throw new InvalidDataException("Permanent-item artwork contains a null entry.");
-            int index = (int)entry.Kind -
-                RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
+            int index = RoomPlmDynamicCollectibleGraphicsDefinitions.KindIndex(entry.Kind);
             if ((uint)index >= RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount || seen[index])
                 throw new InvalidDataException(
                     $"Permanent-item artwork has an unknown or duplicate kind {entry.Kind}.");
@@ -54,11 +53,10 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(
         nameof(RoomPlmDynamicCollectibleArtCatalog), content =>
         {
-            for (int kind = RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
-                 kind < RoomPlmHeaders.PermanentCollectibleKindCount; kind++)
+            foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
             {
-                RoomPlmDynamicCollectibleGraphic graphic = Resolve((InWorldCollectibleKind)kind);
-                content.Append("kind", (int)graphic.Kind);
+                RoomPlmDynamicCollectibleGraphic graphic = Resolve(kind);
+                content.AppendName("kind", graphic.Kind.ToString());
                 content.Append("characters", graphic.Tiles.Span);
                 content.Append("palette selectors", graphic.PaletteOffsets.Span);
             }
@@ -67,9 +65,7 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
     /// <summary>Uses the selected art for a permanent item, falling back to compiled stock data for unchanged kinds.</summary>
     internal RoomPlmDynamicCollectibleGraphic Resolve(InWorldCollectibleKind kind)
     {
-        int index = (int)kind -
-            RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
-        if ((uint)index >= RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount)
+        if (RoomPlmDynamicCollectibleGraphicsDefinitions.KindIndex(kind) < 0)
             throw new InvalidDataException(
                 $"Permanent-item kind {kind} has no dynamic artwork.");
         return customGraphics is not null && customGraphics.TryGetValue(kind, out var graphic)

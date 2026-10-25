@@ -383,10 +383,9 @@ internal static class RoomBlockUploads
     /// <summary>Each collectible's graphics in each slot, with the block definitions it writes there.</summary>
     private static IEnumerable<CollectibleSlotCharacters> Collectibles(RoomBlockSheetInputs inputs)
     {
-        for (int kind = RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind;
-             kind < RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind + RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount; kind++)
+        foreach (InWorldCollectibleKind kind in RoomPlmDynamicCollectibleGraphicsDefinitions.Kinds)
         {
-            RoomPlmDynamicCollectibleGraphic graphic = inputs.Collectibles.Resolve((InWorldCollectibleKind)kind);
+            RoomPlmDynamicCollectibleGraphic graphic = inputs.Collectibles.Resolve(kind);
             for (int slot = 0; slot < CollectiblePlms.GraphicsSlots; slot++)
                 yield return new CollectibleSlotCharacters(
                     CollectiblePlms.SlotCharacters(RoomBgArtwork.Collectible(graphic.Kind), slot, graphic.Tiles),

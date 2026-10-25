@@ -520,7 +520,7 @@ internal sealed class StationPlms : IPlmFamilySource
             slot.BlockIndex,
             original,
             RoomCollisionType.SpecialBlock,
-            new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
+            RoomBlockBehaviorCodec.StationAccess(StationAccessBehavior.SaveFloor));
         slot.Family = new StationPlmState(
             StationKind.Save,
             area,
@@ -575,7 +575,7 @@ internal sealed class StationPlms : IPlmFamilySource
             blockIndex,
             original,
             RoomCollisionType.SpecialBlock,
-            new RoomBlockBehavior((byte)behavior));
+            RoomBlockBehaviorCodec.StationAccess(behavior));
     }
 
     /// <summary>Changes a station block's collision nibble while preserving its visual word and optional BTS.</summary>

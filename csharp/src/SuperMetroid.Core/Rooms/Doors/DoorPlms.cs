@@ -103,10 +103,9 @@ internal sealed class DoorPlms : IPlmFamilySource
     {
         var levelWord = new RoomLevelWord(
             level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw);
-        RoomCollisionType deactivatedType = levelWord.CollisionTypeValue >=
-            (byte)RoomCollisionType.SolidBlock
-                ? RoomCollisionType.SolidBlock
-                : RoomCollisionType.Air;
+        RoomCollisionType deactivatedType = levelWord.HasSolidProbeBit
+            ? RoomCollisionType.SolidBlock
+            : RoomCollisionType.Air;
         level.SetForegroundEntry(
             slot.BlockIndex,
             (ushort)levelWord.WithCollisionType(deactivatedType));

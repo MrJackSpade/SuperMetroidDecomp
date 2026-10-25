@@ -140,6 +140,13 @@ internal static class RoomPlmCollectibleDrawDefinitions
         return PlmDraw.Of(new Draw(DrawGroup.ShotReveal, animationIndex));
     }
 
+    /// <summary>The tank kinds in the order of their draws.</summary>
+    private static readonly InWorldCollectibleKind[] TankKinds =
+    [
+        InWorldCollectibleKind.EnergyTank, InWorldCollectibleKind.MissileTank,
+        InWorldCollectibleKind.SuperMissileTank, InWorldCollectibleKind.PowerBombTank,
+    ];
+
     /// <summary>Two draws per tank kind or allocated dynamic graphics slot.</summary>
     internal static PlmFrameDraw<Draw> VisibleFrame(InWorldCollectibleKind kind,
         int animationIndex, int graphicsSlot)
@@ -147,8 +154,9 @@ internal static class RoomPlmCollectibleDrawDefinitions
         if ((uint)animationIndex >= 2)
             throw new InvalidDataException(
                 $"Collectible animation index {animationIndex} is outside two authored frames.");
-        if (kind <= InWorldCollectibleKind.PowerBombTank)
-            return PlmDraw.Of(new Draw(DrawGroup.Tank, (int)kind * 2 + animationIndex));
+        int tank = Array.IndexOf(TankKinds, kind);
+        if (tank >= 0)
+            return PlmDraw.Of(new Draw(DrawGroup.Tank, tank * 2 + animationIndex));
         if ((uint)graphicsSlot >= 4)
             throw new InvalidDataException(
                 $"Dynamic collectible graphics slot {graphicsSlot} is outside four allocations.");

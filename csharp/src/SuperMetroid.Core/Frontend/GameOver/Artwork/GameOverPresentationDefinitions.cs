@@ -7,8 +7,14 @@ public static class GameOverPresentationDefinitions
     public const int Version = 1;
     /// <summary>Extracted JSON filename for game-over artwork, palette phases, and layout.</summary>
     public const string FileName = "game-over.json";
+    /// <summary>Width of the game-over page in tile cells.</summary>
+    public const int TilemapWidth = 32;
+    /// <summary>Height of the complete game-over page in tile cells, including rows outside the visible viewport.</summary>
+    public const int TilemapHeight = 32;
     /// <summary>1024 row-major background tile cells in the complete 32-by-32 game-over page.</summary>
-    public const int TilemapCellCount = GameOverRomData.TilemapWidth * GameOverRomData.TilemapHeight;
+    public const int TilemapCellCount = TilemapWidth * TilemapHeight;
+    /// <summary>The menu atlas cell of the blank glyph, shown by every page cell no text element writes.</summary>
+    public const ushort BlankTile = 15;
     /// <summary>2048 bytes required to transfer the page's sixteen-bit tilemap words.</summary>
     public const int TilemapByteCount = TilemapCellCount * sizeof(ushort);
     /// <summary>The sprite row the Baby's animated colours change.</summary>
@@ -55,12 +61,12 @@ public static class GameOverPresentationDefinitions
     internal static ushort TilemapWord(int cell)
     {
         if ((uint)cell >= TilemapCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
-        for (int index = 0; index < GameOverRomData.Text.Count; index++)
+        for (int index = 0; index < GameOverTexts.Count; index++)
         {
             var element = (GameOverTextElement)index;
-            GameOverTextStream stream = GameOverRomData.Text.Get(element);
-            int column = cell % GameOverRomData.TilemapWidth - stream.Origin.X;
-            int row = cell / GameOverRomData.TilemapWidth - stream.Origin.Y;
+            GameOverTextStream stream = GameOverTexts.Get(element);
+            int column = cell % TilemapWidth - stream.Origin.X;
+            int row = cell / TilemapWidth - stream.Origin.Y;
             if (column < 0 || row is < 0 or > 1) continue;
             switch (element)
             {
@@ -85,14 +91,14 @@ public static class GameOverPresentationDefinitions
                     throw new InvalidOperationException($"Undefined {nameof(GameOverTextElement)} {element}.");
             }
         }
-        return GameOverRomData.BlankTile.Raw;
+        return BlankTile;
     }
 
     /// <summary>Maps a character in the native small-font text lines to its tile word.</summary>
     private static ushort SmallLetter(char letter) => letter switch
     {
         >= 'A' and <= 'Z' => (ushort)(SmallLetterA + letter - 'A'),
-        ' ' => GameOverRomData.BlankTile.Raw,
+        ' ' => BlankTile,
         '!' => ExclamationTile,
         '?' => QuestionTile,
         '(' => OpeningParenthesisTile,
@@ -104,7 +110,7 @@ public static class GameOverPresentationDefinitions
     /// A/E/M/N/S use the atlas row stride; G/R/V/Y reuse distinct halves; O uses the round zero glyph.</summary>
     private static ushort LargeLetter(char letter, int row) => letter switch
     {
-        ' ' => GameOverRomData.BlankTile.Raw,
+        ' ' => BlankTile,
         'A' => (ushort)(0x0a + 16 * row),
         'E' => (ushort)(0x0e + 16 * row),
         'M' => (ushort)(0x26 + 16 * row),

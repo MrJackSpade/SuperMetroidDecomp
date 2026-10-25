@@ -157,7 +157,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 // black and $81:8D1D blanks it and waits for NMI before configuring the menu.
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(Library3Sound.Silence, maximumQueued: GameOverRomData.MaximumQueuedSounds);
+                audio.QueueSound(Library3Sound.Silence, maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
                 ResumesAfterFrameWait = true;
                 break;
 
@@ -178,15 +178,15 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 if (!audio.HasQueuedMusic)
                 {
                     audio.QueueMusicDelayed8(
-                        MusicRequest.SelectTrack(GameOverRomData.Music.TrackIndex));
+                        MusicRequest.SelectTrack(GameOverMenuDefinitions.MusicTrack));
                     Phase = GameOverMenuPhase.FadeIn;
                 }
                 break;
 
             case GameOverMenuPhase.FadeIn:
                 StepBabyMetroid();
-                brightness = Math.Min(GameOverRomData.MaximumBrightness, brightness + 1);
-                if (brightness == GameOverRomData.MaximumBrightness)
+                brightness = Math.Min(GameOverMenuDefinitions.MaximumBrightness, brightness + 1);
+                if (brightness == GameOverMenuDefinitions.MaximumBrightness)
                     Phase = GameOverMenuPhase.Main;
                 break;
 
@@ -196,7 +196,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 {
                     audio.QueueSound(
                         Library1Sound.MenuCursor,
-                        maximumQueued: GameOverRomData.MaximumQueuedSounds);
+                        maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }
                 else if ((pressed & SnesButton.A) != 0)
@@ -204,7 +204,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                     // `$81:914B` holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
                     BabyInstructionTimer =
-                        WrappingCountdown.Start(GameOverRomData.BabyAnimation.AcceptedAnswerHoldDuration);
+                        WrappingCountdown.Start(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
                     if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;
                     else
@@ -242,7 +242,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     {
         PrepareRenderSprites();
         RenderLayer[] layers = [new TileRenderLayer(ScreenTileMap.Of(screen.Tilemaps.Bg1,
-            new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), screen.MenuTiles),
+            new Extent16<TilemapCells>(GameOverPresentationDefinitions.TilemapWidth, GameOverPresentationDefinitions.TilemapHeight), screen.MenuTiles),
             new Position16<BgPlanePixels>(0, 0), null), new ObjRenderLayer()];
         return new(screen.Paint(), layers, checked((byte)brightness));
     }
@@ -292,18 +292,19 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         MapPresentation.GameOver.ApplyBabyPalette(screen.Palette, current.Palette);
     }
 
-    /// <summary>Maps a Baby animation sound marker onto the retail sound queue.</summary>
-    private void QueueCompiledBabySound(GameOverBabySound sound)
+    /// <summary>Queues a Baby animation sound marker's cry on the retail sound queue.</summary>
+    private void QueueCompiledBabySound(GameOverBabySound sound) =>
+        audio.QueueSound(CrySound(sound), maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
+
+    /// <summary>The cry a Baby animation sound marker queues.</summary>
+    /// <exception cref="InvalidDataException">The marker queues no cry.</exception>
+    internal static SoundEffectId CrySound(GameOverBabySound sound) => sound switch
     {
-        SoundEffectId effect = sound switch
-        {
-            GameOverBabySound.Cry23 => GameOverRomData.BabyAnimation.Cry23,
-            GameOverBabySound.Cry26 => GameOverRomData.BabyAnimation.Cry26,
-            GameOverBabySound.Cry27 => GameOverRomData.BabyAnimation.Cry27,
-            GameOverBabySound.None => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
-            _ => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
-        };
-        audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);
-    }
+        GameOverBabySound.FirstCry => GameOverMenuDefinitions.FirstCry,
+        GameOverBabySound.SecondCry => GameOverMenuDefinitions.SecondCry,
+        GameOverBabySound.ThirdCry => GameOverMenuDefinitions.ThirdCry,
+        GameOverBabySound.None => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
+        _ => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
+    };
 
 }

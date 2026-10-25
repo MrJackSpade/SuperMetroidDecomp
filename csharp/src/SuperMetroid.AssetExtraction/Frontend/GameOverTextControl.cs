@@ -1,13 +1,11 @@
-using SuperMetroid.Core.Frontend.GameOver;
-
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>The control words of a game-over text stream; every other word is a tilemap cell.</summary>
 internal enum GameOverTextControl : ushort
 {
     /// <summary>The stream ends.</summary>
-    End = GameOverRomData.TextEnd,
+    End = 0xffff,
 
     /// <summary>The following cells start the next line.</summary>
-    NextLine = GameOverRomData.TextNextLine,
+    NextLine = 0xfffe,
 }

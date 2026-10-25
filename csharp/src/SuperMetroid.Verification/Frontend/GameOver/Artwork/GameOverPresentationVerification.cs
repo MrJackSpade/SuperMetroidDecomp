@@ -91,8 +91,8 @@ internal static class GameOverPresentationVerification
             CursorX = document.CursorX + 8,
         };
         MapPresentationCell firstVisible = document.Tilemap.First(cell =>
-            cell.TileColumn != (GameOverRomData.BlankTile.CharacterIndex % MapTileAtlasFormat.TileColumns) ||
-            cell.TileRow != (GameOverRomData.BlankTile.CharacterIndex / MapTileAtlasFormat.TileColumns));
+            cell.TileColumn != (GameOverPresentationDefinitions.BlankTile % MapTileAtlasFormat.TileColumns) ||
+            cell.TileRow != (GameOverPresentationDefinitions.BlankTile / MapTileAtlasFormat.TileColumns));
         int visibleIndex = Array.IndexOf(document.Tilemap, firstVisible);
         document.Tilemap[visibleIndex] = firstVisible with { FlipX = !firstVisible.FlipX };
         document.Sprites[GameOverPresentationDefinitions.CursorFrameName(0)][0] =

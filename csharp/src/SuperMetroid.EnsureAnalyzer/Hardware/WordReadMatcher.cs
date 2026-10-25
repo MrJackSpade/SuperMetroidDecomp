@@ -12,7 +12,7 @@ public static class WordReadMatcher
     private static readonly string[] ByteMethods = ["ReadCartridgeByte", "ReadWorkRamByte"];
     /// <summary>Interfaces that identify a read as coming from supported memory rather than an unrelated helper.</summary>
     private static readonly string[] Sources =
-        ["SuperMetroid.AssetExtraction.Cartridge.IImportCartridgeSource", "SuperMetroid.Core.Hardware.ISnesMutableMemory"];
+        ["SuperMetroid.AssetExtraction.Cartridge.IImportCartridgeSource", "SuperMetroid.AssetExtraction.Cartridge.ISnesMutableMemory"];
 
     /// <summary>The canonical implementations, which compose the bytes themselves.</summary>
     public static readonly string[] CanonicalTypes =

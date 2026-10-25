@@ -12,11 +12,14 @@ internal static class WordReadAnalyzerTests
         var analyzer = new WordReadAnalyzer();
         void Expect(string source, string? id = null, string? message = null) => VerifySnippet(source, id, message, analyzer);
         const string api =
-            "namespace SuperMetroid.AssetExtraction.Cartridge { using SuperMetroid.Core.Hardware; " +
+            "namespace SuperMetroid.AssetExtraction.Cartridge { " +
             "public interface IImportCartridgeSource { byte ReadCartridgeByte(int cpuAddress); } " +
+            "public interface ISnesAddressSpace { } " +
+            "public interface ISnesMutableMemory { byte ReadWorkRamByte(int cpuAddress); } " +
+            "public static class SnesAddressMath { public static int AddWithinBank(int address, int delta) => address; } " +
             "public static class SnesCartridgeImportExtensions { public static byte ReadCartridgeByte(this ISnesAddressSpace bus, int a) => 0; } " +
             "public static class SnesAddressMath2 { } } " +
-            "namespace Game { using SuperMetroid.Core.Hardware; using SuperMetroid.AssetExtraction.Cartridge; ";
+            "namespace Game { using SuperMetroid.AssetExtraction.Cartridge; ";
         const string end = " }";
 
         // Linear and fixed-bank progressions, through the cartridge source, the address space and WRAM.
